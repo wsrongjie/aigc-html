@@ -1,0 +1,4433 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>主体管理 - 投顾服务介绍视频</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: #f6f8fb;
+            color: #1f2937;
+        }
+
+        button,
+        input,
+        textarea,
+        select {
+            font-family: inherit;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        /* ========== 页面布局 ========== */
+        .page {
+            min-height: 100vh;
+            background: #f6f8fb;
+        }
+
+        .topbar {
+            height: 64px;
+            background: #ffffff;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 32px;
+            position: sticky;
+            top: 0;
+            z-index: 20;
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .back-btn {
+            width: 30px;
+            height: 30px;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+            background: #ffffff;
+            color: #374151;
+            cursor: pointer;
+            font-size: 20px;
+            line-height: 1;
+        }
+
+        .project-name {
+            color: #111827;
+            font-weight: 600;
+        }
+
+        .top-actions {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+
+        .autosave {
+            color: #10b981;
+            font-size: 13px;
+        }
+
+        .exit-btn {
+            height: 36px;
+            padding: 0 16px;
+            border-radius: 10px;
+            border: 1px solid #d1d5db;
+            background: #ffffff;
+            color: #374151;
+            cursor: pointer;
+        }
+
+        .stepbar {
+            height: 84px;
+            background: #ffffff;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 56px;
+        }
+
+        .step {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #9ca3af;
+            font-size: 14px;
+        }
+
+        .step-index {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #eef2ff;
+            color: #4f46e5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+        }
+
+        .step.done .step-index {
+            background: #10b981;
+            color: #ffffff;
+        }
+
+        .step.active {
+            color: #111827;
+            font-weight: 600;
+        }
+
+        .step.active .step-index {
+            background: #4f46e5;
+            color: #ffffff;
+        }
+
+        .main {
+            width: 1280px;
+            max-width: calc(100% - 48px);
+            margin: 32px auto 110px;
+        }
+
+        .page-header {
+            margin-bottom: 24px;
+        }
+
+        .page-header h1 {
+            margin: 0 0 10px;
+            color: #111827;
+            font-size: 28px;
+            line-height: 1.3;
+        }
+
+        .page-header p {
+            margin: 0;
+            color: #6b7280;
+            font-size: 15px;
+        }
+
+        .content-layout {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 340px;
+            gap: 24px;
+            align-items: start;
+        }
+
+        .left-content {
+            min-width: 0;
+        }
+
+        .section {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 18px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+        }
+
+        .section-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 18px;
+        }
+
+        .section-title-wrap {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            min-width: 0;
+        }
+
+        .section-index {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #eef2ff;
+            color: #4f46e5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .section-title h2 {
+            margin: 0 0 6px;
+            color: #111827;
+            font-size: 20px;
+            line-height: 1.35;
+        }
+
+        .section-title p {
+            margin: 0;
+            color: #6b7280;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .section-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        .btn {
+            height: 36px;
+            padding: 0 14px;
+            border-radius: 10px;
+            border: 1px solid #d1d5db;
+            background: #ffffff;
+            color: #374151;
+            font-size: 14px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: 0.15s ease;
+        }
+
+        .btn:hover {
+            background: #f9fafb;
+            transform: translateY(-1px);
+        }
+
+        .btn:disabled,
+        .btn:disabled:hover {
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+            opacity: 0.48;
+        }
+
+        .btn-primary {
+            border-color: #4f46e5;
+            background: #4f46e5;
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        .btn-primary:hover {
+            background: #4338ca;
+            box-shadow: 0 8px 18px rgba(79, 70, 229, 0.24);
+        }
+
+        .btn-link {
+            border: none;
+            background: transparent;
+            color: #4f46e5;
+            font-size: 13px;
+            cursor: pointer;
+            padding: 0;
+            height: auto;
+            border-radius: 0;
+        }
+
+        .btn-link:hover {
+            background: transparent;
+            transform: none;
+            text-decoration: underline;
+        }
+
+        .btn-light {
+            border-color: #cbd5e1;
+            background: #ffffff;
+            color: #334155;
+            font-weight: 600;
+        }
+
+        .btn-light:hover {
+            background: #f8fafc;
+        }
+
+        .mini-btn {
+            height: 30px;
+            padding: 0 10px;
+            border-radius: 8px;
+            border: 1px solid #d1d5db;
+            background: #ffffff;
+            color: #374151;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .mini-btn:hover {
+            background: #f9fafb;
+        }
+
+        .hint {
+            margin: 0 0 16px;
+            color: #9ca3af;
+            font-size: 13px;
+        }
+
+        .carousel-shell {
+            position: relative;
+        }
+
+        .carousel-nav {
+            position: absolute;
+            right: 0;
+            top: -46px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .nav-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
+            border: 1px solid #d1d5db;
+            background: #ffffff;
+            color: #374151;
+            cursor: pointer;
+            font-size: 18px;
+            line-height: 1;
+        }
+
+        .card-row {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 16px;
+        }
+
+        .subject-card {
+            border: 1px solid #e5e7eb;
+            border-radius: 16px;
+            background: #ffffff;
+            overflow: hidden;
+            cursor: pointer;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+        }
+
+        .subject-card:hover {
+            border-color: #a5b4fc;
+            box-shadow: 0 12px 28px rgba(79, 70, 229, 0.12);
+            transform: translateY(-2px);
+        }
+
+        .subject-card.selected {
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
+        }
+
+        .subject-card.generating {
+            cursor: not-allowed;
+            background: #f9fafb;
+            border-style: dashed;
+            opacity: 0.9;
+        }
+
+        .subject-card.generating:hover {
+            border-color: #e5e7eb;
+            box-shadow: none;
+            transform: none;
+        }
+
+        .cover {
+            height: 172px;
+            position: relative;
+            background: #f3f4f6;
+            overflow: hidden;
+        }
+
+        .cover img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .cover-placeholder {
+            width: 100%;
+            height: 100%;
+            background:
+                linear-gradient(135deg, rgba(79, 70, 229, 0.08), rgba(16, 185, 129, 0.08)),
+                #f3f4f6;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .spinner {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            border: 3px solid #dbeafe;
+            border-top-color: #4f46e5;
+            animation: spin 0.9s linear infinite;
+            margin-bottom: 12px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .badge {
+            position: absolute;
+            left: 12px;
+            top: 12px;
+            height: 26px;
+            padding: 0 10px;
+            border-radius: 999px;
+            background: rgba(17, 24, 39, 0.72);
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            font-size: 12px;
+        }
+
+        .badge.generating-badge {
+            background: rgba(79, 70, 229, 0.92);
+        }
+
+        .type-tag {
+            position: absolute;
+            right: 12px;
+            top: 12px;
+            height: 26px;
+            padding: 0 10px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.92);
+            color: #374151;
+            display: flex;
+            align-items: center;
+            font-size: 12px;
+        }
+
+        .card-body {
+            padding: 16px;
+        }
+
+        .avatar-letter {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: #eef2ff;
+            color: #4f46e5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .card-body h3 {
+            margin: 0 0 8px;
+            color: #111827;
+            font-size: 17px;
+            line-height: 1.35;
+        }
+
+        .card-body p {
+            margin: 0;
+            min-height: 44px;
+            color: #6b7280;
+            font-size: 13px;
+            line-height: 1.55;
+        }
+
+        .generating-text {
+            color: #4f46e5 !important;
+            font-weight: 500;
+        }
+
+        .card-actions {
+            border-top: 1px solid #f3f4f6;
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 16px;
+        }
+
+        .selected-sidebar {
+            position: sticky;
+            top: 172px;
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 18px;
+            padding: 22px;
+            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+        }
+
+        .selected-sidebar h2 {
+            margin: 0 0 8px;
+            color: #111827;
+            font-size: 20px;
+            line-height: 1.35;
+        }
+
+        .selected-desc {
+            margin: 0 0 18px;
+            color: #6b7280;
+            font-size: 13px;
+            line-height: 1.7;
+        }
+
+        .selected-item {
+            border: 1px solid #e5e7eb;
+            border-radius: 16px;
+            padding: 14px;
+            background: #f9fafb;
+            margin-bottom: 14px;
+        }
+
+        .selected-label {
+            color: #374151;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .selected-content {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .selected-thumb {
+            width: 64px;
+            height: 64px;
+            border-radius: 14px;
+            background: #e5e7eb;
+            color: #9ca3af;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 13px;
+            overflow: hidden;
+        }
+
+        .selected-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .selected-info strong {
+            display: block;
+            margin-bottom: 5px;
+            color: #111827;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .selected-info p {
+            margin: 0;
+            color: #6b7280;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        .status-tip {
+            margin-top: 16px;
+            border-radius: 14px;
+            padding: 13px 14px;
+            background: #fff7ed;
+            color: #9a3412;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .status-tip.success {
+            background: #ecfdf5;
+            color: #047857;
+        }
+
+        .first-frame-panel {
+            margin-top: 16px;
+            border: 1px solid #e5e7eb;
+            border-radius: 18px;
+            padding: 16px;
+            background: #ffffff;
+        }
+
+        .first-frame-head {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+
+        .first-frame-head h3 {
+            margin: 0;
+            color: #111827;
+            font-size: 16px;
+            line-height: 1.35;
+        }
+
+        .composite-status {
+            flex-shrink: 0;
+            min-height: 24px;
+            padding: 4px 9px;
+            border-radius: 999px;
+            background: #f3f4f6;
+            color: #6b7280;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .first-frame-panel[data-state="ready"] .composite-status,
+        .first-frame-panel[data-state="stale"] .composite-status {
+            background: #fff7ed;
+            color: #9a3412;
+        }
+
+        .first-frame-panel[data-state="generating"] .composite-status {
+            background: #eef2ff;
+            color: #4338ca;
+        }
+
+        .first-frame-panel[data-state="done"] .composite-status {
+            background: #ecfdf5;
+            color: #047857;
+        }
+
+        .composite-hint {
+            margin: 0 0 12px;
+            color: #64748b;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        .composite-preview {
+            position: relative;
+            min-height: 270px;
+            border: 1px solid #e5e7eb;
+            border-radius: 16px;
+            overflow: hidden;
+            background:
+                linear-gradient(135deg, rgba(79, 70, 229, 0.06), rgba(16, 185, 129, 0.08)),
+                #f8fafc;
+        }
+
+        .composite-preview img {
+            width: 100%;
+            height: 100%;
+            min-height: 270px;
+            display: none;
+            object-fit: cover;
+        }
+
+        .composite-preview.has-image img {
+            display: block;
+        }
+
+        .composite-empty,
+        .composite-generating {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            padding: 22px;
+            text-align: center;
+            color: #64748b;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .composite-preview.has-image .composite-empty {
+            display: none;
+        }
+
+        .composite-generating {
+            display: none;
+            background: rgba(248, 250, 252, 0.82);
+            backdrop-filter: blur(4px);
+        }
+
+        .first-frame-panel[data-state="generating"] .composite-generating {
+            display: flex;
+        }
+
+        .composite-lock-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 14px;
+            background: #eef2ff;
+            color: #4f46e5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: 800;
+        }
+
+        .composite-watermark {
+            position: absolute;
+            left: 12px;
+            top: 12px;
+            display: none;
+            padding: 5px 9px;
+            border-radius: 999px;
+            background: rgba(15, 23, 42, 0.72);
+            color: #ffffff;
+            font-size: 12px;
+        }
+
+        .first-frame-panel[data-state="stale"] .composite-watermark {
+            display: block;
+            background: rgba(154, 52, 18, 0.82);
+        }
+
+        .composite-steps {
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            list-style: none;
+            display: grid;
+            gap: 6px;
+        }
+
+        .composite-steps li {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #94a3b8;
+            font-size: 12px;
+        }
+
+        .composite-steps li::before {
+            content: "";
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #cbd5e1;
+            flex-shrink: 0;
+        }
+
+        .composite-steps li.active {
+            color: #4338ca;
+            font-weight: 700;
+        }
+
+        .composite-steps li.active::before {
+            background: #4f46e5;
+            box-shadow: 0 0 0 5px rgba(79, 70, 229, 0.12);
+        }
+
+        .composite-steps li.done {
+            color: #047857;
+        }
+
+        .composite-steps li.done::before {
+            background: #10b981;
+        }
+
+        .composite-actions {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .composite-actions .btn {
+            width: 100%;
+        }
+
+        .first-frame-large {
+            max-width: min(420px, 100%);
+            margin: 0 auto;
+            border-radius: 18px;
+            overflow: hidden;
+            background: #0f172a;
+            box-shadow: 0 18px 48px rgba(15, 23, 42, 0.22);
+        }
+
+        .first-frame-large img {
+            width: 100%;
+            display: block;
+        }
+
+        .footer-bar {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 82px;
+            background: rgba(255, 255, 255, 0.96);
+            border-top: 1px solid #e5e7eb;
+            backdrop-filter: blur(10px);
+            z-index: 30;
+        }
+
+        .footer-inner {
+            width: 1280px;
+            max-width: calc(100% - 48px);
+            height: 100%;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 24px;
+        }
+
+        .footer-tip {
+            color: #6b7280;
+            font-size: 13px;
+        }
+
+        .footer-actions {
+            display: flex;
+            gap: 12px;
+            flex-shrink: 0;
+        }
+
+        /* ========== 创建弹窗样式 ========== */
+        .modal-mask {
+            position: fixed;
+            inset: 0;
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            background: rgba(15, 23, 42, 0.45);
+        }
+
+        .modal-mask.active {
+            display: flex;
+        }
+
+        .modal-dialog {
+            width: min(760px, calc(100vw - 48px));
+            max-height: calc(100vh - 48px);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border-radius: 18px;
+            background: #ffffff;
+            box-shadow: 0 24px 80px rgba(15, 23, 42, 0.28);
+        }
+
+        .modal-header {
+            flex-shrink: 0;
+            padding: 22px 24px;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .modal-title {
+            margin: 0;
+            font-size: 22px;
+            line-height: 1.3;
+            font-weight: 700;
+            color: #111827;
+        }
+
+        .modal-desc {
+            margin: 6px 0 0;
+            font-size: 13px;
+            line-height: 1.6;
+            color: #64748b;
+        }
+
+        .modal-close {
+            width: 34px;
+            height: 34px;
+            flex-shrink: 0;
+            border: none;
+            border-radius: 10px;
+            background: #f1f5f9;
+            color: #334155;
+            font-size: 22px;
+            line-height: 1;
+            cursor: pointer;
+        }
+
+        .modal-close:hover {
+            background: #e2e8f0;
+        }
+
+        .modal-body {
+            flex: 1;
+            min-height: 0;
+            overflow: auto;
+            padding: 20px 24px;
+            background: #f8fafc;
+        }
+
+        .modal-section {
+            padding: 18px;
+            border: 1px solid #e5e7eb;
+            border-radius: 14px;
+            background: #ffffff;
+        }
+
+        .section-title {
+            margin-bottom: 18px;
+        }
+
+        .section-title h3 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 700;
+            color: #111827;
+        }
+
+        .section-title p {
+            margin: 6px 0 0;
+            font-size: 13px;
+            line-height: 1.6;
+            color: #64748b;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 700;
+            color: #334155;
+        }
+
+        .required {
+            color: #ef4444;
+        }
+
+        .form-control {
+            width: 100%;
+            min-height: 40px;
+            padding: 9px 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            outline: none;
+            background: #ffffff;
+            color: #0f172a;
+            font-size: 14px;
+            transition: 0.15s ease;
+        }
+
+        .form-control:focus {
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
+        }
+
+        .textarea {
+            min-height: 96px;
+            resize: vertical;
+            line-height: 1.6;
+        }
+
+        .voice-row {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 72px;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .upload-box {
+            display: block;
+            padding: 20px 16px;
+            border: 1px dashed #cbd5e1;
+            border-radius: 14px;
+            background: #f8fafc;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.15s ease;
+        }
+
+        .upload-box:hover {
+            border-color: #4f46e5;
+            background: #f5f7ff;
+        }
+
+        .upload-box input[type="file"] {
+            display: none;
+        }
+
+        .upload-icon {
+            width: 36px;
+            height: 36px;
+            margin: 0 auto 10px;
+            border-radius: 999px;
+            background: #eef2ff;
+            color: #4f46e5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 23px;
+            font-weight: 600;
+        }
+
+        .upload-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #111827;
+        }
+
+        .upload-desc {
+            margin-top: 6px;
+            font-size: 12px;
+            line-height: 1.6;
+            color: #64748b;
+        }
+
+        .upload-preview {
+            min-height: 64px;
+            margin-top: 12px;
+            padding: 10px;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            background: #ffffff;
+            color: #94a3b8;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .upload-preview img {
+            width: 56px;
+            height: 56px;
+            border-radius: 10px;
+            object-fit: cover;
+            flex-shrink: 0;
+        }
+
+        .auth-check {
+            margin-top: 4px;
+            display: flex;
+            gap: 8px;
+            align-items: flex-start;
+            font-size: 12px;
+            line-height: 1.6;
+            color: #64748b;
+        }
+
+        .auth-check input {
+            margin-top: 3px;
+        }
+
+        .form-tip {
+            padding: 12px;
+            border-radius: 12px;
+            background: #f8fafc;
+            color: #64748b;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .edit-dialog {
+            width: min(1160px, calc(100vw - 48px));
+        }
+
+        .edit-grid {
+            display: grid;
+            grid-template-columns: 340px minmax(0, 1fr);
+            gap: 18px;
+            align-items: start;
+        }
+
+        .edit-grid .modal-section {
+            min-width: 0;
+        }
+
+        .edit-side-panel {
+            min-width: 0;
+            padding: 0;
+            border: 1px solid #e5e7eb;
+            border-radius: 16px;
+            background: #ffffff;
+            overflow: hidden;
+        }
+
+        .asset-workbench {
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+        }
+
+        .asset-workbench.is-clean .asset-stage {
+            padding: 18px;
+            grid-template-columns: 220px minmax(0, 1fr);
+        }
+
+        .asset-workbench.is-clean .asset-gallery {
+            margin-top: 0;
+            padding-top: 0;
+            border-top: 0;
+        }
+
+        .asset-workbench.is-clean .asset-action-row {
+            margin-top: 0;
+            justify-content: flex-end;
+        }
+
+        .asset-workbench.is-clean .asset-note {
+            display: none;
+        }
+
+        .asset-main-title {
+            padding: 14px 14px 0;
+            color: #e2e8f0;
+            font-size: 13px;
+            line-height: 1.4;
+            font-weight: 800;
+            letter-spacing: 0;
+        }
+
+        .asset-side-title {
+            padding: 0 0 10px;
+            color: #111827;
+        }
+
+        .asset-title-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+
+        .asset-title-row .asset-main-title {
+            padding: 0;
+        }
+
+        .asset-title-meta {
+            min-width: 0;
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .asset-selection-count {
+            color: #64748b;
+            font-size: 12px;
+            line-height: 1.4;
+            white-space: nowrap;
+        }
+
+        .asset-title-row .asset-action-row {
+            flex-shrink: 0;
+        }
+
+        .asset-title-row .asset-action-btn {
+            min-width: 104px;
+            height: 34px;
+            padding: 0 12px;
+        }
+
+        .asset-head {
+            padding: 18px 18px 14px;
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            border-bottom: 1px solid #e5e7eb;
+            background: linear-gradient(135deg, #f8fafc 0%, #eef2ff 58%, #ecfeff 100%);
+        }
+
+        .asset-kicker {
+            color: #4f46e5;
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 0;
+        }
+
+        .asset-head h3 {
+            margin: 4px 0 6px;
+            color: #111827;
+            font-size: 18px;
+            line-height: 1.35;
+        }
+
+        .asset-head p {
+            margin: 0;
+            color: #64748b;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .asset-status-pill {
+            height: 28px;
+            padding: 0 10px;
+            border-radius: 999px;
+            background: #ecfdf5;
+            color: #047857;
+            border: 1px solid #a7f3d0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            white-space: nowrap;
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .asset-stale .asset-status-pill {
+            background: #fff7ed;
+            color: #c2410c;
+            border-color: #fed7aa;
+        }
+
+        .asset-generating .asset-status-pill {
+            background: #eff6ff;
+            color: #1d4ed8;
+            border-color: #bfdbfe;
+        }
+
+        .asset-stage {
+            padding: 16px 18px;
+            display: grid;
+            grid-template-columns: 210px minmax(0, 1fr);
+            gap: 16px;
+            align-items: stretch;
+        }
+
+        .asset-main-card {
+            border-radius: 16px;
+            background: #0f172a;
+            overflow: hidden;
+            min-height: 312px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 16px 34px rgba(15, 23, 42, 0.18);
+        }
+
+        .edit-preview-frame {
+            position: relative;
+            height: 242px;
+            overflow: hidden;
+            background:
+                radial-gradient(circle at 28% 16%, rgba(45, 212, 191, 0.24), transparent 28%),
+                radial-gradient(circle at 78% 24%, rgba(99, 102, 241, 0.26), transparent 30%),
+                linear-gradient(135deg, #111827, #273549 58%, #164e63);
+        }
+
+        .edit-preview-frame img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .edit-preview-empty {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 18px;
+            text-align: center;
+            color: #cbd5e1;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .asset-main-caption {
+            padding: 13px 14px 14px;
+            color: #ffffff;
+        }
+
+        .asset-main-caption strong {
+            display: block;
+            font-size: 16px;
+            line-height: 1.35;
+        }
+
+        .asset-main-caption span {
+            display: block;
+            margin-top: 5px;
+            color: #cbd5e1;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        .asset-summary {
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
+
+        .asset-summary h4 {
+            margin: 0 0 8px;
+            color: #111827;
+            font-size: 16px;
+            line-height: 1.4;
+        }
+
+        .asset-summary p {
+            margin: 0;
+            color: #64748b;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .asset-action-row {
+            margin-top: 14px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .asset-action-btn {
+            min-width: 118px;
+        }
+
+        .asset-action-btn:disabled {
+            cursor: default;
+            opacity: 0.72;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .asset-note {
+            color: #64748b;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        .asset-gallery {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .asset-gallery-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 10px;
+            color: #334155;
+            font-size: 13px;
+            font-weight: 800;
+        }
+
+        .asset-gallery-title span:last-child {
+            color: #94a3b8;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .view-assets-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        .scene-assets-grid {
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+
+        .view-asset-card {
+            position: relative;
+            border: 1px solid #e5e7eb;
+            border-radius: 14px;
+            overflow: hidden;
+            background: #f8fafc;
+            min-width: 0;
+        }
+
+        .edit-scene-angle-card {
+            cursor: pointer;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease, opacity 0.2s ease;
+            user-select: none;
+        }
+
+        .edit-scene-angle-card:hover {
+            border-color: #a5b4fc;
+            box-shadow: 0 10px 22px rgba(79, 70, 229, 0.12);
+            transform: translateY(-1px);
+        }
+
+        .edit-scene-angle-card.selected {
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
+        }
+
+        .edit-scene-angle-card.selected .angle-check {
+            display: flex;
+        }
+
+        .edit-scene-angle-card:not(.selected) .view-asset-art {
+            opacity: 0.52;
+        }
+
+        .edit-scene-angle-card:not(.selected) .view-asset-name {
+            color: #94a3b8;
+        }
+
+        .view-asset-art {
+            height: 112px;
+            position: relative;
+            overflow: hidden;
+            background:
+                linear-gradient(135deg, rgba(79, 70, 229, 0.08), rgba(20, 184, 166, 0.12)),
+                #f1f5f9;
+        }
+
+        .scene-assets-grid .view-asset-art {
+            height: 84px;
+        }
+
+        .view-asset-art::before {
+            content: "";
+            position: absolute;
+            inset: 14px 18px 0;
+            border-radius: 999px 999px 18px 18px;
+            background:
+                radial-gradient(circle at 50% 20%, #ffffff 0 12px, transparent 13px),
+                linear-gradient(160deg, #a5b4fc, #67e8f9);
+            opacity: 0.9;
+        }
+
+        .view-asset-art.scene-art::before {
+            inset: 12px;
+            border-radius: 12px;
+            background:
+                linear-gradient(90deg, rgba(15, 23, 42, 0.1) 1px, transparent 1px),
+                linear-gradient(180deg, rgba(15, 23, 42, 0.08) 1px, transparent 1px),
+                linear-gradient(135deg, #dbeafe, #ccfbf1 55%, #fef3c7);
+            background-size: 18px 18px, 18px 18px, auto;
+        }
+
+        .role-long-card {
+            position: relative;
+            border: 1px solid #e5e7eb;
+            border-radius: 16px;
+            overflow: hidden;
+            background: #f8fafc;
+            min-height: 360px;
+        }
+
+        .role-long-art {
+            position: relative;
+            min-height: 420px;
+            overflow: hidden;
+            background:
+                linear-gradient(180deg, rgba(248, 250, 252, 0.94), rgba(238, 242, 255, 0.88)),
+                radial-gradient(circle at 50% 12%, rgba(99, 102, 241, 0.18), transparent 24%),
+                linear-gradient(135deg, #eef2ff, #ecfeff);
+        }
+
+        .role-long-art::before,
+        .role-long-art::after {
+            content: "";
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(180deg, #ffffff 0 12%, #c7d2fe 12% 54%, #334155 54% 100%);
+            box-shadow:
+                -126px 22px 0 -8px rgba(129, 140, 248, 0.78),
+                126px 22px 0 -8px rgba(45, 212, 191, 0.72);
+        }
+
+        .role-long-art::before {
+            top: 38px;
+            width: 82px;
+            height: 82px;
+            border-radius: 50%;
+            background:
+                radial-gradient(circle at 50% 38%, #fff7ed 0 25px, transparent 26px),
+                linear-gradient(160deg, #312e81, #0f172a);
+        }
+
+        .role-long-art::after {
+            top: 122px;
+            width: 154px;
+            height: 270px;
+            border-radius: 78px 78px 30px 30px;
+        }
+
+        .asset-stale .role-long-card::after,
+        .asset-generating .role-long-card::after {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(15, 23, 42, 0.64);
+            color: #ffffff;
+            font-size: 13px;
+            font-weight: 800;
+        }
+
+        .asset-stale .role-long-card::after {
+            content: "待重新生成";
+        }
+
+        .asset-generating .role-long-card::after {
+            content: "生成中...";
+        }
+
+        .view-asset-name {
+            height: 38px;
+            padding: 0 10px;
+            display: flex;
+            align-items: center;
+            color: #334155;
+            font-size: 13px;
+            font-weight: 700;
+            background: #ffffff;
+            border-top: 1px solid #eef2f7;
+        }
+
+        .view-asset-card::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background: rgba(15, 23, 42, 0.64);
+            color: #ffffff;
+            font-size: 13px;
+            font-weight: 800;
+        }
+
+        .asset-stale .view-asset-card::after {
+            content: "待重新生成";
+            display: flex;
+        }
+
+        .asset-generating .view-asset-card::after {
+            content: "生成中...";
+            display: flex;
+        }
+
+        .asset-detail-list {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .asset-detail {
+            padding: 9px 10px;
+            border-radius: 10px;
+            background: #f8fafc;
+            border: 1px solid #e5e7eb;
+        }
+
+        .asset-detail span {
+            display: block;
+            color: #94a3b8;
+            font-size: 12px;
+            margin-bottom: 4px;
+        }
+
+        .asset-detail strong {
+            display: block;
+            color: #334155;
+            font-size: 13px;
+            line-height: 1.5;
+            font-weight: 700;
+        }
+
+        .modal-footer {
+            flex-shrink: 0;
+            height: 64px;
+            padding: 0 24px;
+            border-top: 1px solid #e5e7eb;
+            background: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        /* ========== 查看弹窗样式（角色/场景） ========== */
+        .view-modal {
+            width: 1120px;
+            max-width: 100%;
+            max-height: calc(100vh - 64px);
+            background: #ffffff;
+            border-radius: 22px;
+            box-shadow: 0 28px 90px rgba(15, 23, 42, 0.28);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .view-modal .modal-header {
+            min-height: 76px;
+        }
+
+        .view-modal .modal-header .modal-title h3 {
+            margin: 0 0 4px;
+            font-size: 20px;
+            line-height: 1.35;
+            color: #111827;
+        }
+
+        .view-modal .modal-header .modal-title p {
+            margin: 0;
+            color: #6b7280;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .close-btn {
+            width: 36px;
+            height: 36px;
+            border: none;
+            border-radius: 10px;
+            background: #f3f4f6;
+            color: #6b7280;
+            font-size: 24px;
+            line-height: 1;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .close-btn:hover {
+            background: #e5e7eb;
+            color: #111827;
+        }
+
+        .panel-title {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .panel-title h4 {
+            margin: 0 0 4px;
+            color: #111827;
+            font-size: 16px;
+            line-height: 1.4;
+        }
+
+        .panel-title p {
+            margin: 0;
+            color: #6b7280;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .panel-index {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #4f46e5;
+            color: #ffffff;
+            font-size: 13px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        .image-card {
+            border: 1px solid #e5e7eb;
+            border-radius: 18px;
+            background: #f3f4f6;
+            overflow: hidden;
+        }
+
+        .image-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .info-box {
+            margin-top: 14px;
+            padding: 14px;
+            border-radius: 14px;
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+        }
+
+        .info-box strong {
+            display: block;
+            margin-bottom: 6px;
+            color: #111827;
+            font-size: 15px;
+        }
+
+        .info-box p {
+            margin: 0;
+            color: #6b7280;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        /* 角色查看弹窗 */
+        .role-view-body {
+            padding: 24px;
+            display: grid;
+            grid-template-columns: 320px minmax(0, 1fr);
+            gap: 24px;
+            overflow: auto;
+            flex: 1;
+            min-height: 0;
+        }
+
+        .role-main-preview {
+            height: 500px;
+        }
+
+        .role-views-panel {
+            min-width: 0;
+        }
+
+        .role-view-grid {
+            display: block;
+        }
+
+        .role-view-card {
+            border: 1px solid #e5e7eb;
+            border-radius: 18px;
+            background: #ffffff;
+            overflow: hidden;
+        }
+
+        .role-view-image {
+            height: 430px;
+            background: #f3f4f6;
+            overflow: hidden;
+        }
+
+        .role-view-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .role-view-name {
+            height: 48px;
+            padding: 0 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #374151;
+            font-size: 14px;
+            font-weight: 600;
+            border-top: 1px solid #f3f4f6;
+            background: #ffffff;
+        }
+
+        .role-view-long-card .role-long-art {
+            min-height: 500px;
+        }
+
+        /* 场景查看弹窗 */
+        .scene-view-body {
+            padding: 24px;
+            display: grid;
+            grid-template-columns: 360px minmax(0, 1fr);
+            gap: 24px;
+            overflow: auto;
+            flex: 1;
+            min-height: 0;
+        }
+
+        .scene-main-preview {
+            height: 500px;
+        }
+
+        .panel-title-row {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .panel-title-row .panel-title {
+            margin-bottom: 0;
+        }
+
+        .angle-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+            padding-top: 1px;
+        }
+
+        .angle-actions span {
+            color: #6b7280;
+            font-size: 13px;
+            white-space: nowrap;
+        }
+
+        .angle-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 14px;
+        }
+
+        .angle-card {
+            position: relative;
+            border: 1px solid #e5e7eb;
+            border-radius: 16px;
+            background: #ffffff;
+            overflow: hidden;
+            cursor: pointer;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+            user-select: none;
+        }
+
+        .angle-card:hover {
+            border-color: #a5b4fc;
+            box-shadow: 0 10px 24px rgba(79, 70, 229, 0.12);
+            transform: translateY(-2px);
+        }
+
+        .angle-card.selected {
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
+        }
+
+        .angle-image {
+            height: 146px;
+            background: #f3f4f6;
+            overflow: hidden;
+        }
+
+        .angle-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .angle-name {
+            height: 42px;
+            padding: 0 12px;
+            display: flex;
+            align-items: center;
+            color: #374151;
+            font-size: 14px;
+            font-weight: 500;
+            background: #ffffff;
+            border-top: 1px solid #f3f4f6;
+        }
+
+        .angle-card.selected .angle-name {
+            color: #4f46e5;
+        }
+
+        .angle-check {
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #4f46e5;
+            color: #ffffff;
+            font-size: 14px;
+            font-weight: 700;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+            box-shadow: 0 6px 14px rgba(79, 70, 229, 0.28);
+        }
+
+        .angle-card.selected .angle-check {
+            display: flex;
+        }
+
+        /* ========== 响应式 ========== */
+        @media (max-width: 1180px) {
+            .content-layout {
+                grid-template-columns: 1fr;
+            }
+            .selected-sidebar {
+                position: static;
+            }
+        }
+
+        @media (max-width: 1080px) {
+            .edit-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .edit-side-panel {
+                position: static;
+            }
+
+            .edit-preview-frame {
+                height: 240px;
+            }
+
+            .asset-stage {
+                grid-template-columns: 1fr;
+            }
+
+            .asset-main-card {
+                min-height: 0;
+            }
+
+            .view-assets-grid,
+            .scene-assets-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .role-view-body,
+            .scene-view-body {
+                grid-template-columns: 1fr;
+            }
+
+            .role-main-preview,
+            .scene-main-preview {
+                height: 360px;
+            }
+
+            .role-view-grid {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+
+            .role-view-image {
+                height: 300px;
+            }
+
+            .angle-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 900px) {
+            .card-row {
+                grid-template-columns: 1fr;
+            }
+            .stepbar {
+                justify-content: flex-start;
+                overflow-x: auto;
+                padding: 0 24px;
+                gap: 28px;
+            }
+        }
+
+        @media (max-width: 720px) {
+            .modal-mask {
+                padding: 12px;
+            }
+            .modal-dialog {
+                width: calc(100vw - 24px);
+                max-height: calc(100vh - 24px);
+            }
+            .view-modal {
+                max-height: calc(100vh - 24px);
+            }
+            .modal-header {
+                padding: 18px;
+            }
+            .modal-body {
+                padding: 16px;
+            }
+            .modal-footer {
+                padding: 0 16px;
+            }
+            .voice-row {
+                grid-template-columns: 1fr;
+            }
+            .voice-row .btn {
+                width: 100%;
+            }
+            .role-view-body,
+            .scene-view-body {
+                padding: 18px;
+            }
+            .panel-title-row {
+                flex-direction: column;
+            }
+            .angle-actions {
+                flex-wrap: wrap;
+            }
+            .role-view-grid,
+            .angle-grid,
+            .view-assets-grid,
+            .scene-assets-grid {
+                grid-template-columns: 1fr;
+            }
+            .role-view-image {
+                height: 360px;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .topbar {
+                padding: 0 16px;
+            }
+            .main,
+            .footer-inner {
+                max-width: calc(100% - 24px);
+            }
+            .section {
+                padding: 18px;
+            }
+            .section-header {
+                flex-direction: column;
+            }
+            .section-actions {
+                width: 100%;
+            }
+            .footer-bar {
+                height: 116px;
+            }
+            .footer-inner {
+                flex-direction: column;
+                justify-content: center;
+                align-items: flex-start;
+            }
+            .footer-actions {
+                width: 100%;
+                overflow-x: auto;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page">
+        <header class="topbar">
+            <div class="breadcrumb">
+                <button class="back-btn" type="button">‹</button>
+                <span>视频业务</span>
+                <span>/</span>
+                <span class="project-name">投顾服务介绍视频</span>
+            </div>
+
+            <div class="top-actions">
+                <span class="autosave">已自动保存 10:08</span>
+                <button class="exit-btn" type="button">退出</button>
+            </div>
+        </header>
+
+        <nav class="stepbar">
+            <div class="step done">
+                <div class="step-index">✓</div>
+                <span>台词创作</span>
+            </div>
+            <div class="step active">
+                <div class="step-index">2</div>
+                <span>主体管理</span>
+            </div>
+            <div class="step">
+                <div class="step-index">3</div>
+                <span>分镜管理</span>
+            </div>
+            <div class="step">
+                <div class="step-index">4</div>
+                <span>成片预览</span>
+            </div>
+        </nav>
+
+        <main class="main">
+            <div class="page-header">
+                <h1>主体管理</h1>
+                <p>当前视频需要 1 个角色和 1 个场景。请先选择或创建角色，再选择或创建场景。</p>
+            </div>
+
+            <div class="content-layout">
+                <div class="left-content">
+                    <!-- 角色区域 -->
+                    <section class="section">
+                        <div class="section-header">
+                            <div class="section-title-wrap">
+                                <div class="section-index">1</div>
+                                <div class="section-title">
+                                    <h2>选择或创建角色</h2>
+                                    <p>角色决定人物形象、音色和口播表现。</p>
+                                </div>
+                            </div>
+                            <div class="section-actions">
+                                <button class="btn" type="button">刷新列表</button>
+                                <button class="btn btn-primary" type="button" id="openCreateRoleBtn">新建角色</button>
+                            </div>
+                        </div>
+
+                        <p class="hint">默认展示 3 个角色，支持横向滑动查看更多。</p>
+
+                        <div class="carousel-shell">
+                            <div class="carousel-nav">
+                                <button class="nav-btn" type="button">‹</button>
+                                <button class="nav-btn" type="button">›</button>
+                            </div>
+                            <div class="card-row">
+                                <article class="subject-card generating" aria-disabled="true">
+                                    <div class="cover">
+                                        <div class="cover-placeholder">
+                                            <div class="spinner"></div>
+                                            <div>角色正在生成中</div>
+                                        </div>
+                                        <div class="badge generating-badge">生成中</div>
+                                        <div class="type-tag">角色</div>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="avatar-letter">生</div>
+                                        <h3>新角色生成中</h3>
+                                        <p class="generating-text">系统正在生成角色主图与多视图，完成后可选择使用。</p>
+                                    </div>
+                                </article>
+
+                                <article class="subject-card role-card" data-name="专业女主播" data-voice="专业女主播 / 中文" data-desc="表达清晰、亲和可信，适合知识科普和服务说明类短视频。" data-img="./assets/role-2.png">
+                                    <div class="cover">
+                                        <img src="./assets/role-2.png" alt="专业女主播" />
+                                        <div class="badge">4 视图</div>
+                                        <div class="type-tag">角色</div>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="avatar-letter">播</div>
+                                        <h3>专业女主播</h3>
+                                        <p>表达清晰、亲和可信，适合知识科普和服务说明类短视频。</p>
+                                    </div>
+                                    <div class="card-actions">
+                                        <button class="btn-link" type="button">编辑</button>
+                                        <button class="btn-link" type="button">试听</button>
+                                        <button class="btn-link" type="button">查看</button>
+                                    </div>
+                                </article>
+
+                                <article class="subject-card role-card" data-name="青年投顾顾问" data-voice="经典解说男-青年 / 中文" data-desc="年轻专业、表达自然，适合信息流转化和财经讲解视频。" data-img="./assets/role-3.png">
+                                    <div class="cover">
+                                        <img src="./assets/role-3.png" alt="青年投顾顾问" />
+                                        <div class="badge">6 视图</div>
+                                        <div class="type-tag">角色</div>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="avatar-letter">顾</div>
+                                        <h3>青年投顾顾问</h3>
+                                        <p>年轻专业、表达自然，适合信息流转化和财经讲解视频。</p>
+                                    </div>
+                                    <div class="card-actions">
+                                        <button class="btn-link" type="button">编辑</button>
+                                        <button class="btn-link" type="button">试听</button>
+                                        <button class="btn-link" type="button">查看</button>
+                                    </div>
+                                </article>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- 场景区域 -->
+                    <section class="section">
+                        <div class="section-header">
+                            <div class="section-title-wrap">
+                                <div class="section-index">2</div>
+                                <div class="section-title">
+                                    <h2>选择或创建场景</h2>
+                                    <p>场景决定视频背景，需要在完成角色后配置。</p>
+                                </div>
+                            </div>
+                            <div class="section-actions">
+                                <button class="btn" type="button">刷新列表</button>
+                                <button class="btn btn-primary" type="button" id="openCreateSceneBtn">新建场景</button>
+                            </div>
+                        </div>
+
+                        <p class="hint">默认展示 3 个场景，支持横向滑动查看更多。</p>
+
+                        <div class="carousel-shell">
+                            <div class="carousel-nav">
+                                <button class="nav-btn" type="button">‹</button>
+                                <button class="nav-btn" type="button">›</button>
+                            </div>
+                            <div class="card-row">
+                                <article class="subject-card generating" aria-disabled="true">
+                                    <div class="cover">
+                                        <div class="cover-placeholder">
+                                            <div class="spinner"></div>
+                                            <div>场景正在生成中</div>
+                                        </div>
+                                        <div class="badge generating-badge">生成中</div>
+                                        <div class="type-tag">场景</div>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="avatar-letter">生</div>
+                                        <h3>新场景生成中</h3>
+                                        <p class="generating-text">系统正在生成场景图片，完成后可选择作为视频背景。</p>
+                                    </div>
+                                </article>
+
+                                <article class="subject-card scene-card" data-name="现代财经演播室" data-desc="现代财经演播室，背景有大屏数据图表，整体风格专业、简洁、可信。" data-img="./assets/scene-1.png">
+                                    <div class="cover">
+                                        <img src="./assets/scene-1.png" alt="现代财经演播室" />
+                                        <div class="badge">9:16</div>
+                                        <div class="type-tag">场景</div>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="avatar-letter">演</div>
+                                        <h3>现代财经演播室</h3>
+                                        <p>背景有大屏数据图表，整体风格专业、简洁、可信。</p>
+                                    </div>
+                                    <div class="card-actions">
+                                        <button class="btn-link" type="button">编辑</button>
+                                        <button class="btn-link" type="button">查看</button>
+                                    </div>
+                                </article>
+
+                                <article class="subject-card scene-card" data-name="高端办公会议室" data-desc="适合服务介绍、投顾团队说明和专业能力展示。" data-img="./assets/scene-2.png">
+                                    <div class="cover">
+                                        <img src="./assets/scene-2.png" alt="高端办公会议室" />
+                                        <div class="badge">9:16</div>
+                                        <div class="type-tag">场景</div>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="avatar-letter">会</div>
+                                        <h3>高端办公会议室</h3>
+                                        <p>适合服务介绍、投顾团队说明和专业能力展示。</p>
+                                    </div>
+                                    <div class="card-actions">
+                                        <button class="btn-link" type="button">编辑</button>
+                                        <button class="btn-link" type="button">查看</button>
+                                    </div>
+                                </article>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- 右侧已选主体边栏 -->
+                <aside class="selected-sidebar">
+                    <h2>当前已选主体</h2>
+                    <p class="selected-desc">
+                        进入分镜管理前，必须选择 1 个角色和 1 个场景。
+                        角色用于确定人物形象和音色；场景用于确定视频背景。
+                    </p>
+                    <div class="selected-item">
+                        <div class="selected-label">角色</div>
+                        <div class="selected-content">
+                            <div class="selected-thumb" id="selectedRoleThumb">未选</div>
+                            <div class="selected-info">
+                                <strong id="selectedRoleName">未选择角色</strong>
+                                <p id="selectedRoleVoice">角色音色：未选择</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="selected-item">
+                        <div class="selected-label">场景</div>
+                        <div class="selected-content">
+                            <div class="selected-thumb" id="selectedSceneThumb">未选</div>
+                            <div class="selected-info">
+                                <strong id="selectedSceneName">未选择场景</strong>
+                                <p id="selectedSceneDesc">场景背景：未选择</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="first-frame-panel" id="firstFramePanel" data-state="locked">
+                        <div class="first-frame-head">
+                            <div>
+                                <h3>首帧合成</h3>
+                            </div>
+                            <span class="composite-status" id="compositeStatusBadge">未开始</span>
+                        </div>
+                        <p class="composite-hint" id="compositeHint">
+                            选择角色和场景后，调用多模态模型生成视频首帧。
+                        </p>
+                        <div class="composite-preview" id="compositePreview">
+                            <div class="composite-empty" id="compositeEmpty">
+                                <div class="composite-lock-icon">AI</div>
+                                <div id="compositeEmptyText">等待角色和场景选择完成。</div>
+                            </div>
+                            <img id="compositeImage" alt="合成首帧预览" />
+                            <div class="composite-watermark" id="compositeWatermark">需重新合成</div>
+                            <div class="composite-generating">
+                                <div class="spinner"></div>
+                                <ul class="composite-steps" id="compositeSteps"></ul>
+                            </div>
+                        </div>
+                        <div class="composite-actions">
+                            <button class="btn btn-primary" type="button" id="compositePrimaryBtn" disabled>合成首帧</button>
+                            <button class="btn btn-light" type="button" id="compositeViewBtn" disabled>查看大图</button>
+                        </div>
+                    </div>
+                    <div class="status-tip" id="statusTip">
+                        当前还未完成主体配置，请先选择角色，再选择场景。
+                    </div>
+                </aside>
+            </div>
+        </main>
+
+        <footer class="footer-bar">
+            <div class="footer-inner">
+                <div class="footer-tip" id="footerTip">Step 2 / 4：选择或创建角色与场景后，进入分镜管理。</div>
+                <div class="footer-actions">
+                    <button class="btn" type="button">上一步：台词创作</button>
+                    <button class="btn" type="button">保存草稿</button>
+                    <button class="btn btn-primary" type="button" id="nextBtn" disabled>下一步：分镜管理</button>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- ==================== 新建角色弹窗 ==================== -->
+    <div class="modal-mask" id="createRoleModal">
+        <div class="modal-dialog edit-dialog">
+            <div class="modal-header">
+                <div>
+                    <h2 class="modal-title">创建角色</h2>
+                    <p class="modal-desc">创建视频中的人物主体，配置角色音色并生成多视图资产。</p>
+                </div>
+                <button class="modal-close" type="button" data-close="createRoleModal">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="edit-grid">
+                    <section class="modal-section">
+                        <div class="section-title">
+                            <h3>角色信息</h3>
+                            <p>填写角色基础信息并上传主图后，可点击右侧按钮生成多视图。</p>
+                        </div>
+                        <div class="form-group">
+                            <label for="roleName">角色名称 <span class="required">*</span></label>
+                            <input id="roleName" class="form-control" type="text" placeholder="请输入角色名称，例如：投顾讲解员" />
+                        </div>
+                        <div class="form-group">
+                            <label for="roleVoice">角色音色 <span class="required">*</span></label>
+                            <div class="voice-row">
+                                <select id="roleVoice" class="form-control">
+                                    <option value="">请选择角色音色</option>
+                                    <option value="经典解说男-青年 / 中文">经典解说男-青年 / 中文</option>
+                                    <option value="沉稳财经男声 / 中文">沉稳财经男声 / 中文</option>
+                                    <option value="专业女主播 / 中文">专业女主播 / 中文</option>
+                                    <option value="Natural Male Voice / English">Natural Male Voice / English</option>
+                                </select>
+                                <button class="btn btn-light" type="button" onclick="previewRoleVoice()">试听</button>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="roleDesc">角色描述</label>
+                            <textarea id="roleDesc" class="form-control textarea" placeholder="请输入角色小传，例如年龄、职业、形象气质、服装风格等"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="roleImage">上传主图 <span class="required">*</span></label>
+                            <label class="upload-box" for="roleImage">
+                                <div class="upload-icon">+</div>
+                                <div class="upload-title">上传一张角色主图</div>
+                                <div class="upload-desc">支持 JPG、PNG。建议上传人物清晰、正面、无遮挡的图片。</div>
+                                <input id="roleImage" type="file" accept="image/jpeg,image/png" onchange="handleRoleImageUpload(event)" />
+                            </label>
+                            <div class="upload-preview" id="roleImagePreview">
+                                <span>暂未上传主图</span>
+                            </div>
+                        </div>
+                        <label class="auth-check">
+                            <input type="checkbox" id="roleAuthCheck" />
+                            <span>我确认已获得该人物形象的合法授权，并同意用于视频生成与投放素材制作。</span>
+                        </label>
+                    </section>
+                    <aside class="edit-side-panel asset-workbench" id="createRoleAssetPanel">
+                        <div class="asset-head">
+                            <div>
+                                <div class="asset-kicker">ROLE ASSET</div>
+                                <h3>角色视角资产</h3>
+                                <p>上传主图后，点击"创建视图"生成角色多视角图片。</p>
+                            </div>
+                            <span class="asset-status-pill" id="createRoleAssetStatus">待创建</span>
+                        </div>
+                        <div class="asset-stage">
+                            <div class="asset-main-card">
+                                <div class="edit-preview-frame" id="createRolePreviewFrame">
+                                    <div class="edit-preview-empty">上传主图后显示预览</div>
+                                </div>
+                                <div class="asset-main-caption">
+                                    <strong id="createRolePreviewName">角色名称</strong>
+                                    <span id="createRolePreviewVoice">未选择音色</span>
+                                </div>
+                            </div>
+                            <div class="asset-summary">
+                                <h4>多视图状态</h4>
+                                <p id="createRoleViewsStatus">尚未创建多视图。上传主图后，可点击按钮开始生成。</p>
+                                <div class="asset-action-row">
+                                    <button class="btn btn-primary asset-action-btn" type="button" id="createRoleViewsBtn" onclick="startCreateRoleViews()" disabled>创建视图</button>
+                                    <span class="asset-note" id="createRoleAssetNote">先生成角色主图，再创建多视图。</span>
+                                </div>
+                                <div class="asset-gallery" id="createRoleViewsGallery" style="display: none;">
+                                    <div class="asset-gallery-title">
+                                        <span>多视角图片</span>
+                                        <span id="createRoleViewsCount">3 张</span>
+                                    </div>
+                                    <div class="view-assets-grid" id="createRoleViewsGrid">
+                                        <div class="view-asset-card">
+                                            <div class="view-asset-art"></div>
+                                            <div class="view-asset-name">全身正面</div>
+                                        </div>
+                                        <div class="view-asset-card">
+                                            <div class="view-asset-art"></div>
+                                            <div class="view-asset-name">全身侧面</div>
+                                        </div>
+                                        <div class="view-asset-card">
+                                            <div class="view-asset-art"></div>
+                                            <div class="view-asset-name">全身背面</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="asset-detail-list" id="createRoleDetailList" style="display: none;">
+                                    <div class="asset-detail">
+                                        <span>生成来源</span>
+                                        <strong>当前角色主图</strong>
+                                    </div>
+                                    <div class="asset-detail">
+                                        <span>后续用途</span>
+                                        <strong>口播动作与分镜画面</strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </aside>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-light" type="button" onclick="confirmCreateRoleAndBack()">确认返回</button>
+                <button class="btn btn-primary" type="button" id="createRoleConfirmBtn" onclick="createRole()">创建</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== 新建场景弹窗 ==================== -->
+    <div class="modal-mask" id="createSceneModal">
+        <div class="modal-dialog edit-dialog">
+            <div class="modal-header">
+                <div>
+                    <h2 class="modal-title">创建场景</h2>
+                    <p class="modal-desc">创建视频的背景场景，并生成多角度视图。</p>
+                </div>
+                <button class="modal-close" type="button" data-close="createSceneModal">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="edit-grid">
+                    <section class="modal-section">
+                        <div class="section-title">
+                            <h3>场景信息</h3>
+                            <p>填写场景基础信息并上传图片后，可点击右侧按钮生成多角度视图。</p>
+                        </div>
+                        <div class="form-group">
+                            <label for="sceneName">场景名称 <span class="required">*</span></label>
+                            <input id="sceneName" class="form-control" type="text" placeholder="请输入场景名称，例如：现代财经演播室" />
+                        </div>
+                        <div class="form-group">
+                            <label for="sceneDesc">场景描述</label>
+                            <textarea id="sceneDesc" class="form-control textarea" placeholder="请输入场景描述，例如：现代财经演播室，背景有大屏数据图表，整体风格专业、简洁、可信。"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="sceneImage">上传场景图 <span class="required">*</span></label>
+                            <label class="upload-box" for="sceneImage">
+                                <div class="upload-icon">+</div>
+                                <div class="upload-title">上传一张场景图</div>
+                                <div class="upload-desc">支持 JPG、PNG。建议使用 9:16 竖版图片，适合信息流短视频投放。</div>
+                                <input id="sceneImage" type="file" accept="image/jpeg,image/png" onchange="handleSceneImageUpload(event)" />
+                            </label>
+                            <div class="upload-preview" id="sceneImagePreview">
+                                <span>暂未上传场景图</span>
+                            </div>
+                        </div>
+                        <div class="form-tip">
+                            建议选择画面干净、主体区域明确、底部留白充足的背景，方便后续添加字幕、风险提示和品牌信息。
+                        </div>
+                    </section>
+                    <aside class="edit-side-panel asset-workbench" id="createSceneAssetPanel">
+                        <div class="asset-head">
+                            <div>
+                                <div class="asset-kicker">SCENE ASSET</div>
+                                <h3>场景视角资产</h3>
+                                <p>上传场景图后，点击"创建视图"生成场景多角度图片。</p>
+                            </div>
+                            <span class="asset-status-pill" id="createSceneAssetStatus">待创建</span>
+                        </div>
+                        <div class="asset-stage">
+                            <div class="asset-main-card">
+                                <div class="edit-preview-frame" id="createScenePreviewFrame">
+                                    <div class="edit-preview-empty">上传场景图后显示预览</div>
+                                </div>
+                                <div class="asset-main-caption">
+                                    <strong id="createScenePreviewName">场景名称</strong>
+                                    <span>9:16 竖版短视频场景</span>
+                                </div>
+                            </div>
+                            <div class="asset-summary">
+                                <h4>多视图状态</h4>
+                                <p id="createSceneViewsStatus">尚未创建多视图。上传场景图后，可点击按钮开始生成。</p>
+                                <div class="asset-action-row">
+                                    <button class="btn btn-primary asset-action-btn" type="button" id="createSceneViewsBtn" onclick="startCreateSceneViews()" disabled>创建视图</button>
+                                    <span class="asset-note" id="createSceneAssetNote">先生成场景主图，再创建多视图。</span>
+                                </div>
+                                <div class="asset-gallery" id="createSceneViewsGallery" style="display: none;">
+                                    <div class="asset-gallery-title">
+                                        <span>多角度图片</span>
+                                        <span id="createSceneViewsCount">8 张</span>
+                                    </div>
+                                    <div class="view-assets-grid scene-assets-grid" id="createSceneViewsGrid">
+                                        <div class="view-asset-card">
+                                            <div class="view-asset-art scene-art"></div>
+                                            <div class="view-asset-name">左45度</div>
+                                        </div>
+                                        <div class="view-asset-card">
+                                            <div class="view-asset-art scene-art"></div>
+                                            <div class="view-asset-name">右45度</div>
+                                        </div>
+                                        <div class="view-asset-card">
+                                            <div class="view-asset-art scene-art"></div>
+                                            <div class="view-asset-name">正俯视</div>
+                                        </div>
+                                        <div class="view-asset-card">
+                                            <div class="view-asset-art scene-art"></div>
+                                            <div class="view-asset-name">正仰视</div>
+                                        </div>
+                                        <div class="view-asset-card">
+                                            <div class="view-asset-art scene-art"></div>
+                                            <div class="view-asset-name">近景</div>
+                                        </div>
+                                        <div class="view-asset-card">
+                                            <div class="view-asset-art scene-art"></div>
+                                            <div class="view-asset-name">中景</div>
+                                        </div>
+                                        <div class="view-asset-card">
+                                            <div class="view-asset-art scene-art"></div>
+                                            <div class="view-asset-name">远景</div>
+                                        </div>
+                                        <div class="view-asset-card">
+                                            <div class="view-asset-art scene-art"></div>
+                                            <div class="view-asset-name">旋转180度</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="asset-detail-list" id="createSceneDetailList" style="display: none;">
+                                    <div class="asset-detail">
+                                        <span>生成来源</span>
+                                        <strong>当前场景图</strong>
+                                    </div>
+                                    <div class="asset-detail">
+                                        <span>后续用途</span>
+                                        <strong>分镜构图与镜头运动</strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </aside>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-light" type="button" onclick="confirmCreateSceneAndBack()">确认返回</button>
+                <button class="btn btn-primary" type="button" id="createSceneConfirmBtn" onclick="createScene()">创建</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== 编辑角色弹窗 ==================== -->
+    <div class="modal-mask" id="editRoleModal">
+        <div class="modal-dialog edit-dialog">
+            <div class="modal-header">
+                <div>
+                    <h2 class="modal-title">编辑角色</h2>
+                    <p class="modal-desc">调整角色名称、音色、描述和主图。保存后会同步更新当前卡片信息。</p>
+                </div>
+                <button class="modal-close" type="button" data-close="editRoleModal">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="edit-grid">
+                    <section class="modal-section">
+                        <div class="section-title">
+                            <h3>角色信息</h3>
+                            <p>编辑当前角色的基础信息。主图未重新上传时，会继续使用原有图片。</p>
+                        </div>
+                        <div class="form-group">
+                            <label for="editRoleName">角色名称 <span class="required">*</span></label>
+                            <input id="editRoleName" class="form-control" type="text" />
+                        </div>
+                        <div class="form-group">
+                            <label for="editRoleVoice">角色音色 <span class="required">*</span></label>
+                            <div class="voice-row">
+                                <select id="editRoleVoice" class="form-control">
+                                    <option value="">请选择角色音色</option>
+                                    <option value="经典解说男-青年 / 中文">经典解说男-青年 / 中文</option>
+                                    <option value="沉稳财经男声 / 中文">沉稳财经男声 / 中文</option>
+                                    <option value="专业女主播 / 中文">专业女主播 / 中文</option>
+                                    <option value="Natural Male Voice / English">Natural Male Voice / English</option>
+                                </select>
+                                <button class="btn btn-light" type="button" onclick="previewEditRoleVoice()">试听</button>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="editRoleDesc">角色描述</label>
+                            <textarea id="editRoleDesc" class="form-control textarea"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="editRoleImage">替换主图</label>
+                            <label class="upload-box" for="editRoleImage">
+                                <div class="upload-icon">+</div>
+                                <div class="upload-title">上传新的角色主图</div>
+                                <div class="upload-desc">未上传新图片时，将保留当前角色主图。</div>
+                                <input id="editRoleImage" type="file" accept="image/jpeg,image/png" onchange="handleEditRoleImageUpload(event)" />
+                            </label>
+                            <div class="upload-preview" id="editRoleImagePreview">
+                                <span>沿用当前主图</span>
+                            </div>
+                        </div>
+                    </section>
+                    <aside class="edit-side-panel asset-workbench is-clean" id="editRoleAssetPanel">
+                        <div class="asset-stage">
+                            <div class="asset-main-card">
+                                <div class="asset-main-title">当前主图</div>
+                                <div class="edit-preview-frame" id="editRolePreviewFrame">
+                                    <div class="edit-preview-empty">当前角色主图预览</div>
+                                </div>
+                                <div class="asset-main-caption">
+                                    <strong id="editRolePreviewName">角色名称</strong>
+                                    <span id="editRolePreviewVoice">未选择音色</span>
+                                </div>
+                            </div>
+                            <div class="asset-summary">
+                                <div class="asset-gallery">
+                                    <div class="asset-title-row">
+                                        <div class="asset-main-title asset-side-title">多维视角</div>
+                                        <div class="asset-action-row">
+                                            <button class="btn btn-light asset-action-btn" type="button" id="editRoleRegenerateBtn" onclick="regenerateRoleViews()">重新生成</button>
+                                            <span class="asset-note" id="editRoleAssetNote">修改文字配置可直接保存，不需要重新生成视角。</span>
+                                        </div>
+                                    </div>
+                                    <div class="role-long-card">
+                                        <div class="role-long-art"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </aside>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-light" type="button" data-close="editRoleModal">取消</button>
+                <button class="btn btn-primary" type="button" onclick="saveRoleEdit()">保存修改</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== 编辑场景弹窗 ==================== -->
+    <div class="modal-mask" id="editSceneModal">
+        <div class="modal-dialog edit-dialog">
+            <div class="modal-header">
+                <div>
+                    <h2 class="modal-title">编辑场景</h2>
+                    <p class="modal-desc">调整场景名称、描述和背景图。保存后会同步更新当前卡片信息。</p>
+                </div>
+                <button class="modal-close" type="button" data-close="editSceneModal">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="edit-grid">
+                    <section class="modal-section">
+                        <div class="section-title">
+                            <h3>场景信息</h3>
+                            <p>编辑当前场景的基础信息。场景图未重新上传时，会继续使用原有图片。</p>
+                        </div>
+                        <div class="form-group">
+                            <label for="editSceneName">场景名称 <span class="required">*</span></label>
+                            <input id="editSceneName" class="form-control" type="text" />
+                        </div>
+                        <div class="form-group">
+                            <label for="editSceneDesc">场景描述</label>
+                            <textarea id="editSceneDesc" class="form-control textarea"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="editSceneImage">替换场景图</label>
+                            <label class="upload-box" for="editSceneImage">
+                                <div class="upload-icon">+</div>
+                                <div class="upload-title">上传新的场景图</div>
+                                <div class="upload-desc">未上传新图片时，将保留当前场景图。</div>
+                                <input id="editSceneImage" type="file" accept="image/jpeg,image/png" onchange="handleEditSceneImageUpload(event)" />
+                            </label>
+                            <div class="upload-preview" id="editSceneImagePreview">
+                                <span>沿用当前场景图</span>
+                            </div>
+                        </div>
+                        <div class="form-tip">
+                            如果场景图变化较大，后续分镜中的镜头角度和构图建议重新检查。
+                        </div>
+                    </section>
+                    <aside class="edit-side-panel asset-workbench is-clean" id="editSceneAssetPanel">
+                        <div class="asset-stage">
+                            <div class="asset-main-card">
+                                <div class="asset-main-title">当前场景图</div>
+                                <div class="edit-preview-frame" id="editScenePreviewFrame">
+                                    <div class="edit-preview-empty">当前场景图预览</div>
+                                </div>
+                                <div class="asset-main-caption">
+                                    <strong id="editScenePreviewName">场景名称</strong>
+                                    <span>9:16 竖版短视频场景</span>
+                                </div>
+                            </div>
+                            <div class="asset-summary">
+                                <div class="asset-gallery">
+                                    <div class="asset-title-row">
+                                        <div class="asset-title-meta">
+                                            <div class="asset-main-title asset-side-title">多角度视图</div>
+                                            <span class="asset-selection-count" id="editSceneAngleCount">已选择 8 / 8</span>
+                                        </div>
+                                        <div class="asset-action-row">
+                                            <button class="btn btn-light asset-action-btn" type="button" id="editSceneRegenerateBtn" onclick="regenerateSceneViews()">重新生成</button>
+                                            <span class="asset-note" id="editSceneAssetNote">修改文字配置可直接保存，不需要重新生成视角。</span>
+                                        </div>
+                                    </div>
+                                    <div class="view-assets-grid scene-assets-grid">
+                                        <div class="view-asset-card edit-scene-angle-card selected" data-angle="左45度">
+                                            <div class="angle-check">✓</div>
+                                            <div class="view-asset-art scene-art"></div>
+                                            <div class="view-asset-name">左45度</div>
+                                        </div>
+                                        <div class="view-asset-card edit-scene-angle-card selected" data-angle="右45度">
+                                            <div class="angle-check">✓</div>
+                                            <div class="view-asset-art scene-art"></div>
+                                            <div class="view-asset-name">右45度</div>
+                                        </div>
+                                        <div class="view-asset-card edit-scene-angle-card selected" data-angle="正俯视">
+                                            <div class="angle-check">✓</div>
+                                            <div class="view-asset-art scene-art"></div>
+                                            <div class="view-asset-name">正俯视</div>
+                                        </div>
+                                        <div class="view-asset-card edit-scene-angle-card selected" data-angle="正仰视">
+                                            <div class="angle-check">✓</div>
+                                            <div class="view-asset-art scene-art"></div>
+                                            <div class="view-asset-name">正仰视</div>
+                                        </div>
+                                        <div class="view-asset-card edit-scene-angle-card selected" data-angle="近景">
+                                            <div class="angle-check">✓</div>
+                                            <div class="view-asset-art scene-art"></div>
+                                            <div class="view-asset-name">近景</div>
+                                        </div>
+                                        <div class="view-asset-card edit-scene-angle-card selected" data-angle="中景">
+                                            <div class="angle-check">✓</div>
+                                            <div class="view-asset-art scene-art"></div>
+                                            <div class="view-asset-name">中景</div>
+                                        </div>
+                                        <div class="view-asset-card edit-scene-angle-card selected" data-angle="远景">
+                                            <div class="angle-check">✓</div>
+                                            <div class="view-asset-art scene-art"></div>
+                                            <div class="view-asset-name">远景</div>
+                                        </div>
+                                        <div class="view-asset-card edit-scene-angle-card selected" data-angle="旋转180度">
+                                            <div class="angle-check">✓</div>
+                                            <div class="view-asset-art scene-art"></div>
+                                            <div class="view-asset-name">旋转180度</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </aside>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-light" type="button" data-close="editSceneModal">取消</button>
+                <button class="btn btn-primary" type="button" onclick="saveSceneEdit()">保存修改</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== 查看角色弹窗 ==================== -->
+    <div class="modal-mask" id="roleViewModal">
+        <div class="view-modal">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <h3 id="roleViewTitle">查看角色</h3>
+                    <p id="roleViewSubtitle">专业投顾老师 / 沉稳财经男声-中年</p>
+                </div>
+                <button class="close-btn" type="button" data-close="roleViewModal">×</button>
+            </div>
+            <div class="role-view-body">
+                <div class="role-main-panel">
+                    <div class="panel-title">
+                        <span class="panel-index">1</span>
+                        <div>
+                            <h4>角色主视图</h4>
+                            <p>用户上传的原始主图，用于生成角色全身多视图。</p>
+                        </div>
+                    </div>
+                    <div class="image-card role-main-preview">
+                        <img src="./assets/role-main.png" alt="角色主视图" id="roleMainImg" />
+                    </div>
+                    <div class="info-box">
+                        <strong id="roleInfoName">用户上传主图</strong>
+                        <p id="roleInfoDesc">该图片作为角色形象生成依据，系统会基于主图生成角色多维视图。</p>
+                    </div>
+                </div>
+                <div class="role-views-panel">
+                    <div class="panel-title">
+                        <span class="panel-index">2</span>
+                        <div>
+                            <h4>角色多维视图</h4>
+                            <p>展示系统生成的一张角色多维视图，用于后续视频动作和口播画面生成。</p>
+                        </div>
+                    </div>
+                    <div class="role-view-grid">
+                        <div class="role-view-card role-view-long-card">
+                            <div class="role-long-art"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" type="button" data-close="roleViewModal">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== 查看场景弹窗 ==================== -->
+    <div class="modal-mask" id="sceneViewModal">
+        <div class="view-modal">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <h3 id="sceneViewTitle">查看场景</h3>
+                    <p id="sceneViewSubtitle">口播场景 / 现代财经演播室</p>
+                </div>
+                <button class="close-btn" type="button" data-close="sceneViewModal">×</button>
+            </div>
+            <div class="scene-view-body">
+                <div class="scene-main-panel">
+                    <div class="panel-title">
+                        <span class="panel-index">1</span>
+                        <div>
+                            <h4>场景主视图</h4>
+                            <p>用户上传的原始场景图，用于生成场景多视角画面。</p>
+                        </div>
+                    </div>
+                    <div class="image-card scene-main-preview">
+                        <img src="./assets/scene-main.png" alt="场景主视图" id="sceneMainImg" />
+                    </div>
+                    <div class="info-box">
+                        <strong id="sceneInfoName">现代财经演播室</strong>
+                        <p id="sceneInfoDesc">背景有大屏数据图表，整体风格专业、简洁、可信，适合投顾服务介绍和财经知识口播。</p>
+                    </div>
+                </div>
+                <div class="scene-angle-panel">
+                    <div class="panel-title-row">
+                        <div class="panel-title">
+                            <span class="panel-index">2</span>
+                            <div>
+                                <h4>场景多视角图</h4>
+                                <p>请选择后续分镜生成时允许使用的场景角度。</p>
+                            </div>
+                        </div>
+                        <div class="angle-actions">
+                            <span id="selectedAngleCount">已选择 8 / 8 个视角</span>
+                            <button class="mini-btn" type="button" id="selectAllAngles">全选</button>
+                            <button class="mini-btn" type="button" id="clearAllAngles">清空</button>
+                        </div>
+                    </div>
+                    <div class="angle-grid">
+                        <div class="angle-card selected" data-angle="左45度">
+                            <div class="angle-check">✓</div>
+                            <div class="angle-image">
+                                <img src="./assets/scene-angle-left45.png" alt="左45度" />
+                            </div>
+                            <div class="angle-name">左45度</div>
+                        </div>
+                        <div class="angle-card selected" data-angle="右45度">
+                            <div class="angle-check">✓</div>
+                            <div class="angle-image">
+                                <img src="./assets/scene-angle-right45.png" alt="右45度" />
+                            </div>
+                            <div class="angle-name">右45度</div>
+                        </div>
+                        <div class="angle-card selected" data-angle="正俯视">
+                            <div class="angle-check">✓</div>
+                            <div class="angle-image">
+                                <img src="./assets/scene-angle-top.png" alt="正俯视" />
+                            </div>
+                            <div class="angle-name">正俯视</div>
+                        </div>
+                        <div class="angle-card selected" data-angle="正仰视">
+                            <div class="angle-check">✓</div>
+                            <div class="angle-image">
+                                <img src="./assets/scene-angle-up.png" alt="正仰视" />
+                            </div>
+                            <div class="angle-name">正仰视</div>
+                        </div>
+                        <div class="angle-card selected" data-angle="近景">
+                            <div class="angle-check">✓</div>
+                            <div class="angle-image">
+                                <img src="./assets/scene-angle-close.png" alt="近景" />
+                            </div>
+                            <div class="angle-name">近景</div>
+                        </div>
+                        <div class="angle-card selected" data-angle="中景">
+                            <div class="angle-check">✓</div>
+                            <div class="angle-image">
+                                <img src="./assets/scene-angle-medium.png" alt="中景" />
+                            </div>
+                            <div class="angle-name">中景</div>
+                        </div>
+                        <div class="angle-card selected" data-angle="远景">
+                            <div class="angle-check">✓</div>
+                            <div class="angle-image">
+                                <img src="./assets/scene-angle-far.png" alt="远景" />
+                            </div>
+                            <div class="angle-name">远景</div>
+                        </div>
+                        <div class="angle-card selected" data-angle="旋转180度">
+                            <div class="angle-check">✓</div>
+                            <div class="angle-image">
+                                <img src="./assets/scene-angle-180.png" alt="旋转180度" />
+                            </div>
+                            <div class="angle-name">旋转180度</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-light" type="button" data-close="sceneViewModal">取消</button>
+                <button class="btn btn-primary" type="button" id="saveSceneAngles">保存视角选择</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-mask" id="firstFrameViewModal">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <div>
+                    <h2 class="modal-title">查看首帧</h2>
+                    <p class="modal-desc" id="firstFrameViewDesc">角色与场景合成后的首帧预览。</p>
+                </div>
+                <button class="modal-close" type="button" data-close="firstFrameViewModal">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="first-frame-large">
+                    <img id="firstFrameLargeImg" alt="合成首帧大图" />
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-light" type="button" id="firstFrameRegenerateBtn">重新合成</button>
+                <button class="btn btn-primary" type="button" data-close="firstFrameViewModal">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== 主体选择逻辑 ====================
+        const roleCards = document.querySelectorAll(".role-card");
+        const sceneCards = document.querySelectorAll(".scene-card");
+
+        const selectedRoleThumb = document.getElementById("selectedRoleThumb");
+        const selectedRoleName = document.getElementById("selectedRoleName");
+        const selectedRoleVoice = document.getElementById("selectedRoleVoice");
+
+        const selectedSceneThumb = document.getElementById("selectedSceneThumb");
+        const selectedSceneName = document.getElementById("selectedSceneName");
+        const selectedSceneDesc = document.getElementById("selectedSceneDesc");
+
+        const statusTip = document.getElementById("statusTip");
+        const nextBtn = document.getElementById("nextBtn");
+        const footerTip = document.getElementById("footerTip");
+        const firstFramePanel = document.getElementById("firstFramePanel");
+        const compositeStatusBadge = document.getElementById("compositeStatusBadge");
+        const compositeHint = document.getElementById("compositeHint");
+        const compositePreview = document.getElementById("compositePreview");
+        const compositeEmptyText = document.getElementById("compositeEmptyText");
+        const compositeImage = document.getElementById("compositeImage");
+        const compositeSteps = document.getElementById("compositeSteps");
+        const compositePrimaryBtn = document.getElementById("compositePrimaryBtn");
+        const compositeViewBtn = document.getElementById("compositeViewBtn");
+        const firstFrameLargeImg = document.getElementById("firstFrameLargeImg");
+        const firstFrameViewDesc = document.getElementById("firstFrameViewDesc");
+        const firstFrameRegenerateBtn = document.getElementById("firstFrameRegenerateBtn");
+
+        let selectedRole = null;
+        let selectedScene = null;
+        let compositeState = "locked";
+        let compositeImageData = "";
+        let compositeVersion = 0;
+        let compositeTimer = null;
+        let compositeStepIndex = 0;
+        let compositeSourceKey = "";
+        let compositeRequestId = 0;
+        let editingRoleCard = null;
+        let editingSceneCard = null;
+        let editRoleImageData = "";
+        let editSceneImageData = "";
+        let editRoleImageChanged = false;
+        let editSceneImageChanged = false;
+        let editRoleViewsRegenerated = false;
+        let editSceneViewsRegenerated = false;
+        const defaultSceneAngles = Array.from(
+            document.querySelectorAll("#editSceneAssetPanel .edit-scene-angle-card")
+        ).map((card) => card.dataset.angle).filter(Boolean);
+        const compositeStepLabels = ["准备角色素材", "分析场景空间", "融合人物与光影", "生成首帧预览"];
+
+        function setSelectedImage(container, imgSrc, altText) {
+            container.innerHTML = "";
+            const img = document.createElement("img");
+            img.src = imgSrc;
+            img.alt = altText;
+            container.appendChild(img);
+        }
+
+        function clearCompositeTimer() {
+            if (compositeTimer) {
+                clearInterval(compositeTimer);
+                compositeTimer = null;
+            }
+        }
+
+        function getCurrentCompositeSourceKey() {
+            if (!selectedRole || !selectedScene) return "";
+            return [
+                selectedRole.name || "",
+                selectedRole.voice || "",
+                selectedRole.img || "",
+                selectedScene.name || "",
+                selectedScene.desc || "",
+                selectedScene.img || "",
+            ].join("||");
+        }
+
+        function canEnterStoryboard() {
+            return Boolean(
+                selectedRole &&
+                selectedScene &&
+                compositeState === "done" &&
+                compositeImageData &&
+                compositeSourceKey === getCurrentCompositeSourceKey()
+            );
+        }
+
+        function updateNextButtonState() {
+            const canNext = canEnterStoryboard();
+            nextBtn.disabled = !canNext;
+            nextBtn.title = canNext ? "" : "请先完成首帧合成";
+
+            if (!selectedRole || !selectedScene) {
+                footerTip.textContent = "Step 2 / 4：选择角色与场景后，需要先合成视频首帧。";
+            } else if (compositeState === "generating") {
+                footerTip.textContent = "Step 2 / 4：首帧正在合成，完成后才能进入分镜管理。";
+            } else if (compositeState === "done" && canNext) {
+                footerTip.textContent = "Step 2 / 4：首帧已生成，可以进入分镜管理。";
+            } else if (compositeState === "stale") {
+                footerTip.textContent = "Step 2 / 4：角色或场景已变化，请重新合成首帧。";
+            } else {
+                footerTip.textContent = "Step 2 / 4：角色和场景已就绪，请先合成视频首帧。";
+            }
+        }
+
+        function renderCompositeSteps(activeIndex, finished) {
+            compositeSteps.innerHTML = compositeStepLabels.map((label, index) => {
+                const stateClass = finished ? "done" : (index < activeIndex ? "done" : (index === activeIndex ? "active" : ""));
+                return '<li class="' + stateClass + '">' + label + '</li>';
+            }).join("");
+        }
+
+        function renderCompositeUI() {
+            firstFramePanel.dataset.state = compositeState;
+            compositePreview.classList.toggle("has-image", Boolean(compositeImageData));
+
+            if (compositeImageData) {
+                compositeImage.src = compositeImageData;
+            } else {
+                compositeImage.removeAttribute("src");
+            }
+
+            const hasSelection = Boolean(selectedRole && selectedScene);
+            const hasImage = Boolean(compositeImageData);
+            const stateMeta = {
+                locked: {
+                    badge: "未开始",
+                    hint: "选择角色和场景后，调用多模态模型生成视频首帧。",
+                    empty: "等待角色和场景选择完成。",
+                    primary: "合成首帧",
+                },
+                ready: {
+                    badge: "待合成",
+                    hint: "角色和场景已就绪，点击后开始合成首帧。",
+                    empty: "将角色置入场景前景，生成用于视频生成的首帧。",
+                    primary: "合成首帧",
+                },
+                generating: {
+                    badge: "合成中",
+                    hint: "模型正在处理角色与场景融合，请稍候。",
+                    empty: "正在生成首帧预览。",
+                    primary: "合成中...",
+                },
+                done: {
+                    badge: "已完成",
+                    hint: "首帧已生成，可查看大图；如果效果不好，可以重新合成。",
+                    empty: "首帧已生成。",
+                    primary: "重新合成",
+                },
+                stale: {
+                    badge: "需重新合成",
+                    hint: "当前角色或场景已变化，旧首帧不能继续用于下一步。",
+                    empty: "请重新合成当前角色与场景。",
+                    primary: "重新合成首帧",
+                },
+            }[compositeState] || {};
+
+            compositeStatusBadge.textContent = stateMeta.badge || "未开始";
+            compositeHint.textContent = stateMeta.hint || "";
+            compositeEmptyText.textContent = stateMeta.empty || "";
+            compositePrimaryBtn.textContent = stateMeta.primary || "合成首帧";
+            compositePrimaryBtn.disabled = !hasSelection || compositeState === "generating";
+            compositeViewBtn.disabled = !hasImage;
+            firstFrameRegenerateBtn.disabled = !hasSelection || compositeState === "generating";
+            renderCompositeSteps(compositeStepIndex, compositeState === "done");
+            updateNextButtonState();
+        }
+
+        function setCompositeState(state) {
+            compositeState = state;
+            renderCompositeUI();
+        }
+
+        function handleCompositeInputsChanged() {
+            const sourceKey = getCurrentCompositeSourceKey();
+
+            if (!sourceKey) {
+                compositeRequestId += 1;
+                clearCompositeTimer();
+                compositeImageData = "";
+                compositeSourceKey = "";
+                compositeStepIndex = 0;
+                setCompositeState("locked");
+                return;
+            }
+
+            if (compositeState === "generating") {
+                compositeRequestId += 1;
+                clearCompositeTimer();
+                compositeStepIndex = 0;
+                setCompositeState(compositeImageData ? "stale" : "ready");
+                return;
+            }
+
+            if (compositeImageData && compositeSourceKey && compositeSourceKey !== sourceKey) {
+                compositeStepIndex = 0;
+                setCompositeState("stale");
+                return;
+            }
+
+            if (compositeState !== "done" || compositeSourceKey !== sourceKey) {
+                compositeStepIndex = 0;
+                setCompositeState("ready");
+            } else {
+                renderCompositeUI();
+            }
+        }
+
+        function hashText(value) {
+            let hash = 0;
+            const text = String(value || "");
+            for (let i = 0; i < text.length; i += 1) {
+                hash = ((hash << 5) - hash) + text.charCodeAt(i);
+                hash |= 0;
+            }
+            return Math.abs(hash);
+        }
+
+        function buildCompositeFirstFrame(role, scene, version) {
+            const roleName = escapeSubjectText(role.name || "未命名角色");
+            const sceneName = escapeSubjectText(scene.name || "未命名场景");
+            const roleVoice = escapeSubjectText(role.voice || "未配置音色");
+            const seed = hashText(roleName + sceneName + version);
+            const accentSet = ["#4f46e5", "#0f766e", "#be123c", "#2563eb", "#7c3aed"];
+            const accent = accentSet[seed % accentSet.length];
+            const roleInitial = escapeSubjectText((role.name || "角").slice(0, 1));
+            const sceneInitial = escapeSubjectText((scene.name || "场").slice(0, 1));
+            const svg =
+                '<svg xmlns="http://www.w3.org/2000/svg" width="900" height="1600" viewBox="0 0 900 1600">' +
+                    '<defs>' +
+                        '<linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">' +
+                            '<stop offset="0" stop-color="#f8fafc"/>' +
+                            '<stop offset="0.46" stop-color="#eef2ff"/>' +
+                            '<stop offset="1" stop-color="#ecfeff"/>' +
+                        '</linearGradient>' +
+                        '<linearGradient id="floor" x1="0" y1="0" x2="0" y2="1">' +
+                            '<stop offset="0" stop-color="#ffffff" stop-opacity="0"/>' +
+                            '<stop offset="1" stop-color="#cbd5e1" stop-opacity="0.88"/>' +
+                        '</linearGradient>' +
+                    '</defs>' +
+                    '<rect width="900" height="1600" fill="url(#bg)"/>' +
+                    '<rect x="54" y="78" width="792" height="1444" rx="54" fill="#ffffff" opacity="0.84"/>' +
+                    '<rect x="112" y="174" width="676" height="390" rx="34" fill="#0f172a" opacity="0.9"/>' +
+                    '<text x="148" y="238" fill="#ffffff" font-size="42" font-weight="700" font-family="Microsoft YaHei, Arial, sans-serif">' + sceneName + '</text>' +
+                    '<rect x="148" y="292" width="242" height="132" rx="20" fill="' + accent + '" opacity="0.72"/>' +
+                    '<rect x="420" y="292" width="258" height="132" rx="20" fill="#22c55e" opacity="0.42"/>' +
+                    '<path d="M152 500 C232 424 306 458 372 390 S534 330 674 446" fill="none" stroke="#93c5fd" stroke-width="14" opacity="0.85"/>' +
+                    '<text x="148" y="474" fill="#cbd5e1" font-size="26" font-family="Microsoft YaHei, Arial, sans-serif">场景 ' + sceneInitial + ' 已融合</text>' +
+                    '<ellipse cx="450" cy="1252" rx="344" ry="130" fill="#94a3b8" opacity="0.26"/>' +
+                    '<rect x="0" y="900" width="900" height="700" fill="url(#floor)"/>' +
+                    '<path d="M318 1186 C326 1012 574 1012 582 1186 L626 1468 H274 Z" fill="#1f2937"/>' +
+                    '<path d="M328 1172 C354 1072 546 1072 572 1172 L598 1360 H302 Z" fill="' + accent + '" opacity="0.92"/>' +
+                    '<circle cx="450" cy="852" r="134" fill="#d1d5db"/>' +
+                    '<path d="M318 822 C336 682 562 666 590 826 C530 776 376 776 318 822 Z" fill="#111827" opacity="0.86"/>' +
+                    '<circle cx="402" cy="872" r="17" fill="#374151"/>' +
+                    '<circle cx="498" cy="872" r="17" fill="#374151"/>' +
+                    '<path d="M394 928 C430 958 470 958 506 928" fill="none" stroke="#4b5563" stroke-width="12" stroke-linecap="round"/>' +
+                    '<circle cx="450" cy="1050" r="54" fill="#f8fafc"/>' +
+                    '<text x="450" y="1070" text-anchor="middle" fill="' + accent + '" font-size="50" font-weight="800" font-family="Microsoft YaHei, Arial, sans-serif">' + roleInitial + '</text>' +
+                    '<rect x="106" y="1294" width="688" height="146" rx="28" fill="#ffffff" opacity="0.92"/>' +
+                    '<text x="144" y="1358" fill="#111827" font-size="44" font-weight="800" font-family="Microsoft YaHei, Arial, sans-serif">' + roleName + '</text>' +
+                    '<text x="144" y="1410" fill="#64748b" font-size="28" font-family="Microsoft YaHei, Arial, sans-serif">' + roleVoice + '</text>' +
+                    '<rect x="112" y="102" width="226" height="44" rx="14" fill="' + accent + '"/>' +
+                    '<text x="138" y="132" fill="#ffffff" font-size="24" font-weight="700" font-family="Arial, sans-serif">AI COMPOSITE</text>' +
+                    '<text x="668" y="148" fill="#64748b" font-size="24" font-family="Arial, sans-serif">V' + version + '</text>' +
+                '</svg>';
+            return "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(svg);
+        }
+
+        function startCompositeGeneration() {
+            if (!selectedRole || !selectedScene) {
+                alert("请先选择 1 个角色和 1 个场景。");
+                return;
+            }
+
+            compositeRequestId += 1;
+            const requestId = compositeRequestId;
+            const sourceKey = getCurrentCompositeSourceKey();
+            clearCompositeTimer();
+            compositeStepIndex = 0;
+            setCompositeState("generating");
+            updateStatus();
+
+            compositeTimer = setInterval(() => {
+                if (requestId !== compositeRequestId) {
+                    clearCompositeTimer();
+                    return;
+                }
+                if (compositeStepIndex < compositeStepLabels.length - 1) {
+                    compositeStepIndex += 1;
+                    renderCompositeUI();
+                    return;
+                }
+
+                clearCompositeTimer();
+                compositeVersion += 1;
+                compositeImageData = buildCompositeFirstFrame(selectedRole, selectedScene, compositeVersion);
+                compositeSourceKey = sourceKey;
+                compositeStepIndex = compositeStepLabels.length;
+                setCompositeState("done");
+                updateStatus();
+            }, 820);
+        }
+
+        function openFirstFrameViewModal() {
+            if (!compositeImageData) return;
+            firstFrameLargeImg.src = compositeImageData;
+            firstFrameViewDesc.textContent = (selectedRole ? selectedRole.name : "角色") + " × " + (selectedScene ? selectedScene.name : "场景");
+            document.getElementById("firstFrameViewModal").classList.add("active");
+        }
+
+        function updateStatus() {
+            if (canEnterStoryboard()) {
+                statusTip.textContent = "主体配置与首帧合成已完成，可以进入分镜管理。";
+                statusTip.classList.add("success");
+            } else if (selectedRole && selectedScene && compositeState === "generating") {
+                statusTip.textContent = "正在合成首帧，完成后才能进入分镜管理。";
+                statusTip.classList.remove("success");
+            } else if (selectedRole && selectedScene && compositeState === "stale") {
+                statusTip.textContent = "角色或场景已变化，请重新合成首帧。";
+                statusTip.classList.remove("success");
+            } else if (selectedRole && selectedScene) {
+                statusTip.textContent = "已选择角色和场景，请先合成视频首帧。";
+                statusTip.classList.remove("success");
+            } else if (selectedRole && !selectedScene) {
+                statusTip.textContent = "已选择角色，请继续选择场景。";
+                statusTip.classList.remove("success");
+            } else {
+                statusTip.textContent = "当前还未完成主体配置，请先选择角色，再选择场景。";
+                statusTip.classList.remove("success");
+            }
+            updateNextButtonState();
+        }
+
+        function getCardImage(card) {
+            return card.dataset.img || (card.querySelector(".cover img") ? card.querySelector(".cover img").src : "");
+        }
+
+        function setPreviewFrame(frameId, imgSrc, altText) {
+            const frame = document.getElementById(frameId);
+            frame.innerHTML = "";
+            if (!imgSrc) {
+                const empty = document.createElement("div");
+                empty.className = "edit-preview-empty";
+                empty.textContent = "暂无图片预览";
+                frame.appendChild(empty);
+                return;
+            }
+            const img = document.createElement("img");
+            img.src = imgSrc;
+            img.alt = altText;
+            frame.appendChild(img);
+        }
+
+        function updateCardContent(card, data) {
+            card.dataset.name = data.name;
+            card.dataset.desc = data.desc;
+            card.dataset.img = data.img;
+
+            if (data.voice !== undefined) {
+                card.dataset.voice = data.voice;
+            }
+
+            const coverImg = card.querySelector(".cover img");
+            if (coverImg) {
+                coverImg.src = data.img;
+                coverImg.alt = data.name;
+            }
+
+            const title = card.querySelector(".card-body h3");
+            if (title) {
+                title.textContent = data.name;
+            }
+
+            const desc = card.querySelector(".card-body p");
+            if (desc) {
+                desc.textContent = data.desc;
+            }
+
+            const letter = card.querySelector(".avatar-letter");
+            if (letter) {
+                letter.textContent = data.name ? data.name.slice(0, 1) : "主";
+            }
+        }
+
+        function syncSelectedRoleFromCard(card) {
+            if (!selectedRole || !card.classList.contains("selected")) return;
+            selectedRole = {
+                name: card.dataset.name,
+                voice: card.dataset.voice,
+                desc: card.dataset.desc,
+                img: card.dataset.img,
+            };
+            setSelectedImage(selectedRoleThumb, selectedRole.img, selectedRole.name);
+            selectedRoleName.textContent = selectedRole.name;
+            selectedRoleVoice.textContent = "角色音色：" + selectedRole.voice;
+            handleCompositeInputsChanged();
+            updateStatus();
+        }
+
+        function syncSelectedSceneFromCard(card) {
+            if (!selectedScene || !card.classList.contains("selected")) return;
+            selectedScene = {
+                name: card.dataset.name,
+                desc: card.dataset.desc,
+                img: card.dataset.img,
+                angles: getSceneAnglesFromCard(card),
+            };
+            setSelectedImage(selectedSceneThumb, selectedScene.img, selectedScene.name);
+            selectedSceneName.textContent = selectedScene.name;
+            selectedSceneDesc.textContent = "场景背景：" + selectedScene.desc;
+            handleCompositeInputsChanged();
+            updateStatus();
+        }
+
+        function getSceneAnglesFromCard(card) {
+            if (!card || !card.dataset.selectedAngles) {
+                return defaultSceneAngles.slice();
+            }
+            const angles = card.dataset.selectedAngles
+                .split(",")
+                .map((angle) => angle.trim())
+                .filter(Boolean);
+            return angles.length ? angles : defaultSceneAngles.slice();
+        }
+
+        function getEditSelectedSceneAngles() {
+            return Array.from(
+                document.querySelectorAll("#editSceneAssetPanel .edit-scene-angle-card.selected")
+            ).map((card) => card.dataset.angle).filter(Boolean);
+        }
+
+        function updateEditSceneAngleCount() {
+            const total = document.querySelectorAll("#editSceneAssetPanel .edit-scene-angle-card").length;
+            const selected = getEditSelectedSceneAngles().length;
+            const countEl = document.getElementById("editSceneAngleCount");
+            if (countEl) {
+                countEl.textContent = "已选择 " + selected + " / " + total;
+            }
+        }
+
+        function setEditSceneAngleSelection(angles) {
+            const selectedSet = new Set(angles && angles.length ? angles : defaultSceneAngles);
+            document.querySelectorAll("#editSceneAssetPanel .edit-scene-angle-card").forEach((card) => {
+                card.classList.toggle("selected", selectedSet.has(card.dataset.angle));
+            });
+            updateEditSceneAngleCount();
+        }
+
+        function setAssetPanelState(type, state) {
+            const isRole = type === "role";
+            const panel = document.getElementById(isRole ? "editRoleAssetPanel" : "editSceneAssetPanel");
+            const button = document.getElementById(isRole ? "editRoleRegenerateBtn" : "editSceneRegenerateBtn");
+            const note = document.getElementById(isRole ? "editRoleAssetNote" : "editSceneAssetNote");
+
+            panel.classList.remove("asset-stale", "asset-generating");
+            button.disabled = false;
+            button.classList.remove("btn-primary");
+            button.classList.add("btn-light");
+
+            if (state === "stale") {
+                panel.classList.add("asset-stale");
+                button.textContent = "重新生成";
+                button.classList.remove("btn-light");
+                button.classList.add("btn-primary");
+                note.textContent = "已替换主图，保存前建议重新生成右侧视角资产。";
+                return;
+            }
+
+            if (state === "generating") {
+                panel.classList.add("asset-generating");
+                button.textContent = "生成中...";
+                button.disabled = true;
+                note.textContent = "正在根据新主图生成视角资产，这里是原型中的模拟状态。";
+                return;
+            }
+
+            button.textContent = "重新生成";
+            button.disabled = false;
+            note.textContent = "修改文字配置可直接保存，不需要重新生成视角。";
+        }
+
+        function selectRoleCard(card) {
+            document.querySelectorAll(".role-card").forEach((item) => item.classList.remove("selected"));
+            card.classList.add("selected");
+
+            selectedRole = {
+                name: card.dataset.name,
+                voice: card.dataset.voice,
+                desc: card.dataset.desc,
+                img: card.dataset.img,
+            };
+
+            setSelectedImage(selectedRoleThumb, selectedRole.img, selectedRole.name);
+            selectedRoleName.textContent = selectedRole.name;
+            selectedRoleVoice.textContent = "角色音色：" + selectedRole.voice;
+
+            handleCompositeInputsChanged();
+            updateStatus();
+        }
+
+        function selectSceneCard(card) {
+            document.querySelectorAll(".scene-card").forEach((item) => item.classList.remove("selected"));
+            card.classList.add("selected");
+
+            selectedScene = {
+                name: card.dataset.name,
+                desc: card.dataset.desc,
+                img: card.dataset.img,
+                angles: getSceneAnglesFromCard(card),
+            };
+
+            setSelectedImage(selectedSceneThumb, selectedScene.img, selectedScene.name);
+            selectedSceneName.textContent = selectedScene.name;
+            selectedSceneDesc.textContent = "场景背景：" + selectedScene.desc;
+
+            handleCompositeInputsChanged();
+            updateStatus();
+        }
+
+        function bindRoleCardSelection(card) {
+            if (card.dataset.selectionBound === "role") return;
+            card.dataset.selectionBound = "role";
+            card.addEventListener("click", () => selectRoleCard(card));
+        }
+
+        function bindSceneCardSelection(card) {
+            if (card.dataset.selectionBound === "scene") return;
+            card.dataset.selectionBound = "scene";
+            card.addEventListener("click", () => selectSceneCard(card));
+        }
+
+        roleCards.forEach(bindRoleCardSelection);
+        sceneCards.forEach(bindSceneCardSelection);
+
+        // 卡片操作按钮：阻止冒泡 + 编辑/查看等操作
+        document.querySelectorAll(".card-actions .btn-link").forEach((button) => {
+            button.addEventListener("click", (event) => {
+                event.stopPropagation();
+                const btnText = button.textContent.trim();
+
+                const card = button.closest(".subject-card");
+
+                if (btnText === "编辑") {
+                    if (card && card.classList.contains("role-card")) {
+                        openRoleEditModal(card);
+                    } else if (card && card.classList.contains("scene-card")) {
+                        openSceneEditModal(card);
+                    }
+                    return;
+                }
+
+                if (btnText === "试听") {
+                    if (card && card.classList.contains("role-card")) {
+                        alert("正在试听：" + card.dataset.voice);
+                    }
+                    return;
+                }
+
+                if (btnText === "查看") {
+                    if (card && card.classList.contains("role-card")) {
+                        openRoleViewModal(card);
+                    } else if (card && card.classList.contains("scene-card")) {
+                        openSceneViewModal(card);
+                    }
+                }
+            });
+        });
+
+        nextBtn.addEventListener("click", () => {
+            if (!selectedRole || !selectedScene) {
+                alert("请先选择 1 个角色和 1 个场景。");
+                return;
+            }
+            if (!canEnterStoryboard()) {
+                alert("请先完成首帧合成。");
+                return;
+            }
+            const selectedSceneAngles = selectedScene.angles && selectedScene.angles.length ?
+                selectedScene.angles :
+                defaultSceneAngles.slice();
+            sessionStorage.setItem("step2SubjectSelection", JSON.stringify({
+                role: selectedRole,
+                scene: {
+                    name: selectedScene.name,
+                    desc: selectedScene.desc,
+                    img: selectedScene.img,
+                    selectedAngles: selectedSceneAngles,
+                },
+                firstFrame: {
+                    img: compositeImageData,
+                    version: compositeVersion,
+                    sourceKey: compositeSourceKey,
+                },
+            }));
+            alert("主体配置已完成，即将进入分镜管理。");
+            window.location.href = "step3-分镜管理.html";
+        });
+
+        compositePrimaryBtn.addEventListener("click", startCompositeGeneration);
+        compositeViewBtn.addEventListener("click", openFirstFrameViewModal);
+        firstFrameRegenerateBtn.addEventListener("click", () => {
+            document.getElementById("firstFrameViewModal").classList.remove("active");
+            startCompositeGeneration();
+        });
+        renderCompositeUI();
+
+        // ==================== 创建弹窗逻辑 ====================
+        let createRoleImageData = "";
+        let createSceneImageData = "";
+        let createRoleViewsStarted = false;
+        let createSceneViewsStarted = false;
+
+        function openCreateRoleModal() {
+            document.getElementById("roleName").value = "";
+            document.getElementById("roleVoice").value = "";
+            document.getElementById("roleDesc").value = "";
+            document.getElementById("roleImage").value = "";
+            document.getElementById("roleAuthCheck").checked = false;
+            document.getElementById("roleImagePreview").innerHTML = "<span>暂未上传主图</span>";
+            createRoleImageData = "";
+            createRoleViewsStarted = false;
+            setCreateRoleAssetState("idle");
+            setPreviewFrame("createRolePreviewFrame", "", "");
+            document.getElementById("createRolePreviewName").textContent = "角色名称";
+            document.getElementById("createRolePreviewVoice").textContent = "未选择音色";
+            document.getElementById("createRoleViewsGallery").style.display = "none";
+            document.getElementById("createRoleDetailList").style.display = "none";
+            document.getElementById("createRoleViewsBtn").disabled = true;
+            document.getElementById("createRoleConfirmBtn").textContent = "创建";
+            document.getElementById("createRoleModal").classList.add("active");
+        }
+
+        function closeCreateRoleModal() {
+            document.getElementById("createRoleModal").classList.remove("active");
+        }
+
+        function previewRoleVoice() {
+            const voice = document.getElementById("roleVoice").value;
+            if (!voice) {
+                alert("请先选择角色音色");
+                return;
+            }
+            alert("正在试听：" + voice);
+        }
+
+        function updateCreateRolePreview() {
+            const name = document.getElementById("roleName").value.trim() || "未命名角色";
+            const voice = document.getElementById("roleVoice").value || "未选择";
+            const desc = document.getElementById("roleDesc").value.trim() || "暂无角色描述";
+            setPreviewFrame("createRolePreviewFrame", createRoleImageData, name);
+            document.getElementById("createRolePreviewName").textContent = name;
+            document.getElementById("createRolePreviewVoice").textContent = voice;
+        }
+
+        function setCreateRoleAssetState(state) {
+            const status = document.getElementById("createRoleAssetStatus");
+            const button = document.getElementById("createRoleViewsBtn");
+            const note = document.getElementById("createRoleAssetNote");
+            const viewsStatus = document.getElementById("createRoleViewsStatus");
+            const panel = document.getElementById("createRoleAssetPanel");
+            const gallery = document.getElementById("createRoleViewsGallery");
+            const detailList = document.getElementById("createRoleDetailList");
+
+            panel.classList.remove("asset-stale", "asset-generating");
+            button.disabled = false;
+            button.classList.remove("btn-light");
+            button.classList.add("btn-primary");
+
+            if (state === "idle") {
+                status.textContent = "待创建";
+                button.textContent = "创建视图";
+                button.disabled = true;
+                note.textContent = "先生成角色主图，再创建多视图。";
+                viewsStatus.textContent = "尚未创建多视图。上传主图后，可点击按钮开始生成。";
+                gallery.style.display = "none";
+                detailList.style.display = "none";
+                return;
+            }
+
+            if (state === "generating") {
+                panel.classList.add("asset-generating");
+                status.textContent = "生成中";
+                button.textContent = "生成中...";
+                button.disabled = true;
+                note.textContent = "正在生成角色多视角资产，请稍后。";
+                viewsStatus.textContent = "多视图正在生成中，您可以等待完成或点击确认返回首页。";
+                gallery.style.display = "block";
+                detailList.style.display = "block";
+                return;
+            }
+
+            if (state === "done") {
+                status.textContent = "视角已生成";
+                button.textContent = "创建视图";
+                button.disabled = true;
+                note.textContent = "角色多视角资产已创建完成。";
+                viewsStatus.textContent = "多视图已生成完成。";
+                gallery.style.display = "block";
+                detailList.style.display = "block";
+                return;
+            }
+        }
+
+        function handleRoleImageUpload(event) {
+            const file = event.target.files && event.target.files[0];
+            const preview = document.getElementById("roleImagePreview");
+            if (!file) {
+                createRoleImageData = "";
+                createRoleViewsStarted = false;
+                preview.innerHTML = "<span>暂未上传主图</span>";
+                setPreviewFrame("createRolePreviewFrame", "", "");
+                setCreateRoleAssetState("idle");
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = function(loadEvent) {
+                createRoleImageData = loadEvent.target.result;
+                createRoleViewsStarted = false;
+                preview.innerHTML =
+                    '<img src="' + createRoleImageData + '" alt="角色主图预览" />' +
+                    "<span>" + file.name + "</span>";
+                updateCreateRolePreview();
+                setCreateRoleAssetState("idle");
+                document.getElementById("createRoleViewsBtn").disabled = false;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function startCreateRoleViews() {
+            const roleName = document.getElementById("roleName").value.trim();
+            const roleVoice = document.getElementById("roleVoice").value;
+            const roleAuthCheck = document.getElementById("roleAuthCheck").checked;
+            if (!roleName) { alert("请输入角色名称"); return; }
+            if (!roleVoice) { alert("请选择角色音色"); return; }
+            if (!createRoleImageData) { alert("请上传角色主图"); return; }
+            if (!roleAuthCheck) { alert("请确认已获得人物形象授权"); return; }
+
+            createRoleViewsStarted = true;
+            setCreateRoleAssetState("generating");
+            document.getElementById("createRoleConfirmBtn").textContent = "创建并生成中";
+
+            // 模拟生成完成
+            setTimeout(() => {
+                setCreateRoleAssetState("done");
+                document.getElementById("createRoleConfirmBtn").textContent = "创建完成";
+            }, 3000);
+        }
+
+        function confirmCreateRoleAndBack() {
+            const roleName = document.getElementById("roleName").value.trim();
+            if (!roleName && !createRoleImageData && !createRoleViewsStarted) {
+                closeCreateRoleModal();
+                return;
+            }
+            if (!roleName) { alert("请至少填写角色名称后再返回"); return; }
+            if (!createRoleImageData) { alert("请上传角色主图后再返回"); return; }
+            if (!createRoleViewsStarted) { alert("请先点击创建视图后再返回"); return; }
+
+            // 在首页角色列表中插入生成中卡片
+            insertGeneratingRoleCard(roleName);
+            closeCreateRoleModal();
+        }
+
+        function createRole() {
+            const roleName = document.getElementById("roleName").value.trim();
+            const roleVoice = document.getElementById("roleVoice").value;
+            const roleAuthCheck = document.getElementById("roleAuthCheck").checked;
+            if (!roleName) { alert("请输入角色名称"); return; }
+            if (!roleVoice) { alert("请选择角色音色"); return; }
+            if (!createRoleImageData) { alert("请上传角色主图"); return; }
+            if (!roleAuthCheck) { alert("请确认已获得人物形象授权"); return; }
+
+            if (!createRoleViewsStarted) {
+                startCreateRoleViews();
+                return;
+            }
+
+            alert("角色创建成功");
+            closeCreateRoleModal();
+        }
+
+        function insertGeneratingRoleCard(name) {
+            const cardRow = document.querySelector(".role-card") ?
+                document.querySelector(".role-card").closest(".card-row") :
+                document.querySelector(".section:first-of-type .card-row");
+            if (!cardRow) return;
+
+            const existing = cardRow.querySelector('.generating-card[data-type="role"]');
+            if (existing) return;
+
+            const generatingCard = document.createElement("article");
+            generatingCard.className = "subject-card generating generating-card";
+            generatingCard.setAttribute("data-type", "role");
+            generatingCard.setAttribute("data-name", name);
+            generatingCard.setAttribute("aria-disabled", "true");
+            generatingCard.innerHTML =
+                '<div class="cover">' +
+                    '<div class="cover-placeholder">' +
+                        '<div class="spinner"></div>' +
+                        '<div>角色正在生成中</div>' +
+                    '</div>' +
+                    '<div class="badge generating-badge">生成中</div>' +
+                    '<div class="type-tag">角色</div>' +
+                '</div>' +
+                '<div class="card-body">' +
+                    '<div class="avatar-letter">' + (name ? name.slice(0, 1) : "角") + '</div>' +
+                    '<h3>' + name + '</h3>' +
+                    '<p class="generating-text">系统正在生成角色多视图，完成后可选择使用。</p>' +
+                '</div>' +
+                '<div class="card-actions">' +
+                    '<button class="btn-link" type="button" onclick="event.stopPropagation();">查看</button>' +
+                '</div>';
+            cardRow.appendChild(generatingCard);
+        }
+
+        function openCreateSceneModal() {
+            document.getElementById("sceneName").value = "";
+            document.getElementById("sceneDesc").value = "";
+            document.getElementById("sceneImage").value = "";
+            document.getElementById("sceneImagePreview").innerHTML = "<span>暂未上传场景图</span>";
+            createSceneImageData = "";
+            createSceneViewsStarted = false;
+            setCreateSceneAssetState("idle");
+            setPreviewFrame("createScenePreviewFrame", "", "");
+            document.getElementById("createScenePreviewName").textContent = "场景名称";
+            document.getElementById("createSceneViewsGallery").style.display = "none";
+            document.getElementById("createSceneDetailList").style.display = "none";
+            document.getElementById("createSceneViewsBtn").disabled = true;
+            document.getElementById("createSceneConfirmBtn").textContent = "创建";
+            document.getElementById("createSceneModal").classList.add("active");
+        }
+
+        function closeCreateSceneModal() {
+            document.getElementById("createSceneModal").classList.remove("active");
+        }
+
+        function handleSceneImageUpload(event) {
+            const file = event.target.files && event.target.files[0];
+            const preview = document.getElementById("sceneImagePreview");
+            if (!file) {
+                createSceneImageData = "";
+                createSceneViewsStarted = false;
+                preview.innerHTML = "<span>暂未上传场景图</span>";
+                setPreviewFrame("createScenePreviewFrame", "", "");
+                setCreateSceneAssetState("idle");
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = function(loadEvent) {
+                createSceneImageData = loadEvent.target.result;
+                createSceneViewsStarted = false;
+                preview.innerHTML =
+                    '<img src="' + createSceneImageData + '" alt="场景图预览" />' +
+                    "<span>" + file.name + "</span>";
+                updateCreateScenePreview();
+                setCreateSceneAssetState("idle");
+                document.getElementById("createSceneViewsBtn").disabled = false;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function updateCreateScenePreview() {
+            const name = document.getElementById("sceneName").value.trim() || "未命名场景";
+            setPreviewFrame("createScenePreviewFrame", createSceneImageData, name);
+            document.getElementById("createScenePreviewName").textContent = name;
+        }
+
+        function setCreateSceneAssetState(state) {
+            const status = document.getElementById("createSceneAssetStatus");
+            const button = document.getElementById("createSceneViewsBtn");
+            const note = document.getElementById("createSceneAssetNote");
+            const viewsStatus = document.getElementById("createSceneViewsStatus");
+            const panel = document.getElementById("createSceneAssetPanel");
+            const gallery = document.getElementById("createSceneViewsGallery");
+            const detailList = document.getElementById("createSceneDetailList");
+
+            panel.classList.remove("asset-stale", "asset-generating");
+            button.disabled = false;
+            button.classList.remove("btn-light");
+            button.classList.add("btn-primary");
+
+            if (state === "idle") {
+                status.textContent = "待创建";
+                button.textContent = "创建视图";
+                button.disabled = true;
+                note.textContent = "先生成场景主图，再创建多视图。";
+                viewsStatus.textContent = "尚未创建多视图。上传场景图后，可点击按钮开始生成。";
+                gallery.style.display = "none";
+                detailList.style.display = "none";
+                return;
+            }
+
+            if (state === "generating") {
+                panel.classList.add("asset-generating");
+                status.textContent = "生成中";
+                button.textContent = "生成中...";
+                button.disabled = true;
+                note.textContent = "正在生成场景多视角资产，请稍后。";
+                viewsStatus.textContent = "多视图正在生成中，您可以等待完成或点击确认返回首页。";
+                gallery.style.display = "block";
+                detailList.style.display = "block";
+                return;
+            }
+
+            if (state === "done") {
+                status.textContent = "视角已生成";
+                button.textContent = "创建视图";
+                button.disabled = true;
+                note.textContent = "场景多视角资产已创建完成。";
+                viewsStatus.textContent = "多视图已生成完成。";
+                gallery.style.display = "block";
+                detailList.style.display = "block";
+                return;
+            }
+        }
+
+        function startCreateSceneViews() {
+            const sceneName = document.getElementById("sceneName").value.trim();
+            if (!sceneName) { alert("请输入场景名称"); return; }
+            if (!createSceneImageData) { alert("请上传场景图"); return; }
+
+            createSceneViewsStarted = true;
+            setCreateSceneAssetState("generating");
+            document.getElementById("createSceneConfirmBtn").textContent = "创建并生成中";
+
+            // 模拟生成完成
+            setTimeout(() => {
+                setCreateSceneAssetState("done");
+                document.getElementById("createSceneConfirmBtn").textContent = "创建完成";
+            }, 3000);
+        }
+
+        function confirmCreateSceneAndBack() {
+            const sceneName = document.getElementById("sceneName").value.trim();
+            if (!sceneName && !createSceneImageData && !createSceneViewsStarted) {
+                closeCreateSceneModal();
+                return;
+            }
+            if (!sceneName) { alert("请至少填写场景名称后再返回"); return; }
+            if (!createSceneImageData) { alert("请上传场景图后再返回"); return; }
+            if (!createSceneViewsStarted) { alert("请先点击创建视图后再返回"); return; }
+
+            // 在首页场景列表中插入生成中卡片
+            insertGeneratingSceneCard(sceneName);
+            closeCreateSceneModal();
+        }
+
+        function createScene() {
+            const sceneName = document.getElementById("sceneName").value.trim();
+            if (!sceneName) { alert("请输入场景名称"); return; }
+            if (!createSceneImageData) { alert("请上传场景图"); return; }
+
+            if (!createSceneViewsStarted) {
+                startCreateSceneViews();
+                return;
+            }
+
+            alert("场景创建成功");
+            closeCreateSceneModal();
+        }
+
+        function insertGeneratingSceneCard(name) {
+            const cardRow = document.querySelector(".scene-card") ?
+                document.querySelector(".scene-card").closest(".card-row") :
+                null;
+            if (!cardRow) return;
+
+            const existing = cardRow.querySelector('.generating-card[data-type="scene"]');
+            if (existing) return;
+
+            const generatingCard = document.createElement("article");
+            generatingCard.className = "subject-card generating generating-card";
+            generatingCard.setAttribute("data-type", "scene");
+            generatingCard.setAttribute("data-name", name);
+            generatingCard.setAttribute("aria-disabled", "true");
+            generatingCard.innerHTML =
+                '<div class="cover">' +
+                    '<div class="cover-placeholder">' +
+                        '<div class="spinner"></div>' +
+                        '<div>场景正在生成中</div>' +
+                    '</div>' +
+                    '<div class="badge generating-badge">生成中</div>' +
+                    '<div class="type-tag">场景</div>' +
+                '</div>' +
+                '<div class="card-body">' +
+                    '<div class="avatar-letter">' + (name ? name.slice(0, 1) : "场") + '</div>' +
+                    '<h3>' + name + '</h3>' +
+                    '<p class="generating-text">系统正在生成场景多角度图片，完成后可选择作为视频背景。</p>' +
+                '</div>' +
+                '<div class="card-actions">' +
+                    '<button class="btn-link" type="button" onclick="event.stopPropagation();">查看</button>' +
+                '</div>';
+            cardRow.appendChild(generatingCard);
+        }
+
+        // ==================== 编辑弹窗逻辑 ====================
+        function openRoleEditModal(card) {
+            editingRoleCard = card;
+            editRoleImageData = getCardImage(card);
+            editRoleImageChanged = card.dataset.assetStatus === "stale";
+            editRoleViewsRegenerated = false;
+
+            document.getElementById("editRoleName").value = card.dataset.name || "";
+            document.getElementById("editRoleVoice").value = card.dataset.voice || "";
+            document.getElementById("editRoleDesc").value = card.dataset.desc || "";
+            document.getElementById("editRoleImage").value = "";
+            document.getElementById("editRoleImagePreview").innerHTML = '<span>沿用当前主图</span>';
+
+            updateRoleEditPreview();
+            setAssetPanelState("role", editRoleImageChanged ? "stale" : "ready");
+            document.getElementById("editRoleModal").classList.add("active");
+        }
+
+        function openSceneEditModal(card) {
+            editingSceneCard = card;
+            editSceneImageData = getCardImage(card);
+            editSceneImageChanged = card.dataset.assetStatus === "stale";
+            editSceneViewsRegenerated = false;
+
+            document.getElementById("editSceneName").value = card.dataset.name || "";
+            document.getElementById("editSceneDesc").value = card.dataset.desc || "";
+            document.getElementById("editSceneImage").value = "";
+            document.getElementById("editSceneImagePreview").innerHTML = '<span>沿用当前场景图</span>';
+
+            updateSceneEditPreview();
+            setEditSceneAngleSelection(getSceneAnglesFromCard(card));
+            setAssetPanelState("scene", editSceneImageChanged ? "stale" : "ready");
+            document.getElementById("editSceneModal").classList.add("active");
+        }
+
+        function previewEditRoleVoice() {
+            const voice = document.getElementById("editRoleVoice").value;
+            if (!voice) {
+                alert("请先选择角色音色");
+                return;
+            }
+            alert("正在试听：" + voice);
+        }
+
+        function updateRoleEditPreview() {
+            const name = document.getElementById("editRoleName").value.trim() || "未命名角色";
+            const voice = document.getElementById("editRoleVoice").value || "未选择";
+            const desc = document.getElementById("editRoleDesc").value.trim() || "暂无角色描述";
+
+            setPreviewFrame("editRolePreviewFrame", editRoleImageData, name);
+            document.getElementById("editRolePreviewName").textContent = name;
+            document.getElementById("editRolePreviewVoice").textContent = voice;
+        }
+
+        function updateSceneEditPreview() {
+            const name = document.getElementById("editSceneName").value.trim() || "未命名场景";
+
+            setPreviewFrame("editScenePreviewFrame", editSceneImageData, name);
+            document.getElementById("editScenePreviewName").textContent = name;
+        }
+
+        function handleEditRoleImageUpload(event) {
+            const file = event.target.files && event.target.files[0];
+            const preview = document.getElementById("editRoleImagePreview");
+
+            if (!file) {
+                editRoleImageData = editingRoleCard ? getCardImage(editingRoleCard) : "";
+                editRoleImageChanged = editingRoleCard ? editingRoleCard.dataset.assetStatus === "stale" : false;
+                preview.innerHTML = '<span>沿用当前主图</span>';
+                updateRoleEditPreview();
+                setAssetPanelState("role", editRoleImageChanged ? "stale" : "ready");
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(loadEvent) {
+                editRoleImageData = loadEvent.target.result;
+                editRoleImageChanged = true;
+                editRoleViewsRegenerated = false;
+                preview.innerHTML =
+                    '<img src="' + editRoleImageData + '" alt="新的角色主图预览" />' +
+                    "<span>" + file.name + "</span>";
+                updateRoleEditPreview();
+                setAssetPanelState("role", "stale");
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function handleEditSceneImageUpload(event) {
+            const file = event.target.files && event.target.files[0];
+            const preview = document.getElementById("editSceneImagePreview");
+
+            if (!file) {
+                editSceneImageData = editingSceneCard ? getCardImage(editingSceneCard) : "";
+                editSceneImageChanged = editingSceneCard ? editingSceneCard.dataset.assetStatus === "stale" : false;
+                preview.innerHTML = '<span>沿用当前场景图</span>';
+                updateSceneEditPreview();
+                setAssetPanelState("scene", editSceneImageChanged ? "stale" : "ready");
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(loadEvent) {
+                editSceneImageData = loadEvent.target.result;
+                editSceneImageChanged = true;
+                editSceneViewsRegenerated = false;
+                preview.innerHTML =
+                    '<img src="' + editSceneImageData + '" alt="新的场景图预览" />' +
+                    "<span>" + file.name + "</span>";
+                updateSceneEditPreview();
+                setAssetPanelState("scene", "stale");
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function regenerateRoleViews() {
+            if (!editingRoleCard) return;
+            setAssetPanelState("role", "generating");
+            setTimeout(() => {
+                editRoleImageChanged = false;
+                editRoleViewsRegenerated = true;
+                editingRoleCard.dataset.assetStatus = "ready";
+                setAssetPanelState("role", "ready");
+                alert("角色多维视图已重新生成");
+            }, 900);
+        }
+
+        function regenerateSceneViews() {
+            if (!editingSceneCard) return;
+            setAssetPanelState("scene", "generating");
+            setTimeout(() => {
+                editSceneImageChanged = false;
+                editSceneViewsRegenerated = true;
+                editingSceneCard.dataset.assetStatus = "ready";
+                setAssetPanelState("scene", "ready");
+                alert("场景多角度视图已重新生成");
+            }, 900);
+        }
+
+        function saveRoleEdit() {
+            if (!editingRoleCard) return;
+
+            const name = document.getElementById("editRoleName").value.trim();
+            const voice = document.getElementById("editRoleVoice").value;
+            const desc = document.getElementById("editRoleDesc").value.trim();
+            const needsRegeneration = editRoleImageChanged && !editRoleViewsRegenerated;
+
+            if (!name) { alert("请输入角色名称"); return; }
+            if (!voice) { alert("请选择角色音色"); return; }
+
+            updateCardContent(editingRoleCard, {
+                name: name,
+                voice: voice,
+                desc: desc || "暂无角色描述",
+                img: editRoleImageData || getCardImage(editingRoleCard),
+            });
+            editingRoleCard.dataset.assetStatus = needsRegeneration ? "stale" : (editingRoleCard.dataset.assetStatus || "ready");
+            syncSelectedRoleFromCard(editingRoleCard);
+
+            document.getElementById("editRoleModal").classList.remove("active");
+            alert(needsRegeneration ? "角色信息已保存，主图已更新，视角资产待重新生成。" : "角色信息已保存");
+        }
+
+        function saveSceneEdit() {
+            if (!editingSceneCard) return;
+
+            const name = document.getElementById("editSceneName").value.trim();
+            const desc = document.getElementById("editSceneDesc").value.trim();
+            const needsRegeneration = editSceneImageChanged && !editSceneViewsRegenerated;
+            const selectedAngles = getEditSelectedSceneAngles();
+
+            if (!name) { alert("请输入场景名称"); return; }
+            if (selectedAngles.length === 0) { alert("请至少选择 1 个场景视角"); return; }
+
+            updateCardContent(editingSceneCard, {
+                name: name,
+                desc: desc || "暂无场景描述",
+                img: editSceneImageData || getCardImage(editingSceneCard),
+            });
+            editingSceneCard.dataset.selectedAngles = selectedAngles.join(",");
+            editingSceneCard.dataset.assetStatus = needsRegeneration ? "stale" : (editingSceneCard.dataset.assetStatus || "ready");
+            syncSelectedSceneFromCard(editingSceneCard);
+
+            document.getElementById("editSceneModal").classList.remove("active");
+            alert(needsRegeneration ? "场景信息已保存，场景图已更新，视角资产待重新生成。" : "场景信息已保存");
+        }
+
+        ["editRoleName", "editRoleVoice", "editRoleDesc"].forEach((id) => {
+            document.getElementById(id).addEventListener("input", updateRoleEditPreview);
+            document.getElementById(id).addEventListener("change", updateRoleEditPreview);
+        });
+
+        ["roleName", "roleVoice", "roleDesc"].forEach((id) => {
+            document.getElementById(id).addEventListener("input", updateCreateRolePreview);
+            document.getElementById(id).addEventListener("change", updateCreateRolePreview);
+        });
+
+        ["editSceneName", "editSceneDesc"].forEach((id) => {
+            document.getElementById(id).addEventListener("input", updateSceneEditPreview);
+            document.getElementById(id).addEventListener("change", updateSceneEditPreview);
+        });
+
+        ["sceneName", "sceneDesc"].forEach((id) => {
+            document.getElementById(id).addEventListener("input", updateCreateScenePreview);
+            document.getElementById(id).addEventListener("change", updateCreateScenePreview);
+        });
+
+        document.querySelectorAll("#editSceneAssetPanel .edit-scene-angle-card").forEach((card) => {
+            card.addEventListener("click", () => {
+                card.classList.toggle("selected");
+                updateEditSceneAngleCount();
+            });
+        });
+        updateEditSceneAngleCount();
+
+        function escapeSubjectText(value) {
+            return String(value || "")
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;");
+        }
+
+        function bindCreatedSubjectActions(card) {
+            card.querySelectorAll(".card-actions .btn-link").forEach((button) => {
+                button.addEventListener("click", (event) => {
+                    event.stopPropagation();
+                    const btnText = button.textContent.trim();
+
+                    if (btnText === "编辑") {
+                        if (card.classList.contains("role-card")) {
+                            openRoleEditModal(card);
+                        } else if (card.classList.contains("scene-card")) {
+                            openSceneEditModal(card);
+                        }
+                        return;
+                    }
+
+                    if (btnText === "试听") {
+                        if (card.classList.contains("role-card")) {
+                            alert("正在试听：" + card.dataset.voice);
+                        }
+                        return;
+                    }
+
+                    if (btnText === "查看") {
+                        if (card.classList.contains("role-card")) {
+                            openRoleViewModal(card);
+                        } else if (card.classList.contains("scene-card")) {
+                            openSceneViewModal(card);
+                        }
+                    }
+                });
+            });
+        }
+
+        function createSubjectCardFromReturnData(subject) {
+            const isScene = subject.type === "scene";
+            const name = subject.name || (isScene ? "未命名场景" : "未命名角色");
+            const desc = subject.desc || (isScene ? "暂无场景描述" : "暂无角色描述");
+            const img = subject.img || "";
+            const card = document.createElement("article");
+            card.className = "subject-card " + (isScene ? "scene-card" : "role-card");
+            card.dataset.name = name;
+            card.dataset.desc = desc;
+            card.dataset.img = img;
+            card.dataset.assetStatus = "ready";
+            if (isScene) {
+                card.dataset.selectedAngles = defaultSceneAngles.join(",");
+            }
+            if (!isScene) {
+                card.dataset.voice = subject.voice || "未配置音色";
+            }
+
+            const typeLabel = isScene ? "场景" : "角色";
+            const badgeLabel = isScene ? "8 视角" : "4 视图";
+            const actions = isScene ?
+                '<button class="btn-link" type="button">编辑</button><button class="btn-link" type="button">查看</button>' :
+                '<button class="btn-link" type="button">编辑</button><button class="btn-link" type="button">试听</button><button class="btn-link" type="button">查看</button>';
+
+            card.innerHTML =
+                '<div class="cover">' +
+                    '<img src="' + escapeSubjectText(img) + '" alt="' + escapeSubjectText(name) + '" />' +
+                    '<div class="badge">' + badgeLabel + '</div>' +
+                    '<div class="type-tag">' + typeLabel + '</div>' +
+                '</div>' +
+                '<div class="card-body">' +
+                    '<div class="avatar-letter">' + escapeSubjectText(name.slice(0, 1) || "主") + '</div>' +
+                    '<h3>' + escapeSubjectText(name) + '</h3>' +
+                    '<p>' + escapeSubjectText(desc) + '</p>' +
+                '</div>' +
+                '<div class="card-actions">' + actions + '</div>';
+
+            return card;
+        }
+
+        function insertReturnedSubjectCard(subject) {
+            if (!subject || (subject.type !== "role" && subject.type !== "scene")) return;
+            const isScene = subject.type === "scene";
+            const firstKnownCard = document.querySelector(isScene ? ".scene-card" : ".role-card");
+            const fallbackRow = document.querySelector(isScene ? ".section:nth-of-type(2) .card-row" : ".section:first-of-type .card-row");
+            const cardRow = firstKnownCard ? firstKnownCard.closest(".card-row") : fallbackRow;
+            if (!cardRow) return;
+
+            const card = createSubjectCardFromReturnData(subject);
+            cardRow.insertBefore(card, cardRow.firstElementChild);
+
+            if (isScene) {
+                bindSceneCardSelection(card);
+                bindCreatedSubjectActions(card);
+                selectSceneCard(card);
+            } else {
+                bindRoleCardSelection(card);
+                bindCreatedSubjectActions(card);
+                selectRoleCard(card);
+            }
+        }
+
+        function applyReturnedSubjectFromCreator() {
+            const raw = sessionStorage.getItem("step2NewSubject") || localStorage.getItem("step2NewSubject");
+            if (!raw) return;
+
+            try {
+                const subject = JSON.parse(raw);
+                insertReturnedSubjectCard(subject);
+            } catch (error) {
+                console.warn("无法读取新建主体数据", error);
+            } finally {
+                sessionStorage.removeItem("step2NewSubject");
+                localStorage.removeItem("step2NewSubject");
+            }
+        }
+
+        function openSubjectCreator(type) {
+            window.location.href = "主体管理-创建主体.html?type=" + encodeURIComponent(type) + "&from=step2";
+        }
+
+        // 创建弹窗按钮绑定
+        document.getElementById("openCreateRoleBtn").addEventListener("click", () => openSubjectCreator("role"));
+        document.getElementById("openCreateSceneBtn").addEventListener("click", () => openSubjectCreator("scene"));
+
+        applyReturnedSubjectFromCreator();
+
+        // ==================== 查看弹窗逻辑 ====================
+        // --- 角色查看弹窗 ---
+        function openRoleViewModal(card) {
+            const roleName = card.dataset.name || "未知角色";
+            const roleVoice = card.dataset.voice || "";
+            const roleImg = card.dataset.img || "";
+            const roleDesc = card.dataset.desc || "";
+
+            document.getElementById("roleViewTitle").textContent = roleName;
+            document.getElementById("roleViewSubtitle").textContent = roleVoice;
+            document.getElementById("roleMainImg").src = roleImg;
+            document.getElementById("roleMainImg").alt = roleName;
+            document.getElementById("roleInfoName").textContent = roleName;
+            document.getElementById("roleInfoDesc").textContent =
+                roleDesc || "该图片作为角色形象生成依据，系统会基于主图生成角色多维视图。";
+
+            document.getElementById("roleViewModal").classList.add("active");
+        }
+
+        function closeRoleViewModal() {
+            document.getElementById("roleViewModal").classList.remove("active");
+        }
+
+        // --- 场景查看弹窗 ---
+        function openSceneViewModal(card) {
+            const sceneName = card.dataset.name || "未知场景";
+            const sceneDesc = card.dataset.desc || "";
+            const sceneImg = card.dataset.img || "";
+
+            document.getElementById("sceneViewTitle").textContent = sceneName;
+            document.getElementById("sceneViewSubtitle").textContent = sceneDesc;
+            document.getElementById("sceneMainImg").src = sceneImg;
+            document.getElementById("sceneMainImg").alt = sceneName;
+            document.getElementById("sceneInfoName").textContent = sceneName;
+            document.getElementById("sceneInfoDesc").textContent = sceneDesc;
+
+            // 重置场景视角选择状态（默认全选）
+            const modal = document.getElementById("sceneViewModal");
+            const angleCards = modal.querySelectorAll(".angle-card");
+            angleCards.forEach((c) => c.classList.add("selected"));
+            updateSceneAngleCount(modal);
+
+            document.getElementById("sceneViewModal").classList.add("active");
+        }
+
+        function closeSceneViewModal() {
+            document.getElementById("sceneViewModal").classList.remove("active");
+        }
+
+        function updateSceneAngleCount(modal) {
+            const total = modal.querySelectorAll(".angle-card").length;
+            const selected = modal.querySelectorAll(".angle-card.selected").length;
+            const countEl = modal.querySelector("#selectedAngleCount");
+            if (countEl) {
+                countEl.textContent = "已选择 " + selected + " / " + total + " 个视角";
+            }
+        }
+
+        // 场景视角选择交互
+        const sceneViewModalEl = document.getElementById("sceneViewModal");
+        const angleCardsAll = sceneViewModalEl.querySelectorAll(".angle-card");
+        const selectAllBtn = sceneViewModalEl.querySelector("#selectAllAngles");
+        const clearAllBtn = sceneViewModalEl.querySelector("#clearAllAngles");
+        const saveBtn = sceneViewModalEl.querySelector("#saveSceneAngles");
+
+        angleCardsAll.forEach((card) => {
+            card.addEventListener("click", () => {
+                card.classList.toggle("selected");
+                updateSceneAngleCount(sceneViewModalEl);
+            });
+        });
+
+        selectAllBtn.addEventListener("click", () => {
+            angleCardsAll.forEach((card) => card.classList.add("selected"));
+            updateSceneAngleCount(sceneViewModalEl);
+        });
+
+        clearAllBtn.addEventListener("click", () => {
+            angleCardsAll.forEach((card) => card.classList.remove("selected"));
+            updateSceneAngleCount(sceneViewModalEl);
+        });
+
+        saveBtn.addEventListener("click", () => {
+            const selectedAngles = Array.from(
+                sceneViewModalEl.querySelectorAll(".angle-card.selected")
+            ).map((card) => card.dataset.angle);
+
+            if (selectedAngles.length === 0) {
+                alert("请至少选择 1 个场景视角。");
+                return;
+            }
+            console.log("已选择的场景视角：", selectedAngles);
+            closeSceneViewModal();
+        });
+
+        // 初始化场景视角计数
+        updateSceneAngleCount(sceneViewModalEl);
+
+        // ==================== 通用弹窗关闭逻辑 ====================
+        // data-close 按钮关闭弹窗
+        document.querySelectorAll("[data-close]").forEach((button) => {
+            button.addEventListener("click", () => {
+                const modalId = button.dataset.close;
+                const modal = document.getElementById(modalId);
+                if (modal) {
+                    modal.classList.remove("active");
+                }
+            });
+        });
+
+        // 点击遮罩层关闭弹窗
+        document.querySelectorAll(".modal-mask").forEach((mask) => {
+            mask.addEventListener("click", (event) => {
+                if (event.target === mask) {
+                    mask.classList.remove("active");
+                }
+            });
+        });
+
+        // ESC 关闭所有弹窗
+        document.addEventListener("keydown", (event) => {
+            if (event.key === "Escape") {
+                document.querySelectorAll(".modal-mask.active").forEach((mask) => {
+                    mask.classList.remove("active");
+                });
+            }
+        });
+    </script>
+</body>
+</html>

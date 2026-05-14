@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>创建主体</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: #f6f8fb;
+            color: #1f2937;
+        }
+
+        button,
+        input,
+        textarea,
+        select {
+            font-family: inherit;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        .page {
+            min-height: 100vh;
+            padding-bottom: 96px;
+            background: #f6f8fb;
+        }
+
+        .topbar {
+            height: 64px;
+            background: #ffffff;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 32px;
+            position: sticky;
+            top: 0;
+            z-index: 20;
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .back-btn {
+            width: 30px;
+            height: 30px;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+            background: #ffffff;
+            color: #374151;
+            font-size: 20px;
+            line-height: 1;
+        }
+
+        .project-name {
+            color: #111827;
+            font-weight: 600;
+        }
+
+        .autosave {
+            color: #10b981;
+            font-size: 13px;
+        }
+
+        .main {
+            width: 1280px;
+            max-width: calc(100% - 48px);
+            margin: 32px auto 0;
+        }
+
+        .page-header {
+            display: flex;
+            align-items: flex-end;
+            justify-content: flex-start;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .page-header h1 {
+            margin: 0 0 10px;
+            color: #111827;
+            font-size: 28px;
+            line-height: 1.3;
+        }
+
+        .page-header p {
+            margin: 0;
+            color: #6b7280;
+            font-size: 15px;
+        }
+
+        .workbench {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 18px;
+            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+            overflow: hidden;
+        }
+
+        .form-top {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 360px;
+            gap: 16px;
+            padding: 24px;
+            border-bottom: 1px solid #e5e7eb;
+            background: #ffffff;
+        }
+
+        .form-top.scene-mode {
+            grid-template-columns: 1fr;
+        }
+
+        .form-control {
+            width: 100%;
+            min-height: 42px;
+            border: 1px solid #d1d5db;
+            border-radius: 10px;
+            background: #ffffff;
+            color: #111827;
+            padding: 0 12px;
+            outline: none;
+            font-size: 14px;
+        }
+
+        .form-control:focus {
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        .name-wrap {
+            position: relative;
+        }
+
+        .name-wrap .form-control {
+            padding-right: 68px;
+        }
+
+        .name-count {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6b7280;
+            font-size: 13px;
+        }
+
+        .voice-select-row {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 78px;
+            gap: 10px;
+        }
+
+        .voice-select-row .btn {
+            height: 42px;
+            padding: 0 12px;
+        }
+
+        .edit-grid {
+            display: grid;
+            grid-template-columns: minmax(320px, 360px) minmax(0, 1fr);
+            gap: 0;
+            background: #f8fafc;
+        }
+
+        .modal-section,
+        .edit-side-panel {
+            padding: 24px;
+            background: #ffffff;
+        }
+
+        .modal-section {
+            border-right: 1px solid #e5e7eb;
+        }
+
+        .section-title {
+            margin-bottom: 22px;
+        }
+
+        .section-title h3 {
+            margin: 0 0 8px;
+            color: #111827;
+            font-size: 20px;
+        }
+
+        .section-title p {
+            margin: 0;
+            color: #6b7280;
+            font-size: 13px;
+            line-height: 1.7;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #374151;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .required {
+            color: #ef4444;
+        }
+
+        .textarea {
+            min-height: 96px;
+            resize: vertical;
+            padding: 12px;
+            line-height: 1.6;
+        }
+
+        .voice-row {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 84px;
+            gap: 10px;
+        }
+
+        .upload-box {
+            min-height: 136px;
+            border: 1px dashed #cbd5e1;
+            border-radius: 16px;
+            background: #f8fafc;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 18px;
+            transition: border-color 0.2s ease, background 0.2s ease;
+        }
+
+        .upload-box:hover {
+            border-color: #a5b4fc;
+            background: #f5f7ff;
+        }
+
+        .upload-icon {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: #eef2ff;
+            color: #4f46e5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            margin-bottom: 10px;
+        }
+
+        .upload-title {
+            color: #111827;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .upload-desc {
+            color: #6b7280;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        .upload-box input {
+            display: none;
+        }
+
+        .upload-preview {
+            margin-top: 12px;
+            min-height: 48px;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            background: #ffffff;
+            color: #9ca3af;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+            overflow: hidden;
+        }
+
+        .upload-preview img {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            object-fit: cover;
+            flex-shrink: 0;
+        }
+
+        .auth-check,
+        .form-tip {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            border-radius: 14px;
+            background: #f8fafc;
+            color: #4b5563;
+            padding: 12px 14px;
+            font-size: 13px;
+            line-height: 1.7;
+        }
+
+        .auth-check input {
+            margin-top: 4px;
+            accent-color: #4f46e5;
+        }
+
+        .asset-workbench {
+            background:
+                linear-gradient(135deg, #f8fafc 0%, #eef2ff 58%, #ecfeff 100%);
+        }
+
+        .asset-head {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 18px;
+        }
+
+        .asset-head h3 {
+            margin: 0;
+            color: #111827;
+            font-size: 20px;
+        }
+
+        .asset-stage {
+            display: grid;
+            grid-template-columns: 300px minmax(0, 1fr);
+            gap: 18px;
+            align-items: start;
+        }
+
+        .asset-main-card {
+            background: #0f172a;
+            border-radius: 18px;
+            padding: 14px;
+            color: #ffffff;
+            box-shadow: 0 18px 36px rgba(15, 23, 42, 0.16);
+        }
+
+        .edit-preview-frame {
+            height: 360px;
+            border-radius: 14px;
+            overflow: hidden;
+            background:
+                linear-gradient(135deg, rgba(255, 255, 255, 0.08), transparent),
+                linear-gradient(135deg, #111827, #273549 58%, #164e63);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .edit-preview-frame img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .edit-preview-empty {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 13px;
+            text-align: center;
+            padding: 18px;
+            line-height: 1.7;
+        }
+
+        .asset-main-caption {
+            padding: 12px 2px 2px;
+        }
+
+        .asset-main-caption strong {
+            display: block;
+            font-size: 15px;
+            margin-bottom: 6px;
+        }
+
+        .asset-main-caption span {
+            color: rgba(255, 255, 255, 0.66);
+            font-size: 12px;
+        }
+
+        .asset-summary {
+            border: 1px solid #e5e7eb;
+            border-radius: 18px;
+            background: rgba(255, 255, 255, 0.88);
+            padding: 18px;
+        }
+
+        .asset-summary h4 {
+            margin: 0 0 14px;
+            color: #111827;
+            font-size: 16px;
+        }
+
+        .asset-summary p {
+            margin: 0 0 16px;
+            color: #6b7280;
+            font-size: 13px;
+            line-height: 1.7;
+        }
+
+        .asset-action-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .view-assets-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .view-assets-grid.role-long {
+            grid-template-columns: 1fr;
+        }
+
+        .view-assets-grid.scene {
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+
+        .view-asset-card {
+            min-height: 164px;
+            border: 1px solid #e5e7eb;
+            border-radius: 14px;
+            background: #ffffff;
+            padding: 10px;
+        }
+
+        .view-asset-art {
+            height: 124px;
+            border-radius: 11px;
+            background:
+                linear-gradient(135deg, rgba(79, 70, 229, 0.08), rgba(20, 184, 166, 0.12)),
+                #f3f4f6;
+            margin-bottom: 9px;
+        }
+
+        .view-asset-name {
+            color: #374151;
+            font-size: 12px;
+            text-align: center;
+        }
+
+        .long-view-card {
+            min-height: 360px;
+            border: 1px solid #e5e7eb;
+            border-radius: 16px;
+            background: #ffffff;
+            padding: 12px;
+        }
+
+        .role-long-art {
+            min-height: 310px;
+            border-radius: 12px;
+            background:
+                radial-gradient(circle at 22% 34%, #6b7280 0 23px, transparent 24px),
+                radial-gradient(ellipse at 22% 72%, #4b5563 0 48px, transparent 49px),
+                radial-gradient(circle at 50% 34%, #6b7280 0 22px, transparent 23px),
+                radial-gradient(ellipse at 50% 72%, #4b5563 0 38px, transparent 39px),
+                radial-gradient(circle at 78% 34%, #374151 0 23px, transparent 24px),
+                radial-gradient(ellipse at 78% 72%, #374151 0 48px, transparent 49px),
+                linear-gradient(90deg, rgba(15, 23, 42, 0.05) 1px, transparent 1px),
+                linear-gradient(180deg, rgba(15, 23, 42, 0.04) 1px, transparent 1px),
+                linear-gradient(135deg, #eef2ff, #f8fafc 55%, #ecfeff);
+            background-size: auto, auto, auto, auto, auto, auto, 28px 28px, 28px 28px, auto;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn {
+            height: 38px;
+            padding: 0 16px;
+            border-radius: 10px;
+            border: 1px solid #d1d5db;
+            background: #ffffff;
+            color: #374151;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-decoration: none;
+            font-size: 14px;
+            transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+        }
+
+        .btn:hover {
+            background: #f9fafb;
+            border-color: #c7d2fe;
+            color: #4f46e5;
+        }
+
+        .btn-primary {
+            border-color: #4f46e5;
+            background: #4f46e5;
+            color: #ffffff;
+        }
+
+        .btn-primary:hover {
+            background: #4338ca;
+            border-color: #4338ca;
+            color: #ffffff;
+        }
+
+        .btn-light {
+            background: #ffffff;
+            color: #374151;
+        }
+
+        .btn:disabled {
+            cursor: not-allowed;
+            border-color: #d1d5db;
+            background: #e5e7eb;
+            color: #9ca3af;
+        }
+
+        .footer-bar {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #ffffff;
+            border-top: 1px solid #e5e7eb;
+            z-index: 30;
+        }
+
+        .footer-inner {
+            width: 1280px;
+            max-width: calc(100% - 48px);
+            height: 72px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .footer-tip {
+            color: #6b7280;
+            font-size: 13px;
+        }
+
+        .footer-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .toast {
+            position: fixed;
+            left: 50%;
+            bottom: 90px;
+            z-index: 60;
+            transform: translateX(-50%) translateY(8px);
+            opacity: 0;
+            pointer-events: none;
+            border-radius: 12px;
+            background: rgba(17, 24, 39, 0.92);
+            color: #ffffff;
+            padding: 10px 16px;
+            font-size: 14px;
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+
+        .toast.active {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        @media (max-width: 1100px) {
+            .edit-grid,
+            .asset-stage {
+                grid-template-columns: 1fr;
+            }
+
+            .modal-section {
+                border-right: 0;
+                border-bottom: 1px solid #e5e7eb;
+            }
+
+            .asset-main-card {
+                max-width: 360px;
+            }
+        }
+
+        @media (max-width: 720px) {
+            .topbar {
+                padding: 0 16px;
+            }
+
+            .main,
+            .footer-inner {
+                max-width: calc(100% - 24px);
+            }
+
+            .page-header,
+            .footer-inner {
+                align-items: stretch;
+                flex-direction: column;
+            }
+
+            .footer-inner {
+                height: auto;
+                padding: 14px 0;
+            }
+
+            .form-top,
+            .voice-row {
+                grid-template-columns: 1fr;
+            }
+
+            .footer-actions {
+                justify-content: flex-end;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <header class="topbar">
+            <div class="breadcrumb">
+                <button class="back-btn" type="button" id="backBtn">‹</button>
+                <span>主体资源库</span>
+                <span>/</span>
+                <span class="project-name" id="breadcrumbTitle">创建角色</span>
+            </div>
+            <div class="autosave">本地草稿自动保存</div>
+        </header>
+
+        <main class="main">
+            <div class="page-header">
+                <div>
+                    <h1 id="pageTitle">创建角色</h1>
+                    <p id="pageDesc">创建视频中的人物主体，配置角色音色并生成多视图资产。</p>
+                </div>
+            </div>
+
+            <section class="workbench">
+                <div class="form-top">
+                    <div class="name-wrap">
+                        <input id="subjectName" class="form-control" maxlength="200" type="text" placeholder="请输入主体名称" />
+                        <span class="name-count" id="nameCount">0/200</span>
+                    </div>
+                    <div class="voice-select-row" id="voiceSelectRow">
+                        <select id="subjectVoice" class="form-control">
+                            <option value="">请选择角色音色</option>
+                            <option value="经典解说男-青年 / 中文">经典解说男-青年 / 中文</option>
+                            <option value="沉稳财经男声 / 中文">沉稳财经男声 / 中文</option>
+                            <option value="专业女主播 / 中文">专业女主播 / 中文</option>
+                            <option value="Natural Male Voice / English">Natural Male Voice / English</option>
+                        </select>
+                        <button class="btn btn-light" type="button" id="previewVoiceBtn">试听</button>
+                    </div>
+                </div>
+
+                <div class="edit-grid">
+                    <section class="modal-section">
+                        <div class="section-title">
+                            <h3 id="infoTitle">角色信息</h3>
+                            <p id="infoDesc">填写角色基础信息并上传主图后，可点击右侧按钮生成多视图。</p>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="subjectDesc" id="descLabel">角色小传</label>
+                            <textarea id="subjectDesc" class="form-control textarea" placeholder="请输入角色小传，例如年龄、职业、形象气质、服装风格等"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="subjectImage" id="imageLabel">上传主图 <span class="required">*</span></label>
+                            <label class="upload-box" for="subjectImage">
+                                <div class="upload-icon">+</div>
+                                <div class="upload-title" id="uploadTitle">上传一张角色主图</div>
+                                <div class="upload-desc" id="uploadDesc">支持 JPG、PNG。建议上传人物清晰、正面、无遮挡的图片。</div>
+                                <input id="subjectImage" type="file" accept="image/jpeg,image/png,image/webp" />
+                            </label>
+                            <div class="upload-preview" id="uploadPreview">
+                                <span>暂未上传主图</span>
+                            </div>
+                        </div>
+
+                        <label class="auth-check" id="authCheckRow">
+                            <input type="checkbox" id="authCheck" />
+                            <span>我确认已获得该人物形象的合法授权，并同意用于视频生成与投放素材制作。</span>
+                        </label>
+
+                        <div class="form-tip" id="sceneTip" style="display: none;">
+                            建议选择画面干净、主体区域明确、底部留白充足的背景，方便后续添加字幕、风险提示和品牌信息。
+                        </div>
+                    </section>
+
+                    <aside class="edit-side-panel asset-workbench">
+                        <div class="asset-head">
+                            <div>
+                                <h3 id="assetTitle">角色视角资产</h3>
+                            </div>
+                        </div>
+
+                        <div class="asset-stage">
+                            <div class="asset-main-card">
+                                <div class="edit-preview-frame" id="previewFrame">
+                                    <div class="edit-preview-empty">上传主图后显示预览</div>
+                                </div>
+                                <div class="asset-main-caption">
+                                    <strong id="previewName">主体名称</strong>
+                                    <span id="previewMeta">未选择音色</span>
+                                </div>
+                            </div>
+
+                            <div class="asset-summary">
+                                <h4>多视图资产</h4>
+                                <div class="asset-action-row">
+                                    <button class="btn btn-primary" type="button" id="createViewsBtn" disabled>创建视图</button>
+                                </div>
+                                <div class="view-assets-grid" id="viewsGrid" style="display: none;"></div>
+                            </div>
+                        </div>
+                    </aside>
+                </div>
+            </section>
+        </main>
+
+        <footer class="footer-bar">
+            <div class="footer-inner">
+                <div class="footer-tip" id="footerTip">创建完成后会回到来源页面。</div>
+                <div class="footer-actions">
+                    <button class="btn btn-light" type="button" id="cancelBtn">取消</button>
+                    <button class="btn btn-primary" type="button" id="createSubjectBtn">保存</button>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <div class="toast" id="toast">已保存</div>
+
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const source = params.get("from") || "library";
+        let subjectType = params.get("type") === "scene" ? "scene" : "role";
+        let imageData = "";
+        let viewsReady = false;
+
+        const libraryKey = "subjectLibraryItems";
+        const step2Key = "step2NewSubject";
+
+        const subjectName = document.getElementById("subjectName");
+        const subjectVoice = document.getElementById("subjectVoice");
+        const subjectDesc = document.getElementById("subjectDesc");
+        const nameCount = document.getElementById("nameCount");
+        const subjectImage = document.getElementById("subjectImage");
+        const uploadPreview = document.getElementById("uploadPreview");
+        const previewFrame = document.getElementById("previewFrame");
+        const previewName = document.getElementById("previewName");
+        const previewMeta = document.getElementById("previewMeta");
+        const createViewsBtn = document.getElementById("createViewsBtn");
+        const viewsGrid = document.getElementById("viewsGrid");
+        const toast = document.getElementById("toast");
+        const voiceSelectRow = document.getElementById("voiceSelectRow");
+        const previewVoiceBtn = document.getElementById("previewVoiceBtn");
+
+        function typeName() {
+            return subjectType === "scene" ? "场景" : "角色";
+        }
+
+        function returnUrl() {
+            return source === "step2" ? "step2-主体管理首页（一级主体联动版）.html" : "主体管理-首页.html";
+        }
+
+        function showToast(message) {
+            toast.textContent = message;
+            toast.classList.add("active");
+            setTimeout(() => toast.classList.remove("active"), 1500);
+        }
+
+        function escapeHtml(value) {
+            return String(value || "")
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;");
+        }
+
+        function updateNameCount() {
+            nameCount.textContent = subjectName.value.length + "/200";
+            updatePreviewText();
+        }
+
+        function updatePreviewText() {
+            const name = subjectName.value.trim() || "主体名称";
+            previewName.textContent = name;
+            previewMeta.textContent = subjectType === "scene" ? "9:16 竖版短视频场景" : (subjectVoice.value || "未选择音色");
+        }
+
+        function createPlaceholderImage(type, name) {
+            const title = escapeHtml(name || (type === "scene" ? "未命名场景" : "未命名角色"));
+            const isScene = type === "scene";
+            const art = isScene ?
+                '<rect width="900" height="1200" fill="#f8fafc"/><rect x="90" y="220" width="720" height="520" rx="32" fill="#dbeafe"/><rect x="142" y="274" width="250" height="180" fill="#4f46e5" opacity=".42"/><rect x="430" y="274" width="304" height="180" fill="#111827" opacity=".72"/><rect x="130" y="810" width="640" height="126" fill="#e5e7eb"/><path d="M118 970h664" stroke="#cbd5e1" stroke-width="14"/>' :
+                '<rect width="900" height="1200" fill="#f8fafc"/><circle cx="450" cy="430" r="138" fill="#9ca3af"/><circle cx="318" cy="454" r="34" fill="#6b7280"/><circle cx="582" cy="454" r="34" fill="#6b7280"/><path d="M285 780c38-150 292-150 330 0v190H285z" fill="#4b5563"/><path d="M305 332c56-88 234-88 290 0 24 37 24 78 18 120H287c-6-42-6-83 18-120z" fill="#6b7280"/>';
+            const svg =
+                '<svg xmlns="http://www.w3.org/2000/svg" width="900" height="1200" viewBox="0 0 900 1200">' +
+                    '<rect width="900" height="1200" fill="#eef2ff"/>' +
+                    '<rect x="36" y="36" width="828" height="1128" rx="42" fill="#ffffff"/>' +
+                    art +
+                    '<rect x="74" y="86" width="210" height="42" rx="10" fill="#4f46e5" opacity=".92"/>' +
+                    '<text x="102" y="115" fill="#fff" font-size="24" font-family="Arial, sans-serif">' + (isScene ? "SCENE" : "ROLE") + '</text>' +
+                    '<text x="74" y="1080" fill="#111827" font-size="46" font-weight="700" font-family="Arial, sans-serif">' + title.slice(0, 12) + '</text>' +
+                '</svg>';
+            return "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(svg);
+        }
+
+        function setPreview(src, fileName) {
+            imageData = src || "";
+            viewsReady = false;
+            viewsGrid.style.display = "none";
+            createViewsBtn.disabled = !imageData;
+
+            if (!imageData) {
+                uploadPreview.innerHTML = '<span>暂未上传主图</span>';
+                previewFrame.innerHTML = '<div class="edit-preview-empty">上传主图后显示预览</div>';
+                return;
+            }
+
+            uploadPreview.innerHTML = '<img src="' + imageData + '" alt="主图预览" /><span>' + escapeHtml(fileName || "已生成主图") + '</span>';
+            previewFrame.innerHTML = '<img src="' + imageData + '" alt="主图预览" />';
+        }
+
+        function renderViews() {
+            if (subjectType === "role") {
+                viewsGrid.className = "view-assets-grid role-long";
+                viewsGrid.innerHTML =
+                    '<div class="long-view-card">' +
+                        '<div class="role-long-art"></div>' +
+                    '</div>';
+                return;
+            }
+
+            const names = ["左45度", "右45度", "正俯视", "正仰视", "近景", "中景", "远景", "旋转180度"];
+            viewsGrid.className = "view-assets-grid scene";
+            viewsGrid.innerHTML = names.map((name) => (
+                '<div class="view-asset-card">' +
+                    '<div class="view-asset-art"></div>' +
+                    '<div class="view-asset-name">' + name + '</div>' +
+                '</div>'
+            )).join("");
+        }
+
+        function createViews() {
+            if (!imageData) {
+                showToast("请先上传主图");
+                return;
+            }
+            viewsReady = true;
+            renderViews();
+            viewsGrid.style.display = "grid";
+            showToast("视角资产已创建");
+        }
+
+        function setType(nextType) {
+            subjectType = nextType === "scene" ? "scene" : "role";
+            const isScene = subjectType === "scene";
+
+            document.title = "创建" + typeName();
+            document.getElementById("breadcrumbTitle").textContent = "创建" + typeName();
+            document.getElementById("pageTitle").textContent = "创建" + typeName();
+            document.getElementById("pageDesc").textContent = isScene ?
+                "创建视频背景场景，上传场景图并生成多角度视图资产。" :
+                "创建视频中的人物主体，配置角色音色并生成多视图资产。";
+            document.getElementById("infoTitle").textContent = typeName() + "信息";
+            document.getElementById("infoDesc").textContent = isScene ?
+                "填写场景基础信息并上传图片后，可点击右侧按钮生成多角度视图。" :
+                "填写角色基础信息并上传主图后，可点击右侧按钮生成多视图。";
+            document.getElementById("descLabel").textContent = isScene ? "场景描述" : "角色小传";
+            document.getElementById("imageLabel").innerHTML = (isScene ? "上传场景图" : "上传主图") + ' <span class="required">*</span>';
+            document.getElementById("uploadTitle").textContent = isScene ? "上传一张场景图" : "上传一张角色主图";
+            document.getElementById("uploadDesc").textContent = isScene ?
+                "支持 JPG、PNG。建议使用 9:16 竖版图片，适合信息流短视频投放。" :
+                "支持 JPG、PNG。建议上传人物清晰、正面、无遮挡的图片。";
+            document.getElementById("assetTitle").textContent = isScene ? "场景视角资产" : "角色视角资产";
+            document.getElementById("authCheckRow").style.display = isScene ? "none" : "flex";
+            document.getElementById("sceneTip").style.display = isScene ? "flex" : "none";
+            document.querySelector(".form-top").classList.toggle("scene-mode", isScene);
+            voiceSelectRow.style.display = isScene ? "none" : "grid";
+            subjectDesc.placeholder = isScene ?
+                "请输入场景描述，例如：现代财经演播室，背景有大屏数据图表，整体风格专业、简洁、可信。" :
+                "请输入角色小传，例如年龄、职业、形象气质、服装风格等";
+            document.getElementById("createSubjectBtn").textContent = "保存";
+            document.getElementById("footerTip").textContent = source === "step2" ?
+                "创建完成后会返回 Step 2，并把新主体插入对应列表第一位。" :
+                "创建完成后会返回一级主体管理首页。";
+            updatePreviewText();
+            renderViews();
+        }
+
+        function readLibrary() {
+            try {
+                const raw = localStorage.getItem(libraryKey);
+                const list = raw ? JSON.parse(raw) : [];
+                return Array.isArray(list) ? list : [];
+            } catch (error) {
+                return [];
+            }
+        }
+
+        function compactSubject(subject) {
+            return Object.assign({}, subject, {
+                img: createPlaceholderImage(subject.type, subject.name)
+            });
+        }
+
+        function saveToLibrary(subject) {
+            const list = readLibrary().filter((item) => item.id !== subject.id);
+            const next = [subject].concat(list);
+            try {
+                localStorage.setItem(libraryKey, JSON.stringify(next));
+                return subject;
+            } catch (error) {
+                const compact = compactSubject(subject);
+                localStorage.setItem(libraryKey, JSON.stringify([compact].concat(list)));
+                return compact;
+            }
+        }
+
+        function saveStep2Handoff(subject) {
+            const payload = JSON.stringify(subject);
+            try {
+                sessionStorage.setItem(step2Key, payload);
+                localStorage.setItem(step2Key, payload);
+                return;
+            } catch (error) {
+                const compactPayload = JSON.stringify(compactSubject(subject));
+                sessionStorage.setItem(step2Key, compactPayload);
+                localStorage.setItem(step2Key, compactPayload);
+            }
+        }
+
+        function buildSubject(status) {
+            const name = subjectName.value.trim() || "未命名" + typeName();
+            const desc = subjectDesc.value.trim() || (subjectType === "scene" ? "暂无场景描述" : "暂无角色描述");
+            if (!imageData) {
+                setPreview(createPlaceholderImage(subjectType, name), "系统生成主图");
+            }
+            return {
+                id: "created-" + subjectType + "-" + Date.now(),
+                type: subjectType,
+                name,
+                desc,
+                voice: subjectType === "role" ? subjectVoice.value : "",
+                img: imageData,
+                owner: "my",
+                createdByMe: true,
+                favorite: false,
+                status: status === "draft" ? "草稿" : (subjectType === "scene" ? "8 视角" : "4 视图"),
+                createdAt: new Date().toISOString()
+            };
+        }
+
+        function validateBeforeCreate() {
+            if (!subjectName.value.trim()) {
+                showToast("请输入主体名称");
+                subjectName.focus();
+                return false;
+            }
+            if (subjectType === "role" && !subjectVoice.value) {
+                showToast("请选择角色音色");
+                subjectVoice.focus();
+                return false;
+            }
+            if (!imageData) {
+                showToast("请上传主体主图");
+                return false;
+            }
+            if (subjectType === "role" && !document.getElementById("authCheck").checked) {
+                showToast("请确认人物形象授权");
+                return false;
+            }
+            return true;
+        }
+
+        function finishCreate() {
+            if (!validateBeforeCreate()) return;
+            if (!viewsReady) {
+                createViews();
+            }
+            const subject = buildSubject("done");
+            const savedSubject = saveToLibrary(subject);
+            if (source === "step2") {
+                saveStep2Handoff(savedSubject);
+            }
+            showToast("创建成功，正在返回");
+            setTimeout(() => {
+                window.location.href = returnUrl();
+            }, 450);
+        }
+
+        function preferredSpeechVoice(voiceName) {
+            const voices = window.speechSynthesis ? window.speechSynthesis.getVoices() : [];
+            const isEnglish = voiceName.indexOf("English") >= 0;
+            const localePrefix = isEnglish ? "en" : "zh";
+            return voices.find((voice) => voice.lang && voice.lang.toLowerCase().startsWith(localePrefix)) || voices[0] || null;
+        }
+
+        function previewSelectedVoice() {
+            const voiceName = subjectVoice.value;
+            if (!voiceName) {
+                showToast("请先选择角色音色");
+                subjectVoice.focus();
+                return;
+            }
+
+            if (!("speechSynthesis" in window)) {
+                showToast("当前浏览器不支持语音试听");
+                return;
+            }
+
+            window.speechSynthesis.cancel();
+            const isEnglish = voiceName.indexOf("English") >= 0;
+            const utterance = new SpeechSynthesisUtterance(
+                isEnglish
+                    ? "Hello, this is a short preview of the selected voice."
+                    : "您好，这是当前角色音色的试听效果。"
+            );
+            utterance.lang = isEnglish ? "en-US" : "zh-CN";
+            utterance.rate = 0.95;
+            utterance.pitch = voiceName.indexOf("女") >= 0 ? 1.08 : 0.92;
+            const matchedVoice = preferredSpeechVoice(voiceName);
+            if (matchedVoice) {
+                utterance.voice = matchedVoice;
+            }
+            window.speechSynthesis.speak(utterance);
+            showToast("正在试听：" + voiceName);
+        }
+
+        document.getElementById("backBtn").addEventListener("click", () => {
+            window.location.href = returnUrl();
+        });
+
+        subjectName.addEventListener("input", updateNameCount);
+        subjectVoice.addEventListener("change", updatePreviewText);
+        previewVoiceBtn.addEventListener("click", previewSelectedVoice);
+
+        subjectImage.addEventListener("change", (event) => {
+            const file = event.target.files && event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (loadEvent) => {
+                setPreview(loadEvent.target.result, file.name);
+            };
+            reader.readAsDataURL(file);
+        });
+
+        createViewsBtn.addEventListener("click", createViews);
+        document.getElementById("createSubjectBtn").addEventListener("click", finishCreate);
+        document.getElementById("cancelBtn").addEventListener("click", () => {
+            window.location.href = returnUrl();
+        });
+
+        setType(subjectType);
+        updateNameCount();
+    </script>
+</body>
+</html>

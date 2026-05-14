@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AIGC 导演台 - 投顾短视频平台</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
+      background: #f5f7fb;
+      color: #1f2937;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    button {
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    /* ===== Top Bar ===== */
+    .top-bar {
+      height: 64px;
+      background: #ffffff;
+      border-bottom: 1px solid #e5e7eb;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 32px;
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 800;
+      color: #111827;
+      white-space: nowrap;
+      font-size: 16px;
+    }
+
+    .brand-logo {
+      width: 32px;
+      height: 32px;
+      border-radius: 9px;
+      background: linear-gradient(135deg, #2f6bff, #6b8cff);
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 900;
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: #6b7280;
+      white-space: nowrap;
+    }
+
+    .avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #dbeafe;
+      color: #1d4ed8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 14px;
+    }
+
+    /* ===== Content ===== */
+    .content-wrap {
+      padding: 24px 32px;
+      max-width: 1440px;
+      margin: 0 auto;
+    }
+
+    /* ===== Hero ===== */
+    .hero {
+      background: linear-gradient(135deg, #2f6bff 0%, #6b8cff 60%, #a78bfa 100%);
+      border-radius: 20px;
+      padding: 48px 40px;
+      color: #ffffff;
+      text-align: center;
+      margin-bottom: 32px;
+      box-shadow: 0 12px 32px rgba(47, 107, 255, 0.2);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      top: -40%;
+      right: -10%;
+      width: 360px;
+      height: 360px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      bottom: -30%;
+      left: -5%;
+      width: 280px;
+      height: 280px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .hero-title {
+      font-size: 28px;
+      font-weight: 800;
+      margin-bottom: 8px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-subtitle {
+      font-size: 15px;
+      color: rgba(255, 255, 255, 0.85);
+      margin-bottom: 28px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-cta {
+      height: 52px;
+      padding: 0 36px;
+      border: none;
+      border-radius: 14px;
+      background: #ffffff;
+      color: #2f6bff;
+      font-size: 16px;
+      font-weight: 900;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+      transition: all 0.2s;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-cta:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.18);
+    }
+
+    /* ===== Section Header ===== */
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .section-title {
+      font-size: 20px;
+      font-weight: 800;
+      color: #111827;
+    }
+
+    .project-count {
+      font-size: 13px;
+      color: #64748b;
+    }
+
+    /* ===== Project Grid ===== */
+    .project-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+    }
+
+    /* ===== Project Card ===== */
+    .project-card {
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      border-radius: 18px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .project-card:hover {
+      border-color: #2f6bff;
+      box-shadow: 0 12px 32px rgba(47, 107, 255, 0.1);
+      transform: translateY(-3px);
+    }
+
+    .card-thumb {
+      height: 140px;
+      background: linear-gradient(135deg, #1f2937, #475569);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card-thumb.finished {
+      background: linear-gradient(135deg, #0f172a, #334155);
+    }
+
+    .card-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .thumb-placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .thumb-placeholder svg {
+      width: 40px;
+      height: 40px;
+      opacity: 0.4;
+    }
+
+    .thumb-placeholder span {
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    .card-body {
+      padding: 14px 16px 16px;
+    }
+
+    .card-title-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .card-title {
+      font-size: 15px;
+      font-weight: 800;
+      color: #111827;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      flex: 1;
+    }
+
+    .status-tag {
+      height: 24px;
+      padding: 0 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .status-draft {
+      background: #f1f5f9;
+      color: #64748b;
+    }
+
+    .status-finished {
+      background: #d1fae5;
+      color: #059669;
+    }
+
+    .card-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      color: #64748b;
+      font-size: 12px;
+    }
+
+    .card-step-hint strong {
+      color: #2f6bff;
+      font-weight: 700;
+    }
+
+    /* ===== Empty State ===== */
+    .empty-state {
+      text-align: center;
+      padding: 64px 24px;
+      color: #94a3b8;
+    }
+
+    .empty-state svg {
+      width: 80px;
+      height: 80px;
+      margin-bottom: 16px;
+      opacity: 0.4;
+    }
+
+    .empty-state h3 {
+      font-size: 16px;
+      font-weight: 700;
+      color: #64748b;
+      margin-bottom: 6px;
+    }
+
+    .empty-state p {
+      font-size: 13px;
+    }
+
+    /* ===== Toast ===== */
+    .toast {
+      position: fixed;
+      right: 24px;
+      bottom: 24px;
+      width: 310px;
+      background: #111827;
+      color: #ffffff;
+      border-radius: 14px;
+      padding: 12px 14px;
+      box-shadow: 0 10px 26px rgba(15, 23, 42, 0.22);
+      z-index: 50;
+      display: none;
+    }
+
+    .toast.show {
+      display: block;
+      animation: fadeIn 0.18s ease-out;
+    }
+
+    .toast-title {
+      font-weight: 900;
+      margin-bottom: 4px;
+    }
+
+    .toast-text {
+      font-size: 12px;
+      color: #d1d5db;
+      line-height: 1.5;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ===== Responsive ===== */
+    @media (max-width: 760px) {
+      .top-bar { padding: 0 16px; }
+      .content-wrap { padding: 16px; }
+      .hero { padding: 32px 20px; }
+      .hero-title { font-size: 22px; }
+      .project-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="top-bar">
+      <div class="brand">
+        <div class="brand-logo">AI</div>
+        AIGC 导演台
+      </div>
+      <div class="top-actions">
+        <div class="avatar">顾</div>
+      </div>
+    </header>
+
+    <main class="content-wrap">
+      <section class="hero">
+        <h1 class="hero-title">开始创建你的短视频</h1>
+        <p class="hero-subtitle">从台词创作到成片输出，四步完成专业级短视频制作</p>
+        <button class="hero-cta" type="button" onclick="startCreate()">+ 开始创建</button>
+      </section>
+
+      <div class="section-header">
+        <h2 class="section-title">我的作品</h2>
+        <span class="project-count" id="projectCount"></span>
+      </div>
+
+      <div id="projectList"></div>
+    </main>
+
+    <div id="toast" class="toast">
+      <div id="toastTitle" class="toast-title"></div>
+      <div id="toastText" class="toast-text"></div>
+    </div>
+  </div>
+
+  <script>
+    var STORAGE_KEY = "directorProjects";
+    var toastTimer = null;
+
+    /* ===== Data Layer ===== */
+    function loadProjects() {
+      try {
+        var raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) return JSON.parse(raw);
+      } catch (e) {}
+      return null;
+    }
+
+    function saveProjects(projects) {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(projects));
+      } catch (e) {}
+    }
+
+    function generateId() {
+      return "proj_" + Date.now().toString(36) + "_" + Math.random().toString(36).substr(2, 6);
+    }
+
+    /* ===== Seed Data ===== */
+    function getSeedData() {
+      var now = new Date();
+      return [
+        {
+          id: generateId(),
+          title: "投顾服务短视频脚本",
+          status: "draft",
+          currentStep: 1,
+          lastModified: new Date(now.getTime() - 2 * 3600000).toISOString(),
+          thumbnail: ""
+        },
+        {
+          id: generateId(),
+          title: "Q2 市场展望分析",
+          status: "draft",
+          currentStep: 3,
+          lastModified: new Date(now.getTime() - 1 * 86400000).toISOString(),
+          thumbnail: ""
+        },
+        {
+          id: generateId(),
+          title: "新手理财入门指南",
+          status: "finished",
+          currentStep: 4,
+          lastModified: new Date(now.getTime() - 3 * 86400000).toISOString(),
+          thumbnail: ""
+        },
+        {
+          id: generateId(),
+          title: "基金定投策略分享",
+          status: "finished",
+          currentStep: 4,
+          lastModified: new Date(now.getTime() - 7 * 86400000).toISOString(),
+          thumbnail: ""
+        }
+      ];
+    }
+
+    /* ===== Navigation ===== */
+    function startCreate() {
+      window.location.href = "step1-台词创建 .html";
+    }
+
+    function openProject(projectId, currentStep) {
+      var stepFiles = {
+        1: "step1-台词创建 .html",
+        2: "step2-主体管理首页（一级主体联动版）.html",
+        3: "step3-分镜管理.html",
+        4: "step4-成片合成.html"
+      };
+      var targetFile = stepFiles[currentStep] || stepFiles[1];
+      window.location.href = targetFile;
+    }
+
+    /* ===== Helpers ===== */
+    function getStepLabel(step) {
+      var labels = { 1: "台词创建", 2: "主体管理", 3: "分镜管理", 4: "成片预览" };
+      return labels[step] || "未知步骤";
+    }
+
+    function formatTime(isoStr) {
+      var d = new Date(isoStr);
+      var now = new Date();
+      var diff = now.getTime() - d.getTime();
+      var minutes = Math.floor(diff / 60000);
+      var hours = Math.floor(diff / 3600000);
+      var days = Math.floor(diff / 86400000);
+
+      if (minutes < 1) return "刚刚";
+      if (minutes < 60) return minutes + " 分钟前";
+      if (hours < 24) return hours + " 小时前";
+      if (days < 7) return days + " 天前";
+
+      return (d.getMonth() + 1) + "月" + d.getDate() + "日 " +
+        String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0");
+    }
+
+    function escapeHtml(str) {
+      if (!str) return "";
+      var div = document.createElement("div");
+      div.appendChild(document.createTextNode(str));
+      return div.innerHTML;
+    }
+
+    function showToast(title, text) {
+      var toast = document.getElementById("toast");
+      document.getElementById("toastTitle").innerText = title;
+      document.getElementById("toastText").innerText = text;
+      toast.classList.add("show");
+      if (toastTimer) clearTimeout(toastTimer);
+      toastTimer = setTimeout(function() { toast.classList.remove("show"); }, 2600);
+    }
+
+    /* ===== Render ===== */
+    function render() {
+      var projects = loadProjects();
+      if (!projects || projects.length === 0) {
+        projects = getSeedData();
+        saveProjects(projects);
+      }
+
+      projects.sort(function(a, b) {
+        return new Date(b.lastModified) - new Date(a.lastModified);
+      });
+
+      var container = document.getElementById("projectList");
+      var countEl = document.getElementById("projectCount");
+      countEl.innerText = "共 " + projects.length + " 个作品";
+
+      if (projects.length === 0) {
+        container.innerHTML =
+          '<div class="empty-state">' +
+            '<svg viewBox="0 0 80 80" fill="none">' +
+              '<rect x="10" y="20" width="60" height="44" rx="6" stroke="#94a3b8" stroke-width="2"/>' +
+              '<path d="M30 36h20M30 44h14" stroke="#94a3b8" stroke-width="2" stroke-linecap="round"/>' +
+            '</svg>' +
+            '<h3>还没有任何作品</h3>' +
+            '<p>点击上方「开始创建」按钮，创建你的第一个投顾短视频</p>' +
+          '</div>';
+        return;
+      }
+
+      var html = '<div class="project-grid">';
+
+      for (var i = 0; i < projects.length; i++) {
+        var p = projects[i];
+        var isFinished = p.status === "finished";
+        var statusTag = isFinished
+          ? '<span class="status-tag status-finished">成品</span>'
+          : '<span class="status-tag status-draft">草稿</span>';
+
+        var thumbClass = isFinished ? "card-thumb finished" : "card-thumb";
+        var thumbHtml = p.thumbnail
+          ? '<img src="' + escapeHtml(p.thumbnail) + '" alt=""/>'
+          : '<div class="thumb-placeholder">' +
+              '<svg viewBox="0 0 40 40" fill="none">' +
+                '<circle cx="20" cy="20" r="18" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"/>' +
+                '<polygon points="16,12 16,28 28,20" fill="rgba(255,255,255,0.5)"/>' +
+              '</svg>' +
+              '<span>预览</span>' +
+            '</div>';
+
+        html +=
+          '<div class="project-card" onclick="openProject(\'' + escapeHtml(p.id) + '\', ' + p.currentStep + ')">' +
+            '<div class="' + thumbClass + '">' + thumbHtml + '</div>' +
+            '<div class="card-body">' +
+              '<div class="card-title-row">' +
+                '<div class="card-title">' + escapeHtml(p.title) + '</div>' +
+                statusTag +
+              '</div>' +
+              '<div class="card-meta">' +
+                '<span>' + formatTime(p.lastModified) + '</span>' +
+                '<span class="card-step-hint">上次在 <strong>' + getStepLabel(p.currentStep) + '</strong></span>' +
+              '</div>' +
+            '</div>' +
+          '</div>';
+      }
+
+      html += '</div>';
+      container.innerHTML = html;
+    }
+
+    render();
+  </script>
+</body>
+</html>

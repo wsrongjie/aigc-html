@@ -1,0 +1,1591 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Step4 成片预览 - AIGC 投顾短视频平台</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
+      background: #f5f7fb;
+      color: #1f2937;
+    }
+
+    button,
+    input,
+    select {
+      font-family: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .page {
+      min-height: 100vh;
+      padding-bottom: 92px;
+    }
+
+    .top-bar {
+      height: 72px;
+      background: #ffffff;
+      border-bottom: 1px solid #e5e7eb;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 32px;
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 700;
+      color: #111827;
+    }
+
+    .brand-logo {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #2f6bff, #6b8cff);
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+    }
+
+    .steps {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .step {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #9ca3af;
+      font-size: 14px;
+      white-space: nowrap;
+    }
+
+    .step-number {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: #eef2f7;
+      color: #9ca3af;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .step.done .step-number {
+      background: #e8f1ff;
+      color: #2f6bff;
+    }
+
+    .step.active {
+      color: #111827;
+      font-weight: 700;
+    }
+
+    .step.active .step-number {
+      background: #2f6bff;
+      color: #ffffff;
+    }
+
+    .step-line {
+      width: 54px;
+      border-top: 1px dashed #cbd5e1;
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: #6b7280;
+      font-size: 14px;
+    }
+
+    .guide-link {
+      color: #2f6bff;
+      font-weight: 600;
+    }
+
+    .avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: #dbeafe;
+      color: #1d4ed8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+    }
+
+    .content-wrap {
+      padding: 24px 28px;
+    }
+
+    .page-header {
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      border-radius: 16px;
+      padding: 22px 24px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 18px;
+      gap: 24px;
+    }
+
+    .page-title h1 {
+      margin: 0;
+      font-size: 22px;
+      line-height: 1.3;
+      color: #111827;
+    }
+
+    .page-title p {
+      margin: 8px 0 0;
+      color: #6b7280;
+      font-size: 14px;
+      line-height: 1.6;
+      max-width: 860px;
+    }
+
+    .header-meta {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      max-width: 460px;
+    }
+
+    .meta-chip {
+      background: #f3f6fb;
+      border: 1px solid #e5e7eb;
+      color: #475569;
+      border-radius: 999px;
+      padding: 7px 12px;
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    .preview-layout {
+      display: grid;
+      grid-template-columns: 238px minmax(0, 1fr) 320px;
+      gap: 18px;
+      align-items: stretch;
+    }
+
+    .left-panel,
+    .center-panel,
+    .right-panel {
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      border-radius: 18px;
+      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.04);
+      overflow: hidden;
+    }
+
+    .panel-header {
+      height: 50px;
+      padding: 0 16px;
+      border-bottom: 1px solid #eef2f7;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #fbfdff;
+    }
+
+    .panel-title {
+      font-weight: 800;
+      color: #111827;
+      font-size: 15px;
+    }
+
+    .panel-sub {
+      color: #94a3b8;
+      font-size: 12px;
+    }
+
+    .video-nav {
+      padding: 14px;
+      max-height: calc(100vh - 238px);
+      overflow-y: auto;
+    }
+
+    .nav-section-title {
+      font-size: 13px;
+      color: #111827;
+      font-weight: 800;
+      margin: 10px 0 10px;
+    }
+
+    .video-item {
+      border: 1px solid #e5e7eb;
+      border-radius: 14px;
+      overflow: hidden;
+      background: #ffffff;
+      margin-bottom: 12px;
+      cursor: pointer;
+      transition: all 0.16s ease;
+    }
+
+    .video-item:hover {
+      border-color: #2f6bff;
+      box-shadow: 0 6px 16px rgba(47, 107, 255, 0.08);
+    }
+
+    .video-item.active {
+      border-color: #2f6bff;
+      box-shadow: 0 0 0 3px rgba(47, 107, 255, 0.08);
+    }
+
+    .thumb {
+      height: 118px;
+      background:
+        radial-gradient(circle at 76% 35%, rgba(250, 204, 21, 0.35), transparent 14%),
+        linear-gradient(135deg, #1f2937, #475569);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .thumb.closeup {
+      background:
+        radial-gradient(circle at 78% 38%, rgba(250, 204, 21, 0.4), transparent 15%),
+        linear-gradient(135deg, #0f172a, #64748b);
+    }
+
+    .thumb.medium {
+      background:
+        radial-gradient(circle at 72% 30%, rgba(250, 204, 21, 0.32), transparent 14%),
+        linear-gradient(135deg, #1e293b, #334155);
+    }
+
+    .thumb.wide {
+      background:
+        radial-gradient(circle at 78% 32%, rgba(250, 204, 21, 0.28), transparent 14%),
+        linear-gradient(135deg, #334155, #64748b);
+    }
+
+    .thumb-person {
+      width: 46px;
+      height: 78px;
+      border-radius: 24px 24px 10px 10px;
+      background: linear-gradient(180deg, #f8fafc 0 24%, #111827 24% 100%);
+      position: absolute;
+      left: 92px;
+      bottom: 0;
+    }
+
+    .thumb-person::before {
+      content: "";
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: #f2d0b8;
+      position: absolute;
+      top: 8px;
+      left: 11px;
+    }
+
+    .thumb-mask {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 34px;
+      background: linear-gradient(180deg, transparent, rgba(15, 23, 42, 0.78));
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      color: #ffffff;
+      font-size: 13px;
+      font-weight: 700;
+      padding-bottom: 9px;
+    }
+
+    .thumb-badge {
+      position: absolute;
+      left: 10px;
+      top: 10px;
+      height: 24px;
+      padding: 0 8px;
+      border-radius: 999px;
+      background: rgba(17, 24, 39, 0.72);
+      color: #ffffff;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+    }
+
+    .video-item-body {
+      padding: 10px 12px;
+    }
+
+    .video-item-title {
+      color: #111827;
+      font-weight: 800;
+      font-size: 14px;
+      margin-bottom: 5px;
+    }
+
+    .video-item-desc {
+      color: #64748b;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .player-wrap {
+      padding: 18px 22px;
+    }
+
+    .player-card {
+      background: #111827;
+      border-radius: 18px;
+      min-height: 480px;
+      max-height: calc(100vh - 260px);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .player-top {
+      height: 52px;
+      padding: 0 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: #ffffff;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(15, 23, 42, 0.96);
+      flex-shrink: 0;
+    }
+
+    .current-title {
+      font-weight: 800;
+      font-size: 15px;
+    }
+
+    .current-sub {
+      color: #cbd5e1;
+      font-size: 12px;
+      margin-top: 3px;
+    }
+
+    .player-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #cbd5e1;
+      font-size: 13px;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #22c55e;
+    }
+
+    .stage {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 18px 36px;
+      background:
+        radial-gradient(circle at 72% 34%, rgba(250, 204, 21, 0.18), transparent 14%),
+        radial-gradient(circle at 24% 28%, rgba(59, 130, 246, 0.12), transparent 18%),
+        #0b1020;
+      min-height: 0;
+    }
+
+    .video-frame {
+      width: min(280px, 62%);
+      aspect-ratio: 9 / 16;
+      max-height: 100%;
+      border-radius: 14px;
+      background:
+        radial-gradient(circle at 78% 34%, rgba(250, 204, 21, 0.5), transparent 15%),
+        linear-gradient(135deg, #1f2937, #334155);
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 24px 80px rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .video-frame::before {
+      content: "";
+      position: absolute;
+      left: 62px;
+      top: 54px;
+      width: 86px;
+      height: 210px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .video-frame::after {
+      content: "";
+      position: absolute;
+      right: 54px;
+      top: 98px;
+      width: 46px;
+      height: 90px;
+      border-radius: 26px 26px 12px 12px;
+      background: rgba(250, 204, 21, 0.22);
+      filter: blur(0.2px);
+    }
+
+    .person {
+      width: 122px;
+      height: 248px;
+      border-radius: 62px 62px 22px 22px;
+      background: linear-gradient(180deg, #f8fafc 0 23%, #111827 23% 100%);
+      position: absolute;
+      left: 50%;
+      bottom: 72px;
+      transform: translateX(-50%);
+      box-shadow: 0 20px 42px rgba(0, 0, 0, 0.36);
+    }
+
+    .person::before {
+      content: "";
+      position: absolute;
+      left: 33px;
+      top: 18px;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: #f2d0b8;
+    }
+
+    .subtitle {
+      position: absolute;
+      left: 24px;
+      right: 24px;
+      bottom: 26px;
+      background: rgba(15, 23, 42, 0.76);
+      color: #ffffff;
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 13px;
+      line-height: 1.5;
+      text-align: center;
+    }
+
+    .play-button {
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(255, 255, 255, 0.92);
+      color: #2f6bff;
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 21px;
+      font-weight: 900;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.22);
+    }
+
+    .player-controls {
+      height: 78px;
+      padding: 14px 18px;
+      background: rgba(15, 23, 42, 0.98);
+      color: #ffffff;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      flex-shrink: 0;
+    }
+
+    .progress-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .time {
+      color: #cbd5e1;
+      font-size: 12px;
+      width: 42px;
+      text-align: center;
+    }
+
+    .progress {
+      flex: 1;
+      height: 6px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.16);
+      overflow: hidden;
+    }
+
+    .progress-inner {
+      width: 36%;
+      height: 100%;
+      border-radius: 999px;
+      background: #2f6bff;
+    }
+
+    .control-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .control-left,
+    .control-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .control-btn {
+      height: 28px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      background: rgba(255, 255, 255, 0.06);
+      color: #e5e7eb;
+      padding: 0 10px;
+      font-size: 12px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .control-btn.active {
+      background: rgba(47, 107, 255, 0.22);
+      border-color: rgba(47, 107, 255, 0.5);
+      color: #ffffff;
+    }
+
+    .right-panel-body {
+      padding: 16px;
+      max-height: calc(100vh - 238px);
+      overflow-y: auto;
+    }
+
+    .info-card {
+      border: 1px solid #e5e7eb;
+      border-radius: 14px;
+      padding: 14px;
+      margin-bottom: 14px;
+      background: #ffffff;
+    }
+
+    .info-card:last-child {
+      margin-bottom: 0;
+    }
+
+    .info-title {
+      font-size: 14px;
+      font-weight: 800;
+      color: #111827;
+      margin-bottom: 12px;
+    }
+
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 9px 0;
+      border-bottom: 1px solid #f1f5f9;
+    }
+
+    .info-row:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .info-label {
+      color: #64748b;
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    .info-value {
+      color: #111827;
+      font-size: 13px;
+      font-weight: 600;
+      text-align: right;
+      line-height: 1.5;
+    }
+
+    .asset-mini {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .asset-mini:last-child {
+      margin-bottom: 0;
+    }
+
+    .asset-thumb {
+      width: 58px;
+      height: 58px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #dbeafe, #f8fafc);
+      color: #2f6bff;
+      border: 1px solid #dbe2ec;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      flex-shrink: 0;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .asset-thumb.scene {
+      background: linear-gradient(135deg, #fde68a, #f8fafc);
+      color: #b45309;
+    }
+
+    .asset-thumb::after {
+      content: "";
+      position: absolute;
+      width: 28px;
+      height: 28px;
+      right: -8px;
+      bottom: -8px;
+      background: rgba(255, 255, 255, 0.56);
+      border-radius: 50%;
+    }
+
+    .asset-info {
+      min-width: 0;
+    }
+
+    .asset-name {
+      font-size: 13px;
+      font-weight: 800;
+      color: #111827;
+      margin-bottom: 4px;
+    }
+
+    .asset-desc {
+      font-size: 12px;
+      line-height: 1.5;
+      color: #64748b;
+    }
+
+    .tag {
+      height: 24px;
+      border-radius: 999px;
+      padding: 0 9px;
+      display: inline-flex;
+      align-items: center;
+      font-size: 12px;
+      font-weight: 700;
+      border: 1px solid transparent;
+      white-space: nowrap;
+    }
+
+    .tag-green {
+      color: #15803d;
+      background: #f0fdf4;
+      border-color: #bbf7d0;
+    }
+
+    .tag-blue {
+      color: #1d4ed8;
+      background: #eff6ff;
+      border-color: #bfdbfe;
+    }
+
+    .tag-gray {
+      color: #64748b;
+      background: #f8fafc;
+      border-color: #e2e8f0;
+    }
+
+    .tag-orange {
+      color: #c2410c;
+      background: #fff7ed;
+      border-color: #fed7aa;
+    }
+
+    .btn {
+      border: 1px solid #d1d5db;
+      background: #ffffff;
+      color: #374151;
+      border-radius: 10px;
+      height: 38px;
+      padding: 0 14px;
+      font-size: 14px;
+      font-weight: 600;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+
+    .btn:hover {
+      border-color: #2f6bff;
+      color: #2f6bff;
+    }
+
+    .btn-primary {
+      background: #2f6bff;
+      color: #ffffff;
+      border-color: #2f6bff;
+    }
+
+    .btn-primary:hover {
+      background: #2458d8;
+      border-color: #2458d8;
+      color: #ffffff;
+    }
+
+    .btn-light-primary {
+      background: #eef4ff;
+      color: #2f6bff;
+      border-color: #cfe0ff;
+    }
+
+    .btn-disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    .bottom-bar {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 76px;
+      background: rgba(255, 255, 255, 0.96);
+      border-top: 1px solid #e5e7eb;
+      box-shadow: 0 -10px 28px rgba(15, 23, 42, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 28px;
+      z-index: 30;
+      backdrop-filter: blur(10px);
+    }
+
+    .bottom-left,
+    .bottom-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .export-btn {
+      height: 44px;
+      padding: 0 24px;
+      border-radius: 12px;
+      font-size: 15px;
+    }
+
+    .toast {
+      position: fixed;
+      right: 28px;
+      bottom: 94px;
+      width: 340px;
+      background: #111827;
+      color: #ffffff;
+      border-radius: 14px;
+      padding: 14px 16px;
+      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.25);
+      z-index: 60;
+      display: none;
+    }
+
+    .toast.show {
+      display: block;
+    }
+
+    .toast-title {
+      font-weight: 800;
+      margin-bottom: 7px;
+    }
+
+    .toast-text {
+      font-size: 13px;
+      color: #d1d5db;
+      line-height: 1.5;
+    }
+
+    .modal-mask {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.38);
+      z-index: 80;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .modal-mask.show {
+      display: flex;
+    }
+
+    .modal {
+      width: 560px;
+      max-width: 100%;
+      background: #ffffff;
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 24px 60px rgba(15, 23, 42, 0.25);
+    }
+
+    .modal-header {
+      padding: 18px 20px;
+      border-bottom: 1px solid #eef2f7;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-title {
+      font-size: 17px;
+      font-weight: 800;
+      color: #111827;
+    }
+
+    .icon-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      border: 1px solid #dbe2ec;
+      background: #ffffff;
+      color: #475569;
+      font-weight: 700;
+    }
+
+    .modal-body {
+      padding: 20px;
+      color: #475569;
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    .modal-footer {
+      padding: 16px 20px;
+      border-top: 1px solid #eef2f7;
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      background: #fbfdff;
+    }
+
+    .export-form {
+      display: grid;
+      gap: 14px;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 120px 1fr;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .form-label {
+      color: #374151;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .form-control {
+      height: 38px;
+      border: 1px solid #d1d5db;
+      border-radius: 10px;
+      padding: 0 12px;
+      color: #374151;
+      outline: none;
+      background: #ffffff;
+    }
+
+    .export-progress {
+      height: 8px;
+      border-radius: 999px;
+      background: #e5e7eb;
+      overflow: hidden;
+      margin-top: 14px;
+      display: none;
+    }
+
+    .export-progress.show {
+      display: block;
+    }
+
+    .export-progress-inner {
+      width: 0%;
+      height: 100%;
+      border-radius: 999px;
+      background: #2f6bff;
+      transition: width 0.35s ease;
+    }
+
+    @media (max-width: 1380px) {
+      .preview-layout {
+        grid-template-columns: 220px minmax(0, 1fr);
+      }
+
+      .right-panel {
+        grid-column: 1 / -1;
+      }
+
+      .right-panel-body {
+        max-height: none;
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+      }
+
+      .info-card {
+        margin-bottom: 0;
+      }
+    }
+
+    @media (max-width: 1080px) {
+      .top-bar {
+        height: auto;
+        padding: 18px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+      }
+
+      .steps {
+        flex-wrap: wrap;
+      }
+
+      .step-line {
+        display: none;
+      }
+
+      .preview-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .video-nav {
+        max-height: none;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 12px;
+      }
+
+      .video-item {
+        margin-bottom: 0;
+      }
+
+      .right-panel-body {
+        grid-template-columns: 1fr;
+      }
+
+      .bottom-bar {
+        height: auto;
+        padding: 14px 18px;
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .bottom-left,
+      .bottom-right {
+        justify-content: flex-start;
+      }
+
+      .page {
+        padding-bottom: 150px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="top-bar">
+      <div class="brand">
+        <div class="brand-logo">AI</div>
+        <div>AIGC 投顾短视频平台</div>
+      </div>
+
+      <div class="steps">
+        <div class="step done">
+          <div class="step-number">1</div>
+          <span>台词创作</span>
+        </div>
+        <div class="step-line"></div>
+        <div class="step done">
+          <div class="step-number">2</div>
+          <span>主体管理</span>
+        </div>
+        <div class="step-line"></div>
+        <div class="step done">
+          <div class="step-number">3</div>
+          <span>分镜管理</span>
+        </div>
+        <div class="step-line"></div>
+        <div class="step active">
+          <div class="step-number">4</div>
+          <span>成片预览</span>
+        </div>
+      </div>
+
+      <div class="top-actions">
+        <span class="guide-link">操作指引</span>
+        <span>成片已合成</span>
+        <div class="avatar">顾</div>
+      </div>
+    </header>
+
+    <main class="content-wrap">
+
+      <section class="preview-layout">
+        <aside class="left-panel">
+          <div class="panel-header">
+            <div>
+              <div class="panel-title">视频列表</div>
+              <div class="panel-sub">全片与分镜片段</div>
+            </div>
+          </div>
+
+          <div class="video-nav" id="videoNav"></div>
+        </aside>
+
+        <section class="center-panel">
+          <div class="panel-header">
+            <div>
+              <div class="panel-title">视频播放器</div>
+              <div class="panel-sub">支持全片预览与分镜视频预览</div>
+            </div>
+            <span class="tag tag-green">已合成</span>
+          </div>
+
+          <div class="player-wrap">
+            <div class="player-card">
+              <div class="player-top">
+                <div>
+                  <div class="current-title" id="currentTitle">完整成片</div>
+                  <div class="current-sub" id="currentSub">稳健理财产品介绍 · 全片预览</div>
+                </div>
+
+                <div class="player-status">
+                  <span class="status-dot"></span>
+                  <span id="currentStatus">可预览</span>
+                </div>
+              </div>
+
+              <div class="stage">
+                <div class="video-frame">
+                  <div class="person"></div>
+                  <div class="subtitle" id="subtitleText">
+                    大家好，今天我们用一分钟聊聊，在市场波动的时候，普通投资者应该如何看待稳健理财配置。
+                  </div>
+                  <button class="play-button" onclick="togglePlay()">▶</button>
+                </div>
+              </div>
+
+              <div class="player-controls">
+                <div class="progress-row">
+                  <div class="time" id="startTime">00:00</div>
+                  <div class="progress">
+                    <div class="progress-inner" id="progressInner"></div>
+                  </div>
+                  <div class="time" id="endTime">00:51</div>
+                </div>
+
+                <div class="control-row">
+                  <div class="control-left">
+                    <button class="control-btn active" onclick="togglePlay()">播放 / 暂停</button>
+                    <button class="control-btn active" onclick="toggleSubtitle(this)">字幕开启</button>
+                    <button class="control-btn" onclick="showToast('音量调节', '这里可接入实际播放器的音量控制。')">音量</button>
+                  </div>
+
+                  <div class="control-right">
+                    <button class="control-btn" onclick="showToast('全屏预览', '这里可接入实际播放器的全屏能力。')">全屏</button>
+                    <button class="control-btn" onclick="showToast('画质设置', '当前预览画质为 1080P。')">1080P</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <aside class="right-panel">
+          <div class="panel-header">
+            <div>
+              <div class="panel-title">作品信息</div>
+              <div class="panel-sub">成片与导出信息</div>
+            </div>
+          </div>
+
+          <div class="right-panel-body">
+            <div class="info-card">
+              <div class="info-title">成片信息</div>
+
+              <div class="info-row">
+                <div class="info-label">标题</div>
+                <div class="info-value">稳健理财产品介绍</div>
+              </div>
+
+              <div class="info-row">
+                <div class="info-label">脚本描述</div>
+                <div class="info-value">面向普通投资者的稳健理财配置科普短视频</div>
+              </div>
+
+              <div class="info-row">
+                <div class="info-label">作品风格</div>
+                <div class="info-value">专业口播 / 稳重可信</div>
+              </div>
+
+              <div class="info-row">
+                <div class="info-label">视频比例</div>
+                <div class="info-value">9:16 竖版</div>
+              </div>
+
+              <div class="info-row">
+                <div class="info-label">总时长</div>
+                <div class="info-value">51 秒</div>
+              </div>
+            </div>
+
+            <div class="info-card">
+              <div class="info-title">主体资产</div>
+
+              <div class="asset-mini">
+                <div class="asset-thumb">人</div>
+                <div class="asset-info">
+                  <div class="asset-name">财经讲师 A</div>
+                  <div class="asset-desc">角色主体，已应用到全部分镜</div>
+                </div>
+              </div>
+
+              <div class="asset-mini">
+                <div class="asset-thumb scene">景</div>
+                <div class="asset-info">
+                  <div class="asset-name">书房口播场景</div>
+                  <div class="asset-desc">默认场景，部分分镜使用近景和中景视角</div>
+                </div>
+              </div>
+
+              <div class="info-row">
+                <div class="info-label">音色</div>
+                <div class="info-value">成熟稳重男声</div>
+              </div>
+            </div>
+
+            <div class="info-card">
+              <div class="info-title">生成结果</div>
+
+              <div class="info-row">
+                <div class="info-label">合成状态</div>
+                <div class="info-value"><span class="tag tag-green">已完成</span></div>
+              </div>
+
+              <div class="info-row">
+                <div class="info-label">分镜数量</div>
+                <div class="info-value">4 个</div>
+              </div>
+
+              <div class="info-row">
+                <div class="info-label">音频状态</div>
+                <div class="info-value"><span class="tag tag-green">全部完成</span></div>
+              </div>
+
+              <div class="info-row">
+                <div class="info-label">视频状态</div>
+                <div class="info-value"><span class="tag tag-green">全部完成</span></div>
+              </div>
+
+              <div class="info-row">
+                <div class="info-label">合成时间</div>
+                <div class="info-value">2026-05-08 10:49</div>
+              </div>
+            </div>
+
+            <div class="info-card">
+              <div class="info-title">导出设置</div>
+
+              <div class="info-row">
+                <div class="info-label">导出内容</div>
+                <div class="info-value">完整成片</div>
+              </div>
+
+              <div class="info-row">
+                <div class="info-label">文件格式</div>
+                <div class="info-value">MP4</div>
+              </div>
+
+              <div class="info-row">
+                <div class="info-label">导出清晰度</div>
+                <div class="info-value">1080P</div>
+              </div>
+
+              <div class="info-row">
+                <div class="info-label">字幕</div>
+                <div class="info-value">默认包含字幕</div>
+              </div>
+
+              <div class="info-row">
+                <div class="info-label">预计大小</div>
+                <div class="info-value">约 48 MB</div>
+              </div>
+            </div>
+          </div>
+        </aside>
+      </section>
+    </main>
+  </div>
+
+  <footer class="bottom-bar">
+    <div class="bottom-left">
+      <button class="btn" onclick="goBackStep3()">上一步</button>
+    </div>
+
+    <div class="bottom-right">
+      <button class="btn btn-light-primary" onclick="selectVideo('full')">预览全片</button>
+      <button class="btn btn-primary export-btn" onclick="openExportModal()">导出视频</button>
+    </div>
+  </footer>
+
+  <div id="toast" class="toast">
+    <div id="toastTitle" class="toast-title">提示</div>
+    <div id="toastText" class="toast-text">操作已完成</div>
+  </div>
+
+  <div id="modalMask" class="modal-mask">
+    <div class="modal">
+      <div class="modal-header">
+        <div id="modalTitle" class="modal-title">导出视频</div>
+        <button class="icon-btn" onclick="closeModal()">×</button>
+      </div>
+
+      <div class="modal-body" id="modalBody"></div>
+
+      <div class="modal-footer">
+        <button class="btn" onclick="closeModal()">取消</button>
+        <button class="btn btn-primary" id="modalConfirmBtn" onclick="confirmModal()">确认</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    var videos = [
+      {
+        id: "full",
+        type: "full",
+        title: "完整成片",
+        desc: "稳健理财产品介绍 · 全片预览",
+        duration: "00:51",
+        badge: "全片",
+        subtitle: "大家好，今天我们用一分钟聊聊，在市场波动的时候，普通投资者应该如何看待稳健理财配置。",
+        thumbClass: "medium",
+        progress: 36
+      },
+      {
+        id: "s1",
+        type: "story",
+        title: "分镜 1",
+        desc: "开场建立信任 · 11 秒",
+        duration: "00:11",
+        badge: "分镜",
+        subtitle: "大家好，今天我们用一分钟聊聊，在市场波动的时候，普通投资者应该如何看待稳健理财配置。",
+        thumbClass: "medium",
+        progress: 42
+      },
+      {
+        id: "s2",
+        type: "story",
+        title: "分镜 2",
+        desc: "提出用户痛点 · 15 秒",
+        duration: "00:15",
+        badge: "分镜",
+        subtitle: "很多人一看到净值短期波动，就会担心是不是产品出了问题。其实，短期波动并不等于长期风险失控。",
+        thumbClass: "closeup",
+        progress: 28
+      },
+      {
+        id: "s3",
+        type: "story",
+        title: "分镜 3",
+        desc: "解释稳健配置逻辑 · 13 秒",
+        duration: "00:13",
+        badge: "分镜",
+        subtitle: "更重要的是看产品底层资产、投资期限和风险等级是否与你的资金需求匹配。",
+        thumbClass: "wide",
+        progress: 52
+      },
+      {
+        id: "s4",
+        type: "story",
+        title: "分镜 4",
+        desc: "给出行动建议 · 12 秒",
+        duration: "00:12",
+        badge: "分镜",
+        subtitle: "所以，投资前先明确期限、风险承受能力和收益预期，比单纯追求短期收益更重要。",
+        thumbClass: "medium",
+        progress: 47
+      }
+    ];
+
+    var currentVideoId = "full";
+    var modalAction = null;
+    var subtitleVisible = true;
+    var exportTimer = null;
+
+    function renderVideoNav() {
+      var nav = document.getElementById("videoNav");
+      nav.innerHTML = "";
+
+      var full = videos.find(function(item) {
+        return item.id === "full";
+      });
+
+      nav.appendChild(createVideoItem(full));
+
+      var section = document.createElement("div");
+      section.className = "nav-section-title";
+      section.innerText = "分镜";
+      nav.appendChild(section);
+
+      videos.filter(function(item) {
+        return item.type === "story";
+      }).forEach(function(item) {
+        nav.appendChild(createVideoItem(item));
+      });
+    }
+
+    function createVideoItem(item) {
+      var wrapper = document.createElement("div");
+      wrapper.className = "video-item" + (item.id === currentVideoId ? " active" : "");
+      wrapper.onclick = function() {
+        selectVideo(item.id);
+      };
+
+      wrapper.innerHTML =
+        '<div class="thumb ' + item.thumbClass + '">' +
+          '<div class="thumb-badge">' + item.badge + '</div>' +
+          '<div class="thumb-person"></div>' +
+          '<div class="thumb-mask">' + item.title + '</div>' +
+        '</div>' +
+        '<div class="video-item-body">' +
+          '<div class="video-item-title">' + item.title + '</div>' +
+          '<div class="video-item-desc">' + item.desc + '</div>' +
+        '</div>';
+
+      return wrapper;
+    }
+
+    function selectVideo(id) {
+      var item = videos.find(function(video) {
+        return video.id === id;
+      });
+
+      if (!item) return;
+
+      currentVideoId = id;
+
+      document.getElementById("currentTitle").innerText = item.title;
+      document.getElementById("currentSub").innerText = item.desc;
+      document.getElementById("subtitleText").innerText = item.subtitle;
+      document.getElementById("endTime").innerText = item.duration;
+      document.getElementById("progressInner").style.width = item.progress + "%";
+
+      if (item.type === "full") {
+        document.getElementById("currentStatus").innerText = "全片可预览";
+      } else {
+        document.getElementById("currentStatus").innerText = "分镜片段可预览";
+      }
+
+      renderVideoNav();
+      showToast("已切换预览", "当前正在预览：" + item.title + "。");
+    }
+
+    function togglePlay() {
+      var item = videos.find(function(video) {
+        return video.id === currentVideoId;
+      });
+
+      showToast("播放控制", "正在播放或暂停：" + item.title + "。此处为 HTML 原型，可接入实际视频播放器。");
+    }
+
+    function toggleSubtitle(button) {
+      subtitleVisible = !subtitleVisible;
+
+      var subtitle = document.getElementById("subtitleText");
+      if (subtitleVisible) {
+        subtitle.style.display = "block";
+        button.innerText = "字幕开启";
+        button.classList.add("active");
+      } else {
+        subtitle.style.display = "none";
+        button.innerText = "字幕关闭";
+        button.classList.remove("active");
+      }
+    }
+
+    function goBackStep3() {
+      showModal(
+        "返回分镜管理",
+        "点击确认后将返回 Step3「分镜管理」。当前成片预览结果会保留，后续如修改分镜内容，需要在 Step3 重新完成合成后再进入本页。",
+        "back"
+      );
+    }
+
+    function goEdit() {
+      showModal(
+        "再次编辑",
+        "将返回 Step3「分镜管理」继续编辑分镜、音频或视频片段。当前已合成成片不会被立即删除，但修改后需要重新合成才能更新预览结果。",
+        "edit"
+      );
+    }
+
+    function openExportModal() {
+      modalAction = "export";
+
+      document.getElementById("modalTitle").innerText = "导出完整成片";
+      document.getElementById("modalBody").innerHTML =
+        '<div class="export-form">' +
+          '<div class="form-row">' +
+            '<div class="form-label">导出内容</div>' +
+            '<input class="form-control" value="完整成片" disabled />' +
+          '</div>' +
+          '<div class="form-row">' +
+            '<div class="form-label">文件格式</div>' +
+            '<select class="form-control">' +
+              '<option>MP4</option>' +
+            '</select>' +
+          '</div>' +
+          '<div class="form-row">' +
+            '<div class="form-label">视频清晰度</div>' +
+            '<select class="form-control">' +
+              '<option>1080P</option>' +
+              '<option>720P</option>' +
+            '</select>' +
+          '</div>' +
+          '<div class="form-row">' +
+            '<div class="form-label">字幕</div>' +
+            '<select class="form-control">' +
+              '<option>包含字幕</option>' +
+              '<option>不包含字幕</option>' +
+            '</select>' +
+          '</div>' +
+          '<div class="form-row">' +
+            '<div class="form-label">预计大小</div>' +
+            '<input class="form-control" value="约 48 MB" disabled />' +
+          '</div>' +
+          '<div class="export-progress" id="exportProgress">' +
+            '<div class="export-progress-inner" id="exportProgressInner"></div>' +
+          '</div>' +
+        '</div>';
+
+      document.getElementById("modalConfirmBtn").innerText = "开始导出";
+      document.getElementById("modalMask").classList.add("show");
+    }
+
+    function confirmModal() {
+      if (modalAction === "export") {
+        startExport();
+        return;
+      }
+
+      if (modalAction === "back") {
+        closeModal();
+        showToast("返回 Step3", "这里可接入路由跳转，返回 Step3「分镜管理」。");
+        return;
+      }
+
+      if (modalAction === "edit") {
+        closeModal();
+        showToast("进入再次编辑", "这里可接入路由跳转，返回 Step3 继续编辑。");
+        return;
+      }
+
+      closeModal();
+    }
+
+    function startExport() {
+      var progress = document.getElementById("exportProgress");
+      var progressInner = document.getElementById("exportProgressInner");
+      var confirmBtn = document.getElementById("modalConfirmBtn");
+
+      progress.classList.add("show");
+      progressInner.style.width = "0%";
+      confirmBtn.innerText = "导出中...";
+      confirmBtn.classList.add("btn-disabled");
+      confirmBtn.disabled = true;
+
+      var value = 0;
+      clearInterval(exportTimer);
+
+      exportTimer = setInterval(function() {
+        value += 20;
+        progressInner.style.width = value + "%";
+
+        if (value >= 100) {
+          clearInterval(exportTimer);
+          confirmBtn.innerText = "导出完成";
+          setTimeout(function() {
+            closeModal();
+            showToast("导出完成", "完整成片已导出为 MP4 文件。此处为 HTML 原型，可接入实际下载能力。");
+          }, 600);
+        }
+      }, 380);
+    }
+
+    function showModal(title, body, action) {
+      modalAction = action || null;
+      document.getElementById("modalTitle").innerText = title;
+      document.getElementById("modalBody").innerHTML = body;
+      document.getElementById("modalConfirmBtn").innerText = "确认";
+      document.getElementById("modalConfirmBtn").disabled = false;
+      document.getElementById("modalConfirmBtn").classList.remove("btn-disabled");
+      document.getElementById("modalMask").classList.add("show");
+    }
+
+    function closeModal() {
+      document.getElementById("modalMask").classList.remove("show");
+      document.getElementById("modalConfirmBtn").disabled = false;
+      document.getElementById("modalConfirmBtn").classList.remove("btn-disabled");
+      document.getElementById("modalConfirmBtn").innerText = "确认";
+      modalAction = null;
+      clearInterval(exportTimer);
+    }
+
+    function showToast(title, text) {
+      var toast = document.getElementById("toast");
+      document.getElementById("toastTitle").innerText = title;
+      document.getElementById("toastText").innerText = text;
+      toast.classList.add("show");
+
+      clearTimeout(window.toastTimer);
+      window.toastTimer = setTimeout(function() {
+        toast.classList.remove("show");
+      }, 2600);
+    }
+
+    renderVideoNav();
+    selectVideo("full");
+  </script>
+</body>
+</html>

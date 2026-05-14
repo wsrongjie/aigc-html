@@ -1,0 +1,3894 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>Step3 分镜管理 · 优化版</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
+      background: #f5f7fb;
+      color: #1f2937;
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    button,
+    input,
+    textarea,
+    select {
+      font-family: inherit;
+      font-size: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+    }
+
+    .page {
+      min-height: 100vh;
+      padding-bottom: 80px;
+    }
+
+    .top-bar {
+      height: 64px;
+      background: #ffffff;
+      border-bottom: 1px solid #e5e7eb;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      color: #111827;
+      white-space: nowrap;
+    }
+
+    .brand-logo {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #2f6bff, #6b8cff);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 14px;
+    }
+
+    .steps {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 13px;
+    }
+
+    .step {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #9ca3af;
+      white-space: nowrap;
+    }
+
+    .step-number {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: #eef2f7;
+      color: #9ca3af;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 12px;
+    }
+
+    .step.done .step-number {
+      background: #e8f1ff;
+      color: #2f6bff;
+    }
+
+    .step.active {
+      color: #111827;
+      font-weight: 700;
+    }
+
+    .step.active .step-number {
+      background: #2f6bff;
+      color: #ffffff;
+    }
+
+    .step-line {
+      width: 36px;
+      border-top: 1px dashed #cbd5e1;
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: #6b7280;
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    .guide-link {
+      color: #2f6bff;
+      font-weight: 600;
+    }
+
+    .avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #dbeafe;
+      color: #1d4ed8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 13px;
+    }
+
+    .content-wrap {
+      display: grid;
+      grid-template-columns: 150px minmax(0, 1fr);
+      gap: 16px;
+      padding: 20px 24px;
+    }
+
+    .left-nav {
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      border-radius: 14px;
+      padding: 10px;
+      height: fit-content;
+      max-height: calc(100vh - 140px);
+      overflow-y: auto;
+      position: sticky;
+      top: 84px;
+    }
+
+    .left-nav-title {
+      font-size: 12px;
+      font-weight: 800;
+      color: #6b7280;
+      margin: 0 0 10px 4px;
+      letter-spacing: 0.3px;
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      width: 100%;
+      min-height: 78px;
+      padding: 12px 10px;
+      border-radius: 12px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      border: 1px solid transparent;
+      text-align: left;
+      transition: all 0.18s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .nav-item::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 12px;
+      bottom: 12px;
+      width: 4px;
+      border-radius: 0 8px 8px 0;
+      background: #94a3b8;
+    }
+
+    .nav-item:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 14px rgba(15, 23, 42, 0.08);
+    }
+
+    .nav-item.active {
+      box-shadow: 0 0 0 2px rgba(47, 107, 255, 0.14);
+    }
+
+    .nav-item.status-done {
+      background: #eef6ff;
+      border-color: #bfdbfe;
+    }
+
+    .nav-item.status-done::before {
+      background: #2f6bff;
+    }
+
+    .nav-item.status-pending {
+      background: #f8fafc;
+      border-color: #e2e8f0;
+    }
+
+    .nav-item.status-pending::before {
+      background: #94a3b8;
+    }
+
+    .nav-item.status-dirty {
+      background: #fff7ed;
+      border-color: #fed7aa;
+    }
+
+    .nav-item.status-dirty::before {
+      background: #f97316;
+    }
+
+    .nav-item.status-failed {
+      background: #fef2f2;
+      border-color: #fecaca;
+    }
+
+    .nav-item.status-failed::before {
+      background: #ef4444;
+    }
+
+    .nav-item.status-generating {
+      background: #eff6ff;
+      border-color: #93c5fd;
+    }
+
+    .nav-item.status-generating::before {
+      background: #3b82f6;
+    }
+
+    .nav-item-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      margin-bottom: 8px;
+      padding-left: 4px;
+    }
+
+    .nav-item-index {
+      color: #111827;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .nav-item-title {
+      padding-left: 4px;
+      color: #1f2937;
+      font-size: 12px;
+      line-height: 1.4;
+      font-weight: 700;
+      word-break: break-word;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .nav-drag-handle {
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      border: 1px solid #e2e8f0;
+      background: #fff;
+      color: #94a3b8;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: grab;
+      flex-shrink: 0;
+      transition: all 0.15s;
+    }
+
+    .nav-drag-handle:hover {
+      color: #2f6bff;
+      border-color: #2f6bff;
+      background: #f8fbff;
+    }
+
+    .toolbar {
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      border-radius: 14px;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+      gap: 12px;
+    }
+
+    .toolbar-left,
+    .toolbar-right {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .search-box {
+      width: 240px;
+      height: 36px;
+      border: 1px solid #d1d5db;
+      border-radius: 10px;
+      padding: 0 12px;
+      color: #374151;
+      outline: none;
+    }
+
+    .select {
+      height: 36px;
+      border: 1px solid #d1d5db;
+      border-radius: 10px;
+      padding: 0 10px;
+      color: #374151;
+      outline: none;
+      background: #ffffff;
+    }
+
+    .btn {
+      border: 1px solid #d1d5db;
+      background: #ffffff;
+      color: #374151;
+      border-radius: 10px;
+      height: 36px;
+      padding: 0 14px;
+      font-weight: 600;
+      transition: all 0.15s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    .btn:hover {
+      border-color: #2f6bff;
+      color: #2f6bff;
+    }
+
+    .btn:disabled,
+    .btn:disabled:hover {
+      color: #b6beca;
+      background: #f3f4f6;
+      border-color: #e5e7eb;
+      cursor: not-allowed;
+    }
+
+    .btn-primary {
+      background: #2f6bff;
+      color: #fff;
+      border-color: #2f6bff;
+    }
+
+    .btn-primary:hover {
+      background: #2458d8;
+      color: #fff;
+    }
+
+    .btn-light-primary {
+      background: #eef4ff;
+      color: #2f6bff;
+      border-color: #cfe0ff;
+    }
+
+    .btn-success {
+      background: #ecfdf5;
+      color: #047857;
+      border-color: #a7f3d0;
+    }
+
+    .btn-success:hover {
+      color: #065f46;
+      border-color: #10b981;
+      background: #d1fae5;
+    }
+
+    .storyboard-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .story-card {
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      border-radius: 14px;
+      display: flex;
+      gap: 0;
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
+      transition: border-color 0.2s, box-shadow 0.2s;
+      overflow: hidden;
+    }
+
+    .story-card.active-card {
+      border-color: #2f6bff;
+      box-shadow: 0 0 0 3px rgba(47, 107, 255, 0.08);
+    }
+
+    .story-card.editing-card {
+      border-color: #f59e0b;
+      box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+    }
+
+    .card-left-col {
+      width: 52px;
+      background: #f9fafb;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 12px 4px;
+      border-right: 1px solid #eef2f7;
+      flex-shrink: 0;
+    }
+
+    .story-index {
+      width: 36px;
+      height: 36px;
+      border-radius: 12px;
+      background: #eff6ff;
+      color: #2f6bff;
+      font-weight: 800;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: inset 0 0 0 1px #bfdbfe;
+    }
+
+    .drag-handle {
+      width: 30px;
+      height: 30px;
+      border-radius: 9px;
+      border: 1px solid #dbe2ec;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #94a3b8;
+      font-size: 17px;
+      cursor: grab;
+      background: #fff;
+      transition: all 0.15s;
+    }
+
+    .drag-handle:hover {
+      color: #2f6bff;
+      border-color: #2f6bff;
+      background: #f8fbff;
+    }
+
+    .card-content {
+      flex: 1;
+      padding: 12px 14px;
+      display: grid;
+      grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+      gap: 12px;
+      align-items: stretch;
+      min-width: 0;
+    }
+
+    .panel {
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      background: #ffffff;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      min-width: 0;
+    }
+
+    .panel-header {
+      min-height: 36px;
+      padding: 6px 12px;
+      border-bottom: 1px solid #eef2f7;
+      display: flex;
+      align-items: center;
+      font-weight: 700;
+      font-size: 12px;
+      color: #111827;
+      background: #f9fbff;
+      flex-shrink: 0;
+    }
+
+    .panel-header--split {
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .panel-header-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .panel-header-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .panel-header-actions .btn {
+      height: 26px;
+      padding: 0 10px;
+      font-size: 11px;
+      border-radius: 8px;
+    }
+
+    .panel-body {
+      padding: 10px;
+      flex: 1;
+    }
+
+    .desc-section {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .desc-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .field-label {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      font-weight: 700;
+      font-size: 11px;
+      color: #374151;
+      margin-bottom: 4px;
+    }
+
+    .line-actions {
+      display: flex;
+      gap: 4px;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    .icon-btn-small {
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+      border: 1px solid #dbe2ec;
+      background: #fff;
+      color: #475569;
+      font-size: 13px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    .icon-btn-small:hover {
+      color: #2f6bff;
+      border-color: #2f6bff;
+      background: #f8fbff;
+    }
+
+    .icon-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      border: 1px solid #dbe2ec;
+      background: #fff;
+      color: #475569;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 16px;
+      line-height: 1;
+    }
+
+    .icon-btn:hover {
+      color: #2f6bff;
+      border-color: #2f6bff;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 58px;
+      resize: vertical;
+      border: 1px solid #dbe2ec;
+      border-radius: 8px;
+      padding: 6px 8px;
+      line-height: 1.5;
+      color: #374151;
+      outline: none;
+      background: #fff;
+      font-size: 12px;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    textarea:focus,
+    input:focus,
+    select:focus {
+      border-color: #2f6bff;
+      box-shadow: 0 0 0 3px rgba(47, 107, 255, 0.08);
+    }
+
+    textarea[readonly],
+    input[readonly] {
+      background: #fafbfc;
+      color: #475569;
+      cursor: default;
+    }
+
+    .editing-card textarea[readonly],
+    .editing-card input[readonly] {
+      background: #fff;
+      cursor: text;
+    }
+
+    .params-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      background: #f9fafb;
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: 1px solid #eef2f7;
+      font-size: 12px;
+    }
+
+    .param-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      color: #374151;
+    }
+
+    .param-item strong {
+      font-weight: 700;
+      color: #111827;
+      margin-right: 2px;
+    }
+
+    .small-input {
+      width: 70px;
+      height: 28px;
+      border: 1px solid #dbe2ec;
+      border-radius: 6px;
+      padding: 0 6px;
+      font-size: 12px;
+      color: #374151;
+      outline: none;
+      background: #fff;
+    }
+
+    select.small-input {
+      width: auto;
+      min-width: 90px;
+    }
+
+    .small-input[disabled] {
+      background: #fafbfc;
+      color: #475569;
+      cursor: default;
+    }
+
+    .panel--video .panel-body {
+      display: flex;
+      flex-direction: row;
+      gap: 16px;
+      flex: 1;
+      min-height: 0;
+    }
+
+    .video-section {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      gap: 10px;
+    }
+
+    .video-preview-wrap {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding-top: 2px;
+      min-height: 130px;
+    }
+
+    .video-preview {
+      width: min(100%, 340px);
+      max-width: 100%;
+      aspect-ratio: 16 / 9;
+      height: auto;
+      border-radius: 10px;
+      border: 1px solid #dbe2ec;
+      background: linear-gradient(135deg, #1e293b, #334155);
+      position: relative;
+      overflow: hidden;
+      flex-shrink: 0;
+      cursor: default;
+      transition: box-shadow 0.15s, transform 0.15s;
+    }
+
+    .video-preview.unready {
+      background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
+      color: #64748b;
+    }
+
+    .video-preview.failed {
+      background: linear-gradient(135deg, #fee2e2, #fecaca);
+      color: #991b1b;
+    }
+
+    .video-preview.generating {
+      background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+      color: #1d4ed8;
+    }
+
+    .video-preview.is-previewing {
+      box-shadow: 0 0 0 3px rgba(47, 107, 255, 0.14);
+      transform: translateY(-1px);
+    }
+
+    .video-preview.is-previewing::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at center, rgba(47, 107, 255, 0.12), rgba(15, 23, 42, 0.08));
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .video-person-small {
+      width: 44px;
+      height: 78px;
+      border-radius: 22px 22px 10px 10px;
+      background: linear-gradient(180deg, #f8fafc 0 22%, #111827 22% 100%);
+      position: absolute;
+      left: 12px;
+      bottom: 14px;
+      z-index: 1;
+    }
+
+    .video-person-small::before {
+      content: "";
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: #f8d8bf;
+      position: absolute;
+      left: 10px;
+      top: 6px;
+    }
+
+    .video-status-tag {
+      position: absolute;
+      left: 8px;
+      top: 8px;
+      z-index: 4;
+    }
+
+    .video-message {
+      position: absolute;
+      left: 10px;
+      top: 36px;
+      right: 10px;
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .video-duration-small {
+      position: absolute;
+      right: 8px;
+      bottom: 8px;
+      background: rgba(0, 0, 0, 0.6);
+      color: #fff;
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 999px;
+      z-index: 4;
+    }
+
+    .video-preview-layer {
+      position: absolute;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 6px;
+      background: rgba(15, 23, 42, 0.26);
+      color: #ffffff;
+      pointer-events: none;
+      z-index: 3;
+    }
+
+    .video-preview.is-previewing .video-preview-layer {
+      display: flex;
+    }
+
+    .video-preview-play {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.92);
+      color: #2f6bff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      font-weight: 900;
+      box-shadow: 0 8px 18px rgba(15, 23, 42, 0.18);
+    }
+
+    .video-preview-text {
+      font-size: 12px;
+      font-weight: 700;
+      text-shadow: 0 1px 4px rgba(15, 23, 42, 0.4);
+    }
+
+    .sound-toggle {
+      position: absolute;
+      left: 8px;
+      bottom: 8px;
+      z-index: 5;
+      width: 28px;
+      height: 28px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.72);
+      background: rgba(15, 23, 42, 0.68);
+      color: #ffffff;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      line-height: 1;
+      cursor: pointer;
+      transition: all 0.15s;
+      backdrop-filter: blur(6px);
+    }
+
+    .sound-toggle:hover {
+      transform: scale(1.06);
+      background: rgba(47, 107, 255, 0.88);
+    }
+
+    .sound-toggle.muted {
+      background: rgba(100, 116, 139, 0.78);
+    }
+
+    .video-actions {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      margin-top: auto;
+      flex-shrink: 0;
+      padding-top: 4px;
+      flex-wrap: wrap;
+    }
+
+    .video-actions .btn {
+      flex: 0 0 auto;
+      min-width: 88px;
+      height: 32px;
+      padding: 0 14px;
+      font-size: 12px;
+      border-radius: 9px;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .card-right-col {
+      width: 44px;
+      background: #fbfdff;
+      border-left: 1px solid #eef2f7;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      padding: 10px 4px;
+      flex-shrink: 0;
+    }
+
+    .clip-thumbnails {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      width: 160px;
+      flex-shrink: 0;
+    }
+
+    .clip-thumb {
+      aspect-ratio: 16/9;
+      border-radius: 10px;
+      border: 2px solid #e5e7eb;
+      background: linear-gradient(135deg, #1e293b, #334155);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: rgba(255,255,255,0.5);
+      font-size: 12px;
+      font-weight: 700;
+      transition: all 0.15s;
+      overflow: hidden;
+    }
+
+    .clip-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .clip-thumb:hover {
+      border-color: #2f6bff;
+      box-shadow: 0 0 0 2px rgba(47,107,255,0.12);
+    }
+
+    .clip-thumb.selected {
+      border-color: #2f6bff;
+      box-shadow: 0 0 0 3px rgba(47,107,255,0.18);
+    }
+
+    .tag {
+      height: 20px;
+      border-radius: 999px;
+      padding: 0 6px;
+      font-size: 10px;
+      font-weight: 600;
+      border: 1px solid transparent;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      white-space: nowrap;
+    }
+
+    .tag-green {
+      color: #15803d;
+      background: #f0fdf4;
+      border-color: #bbf7d0;
+    }
+
+    .tag-orange {
+      color: #c2410c;
+      background: #fff7ed;
+      border-color: #fed7aa;
+    }
+
+    .tag-red {
+      color: #b91c1c;
+      background: #fef2f2;
+      border-color: #fecaca;
+    }
+
+    .tag-gray {
+      color: #64748b;
+      background: #f8fafc;
+      border-color: #e2e8f0;
+    }
+
+    .tag-blue {
+      color: #1d4ed8;
+      background: #eff6ff;
+      border-color: #bfdbfe;
+    }
+
+    .action-icon {
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      border: 1px solid #dbe2ec;
+      background: #ffffff;
+      color: #475569;
+      font-weight: 700;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .action-icon:hover {
+      color: #2f6bff;
+      border-color: #2f6bff;
+      background: #f8fbff;
+    }
+
+    .bottom-bar {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      min-height: 68px;
+      background: rgba(255, 255, 255, 0.96);
+      border-top: 1px solid #e5e7eb;
+      box-shadow: 0 -8px 20px rgba(15, 23, 42, 0.06);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      z-index: 30;
+      backdrop-filter: blur(10px);
+      gap: 12px;
+    }
+
+    .bottom-left,
+    .bottom-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .compose-btn {
+      height: 40px;
+      padding: 0 20px;
+      border-radius: 12px;
+    }
+
+    .progress-toast {
+      position: fixed;
+      right: 28px;
+      bottom: 90px;
+      width: 300px;
+      background: #111827;
+      color: #ffffff;
+      border-radius: 14px;
+      padding: 12px 16px;
+      z-index: 60;
+      display: none;
+      box-shadow: 0 12px 24px rgba(15, 23, 42, 0.22);
+    }
+
+    .progress-toast.show {
+      display: block;
+    }
+
+    .toast-title {
+      font-size: 14px;
+      font-weight: 800;
+      margin-bottom: 4px;
+    }
+
+    .toast-text {
+      font-size: 12px;
+      color: #d1d5db;
+      line-height: 1.5;
+    }
+
+    .modal-mask {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.4);
+      z-index: 80;
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-mask.show {
+      display: flex;
+    }
+
+    .modal {
+      width: 500px;
+      max-width: 95%;
+      background: #ffffff;
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 18px 48px rgba(15, 23, 42, 0.24);
+    }
+
+    .modal-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid #eef2f7;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .modal-title {
+      font-weight: 800;
+      font-size: 15px;
+    }
+
+    .modal-body {
+      padding: 20px;
+      font-size: 14px;
+      color: #374151;
+      line-height: 1.6;
+    }
+
+    .modal-footer {
+      padding: 14px 20px;
+      border-top: 1px solid #eef2f7;
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+
+    .empty-state {
+      background: #fff;
+      border: 1px dashed #cbd5e1;
+      border-radius: 14px;
+      padding: 40px;
+      text-align: center;
+      color: #64748b;
+      display: none;
+    }
+
+    .empty-title {
+      font-size: 15px;
+      font-weight: 800;
+      color: #334155;
+      margin-bottom: 8px;
+    }
+
+    .empty-desc {
+      font-size: 13px;
+      color: #64748b;
+    }
+
+    .preview-modal {
+      width: 900px;
+      max-width: 95%;
+      background: #0f172a;
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 24px 80px rgba(15, 23, 42, 0.5);
+    }
+
+    .preview-modal .preview-header {
+      padding: 14px 20px;
+      background: #1e293b;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .preview-modal .preview-title {
+      font-weight: 800;
+      font-size: 15px;
+      color: #f1f5f9;
+    }
+
+    .preview-modal .preview-btn {
+      width: 34px;
+      height: 34px;
+      border: 0;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.08);
+      color: #cbd5e1;
+      font-size: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    .preview-modal .preview-btn:hover {
+      background: rgba(255, 255, 255, 0.16);
+      color: #fff;
+    }
+
+    .preview-stage {
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #0f172a;
+    }
+
+    .preview-video-frame {
+      width: min(100%, 760px);
+      aspect-ratio: 16 / 9;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #1e293b, #334155);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 10px;
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 14px;
+    }
+
+    .preview-video-frame .play-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: rgba(47, 107, 255, 0.88);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    .preview-video-frame .play-icon:hover {
+      background: #2f6bff;
+    }
+
+    .preview-info {
+      padding: 12px 20px;
+      background: #1e293b;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .preview-info-label {
+      color: #94a3b8;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .preview-info-value {
+      color: #f1f5f9;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .preview-progress-bar {
+      height: 4px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .preview-progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #2f6bff, #6b8cff);
+      border-radius: 999px;
+      transition: width 0.3s ease;
+    }
+
+    .preview-film-modal {
+      width: 600px;
+      max-width: 95%;
+      background: #ffffff;
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 24px 80px rgba(15, 23, 42, 0.25);
+    }
+
+    .film-config-section {
+      margin-bottom: 18px;
+    }
+
+    .film-config-section:last-child {
+      margin-bottom: 0;
+    }
+
+    .film-config-section h4 {
+      margin: 0 0 10px;
+      font-size: 14px;
+      font-weight: 800;
+      color: #111827;
+      border-bottom: 1px solid #e5e7eb;
+      padding-bottom: 6px;
+    }
+
+    .film-workspace {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 370px;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .film-settings-stack {
+      min-width: 0;
+    }
+
+    .film-config-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px 18px;
+    }
+
+    .film-config-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .film-config-row label,
+    .field-label {
+      font-size: 13px;
+      font-weight: 700;
+      color: #374151;
+      white-space: nowrap;
+    }
+
+    .film-config-row select,
+    .film-config-row input[type="text"],
+    .film-config-row input[type="file"],
+    .field-control {
+      width: 100%;
+      height: 34px;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      padding: 0 10px;
+      font-size: 12px;
+      color: #374151;
+      outline: none;
+      background: #fff;
+    }
+
+    .film-config-row input[type="checkbox"] {
+      accent-color: #2f6bff;
+      width: 16px;
+      height: 16px;
+      margin-right: 6px;
+    }
+
+    .film-config-row .toggle-wrap {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      width: 100%;
+    }
+
+    .film-config-full {
+      grid-column: 1 / -1;
+    }
+
+    .bgm-panel,
+    .watermark-editor-panel,
+    .watermark-preview-panel {
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      background: #f9fafb;
+      padding: 14px;
+    }
+
+    .bgm-source-tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .bgm-source-option {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 34px;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      color: #475569;
+      background: #ffffff;
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .bgm-source-option input {
+      display: none;
+    }
+
+    .bgm-source-option.active {
+      color: #1d4ed8;
+      border-color: #2f6bff;
+      background: #eff6ff;
+      box-shadow: 0 0 0 3px rgba(47, 107, 255, 0.08);
+    }
+
+    .bgm-source-panel {
+      display: none;
+    }
+
+    .bgm-source-panel.active {
+      display: block;
+    }
+
+    .bgm-upload-card {
+      display: grid;
+      gap: 10px;
+    }
+
+    .bgm-file-summary {
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px;
+      border: 1px solid #dbeafe;
+      border-radius: 10px;
+      background: #eff6ff;
+    }
+
+    .bgm-file-summary.active {
+      display: flex;
+    }
+
+    .bgm-file-name {
+      color: #1e3a8a;
+      font-size: 13px;
+      font-weight: 800;
+      word-break: break-all;
+    }
+
+    .bgm-file-meta {
+      margin-top: 2px;
+      color: #64748b;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .bgm-audio {
+      display: none;
+      width: 100%;
+      height: 34px;
+      margin-top: 10px;
+    }
+
+    .bgm-audio.active {
+      display: block;
+    }
+
+    .bgm-preview-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .bgm-play-btn {
+      min-width: 96px;
+      justify-content: center;
+    }
+
+    .watermark-editor-panel {
+      display: grid;
+      grid-template-columns: 180px minmax(0, 1fr);
+      gap: 14px;
+    }
+
+    .wm-list-pane {
+      min-width: 0;
+    }
+
+    .wm-list-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .wm-list-title {
+      color: #111827;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .wm-list {
+      display: grid;
+      gap: 8px;
+      max-height: 210px;
+      overflow: auto;
+    }
+
+    .wm-list-item {
+      width: 100%;
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      background: #ffffff;
+      padding: 9px 10px;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .wm-list-item.active {
+      border-color: #2f6bff;
+      box-shadow: 0 0 0 3px rgba(47, 107, 255, 0.08);
+    }
+
+    .wm-list-item-title {
+      color: #111827;
+      font-size: 12px;
+      font-weight: 800;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .wm-list-item-meta {
+      margin-top: 3px;
+      color: #64748b;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .wm-detail-pane {
+      min-width: 0;
+    }
+
+    .wm-detail-empty {
+      min-height: 180px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px dashed #cbd5e1;
+      border-radius: 12px;
+      color: #64748b;
+      font-size: 13px;
+      font-weight: 700;
+      background: #ffffff;
+    }
+
+    .wm-detail-form {
+      display: grid;
+      gap: 12px;
+    }
+
+    .wm-edit-row {
+      display: grid;
+      grid-template-columns: 72px minmax(0, 1fr);
+      align-items: center;
+      gap: 10px;
+    }
+
+    .wm-edit-row label {
+      font-size: 13px;
+      font-weight: 700;
+      color: #374151;
+      white-space: nowrap;
+    }
+
+    .wm-edit-row textarea {
+      width: 100%;
+      min-height: 58px;
+      resize: vertical;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-size: 12px;
+      color: #374151;
+      outline: none;
+      background: #fff;
+      line-height: 1.5;
+    }
+
+    .wm-edit-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .wm-edit-controls input[type="range"] {
+      flex: 1;
+      min-width: 0;
+      accent-color: #2f6bff;
+      height: 6px;
+    }
+
+    .wm-edit-value {
+      font-size: 13px;
+      font-weight: 700;
+      color: #2f6bff;
+      min-width: 52px;
+      text-align: right;
+    }
+
+    .wm-edit-controls input[type="color"] {
+      width: 36px;
+      height: 32px;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      padding: 2px;
+      cursor: pointer;
+    }
+
+    .wm-row-actions {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      margin-top: 2px;
+    }
+
+    .watermark-preview-panel {
+      position: sticky;
+      top: 0;
+    }
+
+    .wm-preview-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .wm-preview-title {
+      color: #111827;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .wm-preview-meta {
+      color: #64748b;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .wm-stage {
+      position: relative;
+      width: min(100%, 270px);
+      aspect-ratio: 9 / 16;
+      margin: 0 auto;
+      overflow: hidden;
+      border-radius: 18px;
+      border: 1px solid #1f2937;
+      background:
+        radial-gradient(circle at 50% 18%, rgba(59, 130, 246, 0.35), transparent 28%),
+        linear-gradient(180deg, #172033 0%, #0f172a 64%, #111827 100%);
+      box-shadow: 0 18px 42px rgba(15, 23, 42, 0.25);
+    }
+
+    .wm-stage-art {
+      position: absolute;
+      inset: 10% 12% 12%;
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.09), transparent 44%),
+        linear-gradient(145deg, rgba(47, 107, 255, 0.42), rgba(15, 23, 42, 0.24));
+    }
+
+    .wm-stage-person {
+      position: absolute;
+      left: 50%;
+      bottom: 16%;
+      width: 38%;
+      height: 38%;
+      transform: translateX(-50%);
+      border-radius: 999px 999px 18px 18px;
+      background: linear-gradient(180deg, #dbeafe, #93c5fd);
+      opacity: 0.82;
+    }
+
+    .wm-stage-caption {
+      position: absolute;
+      left: 12%;
+      right: 12%;
+      bottom: 7%;
+      height: 7%;
+      border-radius: 10px;
+      background: rgba(15, 23, 42, 0.72);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .wm-safe-frame {
+      position: absolute;
+      inset: 6%;
+      border: 1px dashed rgba(255, 255, 255, 0.22);
+      border-radius: 14px;
+      pointer-events: none;
+    }
+
+    .wm-layer {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      max-width: 76%;
+      transform: translate(-50%, -50%);
+      padding: 3px 6px;
+      border: 1px solid transparent;
+      border-radius: 6px;
+      color: #ffffff;
+      font-weight: 800;
+      line-height: 1.25;
+      text-align: center;
+      white-space: pre-wrap;
+      word-break: break-word;
+      cursor: move;
+      user-select: none;
+      touch-action: none;
+      text-shadow: 0 1px 3px rgba(15, 23, 42, 0.5);
+    }
+
+    .wm-layer.selected {
+      border-color: rgba(255, 255, 255, 0.85);
+      background: rgba(47, 107, 255, 0.18);
+      box-shadow: 0 0 0 2px rgba(47, 107, 255, 0.36);
+    }
+
+    .wm-layer.hidden {
+      display: none;
+    }
+
+    .film-info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px 20px;
+    }
+
+    .film-info-item-label {
+      color: #6b7280;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .film-info-item-value {
+      color: #111827;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .film-progress-section {
+      margin-top: 20px;
+    }
+
+    .film-progress-label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .film-progress-label span:first-child {
+      color: #374151;
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .film-progress-label span:last-child {
+      color: #2f6bff;
+      font-weight: 800;
+      font-size: 14px;
+    }
+
+    .film-progress-track {
+      height: 10px;
+      background: #e5e7eb;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .film-progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #2f6bff, #6b8cff);
+      border-radius: 999px;
+      transition: width 0.4s ease;
+    }
+
+    .film-progress-status {
+      margin-top: 8px;
+      color: #6b7280;
+      font-size: 12px;
+    }
+
+    .film-modal {
+      width: 1040px;
+      max-width: 95%;
+      max-height: 88vh;
+      overflow: hidden;
+      background: #ffffff;
+      border-radius: 18px;
+      box-shadow: 0 24px 80px rgba(15, 23, 42, 0.25);
+      display: flex;
+      flex-direction: column;
+    }
+
+    #filmModal .modal-body {
+      overflow-y: auto;
+      max-height: calc(88vh - 124px);
+    }
+
+    @media (max-width: 1180px) {
+      .steps {
+        display: none;
+      }
+
+      .content-wrap {
+        grid-template-columns: 1fr;
+      }
+
+      .left-nav {
+        position: static;
+        max-height: none;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .left-nav-title {
+        width: 100%;
+      }
+
+      .nav-item {
+        width: calc(50% - 4px);
+        margin-bottom: 0;
+      }
+
+      .card-content {
+        grid-template-columns: 1fr;
+      }
+
+      .desc-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .film-workspace {
+        grid-template-columns: 1fr;
+      }
+
+      .watermark-preview-panel {
+        position: static;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .top-bar {
+        padding: 0 14px;
+      }
+
+      .top-actions span {
+        display: none;
+      }
+
+      .content-wrap {
+        padding: 14px;
+      }
+
+      .toolbar {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .search-box {
+        width: 100%;
+      }
+
+      .toolbar-left,
+      .toolbar-right {
+        width: 100%;
+      }
+
+      .select {
+        flex: 1;
+      }
+
+      .nav-item {
+        width: 100%;
+      }
+
+      .story-card {
+        flex-direction: column;
+      }
+
+      .card-left-col {
+        width: 100%;
+        flex-direction: row;
+        justify-content: flex-start;
+        border-right: none;
+        border-bottom: 1px solid #eef2f7;
+      }
+
+      .card-right-col {
+        width: 100%;
+        flex-direction: row;
+        justify-content: flex-end;
+        border-left: none;
+        border-top: 1px solid #eef2f7;
+      }
+
+      .bottom-bar {
+        align-items: flex-start;
+        flex-direction: column;
+        padding: 10px 14px;
+      }
+
+      .bottom-left,
+      .bottom-right {
+        width: 100%;
+      }
+
+      .film-config-grid,
+      .watermark-editor-panel {
+        grid-template-columns: 1fr;
+      }
+
+      .wm-edit-row {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="top-bar">
+      <div class="brand">
+        <div class="brand-logo">AI</div>
+        AIGC 投顾短视频平台
+      </div>
+
+      <div class="steps">
+        <div class="step done"><div class="step-number">1</div>台词创作</div>
+        <div class="step-line"></div>
+        <div class="step done"><div class="step-number">2</div>主体管理</div>
+        <div class="step-line"></div>
+        <div class="step active"><div class="step-number">3</div>分镜管理</div>
+        <div class="step-line"></div>
+        <div class="step"><div class="step-number">4</div>成片预览</div>
+      </div>
+
+      <div class="top-actions">
+        <span class="guide-link">操作指引</span>
+        <span>草稿已自动保存</span>
+        <div class="avatar">顾</div>
+      </div>
+    </header>
+
+    <main class="content-wrap">
+      <aside class="left-nav" id="leftNav">
+        <div class="left-nav-title">分镜列表</div>
+      </aside>
+
+      <section class="main-content">
+        <div class="toolbar">
+          <div class="toolbar-left">
+            <input class="search-box" type="text" placeholder="搜索分镜标题、台词" oninput="filterStories(this.value)" />
+            <select class="select" onchange="filterByStatus(this.value)">
+              <option value="all">全部状态</option>
+              <option value="done">已生成</option>
+              <option value="pending">未生成</option>
+              <option value="dirty">需重新生成</option>
+              <option value="failed">失败</option>
+              <option value="generating">生成中</option>
+            </select>
+          </div>
+
+          <div class="toolbar-right">
+            <button class="btn" onclick="regenerateAllDescriptions()">批量重生成描述</button>
+            <button class="btn btn-light-primary" onclick="addStory()">新增分镜</button>
+          </div>
+        </div>
+
+        <div id="storyboardList" class="storyboard-list"></div>
+
+        <div id="emptyState" class="empty-state">
+          <div class="empty-title">暂无符合条件的分镜</div>
+          <div class="empty-desc">请调整筛选条件，或点击“新增分镜”创建新的分镜内容。</div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <footer class="bottom-bar">
+    <div class="bottom-left"></div>
+
+    <div class="bottom-right">
+      <button class="btn btn-light-primary" onclick="batchGenerateVideo()">批量生成视频</button>
+      <button class="btn" onclick="previewAll()">预览全部</button>
+      <button class="btn btn-primary compose-btn" onclick="composeFilm()">成片合成</button>
+    </div>
+  </footer>
+
+  <div id="toast" class="progress-toast">
+    <div id="toastTitle" class="toast-title"></div>
+    <div id="toastText" class="toast-text"></div>
+  </div>
+
+  <div id="modalMask" class="modal-mask">
+    <div class="modal">
+      <div class="modal-header">
+        <div id="modalTitle" class="modal-title"></div>
+        <button class="icon-btn" onclick="closeModal()">×</button>
+      </div>
+      <div id="modalBody" class="modal-body"></div>
+      <div class="modal-footer">
+        <button class="btn" onclick="closeModal()">取消</button>
+        <button id="modalConfirmBtn" class="btn btn-primary" onclick="closeModal()">确认</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="previewModal" class="modal-mask" onclick="closePreviewModal(event)">
+    <div class="preview-modal" role="dialog" aria-modal="true">
+      <div class="preview-header">
+        <span class="preview-title" id="previewTitle">分镜预览</span>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span id="previewCounter" style="color:#94a3b8;font-size:13px;"></span>
+          <button class="preview-btn" type="button" onclick="closePreviewModal()">&times;</button>
+        </div>
+      </div>
+      <div class="preview-stage">
+        <div class="preview-video-frame" id="previewVideoFrame">
+          <div class="play-icon" id="previewPlayBtn" onclick="startPreviewPlay()">▶</div>
+          <div id="previewPlayText">点击播放</div>
+        </div>
+      </div>
+      <div class="preview-info">
+        <div style="display:flex;align-items:center;gap:12px;flex:1;">
+          <span class="preview-info-label" id="previewStoryLabel">分镜 1 / 4</span>
+          <div class="preview-progress-bar" style="flex:1;">
+            <div class="preview-progress-fill" id="previewProgressFill" style="width:0%;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="filmModal" class="modal-mask" onclick="closeFilmModal(event)">
+    <div class="film-modal" role="dialog" aria-modal="true">
+      <div class="modal-header">
+        <span class="modal-title" id="filmModalTitle">合成配置</span>
+        <button class="icon-btn" onclick="closeFilmModal()">&times;</button>
+      </div>
+
+      <!-- Config view -->
+      <div class="modal-body" id="filmConfigView">
+        <div class="film-workspace">
+          <div class="film-settings-stack">
+            <div class="film-config-section">
+              <h4>合成基础配置</h4>
+              <div class="film-config-grid">
+                <div class="film-config-row">
+                  <label>编码格式</label>
+                  <select id="filmEncodingSelect">
+                    <option value="h264">H.264（兼容性好）</option>
+                    <option value="h265">H.265（高压缩比）</option>
+                  </select>
+                </div>
+                <div class="film-config-row">
+                  <label>输出格式</label>
+                  <input type="text" value="MP4" disabled />
+                </div>
+              </div>
+            </div>
+
+            <div class="film-config-section">
+              <h4>BGM 配置</h4>
+              <div class="film-config-row film-config-full" style="margin-bottom:10px;">
+                <label>是否添加 BGM</label>
+                <div class="toggle-wrap">
+                  <input type="checkbox" id="filmBGMCheck" />
+                  <span class="field-label">添加背景音乐</span>
+                </div>
+              </div>
+              <div class="bgm-panel" id="filmBGMPanel" style="display:none;">
+                <div class="bgm-source-tabs">
+                  <label class="bgm-source-option active" id="filmBGMLibraryTab">
+                    <input type="radio" name="filmBGMSource" value="library" checked />
+                    素材库
+                  </label>
+                  <label class="bgm-source-option" id="filmBGMUploadTab">
+                    <input type="radio" name="filmBGMSource" value="upload" />
+                    本地上传
+                  </label>
+                </div>
+
+                <div class="bgm-source-panel active" id="filmBGMLibraryPanel">
+                  <select id="filmBGMSelect">
+                    <option value="">选择 BGM</option>
+                    <option value="bgm-1">轻快财经背景音</option>
+                    <option value="bgm-2">沉稳科技感音乐</option>
+                    <option value="bgm-3">舒缓纯音乐</option>
+                  </select>
+                </div>
+
+                <div class="bgm-source-panel" id="filmBGMUploadPanel">
+                  <div class="bgm-upload-card">
+                    <input class="field-control" type="file" id="filmBGMFileInput" accept="audio/*" />
+                    <div class="bgm-file-summary" id="filmBGMFileSummary">
+                      <div>
+                        <div class="bgm-file-name" id="filmBGMFileName"></div>
+                        <div class="bgm-file-meta" id="filmBGMFileMeta"></div>
+                      </div>
+                      <button class="btn" type="button" id="filmBGMRemoveBtn">移除</button>
+                    </div>
+                    <audio class="bgm-audio" id="filmBGMAudio" controls></audio>
+                  </div>
+                </div>
+
+                <div class="bgm-preview-row">
+                  <div class="wm-edit-row">
+                    <label>BGM 音量</label>
+                    <div class="wm-edit-controls">
+                      <input type="range" id="filmBGMVolume" min="0" max="100" value="45" />
+                      <span class="wm-edit-value" id="filmBGMVolumeLabel">45%</span>
+                    </div>
+                  </div>
+                  <button class="btn btn-light-primary bgm-play-btn" type="button" id="filmBGMPlayBtn">播放 BGM</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="film-config-section">
+              <h4>水印配置</h4>
+              <div class="film-config-row film-config-full" style="margin-bottom:10px;">
+                <label>是否添加水印</label>
+                <div class="toggle-wrap">
+                  <input type="checkbox" id="filmWatermarkCheck" />
+                  <span class="field-label">添加文字水印</span>
+                </div>
+              </div>
+
+              <div class="watermark-editor-panel" id="filmWatermarkEditorRow" style="display:none;">
+                <div class="wm-list-pane">
+                  <div class="wm-list-header">
+                    <span class="wm-list-title">水印列表</span>
+                    <button class="btn btn-light-primary" type="button" id="addWatermarkBtn">添加</button>
+                  </div>
+                  <div class="wm-list" id="filmWatermarkList"></div>
+                </div>
+
+                <div class="wm-detail-pane">
+                  <div class="wm-detail-empty" id="filmWatermarkEmpty">请选择或添加水印</div>
+                  <div class="wm-detail-form" id="filmWatermarkDetail" style="display:none;">
+                    <div class="wm-edit-row">
+                      <label>水印文字</label>
+                      <textarea id="filmWatermarkTextarea" placeholder="请输入水印文字，例如品牌名称或版权信息" maxlength="100"></textarea>
+                    </div>
+                    <div class="wm-edit-row">
+                      <label>字体大小</label>
+                      <div class="wm-edit-controls">
+                        <input type="range" id="filmWatermarkSize" min="10" max="48" value="24" />
+                        <span class="wm-edit-value" id="filmWatermarkSizeLabel">24px</span>
+                      </div>
+                    </div>
+                    <div class="wm-edit-row">
+                      <label>透明度</label>
+                      <div class="wm-edit-controls">
+                        <input type="range" id="filmWatermarkOpacity" min="5" max="100" value="30" />
+                        <span class="wm-edit-value" id="filmWatermarkOpacityLabel">30%</span>
+                      </div>
+                    </div>
+                    <div class="wm-edit-row">
+                      <label>文字颜色</label>
+                      <div class="wm-edit-controls">
+                        <input type="color" id="filmWatermarkColor" value="#ffffff" />
+                        <span class="wm-edit-value" id="filmWatermarkColorLabel">#ffffff</span>
+                      </div>
+                    </div>
+                    <div class="wm-row-actions">
+                      <button class="btn" type="button" id="toggleWatermarkVisibleBtn">隐藏水印</button>
+                      <button class="btn" type="button" id="deleteWatermarkBtn">删除水印</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="watermark-preview-panel" id="filmWatermarkPreviewPanel" style="display:none;">
+            <div class="wm-preview-head">
+              <span class="wm-preview-title">视频预览</span>
+              <span class="wm-preview-meta" id="filmWatermarkPreviewMeta">0 个水印</span>
+            </div>
+            <div class="wm-stage" id="filmWatermarkStage">
+              <div class="wm-stage-art"></div>
+              <div class="wm-stage-person"></div>
+              <div class="wm-stage-caption"></div>
+              <div class="wm-safe-frame"></div>
+              <div id="filmWatermarkLayerHost"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Progress view (hidden initially) -->
+      <div class="modal-body" id="filmProgressView" style="display:none;">
+        <div class="film-info-grid" id="filmInfoGrid"></div>
+        <div class="film-progress-section">
+          <div class="film-progress-label">
+            <span>合成进度</span>
+            <span id="filmProgressPct">0%</span>
+          </div>
+          <div class="film-progress-track">
+            <div class="film-progress-fill" id="filmProgressFill" style="width:0%;"></div>
+          </div>
+          <div class="film-progress-status" id="filmProgressStatus">准备中...</div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn" onclick="closeFilmModal()" id="filmModalCancelBtn">取消</button>
+        <button class="btn btn-primary" onclick="startFilmCompose()" id="filmModalStartBtn">开始合成</button>
+        <button class="btn" onclick="closeFilmModal()" id="filmModalCloseBtn" style="display:none;">关闭</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      var stories = [
+        {
+          id: 1,
+          title: "开场建立信任",
+          duration: 11,
+          status: "done",
+          audioStatus: "done",
+          videoStatus: "done",
+          muted: false,
+          role: "财经讲师 A",
+          roleView: "正面视角",
+          scene: "书房口播场景",
+          sceneView: "中景",
+          cameraMovement: "缓推",
+          tone: "成熟稳重男声",
+          pictureDesc: "财经口播讲师站在书房场景中，人物位于画面中央，背景为书架和暖色落地灯。",
+          line: "大家好，今天我们用一分钟聊聊，在市场波动的时候，普通投资者应该如何看待稳健理财配置。",
+          cameraDesc: "正面视角，中景构图，镜头稳定，轻微缓推。",
+          actionDesc: "人物自然站立，面向镜头，开场微笑，双手自然放在身前。"
+        },
+        {
+          id: 2,
+          title: "提出用户痛点",
+          duration: 15,
+          status: "dirty",
+          audioStatus: "dirty",
+          videoStatus: "dirty",
+          muted: false,
+          role: "财经讲师 A",
+          roleView: "正面视角",
+          scene: "书房口播场景",
+          sceneView: "近景",
+          cameraMovement: "固定",
+          tone: "成熟稳重男声",
+          pictureDesc: "镜头拉近到人物上半身，背景书架虚化，突出表情。",
+          line: "很多人一看到净值短期波动，就会担心是不是产品出了问题。其实，短期波动并不等于长期风险失控。",
+          cameraDesc: "正面近景，背景虚化，镜头稳定。",
+          actionDesc: "人物保持坐姿，右手轻微抬起做解释手势。"
+        },
+        {
+          id: 3,
+          title: "解释稳健配置逻辑",
+          duration: 13,
+          status: "pending",
+          audioStatus: "pending",
+          videoStatus: "pending",
+          muted: false,
+          role: "财经讲师 A",
+          roleView: "右45度视角",
+          scene: "书房口播场景",
+          sceneView: "中景",
+          cameraMovement: "横移",
+          tone: "成熟稳重男声",
+          pictureDesc: "人物位于画面右侧，左侧预留信息展示区。",
+          line: "更重要的是看产品底层资产、投资期限和风险等级是否匹配。",
+          cameraDesc: "右45度视角，中景，镜头轻微横移。",
+          actionDesc: "人物侧身，手部做分层说明动作。"
+        },
+        {
+          id: 4,
+          title: "给出行动建议",
+          duration: 12,
+          status: "failed",
+          audioStatus: "done",
+          videoStatus: "failed",
+          muted: false,
+          role: "财经讲师 A",
+          roleView: "正面视角",
+          scene: "书房口播场景",
+          sceneView: "远景",
+          cameraMovement: "缓推",
+          tone: "成熟稳重男声",
+          pictureDesc: "回到正面口播画面，人物居中，背景灯光温暖。",
+          line: "所以，投资前先明确期限、风险承受能力和收益预期。",
+          cameraDesc: "正面远景，镜头稳定，结尾缓推。",
+          actionDesc: "人物正面站立，最后轻微点头。"
+        }
+      ];
+
+      var activeStoryId = 1;
+      var currentFilterText = "";
+      var currentFilterStatus = "all";
+      var confirmCallback = null;
+      var editingStates = {};
+      var previewTimers = {};
+      var selectedClips = {};
+      var previewPlayTimer = null;
+      var previewPlayIndex = 0;
+      var previewPlayRunning = false;
+      var filmBGMFile = null;
+      var filmBGMObjectUrl = "";
+      var filmBGMPreviewAudio = null;
+      var filmBGMPreviewUrl = "";
+      var filmBGMPlaying = false;
+      var filmWatermarks = [];
+      var activeWatermarkId = null;
+      var watermarkDragState = null;
+
+      function getStep2SceneAngles() {
+        try {
+          var raw = sessionStorage.getItem("step2SubjectSelection");
+          if (!raw) return null;
+          var data = JSON.parse(raw);
+          return data && data.scene && Array.isArray(data.scene.selectedAngles) ? data.scene.selectedAngles : null;
+        } catch (error) {
+          return null;
+        }
+      }
+
+      var shotTypeOptions = getStep2SceneAngles() || ["特写", "近景", "中景", "远景", "全景"];
+      stories.forEach(function(story) {
+        if (shotTypeOptions.indexOf(story.sceneView) === -1) {
+          story.sceneView = shotTypeOptions[0];
+        }
+      });
+      var cameraAngleOptions = ["正面视角", "左45度视角", "右45度视角", "背面视角", "正俯视", "正仰视"];
+      var cameraMovementOptions = ["固定", "缓推", "横移", "拉远", "推近", "跟拍", "摇镜"];
+
+      function statusText(s) {
+        var map = {
+          done: "已生成",
+          pending: "未生成",
+          dirty: "需重新生成",
+          failed: "生成失败",
+          generating: "生成中"
+        };
+        return map[s] || "未知";
+      }
+
+      function tagClass(s) {
+        var map = {
+          done: "tag-green",
+          pending: "tag-gray",
+          dirty: "tag-orange",
+          failed: "tag-red",
+          generating: "tag-blue"
+        };
+        return map[s] || "tag-gray";
+      }
+
+      function navStatusClass(s) {
+        var map = {
+          done: "status-done",
+          pending: "status-pending",
+          dirty: "status-dirty",
+          failed: "status-failed",
+          generating: "status-generating"
+        };
+        return map[s] || "status-pending";
+      }
+
+      function escapeHtml(t) {
+        return String(t)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#39;");
+      }
+
+      function isEditing(id) {
+        return editingStates[id] && editingStates[id].active;
+      }
+
+      function findStory(id) {
+        return stories.find(function(s) {
+          return s.id === id;
+        });
+      }
+
+      function getFilteredStories() {
+        return stories.filter(function(s) {
+          var q = currentFilterText.trim();
+          var combined = [s.title, s.pictureDesc, s.line, s.cameraDesc, s.actionDesc].join(" ");
+          var textMatch = q ? combined.indexOf(q) !== -1 : true;
+          var statusMatch = currentFilterStatus === "all" || s.status === currentFilterStatus;
+          return textMatch && statusMatch;
+        });
+      }
+
+      function buildSelectOptions(opts, selected) {
+        return opts.map(function(o) {
+          var isSelected = o === selected ? " selected" : "";
+          return "<option value=\"" + escapeHtml(o) + "\"" + isSelected + ">" + escapeHtml(o) + "</option>";
+        }).join("");
+      }
+
+      function getVideoPreviewClass(story) {
+        if (story.videoStatus === "pending" || story.videoStatus === "dirty") {
+          return " unready";
+        }
+        if (story.videoStatus === "failed") {
+          return " failed";
+        }
+        if (story.videoStatus === "generating") {
+          return " generating";
+        }
+        return "";
+      }
+
+      function videoInner(story) {
+        if (story.videoStatus === "failed") {
+          return [
+            "<span class=\"video-status-tag tag tag-red\">生成失败</span>",
+            "<div class=\"video-message\">视频生成失败，请检查配置后重新生成。</div>",
+            "<span class=\"video-duration-small\">" + escapeHtml(story.duration) + "s</span>"
+          ].join("");
+        }
+
+        if (story.videoStatus === "pending") {
+          return [
+            "<span class=\"video-status-tag tag tag-gray\">未生成</span>",
+            "<div class=\"video-message\">当前分镜视频尚未生成。</div>",
+            "<span class=\"video-duration-small\">" + escapeHtml(story.duration) + "s</span>"
+          ].join("");
+        }
+
+        if (story.videoStatus === "dirty") {
+          return [
+            "<span class=\"video-status-tag tag tag-orange\">需重新生成</span>",
+            "<div class=\"video-message\">分镜内容已修改，请重新生成视频。</div>",
+            "<span class=\"video-duration-small\">" + escapeHtml(story.duration) + "s</span>"
+          ].join("");
+        }
+
+        if (story.videoStatus === "generating") {
+          return [
+            "<span class=\"video-status-tag tag tag-blue\">生成中</span>",
+            "<div class=\"video-message\">正在生成视频，请稍候...</div>",
+            "<span class=\"video-duration-small\">" + escapeHtml(story.duration) + "s</span>"
+          ].join("");
+        }
+
+        var muted = !!story.muted;
+        var soundIcon = muted ? "🔇" : "🔊";
+        var soundTitle = muted ? "当前为静音，点击开启声音" : "当前声音已开启，点击静音";
+
+        return [
+          "<span class=\"video-status-tag tag tag-green\">已生成</span>",
+          "<div class=\"video-person-small\"></div>",
+          "<div class=\"video-preview-layer\">",
+            "<div class=\"video-preview-play\">▶</div>",
+            "<div class=\"video-preview-text\">悬停预览中</div>",
+          "</div>",
+          "<button class=\"sound-toggle" + (muted ? " muted" : "") + "\" title=\"" + soundTitle + "\" onclick=\"toggleVideoMute(event," + story.id + ")\">" + soundIcon + "</button>",
+          "<span class=\"video-duration-small\">" + escapeHtml(story.duration) + "s</span>"
+        ].join("");
+      }
+
+      function renderStories() {
+        var list = document.getElementById("storyboardList");
+        var empty = document.getElementById("emptyState");
+        var filtered = getFilteredStories();
+
+        list.innerHTML = "";
+        empty.style.display = filtered.length ? "none" : "block";
+
+        filtered.forEach(function(story) {
+          var editing = isEditing(story.id);
+          var readonlyAttr = editing ? "" : " readonly";
+          var disabledAttr = editing ? "" : " disabled";
+          var activeClass = story.id === activeStoryId ? " active-card" : "";
+          var editingClass = editing ? " editing-card" : "";
+          var card = document.createElement("div");
+
+          card.className = "story-card" + activeClass + editingClass;
+          card.id = "story-card-" + story.id;
+
+          var headerButtons = [
+            "<button class=\"btn\" onclick=\"toggleEdit(" + story.id + ")\">" + (editing ? "保存" : "编辑") + "</button>"
+          ];
+
+          if (editing) {
+            headerButtons.push("<button class=\"btn\" onclick=\"cancelEditStory(" + story.id + ")\">取消</button>");
+          }
+
+          var videoMainButtonText = "生成";
+          var downloadDisabled = story.videoStatus === "done" ? "" : " disabled";
+
+          var selectedClip = selectedClips[story.id];
+          var clipThumbs = [];
+          if (story.videoStatus === "done") {
+            clipThumbs.push({ label: "V1", selected: selectedClip === "v1" });
+            clipThumbs.push({ label: "V2", selected: selectedClip === "v2" });
+            clipThumbs.push({ label: "V3", selected: selectedClip === "v3" });
+          }
+
+          var clipThumbsHTML = clipThumbs.map(function(c, ci) {
+            return "<div class=\"clip-thumb" + (c.selected ? " selected" : "") + "\" onclick=\"selectClip(" + story.id + ",'" + c.label.toLowerCase() + "')\"><span>" + c.label + "</span></div>";
+          }).join("");
+
+          card.innerHTML = [
+            "<div class=\"card-left-col\">",
+              "<div class=\"story-index\">" + (stories.indexOf(story) + 1) + "</div>",
+            "</div>",
+
+            "<div class=\"card-content\">",
+              "<div class=\"panel\">",
+                "<div class=\"panel-header panel-header--split\">",
+                  "<div class=\"panel-header-title\">",
+                    "<span>分镜描述配置</span>",
+                    "<span class=\"tag " + tagClass(story.status) + "\">" + statusText(story.status) + "</span>",
+                  "</div>",
+                  "<div class=\"panel-header-actions\">" + headerButtons.join("") + "</div>",
+                "</div>",
+
+                "<div class=\"panel-body\">",
+                  "<div class=\"desc-section\">",
+                    "<div class=\"desc-grid\">",
+
+                      "<div class=\"field\">",
+                        "<div class=\"field-label\">画面描述</div>",
+                        "<textarea" + readonlyAttr + " onchange=\"updateStoryField(" + story.id + ",'pictureDesc',this.value)\">" + escapeHtml(story.pictureDesc) + "</textarea>",
+                      "</div>",
+
+                      "<div class=\"field\">",
+                        "<div class=\"field-label\">镜头描述</div>",
+                        "<textarea" + readonlyAttr + " onchange=\"updateStoryField(" + story.id + ",'cameraDesc',this.value)\">" + escapeHtml(story.cameraDesc) + "</textarea>",
+                      "</div>",
+
+                      "<div class=\"field\">",
+                        "<div class=\"field-label\">动作描述</div>",
+                        "<textarea" + readonlyAttr + " onchange=\"updateStoryField(" + story.id + ",'actionDesc',this.value)\">" + escapeHtml(story.actionDesc) + "</textarea>",
+                      "</div>",
+
+                      "<div class=\"field\">",
+                        "<div class=\"field-label\">",
+                          "<span>分镜台词</span>",
+                          "<div class=\"line-actions\">",
+                            "<button class=\"icon-btn-small\" title=\"播放当前台词语音\" onclick=\"playLineAudio(" + story.id + ")\">🔊</button>",
+                            "<button class=\"icon-btn-small\" title=\"重新生成台词\" onclick=\"regenerateLine(" + story.id + ")\">↻</button>",
+                            "<button class=\"icon-btn-small\" title=\"下载当前台词语音\" onclick=\"downloadLineAudio(" + story.id + ")\">⬇</button>",
+                          "</div>",
+                        "</div>",
+                        "<textarea" + readonlyAttr + " onchange=\"updateStoryField(" + story.id + ",'line',this.value)\">" + escapeHtml(story.line) + "</textarea>",
+                      "</div>",
+
+                    "</div>",
+
+                    "<div class=\"params-row\">",
+                      "<div class=\"param-item\"><strong>时长</strong><input class=\"small-input\" type=\"number\" min=\"1\" value=\"" + escapeHtml(story.duration) + "\"" + disabledAttr + " onchange=\"updateStoryField(" + story.id + ",'duration',this.value)\">s</div>",
+                      "<div class=\"param-item\"><strong>场景视图</strong><select class=\"small-input\"" + disabledAttr + " onchange=\"updateStoryField(" + story.id + ",'sceneView',this.value)\">" + buildSelectOptions(shotTypeOptions, story.sceneView) + "</select></div>",
+                      "<div class=\"param-item\"><strong>角度</strong><select class=\"small-input\"" + disabledAttr + " onchange=\"updateStoryField(" + story.id + ",'roleView',this.value)\">" + buildSelectOptions(cameraAngleOptions, story.roleView) + "</select></div>",
+                      "<div class=\"param-item\"><strong>运镜</strong><select class=\"small-input\"" + disabledAttr + " onchange=\"updateStoryField(" + story.id + ",'cameraMovement',this.value)\">" + buildSelectOptions(cameraMovementOptions, story.cameraMovement) + "</select></div>",
+                    "</div>",
+
+                  "</div>",
+                "</div>",
+              "</div>",
+
+              "<div class=\"panel panel--video\">",
+                "<div class=\"panel-header panel-header--split\">",
+                  "<span>视频片段</span>",
+                  "<span class=\"tag " + tagClass(story.videoStatus) + "\">" + statusText(story.videoStatus) + "</span>",
+                "</div>",
+                "<div class=\"panel-body\">",
+                  "<div class=\"video-section\">",
+                    "<div class=\"video-preview-wrap\">",
+                      "<div class=\"video-preview" + getVideoPreviewClass(story) + "\" onmouseenter=\"startVideoPreview(" + story.id + ",this)\" onmouseleave=\"stopVideoPreview(" + story.id + ",this)\">",
+                        videoInner(story),
+                      "</div>",
+                    "</div>",
+                    "<div class=\"video-actions\">",
+                      "<button class=\"btn btn-light-primary\" onclick=\"generateVideo(" + story.id + ")\">" + videoMainButtonText + "</button>",
+                      "<button class=\"btn btn-success\"" + downloadDisabled + " onclick=\"downloadVideo(" + story.id + ")\">下载</button>",
+                    "</div>",
+                  "</div>",
+                  (clipThumbsHTML ? "<div class=\"clip-thumbnails\">" + clipThumbsHTML + "</div>" : ""),
+                  "</div>",
+                "</div>",
+              "</div>",
+            "</div>",
+
+            "<div class=\"card-right-col\">",
+              "<button class=\"action-icon\" title=\"上移\" onclick=\"moveStory(" + story.id + ",-1)\">↑</button>",
+              "<button class=\"action-icon\" title=\"下移\" onclick=\"moveStory(" + story.id + ",1)\">↓</button>",
+              "<button class=\"action-icon\" title=\"复制\" onclick=\"duplicateStory(" + story.id + ")\">⧉</button>",
+              "<button class=\"action-icon\" title=\"删除\" onclick=\"deleteStory(" + story.id + ")\">🗑</button>",
+            "</div>"
+          ].join("");
+
+          list.appendChild(card);
+        });
+
+        renderLeftNav();
+      }
+
+      function renderLeftNav() {
+        var nav = document.getElementById("leftNav");
+        nav.innerHTML = "<div class=\"left-nav-title\">分镜列表</div>";
+
+        stories.forEach(function(s, i) {
+          var item = document.createElement("div");
+          item.className = "nav-item " + navStatusClass(s.status) + (s.id === activeStoryId ? " active" : "");
+          item.onclick = function() {
+            setActiveStory(s.id);
+          };
+
+          item.innerHTML = [
+            "<div class=\"nav-item-top\">",
+              "<span class=\"nav-item-index\">#" + (i + 1) + "</span>",
+              "<span class=\"tag " + tagClass(s.status) + "\">" + statusText(s.status) + "</span>",
+              "<div class=\"nav-drag-handle\" title=\"拖拽排序\" onclick=\"event.stopPropagation()\">⋮⋮</div>",
+            "</div>",
+            "<div class=\"nav-item-title\">" + escapeHtml(s.title) + "</div>"
+          ].join("");
+
+          nav.appendChild(item);
+        });
+      }
+
+      function setActiveStory(id) {
+        activeStoryId = id;
+        renderStories();
+
+        setTimeout(function() {
+          var card = document.getElementById("story-card-" + id);
+          if (card) {
+            card.scrollIntoView({
+              behavior: "smooth",
+              block: "center"
+            });
+          }
+        }, 0);
+      }
+
+      window.updateStoryField = function(id, field, value) {
+        var story = findStory(id);
+        if (!story) return;
+
+        var oldLine = story.line;
+
+        if (field === "duration") {
+          story[field] = Number(value);
+        } else {
+          story[field] = value;
+        }
+
+        if (field === "line") {
+          story.audioStatus = "dirty";
+          story.videoStatus = "dirty";
+          story.status = "dirty";
+        }
+
+        if (["pictureDesc", "cameraDesc", "actionDesc", "sceneView", "roleView", "cameraMovement", "duration"].indexOf(field) !== -1) {
+          story.videoStatus = "dirty";
+          story.status = "dirty";
+        }
+
+        if (field === "line" && oldLine !== value) {
+          story.audioStatus = "dirty";
+        }
+
+        renderStories();
+      };
+
+      window.toggleEdit = function(id) {
+        if (isEditing(id)) {
+          saveEditStory(id);
+        } else {
+          startEditStory(id);
+        }
+      };
+
+      function startEditStory(id) {
+        var story = findStory(id);
+        if (!story) return;
+
+        editingStates[id] = {
+          active: true,
+          snapshot: {
+            pictureDesc: story.pictureDesc,
+            cameraDesc: story.cameraDesc,
+            actionDesc: story.actionDesc,
+            line: story.line,
+            duration: story.duration,
+            sceneView: story.sceneView,
+            roleView: story.roleView,
+            cameraMovement: story.cameraMovement,
+            status: story.status,
+            audioStatus: story.audioStatus,
+            videoStatus: story.videoStatus,
+            muted: story.muted
+          }
+        };
+
+        renderStories();
+        showToast("编辑模式", "可修改描述与参数，完成后点击保存。");
+      }
+
+      function saveEditStory(id) {
+        var story = findStory(id);
+        if (!story) return;
+
+        var state = editingStates[id];
+
+        if (state && state.snapshot) {
+          var snap = state.snapshot;
+          var changed =
+            story.pictureDesc !== snap.pictureDesc ||
+            story.cameraDesc !== snap.cameraDesc ||
+            story.actionDesc !== snap.actionDesc ||
+            story.line !== snap.line ||
+            String(story.duration) !== String(snap.duration) ||
+            story.sceneView !== snap.sceneView ||
+            story.roleView !== snap.roleView ||
+            story.cameraMovement !== snap.cameraMovement;
+
+          if (changed) {
+            story.status = "dirty";
+            story.videoStatus = "dirty";
+
+            if (story.line !== snap.line) {
+              story.audioStatus = "dirty";
+            }
+          }
+        }
+
+        delete editingStates[id];
+        renderStories();
+        showToast("已保存", "分镜配置已更新。");
+      }
+
+      window.cancelEditStory = function(id) {
+        var story = findStory(id);
+        if (!story) return;
+
+        var state = editingStates[id];
+
+        if (state && state.snapshot) {
+          Object.assign(story, state.snapshot);
+        }
+
+        delete editingStates[id];
+        renderStories();
+        showToast("已取消", "恢复编辑前状态。");
+      };
+
+      window.filterStories = function(v) {
+        currentFilterText = v;
+        renderStories();
+      };
+
+      window.filterByStatus = function(v) {
+        currentFilterStatus = v;
+        renderStories();
+      };
+
+      window.addStory = function() {
+        var id = Date.now();
+
+        stories.push({
+          id: id,
+          title: "新增分镜",
+          duration: 10,
+          status: "pending",
+          audioStatus: "pending",
+          videoStatus: "pending",
+          muted: false,
+          role: "财经讲师 A",
+          roleView: "正面视角",
+          scene: "书房口播场景",
+          sceneView: "中景",
+          cameraMovement: "固定",
+          tone: "成熟稳重男声",
+          pictureDesc: "请补充画面描述。",
+          line: "请补充台词。",
+          cameraDesc: "请补充镜头描述。",
+          actionDesc: "请补充动作描述。"
+        });
+
+        activeStoryId = id;
+        renderStories();
+        showToast("已新增", "新分镜已添加。");
+      };
+
+      window.duplicateStory = function(id) {
+        var story = findStory(id);
+        if (!story) return;
+
+        var copy = JSON.parse(JSON.stringify(story));
+        copy.id = Date.now();
+        copy.title = story.title + " - 复制";
+        copy.status = "pending";
+        copy.audioStatus = "pending";
+        copy.videoStatus = "pending";
+        copy.muted = false;
+
+        var idx = stories.findIndex(function(s) {
+          return s.id === id;
+        });
+
+        stories.splice(idx + 1, 0, copy);
+        activeStoryId = copy.id;
+        renderStories();
+        showToast("已复制", "新分镜已插入。");
+      };
+
+      window.deleteStory = function(id) {
+        if (stories.length <= 1) {
+          showModal("提示", "至少保留一个分镜。");
+          return;
+        }
+
+        confirmCallback = function() {
+          stories = stories.filter(function(s) {
+            return s.id !== id;
+          });
+
+          if (activeStoryId === id && stories.length) {
+            activeStoryId = stories[0].id;
+          }
+
+          delete editingStates[id];
+          closeModal();
+          renderStories();
+          showToast("已删除", "分镜已删除。");
+        };
+
+        showModal("确认删除", "删除后不可恢复，是否确认删除当前分镜？", true);
+      };
+
+      window.moveStory = function(id, dir) {
+        var idx = stories.findIndex(function(s) {
+          return s.id === id;
+        });
+
+        var target = idx + dir;
+
+        if (idx < 0 || target < 0 || target >= stories.length) return;
+
+        var temp = stories[idx];
+        stories[idx] = stories[target];
+        stories[target] = temp;
+
+        activeStoryId = id;
+        renderStories();
+      };
+
+      window.startVideoPreview = function(id, el) {
+        var story = findStory(id);
+        if (!story || story.videoStatus !== "done") return;
+
+        clearTimeout(previewTimers[id]);
+
+        previewTimers[id] = setTimeout(function() {
+          el.classList.add("is-previewing");
+
+          if (story.muted) {
+            showToast("静音预览", "当前分镜正在静音预览。");
+          } else {
+            showToast("播放预览", "当前分镜正在带声音预览。");
+          }
+
+          /*
+            接入真实视频时，可在这里查找 video 标签并播放：
+            var video = el.querySelector("video");
+            if (video) {
+              video.muted = !!story.muted;
+              video.currentTime = 0;
+              video.play();
+            }
+          */
+        }, 250);
+      };
+
+      window.stopVideoPreview = function(id, el) {
+        var story = findStory(id);
+        if (!story || story.videoStatus !== "done") return;
+
+        clearTimeout(previewTimers[id]);
+        el.classList.remove("is-previewing");
+
+        /*
+          接入真实视频时，可在这里暂停：
+          var video = el.querySelector("video");
+          if (video) {
+            video.pause();
+            video.currentTime = 0;
+          }
+        */
+      };
+
+      window.toggleVideoMute = function(event, id) {
+        event.stopPropagation();
+
+        var story = findStory(id);
+        if (!story) return;
+
+        story.muted = !story.muted;
+        renderStories();
+
+        if (story.muted) {
+          showToast("已静音", "当前分镜预览声音已关闭。");
+        } else {
+          showToast("声音已开启", "当前分镜预览声音已开启。");
+        }
+      };
+
+      window.selectClip = function(id, clipLabel) {
+        var story = findStory(id);
+        if (!story || story.videoStatus !== "done") return;
+        selectedClips[id] = clipLabel;
+        renderStories();
+        showToast("已切换", "当前分镜已选中 " + clipLabel.toUpperCase() + " 版本。");
+      };
+
+      window.playLineAudio = function(id) {
+        var story = findStory(id);
+        if (!story) return;
+
+        if (story.audioStatus !== "done") {
+          showModal("提示", "当前分镜台词语音尚未生成完成。");
+          return;
+        }
+
+        showToast("播放语音", "正在播放《" + story.title + "》的台词语音。");
+      };
+
+      window.regenerateLine = function(id) {
+        var story = findStory(id);
+        if (!story) return;
+
+        story.line = "（模拟重新生成台词）投资需要理性对待市场波动，并结合自身风险承受能力进行配置。";
+        story.audioStatus = "dirty";
+        story.videoStatus = "dirty";
+        story.status = "dirty";
+
+        renderStories();
+        showToast("已重新生成台词", "请检查当前分镜台词内容。");
+      };
+
+      window.downloadLineAudio = function(id) {
+        var story = findStory(id);
+        if (!story) return;
+
+        if (story.audioStatus !== "done") {
+          showModal("提示", "当前分镜台词语音尚未生成，无法下载。");
+          return;
+        }
+
+        var fileName = "分镜" + id + "-台词语音.mp3";
+        var content = "这是演示用音频下载占位文件。实际项目中请替换为后端返回的真实音频地址或音频 Blob。\n\n分镜：" + story.title + "\n台词：" + story.line;
+
+        downloadBlob(fileName, content, "audio/mpeg");
+        showToast("下载语音", "已触发《" + story.title + "》台词语音下载。");
+      };
+
+      window.regenerateAllDescriptions = function() {
+        stories.forEach(function(s) {
+          s.status = "dirty";
+          s.videoStatus = "dirty";
+        });
+
+        renderStories();
+        showToast("批量操作", "所有分镜描述已标记为需重新生成。");
+      };
+
+      window.generateAudio = function(id) {
+        var story = findStory(id);
+        if (!story) return;
+
+        story.audioStatus = "generating";
+        renderStories();
+
+        setTimeout(function() {
+          story.audioStatus = "done";
+
+          if (story.videoStatus === "done") {
+            story.videoStatus = "dirty";
+            story.status = "dirty";
+          }
+
+          renderStories();
+          showToast("音频已生成", "当前分镜音频完成。");
+        }, 800);
+      };
+
+      window.batchGenerateAudio = function() {
+        stories.forEach(function(s) {
+          s.audioStatus = "generating";
+        });
+
+        renderStories();
+
+        setTimeout(function() {
+          stories.forEach(function(s) {
+            s.audioStatus = "done";
+
+            if (s.videoStatus === "done") {
+              s.videoStatus = "dirty";
+              s.status = "dirty";
+            }
+          });
+
+          renderStories();
+          showToast("批量完成", "所有分镜音频已生成。");
+        }, 1200);
+      };
+
+      window.generateVideo = function(id) {
+        var story = findStory(id);
+        if (!story) return;
+
+        if (story.audioStatus !== "done") {
+          showModal("提示", "请先生成当前分镜的台词语音。");
+          return;
+        }
+
+        story.videoStatus = "generating";
+        story.status = "generating";
+        renderStories();
+
+        setTimeout(function() {
+          story.videoStatus = "done";
+          story.status = "done";
+          story.muted = false;
+          selectedClips[story.id] = "v1";
+
+          renderStories();
+          showToast("视频已生成", "当前分镜视频已完成，可悬停预览或下载。");
+        }, 1200);
+      };
+
+      window.previewVideo = function(id) {
+        var story = findStory(id);
+        if (!story) return;
+
+        if (story.videoStatus !== "done") {
+          showModal("提示", "当前分镜视频尚未生成完成，无法预览。");
+          return;
+        }
+
+        showToast("预览视频", "正在预览《" + story.title + "》视频片段。");
+      };
+
+      window.downloadVideo = function(id) {
+        var story = findStory(id);
+        if (!story) return;
+
+        if (story.videoStatus !== "done") {
+          showModal("提示", "当前分镜暂无可下载视频，请先完成生成。");
+          return;
+        }
+
+        var fileName = "分镜" + id + "-视频片段.mp4";
+        var content = "这是演示用视频下载占位文件。实际项目中请替换为后端返回的真实视频地址或视频 Blob。\n\n分镜：" + story.title + "\n时长：" + story.duration + "s";
+
+        downloadBlob(fileName, content, "video/mp4");
+        showToast("下载视频", "已触发《" + story.title + "》视频片段下载。");
+      };
+
+      window.batchGenerateVideo = function() {
+        var notReady = stories.filter(function(s) {
+          return s.audioStatus !== "done";
+        });
+
+        if (notReady.length) {
+          showModal("提示", "还有 " + notReady.length + " 个分镜音频未完成，请先生成音频。");
+          return;
+        }
+
+        stories.forEach(function(s) {
+          s.videoStatus = "generating";
+          s.status = "generating";
+        });
+
+        renderStories();
+
+        setTimeout(function() {
+          stories.forEach(function(s) {
+            s.videoStatus = "done";
+            s.status = "done";
+            s.muted = false;
+            selectedClips[s.id] = "v1";
+          });
+
+          renderStories();
+          showToast("批量完成", "所有视频已生成，可悬停预览或下载。");
+        }, 1500);
+      };
+
+      window.previewAll = function() {
+        var unfinished = stories.filter(function(s) {
+          return s.videoStatus !== "done";
+        });
+
+        if (unfinished.length) {
+          showModal("提示", "还有 " + unfinished.length + " 个视频未完成，无法预览全部。");
+          return;
+        }
+
+        previewPlayIndex = 0;
+        previewPlayRunning = false;
+        document.getElementById("previewTitle").textContent = "全片预览";
+        document.getElementById("previewCounter").textContent = stories.length + " 个分镜";
+        document.getElementById("previewStoryLabel").textContent = "分镜 1 / " + stories.length;
+        document.getElementById("previewProgressFill").style.width = "0%";
+        document.getElementById("previewPlayBtn").style.display = "flex";
+        document.getElementById("previewPlayText").textContent = "点击播放";
+
+        var frame = document.getElementById("previewVideoFrame");
+        frame.innerHTML = "";
+        frame.innerHTML = '<div class="play-icon" id="previewPlayBtn" onclick="startPreviewPlay()">▶</div><div id="previewPlayText">点击播放</div>';
+
+        document.getElementById("previewModal").classList.add("show");
+      };
+
+      window.startPreviewPlay = function() {
+        if (previewPlayRunning) return;
+        previewPlayRunning = true;
+        previewPlayIndex = 0;
+        playNextPreviewClip();
+      };
+
+      function playNextPreviewClip() {
+        if (previewPlayIndex >= stories.length) {
+          previewPlayRunning = false;
+          document.getElementById("previewPlayBtn").style.display = "flex";
+          document.getElementById("previewPlayText").textContent = "播放完成";
+          document.getElementById("previewProgressFill").style.width = "100%";
+          return;
+        }
+
+        var story = stories[previewPlayIndex];
+        document.getElementById("previewStoryLabel").textContent = "分镜 " + (previewPlayIndex + 1) + " / " + stories.length;
+        document.getElementById("previewProgressFill").style.width = ((previewPlayIndex + 1) / stories.length * 100) + "%";
+
+        var frame = document.getElementById("previewVideoFrame");
+        frame.innerHTML = '<div style="font-size:16px;color:#f1f5f9;font-weight:800;">' + escapeHtml(story.title) + '</div><div style="font-size:13px;color:#94a3b8;">播放中… ' + escapeHtml(story.duration) + 's</div>';
+
+        clearTimeout(previewPlayTimer);
+        previewPlayTimer = setTimeout(function() {
+          previewPlayIndex++;
+          playNextPreviewClip();
+        }, Math.max(story.duration * 400, 1500));
+      }
+
+      window.closePreviewModal = function(event) {
+        if (event && event.target !== event.currentTarget) return;
+        clearTimeout(previewPlayTimer);
+        previewPlayRunning = false;
+        document.getElementById("previewModal").classList.remove("show");
+      };
+
+      function clampNumber(value, min, max) {
+        return Math.max(min, Math.min(max, value));
+      }
+
+      function formatFileSize(bytes) {
+        if (!bytes) return "0 KB";
+        if (bytes < 1024 * 1024) return Math.round(bytes / 1024) + " KB";
+        return (bytes / 1024 / 1024).toFixed(1) + " MB";
+      }
+
+      function getBGMSource() {
+        var selected = document.querySelector('input[name="filmBGMSource"]:checked');
+        return selected ? selected.value : "library";
+      }
+
+      function setBGMSource(source) {
+        document.querySelectorAll('input[name="filmBGMSource"]').forEach(function(input) {
+          input.checked = input.value === source;
+        });
+        updateBGMSourceUI();
+      }
+
+      function updateBGMSourceUI() {
+        var source = getBGMSource();
+        document.getElementById("filmBGMLibraryTab").classList.toggle("active", source === "library");
+        document.getElementById("filmBGMUploadTab").classList.toggle("active", source === "upload");
+        document.getElementById("filmBGMLibraryPanel").classList.toggle("active", source === "library");
+        document.getElementById("filmBGMUploadPanel").classList.toggle("active", source === "upload");
+        stopBGMPreview();
+      }
+
+      function setBGMEnabled(enabled) {
+        document.getElementById("filmBGMPanel").style.display = enabled ? "block" : "none";
+        if (!enabled) {
+          stopBGMPreview();
+          document.getElementById("filmBGMSelect").value = "";
+          clearBGMFile();
+        }
+      }
+
+      function clearBGMFile() {
+        stopBGMPreview();
+        if (filmBGMObjectUrl) {
+          URL.revokeObjectURL(filmBGMObjectUrl);
+        }
+        filmBGMFile = null;
+        filmBGMObjectUrl = "";
+        document.getElementById("filmBGMFileInput").value = "";
+        document.getElementById("filmBGMFileName").textContent = "";
+        document.getElementById("filmBGMFileMeta").textContent = "";
+        document.getElementById("filmBGMFileSummary").classList.remove("active");
+        document.getElementById("filmBGMAudio").removeAttribute("src");
+        document.getElementById("filmBGMAudio").classList.remove("active");
+      }
+
+      function handleBGMFileChange(file) {
+        clearBGMFile();
+        if (!file) return;
+        filmBGMFile = file;
+        filmBGMObjectUrl = URL.createObjectURL(file);
+        document.getElementById("filmBGMFileName").textContent = file.name;
+        document.getElementById("filmBGMFileMeta").textContent = formatFileSize(file.size) + " · " + (file.type || "audio");
+        document.getElementById("filmBGMFileSummary").classList.add("active");
+        document.getElementById("filmBGMAudio").src = filmBGMObjectUrl;
+        document.getElementById("filmBGMAudio").classList.add("active");
+        syncBGMVolume();
+      }
+
+      function getBGMDisplayName() {
+        if (getBGMSource() === "upload") {
+          return filmBGMFile ? filmBGMFile.name : "";
+        }
+
+        var select = document.getElementById("filmBGMSelect");
+        return select.value ? select.options[select.selectedIndex].text : "";
+      }
+
+      function syncBGMVolume() {
+        var volume = Number(document.getElementById("filmBGMVolume").value || 0) / 100;
+        var uploadAudio = document.getElementById("filmBGMAudio");
+        uploadAudio.volume = volume;
+        if (filmBGMPreviewAudio) {
+          filmBGMPreviewAudio.volume = volume;
+        }
+      }
+
+      function stopBGMPreview() {
+        var uploadAudio = document.getElementById("filmBGMAudio");
+        if (uploadAudio) {
+          uploadAudio.pause();
+          uploadAudio.currentTime = 0;
+        }
+
+        if (filmBGMPreviewAudio) {
+          filmBGMPreviewAudio.pause();
+          filmBGMPreviewAudio.currentTime = 0;
+        }
+
+        filmBGMPlaying = false;
+        var btn = document.getElementById("filmBGMPlayBtn");
+        if (btn) {
+          btn.textContent = "播放 BGM";
+          btn.classList.remove("btn-primary");
+          btn.classList.add("btn-light-primary");
+        }
+      }
+
+      function createLibraryBGMPreviewUrl(value) {
+        if (filmBGMPreviewUrl) {
+          URL.revokeObjectURL(filmBGMPreviewUrl);
+          filmBGMPreviewUrl = "";
+        }
+
+        var sampleRate = 22050;
+        var durationSeconds = 3;
+        var totalSamples = sampleRate * durationSeconds;
+        var selected = value || "bgm-1";
+        var baseFrequency = selected === "bgm-2" ? 196 : selected === "bgm-3" ? 247 : 330;
+        var buffer = new ArrayBuffer(44 + totalSamples * 2);
+        var view = new DataView(buffer);
+
+        function writeString(offset, text) {
+          for (var i = 0; i < text.length; i++) {
+            view.setUint8(offset + i, text.charCodeAt(i));
+          }
+        }
+
+        writeString(0, "RIFF");
+        view.setUint32(4, 36 + totalSamples * 2, true);
+        writeString(8, "WAVE");
+        writeString(12, "fmt ");
+        view.setUint32(16, 16, true);
+        view.setUint16(20, 1, true);
+        view.setUint16(22, 1, true);
+        view.setUint32(24, sampleRate, true);
+        view.setUint32(28, sampleRate * 2, true);
+        view.setUint16(32, 2, true);
+        view.setUint16(34, 16, true);
+        writeString(36, "data");
+        view.setUint32(40, totalSamples * 2, true);
+
+        for (var sampleIndex = 0; sampleIndex < totalSamples; sampleIndex++) {
+          var t = sampleIndex / sampleRate;
+          var envelope = Math.min(1, sampleIndex / (sampleRate * 0.18), (totalSamples - sampleIndex) / (sampleRate * 0.35));
+          var signal = Math.sin(2 * Math.PI * baseFrequency * t) * 0.45;
+          signal += Math.sin(2 * Math.PI * baseFrequency * 1.5 * t) * 0.18;
+          signal += Math.sin(2 * Math.PI * baseFrequency * 2 * t) * 0.08;
+          view.setInt16(44 + sampleIndex * 2, signal * envelope * 32767, true);
+        }
+
+        filmBGMPreviewUrl = URL.createObjectURL(new Blob([buffer], { type: "audio/wav" }));
+        return filmBGMPreviewUrl;
+      }
+
+      function toggleBGMPreview() {
+        if (!document.getElementById("filmBGMCheck").checked) {
+          showToast("无法播放", "请先勾选添加 BGM。");
+          return;
+        }
+
+        var source = getBGMSource();
+        var audio;
+
+        if (source === "upload") {
+          if (!filmBGMFile) {
+            showToast("无法播放", "请先上传本地 BGM 音频文件。");
+            return;
+          }
+          audio = document.getElementById("filmBGMAudio");
+        } else {
+          var selected = document.getElementById("filmBGMSelect").value;
+          if (!selected) {
+            showToast("无法播放", "请先选择素材库 BGM。");
+            return;
+          }
+
+          if (!filmBGMPreviewAudio) {
+            filmBGMPreviewAudio = new Audio();
+            filmBGMPreviewAudio.loop = true;
+            filmBGMPreviewAudio.addEventListener("pause", function() {
+              if (!filmBGMPlaying) return;
+              stopBGMPreview();
+            });
+          }
+          filmBGMPreviewAudio.src = createLibraryBGMPreviewUrl(selected);
+          audio = filmBGMPreviewAudio;
+        }
+
+        syncBGMVolume();
+
+        if (filmBGMPlaying) {
+          stopBGMPreview();
+          return;
+        }
+
+        filmBGMPlaying = true;
+        document.getElementById("filmBGMPlayBtn").textContent = "停止播放";
+        document.getElementById("filmBGMPlayBtn").classList.remove("btn-light-primary");
+        document.getElementById("filmBGMPlayBtn").classList.add("btn-primary");
+        audio.currentTime = 0;
+        audio.play().catch(function() {
+          filmBGMPlaying = false;
+          document.getElementById("filmBGMPlayBtn").textContent = "播放 BGM";
+          document.getElementById("filmBGMPlayBtn").classList.remove("btn-primary");
+          document.getElementById("filmBGMPlayBtn").classList.add("btn-light-primary");
+          showToast("无法播放", "当前浏览器阻止了音频播放，请重新点击播放按钮。");
+        });
+      }
+
+      function createDefaultWatermark() {
+        var index = filmWatermarks.length + 1;
+        return {
+          id: "wm-" + Date.now() + "-" + index,
+          text: index === 1 ? "投顾服务" : "水印 " + index,
+          x: 72,
+          y: 88,
+          fontSize: 24,
+          opacity: 30,
+          color: "#ffffff",
+          visible: true
+        };
+      }
+
+      function findFilmWatermark(id) {
+        return filmWatermarks.find(function(item) {
+          return item.id === id;
+        });
+      }
+
+      function getActiveWatermark() {
+        return findFilmWatermark(activeWatermarkId);
+      }
+
+      function resetWatermarkConfig() {
+        filmWatermarks = [];
+        activeWatermarkId = null;
+        watermarkDragState = null;
+        document.getElementById("filmWatermarkCheck").checked = false;
+        document.getElementById("filmWatermarkEditorRow").style.display = "none";
+        document.getElementById("filmWatermarkPreviewPanel").style.display = "none";
+        renderWatermarkList();
+        renderWatermarkDetail();
+        renderWatermarkPreview();
+      }
+
+      function ensureDefaultWatermark() {
+        if (!filmWatermarks.length) {
+          var item = createDefaultWatermark();
+          filmWatermarks.push(item);
+          activeWatermarkId = item.id;
+        }
+      }
+
+      function setWatermarkEnabled(enabled) {
+        if (enabled) {
+          ensureDefaultWatermark();
+        }
+        document.getElementById("filmWatermarkEditorRow").style.display = enabled ? "grid" : "none";
+        document.getElementById("filmWatermarkPreviewPanel").style.display = enabled ? "block" : "none";
+        renderWatermarkList();
+        renderWatermarkDetail();
+        renderWatermarkPreview();
+      }
+
+      function addFilmWatermark() {
+        var item = createDefaultWatermark();
+        item.x = clampNumber(58 + filmWatermarks.length * 8, 12, 88);
+        item.y = clampNumber(82 - filmWatermarks.length * 10, 12, 92);
+        filmWatermarks.push(item);
+        activeWatermarkId = item.id;
+        document.getElementById("filmWatermarkCheck").checked = true;
+        setWatermarkEnabled(true);
+      }
+
+      function setActiveWatermark(id) {
+        activeWatermarkId = id;
+        renderWatermarkList();
+        renderWatermarkDetail();
+        renderWatermarkPreview();
+      }
+
+      function updateActiveWatermarkField(field, value) {
+        var item = getActiveWatermark();
+        if (!item) return;
+        item[field] = value;
+        renderWatermarkList();
+        renderWatermarkPreview();
+      }
+
+      function deleteActiveWatermark() {
+        if (!activeWatermarkId) return;
+        filmWatermarks = filmWatermarks.filter(function(item) {
+          return item.id !== activeWatermarkId;
+        });
+        activeWatermarkId = filmWatermarks.length ? filmWatermarks[0].id : null;
+        renderWatermarkList();
+        renderWatermarkDetail();
+        renderWatermarkPreview();
+      }
+
+      function toggleActiveWatermarkVisible() {
+        var item = getActiveWatermark();
+        if (!item) return;
+        item.visible = !item.visible;
+        renderWatermarkList();
+        renderWatermarkDetail();
+        renderWatermarkPreview();
+      }
+
+      function renderWatermarkList() {
+        var list = document.getElementById("filmWatermarkList");
+        list.innerHTML = "";
+
+        filmWatermarks.forEach(function(item, index) {
+          var button = document.createElement("button");
+          button.type = "button";
+          button.className = "wm-list-item" + (item.id === activeWatermarkId ? " active" : "");
+          button.innerHTML =
+            '<div class="wm-list-item-title">' + escapeHtml(item.text || "未命名水印") + '</div>' +
+            '<div class="wm-list-item-meta">水印 ' + (index + 1) + " · " + (item.visible ? "显示" : "隐藏") + " · " + Math.round(item.x) + "% / " + Math.round(item.y) + "%</div>";
+          button.addEventListener("click", function() {
+            setActiveWatermark(item.id);
+          });
+          list.appendChild(button);
+        });
+      }
+
+      function renderWatermarkDetail() {
+        var item = getActiveWatermark();
+        var empty = document.getElementById("filmWatermarkEmpty");
+        var detail = document.getElementById("filmWatermarkDetail");
+
+        if (!item) {
+          empty.style.display = "flex";
+          detail.style.display = "none";
+          return;
+        }
+
+        empty.style.display = "none";
+        detail.style.display = "grid";
+        document.getElementById("filmWatermarkTextarea").value = item.text;
+        document.getElementById("filmWatermarkSize").value = item.fontSize;
+        document.getElementById("filmWatermarkSizeLabel").textContent = item.fontSize + "px";
+        document.getElementById("filmWatermarkOpacity").value = item.opacity;
+        document.getElementById("filmWatermarkOpacityLabel").textContent = item.opacity + "%";
+        document.getElementById("filmWatermarkColor").value = item.color;
+        document.getElementById("filmWatermarkColorLabel").textContent = item.color;
+        document.getElementById("toggleWatermarkVisibleBtn").textContent = item.visible ? "隐藏水印" : "显示水印";
+      }
+
+      function renderWatermarkPreview() {
+        var host = document.getElementById("filmWatermarkLayerHost");
+        host.innerHTML = "";
+
+        filmWatermarks.forEach(function(item) {
+          var layer = document.createElement("div");
+          layer.className = "wm-layer" + (item.id === activeWatermarkId ? " selected" : "") + (item.visible ? "" : " hidden");
+          layer.dataset.id = item.id;
+          layer.textContent = item.text || "水印";
+          layer.style.left = item.x + "%";
+          layer.style.top = item.y + "%";
+          layer.style.fontSize = item.fontSize + "px";
+          layer.style.opacity = item.opacity / 100;
+          layer.style.color = item.color;
+          layer.addEventListener("pointerdown", handleWatermarkPointerDown);
+          host.appendChild(layer);
+        });
+
+        document.getElementById("filmWatermarkPreviewMeta").textContent = filmWatermarks.length + " 个水印";
+      }
+
+      function handleWatermarkPointerDown(event) {
+        var layer = event.currentTarget;
+        var item = findFilmWatermark(layer.dataset.id);
+        if (!item) return;
+
+        event.preventDefault();
+        activeWatermarkId = item.id;
+        watermarkDragState = {
+          id: item.id,
+          pointerId: event.pointerId
+        };
+        layer.setPointerCapture(event.pointerId);
+        setWatermarkPositionFromPointer(event.clientX, event.clientY);
+        renderWatermarkList();
+        renderWatermarkDetail();
+        renderWatermarkPreview();
+      }
+
+      function setWatermarkPositionFromPointer(clientX, clientY) {
+        if (!watermarkDragState) return;
+
+        var stage = document.getElementById("filmWatermarkStage");
+        var item = findFilmWatermark(watermarkDragState.id);
+        if (!stage || !item) return;
+
+        var rect = stage.getBoundingClientRect();
+        var nextX = (clientX - rect.left) / rect.width * 100;
+        var nextY = (clientY - rect.top) / rect.height * 100;
+        item.x = clampNumber(nextX, 4, 96);
+        item.y = clampNumber(nextY, 4, 96);
+      }
+
+      function getVisibleWatermarks() {
+        return filmWatermarks.filter(function(item) {
+          return item.visible && item.text.trim();
+        });
+      }
+
+      window.composeFilm = function() {
+        var audioIssues = stories.filter(function(s) {
+          return s.audioStatus !== "done";
+        });
+
+        var videoIssues = stories.filter(function(s) {
+          return s.videoStatus !== "done";
+        });
+
+        if (audioIssues.length || videoIssues.length) {
+          var msg = "条件不满足：";
+
+          if (audioIssues.length) {
+            msg += audioIssues.length + " 个音频未完成；";
+          }
+
+          if (videoIssues.length) {
+            msg += videoIssues.length + " 个视频未完成。";
+          }
+
+          showModal("无法合成", msg);
+          return;
+        }
+
+        document.getElementById("filmModalTitle").textContent = "合成配置";
+        document.getElementById("filmConfigView").style.display = "block";
+        document.getElementById("filmProgressView").style.display = "none";
+        document.getElementById("filmModalCancelBtn").style.display = "inline-flex";
+        document.getElementById("filmModalStartBtn").style.display = "inline-flex";
+        document.getElementById("filmModalCloseBtn").style.display = "none";
+
+        document.getElementById("filmBGMCheck").checked = false;
+        document.getElementById("filmBGMSelect").value = "";
+        document.getElementById("filmBGMVolume").value = 45;
+        document.getElementById("filmBGMVolumeLabel").textContent = "45%";
+        setBGMSource("library");
+        setBGMEnabled(false);
+        resetWatermarkConfig();
+        document.getElementById("filmEncodingSelect").value = "h264";
+
+        document.getElementById("filmModal").classList.add("show");
+      };
+
+      window.startFilmCompose = function() {
+        var useBGM = document.getElementById("filmBGMCheck").checked;
+        var bgmSource = getBGMSource();
+        var bgmName = getBGMDisplayName();
+        var bgmVolume = document.getElementById("filmBGMVolume").value;
+
+        if (useBGM && bgmSource === "library" && !document.getElementById("filmBGMSelect").value) {
+          showToast("请配置", "请选择素材库 BGM，或切换为本地上传。");
+          return;
+        }
+
+        if (useBGM && bgmSource === "upload" && !filmBGMFile) {
+          showToast("请配置", "请上传本地 BGM 音频文件，或切换为素材库。");
+          return;
+        }
+
+        var encoding = document.getElementById("filmEncodingSelect").value === "h265" ? "H.265" : "H.264";
+        var useWatermark = document.getElementById("filmWatermarkCheck").checked;
+        var visibleWatermarks = getVisibleWatermarks();
+
+        if (useWatermark && !filmWatermarks.length) {
+          showToast("请配置", "请至少添加 1 个水印，或取消添加水印。");
+          return;
+        }
+
+        if (useWatermark && !visibleWatermarks.length) {
+          showToast("请配置", "请填写至少 1 个可见水印文字，或取消添加水印。");
+          return;
+        }
+
+        var totalDuration = stories.reduce(function(sum, s) {
+          return sum + s.duration;
+        }, 0);
+
+        var totalSeconds = Math.round(totalDuration / 60);
+        var durationText = totalSeconds > 0 ? totalSeconds + " 分钟" : Math.round(totalDuration) + " 秒";
+
+        // Build config + info HTML
+        var infoHTML = "";
+
+        // Video basic info section
+        infoHTML += "<div class=\"film-config-section film-config-full\"><h4>视频基础信息</h4><div class=\"film-config-grid\">";
+        infoHTML += "<div><div class=\"film-info-item-label\">分镜数量</div><div class=\"film-info-item-value\">" + stories.length + " 个</div></div>";
+        infoHTML += "<div><div class=\"film-info-item-label\">视频时长</div><div class=\"film-info-item-value\">" + durationText + "</div></div>";
+        infoHTML += "<div><div class=\"film-info-item-label\">帧率</div><div class=\"film-info-item-value\">30 fps</div></div>";
+        infoHTML += "</div></div>";
+
+        // Composition config section
+        infoHTML += "<div class=\"film-config-section film-config-full\"><h4>合成配置</h4><div class=\"film-config-grid\">";
+        infoHTML += "<div><div class=\"film-info-item-label\">编码格式</div><div class=\"film-info-item-value\">" + encoding + "</div></div>";
+        infoHTML += "<div><div class=\"film-info-item-label\">BGM</div><div class=\"film-info-item-value\">" + (useBGM ? escapeHtml(bgmName) + " · " + (bgmSource === "upload" ? "本地上传" : "素材库") + " · " + bgmVolume + "%" : "未添加") + "</div></div>";
+        infoHTML += "<div><div class=\"film-info-item-label\">水印</div><div class=\"film-info-item-value\">" + (useWatermark ? visibleWatermarks.length + " 个可见水印" : "未添加") + "</div></div>";
+        infoHTML += "<div><div class=\"film-info-item-label\">输出格式</div><div class=\"film-info-item-value\">MP4</div></div>";
+        infoHTML += "</div></div>";
+
+        if (useWatermark) {
+          infoHTML += "<div class=\"film-config-section film-config-full\"><h4>水印明细</h4><div class=\"film-config-grid\">";
+          visibleWatermarks.forEach(function(item, index) {
+            infoHTML += "<div><div class=\"film-info-item-label\">水印 " + (index + 1) + "</div><div class=\"film-info-item-value\">" + escapeHtml(item.text) + " · " + item.fontSize + "px · " + item.opacity + "% · " + item.color + " · " + Math.round(item.x) + "%/" + Math.round(item.y) + "%</div></div>";
+          });
+          infoHTML += "</div></div>";
+        }
+
+        document.getElementById("filmInfoGrid").innerHTML = infoHTML;
+
+        // Switch to progress view
+        document.getElementById("filmModalTitle").textContent = "成片合成";
+        document.getElementById("filmConfigView").style.display = "none";
+        document.getElementById("filmProgressView").style.display = "block";
+        document.getElementById("filmModalCancelBtn").style.display = "none";
+        document.getElementById("filmModalStartBtn").style.display = "none";
+        document.getElementById("filmModalCloseBtn").style.display = "none";
+
+        document.getElementById("filmProgressPct").textContent = "0%";
+        document.getElementById("filmProgressFill").style.width = "0%";
+        document.getElementById("filmProgressStatus").textContent = "准备中...";
+
+        var totalSteps = 20;
+        var step = 0;
+
+        var stepsText = [
+          "正在合并分镜片段...",
+          "正在同步音频轨道...",
+          useBGM ? "正在混合 BGM 音轨..." : "正在处理音频轨道...",
+          "正在渲染字幕...",
+          "正在生成转场效果...",
+          useWatermark ? "正在叠加 " + visibleWatermarks.length + " 个水印..." : "正在编码最终视频...",
+          "正在校验完整性...",
+          "合成完成！"
+        ];
+
+        var interval = setInterval(function() {
+          step++;
+          var pct = Math.min(Math.round(step / totalSteps * 100), 100);
+          document.getElementById("filmProgressFill").style.width = pct + "%";
+          document.getElementById("filmProgressPct").textContent = pct + "%";
+
+          var stepIndex = Math.min(Math.floor(step / totalSteps * (stepsText.length - 1)), stepsText.length - 1);
+          document.getElementById("filmProgressStatus").textContent = stepsText[stepIndex];
+
+          if (step >= totalSteps) {
+            clearInterval(interval);
+            document.getElementById("filmProgressStatus").textContent = "成片已生成，可下载或进入 Step4 预览。";
+            document.getElementById("filmModalCloseBtn").style.display = "inline-flex";
+          }
+        }, 400);
+      };
+
+      window.closeFilmModal = function(event) {
+        if (event && event.target !== event.currentTarget) return;
+        document.getElementById("filmModal").classList.remove("show");
+      };
+
+      window.saveDraft = function() {
+        showToast("已保存", "草稿保存成功。");
+      };
+
+      window.goBack = function() {
+        showModal("返回", "返回上一步：主体管理。");
+      };
+
+      function downloadBlob(fileName, content, mimeType) {
+        var blob = new Blob([content], {
+          type: mimeType || "application/octet-stream"
+        });
+
+        var blobUrl = URL.createObjectURL(blob);
+        var link = document.createElement("a");
+
+        link.href = blobUrl;
+        link.download = fileName;
+
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        URL.revokeObjectURL(blobUrl);
+      }
+
+      function showToast(title, text) {
+        var t = document.getElementById("toast");
+
+        document.getElementById("toastTitle").innerText = title;
+        document.getElementById("toastText").innerText = text;
+
+        t.classList.add("show");
+
+        clearTimeout(window._tt);
+        window._tt = setTimeout(function() {
+          t.classList.remove("show");
+        }, 2200);
+      }
+
+      function showModal(title, body, needConfirm) {
+        document.getElementById("modalTitle").innerHTML = escapeHtml(title);
+        document.getElementById("modalBody").innerHTML = escapeHtml(body);
+        document.getElementById("modalMask").classList.add("show");
+
+        var btn = document.getElementById("modalConfirmBtn");
+
+        btn.style.display = needConfirm ? "inline-flex" : "none";
+        btn.onclick = needConfirm
+          ? function() {
+              if (confirmCallback) {
+                confirmCallback();
+              } else {
+                closeModal();
+              }
+            }
+          : closeModal;
+      }
+
+      window.closeModal = function() {
+        document.getElementById("modalMask").classList.remove("show");
+        confirmCallback = null;
+        document.getElementById("modalConfirmBtn").style.display = "none";
+      };
+
+      document.getElementById("filmBGMCheck").addEventListener("change", function() {
+        setBGMEnabled(this.checked);
+      });
+
+      document.querySelectorAll('input[name="filmBGMSource"]').forEach(function(input) {
+        input.addEventListener("change", updateBGMSourceUI);
+      });
+
+      document.getElementById("filmBGMFileInput").addEventListener("change", function() {
+        handleBGMFileChange(this.files && this.files[0]);
+      });
+
+      document.getElementById("filmBGMRemoveBtn").addEventListener("click", clearBGMFile);
+      document.getElementById("filmBGMPlayBtn").addEventListener("click", toggleBGMPreview);
+
+      document.getElementById("filmBGMSelect").addEventListener("change", function() {
+        stopBGMPreview();
+      });
+
+      document.getElementById("filmBGMVolume").addEventListener("input", function() {
+        document.getElementById("filmBGMVolumeLabel").textContent = this.value + "%";
+        syncBGMVolume();
+      });
+
+      document.getElementById("filmWatermarkCheck").addEventListener("change", function() {
+        setWatermarkEnabled(this.checked);
+      });
+
+      document.getElementById("addWatermarkBtn").addEventListener("click", addFilmWatermark);
+
+      document.getElementById("filmWatermarkTextarea").addEventListener("input", function() {
+        updateActiveWatermarkField("text", this.value);
+      });
+
+      document.getElementById("filmWatermarkSize").addEventListener("input", function() {
+        var value = Number(this.value);
+        document.getElementById("filmWatermarkSizeLabel").textContent = value + "px";
+        updateActiveWatermarkField("fontSize", value);
+      });
+
+      document.getElementById("filmWatermarkOpacity").addEventListener("input", function() {
+        var value = Number(this.value);
+        document.getElementById("filmWatermarkOpacityLabel").textContent = value + "%";
+        updateActiveWatermarkField("opacity", value);
+      });
+
+      document.getElementById("filmWatermarkColor").addEventListener("input", function() {
+        document.getElementById("filmWatermarkColorLabel").textContent = this.value;
+        updateActiveWatermarkField("color", this.value);
+      });
+
+      document.getElementById("toggleWatermarkVisibleBtn").addEventListener("click", toggleActiveWatermarkVisible);
+      document.getElementById("deleteWatermarkBtn").addEventListener("click", deleteActiveWatermark);
+
+      document.addEventListener("pointermove", function(event) {
+        if (!watermarkDragState) return;
+        setWatermarkPositionFromPointer(event.clientX, event.clientY);
+        renderWatermarkList();
+        renderWatermarkPreview();
+      });
+
+      document.addEventListener("pointerup", function() {
+        if (!watermarkDragState) return;
+        watermarkDragState = null;
+        renderWatermarkList();
+        renderWatermarkDetail();
+      });
+
+      stories.forEach(function(s) {
+        if (s.videoStatus === "done") {
+          selectedClips[s.id] = "v1";
+        }
+      });
+      renderStories();
+    })();
+  </script>
+</body>
+</html>

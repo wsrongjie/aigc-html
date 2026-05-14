@@ -1,0 +1,1104 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>Step1 台词创建 · 单编辑区版</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
+      background: #f5f7fb;
+      color: #111827;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    button,
+    input,
+    textarea,
+    select {
+      font-family: inherit;
+      font-size: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .page {
+      min-height: 100vh;
+      padding-bottom: 82px;
+    }
+
+    .top-bar {
+      height: 64px;
+      background: #ffffff;
+      border-bottom: 1px solid #e5e7eb;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 800;
+      color: #111827;
+      white-space: nowrap;
+    }
+
+    .brand-logo {
+      width: 32px;
+      height: 32px;
+      border-radius: 9px;
+      background: linear-gradient(135deg, #2f6bff, #6b8cff);
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 900;
+    }
+
+    .steps {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 13px;
+    }
+
+    .step {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #9ca3af;
+      white-space: nowrap;
+    }
+
+    .step-number {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: #eef2f7;
+      color: #9ca3af;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .step.active {
+      color: #111827;
+      font-weight: 800;
+    }
+
+    .step.active .step-number {
+      background: #2f6bff;
+      color: #ffffff;
+    }
+
+    .step-line {
+      width: 34px;
+      border-top: 1px dashed #cbd5e1;
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: #6b7280;
+      white-space: nowrap;
+    }
+
+    .top-actions .save-status {
+      color: #64748b;
+    }
+
+    .avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #dbeafe;
+      color: #1d4ed8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+    }
+
+    .content-wrap {
+      padding: 20px 24px;
+      max-width: 1480px;
+      margin: 0 auto;
+    }
+
+    .section-card {
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      border-radius: 16px;
+      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
+      margin-bottom: 16px;
+      overflow: hidden;
+    }
+
+    .section-header {
+      min-height: 46px;
+      padding: 12px 18px;
+      border-bottom: 1px solid #eef2f7;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      background: #fbfdff;
+    }
+
+    .section-title {
+      font-size: 16px;
+      font-weight: 900;
+      color: #111827;
+    }
+
+    .section-desc {
+      color: #64748b;
+      font-size: 12px;
+      text-align: right;
+    }
+
+    .section-body {
+      padding: 16px 18px;
+    }
+
+    .basic-grid {
+      display: grid;
+      grid-template-columns: minmax(220px, 400px) 170px minmax(280px, 1fr) minmax(260px, 350px);
+      gap: 16px;
+      align-items: start;
+    }
+
+    .field {
+      min-width: 0;
+    }
+
+    .field-label {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 12px;
+      font-weight: 800;
+      color: #1f2937;
+      margin-bottom: 8px;
+    }
+
+    .required {
+      color: #ef4444;
+      font-weight: 900;
+    }
+
+    .text-input,
+    .select {
+      width: 100%;
+      height: 42px;
+      border: 1px solid #d1d5db;
+      border-radius: 12px;
+      padding: 0 12px;
+      color: #374151;
+      outline: none;
+      background: #ffffff;
+      transition: all 0.16s;
+    }
+
+    .text-input:focus,
+    .select:focus,
+    textarea:focus {
+      border-color: #2f6bff;
+      box-shadow: 0 0 0 3px rgba(47, 107, 255, 0.1);
+    }
+
+    .segment {
+      display: inline-flex;
+      height: 42px;
+      background: #f1f5f9;
+      border: 1px solid #dbe2ec;
+      border-radius: 14px;
+      padding: 4px;
+      gap: 4px;
+      width: 100%;
+    }
+
+    .segment-btn {
+      flex: 1;
+      border: none;
+      background: transparent;
+      border-radius: 10px;
+      color: #475569;
+      font-weight: 800;
+      padding: 0 12px;
+      transition: all 0.16s;
+      white-space: nowrap;
+    }
+
+    .segment-btn:hover {
+      color: #2f6bff;
+    }
+
+    .segment-btn.active {
+      background: #ffffff;
+      color: #2f6bff;
+      box-shadow: 0 2px 8px rgba(47, 107, 255, 0.12);
+    }
+
+    .segment-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      color: #94a3b8;
+    }
+
+    .ratio-hint {
+      margin-top: 8px;
+      min-height: 22px;
+      color: #64748b;
+      font-size: 12px;
+      line-height: 1.5;
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+    }
+
+    .ratio-hint::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #2f6bff;
+      margin-top: 6px;
+      flex-shrink: 0;
+    }
+
+    .editor-layout {
+      display: grid;
+      grid-template-columns: 11fr 9fr;
+      gap: 16px;
+      align-items: stretch;
+    }
+
+    .editor-panel,
+    .ai-panel {
+      border: 1px solid #e5e7eb;
+      border-radius: 14px;
+      background: #ffffff;
+      overflow: hidden;
+      min-width: 0;
+    }
+
+    .panel-header {
+      height: 42px;
+      padding: 0 14px;
+      background: #f9fbff;
+      border-bottom: 1px solid #eef2f7;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .panel-title {
+      font-weight: 900;
+      color: #111827;
+    }
+
+    .panel-subtitle {
+      color: #64748b;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .panel-body {
+      padding: 14px;
+    }
+
+    .script-textarea {
+      width: 100%;
+      height: 238px;
+      min-height: 180px;
+      resize: vertical;
+      border: 1px solid #dbe2ec;
+      border-radius: 12px;
+      padding: 12px 14px;
+      color: #1f2937;
+      line-height: 1.7;
+      outline: none;
+      background: #ffffff;
+      transition: all 0.16s;
+    }
+
+    .textarea-footer {
+      margin-top: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      color: #64748b;
+      font-size: 12px;
+    }
+
+    .editor-tools {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .link-btn {
+      border: none;
+      background: transparent;
+      color: #2f6bff;
+      font-weight: 800;
+      padding: 0;
+      cursor: pointer;
+    }
+
+    .link-btn:hover {
+      text-decoration: underline;
+    }
+
+    .undo-tip {
+      margin-top: 10px;
+      padding: 9px 10px;
+      border: 1px solid #bfdbfe;
+      border-radius: 10px;
+      background: #eff6ff;
+      color: #1d4ed8;
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      font-size: 12px;
+    }
+
+    .undo-tip.show {
+      display: flex;
+    }
+
+    .ai-panel .panel-body {
+      display: flex;
+      flex-direction: column;
+      height: calc(100% - 42px);
+    }
+
+    .ai-desc {
+      color: #64748b;
+      font-size: 12px;
+      margin-bottom: 12px;
+      line-height: 1.6;
+    }
+
+    .goal-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .goal-btn {
+      min-height: 34px;
+      border: 1px solid #dbe2ec;
+      background: #ffffff;
+      color: #334155;
+      border-radius: 10px;
+      padding: 0 10px;
+      font-size: 12px;
+      font-weight: 800;
+      transition: all 0.16s;
+    }
+
+    .goal-btn:hover {
+      border-color: #2f6bff;
+      color: #2f6bff;
+      background: #f8fbff;
+    }
+
+    .goal-btn.active {
+      border-color: #2f6bff;
+      color: #1d4ed8;
+      background: #eff6ff;
+      box-shadow: 0 2px 8px rgba(47, 107, 255, 0.1);
+    }
+
+    .btn {
+      height: 38px;
+      border: 1px solid #d1d5db;
+      background: #ffffff;
+      color: #374151;
+      border-radius: 11px;
+      padding: 0 16px;
+      font-weight: 800;
+      transition: all 0.16s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+
+    .btn:hover {
+      border-color: #2f6bff;
+      color: #2f6bff;
+    }
+
+    .btn-primary {
+      background: #2f6bff;
+      color: #ffffff;
+      border-color: #2f6bff;
+    }
+
+    .btn-primary:hover {
+      background: #2458d8;
+      color: #ffffff;
+    }
+
+    .btn-ai-primary {
+      width: 100%;
+      height: 44px;
+      border: none;
+      border-radius: 13px;
+      color: #ffffff;
+      font-weight: 900;
+      background: linear-gradient(135deg, #2f6bff 0%, #6b8cff 100%);
+      box-shadow: 0 8px 18px rgba(47, 107, 255, 0.22);
+      transition: all 0.16s;
+    }
+
+    .btn-ai-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 22px rgba(47, 107, 255, 0.28);
+    }
+
+    .btn-ai-primary:disabled {
+      cursor: not-allowed;
+      opacity: 0.65;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .ai-helper {
+      margin-top: 10px;
+      color: #64748b;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .ai-status {
+      margin-top: auto;
+      padding-top: 12px;
+      color: #94a3b8;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .bottom-bar {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 68px;
+      background: rgba(255, 255, 255, 0.96);
+      border-top: 1px solid #e5e7eb;
+      box-shadow: 0 -8px 20px rgba(15, 23, 42, 0.06);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      z-index: 30;
+      backdrop-filter: blur(10px);
+    }
+
+    .bottom-left,
+    .bottom-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .next-btn {
+      height: 42px;
+      padding: 0 22px;
+      border-radius: 13px;
+    }
+
+    .toast {
+      position: fixed;
+      right: 24px;
+      bottom: 88px;
+      width: 310px;
+      background: #111827;
+      color: #ffffff;
+      border-radius: 14px;
+      padding: 12px 14px;
+      box-shadow: 0 10px 26px rgba(15, 23, 42, 0.22);
+      z-index: 50;
+      display: none;
+    }
+
+    .toast.show {
+      display: block;
+      animation: fadeIn 0.18s ease-out;
+    }
+
+    .toast-title {
+      font-weight: 900;
+      margin-bottom: 4px;
+    }
+
+    .toast-text {
+      font-size: 12px;
+      color: #d1d5db;
+      line-height: 1.5;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(6px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 1180px) {
+      .top-bar {
+        gap: 14px;
+      }
+
+      .steps {
+        gap: 8px;
+      }
+
+      .step-line {
+        width: 20px;
+      }
+
+      .basic-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .editor-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .script-textarea {
+        height: 220px;
+      }
+
+      .ai-panel .panel-body {
+        height: auto;
+      }
+
+      .goal-grid {
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 760px) {
+      .top-bar {
+        height: auto;
+        min-height: 64px;
+        padding: 12px 16px;
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .steps {
+        width: 100%;
+        overflow-x: auto;
+        padding-bottom: 4px;
+      }
+
+      .top-actions {
+        display: none;
+      }
+
+      .content-wrap {
+        padding: 14px;
+      }
+
+      .section-header {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .section-desc {
+        text-align: left;
+      }
+
+      .basic-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .goal-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .bottom-bar {
+        height: auto;
+        padding: 12px 14px;
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .bottom-left,
+      .bottom-right {
+        width: 100%;
+      }
+
+      .bottom-left .btn,
+      .bottom-right .btn {
+        flex: 1;
+      }
+
+      .page {
+        padding-bottom: 132px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="top-bar">
+      <div class="brand">
+        <div class="brand-logo">AI</div>
+        AIGC 投顾短视频平台
+      </div>
+
+      <div class="steps">
+        <div class="step active">
+          <div class="step-number">1</div>
+          台词创作
+        </div>
+        <div class="step-line"></div>
+        <div class="step">
+          <div class="step-number">2</div>
+          主体管理
+        </div>
+        <div class="step-line"></div>
+        <div class="step">
+          <div class="step-number">3</div>
+          分镜管理
+        </div>
+        <div class="step-line"></div>
+        <div class="step">
+          <div class="step-number">4</div>
+          成片预览
+        </div>
+      </div>
+
+      <div class="top-actions">
+        <span class="save-status" id="saveStatus">已自动保存 09:28</span>
+        <div class="avatar">顾</div>
+      </div>
+    </header>
+
+    <main class="content-wrap">
+      <section class="section-card">
+        <div class="section-header">
+          <div class="section-title">基础信息</div>
+          <div class="section-desc">配置标题、语言、尺寸与输出清晰度，当前步骤只处理台词内容。</div>
+        </div>
+
+        <div class="section-body">
+          <div class="basic-grid">
+            <div class="field">
+              <label class="field-label">
+                视频标题名称 <span class="required">*</span>
+              </label>
+              <input
+                id="videoTitle"
+                class="text-input"
+                type="text"
+                value="投顾服务短视频脚本"
+                placeholder="请输入视频标题"
+                oninput="markChanged()"
+              />
+            </div>
+
+            <div class="field">
+              <label class="field-label">
+                剧本语言 <span class="required">*</span>
+              </label>
+              <div class="segment" id="languageSegment">
+                <button class="segment-btn active" type="button" onclick="setLanguage('zh', this)">中文</button>
+                <button class="segment-btn" type="button" onclick="setLanguage('en', this)">英文</button>
+              </div>
+            </div>
+
+            <div class="field">
+              <label class="field-label">
+                屏幕尺寸 <span class="required">*</span>
+              </label>
+              <div class="segment" id="ratioSegment">
+                <button class="segment-btn active" type="button" onclick="setRatio('vertical', this)">竖屏 9:16</button>
+                <button class="segment-btn" type="button" disabled onclick="setRatio('horizontal', this)">横屏 16:9</button>
+                <button class="segment-btn" type="button" disabled onclick="setRatio('square', this)">方形 1:1</button>
+              </div>
+              <div id="ratioHint" class="ratio-hint">竖屏适合抖音、快手、视频号等信息流投放，推荐使用 1080 × 1920。</div>
+            </div>
+
+            <div class="field">
+              <label class="field-label">
+                分辨率 <span class="required">*</span>
+              </label>
+              <select id="resolutionSelect" class="select" onchange="markChanged()"></select>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section-card">
+        <div class="section-header">
+          <div class="section-title">台词创建</div>
+          <div class="section-desc">在当前编辑区完成台词撰写，AI 优化后会直接更新编辑区内容。</div>
+        </div>
+
+        <div class="section-body">
+          <div class="editor-layout">
+            <div class="editor-panel">
+              <div class="panel-header">
+                <div class="panel-title">台词编辑</div>
+                <div class="panel-subtitle">当前步骤只处理台词</div>
+              </div>
+
+              <div class="panel-body">
+                <textarea
+                  id="scriptText"
+                  class="script-textarea"
+                  placeholder="请输入投顾短视频台词内容"
+                  oninput="onScriptInput()"
+                >很多投资者在市场波动时，都会遇到看不懂趋势、拿不住机会、控制不好风险的问题。我们的投顾服务，依托专业研究团队和标准化服务流程，为用户提供市场解读、投资策略参考和风险管理建议。</textarea>
+
+                <div class="textarea-footer">
+                  <div id="charCount">当前 0 字</div>
+                  <div class="editor-tools">
+                    <button class="link-btn" type="button" onclick="useOriginalDemo()">填入示例</button>
+                    <button class="link-btn" type="button" onclick="clearScript()">清空</button>
+                  </div>
+                </div>
+
+                <div id="undoTip" class="undo-tip">
+                  <span id="undoText">已完成 AI 优化，当前内容已更新。</span>
+                  <button class="link-btn" type="button" onclick="undoOptimize()">撤回到优化前</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="ai-panel">
+              <div class="panel-header">
+                <div class="panel-title">AI 优化配置</div>
+              </div>
+
+              <div class="panel-body">
+                <div class="ai-desc">
+                  选择优化目标后，点击按钮即可基于当前台词生成优化版本。优化结果会直接覆盖左侧编辑区内容。
+                </div>
+
+                <div class="field-label">AI 优化目标</div>
+
+                <div class="goal-grid" id="goalGrid">
+                  <button class="goal-btn active" type="button" data-goal="更口语自然" onclick="setGoal(this)">更口语自然</button>
+                  <button class="goal-btn" type="button" data-goal="更专业可信" onclick="setGoal(this)">更专业可信</button>
+                  <button class="goal-btn" type="button" data-goal="缩短到 30 秒" onclick="setGoal(this)">缩短到 30 秒</button>
+                  <button class="goal-btn" type="button" data-goal="增强转化感" onclick="setGoal(this)">增强转化感</button>
+                  <button class="goal-btn" type="button" data-goal="扩写更完整" onclick="setGoal(this)">扩写更完整</button>
+                </div>
+
+                <button id="optimizeBtn" class="btn-ai-primary" type="button" onclick="optimizeScript()">
+                  AI 优化当前台词
+                </button>
+
+                <div class="ai-helper">
+                  优化后将更新左侧台词内容，并保留一次优化前版本，支持撤回。
+                </div>
+
+                <div class="ai-status" id="aiStatus">
+                  当前优化目标：更口语自然
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="bottom-bar">
+      <div class="bottom-left">
+        <button class="btn" type="button" onclick="saveDraft()">保存草稿</button>
+      </div>
+      <div class="bottom-right">
+        <button class="btn btn-primary next-btn" type="button" onclick="goNext()">下一步：主体管理</button>
+      </div>
+    </footer>
+
+    <div id="toast" class="toast">
+      <div id="toastTitle" class="toast-title"></div>
+      <div id="toastText" class="toast-text"></div>
+    </div>
+  </div>
+
+  <script>
+    var currentLanguage = "zh";
+    var currentRatio = "vertical";
+    var currentGoal = "更口语自然";
+    var previousScriptText = "";
+    var hasUndoText = false;
+    var toastTimer = null;
+
+    var ratioHintMap = {
+      vertical: "竖屏适合抖音、快手、视频号等信息流投放，推荐使用 1080 × 1920。",
+      horizontal: "横屏适合横版内容、课程切片或宽屏展示，推荐使用 1920 × 1080。",
+      square: "方形适合朋友圈、部分社媒信息流展示，推荐使用 1080 × 1080。"
+    };
+
+    var resolutionMap = {
+      vertical: [
+        { value: "1080x1920", label: "1080 × 1920，高清竖屏，推荐投流" },
+        { value: "720x1280", label: "720 × 1280，标准竖屏，生成更快" }
+      ],
+      horizontal: [
+        { value: "1920x1080", label: "1920 × 1080，高清横屏" },
+        { value: "1280x720", label: "1280 × 720，标准横屏" }
+      ],
+      square: [
+        { value: "1080x1080", label: "1080 × 1080，高清方形" },
+        { value: "720x720", label: "720 × 720，标准方形" }
+      ]
+    };
+
+    function init() {
+      renderResolutionOptions();
+      updateCharCount();
+    }
+
+    function setLanguage(language, btn) {
+      currentLanguage = language;
+      setActiveInSegment("languageSegment", btn);
+      markChanged();
+    }
+
+    function setRatio(ratio, btn) {
+      currentRatio = ratio;
+      setActiveInSegment("ratioSegment", btn);
+      document.getElementById("ratioHint").innerText = ratioHintMap[ratio];
+      renderResolutionOptions();
+      markChanged();
+    }
+
+    function setActiveInSegment(segmentId, activeBtn) {
+      var segment = document.getElementById(segmentId);
+      var buttons = segment.querySelectorAll(".segment-btn");
+
+      for (var i = 0; i < buttons.length; i++) {
+        buttons[i].classList.remove("active");
+      }
+
+      activeBtn.classList.add("active");
+    }
+
+    function renderResolutionOptions() {
+      var select = document.getElementById("resolutionSelect");
+
+      select.innerHTML = "";
+      var option = document.createElement("option");
+      option.value = "720x1280";
+      option.innerText = "720 × 1280，标准竖屏，生成更快";
+      option.selected = true;
+      select.appendChild(option);
+      select.disabled = true;
+    }
+
+    function setGoal(btn) {
+      var buttons = document.querySelectorAll(".goal-btn");
+
+      for (var i = 0; i < buttons.length; i++) {
+        buttons[i].classList.remove("active");
+      }
+
+      btn.classList.add("active");
+      currentGoal = btn.getAttribute("data-goal");
+      document.getElementById("aiStatus").innerText = "当前优化目标：" + currentGoal;
+      markChanged();
+    }
+
+    function onScriptInput() {
+      updateCharCount();
+      markChanged();
+
+      if (hasUndoText) {
+        hideUndoTip();
+      }
+    }
+
+    function updateCharCount() {
+      var text = document.getElementById("scriptText").value;
+      var count = text.replace(/\s/g, "").length;
+      document.getElementById("charCount").innerText = "当前 " + count + " 字";
+    }
+
+    function optimizeScript() {
+      var textarea = document.getElementById("scriptText");
+      var original = textarea.value.trim();
+
+      if (!original) {
+        showToast("无法优化", "请先输入台词内容后再进行 AI 优化。");
+        return;
+      }
+
+      previousScriptText = textarea.value;
+      hasUndoText = true;
+
+      var btn = document.getElementById("optimizeBtn");
+      btn.disabled = true;
+      btn.innerText = "正在优化...";
+
+      setTimeout(function() {
+        var optimized = generateOptimizedText(original, currentGoal);
+        textarea.value = optimized;
+
+        updateCharCount();
+        showUndoTip(currentGoal);
+
+        btn.disabled = false;
+        btn.innerText = "AI 优化当前台词";
+
+        document.getElementById("saveStatus").innerText = "AI 优化后未保存";
+        showToast("AI 优化完成", "当前台词已根据「" + currentGoal + "」更新，可撤回到优化前版本。");
+      }, 650);
+    }
+
+    function generateOptimizedText(text, goal) {
+      var cleanText = text.replace(/\s+/g, " ").trim();
+
+      if (goal === "更口语自然") {
+        return "很多投资者在市场波动的时候，都会有类似的困惑：趋势看不清，机会拿不住，风险也不知道该怎么控制。我们的投顾服务，会依托专业研究团队和标准化服务流程，帮助用户理解市场变化，提供投资策略参考和风险管理建议，让投资决策更从容。";
+      }
+
+      if (goal === "更专业可信") {
+        return "在市场波动加剧的环境下，投资者往往面临趋势判断难、机会把握难和风险控制难等问题。我们的投顾服务依托专业研究团队、系统化研究框架和标准化服务流程，为用户提供市场解读、投资策略参考及风险管理建议，帮助用户建立更加理性、稳健的投资决策方式。";
+      }
+
+      if (goal === "缩短到 30 秒") {
+        return "市场波动时，很多投资者都会遇到看不清趋势、拿不住机会、控制不好风险的问题。我们的投顾服务，依托专业研究团队和标准化流程，为用户提供市场解读、策略参考和风险管理建议，帮助投资更理性、更稳健。";
+      }
+
+      if (goal === "增强转化感") {
+        return "市场一波动，很多投资者都会担心看错趋势、错过机会，甚至承担不必要的风险。选择我们的投顾服务，您可以获得专业研究团队的持续支持，及时了解市场变化，获取策略参考和风险管理建议，让每一次投资决策都更有依据。";
+      }
+
+      if (goal === "扩写更完整") {
+        return "很多投资者在市场波动时，都会遇到看不懂趋势、拿不住机会、控制不好风险的问题。尤其是在行情变化较快的时候，单靠个人经验做判断，往往容易受到情绪影响。我们的投顾服务依托专业研究团队和标准化服务流程，围绕市场解读、投资策略参考和风险管理建议，为用户提供更加系统、清晰、可执行的投资支持，帮助用户在复杂市场环境中保持理性判断。";
+      }
+
+      return cleanText;
+    }
+
+    function showUndoTip(goal) {
+      var tip = document.getElementById("undoTip");
+      document.getElementById("undoText").innerText = "已根据「" + goal + "」完成 AI 优化，当前内容已更新。";
+      tip.classList.add("show");
+    }
+
+    function hideUndoTip() {
+      var tip = document.getElementById("undoTip");
+      tip.classList.remove("show");
+      hasUndoText = false;
+      previousScriptText = "";
+    }
+
+    function undoOptimize() {
+      if (!hasUndoText) {
+        return;
+      }
+
+      document.getElementById("scriptText").value = previousScriptText;
+      updateCharCount();
+      hideUndoTip();
+      markChanged();
+      showToast("已撤回", "台词内容已恢复到 AI 优化前版本。");
+    }
+
+    function useOriginalDemo() {
+      document.getElementById("scriptText").value = "很多投资者在市场波动时，都会遇到看不懂趋势、拿不住机会、控制不好风险的问题。我们的投顾服务，依托专业研究团队和标准化服务流程，为用户提供市场解读、投资策略参考和风险管理建议。";
+      updateCharCount();
+      hideUndoTip();
+      markChanged();
+    }
+
+    function clearScript() {
+      document.getElementById("scriptText").value = "";
+      updateCharCount();
+      hideUndoTip();
+      markChanged();
+      showToast("已清空", "台词编辑区内容已清空。");
+    }
+
+    function saveDraft() {
+      var now = new Date();
+      var hour = String(now.getHours()).padStart(2, "0");
+      var minute = String(now.getMinutes()).padStart(2, "0");
+
+      document.getElementById("saveStatus").innerText = "已自动保存 " + hour + ":" + minute;
+      showToast("保存成功", "当前视频标题、基础配置和台词内容已保存为草稿。");
+    }
+
+    function markChanged() {
+      document.getElementById("saveStatus").innerText = "有未保存修改";
+    }
+
+    function goNext() {
+      var title = document.getElementById("videoTitle").value.trim();
+      var script = document.getElementById("scriptText").value.trim();
+
+      if (!title) {
+        showToast("无法进入下一步", "请先填写视频标题名称。");
+        return;
+      }
+
+      if (!script) {
+        showToast("无法进入下一步", "请先填写台词内容。");
+        return;
+      }
+
+      showToast("进入主体管理", "校验通过，下一步将配置角色、场景和语音模型。");
+    }
+
+    function showToast(title, text) {
+      var toast = document.getElementById("toast");
+
+      document.getElementById("toastTitle").innerText = title;
+      document.getElementById("toastText").innerText = text;
+
+      toast.classList.add("show");
+
+      if (toastTimer) {
+        clearTimeout(toastTimer);
+      }
+
+      toastTimer = setTimeout(function() {
+        toast.classList.remove("show");
+      }, 2600);
+    }
+
+    init();
+  </script>
+</body>
+</html>

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 视频原型</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f7fa;
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 48px 24px;
+        }
+        h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+        .subtitle {
+            color: #888;
+            font-size: 14px;
+            margin-bottom: 40px;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 16px;
+            max-width: 960px;
+            width: 100%;
+        }
+        .card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 24px;
+            text-decoration: none;
+            color: inherit;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            transition: box-shadow 0.2s, transform 0.2s;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .card:hover {
+            box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+            transform: translateY(-2px);
+        }
+        .card .step {
+            font-size: 12px;
+            font-weight: 600;
+            color: #6366f1;
+            background: #eef2ff;
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 20px;
+            width: fit-content;
+        }
+        .card .title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        .card .desc {
+            font-size: 13px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <h1>AI 视频创作原型</h1>
+    <p class="subtitle">点击卡片进入对应页面原型</p>
+    <div class="grid">
+        <a class="card" href="导演台首页.html">
+            <span class="step">入口</span>
+            <span class="title">导演台首页</span>
+            <span class="desc">工作台入口与项目概览</span>
+        </a>
+        <a class="card" href="主体管理-首页.html">
+            <span class="step">模块</span>
+            <span class="title">主体管理 - 首页</span>
+            <span class="desc">主体列表与管理入口</span>
+        </a>
+        <a class="card" href="主体管理-创建主体.html">
+            <span class="step">模块</span>
+            <span class="title">主体管理 - 创建主体</span>
+            <span class="desc">新建主体信息表单</span>
+        </a>
+        <a class="card" href="step1-台词创建 .html">
+            <span class="step">Step 1</span>
+            <span class="title">台词创建</span>
+            <span class="desc">创作台词脚本</span>
+        </a>
+        <a class="card" href="step2-主体管理首页（一级主体联动版）.html">
+            <span class="step">Step 2</span>
+            <span class="title">主体管理（联动版）</span>
+            <span class="desc">主体选择与联动配置</span>
+        </a>
+        <a class="card" href="step3-分镜管理.html">
+            <span class="step">Step 3</span>
+            <span class="title">分镜管理</span>
+            <span class="desc">分镜编排与管理</span>
+        </a>
+        <a class="card" href="step4-成片合成.html">
+            <span class="step">Step 4</span>
+            <span class="title">成片合成</span>
+            <span class="desc">最终视频合成与输出</span>
+        </a>
+    </div>
+</body>
+</html>
