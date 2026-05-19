@@ -140,14 +140,6 @@
             box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
         }
 
-        .name-wrap {
-            position: relative;
-        }
-
-        .name-wrap .form-control {
-            padding-right: 68px;
-        }
-
         .name-count {
             position: absolute;
             right: 12px;
@@ -159,13 +151,22 @@
 
         .voice-select-row {
             display: grid;
-            grid-template-columns: minmax(0, 1fr) 78px;
+            grid-template-columns: minmax(0, 1fr) 78px 96px;
             gap: 10px;
         }
 
         .voice-select-row .btn {
             height: 42px;
             padding: 0 12px;
+        }
+
+        .name-wrap {
+            position: relative;
+            max-width: 320px;
+        }
+
+        .name-wrap .form-control {
+            padding-right: 68px;
         }
 
         .edit-grid {
@@ -669,6 +670,7 @@
                             <option value="Natural Male Voice / English">Natural Male Voice / English</option>
                         </select>
                         <button class="btn btn-light" type="button" id="previewVoiceBtn">试听</button>
+                        <button class="btn btn-primary" type="button" id="addVoiceBtn">+ 新增音色</button>
                     </div>
                 </div>
 
@@ -775,6 +777,7 @@
         const toast = document.getElementById("toast");
         const voiceSelectRow = document.getElementById("voiceSelectRow");
         const previewVoiceBtn = document.getElementById("previewVoiceBtn");
+        const addVoiceBtn = document.getElementById("addVoiceBtn");
 
         function typeName() {
             return subjectType === "scene" ? "场景" : "角色";
@@ -899,6 +902,7 @@
             document.getElementById("sceneTip").style.display = isScene ? "flex" : "none";
             document.querySelector(".form-top").classList.toggle("scene-mode", isScene);
             voiceSelectRow.style.display = isScene ? "none" : "grid";
+            addVoiceBtn.style.display = isScene ? "none" : "inline-flex";
             subjectDesc.placeholder = isScene ?
                 "请输入场景描述，例如：现代财经演播室，背景有大屏数据图表，整体风格专业、简洁、可信。" :
                 "请输入角色小传，例如年龄、职业、形象气质、服装风格等";
@@ -1073,8 +1077,45 @@
             window.location.href = returnUrl();
         });
 
+        // 新增音色：跳转到新建语音模型页面，携带回跳地址
+        addVoiceBtn.addEventListener("click", () => {
+            const currentUrl = window.location.href.split("#")[0];
+            const returnUrlEncoded = encodeURIComponent(currentUrl);
+            window.location.href = "新建语音模型_2026-05-12 162532.html?returnUrl=" + returnUrlEncoded;
+        });
+
+        // 检查是否从新建语音模型页面返回，并获取新音色名称
+        function checkNewVoice() {
+            const params2 = new URLSearchParams(window.location.search);
+            const newVoice = params2.get("newVoice");
+            if (newVoice) {
+                const select = document.getElementById("subjectVoice");
+                // 如果下拉框中还没有这个音色，就新增一个 option
+                let exists = false;
+                for (let i = 0; i < select.options.length; i++) {
+                    if (select.options[i].value === newVoice) {
+                        exists = true;
+                        break;
+                    }
+                }
+                if (!exists) {
+                    const opt = document.createElement("option");
+                    opt.value = newVoice;
+                    opt.textContent = newVoice;
+                    select.appendChild(opt);
+                }
+                select.value = newVoice;
+                updatePreviewText();
+                showToast("新音色已选择：" + newVoice);
+                // 清理 URL 中的参数
+                const cleanUrl = window.location.pathname + window.location.hash;
+                window.history.replaceState({}, "", cleanUrl);
+            }
+        }
+
         setType(subjectType);
         updateNameCount();
+        checkNewVoice();
     </script>
 </body>
 </html>

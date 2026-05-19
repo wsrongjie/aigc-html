@@ -1769,7 +1769,23 @@
       }
 
       var seedInfo = state.seedMode === "random" ? "随机seed" : "seed=" + state.seedValue;
-      showToast("语音模型已保存（" + seedInfo + "），保存后返回声音模型管理。");
+      showToast("语音模型已保存（" + seedInfo + "），保存后返回。");
+
+      // 检查是否有 returnUrl 参数
+      var params = new URLSearchParams(window.location.search);
+      var returnUrl = params.get("returnUrl");
+      if (returnUrl) {
+        var decodedUrl = decodeURIComponent(returnUrl);
+        var voiceName = state.modelName.trim() || "新建语音";
+        var voiceMeta = state.voiceName || "";
+        var voiceLabel = voiceMeta ? (voiceName + " / " + voiceMeta) : voiceName;
+        // 将新音色名称追加到 returnUrl 上
+        var separator = decodedUrl.indexOf("?") !== -1 ? "&" : "?";
+        var finalUrl = decodedUrl + separator + "newVoice=" + encodeURIComponent(voiceLabel);
+        setTimeout(function() {
+          window.location.href = finalUrl;
+        }, 1500);
+      }
     }
 
     saveButton.addEventListener("click", saveModel);

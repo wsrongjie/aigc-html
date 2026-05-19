@@ -598,6 +598,28 @@
       background: #f8fbff;
     }
 
+    .small-text-btn {
+      height: 24px;
+      border-radius: 6px;
+      border: 1px solid #dbe2ec;
+      background: #fff;
+      color: #475569;
+      font-size: 11px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      padding: 0 6px;
+      white-space: nowrap;
+      cursor: pointer;
+    }
+
+    .small-text-btn:hover {
+      color: #2f6bff;
+      border-color: #2f6bff;
+      background: #f8fbff;
+    }
+
     .icon-btn {
       width: 28px;
       height: 28px;
@@ -1132,6 +1154,30 @@
       font-size: 14px;
       color: #374151;
       line-height: 1.6;
+    }
+
+    .notice-banner {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      background: #fff7ed;
+      border: 1px solid #fed7aa;
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin-top: 4px;
+    }
+
+    .notice-icon {
+      font-size: 18px;
+      color: #ea580c;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .notice-text {
+      font-size: 12px;
+      color: #9a3412;
+      line-height: 1.5;
     }
 
     .modal-footer {
@@ -2016,6 +2062,61 @@
     <div id="toastText" class="toast-text"></div>
   </div>
 
+  <div id="audioResynthModal" class="modal-mask">
+    <div class="modal" style="max-width: 480px;">
+      <div class="modal-header">
+        <div class="modal-title">重新合成台词音频</div>
+        <button class="icon-btn" onclick="closeAudioResynthModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <div id="audioResynthStoryTitle" style="color: #64748b; font-size: 13px; margin-bottom: 18px;"></div>
+
+        <div class="field" style="margin-bottom: 16px;">
+          <div class="field-label">
+            <span>语速</span>
+            <span id="speedValue" style="color: #4f46e5; font-weight: 700; margin-left: 8px;">1.0x</span>
+          </div>
+          <input id="audioSpeed" class="small-input" type="range" min="0.5" max="2.0" step="0.1" value="1.0" oninput="updateAudioResynthParams()" style="width: 100%; accent-color: #4f46e5;">
+          <div style="display: flex; justify-content: space-between; color: #94a3b8; font-size: 11px; margin-top: 4px;">
+            <span>0.5x（慢）</span><span>2.0x（快）</span>
+          </div>
+        </div>
+
+        <div class="field" style="margin-bottom: 16px;">
+          <div class="field-label">
+            <span>音高</span>
+            <span id="pitchValue" style="color: #4f46e5; font-weight: 700; margin-left: 8px;">0</span>
+          </div>
+          <input id="audioPitch" class="small-input" type="range" min="-12" max="12" step="1" value="0" oninput="updateAudioResynthParams()" style="width: 100%; accent-color: #4f46e5;">
+          <div style="display: flex; justify-content: space-between; color: #94a3b8; font-size: 11px; margin-top: 4px;">
+            <span>-12（低）</span><span>+12（高）</span>
+          </div>
+        </div>
+
+        <div class="field" style="margin-bottom: 16px;">
+          <div class="field-label">
+            <span>音量</span>
+            <span id="volumeValue" style="color: #4f46e5; font-weight: 700; margin-left: 8px;">100%</span>
+          </div>
+          <input id="audioVolume" class="small-input" type="range" min="0" max="200" step="10" value="100" oninput="updateAudioResynthParams()" style="width: 100%; accent-color: #4f46e5;">
+          <div style="display: flex; justify-content: space-between; color: #94a3b8; font-size: 11px; margin-top: 4px;">
+            <span>0%（静音）</span><span>200%（最大）</span>
+          </div>
+        </div>
+
+        <div class="notice-banner">
+          <div class="notice-icon">⚠</div>
+          <div class="notice-text">修改音频配置重新合成后，分镜时长可能会发生变化，请注意检查。</div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" onclick="closeAudioResynthModal()">取消</button>
+        <button class="btn btn-light-primary" onclick="resetAudioResynthParams()">恢复默认</button>
+        <button class="btn btn-primary" onclick="confirmAudioResynth()">重新合成</button>
+      </div>
+    </div>
+  </div>
+
   <div id="modalMask" class="modal-mask">
     <div class="modal">
       <div class="modal-header">
@@ -2569,7 +2670,7 @@
                           "<span>分镜台词</span>",
                           "<div class=\"line-actions\">",
                             "<button class=\"icon-btn-small\" title=\"播放当前台词语音\" onclick=\"playLineAudio(" + story.id + ")\">🔊</button>",
-                            "<button class=\"icon-btn-small\" title=\"重新生成台词\" onclick=\"regenerateLine(" + story.id + ")\">↻</button>",
+                            "<button class=\"small-text-btn\" title=\"重新生成台词音频\" onclick=\"openAudioResynthModal(" + story.id + ")\">↻</button>",
                             "<button class=\"icon-btn-small\" title=\"下载当前台词语音\" onclick=\"downloadLineAudio(" + story.id + ")\">⬇</button>",
                           "</div>",
                         "</div>",
@@ -2969,6 +3070,72 @@
 
         renderStories();
         showToast("已重新生成台词", "请检查当前分镜台词内容。");
+      };
+
+      // ===== 重新合成台词音频 =====
+      var currentResynthStoryId = null;
+
+      window.openAudioResynthModal = function(id) {
+        var story = findStory(id);
+        if (!story) return;
+
+        currentResynthStoryId = id;
+        document.getElementById("audioResynthStoryTitle").textContent = "分镜：" + story.title + " | 台词：" + story.line.substring(0, 30) + (story.line.length > 30 ? "..." : "");
+
+        // 如果有已保存的参数则使用，否则用默认值
+        var speed = story.audioSpeed !== undefined ? story.audioSpeed : 1.0;
+        var pitch = story.audioPitch !== undefined ? story.audioPitch : 0;
+        var volume = story.audioVolume !== undefined ? story.audioVolume : 100;
+
+        document.getElementById("audioSpeed").value = speed;
+        document.getElementById("audioPitch").value = pitch;
+        document.getElementById("audioVolume").value = volume;
+        updateAudioResynthParams();
+
+        document.getElementById("audioResynthModal").classList.add("show");
+      };
+
+      window.closeAudioResynthModal = function() {
+        document.getElementById("audioResynthModal").classList.remove("show");
+        currentResynthStoryId = null;
+      };
+
+      window.updateAudioResynthParams = function() {
+        var speed = parseFloat(document.getElementById("audioSpeed").value);
+        var pitch = parseInt(document.getElementById("audioPitch").value);
+        var volume = parseInt(document.getElementById("audioVolume").value);
+
+        document.getElementById("speedValue").textContent = speed.toFixed(1) + "x";
+        document.getElementById("pitchValue").textContent = pitch > 0 ? "+" + pitch : pitch;
+        document.getElementById("volumeValue").textContent = volume + "%";
+      };
+
+      window.resetAudioResynthParams = function() {
+        document.getElementById("audioSpeed").value = 1.0;
+        document.getElementById("audioPitch").value = 0;
+        document.getElementById("audioVolume").value = 100;
+        updateAudioResynthParams();
+      };
+
+      window.confirmAudioResynth = function() {
+        if (!currentResynthStoryId) return;
+        var story = findStory(currentResynthStoryId);
+        if (!story) return;
+
+        var speed = parseFloat(document.getElementById("audioSpeed").value);
+        var pitch = parseInt(document.getElementById("audioPitch").value);
+        var volume = parseInt(document.getElementById("audioVolume").value);
+
+        story.audioSpeed = speed;
+        story.audioPitch = pitch;
+        story.audioVolume = volume;
+        story.audioStatus = "dirty";
+        story.videoStatus = "dirty";
+        story.status = "dirty";
+
+        renderStories();
+        closeAudioResynthModal();
+        showToast("重新合成中", "正在根据新参数重新合成《" + story.title + "》的台词音频。");
       };
 
       window.downloadLineAudio = function(id) {

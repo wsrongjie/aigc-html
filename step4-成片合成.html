@@ -18,12 +18,17 @@
 
     button,
     input,
-    select {
+    select,
+    textarea {
       font-family: inherit;
     }
 
     button {
       cursor: pointer;
+    }
+
+    button:disabled {
+      cursor: not-allowed;
     }
 
     .page {
@@ -139,51 +144,6 @@
 
     .content-wrap {
       padding: 24px 28px;
-    }
-
-    .page-header {
-      background: #ffffff;
-      border: 1px solid #e5e7eb;
-      border-radius: 16px;
-      padding: 22px 24px;
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      margin-bottom: 18px;
-      gap: 24px;
-    }
-
-    .page-title h1 {
-      margin: 0;
-      font-size: 22px;
-      line-height: 1.3;
-      color: #111827;
-    }
-
-    .page-title p {
-      margin: 8px 0 0;
-      color: #6b7280;
-      font-size: 14px;
-      line-height: 1.6;
-      max-width: 860px;
-    }
-
-    .header-meta {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      justify-content: flex-end;
-      max-width: 460px;
-    }
-
-    .meta-chip {
-      background: #f3f6fb;
-      border: 1px solid #e5e7eb;
-      color: #475569;
-      border-radius: 999px;
-      padding: 7px 12px;
-      font-size: 13px;
-      white-space: nowrap;
     }
 
     .preview-layout {
@@ -538,6 +498,7 @@
       border-radius: 999px;
       background: rgba(255, 255, 255, 0.16);
       overflow: hidden;
+      cursor: pointer;
     }
 
     .progress-inner {
@@ -578,6 +539,47 @@
       color: #ffffff;
     }
 
+    /* ========== 播放器下方配置按钮 ========== */
+    .player-config-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 22px 14px;
+    }
+
+    .config-btn {
+      height: 32px;
+      border-radius: 8px;
+      border: 1px solid #e5e7eb;
+      background: #fff;
+      color: #475569;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 0 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .config-btn:hover {
+      border-color: #2f6bff;
+      color: #2f6bff;
+      background: #f0f5ff;
+    }
+
+    .config-btn.has-value {
+      border-color: #bfdbfe;
+      background: #eff6ff;
+      color: #1d4ed8;
+    }
+
+    .config-btn-icon {
+      font-size: 14px;
+    }
+
+    /* ========== 右侧信息面板 ========== */
     .right-panel-body {
       padding: 16px;
       max-height: calc(100vh - 238px);
@@ -833,6 +835,7 @@
       line-height: 1.5;
     }
 
+    /* ========== 通用弹窗 ========== */
     .modal-mask {
       position: fixed;
       inset: 0;
@@ -855,6 +858,10 @@
       border-radius: 18px;
       overflow: hidden;
       box-shadow: 0 24px 60px rgba(15, 23, 42, 0.25);
+    }
+
+    .modal.wide {
+      width: 780px;
     }
 
     .modal-header {
@@ -897,6 +904,533 @@
       background: #fbfdff;
     }
 
+    /* ========== 封面弹窗 ========== */
+    .cover-modal-body {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .cover-tabs {
+      display: flex;
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .cover-tab {
+      flex: 1;
+      padding: 10px 0;
+      text-align: center;
+      font-size: 13px;
+      font-weight: 700;
+      color: #64748b;
+      background: #fff;
+      border: none;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .cover-tab.active {
+      background: #2f6bff;
+      color: #fff;
+    }
+
+    .cover-tab:not(.active):hover {
+      background: #f0f5ff;
+    }
+
+    .cover-panel {
+      display: none;
+    }
+
+    .cover-panel.active {
+      display: block;
+    }
+
+    /* 视频截帧面板 */
+    .cover-frame-area {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .cover-preview-thumb {
+      width: 100%;
+      aspect-ratio: 9 / 16;
+      max-height: 320px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #1e293b, #334155);
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: rgba(255,255,255,0.5);
+      font-size: 13px;
+      border: 2px solid #2f6bff;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cover-preview-thumb .cover-frame-label {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: rgba(47,107,255,0.9);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 6px;
+    }
+
+    .cover-timeline-bar {
+      width: 100%;
+      height: 36px;
+      background: #f1f5f9;
+      border-radius: 8px;
+      position: relative;
+      cursor: pointer;
+      overflow: hidden;
+    }
+
+    .cover-timeline-track {
+      height: 100%;
+      display: flex;
+      align-items: center;
+      padding: 0 8px;
+      gap: 2px;
+    }
+
+    .cover-timeline-frame {
+      flex: 1;
+      height: 28px;
+      background: #cbd5e1;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .cover-timeline-frame:hover {
+      background: #94a3b8;
+    }
+
+    .cover-timeline-pointer {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      background: #2f6bff;
+      border-radius: 2px;
+      left: 35%;
+      transition: left 0.1s;
+      cursor: ew-resize;
+    }
+
+    .cover-timeline-pointer::before {
+      content: "";
+      position: absolute;
+      top: -4px;
+      left: -5px;
+      width: 13px;
+      height: 8px;
+      background: #2f6bff;
+      border-radius: 4px 4px 0 0;
+    }
+
+    .cover-frame-hint {
+      font-size: 12px;
+      color: #94a3b8;
+      text-align: center;
+    }
+
+    /* 上传面板 */
+    .cover-upload-area-modal {
+      border: 2px dashed #d1d5db;
+      border-radius: 12px;
+      padding: 40px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.15s;
+      background: #fafbfc;
+    }
+
+    .cover-upload-area-modal:hover {
+      border-color: #2f6bff;
+      background: #f0f5ff;
+    }
+
+    .cover-upload-icon {
+      font-size: 36px;
+      color: #94a3b8;
+      margin-bottom: 8px;
+    }
+
+    .cover-upload-text {
+      font-size: 14px;
+      color: #64748b;
+    }
+
+    .cover-upload-hint {
+      font-size: 12px;
+      color: #94a3b8;
+      margin-top: 4px;
+    }
+
+    /* ========== 水印弹窗 ========== */
+    .watermark-modal-body {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .wm-editor-layout {
+      display: grid;
+      grid-template-columns: 180px minmax(0, 1fr);
+      gap: 16px;
+      align-items: start;
+    }
+
+    .wm-list-pane {
+      background: #f9fbff;
+      border: 1px solid #eef2f7;
+      border-radius: 12px;
+      padding: 12px;
+    }
+
+    .wm-list-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .wm-list-title {
+      font-size: 13px;
+      font-weight: 800;
+      color: #111827;
+    }
+
+    .wm-list-header .btn {
+      height: 28px;
+      padding: 0 10px;
+      font-size: 12px;
+      border-radius: 8px;
+    }
+
+    .wm-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .wm-list-item {
+      padding: 10px 12px;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 12px;
+      color: #374151;
+      background: #fff;
+      transition: all 0.15s;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .wm-list-item:hover {
+      border-color: #2f6bff;
+    }
+
+    .wm-list-item.active {
+      border-color: #2f6bff;
+      background: #f0f5ff;
+      color: #2f6bff;
+      font-weight: 700;
+    }
+
+    .wm-list-item .wm-item-status {
+      font-size: 10px;
+      color: #94a3b8;
+      display: block;
+      margin-top: 2px;
+    }
+
+    .wm-empty-list {
+      text-align: center;
+      color: #94a3b8;
+      font-size: 12px;
+      padding: 20px 0;
+    }
+
+    .wm-detail-pane {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .wm-settings {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .wm-setting-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .wm-setting-label {
+      font-size: 13px;
+      font-weight: 700;
+      color: #374151;
+      min-width: 70px;
+    }
+
+    .wm-setting-input {
+      height: 34px;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      padding: 0 8px;
+      font-size: 13px;
+      color: #374151;
+      outline: none;
+      background: #fff;
+      flex: 1;
+    }
+
+    .wm-setting-input:focus {
+      border-color: #2f6bff;
+      box-shadow: 0 0 0 3px rgba(47,107,255,0.08);
+    }
+
+    textarea.wm-setting-input {
+      min-height: 50px;
+      resize: vertical;
+      padding: 8px;
+      line-height: 1.5;
+    }
+
+    .wm-setting-range {
+      flex: 1;
+      accent-color: #2f6bff;
+    }
+
+    .wm-setting-value {
+      font-size: 12px;
+      font-weight: 700;
+      color: #4f46e5;
+      min-width: 40px;
+      text-align: right;
+    }
+
+    .wm-setting-color {
+      width: 36px;
+      height: 34px;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      padding: 2px;
+      cursor: pointer;
+    }
+
+    .wm-stage-preview {
+      width: 100%;
+      aspect-ratio: 9 / 16;
+      max-height: 300px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #1e293b, #334155);
+      margin: 0 auto;
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .wm-draggable {
+      position: absolute;
+      cursor: move;
+      user-select: none;
+      padding: 4px 10px;
+      font-size: 16px;
+      color: rgba(255,255,255,0.7);
+      white-space: nowrap;
+      border: 1px dashed rgba(255,255,255,0.3);
+      border-radius: 4px;
+      transition: border-color 0.15s;
+    }
+
+    .wm-draggable:hover,
+    .wm-draggable.dragging,
+    .wm-draggable.active {
+      border-color: #2f6bff;
+      background: rgba(47,107,255,0.1);
+    }
+
+    .wm-stage-hint {
+      font-size: 12px;
+      color: #94a3b8;
+      text-align: center;
+    }
+
+    /* ========== BGM弹窗 ========== */
+    .bgm-modal-body {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .bgm-source-tabs {
+      display: flex;
+      gap: 0;
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .bgm-source-option {
+      flex: 1;
+      padding: 10px 0;
+      font-size: 13px;
+      font-weight: 700;
+      color: #64748b;
+      text-align: center;
+      cursor: pointer;
+      border: none;
+      background: #fff;
+      transition: all 0.15s;
+    }
+
+    .bgm-source-option.active {
+      color: #2f6bff;
+      background: #f0f5ff;
+    }
+
+    .bgm-source-panel {
+      display: none;
+    }
+
+    .bgm-source-panel.active {
+      display: block;
+    }
+
+    .bgm-source-panel select {
+      width: 100%;
+      height: 38px;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      padding: 0 10px;
+      font-size: 13px;
+      color: #374151;
+      outline: none;
+      background: #fff;
+    }
+
+    .bgm-upload-card-modal {
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      padding: 14px;
+    }
+
+    .bgm-file-summary-modal {
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 0;
+    }
+
+    .bgm-file-summary-modal.show {
+      display: flex;
+    }
+
+    .bgm-file-name {
+      font-size: 13px;
+      font-weight: 700;
+      color: #111827;
+    }
+
+    .bgm-file-meta {
+      font-size: 12px;
+      color: #64748b;
+    }
+
+    .bgm-audio {
+      width: 100%;
+      height: 36px;
+      margin-top: 8px;
+    }
+
+    .bgm-volume-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 14px;
+      background: #f9fbff;
+      border-radius: 10px;
+      border: 1px solid #eef2f7;
+    }
+
+    .bgm-volume-label {
+      font-size: 13px;
+      font-weight: 700;
+      color: #374151;
+      min-width: 70px;
+    }
+
+    .bgm-volume-slider {
+      flex: 1;
+      accent-color: #2f6bff;
+    }
+
+    .bgm-volume-value {
+      font-size: 12px;
+      font-weight: 700;
+      color: #4f46e5;
+      min-width: 40px;
+      text-align: right;
+    }
+
+    .bgm-play-row {
+      display: flex;
+      justify-content: center;
+    }
+
+    .bgm-play-btn-modal {
+      height: 38px;
+      border-radius: 10px;
+      border: 1px solid #cfe0ff;
+      background: #eef4ff;
+      color: #2f6bff;
+      font-size: 13px;
+      font-weight: 700;
+      padding: 0 20px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .bgm-play-btn-modal:hover {
+      background: #dbe9ff;
+    }
+
+    .toggle-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      background: #f9fbff;
+      border-radius: 10px;
+      border: 1px solid #eef2f7;
+    }
+
+    .toggle-wrap input[type="checkbox"] {
+      accent-color: #2f6bff;
+    }
+
+    .toggle-wrap .field-label {
+      font-size: 13px;
+      color: #64748b;
+    }
+
+    /* Export modal */
     .export-form {
       display: grid;
       gap: 14px;
@@ -1052,14 +1586,12 @@
       </div>
 
       <div class="top-actions">
-        <span class="guide-link">操作指引</span>
-        <span>成片已合成</span>
+        
         <div class="avatar">顾</div>
       </div>
     </header>
 
     <main class="content-wrap">
-
       <section class="preview-layout">
         <aside class="left-panel">
           <div class="panel-header">
@@ -1068,7 +1600,6 @@
               <div class="panel-sub">全片与分镜片段</div>
             </div>
           </div>
-
           <div class="video-nav" id="videoNav"></div>
         </aside>
 
@@ -1088,7 +1619,6 @@
                   <div class="current-title" id="currentTitle">完整成片</div>
                   <div class="current-sub" id="currentSub">稳健理财产品介绍 · 全片预览</div>
                 </div>
-
                 <div class="player-status">
                   <span class="status-dot"></span>
                   <span id="currentStatus">可预览</span>
@@ -1113,14 +1643,12 @@
                   </div>
                   <div class="time" id="endTime">00:51</div>
                 </div>
-
                 <div class="control-row">
                   <div class="control-left">
                     <button class="control-btn active" onclick="togglePlay()">播放 / 暂停</button>
                     <button class="control-btn active" onclick="toggleSubtitle(this)">字幕开启</button>
                     <button class="control-btn" onclick="showToast('音量调节', '这里可接入实际播放器的音量控制。')">音量</button>
                   </div>
-
                   <div class="control-right">
                     <button class="control-btn" onclick="showToast('全屏预览', '这里可接入实际播放器的全屏能力。')">全屏</button>
                     <button class="control-btn" onclick="showToast('画质设置', '当前预览画质为 1080P。')">1080P</button>
@@ -1128,6 +1656,19 @@
                 </div>
               </div>
             </div>
+          </div>
+
+          <!-- 播放器下方：三个小按钮 -->
+          <div class="player-config-bar">
+            <button class="config-btn" id="btnCover" onclick="openCoverModal()">
+              <span class="config-btn-icon">🖼</span> 封面配置
+            </button>
+            <button class="config-btn" id="btnWatermark" onclick="openWatermarkModal()">
+              <span class="config-btn-icon">💧</span> 水印配置
+            </button>
+            <button class="config-btn" id="btnBGM" onclick="openBGMModal()">
+              <span class="config-btn-icon">🎵</span> BGM 配置
+            </button>
           </div>
         </section>
 
@@ -1138,31 +1679,25 @@
               <div class="panel-sub">成片与导出信息</div>
             </div>
           </div>
-
           <div class="right-panel-body">
             <div class="info-card">
               <div class="info-title">成片信息</div>
-
               <div class="info-row">
                 <div class="info-label">标题</div>
                 <div class="info-value">稳健理财产品介绍</div>
               </div>
-
               <div class="info-row">
                 <div class="info-label">脚本描述</div>
                 <div class="info-value">面向普通投资者的稳健理财配置科普短视频</div>
               </div>
-
               <div class="info-row">
                 <div class="info-label">作品风格</div>
                 <div class="info-value">专业口播 / 稳重可信</div>
               </div>
-
               <div class="info-row">
                 <div class="info-label">视频比例</div>
                 <div class="info-value">9:16 竖版</div>
               </div>
-
               <div class="info-row">
                 <div class="info-label">总时长</div>
                 <div class="info-value">51 秒</div>
@@ -1171,7 +1706,6 @@
 
             <div class="info-card">
               <div class="info-title">主体资产</div>
-
               <div class="asset-mini">
                 <div class="asset-thumb">人</div>
                 <div class="asset-info">
@@ -1179,7 +1713,6 @@
                   <div class="asset-desc">角色主体，已应用到全部分镜</div>
                 </div>
               </div>
-
               <div class="asset-mini">
                 <div class="asset-thumb scene">景</div>
                 <div class="asset-info">
@@ -1187,7 +1720,6 @@
                   <div class="asset-desc">默认场景，部分分镜使用近景和中景视角</div>
                 </div>
               </div>
-
               <div class="info-row">
                 <div class="info-label">音色</div>
                 <div class="info-value">成熟稳重男声</div>
@@ -1196,27 +1728,22 @@
 
             <div class="info-card">
               <div class="info-title">生成结果</div>
-
               <div class="info-row">
                 <div class="info-label">合成状态</div>
                 <div class="info-value"><span class="tag tag-green">已完成</span></div>
               </div>
-
               <div class="info-row">
                 <div class="info-label">分镜数量</div>
                 <div class="info-value">4 个</div>
               </div>
-
               <div class="info-row">
                 <div class="info-label">音频状态</div>
                 <div class="info-value"><span class="tag tag-green">全部完成</span></div>
               </div>
-
               <div class="info-row">
                 <div class="info-label">视频状态</div>
                 <div class="info-value"><span class="tag tag-green">全部完成</span></div>
               </div>
-
               <div class="info-row">
                 <div class="info-label">合成时间</div>
                 <div class="info-value">2026-05-08 10:49</div>
@@ -1225,27 +1752,22 @@
 
             <div class="info-card">
               <div class="info-title">导出设置</div>
-
               <div class="info-row">
                 <div class="info-label">导出内容</div>
                 <div class="info-value">完整成片</div>
               </div>
-
               <div class="info-row">
                 <div class="info-label">文件格式</div>
                 <div class="info-value">MP4</div>
               </div>
-
               <div class="info-row">
                 <div class="info-label">导出清晰度</div>
                 <div class="info-value">1080P</div>
               </div>
-
               <div class="info-row">
                 <div class="info-label">字幕</div>
                 <div class="info-value">默认包含字幕</div>
               </div>
-
               <div class="info-row">
                 <div class="info-label">预计大小</div>
                 <div class="info-value">约 48 MB</div>
@@ -1261,9 +1783,7 @@
     <div class="bottom-left">
       <button class="btn" onclick="goBackStep3()">上一步</button>
     </div>
-
     <div class="bottom-right">
-      <button class="btn btn-light-primary" onclick="selectVideo('full')">预览全片</button>
       <button class="btn btn-primary export-btn" onclick="openExportModal()">导出视频</button>
     </div>
   </footer>
@@ -1273,104 +1793,267 @@
     <div id="toastText" class="toast-text">操作已完成</div>
   </div>
 
-  <div id="modalMask" class="modal-mask">
+  <!-- ========== 封面配置弹窗 ========== -->
+  <div id="coverModal" class="modal-mask">
     <div class="modal">
       <div class="modal-header">
-        <div id="modalTitle" class="modal-title">导出视频</div>
-        <button class="icon-btn" onclick="closeModal()">×</button>
+        <div class="modal-title">封面配置</div>
+        <button class="icon-btn" onclick="closeCoverModal()">×</button>
       </div>
+      <div class="modal-body">
+        <div class="cover-modal-body">
+          <div class="cover-tabs">
+            <button class="cover-tab active" onclick="switchCoverTab('frame', this)">视频截帧</button>
+            <button class="cover-tab" onclick="switchCoverTab('upload', this)">本地上传</button>
+          </div>
 
-      <div class="modal-body" id="modalBody"></div>
+          <!-- 视频截帧面板 -->
+          <div class="cover-panel active" id="coverFramePanel">
+            <div class="cover-frame-area">
+              <div class="cover-preview-thumb" id="coverPreviewThumb">
+                <span class="cover-frame-label">当前封面</span>
+                <span>视频预览帧</span>
+              </div>
+              <div class="cover-timeline-bar" id="coverTimeline" onclick="moveCoverPointer(event)" onmousedown="startCoverDrag(event)">
+                <div class="cover-timeline-track">
+                  <!-- 模拟缩略帧 -->
+                  <div class="cover-timeline-frame"></div>
+                  <div class="cover-timeline-frame"></div>
+                  <div class="cover-timeline-frame"></div>
+                  <div class="cover-timeline-frame"></div>
+                  <div class="cover-timeline-frame"></div>
+                  <div class="cover-timeline-frame"></div>
+                  <div class="cover-timeline-frame"></div>
+                  <div class="cover-timeline-frame"></div>
+                  <div class="cover-timeline-frame"></div>
+                  <div class="cover-timeline-frame"></div>
+                  <div class="cover-timeline-frame"></div>
+                  <div class="cover-timeline-frame"></div>
+                </div>
+                <div class="cover-timeline-pointer" id="coverPointer"></div>
+              </div>
+              <div class="cover-frame-hint">拖拽指针或点击时间轴选择当前帧作为封面</div>
+            </div>
+          </div>
 
+          <!-- 本地上传面板 -->
+          <div class="cover-panel" id="coverUploadPanel">
+            <div class="cover-upload-area-modal" onclick="showToast('上传封面', '此处可接入文件上传能力，支持 JPG/PNG 格式，建议尺寸 1080x1920。')">
+              <div class="cover-upload-icon">📁</div>
+              <div class="cover-upload-text">点击上传封面图片</div>
+              <div class="cover-upload-hint">支持 JPG / PNG，建议尺寸 1080x1920，文件大小不超过 5MB</div>
+            </div>
+          </div>
+        </div>
+      </div>
       <div class="modal-footer">
-        <button class="btn" onclick="closeModal()">取消</button>
-        <button class="btn btn-primary" id="modalConfirmBtn" onclick="confirmModal()">确认</button>
+        <button class="btn" onclick="closeCoverModal()">取消</button>
+        <button class="btn btn-primary" onclick="confirmCover()">确认</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== 水印配置弹窗 ========== -->
+  <div id="watermarkModal" class="modal-mask">
+    <div class="modal wide">
+      <div class="modal-header">
+        <div class="modal-title">水印配置</div>
+        <button class="icon-btn" onclick="closeWatermarkModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="watermark-modal-body">
+          <div class="toggle-wrap">
+            <input type="checkbox" id="wmEnabled" onchange="toggleWmPreview()" />
+            <span class="field-label">添加文字水印</span>
+          </div>
+
+          <div id="wmSettingsPanel" style="display:none;">
+            <div class="wm-editor-layout">
+              <!-- 左侧：水印列表 -->
+              <div class="wm-list-pane">
+                <div class="wm-list-header">
+                  <span class="wm-list-title">水印列表</span>
+                  <button class="btn btn-light-primary" type="button" onclick="addWatermark()">+ 添加</button>
+                </div>
+                <div class="wm-list" id="wmList"></div>
+              </div>
+
+              <!-- 右侧：编辑 + 预览 -->
+              <div class="wm-detail-pane">
+                <div id="wmEditorSection" style="display:none;">
+                  <div class="wm-settings">
+                    <div class="wm-setting-row">
+                      <span class="wm-setting-label">水印文字</span>
+                      <textarea class="wm-setting-input" placeholder="请输入水印文字" maxlength="100" id="wmTextInput" oninput="syncActiveWm()"></textarea>
+                    </div>
+                    <div class="wm-setting-row">
+                      <span class="wm-setting-label">字体大小</span>
+                      <input class="wm-setting-range" type="range" id="wmSizeRange" min="10" max="48" value="24" oninput="syncActiveWm()" />
+                      <span class="wm-setting-value" id="wmSizeVal">24px</span>
+                    </div>
+                    <div class="wm-setting-row">
+                      <span class="wm-setting-label">透明度</span>
+                      <input class="wm-setting-range" type="range" id="wmOpacityRange" min="5" max="100" value="30" oninput="syncActiveWm()" />
+                      <span class="wm-setting-value" id="wmOpacityVal">30%</span>
+                    </div>
+                    <div class="wm-setting-row">
+                      <span class="wm-setting-label">文字颜色</span>
+                      <input class="wm-setting-color" type="color" id="wmColorPicker" value="#ffffff" oninput="syncActiveWm()" />
+                      <span class="wm-setting-value" id="wmColorVal">#ffffff</span>
+                    </div>
+                    <div class="wm-setting-row">
+                      <span class="wm-setting-label"></span>
+                      <button class="btn" type="button" onclick="deleteWatermark()" style="height:32px;padding:0 14px;font-size:12px;border-radius:8px;color:#ef4444;border-color:#fecaca;">删除水印</button>
+                    </div>
+                  </div>
+                </div>
+                <div id="wmEditorEmpty" class="wm-empty-list">请先添加水印</div>
+
+                <div style="margin-top: 0;">
+                  <div class="wm-stage-preview" id="wmStage">
+                    <div style="position:absolute;left:50%;top:38%;transform:translate(-50%,-50%);width:80px;height:160px;border-radius:40px 40px 14px 14px;background:linear-gradient(180deg,#f8fafc 0 23%,#111827 23% 100%);"></div>
+                  </div>
+                  <div class="wm-stage-hint">拖拽水印到任意位置</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" onclick="closeWatermarkModal()">取消</button>
+        <button class="btn btn-primary" onclick="confirmWatermark()">确认</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== BGM 配置弹窗 ========== -->
+  <div id="bgmModal" class="modal-mask">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">BGM 配置</div>
+        <button class="icon-btn" onclick="closeBGMModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="bgm-modal-body">
+          <div class="toggle-wrap">
+            <input type="checkbox" id="bgmEnabled" onchange="toggleBgmPanel()" />
+            <span class="field-label">添加背景音乐</span>
+          </div>
+
+          <div id="bgmConfigPanel" style="display:none;">
+            <div class="bgm-source-tabs">
+              <button class="bgm-source-option active" onclick="switchBgmTab('library', this)">素材库</button>
+              <button class="bgm-source-option" onclick="switchBgmTab('upload', this)">本地上传</button>
+            </div>
+
+            <div class="bgm-source-panel active" id="bgmLibraryPanel">
+              <select id="bgmSelect">
+                <option value="">选择 BGM</option>
+                <option value="bgm-1">轻快财经背景音</option>
+                <option value="bgm-2">沉稳科技感音乐</option>
+                <option value="bgm-3">舒缓纯音乐</option>
+              </select>
+            </div>
+
+            <div class="bgm-source-panel" id="bgmUploadPanel">
+              <div class="bgm-upload-card-modal">
+                <input type="file" id="bgmFileInput" accept="audio/*" onchange="onBgmFileChange()" style="font-size:13px;" />
+                <div class="bgm-file-summary-modal" id="bgmFileSummary">
+                  <div>
+                    <div class="bgm-file-name" id="bgmFileName"></div>
+                    <div class="bgm-file-meta" id="bgmFileMeta"></div>
+                  </div>
+                  <button class="btn" type="button" onclick="removeBgmFile()" style="height:30px;padding:0 10px;font-size:12px;border-radius:6px;">移除</button>
+                </div>
+                <audio class="bgm-audio" id="bgmAudio" controls></audio>
+              </div>
+            </div>
+
+            <div class="bgm-volume-row">
+              <span class="bgm-volume-label">BGM 音量</span>
+              <input class="bgm-volume-slider" type="range" id="bgmVolumeSlider" min="0" max="100" value="45" oninput="updateBgmVolume()" />
+              <span class="bgm-volume-value" id="bgmVolumeVal">45%</span>
+            </div>
+
+            <div class="bgm-play-row">
+              <button class="bgm-play-btn-modal" id="bgmPlayBtn" onclick="toggleBgmPlay()">播放 BGM</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" onclick="closeBGMModal()">取消</button>
+        <button class="btn btn-primary" onclick="confirmBGM()">确认</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== 导出弹窗 ========== -->
+  <div id="exportModal" class="modal-mask">
+    <div class="modal">
+      <div class="modal-header">
+        <div id="exportModalTitle" class="modal-title">导出完整成片</div>
+        <button class="icon-btn" onclick="closeExportModal()">×</button>
+      </div>
+      <div class="modal-body" id="exportModalBody">
+        <div class="export-form">
+          <div class="form-row">
+            <div class="form-label">导出内容</div>
+            <input class="form-control" value="完整成片" disabled />
+          </div>
+          <div class="form-row">
+            <div class="form-label">文件格式</div>
+            <select class="form-control"><option>MP4</option></select>
+          </div>
+          <div class="form-row">
+            <div class="form-label">视频清晰度</div>
+            <select class="form-control"><option>1080P</option><option>720P</option></select>
+          </div>
+          <div class="form-row">
+            <div class="form-label">字幕</div>
+            <select class="form-control"><option>包含字幕</option><option>不包含字幕</option></select>
+          </div>
+          <div class="form-row">
+            <div class="form-label">预计大小</div>
+            <input class="form-control" value="约 48 MB" disabled />
+          </div>
+          <div class="export-progress" id="exportProgress">
+            <div class="export-progress-inner" id="exportProgressInner"></div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" onclick="closeExportModal()">取消</button>
+        <button class="btn btn-primary" id="exportConfirmBtn" onclick="startExport()">开始导出</button>
       </div>
     </div>
   </div>
 
   <script>
+    // ===== 基础数据 =====
     var videos = [
-      {
-        id: "full",
-        type: "full",
-        title: "完整成片",
-        desc: "稳健理财产品介绍 · 全片预览",
-        duration: "00:51",
-        badge: "全片",
-        subtitle: "大家好，今天我们用一分钟聊聊，在市场波动的时候，普通投资者应该如何看待稳健理财配置。",
-        thumbClass: "medium",
-        progress: 36
-      },
-      {
-        id: "s1",
-        type: "story",
-        title: "分镜 1",
-        desc: "开场建立信任 · 11 秒",
-        duration: "00:11",
-        badge: "分镜",
-        subtitle: "大家好，今天我们用一分钟聊聊，在市场波动的时候，普通投资者应该如何看待稳健理财配置。",
-        thumbClass: "medium",
-        progress: 42
-      },
-      {
-        id: "s2",
-        type: "story",
-        title: "分镜 2",
-        desc: "提出用户痛点 · 15 秒",
-        duration: "00:15",
-        badge: "分镜",
-        subtitle: "很多人一看到净值短期波动，就会担心是不是产品出了问题。其实，短期波动并不等于长期风险失控。",
-        thumbClass: "closeup",
-        progress: 28
-      },
-      {
-        id: "s3",
-        type: "story",
-        title: "分镜 3",
-        desc: "解释稳健配置逻辑 · 13 秒",
-        duration: "00:13",
-        badge: "分镜",
-        subtitle: "更重要的是看产品底层资产、投资期限和风险等级是否与你的资金需求匹配。",
-        thumbClass: "wide",
-        progress: 52
-      },
-      {
-        id: "s4",
-        type: "story",
-        title: "分镜 4",
-        desc: "给出行动建议 · 12 秒",
-        duration: "00:12",
-        badge: "分镜",
-        subtitle: "所以，投资前先明确期限、风险承受能力和收益预期，比单纯追求短期收益更重要。",
-        thumbClass: "medium",
-        progress: 47
-      }
+      { id: "full", type: "full", title: "完整成片", desc: "稳健理财产品介绍 · 全片预览", duration: "00:51", badge: "全片", subtitle: "大家好，今天我们用一分钟聊聊，在市场波动的时候，普通投资者应该如何看待稳健理财配置。", thumbClass: "medium", progress: 36 },
+      { id: "s1", type: "story", title: "分镜 1", desc: "开场建立信任 · 11 秒", duration: "00:11", badge: "分镜", subtitle: "大家好，今天我们用一分钟聊聊，在市场波动的时候，普通投资者应该如何看待稳健理财配置。", thumbClass: "medium", progress: 42 },
+      { id: "s2", type: "story", title: "分镜 2", desc: "提出用户痛点 · 15 秒", duration: "00:15", badge: "分镜", subtitle: "很多人一看到净值短期波动，就会担心是不是产品出了问题。其实，短期波动并不等于长期风险失控。", thumbClass: "closeup", progress: 28 },
+      { id: "s3", type: "story", title: "分镜 3", desc: "解释稳健配置逻辑 · 13 秒", duration: "00:13", badge: "分镜", subtitle: "更重要的是看产品底层资产、投资期限和风险等级是否与你的资金需求匹配。", thumbClass: "wide", progress: 52 },
+      { id: "s4", type: "story", title: "分镜 4", desc: "给出行动建议 · 12 秒", duration: "00:12", badge: "分镜", subtitle: "所以，投资前先明确期限、风险承受能力和收益预期，比单纯追求短期收益更重要。", thumbClass: "medium", progress: 47 }
     ];
 
     var currentVideoId = "full";
-    var modalAction = null;
     var subtitleVisible = true;
     var exportTimer = null;
 
     function renderVideoNav() {
       var nav = document.getElementById("videoNav");
       nav.innerHTML = "";
-
-      var full = videos.find(function(item) {
-        return item.id === "full";
-      });
-
+      var full = videos.find(function(item) { return item.id === "full"; });
       nav.appendChild(createVideoItem(full));
-
       var section = document.createElement("div");
       section.className = "nav-section-title";
       section.innerText = "分镜";
       nav.appendChild(section);
-
-      videos.filter(function(item) {
-        return item.type === "story";
-      }).forEach(function(item) {
+      videos.filter(function(item) { return item.type === "story"; }).forEach(function(item) {
         nav.appendChild(createVideoItem(item));
       });
     }
@@ -1378,10 +2061,7 @@
     function createVideoItem(item) {
       var wrapper = document.createElement("div");
       wrapper.className = "video-item" + (item.id === currentVideoId ? " active" : "");
-      wrapper.onclick = function() {
-        selectVideo(item.id);
-      };
-
+      wrapper.onclick = function() { selectVideo(item.id); };
       wrapper.innerHTML =
         '<div class="thumb ' + item.thumbClass + '">' +
           '<div class="thumb-badge">' + item.badge + '</div>' +
@@ -1392,46 +2072,30 @@
           '<div class="video-item-title">' + item.title + '</div>' +
           '<div class="video-item-desc">' + item.desc + '</div>' +
         '</div>';
-
       return wrapper;
     }
 
     function selectVideo(id) {
-      var item = videos.find(function(video) {
-        return video.id === id;
-      });
-
+      var item = videos.find(function(v) { return v.id === id; });
       if (!item) return;
-
       currentVideoId = id;
-
       document.getElementById("currentTitle").innerText = item.title;
       document.getElementById("currentSub").innerText = item.desc;
       document.getElementById("subtitleText").innerText = item.subtitle;
       document.getElementById("endTime").innerText = item.duration;
       document.getElementById("progressInner").style.width = item.progress + "%";
-
-      if (item.type === "full") {
-        document.getElementById("currentStatus").innerText = "全片可预览";
-      } else {
-        document.getElementById("currentStatus").innerText = "分镜片段可预览";
-      }
-
+      document.getElementById("currentStatus").innerText = item.type === "full" ? "全片可预览" : "分镜片段可预览";
       renderVideoNav();
       showToast("已切换预览", "当前正在预览：" + item.title + "。");
     }
 
     function togglePlay() {
-      var item = videos.find(function(video) {
-        return video.id === currentVideoId;
-      });
-
+      var item = videos.find(function(v) { return v.id === currentVideoId; });
       showToast("播放控制", "正在播放或暂停：" + item.title + "。此处为 HTML 原型，可接入实际视频播放器。");
     }
 
     function toggleSubtitle(button) {
       subtitleVisible = !subtitleVisible;
-
       var subtitle = document.getElementById("subtitleText");
       if (subtitleVisible) {
         subtitle.style.display = "block";
@@ -1445,131 +2109,7 @@
     }
 
     function goBackStep3() {
-      showModal(
-        "返回分镜管理",
-        "点击确认后将返回 Step3「分镜管理」。当前成片预览结果会保留，后续如修改分镜内容，需要在 Step3 重新完成合成后再进入本页。",
-        "back"
-      );
-    }
-
-    function goEdit() {
-      showModal(
-        "再次编辑",
-        "将返回 Step3「分镜管理」继续编辑分镜、音频或视频片段。当前已合成成片不会被立即删除，但修改后需要重新合成才能更新预览结果。",
-        "edit"
-      );
-    }
-
-    function openExportModal() {
-      modalAction = "export";
-
-      document.getElementById("modalTitle").innerText = "导出完整成片";
-      document.getElementById("modalBody").innerHTML =
-        '<div class="export-form">' +
-          '<div class="form-row">' +
-            '<div class="form-label">导出内容</div>' +
-            '<input class="form-control" value="完整成片" disabled />' +
-          '</div>' +
-          '<div class="form-row">' +
-            '<div class="form-label">文件格式</div>' +
-            '<select class="form-control">' +
-              '<option>MP4</option>' +
-            '</select>' +
-          '</div>' +
-          '<div class="form-row">' +
-            '<div class="form-label">视频清晰度</div>' +
-            '<select class="form-control">' +
-              '<option>1080P</option>' +
-              '<option>720P</option>' +
-            '</select>' +
-          '</div>' +
-          '<div class="form-row">' +
-            '<div class="form-label">字幕</div>' +
-            '<select class="form-control">' +
-              '<option>包含字幕</option>' +
-              '<option>不包含字幕</option>' +
-            '</select>' +
-          '</div>' +
-          '<div class="form-row">' +
-            '<div class="form-label">预计大小</div>' +
-            '<input class="form-control" value="约 48 MB" disabled />' +
-          '</div>' +
-          '<div class="export-progress" id="exportProgress">' +
-            '<div class="export-progress-inner" id="exportProgressInner"></div>' +
-          '</div>' +
-        '</div>';
-
-      document.getElementById("modalConfirmBtn").innerText = "开始导出";
-      document.getElementById("modalMask").classList.add("show");
-    }
-
-    function confirmModal() {
-      if (modalAction === "export") {
-        startExport();
-        return;
-      }
-
-      if (modalAction === "back") {
-        closeModal();
-        showToast("返回 Step3", "这里可接入路由跳转，返回 Step3「分镜管理」。");
-        return;
-      }
-
-      if (modalAction === "edit") {
-        closeModal();
-        showToast("进入再次编辑", "这里可接入路由跳转，返回 Step3 继续编辑。");
-        return;
-      }
-
-      closeModal();
-    }
-
-    function startExport() {
-      var progress = document.getElementById("exportProgress");
-      var progressInner = document.getElementById("exportProgressInner");
-      var confirmBtn = document.getElementById("modalConfirmBtn");
-
-      progress.classList.add("show");
-      progressInner.style.width = "0%";
-      confirmBtn.innerText = "导出中...";
-      confirmBtn.classList.add("btn-disabled");
-      confirmBtn.disabled = true;
-
-      var value = 0;
-      clearInterval(exportTimer);
-
-      exportTimer = setInterval(function() {
-        value += 20;
-        progressInner.style.width = value + "%";
-
-        if (value >= 100) {
-          clearInterval(exportTimer);
-          confirmBtn.innerText = "导出完成";
-          setTimeout(function() {
-            closeModal();
-            showToast("导出完成", "完整成片已导出为 MP4 文件。此处为 HTML 原型，可接入实际下载能力。");
-          }, 600);
-        }
-      }, 380);
-    }
-
-    function showModal(title, body, action) {
-      modalAction = action || null;
-      document.getElementById("modalTitle").innerText = title;
-      document.getElementById("modalBody").innerHTML = body;
-      document.getElementById("modalConfirmBtn").innerText = "确认";
-      document.getElementById("modalConfirmBtn").disabled = false;
-      document.getElementById("modalConfirmBtn").classList.remove("btn-disabled");
-      document.getElementById("modalMask").classList.add("show");
-    }
-
-    function closeModal() {
-      document.getElementById("modalMask").classList.remove("show");
-      document.getElementById("modalConfirmBtn").disabled = false;
-      document.getElementById("modalConfirmBtn").classList.remove("btn-disabled");
-      document.getElementById("modalConfirmBtn").innerText = "确认";
-      modalAction = null;
-      clearInterval(exportTimer);
+      showToast("返回 Step3", "这里可接入路由跳转，返回 Step3「分镜管理」。");
     }
 
     function showToast(title, text) {
@@ -1577,13 +2117,345 @@
       document.getElementById("toastTitle").innerText = title;
       document.getElementById("toastText").innerText = text;
       toast.classList.add("show");
-
       clearTimeout(window.toastTimer);
-      window.toastTimer = setTimeout(function() {
-        toast.classList.remove("show");
-      }, 2600);
+      window.toastTimer = setTimeout(function() { toast.classList.remove("show"); }, 2600);
     }
 
+    // ===== 封面配置 =====
+    var coverDragging = false;
+
+    function openCoverModal() {
+      document.getElementById("coverModal").classList.add("show");
+    }
+
+    function closeCoverModal() {
+      document.getElementById("coverModal").classList.remove("show");
+    }
+
+    function switchCoverTab(tab, btn) {
+      document.querySelectorAll(".cover-tab").forEach(function(t) { t.classList.remove("active"); });
+      btn.classList.add("active");
+      document.getElementById("coverFramePanel").classList.toggle("active", tab === "frame");
+      document.getElementById("coverUploadPanel").classList.toggle("active", tab === "upload");
+    }
+
+    function moveCoverPointer(e) {
+      if (coverDragging) return;
+      var bar = document.getElementById("coverTimeline");
+      var rect = bar.getBoundingClientRect();
+      var pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+      document.getElementById("coverPointer").style.left = (pct * 100) + "%";
+    }
+
+    function startCoverDrag(e) {
+      coverDragging = true;
+      moveCoverPointer(e);
+      document.addEventListener("mousemove", moveCoverPointer);
+      document.addEventListener("mouseup", function() {
+        coverDragging = false;
+        document.removeEventListener("mousemove", moveCoverPointer);
+      });
+    }
+
+    function confirmCover() {
+      closeCoverModal();
+      var btn = document.getElementById("btnCover");
+      btn.classList.add("has-value");
+      showToast("封面已设置", "封面配置已保存。");
+    }
+
+    // ===== 水印配置 =====
+    var wmDragging = false;
+    var watermarks = [];
+    var activeWmIndex = -1;
+
+    function openWatermarkModal() {
+      document.getElementById("watermarkModal").classList.add("show");
+      if (watermarks.length === 0) {
+        renderWmList();
+      }
+    }
+
+    function closeWatermarkModal() {
+      document.getElementById("watermarkModal").classList.remove("show");
+    }
+
+    function toggleWmPreview() {
+      var enabled = document.getElementById("wmEnabled").checked;
+      document.getElementById("wmSettingsPanel").style.display = enabled ? "block" : "none";
+      if (enabled && watermarks.length === 0) {
+        addWatermark();
+      }
+    }
+
+    function renderWmList() {
+      var list = document.getElementById("wmList");
+      if (watermarks.length === 0) {
+        list.innerHTML = '<div class="wm-empty-list">暂无水印</div>';
+        return;
+      }
+      list.innerHTML = "";
+      watermarks.forEach(function(wm, i) {
+        var div = document.createElement("div");
+        div.className = "wm-list-item" + (i === activeWmIndex ? " active" : "");
+        var statusText = wm.visible ? "已显示" : "已隐藏";
+        div.innerHTML = '<span>' + (wm.text || "水印 " + (i + 1)) + '</span><span class="wm-item-status">' + statusText + '</span>';
+        div.onclick = function() { selectWatermark(i); };
+        list.appendChild(div);
+      });
+    }
+
+    function addWatermark() {
+      watermarks.push({
+        text: "水印 " + (watermarks.length + 1),
+        size: 24,
+        opacity: 30,
+        color: "#ffffff",
+        x: 50,
+        y: 85,
+        visible: true
+      });
+      activeWmIndex = watermarks.length - 1;
+      renderWmList();
+      selectWatermark(activeWmIndex);
+    }
+
+    function selectWatermark(index) {
+      activeWmIndex = index;
+      var wm = watermarks[index];
+
+      document.getElementById("wmEditorEmpty").style.display = "none";
+      document.getElementById("wmEditorSection").style.display = "block";
+
+      document.getElementById("wmTextInput").value = wm.text;
+      document.getElementById("wmSizeRange").value = wm.size;
+      document.getElementById("wmOpacityRange").value = wm.opacity;
+      document.getElementById("wmColorPicker").value = wm.color;
+
+      document.getElementById("wmSizeVal").innerText = wm.size + "px";
+      document.getElementById("wmOpacityVal").innerText = wm.opacity + "%";
+      document.getElementById("wmColorVal").innerText = wm.color;
+
+      renderWmList();
+      renderWmStage();
+    }
+
+    function syncActiveWm() {
+      if (activeWmIndex < 0) return;
+      var wm = watermarks[activeWmIndex];
+      wm.text = document.getElementById("wmTextInput").value;
+      wm.size = parseInt(document.getElementById("wmSizeRange").value);
+      wm.opacity = parseInt(document.getElementById("wmOpacityRange").value);
+      wm.color = document.getElementById("wmColorPicker").value;
+
+      document.getElementById("wmSizeVal").innerText = wm.size + "px";
+      document.getElementById("wmOpacityVal").innerText = wm.opacity + "%";
+      document.getElementById("wmColorVal").innerText = wm.color;
+
+      renderWmList();
+      renderWmStage();
+    }
+
+    function renderWmStage() {
+      var stage = document.getElementById("wmStage");
+      stage.querySelectorAll(".wm-draggable").forEach(function(el) { el.remove(); });
+
+      watermarks.forEach(function(wm, i) {
+        if (!wm.visible) return;
+        var div = document.createElement("div");
+        div.className = "wm-draggable" + (i === activeWmIndex ? " active" : "");
+        div.setAttribute("data-index", i);
+        div.style.left = wm.x + "%";
+        div.style.top = wm.y + "%";
+        div.style.transform = "translate(-50%, -50%)";
+        div.style.fontSize = wm.size + "px";
+        div.style.color = hexToRgba(wm.color, wm.opacity / 100);
+        div.innerText = wm.text;
+        div.onmousedown = function(e) { startWmDrag(e, i); };
+        div.onclick = function(e) { e.stopPropagation(); selectWatermark(i); };
+        stage.appendChild(div);
+      });
+    }
+
+    function deleteWatermark() {
+      if (activeWmIndex < 0) return;
+      watermarks.splice(activeWmIndex, 1);
+      if (watermarks.length > 0) {
+        activeWmIndex = Math.min(activeWmIndex, watermarks.length - 1);
+        selectWatermark(activeWmIndex);
+      } else {
+        activeWmIndex = -1;
+        document.getElementById("wmEditorEmpty").style.display = "block";
+        document.getElementById("wmEditorSection").style.display = "none";
+        renderWmList();
+        renderWmStage();
+      }
+    }
+
+    function startWmDrag(e, index) {
+      e.preventDefault();
+      e.stopPropagation();
+      if (index !== undefined && index !== activeWmIndex) {
+        selectWatermark(index);
+      }
+      wmDragging = true;
+      var stage = document.getElementById("wmStage");
+      var rect = stage.getBoundingClientRect();
+      var wmEl = stage.querySelector('.wm-draggable[data-index="' + (index !== undefined ? index : activeWmIndex) + '"]');
+      if (!wmEl) return;
+
+      wmEl.classList.add("dragging");
+      var wmRect = wmEl.getBoundingClientRect();
+      var offsetX = e.clientX - wmRect.left;
+      var offsetY = e.clientY - wmRect.top;
+
+      function move(ev) {
+        var x = ((ev.clientX - rect.left) - offsetX + wmRect.width / 2) / rect.width * 100;
+        var y = ((ev.clientY - rect.top) - offsetY + wmRect.height / 2) / rect.height * 100;
+        x = Math.max(0, Math.min(100, x));
+        y = Math.max(0, Math.min(100, y));
+        wmEl.style.left = x + "%";
+        wmEl.style.top = y + "%";
+        wmEl.style.transform = "translate(-50%, -50%)";
+        if (watermarks[index !== undefined ? index : activeWmIndex]) {
+          watermarks[index !== undefined ? index : activeWmIndex].x = x;
+          watermarks[index !== undefined ? index : activeWmIndex].y = y;
+        }
+      }
+
+      document.addEventListener("mousemove", move);
+      document.addEventListener("mouseup", function() {
+        wmDragging = false;
+        wmEl.classList.remove("dragging");
+        document.removeEventListener("mousemove", move);
+      });
+    }
+
+    function confirmWatermark() {
+      closeWatermarkModal();
+      var btn = document.getElementById("btnWatermark");
+      if (document.getElementById("wmEnabled").checked && watermarks.length > 0) {
+        btn.classList.add("has-value");
+      } else {
+        btn.classList.remove("has-value");
+      }
+      showToast("水印已设置", "共 " + watermarks.length + " 个水印配置已保存。");
+    }
+
+    function hexToRgba(hex, alpha) {
+      var r = parseInt(hex.slice(1, 3), 16);
+      var g = parseInt(hex.slice(3, 5), 16);
+      var b = parseInt(hex.slice(5, 7), 16);
+      return "rgba(" + r + "," + g + "," + b + "," + alpha + ")";
+    }
+
+    // ===== BGM 配置 =====
+    var bgmPlaying = false;
+
+    function openBGMModal() {
+      document.getElementById("bgmModal").classList.add("show");
+    }
+
+    function closeBGMModal() {
+      document.getElementById("bgmModal").classList.remove("show");
+    }
+
+    function toggleBgmPanel() {
+      var enabled = document.getElementById("bgmEnabled").checked;
+      document.getElementById("bgmConfigPanel").style.display = enabled ? "block" : "none";
+    }
+
+    function switchBgmTab(tab, btn) {
+      document.querySelectorAll(".bgm-source-option").forEach(function(t) { t.classList.remove("active"); });
+      btn.classList.add("active");
+      document.getElementById("bgmLibraryPanel").classList.toggle("active", tab === "library");
+      document.getElementById("bgmLibraryPanel").style.display = tab === "library" ? "block" : "none";
+      document.getElementById("bgmUploadPanel").classList.toggle("active", tab === "upload");
+      document.getElementById("bgmUploadPanel").style.display = tab === "upload" ? "block" : "none";
+    }
+
+    function onBgmFileChange() {
+      var fileInput = document.getElementById("bgmFileInput");
+      if (fileInput.files.length > 0) {
+        var file = fileInput.files[0];
+        document.getElementById("bgmFileName").innerText = file.name;
+        document.getElementById("bgmFileMeta").innerText = (file.size / 1024 / 1024).toFixed(2) + " MB";
+        document.getElementById("bgmFileSummary").classList.add("show");
+        document.getElementById("bgmAudio").src = URL.createObjectURL(file);
+        showToast("已上传 BGM", "文件已加载，可点击播放按钮试听。");
+      }
+    }
+
+    function removeBgmFile() {
+      document.getElementById("bgmFileInput").value = "";
+      document.getElementById("bgmFileSummary").classList.remove("show");
+      document.getElementById("bgmAudio").src = "";
+      showToast("移除 BGM", "已移除本地上传的背景音乐。");
+    }
+
+    function updateBgmVolume() {
+      var vol = document.getElementById("bgmVolumeSlider").value;
+      document.getElementById("bgmVolumeVal").innerText = vol + "%";
+    }
+
+    function toggleBgmPlay() {
+      bgmPlaying = !bgmPlaying;
+      var btn = document.getElementById("bgmPlayBtn");
+      btn.innerText = bgmPlaying ? "暂停 BGM" : "播放 BGM";
+      showToast(bgmPlaying ? "播放 BGM" : "暂停 BGM", bgmPlaying ? "正在播放背景音乐..." : "已暂停背景音乐。");
+    }
+
+    function confirmBGM() {
+      closeBGMModal();
+      var btn = document.getElementById("btnBGM");
+      if (document.getElementById("bgmEnabled").checked) {
+        btn.classList.add("has-value");
+      } else {
+        btn.classList.remove("has-value");
+      }
+      showToast("BGM 已设置", "背景音乐配置已保存。");
+    }
+
+    // ===== 导出 =====
+    function openExportModal() {
+      document.getElementById("exportModal").classList.add("show");
+      document.getElementById("exportProgress").classList.remove("show");
+      document.getElementById("exportConfirmBtn").innerText = "开始导出";
+      document.getElementById("exportConfirmBtn").disabled = false;
+      document.getElementById("exportConfirmBtn").classList.remove("btn-disabled");
+    }
+
+    function closeExportModal() {
+      document.getElementById("exportModal").classList.remove("show");
+      clearInterval(exportTimer);
+    }
+
+    function startExport() {
+      var progress = document.getElementById("exportProgress");
+      var progressInner = document.getElementById("exportProgressInner");
+      var confirmBtn = document.getElementById("exportConfirmBtn");
+      progress.classList.add("show");
+      progressInner.style.width = "0%";
+      confirmBtn.innerText = "导出中...";
+      confirmBtn.classList.add("btn-disabled");
+      confirmBtn.disabled = true;
+      var value = 0;
+      clearInterval(exportTimer);
+      exportTimer = setInterval(function() {
+        value += 20;
+        progressInner.style.width = value + "%";
+        if (value >= 100) {
+          clearInterval(exportTimer);
+          confirmBtn.innerText = "导出完成";
+          setTimeout(function() {
+            closeExportModal();
+            showToast("导出完成", "完整成片已导出为 MP4 文件。");
+          }, 600);
+        }
+      }, 380);
+    }
+
+    // 初始化
     renderVideoNav();
     selectVideo("full");
   </script>

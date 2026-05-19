@@ -989,6 +989,25 @@
             align-items: center;
         }
 
+        .btn-add-voice {
+            display: block;
+            margin-top: 8px;
+            height: 34px;
+            border: 1px dashed #a5b4fc;
+            border-radius: 8px;
+            background: #f8faff;
+            color: #4f46e5;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 0 14px;
+            transition: all 0.2s;
+        }
+
+        .btn-add-voice:hover {
+            background: #eef2ff;
+            border-color: #4f46e5;
+        }
+
         .upload-box {
             display: block;
             padding: 20px 16px;
@@ -2356,6 +2375,7 @@
                                 </select>
                                 <button class="btn btn-light" type="button" onclick="previewRoleVoice()">试听</button>
                             </div>
+                            <button class="btn btn-add-voice" type="button" onclick="addNewVoiceFromCreateRole()">+ 新增音色</button>
                         </div>
                         <div class="form-group">
                             <label for="roleDesc">角色描述</label>
@@ -2608,6 +2628,7 @@
                                 </select>
                                 <button class="btn btn-light" type="button" onclick="previewEditRoleVoice()">试听</button>
                             </div>
+                            <button class="btn btn-add-voice" type="button" onclick="addNewVoiceFromEditRole()">+ 新增音色</button>
                         </div>
                         <div class="form-group">
                             <label for="editRoleDesc">角色描述</label>
@@ -3608,6 +3629,18 @@
             alert("正在试听：" + voice);
         }
 
+        function addNewVoiceFromCreateRole() {
+            const currentUrl = window.location.href.split("#")[0];
+            const returnUrlEncoded = encodeURIComponent(currentUrl + "#createRole");
+            window.location.href = "新建语音模型_2026-05-12 162532.html?returnUrl=" + returnUrlEncoded;
+        }
+
+        function addNewVoiceFromEditRole() {
+            const currentUrl = window.location.href.split("#")[0];
+            const returnUrlEncoded = encodeURIComponent(currentUrl + "#editRole");
+            window.location.href = "新建语音模型_2026-05-12 162532.html?returnUrl=" + returnUrlEncoded;
+        }
+
         function updateCreateRolePreview() {
             const name = document.getElementById("roleName").value.trim() || "未命名角色";
             const voice = document.getElementById("roleVoice").value || "未选择";
@@ -4294,6 +4327,44 @@
         function openSubjectCreator(type) {
             window.location.href = "主体管理-创建主体.html?type=" + encodeURIComponent(type) + "&from=step2";
         }
+
+        function checkNewVoiceFromVoiceCreator() {
+            var params = new URLSearchParams(window.location.search);
+            var newVoice = params.get("newVoice");
+            if (newVoice) {
+                var hash = window.location.hash;
+                var targetId = "";
+                if (hash === "#createRole") {
+                    targetId = "roleVoice";
+                } else if (hash === "#editRole") {
+                    targetId = "editRoleVoice";
+                }
+                if (targetId) {
+                    var select = document.getElementById(targetId);
+                    if (select) {
+                        var exists = false;
+                        for (var i = 0; i < select.options.length; i++) {
+                            if (select.options[i].value === newVoice) {
+                                exists = true;
+                                break;
+                            }
+                        }
+                        if (!exists) {
+                            var opt = document.createElement("option");
+                            opt.value = newVoice;
+                            opt.textContent = newVoice;
+                            select.appendChild(opt);
+                        }
+                        select.value = newVoice;
+                    }
+                }
+                // Clean URL
+                var cleanUrl = window.location.pathname;
+                window.history.replaceState({}, "", cleanUrl);
+            }
+        }
+
+        checkNewVoiceFromVoiceCreator();
 
         // 创建弹窗按钮绑定
         document.getElementById("openCreateRoleBtn").addEventListener("click", () => openSubjectCreator("role"));
