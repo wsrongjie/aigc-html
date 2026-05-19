@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AIGC 投顾短视频平台 · 视频生成</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+    background: #f5f6f8;
+    color: #1a1a2e;
+    font-size: 14px;
+    min-height: 100vh;
+  }
+
+  /* ── 顶部导航 ── */
+  .top-bar {
+    background: #fff;
+    border-bottom: 1px solid #e8eaed;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    gap: 8px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .back-btn {
+    color: #666; cursor: pointer; font-size: 16px;
+    padding: 4px 6px; border-radius: 4px;
+    transition: background .15s; text-decoration: none;
+  }
+  .back-btn:hover { background: #f0f1f3; }
+  .breadcrumb {
+    display: flex; align-items: center; gap: 6px;
+    color: #999; font-size: 13px;
+  }
+  .breadcrumb span { color: #333; font-weight: 500; }
+  .breadcrumb .sep { color: #ccc; }
+  .save-hint {
+    margin-left: auto; font-size: 12px; color: #999;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .save-hint .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: #52c41a; display: inline-block;
+  }
+
+  /* ── 步骤条 ── */
+  .steps-bar {
+    background: #fff; border-bottom: 1px solid #e8eaed;
+    display: flex; justify-content: center; align-items: center;
+    padding: 0 24px; height: 56px;
+  }
+  .step-item {
+    display: flex; align-items: center; gap: 8px;
+    padding: 0 20px; cursor: default;
+  }
+  .step-num {
+    width: 24px; height: 24px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 600;
+    background: #e8eaed; color: #999; flex-shrink: 0;
+  }
+  .step-label { font-size: 13px; color: #999; white-space: nowrap; }
+  .step-item.done .step-num { background: #4f46e5; color: #fff; font-size: 13px; }
+  .step-item.done .step-label { color: #4f46e5; }
+  .step-item.active .step-num {
+    background: #4f46e5; color: #fff;
+    box-shadow: 0 0 0 3px rgba(79,70,229,.18);
+  }
+  .step-item.active .step-label { color: #4f46e5; font-weight: 600; }
+  .step-divider { width: 48px; height: 1px; background: #e0e0e0; flex-shrink: 0; }
+  .step-divider.done { background: #4f46e5; }
+
+  /* ── 主布局 ── */
+  .main-layout {
+    display: flex; gap: 20px; padding: 24px;
+    max-width: 1200px; margin: 0 auto; align-items: flex-start;
+  }
+  .left-panel { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 16px; }
+  .right-panel { width: 272px; flex-shrink: 0; position: sticky; top: 124px; }
+
+  /* ── 通用卡片 ── */
+  .card {
+    background: #fff; border-radius: 12px;
+    border: 1px solid #e8eaed; overflow: hidden;
+  }
+  .card-header {
+    padding: 15px 20px 13px; border-bottom: 1px solid #f0f1f3;
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  }
+  .card-header .title-group { display: flex; align-items: center; gap: 8px; }
+  .card-header h3 { font-size: 14px; font-weight: 600; color: #1a1a2e; }
+  .card-header .subtitle { font-size: 12px; color: #999; }
+
+  /* ── model tag ── */
+  .model-tag {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: #ede9fe; color: #4f46e5; border-radius: 20px;
+    padding: 2px 10px; font-size: 11px; font-weight: 600; letter-spacing: .3px;
+  }
+  .model-tag .mdot { width: 5px; height: 5px; border-radius: 50%; background: #4f46e5; }
+
+  /* ── spinner ── */
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .spinner {
+    width: 14px; height: 14px; border: 2px solid #e0e0e0;
+    border-top-color: #4f46e5; border-radius: 50%;
+    animation: spin .7s linear infinite;
+    display: inline-block; flex-shrink: 0;
+  }
+
+  /* ── 任务摘要 ── */
+  .summary-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 0;
+  }
+  .summary-cell {
+    padding: 12px 20px;
+    border-right: 1px solid #f0f1f3;
+    border-bottom: 1px solid #f0f1f3;
+  }
+  .summary-cell:nth-child(2n) { border-right: none; }
+  .summary-cell:nth-last-child(-n+2) { border-bottom: none; }
+  .summary-cell .sc-label { font-size: 11px; color: #aaa; margin-bottom: 4px; }
+  .summary-cell .sc-value {
+    font-size: 13px; font-weight: 500; color: #333;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .sc-avatar {
+    width: 22px; height: 22px; border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 700; flex-shrink: 0;
+  }
+  .sc-avatar.role  { background: #ede9fe; color: #4f46e5; }
+  .sc-avatar.scene { background: #e0f2fe; color: #0284c7; }
+
+  /* ── 进度区 ── */
+  .progress-area { padding: 18px 20px 16px; }
+  .progress-top {
+    display: flex; align-items: center;
+    justify-content: space-between; margin-bottom: 12px;
+  }
+  .progress-status {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 14px; font-weight: 600; color: #1a1a2e;
+  }
+  .progress-status.done-status { color: #059669; }
+  .progress-eta { font-size: 12px; color: #999; }
+  .progress-bar-wrap {
+    height: 10px; background: #f0f1f3;
+    border-radius: 99px; overflow: hidden; margin-bottom: 11px;
+  }
+  .progress-bar-fill {
+    height: 100%; border-radius: 99px;
+    background: linear-gradient(90deg, #4f46e5, #7c3aed);
+    transition: width .5s ease;
+  }
+  .progress-bar-fill.complete {
+    background: linear-gradient(90deg, #10b981, #059669);
+    width: 100% !important;
+  }
+  .progress-meta {
+    display: flex; gap: 20px; flex-wrap: wrap;
+    font-size: 12px; color: #aaa;
+  }
+  .progress-meta strong { color: #555; font-weight: 600; }
+
+  /* ── 台词语音区 ── */
+  .audio-section { padding: 0 20px 20px; }
+  .section-divider { height: 1px; background: #f0f1f3; margin-bottom: 15px; }
+  .section-label {
+    font-size: 11px; font-weight: 600; color: #aaa;
+    text-transform: uppercase; letter-spacing: .6px; margin-bottom: 10px;
+  }
+  .audio-script-box {
+    background: #f9fafb; border: 1px solid #eaecef;
+    border-radius: 8px; padding: 12px 14px;
+    font-size: 13px; color: #444; line-height: 1.75;
+    max-height: 88px; overflow-y: auto; margin-bottom: 14px;
+  }
+
+  /* 播放器 */
+  .audio-player {
+    background: #f4f5f8; border: 1px solid #e8eaed;
+    border-radius: 10px; padding: 10px 14px;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .player-top-row { display: flex; align-items: center; gap: 10px; }
+  .play-pause-btn {
+    width: 34px; height: 34px; border-radius: 50%;
+    background: #4f46e5; border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; transition: background .15s; color: #fff; font-size: 13px;
+  }
+  .play-pause-btn:hover { background: #4338ca; }
+  .player-info { flex: 1; min-width: 0; }
+  .player-title {
+    font-size: 12px; font-weight: 600; color: #333;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 2px;
+  }
+  .player-meta { font-size: 11px; color: #aaa; }
+  .player-download-btn {
+    width: 30px; height: 30px; border-radius: 7px;
+    background: #fff; border: 1px solid #e0e0e0; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; transition: all .15s; color: #666; font-size: 14px;
+  }
+  .player-download-btn:hover { border-color: #4f46e5; color: #4f46e5; background: #f5f3ff; }
+  .player-progress-wrap { display: flex; align-items: center; gap: 8px; }
+  .player-time { font-size: 11px; color: #aaa; white-space: nowrap; flex-shrink: 0; }
+  .player-bar-track {
+    flex: 1; height: 4px; background: #e0e0e0;
+    border-radius: 99px; cursor: pointer; position: relative;
+  }
+  .player-bar-fill {
+    height: 100%; border-radius: 99px; background: #4f46e5;
+    width: 0%; pointer-events: none;
+  }
+  .player-bar-thumb {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: #4f46e5; position: absolute;
+    top: 50%; transform: translate(-50%, -50%); left: 0%;
+    pointer-events: none;
+    box-shadow: 0 1px 3px rgba(79,70,229,.4);
+  }
+
+  .audio-action-row {
+    display: flex; align-items: center; justify-content: flex-end; margin-top: 10px;
+  }
+  .audio-regen-btn {
+    display: flex; align-items: center; gap: 5px;
+    padding: 6px 14px; border-radius: 7px; font-size: 13px; cursor: pointer;
+    background: #fff; border: 1px solid #e0e0e0; color: #555;
+    transition: all .15s; white-space: nowrap;
+  }
+  .audio-regen-btn:hover { border-color: #d97706; color: #d97706; }
+  .audio-updated-tip {
+    display: none; align-items: flex-start; gap: 8px;
+    background: #fffbeb; border: 1px solid #fde68a;
+    border-radius: 8px; padding: 9px 13px;
+    font-size: 12px; color: #92400e; margin-top: 10px; line-height: 1.65;
+  }
+  .audio-updated-tip.show { display: flex; }
+
+  /* ── 右侧视频预览 ── */
+  .video-card-body { padding: 14px; }
+  .video-phone-wrap {
+    width: 100%; aspect-ratio: 9/16; position: relative;
+    border-radius: 12px; overflow: hidden;
+    border: 1px solid #e0e0e0; background: #0f0f1a; cursor: pointer;
+  }
+  .gen-overlay {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 14px; z-index: 2;
+  }
+  .gen-ring {
+    width: 40px; height: 40px;
+    border: 3px solid rgba(255,255,255,.08);
+    border-top-color: #7c3aed; border-radius: 50%;
+    animation: spin .9s linear infinite;
+  }
+  .gen-text {
+    font-size: 12px; color: rgba(255,255,255,.35);
+    text-align: center; line-height: 1.65; padding: 0 16px;
+  }
+  .video-el {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    object-fit: cover; display: none; background: #1a1040;
+  }
+  body.state-done .video-el    { display: block; }
+  body.state-done .gen-overlay { display: none; }
+
+  .video-hover-overlay {
+    position: absolute; inset: 0; background: rgba(0,0,0,.18);
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; transition: opacity .2s; z-index: 3;
+  }
+  .video-phone-wrap:hover .video-hover-overlay { opacity: 1; }
+  .hover-play-icon {
+    width: 48px; height: 48px; border-radius: 50%;
+    background: rgba(255,255,255,.2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; color: #fff;
+  }
+  .video-badge {
+    position: absolute; top: 10px; left: 10px;
+    font-size: 10px; padding: 2px 8px; border-radius: 20px;
+    z-index: 4; pointer-events: none;
+  }
+  .badge-generating { background: rgba(0,0,0,.5); color: #fff; }
+  .badge-done { background: rgba(16,185,129,.8); color: #fff; display: none; }
+  body.state-done .badge-generating { display: none; }
+  body.state-done .badge-done       { display: block; }
+
+  .video-duration-tag {
+    position: absolute; bottom: 44px; right: 10px;
+    background: rgba(0,0,0,.5); color: #fff;
+    font-size: 11px; padding: 2px 8px; border-radius: 20px;
+    z-index: 4; pointer-events: none;
+  }
+  .mute-btn {
+    position: absolute; bottom: 10px; left: 10px;
+    width: 30px; height: 30px; border-radius: 50%;
+    background: rgba(0,0,0,.5); border: none; cursor: pointer;
+    display: none; align-items: center; justify-content: center;
+    font-size: 14px; color: #fff; z-index: 5; transition: background .15s;
+  }
+  body.state-done .mute-btn { display: flex; }
+  .mute-btn:hover { background: rgba(0,0,0,.75); }
+
+  .video-actions { margin-top: 10px; }
+  .btn-regen-video {
+    display: none; width: 100%; padding: 8px 0;
+    border-radius: 8px; font-size: 13px; cursor: pointer;
+    background: #fff; border: 1px solid #e0e0e0; color: #666; transition: all .15s;
+  }
+  body.state-done .btn-regen-video { display: block; }
+  .btn-regen-video:hover { border-color: #4f46e5; color: #4f46e5; }
+
+  .preview-subtitle-gen  { font-size: 12px; color: #999; }
+  .preview-subtitle-done { display: none; font-size: 12px; color: #059669; font-weight: 500; }
+  body.state-done .preview-subtitle-gen  { display: none; }
+  body.state-done .preview-subtitle-done { display: block; }
+
+  /* ── 底部操作栏 ── */
+  .bottom-bar {
+    background: #fff; border-top: 1px solid #e8eaed;
+    padding: 13px 24px;
+    display: flex; align-items: center; justify-content: space-between;
+    position: sticky; bottom: 0; z-index: 100;
+  }
+  .bottom-hint {
+    font-size: 12px; color: #999;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .bottom-hint.done { display: none; color: #059669; font-weight: 500; }
+  body.state-done .bottom-hint.generating { display: none; }
+  body.state-done .bottom-hint.done       { display: flex; }
+
+  /* 按钮组 —— 完全由 CSS 控制，不使用内联 style */
+  .btn-group-gen  { display: flex; gap: 10px; }
+  .btn-group-done { display: none;  gap: 10px; }
+  body.state-done .btn-group-gen  { display: none; }
+  body.state-done .btn-group-done { display: flex; }
+
+  .btn {
+    padding: 8px 20px; border-radius: 8px;
+    font-size: 13px; font-weight: 500; cursor: pointer;
+    border: 1px solid transparent; transition: all .15s; white-space: nowrap;
+  }
+  .btn-ghost   { background: #fff; border-color: #e0e0e0; color: #555; }
+  .btn-ghost:hover { border-color: #999; color: #333; }
+  .btn-primary { background: #4f46e5; color: #fff; border-color: #4f46e5; }
+  .btn-primary:hover { background: #4338ca; }
+  .btn-primary:disabled { opacity: .4; cursor: not-allowed; pointer-events: none; }
+
+  /* ── 弹窗 ── */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,.45);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 200; opacity: 0; pointer-events: none; transition: opacity .2s;
+  }
+  .modal-overlay.visible { opacity: 1; pointer-events: all; }
+  .modal-box {
+    background: #fff; border-radius: 12px;
+    width: 440px; max-width: calc(100vw - 40px); overflow: hidden;
+    transform: translateY(12px); transition: transform .2s;
+  }
+  .modal-overlay.visible .modal-box { transform: translateY(0); }
+  .modal-header {
+    padding: 17px 20px 13px; border-bottom: 1px solid #f0f1f3;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .modal-header h4 { font-size: 15px; font-weight: 600; color: #1a1a2e; }
+  .modal-close { cursor: pointer; color: #999; font-size: 20px; line-height: 1; }
+  .modal-close:hover { color: #333; }
+  .modal-body { padding: 18px 20px; }
+  .modal-footer {
+    padding: 13px 20px; border-top: 1px solid #f0f1f3;
+    display: flex; justify-content: flex-end; gap: 10px;
+  }
+  .modal-desc { font-size: 13px; color: #555; line-height: 1.75; }
+  .modal-warn {
+    margin-top: 13px; background: #fffbeb; border: 1px solid #fde68a;
+    border-radius: 8px; padding: 11px 14px; font-size: 13px; color: #92400e;
+    display: flex; gap: 8px; align-items: flex-start; line-height: 1.65;
+  }
+  .modal-info {
+    margin-top: 13px; background: #eff6ff; border: 1px solid #bfdbfe;
+    border-radius: 8px; padding: 11px 14px; font-size: 13px; color: #1e40af;
+    display: flex; gap: 8px; align-items: flex-start; line-height: 1.65;
+  }
+  .modal-meta { margin-top: 13px; display: flex; flex-direction: column; gap: 6px; }
+  .modal-meta-item {
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 13px; padding: 8px 12px;
+    background: #f9fafb; border-radius: 6px; border: 1px solid #e8eaed;
+  }
+  .modal-meta-item .mk { color: #999; }
+  .modal-meta-item .mv { color: #333; font-weight: 500; }
+</style>
+</head>
+<body id="pageBody">
+
+<!-- 顶部导航 -->
+<div class="top-bar">
+  <a class="back-btn" href="#">‹</a>
+  <div class="breadcrumb">
+    视频业务
+    <span class="sep">/</span>
+    <span>稳健理财产品介绍</span>
+  </div>
+  <div class="save-hint">
+    <span class="dot"></span>
+    草稿已自动保存 13:47
+  </div>
+</div>
+
+<!-- 步骤条 -->
+<div class="steps-bar">
+  <div class="step-item done">
+    <div class="step-num">✓</div>
+    <div class="step-label">台词创作</div>
+  </div>
+  <div class="step-divider done"></div>
+  <div class="step-item done">
+    <div class="step-num">✓</div>
+    <div class="step-label">主体管理</div>
+  </div>
+  <div class="step-divider done"></div>
+  <div class="step-item active">
+    <div class="step-num">3</div>
+    <div class="step-label">视频生成</div>
+  </div>
+  <div class="step-divider"></div>
+  <div class="step-item">
+    <div class="step-num">4</div>
+    <div class="step-label">成片预览</div>
+  </div>
+</div>
+
+<!-- 主体内容 -->
+<div class="main-layout">
+
+  <!-- 左侧 -->
+  <div class="left-panel">
+
+    <!-- 任务摘要 -->
+    <div class="card">
+      <div class="card-header">
+        <div class="title-group">
+          <h3>本次生成任务</h3>
+        </div>
+        <div class="model-tag"><span class="mdot"></span>Wan2.1 · 连续生成模式</div>
+      </div>
+      <div class="summary-grid">
+        <div class="summary-cell">
+          <div class="sc-label">视频标题</div>
+          <div class="sc-value">稳健理财产品介绍</div>
+        </div>
+        <div class="summary-cell">
+          <div class="sc-label">视频比例 / 时长</div>
+          <div class="sc-value">9:16 竖版 · 约 51 秒</div>
+        </div>
+        <div class="summary-cell">
+          <div class="sc-label">角色主体</div>
+          <div class="sc-value">
+            <span class="sc-avatar role">顾</span>财经讲师 A
+          </div>
+        </div>
+        <div class="summary-cell">
+          <div class="sc-label">场景</div>
+          <div class="sc-value">
+            <span class="sc-avatar scene">景</span>书房口播场景
+          </div>
+        </div>
+        <div class="summary-cell">
+          <div class="sc-label">角色音色</div>
+          <div class="sc-value">沉稳财经男声 · 中文</div>
+        </div>
+        <div class="summary-cell">
+          <div class="sc-label">口型驱动模型</div>
+          <div class="sc-value">InfiniteTalk</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 生成进度 -->
+    <div class="card">
+      <div class="card-header">
+        <div class="title-group">
+          <h3>视频生成进度</h3>
+        </div>
+        <span class="subtitle" id="progressSubtitle">生成中，请耐心等待</span>
+      </div>
+
+      <!-- 生成中 -->
+      <div class="progress-area" id="progressGenerating">
+        <div class="progress-top">
+          <div class="progress-status">
+            <div class="spinner"></div>
+            正在生成视频，请稍候…
+          </div>
+          <div class="progress-eta">预计剩余 <strong id="etaText">18 分钟</strong></div>
+        </div>
+        <div class="progress-bar-wrap">
+          <div class="progress-bar-fill" id="progressFill" style="width:35%"></div>
+        </div>
+        <div class="progress-meta">
+          <span>当前进度 <strong id="progressPct">35%</strong></span>
+          <span>总时长 <strong>约 51 秒</strong></span>
+          <span>生成模型 <strong>Wan2.1-I2V-14B</strong></span>
+        </div>
+      </div>
+
+      <!-- 完成态 -->
+      <div class="progress-area" id="progressDone" style="display:none;">
+        <div class="progress-top">
+          <div class="progress-status done-status">✓ &nbsp;视频已生成完成</div>
+          <div class="progress-eta" style="color:#059669;">耗时 22 分 14 秒</div>
+        </div>
+        <div class="progress-bar-wrap">
+          <div class="progress-bar-fill complete"></div>
+        </div>
+        <div class="progress-meta">
+          <span>总时长 <strong>51 秒</strong></span>
+          <span>生成模型 <strong>Wan2.1-I2V-14B</strong></span>
+          <span>口型驱动 <strong>InfiniteTalk</strong></span>
+          <span>完成时间 <strong>2026-05-19 13:11</strong></span>
+        </div>
+      </div>
+
+      <!-- 台词语音 -->
+      <div class="audio-section">
+        <div class="section-divider"></div>
+        <div class="section-label">台词语音</div>
+        <div class="audio-script-box">
+          很多投资者在市场波动时，都会遇到看不懂趋势、拿不住机会、控制不好风险的问题。我们的投顾服务，依托专业研究团队和标准化服务流程，为用户提供市场解读、投资策略参考和风险管理建议。无论是资产配置建议、产品筛选还是持仓跟踪，我们都能为您提供一站式的专业支持。如果您也在寻找一个可以信赖的投顾伙伴，欢迎点击下方了解更多，我们随时准备为您服务。
+        </div>
+
+        <!-- 播放器 -->
+        <div class="audio-player">
+          <div class="player-top-row">
+            <button class="play-pause-btn" id="playPauseBtn" onclick="togglePlay()">▶</button>
+            <div class="player-info">
+              <div class="player-title">台词试听 · 稳健理财产品介绍</div>
+              <div class="player-meta">沉稳财经男声 · 中文 · 51.3s</div>
+            </div>
+            <button class="player-download-btn" title="下载音频" onclick="downloadAudio()">↓</button>
+          </div>
+          <div class="player-progress-wrap">
+            <span class="player-time" id="currentTime">0:00</span>
+            <div class="player-bar-track" id="playerTrack" onclick="seekAudio(event)">
+              <div class="player-bar-fill" id="playerFill"></div>
+              <div class="player-bar-thumb" id="playerThumb"></div>
+            </div>
+            <span class="player-time">0:51</span>
+          </div>
+        </div>
+
+        <div class="audio-action-row">
+          <button class="audio-regen-btn" onclick="openModal('audioRegenModal')">
+            ↺ &nbsp;重新生成语音
+          </button>
+        </div>
+
+        <div class="audio-updated-tip" id="audioUpdatedTip">
+          <span style="flex-shrink:0;margin-top:1px;">⚠️</span>
+          <span>语音已重新生成。当前视频仍为旧版本，<strong>需重新生成视频</strong>后新语音才会生效。</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- 右侧视频预览 -->
+  <div class="right-panel">
+    <div class="card">
+      <div class="card-header">
+        <h3>视频预览</h3>
+        <span class="preview-subtitle-gen">生成完成后可预览</span>
+        <span class="preview-subtitle-done">✓ 悬停自动播放</span>
+      </div>
+      <div class="video-card-body">
+        <div class="video-phone-wrap"
+             id="videoWrap"
+             onmouseenter="onVideoHoverIn()"
+             onmouseleave="onVideoHoverOut()">
+
+          <!-- 生成中 -->
+          <div class="gen-overlay" id="genOverlay">
+            <div class="gen-ring"></div>
+            <div class="gen-text">视频生成中<br/>请耐心等待</div>
+          </div>
+
+          <!-- 视频元素 -->
+          <video class="video-el" id="videoEl" loop playsinline src="">
+          </video>
+
+          <!-- hover 遮罩 -->
+          <div class="video-hover-overlay">
+            <div class="hover-play-icon" id="hoverPlayIcon">▶</div>
+          </div>
+
+          <!-- 徽标 -->
+          <div class="video-badge badge-generating">生成中…</div>
+          <div class="video-badge badge-done">已完成</div>
+
+          <!-- 时长 -->
+          <div class="video-duration-tag">00:51</div>
+
+          <!-- 声音控制 -->
+          <button class="mute-btn" id="muteBtn" onclick="toggleMute()" title="开启/关闭声音">🔇</button>
+        </div>
+
+        <div class="video-actions">
+          <button class="btn-regen-video" onclick="openModal('regenVideoModal')">
+            ↺ &nbsp;重新生成视频
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- 底部操作栏 -->
+<div class="bottom-bar">
+  <div class="bottom-hint generating">
+    <div class="spinner" style="width:12px;height:12px;border-width:1.5px;"></div>
+    Step 3 / 4：视频生成中，完成后可进入成片合成
+  </div>
+  <div class="bottom-hint done">
+    ✓ &nbsp;视频已生成完成，可进入成片合成或重新生成
+  </div>
+  <div>
+    <!-- 生成中按钮组 -->
+    <div class="btn-group-gen">
+      <button class="btn btn-ghost">上一步：主体管理</button>
+      <button class="btn btn-primary" disabled>进入成片合成</button>
+    </div>
+    <!-- 完成后按钮组 -->
+    <div class="btn-group-done">
+      <button class="btn btn-ghost">上一步：主体管理</button>
+      <button class="btn btn-primary" onclick="goStep4()">进入成片合成</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ── 弹窗：重新生成语音 ── -->
+<div class="modal-overlay" id="audioRegenModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h4>重新生成台词语音</h4>
+      <span class="modal-close" onclick="closeModal('audioRegenModal')">×</span>
+    </div>
+    <div class="modal-body">
+      <p class="modal-desc">系统将重新调用 TTS 合成当前台词语音，原有语音将被替换。</p>
+      <div class="modal-info">
+        <span style="flex-shrink:0;margin-top:1px;">ℹ</span>
+        <span>重新生成语音后，当前视频不会自动更新。如需语音同步生效，请在确认语音后<strong>重新生成视频</strong>。</span>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('audioRegenModal')">取消</button>
+      <button class="btn btn-primary" onclick="confirmAudioRegen()">确认重新生成语音</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ── 弹窗：重新生成视频 ── -->
+<div class="modal-overlay" id="regenVideoModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h4>重新生成视频</h4>
+      <span class="modal-close" onclick="closeModal('regenVideoModal')">×</span>
+    </div>
+    <div class="modal-body">
+      <p class="modal-desc">将清除当前已生成的视频，从头重新生成完整口播视频。此操作不可撤销。</p>
+      <div class="modal-warn">
+        <span style="flex-shrink:0;margin-top:1px;">⚠️</span>
+        <span>当前视频（51 秒）将被清除，重新生成预计需要 <strong>约 22 分钟</strong>。</span>
+      </div>
+      <div class="modal-meta">
+        <div class="modal-meta-item">
+          <span class="mk">角色</span>
+          <span class="mv">财经讲师 A · 沉稳财经男声</span>
+        </div>
+        <div class="modal-meta-item">
+          <span class="mk">场景</span>
+          <span class="mv">书房口播场景</span>
+        </div>
+        <div class="modal-meta-item">
+          <span class="mk">总时长</span>
+          <span class="mv">约 51 秒</span>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('regenVideoModal')">取消</button>
+      <button class="btn btn-primary" onclick="confirmRegenVideo()">确认重新生成</button>
+    </div>
+  </div>
+</div>
+
+
+<script>
+  const body = document.getElementById('pageBody');
+
+  /* ══ 进度模拟 ══ */
+  let pct = 35;
+  const fillEl = document.getElementById('progressFill');
+  const pctEl  = document.getElementById('progressPct');
+  const etaEl  = document.getElementById('etaText');
+
+  const genTimer = setInterval(() => {
+    if (body.classList.contains('state-done')) { clearInterval(genTimer); return; }
+    pct = Math.min(pct + 1, 99);
+    fillEl.style.width = pct + '%';
+    pctEl.textContent  = pct + '%';
+    etaEl.textContent  = Math.round((99 - pct) * 0.35) + ' 分钟';
+    if (pct >= 99) { clearInterval(genTimer); setTimeout(switchDone, 600); }
+  }, 350);
+
+  function switchDone() {
+    body.classList.add('state-done');
+    document.getElementById('progressGenerating').style.display = 'none';
+    document.getElementById('progressDone').style.display = 'block';
+    const sub = document.getElementById('progressSubtitle');
+    sub.textContent = '生成完成';
+    sub.style.color = '#059669';
+  }
+
+  /* ══ 音频播放器模拟 ══ */
+  let audioPlaying  = false;
+  let audioProgress = 0;
+  const totalSec    = 51.3;
+  let audioTimer    = null;
+
+  function togglePlay() {
+    audioPlaying = !audioPlaying;
+    document.getElementById('playPauseBtn').textContent = audioPlaying ? '⏸' : '▶';
+    if (audioPlaying) {
+      audioTimer = setInterval(() => {
+        audioProgress = Math.min(audioProgress + 1 / (totalSec * 10), 1);
+        updatePlayerUI();
+        if (audioProgress >= 1) {
+          audioPlaying = false;
+          audioProgress = 0;
+          clearInterval(audioTimer);
+          document.getElementById('playPauseBtn').textContent = '▶';
+          updatePlayerUI();
+        }
+      }, 100);
+    } else {
+      clearInterval(audioTimer);
+    }
+  }
+
+  function updatePlayerUI() {
+    const p = audioProgress * 100;
+    document.getElementById('playerFill').style.width = p + '%';
+    document.getElementById('playerThumb').style.left = p + '%';
+    const elapsed = Math.floor(audioProgress * totalSec);
+    const m = Math.floor(elapsed / 60);
+    const s = elapsed % 60;
+    document.getElementById('currentTime').textContent = m + ':' + String(s).padStart(2, '0');
+  }
+
+  function seekAudio(e) {
+    const track = document.getElementById('playerTrack');
+    const rect  = track.getBoundingClientRect();
+    audioProgress = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+    updatePlayerUI();
+  }
+
+  function downloadAudio() {
+    alert('下载台词音频（原型演示）');
+  }
+
+  /* ══ 视频 hover 交互 ══ */
+  const videoEl = document.getElementById('videoEl');
+  let isMuted   = true;
+  videoEl.muted = true;
+
+  function onVideoHoverIn() {
+    if (!body.classList.contains('state-done')) return;
+    videoEl.play().catch(() => {});
+    document.getElementById('hoverPlayIcon').textContent = '⏸';
+  }
+  function onVideoHoverOut() {
+    if (!body.classList.contains('state-done')) return;
+    videoEl.pause();
+    document.getElementById('hoverPlayIcon').textContent = '▶';
+  }
+  function toggleMute() {
+    isMuted = !isMuted;
+    videoEl.muted = isMuted;
+    document.getElementById('muteBtn').textContent = isMuted ? '🔇' : '🔊';
+  }
+
+  /* ══ 弹窗 ══ */
+  function openModal(id)  { document.getElementById(id).classList.add('visible'); }
+  function closeModal(id) { document.getElementById(id).classList.remove('visible'); }
+
+  function confirmAudioRegen() {
+    closeModal('audioRegenModal');
+    document.getElementById('audioUpdatedTip').classList.add('show');
+  }
+
+  function confirmRegenVideo() {
+    closeModal('regenVideoModal');
+    body.classList.remove('state-done');
+    document.getElementById('progressDone').style.display = 'none';
+    document.getElementById('progressGenerating').style.display = 'block';
+    const sub = document.getElementById('progressSubtitle');
+    sub.textContent = '生成中，请耐心等待';
+    sub.style.color = '';
+    document.getElementById('audioUpdatedTip').classList.remove('show');
+    pct = 0;
+    fillEl.style.width = '0%';
+    pctEl.textContent  = '0%';
+    etaEl.textContent  = '22 分钟';
+    const t2 = setInterval(() => {
+      pct = Math.min(pct + 1, 99);
+      fillEl.style.width = pct + '%';
+      pctEl.textContent  = pct + '%';
+      etaEl.textContent  = Math.round((99 - pct) * 0.35) + ' 分钟';
+      if (pct >= 99) { clearInterval(t2); setTimeout(switchDone, 600); }
+    }, 300);
+  }
+
+  function goStep4() { alert('进入 Step 4：成片预览'); }
+
+  document.querySelectorAll('.modal-overlay').forEach(el => {
+    el.addEventListener('click', e => { if (e.target === el) el.classList.remove('visible'); });
+  });
+</script>
+</body>
+</html>
