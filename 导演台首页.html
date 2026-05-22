@@ -69,6 +69,51 @@
       white-space: nowrap;
     }
 
+    .task-btn-top {
+      height: 36px;
+      padding: 0 16px;
+      border: 1px solid #2f6bff;
+      border-radius: 999px;
+      background: transparent;
+      color: #2f6bff;
+      font-size: 13px;
+      font-weight: 700;
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+    }
+    .task-btn-top:hover {
+      background: #2f6bff;
+      color: #ffffff;
+    }
+    .task-btn-top .badge {
+      min-width: 18px;
+      height: 18px;
+      background: #2f6bff;
+      color: #ffffff;
+      border-radius: 9px;
+      font-size: 11px;
+      font-weight: 800;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+    }
+    .task-btn-top:hover .badge {
+      background: rgba(255, 255, 255, 0.3);
+    }
+    .task-btn-top.no-task {
+      border-color: #d1d5db;
+      color: #9ca3af;
+    }
+    .task-btn-top.no-task:hover {
+      background: #f3f4f6;
+      color: #9ca3af;
+    }
+    .task-btn-top.no-task .badge { display: none; }
+
     .avatar {
       width: 32px;
       height: 32px;
@@ -160,43 +205,51 @@
       box-shadow: 0 10px 28px rgba(0, 0, 0, 0.18);
     }
 
-    /* ===== Modal ===== */
-    .modal-overlay {
+    /* ===== Task Drawer ===== */
+    .drawer-overlay {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0, 0, 0, 0.45);
+      background: rgba(0, 0, 0, 0.35);
       z-index: 100;
       display: none;
-      align-items: center;
-      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.3s;
     }
-    .modal-overlay.show {
-      display: flex;
+    .drawer-overlay.show {
+      display: block;
+      opacity: 1;
     }
-    .modal-dialog {
-      width: 900px;
-      max-width: 95vw;
-      max-height: 70vh;
+    .drawer-panel {
+      position: fixed;
+      top: 0; right: 0; bottom: 0;
+      width: 1100px;
+      max-width: 90vw;
       background: #ffffff;
-      border-radius: 18px;
-      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.15);
+      z-index: 101;
+      box-shadow: -8px 0 32px rgba(0, 0, 0, 0.12);
       display: flex;
       flex-direction: column;
+      transform: translateX(100%);
+      transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
       overflow: hidden;
     }
-    .modal-header {
+    .drawer-panel.open {
+      transform: translateX(0);
+    }
+    .drawer-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 20px 24px;
+      padding: 16px 24px;
       border-bottom: 1px solid #e5e7eb;
+      flex-shrink: 0;
     }
-    .modal-title {
+    .drawer-title {
       font-size: 18px;
       font-weight: 800;
       color: #111827;
     }
-    .modal-close {
+    .drawer-close {
       width: 32px; height: 32px;
       border: none; background: none;
       font-size: 20px; color: #6b7280;
@@ -204,12 +257,13 @@
       display: flex; align-items: center; justify-content: center;
       transition: background 0.15s;
     }
-    .modal-close:hover { background: #f3f4f6; }
-    .modal-body {
+    .drawer-close:hover { background: #f3f4f6; }
+    .drawer-body {
       padding: 16px 24px 24px;
       overflow-y: auto;
+      flex: 1;
     }
-    .modal-search {
+    .drawer-search {
       margin-bottom: 16px;
     }
 
@@ -238,6 +292,60 @@
     .task-id { font-family: "SF Mono", "Menlo", monospace; font-size: 11px; color: #94a3b8; }
     .task-time { font-size: 12px; color: #64748b; white-space: nowrap; }
     .task-fail { font-size: 12px; color: #ef4444; max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    /* Action Column */
+    .btn-cancel-task {
+      padding: 5px 14px;
+      border: 1px solid #ef4444;
+      border-radius: 6px;
+      background: transparent;
+      color: #ef4444;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .btn-cancel-task:hover {
+      background: #ef4444;
+      color: #ffffff;
+    }
+    .btn-cancel-task.disabled {
+      border-color: #d1d5db;
+      color: #cbd5e1;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
+    /* Inline Confirm */
+    .inline-confirm {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .btn-confirm-yes {
+      padding: 3px 10px;
+      border: none;
+      border-radius: 5px;
+      background: #ef4444;
+      color: #ffffff;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-confirm-yes:hover { background: #dc2626; }
+    .btn-confirm-no {
+      padding: 3px 10px;
+      border: 1px solid #d1d5db;
+      border-radius: 5px;
+      background: transparent;
+      color: #6b7280;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-confirm-no:hover { background: #f3f4f6; }
 
     /* Progress Bar */
     .progress-wrap {
@@ -281,30 +389,6 @@
     .ts-completed { background: #d1fae5; color: #059669; }
     .ts-failed { background: #fee2e2; color: #dc2626; }
 
-    /* Copy ID */
-    .copy-id {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      cursor: pointer;
-      color: #94a3b8;
-      font-size: 11px;
-      font-family: "SF Mono", "Menlo", monospace;
-      padding: 2px 6px;
-      border-radius: 4px;
-      transition: all 0.15s;
-      border: none;
-      background: none;
-    }
-    .copy-id:hover {
-      background: #f1f5f9;
-      color: #2f6bff;
-    }
-    .copy-id svg {
-      width: 14px;
-      height: 14px;
-    }
-
     /* ===== Section Header ===== */
     .section-header {
       display: flex;
@@ -331,50 +415,6 @@
       font-size: 13px;
       color: #64748b;
     }
-
-    .task-btn {
-      height: 28px;
-      padding: 0 14px;
-      border: 1px solid #2f6bff;
-      border-radius: 999px;
-      background: transparent;
-      color: #2f6bff;
-      font-size: 13px;
-      font-weight: 700;
-      transition: all 0.15s;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-    .task-btn:hover {
-      background: #2f6bff;
-      color: #ffffff;
-    }
-    .task-btn .badge {
-      min-width: 18px;
-      height: 18px;
-      background: #2f6bff;
-      color: #ffffff;
-      border-radius: 9px;
-      font-size: 11px;
-      font-weight: 800;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      line-height: 1;
-    }
-    .task-btn:hover .badge {
-      background: rgba(255, 255, 255, 0.3);
-    }
-    .task-btn.no-task {
-      border-color: #d1d5db;
-      color: #9ca3af;
-    }
-    .task-btn.no-task:hover {
-      background: #f3f4f6;
-      color: #9ca3af;
-    }
-    .task-btn.no-task .badge { display: none; }
 
     .search-input {
       height: 32px;
@@ -594,6 +634,9 @@
         AIGC 导演台
       </div>
       <div class="top-actions">
+        <button class="task-btn-top" id="taskBtn" type="button" onclick="openTaskModal()">
+          任务列表 <span class="badge" id="taskBadge">0</span>
+        </button>
         <div class="avatar">顾</div>
       </div>
     </header>
@@ -611,24 +654,20 @@
           <span class="section-count" id="projectCount"></span>
           <input class="search-input" id="searchInput" type="text" placeholder="搜索作品名称..." oninput="handleSearch()" />
         </div>
-        <button class="task-btn" id="taskBtn" type="button" onclick="openTaskModal()">
-          任务列表 <span class="badge" id="taskBadge">0</span>
-        </button>
       </div>
 
       <div id="projectList"></div>
     </main>
 
-    <div id="modalOverlay" class="modal-overlay" onclick="closeModalOutside(event)">
-      <div class="modal-dialog">
-        <div class="modal-header">
-          <h3 class="modal-title">任务列表</h3>
-          <button class="modal-close" type="button" onclick="closeTaskModal()">&times;</button>
-        </div>
-        <div class="modal-body">
-          <input class="search-input modal-search" id="modalSearchInput" type="text" placeholder="搜索视频名称或任务ID..." oninput="handleModalSearch()" />
-          <div id="modalBody"></div>
-        </div>
+    <div id="drawerOverlay" class="drawer-overlay" onclick="closeTaskModal()"></div>
+    <div id="drawerPanel" class="drawer-panel">
+      <div class="drawer-header">
+        <h3 class="drawer-title">任务列表</h3>
+        <button class="drawer-close" type="button" onclick="closeTaskModal()">&times;</button>
+      </div>
+      <div class="drawer-body">
+        <input class="search-input drawer-search" id="drawerSearchInput" type="text" placeholder="搜索视频名称..." oninput="handleDrawerSearch()" />
+        <div id="drawerBody"></div>
       </div>
     </div>
 
@@ -726,8 +765,8 @@
         if (changed) {
           saveTasks(tasks);
           updateTaskBadge();
-          if (document.getElementById("modalOverlay").classList.contains("show")) {
-            renderModalBody();
+          if (document.getElementById("drawerPanel").classList.contains("open")) {
+            renderDrawerBody();
           }
         }
       }, 3000);
@@ -864,8 +903,9 @@
       renderProjects();
     }
 
-    /* ===== Task Modal ===== */
-    var modalSearchKeyword = "";
+    /* ===== Task Drawer ===== */
+    var drawerSearchKeyword = "";
+    var pendingCancelId = null;
 
     function openTaskModal() {
       var tasks = loadTasks();
@@ -874,65 +914,68 @@
         saveTasks(tasks);
         startProgressSimulation();
       }
-      modalSearchKeyword = "";
-      document.getElementById("modalSearchInput").value = "";
-      document.getElementById("modalOverlay").classList.add("show");
-      renderModalBody();
+      drawerSearchKeyword = "";
+      pendingCancelId = null;
+      document.getElementById("drawerSearchInput").value = "";
+      document.getElementById("drawerOverlay").classList.add("show");
+      document.getElementById("drawerPanel").classList.add("open");
+      renderDrawerBody();
     }
 
     function closeTaskModal() {
-      document.getElementById("modalOverlay").classList.remove("show");
-      modalSearchKeyword = "";
+      document.getElementById("drawerOverlay").classList.remove("show");
+      document.getElementById("drawerPanel").classList.remove("open");
+      drawerSearchKeyword = "";
+      pendingCancelId = null;
     }
 
-    function closeModalOutside(e) {
-      if (e.target === document.getElementById("modalOverlay")) closeTaskModal();
+    function handleDrawerSearch() {
+      drawerSearchKeyword = document.getElementById("drawerSearchInput").value.toLowerCase().trim();
+      renderDrawerBody();
     }
 
-    function handleModalSearch() {
-      modalSearchKeyword = document.getElementById("modalSearchInput").value.toLowerCase().trim();
-      renderModalBody();
+    function requestCancel(taskId) {
+      pendingCancelId = taskId;
+      renderDrawerBody();
     }
 
-    function copyTaskId(fullId) {
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(fullId);
-      } else {
-        var ta = document.createElement("textarea");
-        ta.value = fullId;
-        ta.style.position = "fixed";
-        ta.style.left = "-9999px";
-        document.body.appendChild(ta);
-        ta.select();
-        document.execCommand("copy");
-        document.body.removeChild(ta);
-      }
-      showToast("已复制", "任务ID: " + fullId);
+    function confirmCancel(taskId) {
+      var tasks = loadTasks();
+      if (!tasks) return;
+      tasks = tasks.filter(function(t) { return t.id !== taskId; });
+      saveTasks(tasks);
+      pendingCancelId = null;
+      updateTaskBadge();
+      renderDrawerBody();
+      showToast("任务已取消", "任务已从列表中移除");
     }
 
-    function renderModalBody() {
+    function abortCancel() {
+      pendingCancelId = null;
+      renderDrawerBody();
+    }
+
+    function renderDrawerBody() {
       var tasks = loadTasks();
       if (!tasks || tasks.length === 0) {
-        document.getElementById("modalBody").innerHTML = '<p style="text-align:center;color:#94a3b8;padding:40px 0;">暂无任务</p>';
+        document.getElementById("drawerBody").innerHTML = '<p style="text-align:center;color:#94a3b8;padding:40px 0;">暂无任务</p>';
         return;
       }
 
-      // Filter
-      if (modalSearchKeyword) {
+      if (drawerSearchKeyword) {
         tasks = tasks.filter(function(t) {
-          return t.videoName.toLowerCase().indexOf(modalSearchKeyword) !== -1 ||
-                 t.id.toLowerCase().indexOf(modalSearchKeyword) !== -1;
+          return t.videoName.toLowerCase().indexOf(drawerSearchKeyword) !== -1;
         });
       }
 
       if (tasks.length === 0) {
-        document.getElementById("modalBody").innerHTML = '<p style="text-align:center;color:#94a3b8;padding:40px 0;">没有匹配的任务</p>';
+        document.getElementById("drawerBody").innerHTML = '<p style="text-align:center;color:#94a3b8;padding:40px 0;">没有匹配的任务</p>';
         return;
       }
 
       var html = '<table class="task-table"><thead><tr>' +
-        '<th>视频名称</th><th>任务ID</th><th>状态</th><th>进度</th>' +
-        '<th>创建时间</th><th>结束时间</th><th>预计剩余时间</th><th>失败原因</th>' +
+        '<th>视频名称</th><th>状态</th><th>进度</th>' +
+        '<th>创建时间</th><th>结束时间</th><th>预计剩余时间</th><th>失败原因</th><th>操作</th>' +
         '</tr></thead><tbody>';
 
       for (var i = 0; i < tasks.length; i++) {
@@ -953,28 +996,39 @@
           progressHtml = '<span style="color:#94a3b8;font-size:12px;">' + t.progress + '%</span>';
         }
 
-        var copyBtn = '<button class="copy-id" type="button" onclick="copyTaskId(\'' + escapeHtml(t.id) + '\')" title="复制完整任务ID">' +
-          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>' +
-          '</button>';
-
         var failHtml = isFailed && t.failReason
           ? '<span class="task-fail" title="' + escapeHtml(t.failReason) + '">' + escapeHtml(t.failReason) + '</span>'
           : '<span style="color:#cbd5e1;">—</span>';
 
+        var actionHtml = "";
+        if (isRunning) {
+          if (pendingCancelId === t.id) {
+            actionHtml = '<div class="inline-confirm">' +
+              '<span style="color:#64748b;">确认取消？</span>' +
+              '<button class="btn-confirm-yes" type="button" onclick="confirmCancel(\'' + escapeHtml(t.id) + '\')">确认</button>' +
+              '<button class="btn-confirm-no" type="button" onclick="abortCancel()">取消</button>' +
+              '</div>';
+          } else {
+            actionHtml = '<button class="btn-cancel-task" type="button" onclick="requestCancel(\'' + escapeHtml(t.id) + '\')">取消任务</button>';
+          }
+        } else {
+          actionHtml = '<span class="btn-cancel-task disabled">取消任务</span>';
+        }
+
         html += '<tr>' +
           '<td class="task-name" title="' + escapeHtml(t.videoName) + '">' + escapeHtml(t.videoName) + '</td>' +
-          '<td class="task-id"><span title="' + escapeHtml(t.id) + '">' + escapeHtml(t.id).substring(0, 14) + '...</span> ' + copyBtn + '</td>' +
           '<td><span class="task-status ' + statusClass + '">' + statusText + '</span></td>' +
           '<td>' + progressHtml + '</td>' +
           '<td class="task-time">' + formatTaskTime(t.createdAt) + '</td>' +
           '<td class="task-time">' + (t.finishedAt ? formatTaskTime(t.finishedAt) : '<span style="color:#cbd5e1;">—</span>') + '</td>' +
           '<td class="task-time">' + (isRunning && t.estimatedRemaining ? '<span style="color:#2f6bff;font-weight:700;">' + t.estimatedRemaining + ' 分钟</span>' : '<span style="color:#cbd5e1;">—</span>') + '</td>' +
           '<td>' + failHtml + '</td>' +
+          '<td>' + actionHtml + '</td>' +
           '</tr>';
       }
 
       html += '</tbody></table>';
-      document.getElementById("modalBody").innerHTML = html;
+      document.getElementById("drawerBody").innerHTML = html;
     }
 
     function updateTaskBadge() {
@@ -993,7 +1047,6 @@
         btn.classList.add("no-task");
       }
     }
-
     /* ===== Render ===== */
     function render() {
       renderProjects();
