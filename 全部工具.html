@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>全部工具</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: #0a0a0a;
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+        }
+
+        /* 侧边栏 */
+        .sidebar {
+            width: 56px;
+            background: #111;
+            border-right: 1px solid #222;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 16px 0;
+            gap: 4px;
+            flex-shrink: 0;
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            z-index: 100;
+        }
+        .sidebar .logo {
+            width: 32px;
+            height: 32px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .sidebar .logo svg { width: 28px; height: 28px; }
+        .sidebar-item {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            color: #666;
+            gap: 2px;
+        }
+        .sidebar-item:hover { background: #1a1a1a; color: #999; }
+        .sidebar-item.active { background: #1a1a1a; color: #00e676; }
+        .sidebar-item .icon { font-size: 16px; line-height: 1; }
+        .sidebar-item .label { font-size: 9px; line-height: 1; }
+        .sidebar-divider {
+            width: 24px;
+            height: 1px;
+            background: #222;
+            margin: 8px 0;
+        }
+
+        /* 主内容 */
+        .main {
+            margin-left: 56px;
+            flex: 1;
+            min-height: 100vh;
+        }
+
+        /* 顶栏 */
+        .topbar {
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 32px;
+            border-bottom: 1px solid #1a1a1a;
+        }
+        .topbar-brand { font-size: 13px; font-weight: 600; color: #fff; letter-spacing: 1px; }
+        .topbar-right { display: flex; align-items: center; gap: 16px; }
+        .topbar-right .avatar {
+            width: 28px; height: 28px; border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 11px; color: #fff; font-weight: 600; cursor: pointer;
+        }
+
+        /* 工具页内容 */
+        .content {
+            padding: 24px 32px;
+        }
+        .page-title { font-size: 20px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+        .page-subtitle { font-size: 13px; color: #666; margin-bottom: 24px; }
+
+        .tool-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 16px;
+            max-width: 720px;
+        }
+
+        .tool-card {
+            border-radius: 12px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.25s;
+            text-decoration: none;
+            background: #141414;
+            border: 1px solid #222;
+        }
+        .tool-card:hover {
+            border-color: #333;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+        }
+        .tool-card .thumb {
+            height: 160px;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+        .tool-card .thumb .play-btn {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 40px;
+            height: 40px;
+            background: rgba(0,0,0,0.6);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.2s;
+            backdrop-filter: blur(4px);
+        }
+        .tool-card:hover .thumb .play-btn { opacity: 1; }
+        .tool-card .thumb .play-btn svg { width: 16px; height: 16px; fill: #fff; }
+        .tool-card .info { padding: 14px 16px; }
+        .tool-card .info .name { font-size: 14px; font-weight: 600; color: #fff; margin-bottom: 4px; }
+        .tool-card .info .desc { font-size: 12px; color: #666; line-height: 1.4; }
+        .tool-card .info .badge {
+            display: inline-block;
+            font-size: 10px;
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin-top: 8px;
+            font-weight: 500;
+        }
+        .tool-card .info .badge.green { background: #00e67622; color: #00e676; }
+        .tool-card .info .badge.blue { background: #448aff22; color: #448aff; }
+
+        /* 模板预览弹窗 */
+        .tpl-preview-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.85);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        .tpl-preview-overlay.show { display: flex; }
+        .tpl-preview-modal {
+            background: #141414;
+            border-radius: 16px;
+            width: 560px;
+            max-width: 90vw;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            border: 1px solid #222;
+        }
+        .tpl-preview-hd {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            border-bottom: 1px solid #222;
+        }
+        .tpl-preview-hd h3 { font-size: 16px; font-weight: 600; }
+        .tpl-preview-hd .close-btn {
+            width: 28px; height: 28px;
+            border-radius: 50%;
+            background: #222;
+            border: none;
+            color: #999;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .tpl-preview-hd .close-btn:hover { background: #333; color: #fff; }
+        .tpl-preview-bd { padding: 20px; }
+        .tpl-preview-video {
+            width: 100%;
+            aspect-ratio: 9/16;
+            max-height: 360px;
+            background: #0a0a0a;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .tpl-preview-video .play-big {
+            width: 56px; height: 56px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .tpl-preview-video .play-big:hover { background: rgba(255,255,255,0.2); }
+        .tpl-preview-video .play-big svg { width: 24px; height: 24px; fill: #fff; }
+        .tpl-preview-video .hint { font-size: 12px; color: #666; }
+        .tpl-preview-desc {
+            font-size: 13px;
+            color: #999;
+            line-height: 1.6;
+        }
+        .tpl-preview-desc strong { color: #fff; font-weight: 600; }
+        .tpl-preview-footer {
+            padding: 12px 20px;
+            border-top: 1px solid #222;
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+        .tpl-preview-footer .btn {
+            padding: 8px 20px;
+            border-radius: 8px;
+            font-size: 13px;
+            cursor: pointer;
+            border: none;
+            font-weight: 500;
+            transition: all 0.15s;
+        }
+        .tpl-preview-footer .btn-secondary {
+            background: #222;
+            color: #999;
+        }
+        .tpl-preview-footer .btn-secondary:hover { background: #333; color: #fff; }
+        .tpl-preview-footer .btn-primary {
+            background: #00e676;
+            color: #0a0a0a;
+        }
+        .tpl-preview-footer .btn-primary:hover { background: #00c853; }
+    </style>
+</head>
+<body>
+
+    <!-- 侧边栏 -->
+    <div class="sidebar">
+        <div class="logo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M8 14s1.5 2 4 2 4-2 4-2"/>
+                <line x1="9" y1="9" x2="9.01" y2="9"/>
+                <line x1="15" y1="9" x2="15.01" y2="9"/>
+            </svg>
+        </div>
+        <a class="sidebar-item" href="index.html">
+            <span class="icon">📦</span>
+            <span class="label">资源</span>
+        </a>
+        <a class="sidebar-item" href="导演台首页.html">
+            <span class="icon">🎬</span>
+            <span class="label">导演台</span>
+        </a>
+        <div class="sidebar-divider"></div>
+        <a class="sidebar-item active" href="全部工具.html">
+            <span class="icon"></span>
+            <span class="label">全部工具</span>
+        </a>
+    </div>
+
+    <!-- 主内容 -->
+    <div class="main">
+        <div class="topbar">
+            <div class="topbar-brand">智造</div>
+            <div class="topbar-right">
+                <div class="avatar">W</div>
+            </div>
+        </div>
+
+        <div class="content">
+            <h1 class="page-title">全部工具</h1>
+            <p class="page-subtitle">挑选一个工具，开始你的创作</p>
+
+            <div class="tool-grid">
+                <!-- 智能口播 -->
+                <a class="tool-card" >
+                    <div class="thumb" style="background:linear-gradient(135deg,#0a2a1a 0%,#0a1a1a 60%,#1a2a1a 100%);">
+                        <div style="position:absolute;bottom:0;left:0;right:0;height:80px;background:linear-gradient(transparent,rgba(0,230,118,0.1));"></div>
+                        <div class="play-btn"><svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg></div>
+                    </div>
+                    <div class="info">
+                        <div class="name">智能口播</div>
+                        <div class="desc">一键生成智能口播视频</div>
+                        <span class="badge green">热门</span>
+                    </div>
+                </a>
+
+                <!-- 模板成片 -->
+                <a class="tool-card" href="simple-mode.html">
+                    <div class="thumb" style="background:linear-gradient(135deg,#1a0a2a 0%,#0a1a2a 60%,#2a1a0a 100%);">
+                        <div style="position:absolute;bottom:0;left:0;right:0;height:80px;background:linear-gradient(transparent,rgba(68,138,255,0.1));"></div>
+                        <div class="play-btn"><svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg></div>
+                    </div>
+                    <div class="info">
+                        <div class="name">模板成片</div>
+                        <div class="desc">选择模板，上传素材和台词，一键生成口播短视频</div>
+                        <span class="badge blue">新手推荐</span>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 模板预览弹窗 -->
+    <div class="tpl-preview-overlay" id="tpl-preview-overlay">
+        <div class="tpl-preview-modal">
+            <div class="tpl-preview-hd">
+                <h3 id="tpl-preview-title">模板预览</h3>
+                <button class="close-btn" onclick="closeTplPreview()">✕</button>
+            </div>
+            <div class="tpl-preview-bd">
+                <div class="tpl-preview-video">
+                    <div class="play-big" onclick="toast('演示视频播放中...')">
+                        <svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>
+                    </div>
+                    <div class="hint">点击播放模板效果示例</div>
+                </div>
+                <div class="tpl-preview-desc" id="tpl-preview-desc"></div>
+            </div>
+            <div class="tpl-preview-footer">
+                <button class="btn btn-secondary" onclick="closeTplPreview()">关闭</button>
+                <button class="btn btn-primary" onclick="closeTplPreview();window.location.href='simple-mode.html'">使用此模板</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var tplInfo = {
+            '口播讲解': {
+                desc: '<strong>口播讲解</strong>适合知识分享、产品推荐、教程教学等场景。数字人对着镜头讲解，配合字幕和背景音乐，专业且高效。',
+            },
+            '漫剧/短剧': {
+                desc: '<strong>漫剧/短剧</strong>适合故事化表达、情感类内容。支持多场景切换，剧情连贯，适合打造系列化IP内容。',
+            },
+            '产品展示': {
+                desc: '<strong>产品展示</strong>以产品为主角，配合画外音讲解。适合电商带货、产品评测、新品发布等场景。',
+            }
+        };
+
+        function openTplPreview(name) {
+            document.getElementById('tpl-preview-title').textContent = name + ' · 模板预览';
+            document.getElementById('tpl-preview-desc').innerHTML = tplInfo[name] ? tplInfo[name].desc : '暂无描述';
+            document.getElementById('tpl-preview-overlay').classList.add('show');
+        }
+
+        function closeTplPreview() {
+            document.getElementById('tpl-preview-overlay').classList.remove('show');
+        }
+
+        document.getElementById('tpl-preview-overlay').addEventListener('click', function(e) {
+            if (e.target === this) closeTplPreview();
+        });
+
+        function toast(m) {
+            // simple toast for prototype
+            var t = document.createElement('div');
+            t.textContent = m;
+            Object.assign(t.style, {
+                position:'fixed', bottom:'100px', left:'50%', transform:'translateX(-50%)',
+                background:'#222', color:'#fff', padding:'10px 20px', borderRadius:'8px',
+                fontSize:'12px', zIndex:'9999', fontWeight:'500'
+            });
+            document.body.appendChild(t);
+            setTimeout(function(){ t.remove(); }, 2000);
+        }
+    </script>
+</body>
+</html>
