@@ -1,0 +1,1390 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>视频资产</title>
+<style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+        --primary: #5B5BD6;
+        --primary-light: #EDEDFF;
+        --primary-dark: #4747C2;
+        --success: #30A46C;
+        --warning: #F76B15;
+        --danger: #E5484D;
+        --bg: #F7F7F8;
+        --sidebar-bg: #1C1C1E;
+        --sidebar-text: #A1A1AA;
+        --sidebar-active: #FFFFFF;
+        --card-bg: #FFFFFF;
+        --border: #E4E4E7;
+        --text-primary: #18181B;
+        --text-secondary: #71717A;
+        --text-muted: #A1A1AA;
+        --radius: 12px;
+        --radius-sm: 8px;
+        --shadow: 0 1px 3px rgba(0,0,0,0.08);
+        --shadow-md: 0 4px 16px rgba(0,0,0,0.10);
+    }
+
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Helvetica Neue', sans-serif;
+        background: var(--bg);
+        color: var(--text-primary);
+        display: flex;
+        height: 100vh;
+        overflow: hidden;
+        font-size: 14px;
+    }
+
+    /* 侧边栏 */
+    .sidebar {
+        width: 220px;
+        background: var(--sidebar-bg);
+        display: flex;
+        flex-direction: column;
+        flex-shrink: 0;
+    }
+    .sidebar-logo { padding: 24px 20px 20px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .logo-mark { display: flex; align-items: center; gap: 10px; }
+    .logo-icon {
+        width: 32px; height: 32px; background: var(--primary);
+        border-radius: 8px; display: flex; align-items: center;
+        justify-content: center; color: #fff; font-weight: 700; font-size: 14px;
+    }
+    .logo-text { color: #fff; font-weight: 600; font-size: 15px; }
+    .logo-sub { color: var(--sidebar-text); font-size: 11px; margin-top: 2px; }
+    .sidebar-nav { flex: 1; padding: 12px 0; overflow-y: auto; }
+    .nav-section { padding: 8px 0; }
+    .nav-section-title {
+        padding: 6px 20px; font-size: 14px; color: #A1A1AA; letter-spacing: 0.04em;
+        font-weight: 600; cursor: pointer; display: flex; align-items: center;
+        justify-content: space-between; user-select: none;
+        transition: color 0.15s;
+    }
+    .nav-section-title:hover { color: #E4E4E7; }
+    .nav-section-title .collapse-icon {
+        font-size: 10px; transition: transform 0.2s;
+    }
+    .nav-section-title.collapsed .collapse-icon {
+        transform: rotate(-90deg);
+    }
+    .nav-section-children {
+        overflow: hidden;
+        transition: max-height 0.25s ease, opacity 0.2s;
+        max-height: 200px;
+        opacity: 1;
+    }
+    .nav-section-children.hidden {
+        max-height: 0;
+        opacity: 0;
+    }
+    .nav-item {
+        display: flex; align-items: center; gap: 10px; padding: 9px 20px;
+        cursor: pointer; color: var(--sidebar-text); transition: all 0.15s;
+        border-left: 3px solid transparent; font-size: 13.5px;
+    }
+    .nav-item:hover { color: #E4E4E7; background: rgba(255,255,255,0.04); }
+    .nav-item.active { color: var(--sidebar-active); background: rgba(91,91,214,0.15); border-left-color: var(--primary); }
+    .nav-icon { width: 18px; text-align: center; font-size: 15px; }
+    .sidebar-bottom { padding: 16px 20px; border-top: 1px solid rgba(255,255,255,0.06); }
+    .user-info { display: flex; align-items: center; gap: 10px; }
+    .user-avatar {
+        width: 32px; height: 32px; border-radius: 50%; background: var(--primary);
+        display: flex; align-items: center; justify-content: center;
+        color: #fff; font-size: 13px; font-weight: 600;
+    }
+    .user-name { color: #E4E4E7; font-size: 13px; }
+    .user-role { color: var(--sidebar-text); font-size: 11px; }
+
+    /* 主内容 */
+    .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+    .topbar {
+        height: 56px; background: var(--card-bg); border-bottom: 1px solid var(--border);
+        display: flex; align-items: center; padding: 0 28px; gap: 16px; flex-shrink: 0;
+    }
+    .topbar-title { font-size: 16px; font-weight: 600; }
+
+    .content { flex: 1; overflow-y: auto; padding: 24px 28px; }
+
+    /* 统计卡片 - 紧凑 */
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+    .stat-card {
+        background: var(--card-bg); border-radius: var(--radius-sm); padding: 12px 16px;
+        border: 1px solid var(--border); box-shadow: var(--shadow);
+        display: flex; align-items: center; gap: 12px;
+    }
+    .stat-icon {
+        width: 32px; height: 32px; border-radius: 8px; display: flex;
+        align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0;
+    }
+    .stat-info { flex: 1; }
+    .stat-label { font-size: 11.5px; color: var(--text-muted); margin-bottom: 2px; }
+    .stat-value { font-size: 18px; font-weight: 700; line-height: 1.2; }
+
+    /* 筛选栏 */
+    .list-header {
+        display: flex; align-items: center; gap: 12px; margin-bottom: 12px; flex-wrap: wrap;
+    }
+    .search-box {
+        display: flex; align-items: center; gap: 8px; background: var(--card-bg);
+        border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 8px 14px; width: 300px;
+    }
+    .search-box input { border: none; outline: none; font-size: 13.5px; color: var(--text-primary); background: transparent; width: 100%; }
+
+    /* 批量操作按钮 */
+    .batch-btn {
+        display: flex; align-items: center; gap: 6px;
+        padding: 8px 14px; border-radius: var(--radius-sm);
+        border: 1px solid var(--border); background: var(--card-bg);
+        color: var(--text-secondary); font-size: 13px; cursor: pointer;
+        transition: all 0.15s;
+    }
+    .batch-btn:hover { border-color: var(--primary); color: var(--primary); }
+    .batch-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+    /* 排序下拉 */
+    .sort-wrapper { position: relative; margin-left: auto; }
+    .sort-btn {
+        display: flex; align-items: center; gap: 6px;
+        padding: 8px 14px; border-radius: var(--radius-sm);
+        border: 1px solid var(--border); background: var(--card-bg);
+        color: var(--text-secondary); font-size: 13px; cursor: pointer;
+        transition: all 0.15s; white-space: nowrap;
+    }
+    .sort-btn:hover { border-color: var(--primary); color: var(--primary); }
+    .sort-btn .sort-icon { font-size: 11px; transition: transform 0.15s; }
+    .sort-dropdown {
+        position: absolute; top: calc(100% + 4px); right: 0;
+        background: var(--card-bg); border: 1px solid var(--border);
+        border-radius: var(--radius-sm); box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+        min-width: 160px; z-index: 100; overflow: hidden; display: none;
+    }
+    .sort-dropdown.show { display: block; }
+    .sort-option {
+        display: flex; align-items: center; gap: 8px;
+        padding: 9px 14px; font-size: 13px; cursor: pointer;
+        color: var(--text-primary); transition: background 0.1s; border: none; background: none;
+        width: 100%; text-align: left;
+    }
+    .sort-option:hover { background: var(--bg); }
+    .sort-option.active { color: var(--primary); background: var(--primary-light); }
+    .sort-option .check { width: 14px; text-align: center; font-size: 12px; }
+
+    /* 批量操作栏（第二行） */
+    .batch-bar {
+        display: none; align-items: center; gap: 12px;
+        padding: 10px 16px; margin-bottom: 16px;
+        background: var(--primary-light); border: 1px solid var(--primary);
+        border-radius: var(--radius-sm);
+    }
+    .batch-bar.show { display: flex; }
+    .batch-bar .batch-info { font-size: 13px; color: var(--primary); font-weight: 500; }
+    .batch-bar .batch-info .count { font-weight: 700; }
+    .batch-bar .select-all-btn {
+        padding: 5px 12px; border-radius: 6px; font-size: 12px;
+        border: 1px solid var(--primary); background: #fff; color: var(--primary);
+        cursor: pointer; transition: all 0.15s;
+    }
+    .batch-bar .select-all-btn:hover { background: var(--primary); color: #fff; }
+    .batch-bar .spacer { flex: 1; }
+    .batch-bar .batch-action-btn {
+        padding: 6px 16px; border-radius: 6px; font-size: 13px;
+        border: none; cursor: pointer; font-weight: 500; transition: all 0.15s;
+    }
+    .batch-bar .batch-download { background: var(--card-bg); color: var(--text-primary); border: 1px solid var(--border); }
+    .batch-bar .batch-download:hover { background: var(--bg); }
+    .batch-bar .batch-delete { background: var(--danger); color: #fff; }
+    .batch-bar .batch-delete:hover { background: #c53030; }
+    .batch-bar .batch-exit { background: transparent; color: var(--text-muted); text-decoration: underline; }
+    .batch-bar .batch-exit:hover { color: var(--text-primary); }
+
+    .filter-group { display: flex; align-items: center; gap: 8px; padding-left: 4px; }
+    .filter-label { font-size: 12.5px; color: var(--text-muted); margin-right: 2px; }
+    .filter-tag {
+        padding: 6px 14px; border-radius: 20px; font-size: 12.5px; cursor: pointer;
+        border: 1px solid var(--border); background: var(--card-bg); color: var(--text-secondary); transition: all 0.15s;
+    }
+    .filter-tag:hover { border-color: var(--primary); color: var(--primary); }
+    .filter-tag.active { background: var(--primary-light); color: var(--primary); border-color: var(--primary); }
+
+    /* ====== 视频网格 - 竖屏9:16，一行6个 ====== */
+    .video-grid {
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        gap: 12px;
+    }
+
+    .video-card {
+        background: var(--card-bg);
+        border-radius: var(--radius-sm);
+        border: 1px solid var(--border);
+        box-shadow: var(--shadow);
+        overflow: hidden;
+        transition: all 0.25s;
+        cursor: pointer;
+        position: relative;
+    }
+    .video-card:hover {
+        box-shadow: var(--shadow-md);
+        transform: translateY(-2px);
+        border-color: var(--primary);
+    }
+    .video-card.selected {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 2px var(--primary-light), var(--shadow-md);
+    }
+
+    /* 复选框覆盖层 — 只在批量模式下显示 */
+    .card-checkbox {
+        position: absolute; top: 8px; left: 8px; z-index: 3;
+        width: 22px; height: 22px; border-radius: 6px;
+        background: rgba(255,255,255,0.9); border: 2px solid rgba(0,0,0,0.15);
+        display: none; align-items: center; justify-content: center;
+        cursor: pointer; transition: all 0.15s; font-size: 12px; color: transparent;
+    }
+    .batch-mode .card-checkbox { display: flex; }
+    .card-checkbox:hover { border-color: var(--primary); }
+    .video-card.selected .card-checkbox {
+        background: var(--primary); border-color: var(--primary); color: #fff;
+    }
+
+    /* 封面区域 - 9:16 */
+    .video-cover {
+        position: relative;
+        width: 100%;
+        aspect-ratio: 9 / 16;
+        background: #1a1a2e;
+        overflow: hidden;
+    }
+    .video-cover .cover-placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 28px;
+    }
+    /* 时长标记 */
+    .duration-badge {
+        position: absolute;
+        bottom: 4px;
+        left: 4px;
+        background: rgba(0,0,0,0.75);
+        color: #fff;
+        font-size: 10px;
+        font-weight: 600;
+        padding: 1px 5px;
+        border-radius: 3px;
+    }
+    /* 播放覆盖层（hover显示） */
+    .play-overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(0,0,0,0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.2s;
+    }
+    .video-card:hover .play-overlay { opacity: 1; }
+    .play-overlay .play-circle {
+        width: 32px; height: 32px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.9);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+    .play-overlay .play-circle::after {
+        content: '';
+        display: block;
+        width: 0; height: 0;
+        border-style: solid;
+        border-width: 6px 0 6px 10px;
+        border-color: transparent transparent transparent var(--primary);
+        margin-left: 2px;
+    }
+
+    /* hover 模拟播放动画 */
+    .video-cover.playing .cover-placeholder {
+        animation: playingPulse 1.5s ease-in-out infinite;
+    }
+    @keyframes playingPulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.7; }
+    }
+    .video-cover.playing .play-indicator {
+        display: flex;
+    }
+    .play-indicator {
+        display: none;
+        position: absolute;
+        bottom: 4px;
+        right: 4px;
+        gap: 2px;
+        align-items: flex-end;
+        height: 16px;
+    }
+    .play-indicator span {
+        width: 3px;
+        background: #fff;
+        border-radius: 2px;
+        animation: playBar 0.6s ease-in-out infinite;
+    }
+    .play-indicator span:nth-child(1) { height: 6px; animation-delay: 0s; }
+    .play-indicator span:nth-child(2) { height: 10px; animation-delay: 0.15s; }
+    .play-indicator span:nth-child(3) { height: 14px; animation-delay: 0.3s; }
+    .play-indicator span:nth-child(4) { height: 8px; animation-delay: 0.45s; }
+    @keyframes playBar {
+        0%, 100% { transform: scaleY(1); }
+        50% { transform: scaleY(0.4); }
+    }
+
+    /* 三点菜单按钮 */
+    .menu-btn {
+        position: absolute;
+        top: 4px;
+        right: 4px;
+        width: 22px; height: 22px;
+        border-radius: 50%;
+        background: rgba(0,0,0,0.5);
+        border: none;
+        color: #fff;
+        font-size: 12px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.15s, background 0.15s;
+        z-index: 2;
+    }
+    .video-card:hover .menu-btn { opacity: 1; }
+    .menu-btn:hover { background: rgba(0,0,0,0.75); }
+
+    /* 三点下拉菜单 */
+    .dropdown-menu {
+        position: absolute;
+        top: 30px;
+        right: 4px;
+        background: var(--card-bg);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+        min-width: 110px;
+        z-index: 10;
+        overflow: hidden;
+        display: none;
+    }
+    .dropdown-menu.show { display: block; }
+    .dropdown-item {
+        display: flex; align-items: center; gap: 6px;
+        padding: 8px 12px; font-size: 12px;
+        color: var(--text-primary); cursor: pointer;
+        transition: background 0.1s; border: none; background: none;
+        width: 100%; text-align: left;
+    }
+    .dropdown-item:hover { background: var(--bg); }
+    .dropdown-item.danger { color: var(--danger); }
+    .dropdown-item.danger:hover { background: #FFF0F0; }
+    .dropdown-divider { height: 1px; background: var(--border); }
+
+    /* 视频信息 */
+    .video-info { padding: 8px 8px 10px; }
+    .video-title {
+        font-size: 11.5px;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 3px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .video-meta {
+        font-size: 10px;
+        color: var(--text-muted);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .video-meta .scope-tag {
+        font-size: 9px;
+        padding: 1px 4px;
+        border-radius: 3px;
+        background: var(--bg);
+        color: var(--text-secondary);
+    }
+    .video-meta .scope-tag.team { background: var(--primary-light); color: var(--primary); }
+
+    /* 空状态 */
+    .empty-state {
+        display: none;
+        background: var(--card-bg);
+        border: 1px dashed var(--border);
+        border-radius: var(--radius);
+        padding: 60px;
+        text-align: center;
+        color: var(--text-muted);
+        font-size: 13.5px;
+    }
+
+    /* Toast */
+    .toast {
+        position: fixed; top: 24px; right: 24px;
+        background: #18181B; color: #fff; padding: 12px 20px;
+        border-radius: var(--radius-sm); font-size: 13.5px;
+        z-index: 2000; display: none; align-items: center; gap: 8px;
+        box-shadow: var(--shadow-md);
+    }
+    .toast.show { display: flex; }
+
+    /* 删除确认弹窗 */
+    .confirm-ov {
+        display: none; position: fixed; inset: 0;
+        background: rgba(0,0,0,0.45); z-index: 1500;
+        align-items: center; justify-content: center;
+    }
+    .confirm-ov.show { display: flex; }
+    .confirm-box {
+        background: var(--card-bg); border-radius: var(--radius);
+        padding: 28px; width: 380px; box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+        text-align: center;
+    }
+    .confirm-box h4 { font-size: 16px; margin-bottom: 8px; }
+    .confirm-box p { font-size: 13px; color: var(--text-secondary); margin-bottom: 20px; }
+    .confirm-box .confirm-actions { display: flex; gap: 10px; justify-content: center; }
+    .confirm-box .btn {
+        padding: 8px 24px; border-radius: var(--radius-sm); font-size: 13.5px;
+        cursor: pointer; border: none; font-weight: 500;
+    }
+    .confirm-box .btn-cancel { background: var(--bg); color: var(--text-secondary); }
+    .confirm-box .btn-cancel:hover { background: #eee; }
+    .confirm-box .btn-delete { background: var(--danger); color: #fff; }
+    .confirm-box .btn-delete:hover { background: #c53030; }
+
+    /* ====== 视频详情弹窗 ====== */
+    .detail-ov {
+        display: none; position: fixed; inset: 0;
+        background: rgba(0,0,0,0.6); z-index: 1500;
+        align-items: center; justify-content: center;
+        backdrop-filter: blur(2px);
+    }
+    .detail-ov.show { display: flex; }
+    .detail-modal {
+        background: var(--card-bg);
+        border-radius: 16px;
+        width: 1000px;
+        max-width: 95vw;
+        max-height: 90vh;
+        overflow: hidden;
+        box-shadow: 0 24px 80px rgba(0,0,0,0.2);
+        display: flex;
+        flex-direction: column;
+    }
+    .detail-modal-hd {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 16px 24px; border-bottom: 1px solid var(--border);
+    }
+    .detail-modal-hd h3 { font-size: 16px; font-weight: 600; color: var(--text-primary); }
+    .detail-close {
+        width: 30px; height: 30px; border-radius: 50%;
+        background: var(--bg); border: none; color: var(--text-secondary);
+        font-size: 16px; cursor: pointer; display: flex;
+        align-items: center; justify-content: center;
+    }
+    .detail-close:hover { background: #eee; color: var(--text-primary); }
+
+    .detail-body { display: flex; flex: 1; overflow: hidden; }
+
+    /* 左侧播放器 */
+    .detail-player {
+        flex: 0 0 420px;
+        background: #0a0a0a;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+    }
+    .player-screen {
+        width: 100%;
+        aspect-ratio: 9 / 16;
+        max-height: 520px;
+        border-radius: 12px;
+        overflow: hidden;
+        position: relative;
+        background: #1a1a2e;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .player-screen .screen-content {
+        text-align: center;
+        color: #fff;
+    }
+    .player-screen .screen-emoji { font-size: 48px; margin-bottom: 12px; }
+    .player-screen .screen-label { font-size: 13px; color: rgba(255,255,255,0.6); }
+    /* 播放器控制栏 */
+    .player-controls {
+        width: 100%;
+        margin-top: 16px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: #fff;
+    }
+    .player-controls .ctrl-btn {
+        width: 32px; height: 32px; border-radius: 50%;
+        background: rgba(255,255,255,0.1); border: none;
+        color: #fff; font-size: 14px; cursor: pointer;
+        display: flex; align-items: center; justify-content: center;
+    }
+    .player-controls .ctrl-btn:hover { background: rgba(255,255,255,0.2); }
+    .player-controls .progress-track {
+        flex: 1; height: 4px; background: rgba(255,255,255,0.2);
+        border-radius: 2px; overflow: hidden;
+    }
+    .player-controls .progress-fill {
+        height: 100%; width: 35%; background: var(--primary);
+        border-radius: 2px;
+    }
+    .player-controls .time-label {
+        font-size: 11px; color: rgba(255,255,255,0.5);
+        white-space: nowrap;
+    }
+
+    /* 音量控制 */
+    .volume-control {
+        display: flex; align-items: center; gap: 4px;
+        position: relative;
+    }
+    .volume-btn {
+        width: 32px; height: 32px; border-radius: 50%;
+        background: rgba(255,255,255,0.1); border: none;
+        color: #fff; font-size: 14px; cursor: pointer;
+        display: flex; align-items: center; justify-content: center;
+        transition: background 0.15s;
+    }
+    .volume-btn:hover { background: rgba(255,255,255,0.2); }
+    .volume-slider-wrap {
+        position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%);
+        padding: 8px 4px; margin-bottom: 4px;
+        background: rgba(0,0,0,0.8); border-radius: 8px;
+        display: none;
+    }
+    .volume-control:hover .volume-slider-wrap { display: block; }
+    .volume-slider {
+        -webkit-appearance: none; appearance: none;
+        width: 60px; height: 4px; background: rgba(255,255,255,0.3);
+        border-radius: 2px; outline: none; cursor: pointer;
+        writing-mode: vertical-lr; direction: rtl;
+        transform: rotate(180deg);
+    }
+    .volume-slider::-webkit-slider-thumb {
+        -webkit-appearance: none; appearance: none;
+        width: 12px; height: 12px; border-radius: 50%;
+        background: #fff; cursor: pointer;
+    }
+    .volume-slider::-moz-range-thumb {
+        width: 12px; height: 12px; border-radius: 50%;
+        background: #fff; cursor: pointer; border: none;
+    }
+
+    /* 右侧信息面板 */
+    .detail-info {
+        flex: 1;
+        overflow-y: auto;
+        padding: 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+    .info-section h4 {
+        font-size: 13px; font-weight: 600; color: var(--text-primary);
+        margin-bottom: 10px;
+        display: flex; align-items: center; gap: 6px;
+    }
+    .info-section h4::before {
+        content: '';
+        width: 3px; height: 14px;
+        background: var(--primary);
+        border-radius: 2px;
+    }
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+    }
+    .info-item {
+        background: var(--bg);
+        border-radius: 8px;
+        padding: 10px 12px;
+    }
+    .info-item .info-label {
+        font-size: 10.5px; color: var(--text-muted); margin-bottom: 2px;
+    }
+    .info-item .info-value {
+        font-size: 13px; font-weight: 500; color: var(--text-primary);
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .info-desc {
+        background: var(--bg); border-radius: 8px; padding: 12px;
+        font-size: 12.5px; color: var(--text-secondary); line-height: 1.6;
+    }
+
+    /* 工具列表 */
+    .tool-list { display: flex; flex-direction: column; gap: 8px; }
+    .tool-item {
+        display: flex; align-items: center; gap: 12px;
+        padding: 12px 14px;
+        background: var(--bg);
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.15s;
+        border: 1px solid transparent;
+    }
+    .tool-item:hover {
+        border-color: var(--primary);
+        background: var(--primary-light);
+    }
+    .tool-item .tool-icon {
+        width: 36px; height: 36px; border-radius: 8px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 16px; flex-shrink: 0;
+    }
+    .tool-item .tool-info { flex: 1; }
+    .tool-item .tool-name { font-size: 13px; font-weight: 500; color: var(--text-primary); }
+    .tool-item .tool-desc { font-size: 11px; color: var(--text-muted); }
+    .tool-item .tool-arrow { color: var(--text-muted); font-size: 14px; }
+
+    .detail-modal-ft {
+        padding: 12px 24px;
+        border-top: 1px solid var(--border);
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+    }
+    .detail-modal-ft .btn {
+        padding: 8px 20px; border-radius: var(--radius-sm);
+        font-size: 13px; cursor: pointer; border: none; font-weight: 500;
+    }
+    .detail-modal-ft .btn-sec { background: var(--bg); color: var(--text-secondary); }
+    .detail-modal-ft .btn-sec:hover { background: #eee; }
+    .detail-modal-ft .btn-pri { background: var(--primary); color: #fff; }
+    .detail-modal-ft .btn-pri:hover { background: var(--primary-dark); }
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+    <div class="sidebar-logo">
+        <div class="logo-mark">
+            <div class="logo-icon">AI</div>
+            <div>
+                <div class="logo-text">投顾视频平台</div>
+                <div class="logo-sub">AIGC · 短视频制作</div>
+            </div>
+        </div>
+    </div>
+    <nav class="sidebar-nav">
+        <div class="nav-section">
+            <div class="nav-section-title" onclick="toggleSection(this)">
+                资产 <span class="collapse-icon">▾</span>
+            </div>
+            <div class="nav-section-children">
+                <div class="nav-item" onclick="showToast('🎙 语音资产开发中')"><span class="nav-icon">🎙</span> 语音</div>
+                <div class="nav-item" onclick="showToast('👤 主体资产开发中')"><span class="nav-icon">👤</span> 主体</div>
+                <div class="nav-item active"><span class="nav-icon">🎬</span> 视频</div>
+            </div>
+        </div>
+        <div class="nav-section">
+            <div class="nav-item" onclick="showToast('🎬 导演台开发中')"><span class="nav-icon">🎬</span> 导演台</div>
+            <div class="nav-item" onclick="showToast('🛠 全部工具开发中')"><span class="nav-icon">🛠</span> 全部工具</div>
+        </div>
+    </nav>
+    <div class="sidebar-bottom">
+        <div class="user-info">
+            <div class="user-avatar">王</div>
+            <div><div class="user-name">王小明</div><div class="user-role">内容运营</div></div>
+        </div>
+    </div>
+</aside>
+
+<main class="main">
+    <div class="topbar">
+        <div class="topbar-title">视频</div>
+    </div>
+
+    <div class="content">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon" style="background:#EDE9FE;">🎬</div>
+                <div class="stat-info"><div class="stat-label">视频总数</div><div class="stat-value">86</div></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background:#DCFCE7;">⏱</div>
+                <div class="stat-info"><div class="stat-label">总时长</div><div class="stat-value">4.2h</div></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background:#FEF3C7;">👥</div>
+                <div class="stat-info"><div class="stat-label">团队共享</div><div class="stat-value">31</div></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background:#FEE2E2;">📅</div>
+                <div class="stat-info"><div class="stat-label">本月新增</div><div class="stat-value">24</div></div>
+            </div>
+        </div>
+
+        <div class="list-header">
+            <div class="search-box">
+                <span>🔍</span>
+                <input type="text" id="video-search" placeholder="搜索视频名称或描述…">
+            </div>
+            <div class="filter-group" data-filter="scope">
+                <span class="filter-label">可见范围</span>
+                <button class="filter-tag active" data-value="all">全部</button>
+                <button class="filter-tag" data-value="private">仅自己</button>
+                <button class="filter-tag" data-value="team">团队可见</button>
+            </div>
+            <div class="sort-wrapper">
+                <button class="sort-btn" id="sort-btn" onclick="toggleSortDropdown()">
+                    ↕ <span id="sort-label">创建时间 ↓</span> <span class="sort-icon">▾</span>
+                </button>
+                <div class="sort-dropdown" id="sort-dropdown">
+                    <button class="sort-option active" data-sort="date-desc" onclick="setSort('date-desc', '创建时间 ↓')">
+                        <span class="check">✓</span> 创建时间 ↓
+                    </button>
+                    <button class="sort-option" data-sort="date-asc" onclick="setSort('date-asc', '创建时间 ↑')">
+                        <span class="check"> </span> 创建时间 ↑
+                    </button>
+                    <button class="sort-option" data-sort="duration-asc" onclick="setSort('duration-asc', '时长 ↑')">
+                        <span class="check"> </span> 时长 ↑
+                    </button>
+                    <button class="sort-option" data-sort="duration-desc" onclick="setSort('duration-desc', '时长 ↓')">
+                        <span class="check"> </span> 时长 ↓
+                    </button>
+                    <button class="sort-option" data-sort="creator-az" onclick="setSort('creator-az', '创建人 A-Z')">
+                        <span class="check"> </span> 创建人 A-Z
+                    </button>
+                </div>
+            </div>
+            <button class="batch-btn" id="batch-btn" onclick="toggleBatchMode()">
+                ☐ <span id="batch-btn-label">批量操作</span>
+            </button>
+        </div>
+
+        <div class="batch-bar" id="batch-bar">
+            <span class="batch-info">已选 <span class="count" id="selected-count">0</span> 项</span>
+            <button class="select-all-btn" id="select-all-btn" onclick="toggleSelectAll()">全选</button>
+            <span class="spacer"></span>
+            <button class="batch-action-btn batch-download" onclick="batchDownload()">⬇ 批量下载</button>
+            <button class="batch-action-btn batch-delete" onclick="batchDelete()">✕ 批量删除</button>
+            <button class="batch-exit" onclick="exitBatchMode()">取消</button>
+        </div>
+
+        <div class="video-grid" id="video-grid"></div>
+        <div class="empty-state" id="empty-state">没有符合条件的视频</div>
+    </div>
+</main>
+
+<!-- 删除确认 -->
+<div class="confirm-ov" id="confirm-ov">
+    <div class="confirm-box">
+        <h4>确认删除</h4>
+        <p id="confirm-text"></p>
+        <div class="confirm-actions">
+            <button class="btn btn-cancel" onclick="closeConfirm()">取消</button>
+            <button class="btn btn-delete" onclick="doDelete()">删除</button>
+        </div>
+    </div>
+</div>
+
+<!-- 视频详情弹窗 -->
+<div class="detail-ov" id="detail-ov" onclick="if(event.target===this)closeDetail()">
+    <div class="detail-modal">
+        <div class="detail-modal-hd">
+            <h3 id="detail-title">视频详情</h3>
+            <button class="detail-close" onclick="closeDetail()">✕</button>
+        </div>
+        <div class="detail-body">
+            <!-- 左侧播放器 -->
+            <div class="detail-player">
+                <div class="player-screen" id="player-screen">
+                    <div class="screen-content">
+                        <div class="screen-emoji" id="screen-emoji">🎬</div>
+                        <div class="screen-label" id="screen-label">视频播放区域</div>
+                    </div>
+                </div>
+                <div class="player-controls">
+                    <button class="ctrl-btn" onclick="togglePlay(this)" id="play-btn">▶</button>
+                    <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+                    <span class="time-label" id="player-time">00:00 / 03:24</span>
+                    <div class="volume-control">
+                        <button class="volume-btn" id="volume-icon">🔊</button>
+                        <div class="volume-slider-wrap">
+                            <input type="range" class="volume-slider" id="volume-slider" min="0" max="100" value="80" oninput="changeVolume(this.value)">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- 右侧信息 -->
+            <div class="detail-info">
+                <div class="info-section">
+                    <h4>基本信息</h4>
+                    <div class="info-grid">
+                        <div class="info-item"><div class="info-label">视频名称</div><div class="info-value" id="d-title">-</div></div>
+                        <div class="info-item"><div class="info-label">时长</div><div class="info-value" id="d-duration">-</div></div>
+                        <div class="info-item"><div class="info-label">创建人</div><div class="info-value" id="d-creator">-</div></div>
+                        <div class="info-item"><div class="info-label">创建日期</div><div class="info-value" id="d-date">-</div></div>
+                        <div class="info-item"><div class="info-label">画幅比例</div><div class="info-value">竖屏 9:16</div></div>
+                        <div class="info-item"><div class="info-label">分辨率</div><div class="info-value">1080 × 1920</div></div>
+                        <div class="info-item"><div class="info-label">可见范围</div><div class="info-value" id="d-scope">-</div></div>
+                        <div class="info-item"><div class="info-label">文件大小</div><div class="info-value">28.6 MB</div></div>
+                    </div>
+                </div>
+                <div class="info-section">
+                    <h4>视频描述</h4>
+                    <div class="info-desc" id="d-desc">-</div>
+                </div>
+                <div class="info-section">
+                    <h4>后期处理工具</h4>
+                    <div class="tool-list">
+                        <div class="tool-item" onclick="showToast('🎵 添加BGM功能开发中')">
+                            <div class="tool-icon" style="background:#EDE9FE;">🎵</div>
+                            <div class="tool-info"><div class="tool-name">添加 BGM</div><div class="tool-desc">为视频添加背景音乐</div></div>
+                            <span class="tool-arrow">›</span>
+                        </div>
+                        <div class="tool-item" onclick="showToast('💧 添加水印功能开发中')">
+                            <div class="tool-icon" style="background:#FEF3C7;">💧</div>
+                            <div class="tool-info"><div class="tool-name">添加水印</div><div class="tool-desc">上传或选择水印素材</div></div>
+                            <span class="tool-arrow">›</span>
+                        </div>
+                        <div class="tool-item" onclick="showToast('📝 字幕编辑功能开发中')">
+                            <div class="tool-icon" style="background:#DCFCE7;">📝</div>
+                            <div class="tool-info"><div class="tool-name">字幕编辑</div><div class="tool-desc">编辑或替换字幕内容</div></div>
+                            <span class="tool-arrow">›</span>
+                        </div>
+                        <div class="tool-item" onclick="showToast('✂️ 视频剪辑功能开发中')">
+                            <div class="tool-icon" style="background:#FEE2E2;">✂️</div>
+                            <div class="tool-info"><div class="tool-name">视频剪辑</div><div class="tool-desc">裁剪、截取片段、合并</div></div>
+                            <span class="tool-arrow">›</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="detail-modal-ft">
+            <button class="btn btn-sec" onclick="closeDetail()">关闭</button>
+            <button class="btn btn-pri" onclick="showToast('⬇ 开始下载视频');closeDetail()">⬇ 下载视频</button>
+        </div>
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+    var videoData = [
+        { id: 1, title: '5月A股策略展望', desc: '震荡市中的结构性机会，重点关注科技消费两条主线。策略研报口播，适合专业投资者观看。', duration: '03:24', scope: 'team', gradient: 'linear-gradient(135deg,#667eea,#764ba2)', coverThumb: 'finance-chart', creator: '王小明', date: '2026-05-22' },
+        { id: 2, title: '新能源赛道周报', desc: '锂电产业链最新跟踪，上游锂矿到下游电池全链分析。', duration: '02:18', scope: 'team', gradient: 'linear-gradient(135deg,#a8edea,#fed6e3)', coverThumb: 'energy-solar', creator: '王小明', date: '2026-05-21' },
+        { id: 3, title: '科技股投资框架', desc: '从算力到应用的产业链梳理，AI芯片到终端应用的投资逻辑。', duration: '05:42', scope: 'private', gradient: 'linear-gradient(135deg,#fbc2eb,#a6c1ee)', coverThumb: 'tech-chip', creator: '李总', date: '2026-05-20' },
+        { id: 4, title: '每日复盘', desc: '三大指数涨跌分析，板块轮动节奏判断。日更内容。', duration: '01:56', scope: 'team', gradient: 'linear-gradient(135deg,#ffecd2,#fcb69f)', coverThumb: 'market-review', creator: '王小明', date: '2026-05-19' },
+        { id: 5, title: '消费行业深度', desc: '白酒板块估值回归，消费复苏逻辑下的投资机会。', duration: '04:30', scope: 'private', gradient: 'linear-gradient(135deg,#a1c4fd,#c2e9fb)', coverThumb: 'consumer-goods', creator: '王小明', date: '2026-05-18' },
+        { id: 6, title: 'AI+金融应用', desc: '大模型在投顾场景的应用，智能投研和智能客服实践。', duration: '06:15', scope: 'team', gradient: 'linear-gradient(135deg,#d4fc79,#96e6a1)', coverThumb: 'ai-robot', creator: '张总', date: '2026-05-17' },
+        { id: 7, title: '宏观数据速报', desc: '4月PMI超预期，制造业景气度回升，后续关注通胀数据。', duration: '01:22', scope: 'private', gradient: 'linear-gradient(135deg,#f093fb,#f5576c)', coverThumb: 'data-report', creator: '王小明', date: '2026-05-16' },
+        { id: 8, title: '港股科技周度', desc: '港股科技板块周度回顾与展望，重点关注头部平台。', duration: '03:08', scope: 'team', gradient: 'linear-gradient(135deg,#4facfe,#00f2fe)', coverThumb: 'hk-market', creator: '王小明', date: '2026-05-15' },
+        { id: 9, title: '医药投资逻辑', desc: '医药生物行业投资逻辑解析，创新药与医疗器械两条线。', duration: '04:55', scope: 'private', gradient: 'linear-gradient(135deg,#43e97b,#38f9d7)', coverThumb: 'medical', creator: '李总', date: '2026-05-14' },
+        { id: 10, title: '券商板块指南', desc: '券商板块投资指南，估值修复逻辑下的配置建议。', duration: '03:45', scope: 'private', gradient: 'linear-gradient(135deg,#a8c0ff,#3f2b96)', coverThumb: 'finance-office', creator: '王小明', date: '2026-05-12' },
+        { id: 11, title: '半导体产业链全景', desc: '半导体产业链全景图，从设计到封测各环节梳理。', duration: '05:30', scope: 'team', gradient: 'linear-gradient(135deg,#fa709a,#fee140)', coverThumb: 'semiconductor', creator: '王小明', date: '2026-05-11' },
+        { id: 12, title: '量化策略周报', desc: '量化因子最新表现，市场微观结构分析。', duration: '02:48', scope: 'team', gradient: 'linear-gradient(135deg,#48c6ef,#6f86d6)', coverThumb: 'quant-chart', creator: '张总', date: '2026-05-10' },
+        { id: 13, title: 'ETF周报：宽基指数', desc: '沪深300、中证500等宽基ETF资金流向跟踪。', duration: '03:15', scope: 'private', gradient: 'linear-gradient(135deg,#fe9a8b,#f78ca0)', coverThumb: 'etf-flow', creator: '王小明', date: '2026-05-09' },
+        { id: 14, title: '地产链观察', desc: '房地产产业链周度跟踪，销售数据和政策变化。', duration: '04:12', scope: 'team', gradient: 'linear-gradient(135deg,#a18cd1,#fbc2eb)', coverThumb: 'real-estate', creator: '李总', date: '2026-05-08' },
+        { id: 15, title: '海外市场速览', desc: '美股科技巨头财报速览，美联储议息会议前瞻。', duration: '02:36', scope: 'private', gradient: 'linear-gradient(135deg,#fad0c4,#ffd1ff)', coverThumb: 'global-market', creator: '王小明', date: '2026-05-07' },
+        { id: 16, title: 'ESG投资趋势', desc: 'ESG投资框架和实践，绿色金融政策解读。', duration: '05:08', scope: 'team', gradient: 'linear-gradient(135deg,#89f7fe,#66a6ff)', coverThumb: 'esg-green', creator: '张总', date: '2026-05-06' },
+    ];
+
+    var currentFilter = { scope: 'all', keyword: '' };
+    var currentSort = 'date-desc';
+    var deleteTargetId = null;
+    var openMenuId = null;
+    var playingCardId = null;
+    var playTimer = null;
+
+    // 批量选择
+    var batchMode = false;
+    var selectedIds = [];
+
+    function parseDuration(str) {
+        var parts = str.split(':');
+        return parseInt(parts[0]) * 60 + parseInt(parts[1]);
+    }
+
+    // 生成 SVG 封面缩略图
+    function generateCoverSVG(type, gradient) {
+        // 从 gradient 提取颜色
+        var colors = gradient.match(/#[0-9a-fA-F]{6}/g);
+        var c1 = colors ? colors[0] : '#667eea';
+        var c2 = colors ? colors[1] : '#764ba2';
+
+        var scenes = {
+            'finance-chart': '<rect x="30" y="60" width="8" height="50" rx="2" fill="rgba(255,255,255,0.5)"/><rect x="45" y="40" width="8" height="70" rx="2" fill="rgba(255,255,255,0.7)"/><rect x="60" y="55" width="8" height="55" rx="2" fill="rgba(255,255,255,0.4)"/><rect x="75" y="30" width="8" height="80" rx="2" fill="rgba(255,255,255,0.8)"/><rect x="90" y="50" width="8" height="60" rx="2" fill="rgba(255,255,255,0.6)"/><rect x="105" y="35" width="8" height="75" rx="2" fill="rgba(255,255,255,0.9)"/><line x1="25" y1="115" x2="120" y2="115" stroke="rgba(255,255,255,0.3)" stroke-width="1"/><text x="72" y="145" text-anchor="middle" fill="rgba(255,255,255,0.8)" font-size="10" font-weight="600">策略展望</text>',
+            'energy-solar': '<circle cx="72" cy="60" r="25" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.6)" stroke-width="2"/><line x1="72" y1="30" x2="72" y2="20" stroke="rgba(255,255,255,0.5)" stroke-width="2"/><line x1="72" y1="90" x2="72" y2="100" stroke="rgba(255,255,255,0.5)" stroke-width="2"/><line x1="42" y1="60" x2="32" y2="60" stroke="rgba(255,255,255,0.5)" stroke-width="2"/><line x1="102" y1="60" x2="112" y2="60" stroke="rgba(255,255,255,0.5)" stroke-width="2"/><line x1="51" y1="39" x2="44" y2="32" stroke="rgba(255,255,255,0.5)" stroke-width="2"/><line x1="93" y1="81" x2="100" y2="88" stroke="rgba(255,255,255,0.5)" stroke-width="2"/><line x1="93" y1="39" x2="100" y2="32" stroke="rgba(255,255,255,0.5)" stroke-width="2"/><line x1="51" y1="81" x2="44" y2="88" stroke="rgba(255,255,255,0.5)" stroke-width="2"/><text x="72" y="145" text-anchor="middle" fill="rgba(255,255,255,0.8)" font-size="10" font-weight="600">新能源</text>',
+            'tech-chip': '<rect x="42" y="35" width="60" height="50" rx="6" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.6)" stroke-width="1.5"/><rect x="55" y="48" width="34" height="24" rx="3" fill="rgba(255,255,255,0.25)"/><line x1="52" y1="55" x2="42" y2="55" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/><line x1="52" y1="62" x2="42" y2="62" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/><line x1="92" y1="55" x2="102" y2="55" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/><line x1="92" y1="62" x2="102" y2="62" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/><text x="72" y="145" text-anchor="middle" fill="rgba(255,255,255,0.8)" font-size="10" font-weight="600">科技</text>',
+            'market-review': '<circle cx="50" cy="55" r="18" fill="rgba(255,255,255,0.12)" stroke="rgba(255,255,255,0.5)" stroke-width="1.5"/><circle cx="94" cy="55" r="18" fill="rgba(255,255,255,0.12)" stroke="rgba(255,255,255,0.5)" stroke-width="1.5"/><path d="M42 55 L48 48 L52 58 L58 45 L62 55" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="1.5"/><path d="M86 55 L92 42 L96 52 L102 48 L106 55" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="1.5"/><text x="72" y="145" text-anchor="middle" fill="rgba(255,255,255,0.8)" font-size="10" font-weight="600">复盘</text>',
+            'consumer-goods': '<rect x="50" y="35" width="44" height="55" rx="8" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.6)" stroke-width="1.5"/><ellipse cx="72" cy="45" rx="12" ry="6" fill="rgba(255,255,255,0.25)"/><line x1="72" y1="51" x2="72" y2="75" stroke="rgba(255,255,255,0.3)" stroke-width="1"/><text x="72" y="145" text-anchor="middle" fill="rgba(255,255,255,0.8)" font-size="10" font-weight="600">消费</text>',
+            'ai-robot': '<circle cx="72" cy="50" r="20" fill="rgba(255,255,255,0.12)" stroke="rgba(255,255,255,0.6)" stroke-width="1.5"/><circle cx="64" cy="46" r="3" fill="rgba(255,255,255,0.7)"/><circle cx="80" cy="46" r="3" fill="rgba(255,255,255,0.7)"/><path d="M64 56 Q72 64 80 56" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="1.5"/><line x1="72" y1="30" x2="72" y2="22" stroke="rgba(255,255,255,0.5)" stroke-width="1.5"/><circle cx="72" cy="20" r="3" fill="rgba(255,255,255,0.5)"/><rect x="52" y="72" width="40" height="15" rx="4" fill="rgba(255,255,255,0.15)"/><text x="72" y="145" text-anchor="middle" fill="rgba(255,255,255,0.8)" font-size="10" font-weight="600">AI+</text>',
+            'data-report': '<rect x="35" y="35" width="74" height="45" rx="4" fill="rgba(255,255,255,0.1)" stroke="rgba(255,255,255,0.5)" stroke-width="1"/><line x1="45" y1="48" x2="95" y2="48" stroke="rgba(255,255,255,0.3)" stroke-width="1"/><line x1="45" y1="58" x2="85" y2="58" stroke="rgba(255,255,255,0.3)" stroke-width="1"/><line x1="45" y1="68" x2="90" y2="68" stroke="rgba(255,255,255,0.3)" stroke-width="1"/><rect x="45" y="44" width="20" height="4" rx="2" fill="rgba(255,255,255,0.5)"/><rect x="45" y="54" width="30" height="4" rx="2" fill="rgba(255,255,255,0.5)"/><rect x="45" y="64" width="25" height="4" rx="2" fill="rgba(255,255,255,0.5)"/><text x="72" y="145" text-anchor="middle" fill="rgba(255,255,255,0.8)" font-size="10" font-weight="600">数据</text>',
+            'hk-market': '<text x="72" y="65" text-anchor="middle" fill="rgba(255,255,255,0.9)" font-size="28" font-weight="700">HK</text><line x1="30" y1="80" x2="114" y2="80" stroke="rgba(255,255,255,0.3)" stroke-width="1"/><path d="M30 80 L50 72 L65 78 L80 65 L95 70 L114 60" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2"/><text x="72" y="145" text-anchor="middle" fill="rgba(255,255,255,0.8)" font-size="10" font-weight="600">港股</text>',
+            'medical': '<rect x="62" y="30" width="20" height="55" rx="3" fill="rgba(255,255,255,0.2)"/><rect x="50" y="48" width="44" height="20" rx="3" fill="rgba(255,255,255,0.2)"/><circle cx="72" cy="58" r="8" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.6)" stroke-width="1.5"/><line x1="72" y1="52" x2="72" y2="64" stroke="rgba(255,255,255,0.7)" stroke-width="1.5"/><line x1="66" y1="58" x2="78" y2="58" stroke="rgba(255,255,255,0.7)" stroke-width="1.5"/><text x="72" y="145" text-anchor="middle" fill="rgba(255,255,255,0.8)" font-size="10" font-weight="600">医药</text>',
+            'finance-office': '<rect x="40" y="40" width="64" height="40" rx="4" fill="rgba(255,255,255,0.1)" stroke="rgba(255,255,255,0.5)" stroke-width="1"/><line x1="40" y1="55" x2="104" y2="55" stroke="rgba(255,255,255,0.3)" stroke-width="1"/><circle cx="72" cy="48" r="6" fill="rgba(255,255,255,0.25)"/><rect x="55" y="60" width="15" height="3" rx="1" fill="rgba(255,255,255,0.4)"/><rect x="55" y="66" width="25" height="3" rx="1" fill="rgba(255,255,255,0.4)"/><rect x="55" y="72" width="20" height="3" rx="1" fill="rgba(255,255,255,0.4)"/><text x="72" y="145" text-anchor="middle" fill="rgba(255,255,255,0.8)" font-size="10" font-weight="600">券商</text>',
+            'semiconductor': '<rect x="45" y="40" width="54" height="40" rx="5" fill="rgba(255,255,255,0.12)" stroke="rgba(255,255,255,0.6)" stroke-width="1.5"/><rect x="58" y="50" width="28" height="20" rx="3" fill="rgba(255,255,255,0.2)"/><line x1="45" y1="50" x2="38" y2="50" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/><line x1="45" y1="58" x2="38" y2="58" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/><line x1="45" y1="66" x2="38" y2="66" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/><line x1="99" y1="50" x2="106" y2="50" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/><line x1="99" y1="58" x2="106" y2="58" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/><line x1="99" y1="66" x2="106" y2="66" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/><line x1="58" y1="40" x2="58" y2="33" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/><line x1="72" y1="40" x2="72" y2="33" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/><line x1="86" y1="40" x2="86" y2="33" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/><text x="72" y="145" text-anchor="middle" fill="rgba(255,255,255,0.8)" font-size="10" font-weight="600">半导体</text>',
+            'quant-chart': '<line x1="30" y1="90" x2="114" y2="90" stroke="rgba(255,255,255,0.3)" stroke-width="1"/><line x1="30" y1="30" x2="30" y2="90" stroke="rgba(255,255,255,0.3)" stroke-width="1"/><path d="M30 85 L42 75 L54 78 L66 60 L78 65 L90 45 L102 50 L114 35" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2"/><circle cx="66" cy="60" r="3" fill="rgba(255,255,255,0.8)"/><circle cx="90" cy="45" r="3" fill="rgba(255,255,255,0.8)"/><circle cx="114" cy="35" r="3" fill="rgba(255,255,255,0.8)"/><text x="72" y="145" text-anchor="middle" fill="rgba(255,255,255,0.8)" font-size="10" font-weight="600">量化</text>',
+            'etf-flow': '<circle cx="72" cy="60" r="30" fill="rgba(255,255,255,0.1)" stroke="rgba(255,255,255,0.5)" stroke-width="1.5"/><path d="M72 30 A30 30 0 0 1 102 60" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="4"/><path d="M72 30 A30 30 0 0 0 42 60" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="4"/><path d="M42 60 A30 30 0 0 0 72 90" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="4"/><path d="M72 90 A30 30 0 0 0 102 60" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="4"/><text x="72" y="145" text-anchor="middle" fill="rgba(255,255,255,0.8)" font-size="10" font-weight="600">ETF</text>',
+            'real-estate': '<rect x="42" y="50" width="60" height="40" rx="2" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.5)" stroke-width="1"/><polygon points="72,30 38,50 106,50" fill="rgba(255,255,255,0.2)" stroke="rgba(255,255,255,0.5)" stroke-width="1"/><rect x="62" y="65" width="20" height="25" rx="1" fill="rgba(255,255,255,0.25)"/><rect x="48" y="55" width="10" height="10" rx="1" fill="rgba(255,255,255,0.2)"/><rect x="86" y="55" width="10" height="10" rx="1" fill="rgba(255,255,255,0.2)"/><text x="72" y="145" text-anchor="middle" fill="rgba(255,255,255,0.8)" font-size="10" font-weight="600">地产</text>',
+            'global-market': '<text x="40" y="50" fill="rgba(255,255,255,0.6)" font-size="14">🇺🇸</text><text x="70" y="50" fill="rgba(255,255,255,0.6)" font-size="14">🇪🇺</text><text x="100" y="50" fill="rgba(255,255,255,0.6)" font-size="14">🇯🇵</text><line x1="30" y1="70" x2="114" y2="70" stroke="rgba(255,255,255,0.2)" stroke-width="1"/><path d="M30 75 L50 68 L70 72 L90 62 L114 65" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="1.5"/><text x="72" y="145" text-anchor="middle" fill="rgba(255,255,255,0.8)" font-size="10" font-weight="600">海外</text>',
+            'esg-green': '<path d="M72 35 C50 35 35 55 35 70 C35 88 52 100 72 100 C92 100 109 88 109 70 C109 55 94 35 72 35Z" fill="rgba(255,255,255,0.12)" stroke="rgba(255,255,255,0.5)" stroke-width="1.5"/><path d="M72 45 C72 45 60 55 60 68 C60 75 65 82 72 85 C79 82 84 75 84 68 C84 55 72 45 72 45Z" fill="rgba(255,255,255,0.2)"/><line x1="72" y1="55" x2="72" y2="82" stroke="rgba(255,255,255,0.5)" stroke-width="1"/><line x1="72" y1="65" x2="65" y2="60" stroke="rgba(255,255,255,0.4)" stroke-width="1"/><line x1="72" y1="70" x2="79" y2="65" stroke="rgba(255,255,255,0.4)" stroke-width="1"/><text x="72" y="145" text-anchor="middle" fill="rgba(255,255,255,0.8)" font-size="10" font-weight="600">ESG</text>'
+        };
+
+        var content = scenes[type] || scenes['finance-chart'];
+
+        return 'data:image/svg+xml,' + encodeURIComponent(
+            '<svg xmlns="http://www.w3.org/2000/svg" width="144" height="160">' +
+            '<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">' +
+            '<stop offset="0%" stop-color="' + c1 + '"/>' +
+            '<stop offset="100%" stop-color="' + c2 + '"/>' +
+            '</linearGradient></defs>' +
+            '<rect width="144" height="160" fill="url(#g)"/>' +
+            content +
+            '</svg>'
+        );
+    }
+
+    function renderVideos() {
+        var grid = document.getElementById('video-grid');
+        var empty = document.getElementById('empty-state');
+        var keyword = currentFilter.keyword.trim().toLowerCase();
+
+        var filtered = videoData.filter(function(v) {
+            if (currentFilter.scope !== 'all' && v.scope !== currentFilter.scope) return false;
+            if (keyword && !v.title.toLowerCase().includes(keyword) && !v.desc.toLowerCase().includes(keyword)) return false;
+            return true;
+        });
+
+        if (filtered.length === 0) {
+            grid.innerHTML = '';
+            empty.style.display = 'block';
+            return;
+        }
+
+        empty.style.display = 'none';
+
+        // 排序
+        var sorted = filtered.slice().sort(function(a, b) {
+            switch (currentSort) {
+                case 'date-desc': return b.date.localeCompare(a.date);
+                case 'date-asc': return a.date.localeCompare(b.date);
+                case 'duration-asc': return parseDuration(a.duration) - parseDuration(b.duration);
+                case 'duration-desc': return parseDuration(b.duration) - parseDuration(a.duration);
+                case 'creator-az': return a.creator.localeCompare(b.creator, 'zh');
+                default: return 0;
+            }
+        });
+
+        var html = '';
+        for (var i = 0; i < sorted.length; i++) {
+            var v = sorted[i];
+            var isSelected = selectedIds.indexOf(v.id) !== -1;
+            var selectedClass = isSelected ? ' selected' : '';
+            var scopeTag = v.scope === 'team'
+                ? '<span class="scope-tag team">团队可见</span>'
+                : '<span class="scope-tag">仅自己</span>';
+
+            var coverURL = generateCoverSVG(v.coverThumb, v.gradient);
+
+            html += '<div class="video-card' + selectedClass + '" data-id="' + v.id + '" onclick="handleCardClick(' + v.id + ', event)">' +
+                '<div class="card-checkbox" onclick="event.stopPropagation();toggleSelect(' + v.id + ')">✓</div>' +
+                '<div class="video-cover" onmouseenter="startPreview(this,' + v.id + ')" onmouseleave="stopPreview(this)" onclick="event.stopPropagation();openDetail(' + v.id + ')">' +
+                    '<img src="' + coverURL + '" style="width:100%;height:100%;object-fit:cover;display:block;" alt="' + v.title + '">' +
+                    '<span class="duration-badge">' + v.duration + '</span>' +
+                    '<div class="play-overlay"><div class="play-circle"></div></div>' +
+                    '<div class="play-indicator"><span></span><span></span><span></span><span></span></div>' +
+                    '<button class="menu-btn" onclick="event.stopPropagation();toggleMenu(' + v.id + ')">⋮</button>' +
+                    '<div class="dropdown-menu" id="menu-' + v.id + '">' +
+                        '<button class="dropdown-item" onclick="event.stopPropagation();doDownload(' + v.id + ')">⬇ 下载视频</button>' +
+                        '<div class="dropdown-divider"></div>' +
+                        '<button class="dropdown-item danger" onclick="event.stopPropagation();requestDelete(' + v.id + ',\'' + v.title.replace(/'/g,"\\'") + '\')">✕ 删除视频</button>' +
+                    '</div>' +
+                '</div>' +
+                '<div class="video-info">' +
+                    '<div class="video-title">' + v.title + '</div>' +
+                    '<div class="video-meta">' +
+                        '<span>' + v.creator + ' · ' + v.date + '</span>' +
+                        scopeTag +
+                    '</div>' +
+                '</div>' +
+            '</div>';
+        }
+        grid.innerHTML = html;
+    }
+
+    // ====== hover 自动预览 ======
+    function startPreview(card, id) {
+        var cover = card.querySelector('.video-cover');
+        cover.classList.add('playing');
+        playingCardId = id;
+        // 模拟播放进度
+        playTimer = setTimeout(function() {
+            cover.classList.remove('playing');
+        }, 5000);
+    }
+    function stopPreview(card) {
+        var cover = card.querySelector('.video-cover');
+        cover.classList.remove('playing');
+        if (playTimer) { clearTimeout(playTimer); playTimer = null; }
+        playingCardId = null;
+    }
+
+    // ====== 详情弹窗 ======
+    function openDetail(id) {
+        var v = null;
+        for (var i = 0; i < videoData.length; i++) {
+            if (videoData[i].id === id) { v = videoData[i]; break; }
+        }
+        if (!v) return;
+
+        // 重置播放器状态
+        clearInterval(playerState.timer);
+        playerState.playing = false;
+        playerState.currentTime = 0;
+        playerState.totalDuration = parseDuration(v.duration);
+
+        var playBtn = document.getElementById('play-btn');
+        if (playBtn) playBtn.textContent = '▶';
+        document.getElementById('progress-fill').style.width = '0%';
+
+        document.getElementById('detail-title').textContent = v.title;
+        var coverURL = generateCoverSVG(v.coverThumb, v.gradient);
+        document.getElementById('player-screen').innerHTML = '<img src="' + coverURL + '" style="width:100%;height:100%;object-fit:cover;display:block;" alt="' + v.title + '">';
+        document.getElementById('player-time').textContent = '00:00 / ' + v.duration;
+        document.getElementById('d-title').textContent = v.title;
+        document.getElementById('d-duration').textContent = v.duration;
+        document.getElementById('d-creator').textContent = v.creator;
+        document.getElementById('d-date').textContent = v.date;
+        document.getElementById('d-scope').textContent = v.scope === 'team' ? '团队可见' : '仅自己';
+        document.getElementById('d-desc').textContent = v.desc;
+
+        document.getElementById('detail-ov').classList.add('show');
+    }
+
+    function closeDetail() {
+        clearInterval(playerState.timer);
+        playerState.playing = false;
+        document.getElementById('detail-ov').classList.remove('show');
+    }
+
+    // ====== 菜单 ======
+    function toggleMenu(id) {
+        var menu = document.getElementById('menu-' + id);
+        if (openMenuId && openMenuId !== id) {
+            var oldMenu = document.getElementById('menu-' + openMenuId);
+            if (oldMenu) oldMenu.classList.remove('show');
+        }
+        menu.classList.toggle('show');
+        openMenuId = menu.classList.contains('show') ? id : null;
+    }
+    document.addEventListener('click', function() {
+        if (openMenuId) {
+            var menu = document.getElementById('menu-' + openMenuId);
+            if (menu) menu.classList.remove('show');
+            openMenuId = null;
+        }
+    });
+
+    function doDownload(id) { showToast('⬇ 开始下载视频 #' + id); closeAllMenus(); }
+    function closeAllMenus() {
+        if (openMenuId) {
+            var menu = document.getElementById('menu-' + openMenuId);
+            if (menu) menu.classList.remove('show');
+            openMenuId = null;
+        }
+    }
+
+    function requestDelete(id, title) {
+        deleteTargetId = id;
+        document.getElementById('confirm-text').textContent = '确定要删除「' + title + '」吗？删除后无法恢复。';
+        document.getElementById('confirm-ov').classList.add('show');
+        closeAllMenus();
+    }
+    function closeConfirm() { document.getElementById('confirm-ov').classList.remove('show'); deleteTargetId = null; }
+
+    function bindFilters() {
+        document.querySelectorAll('.filter-group .filter-tag').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                var group = btn.closest('.filter-group');
+                var filterType = group.dataset.filter;
+                group.querySelectorAll('.filter-tag').forEach(function(item) { item.classList.remove('active'); });
+                btn.classList.add('active');
+                currentFilter[filterType] = btn.dataset.value;
+                renderVideos();
+            });
+        });
+        var searchInput = document.getElementById('video-search');
+        if (searchInput) {
+            searchInput.addEventListener('input', function(e) {
+                currentFilter.keyword = e.target.value;
+                renderVideos();
+            });
+        }
+    }
+
+    // ====== 卡片点击（批量模式切换选择/详情） ======
+    function handleCardClick(id, event) {
+        if (batchMode) {
+            toggleSelect(id);
+        }
+    }
+
+    // ====== 批量选择 ======
+    function toggleBatchMode() {
+        batchMode = !batchMode;
+        var btn = document.getElementById('batch-btn');
+        var label = document.getElementById('batch-btn-label');
+        var grid = document.getElementById('video-grid');
+        var bar = document.getElementById('batch-bar');
+
+        if (batchMode) {
+            btn.classList.add('active');
+            label.textContent = '完成';
+            grid.classList.add('batch-mode');
+            bar.classList.add('show');
+        } else {
+            exitBatchMode();
+            return;
+        }
+        updateSelectionUI();
+    }
+
+    function exitBatchMode() {
+        batchMode = false;
+        selectedIds = [];
+        var btn = document.getElementById('batch-btn');
+        var label = document.getElementById('batch-btn-label');
+        var grid = document.getElementById('video-grid');
+        var bar = document.getElementById('batch-bar');
+        btn.classList.remove('active');
+        label.textContent = '批量操作';
+        grid.classList.remove('batch-mode');
+        bar.classList.remove('show');
+        renderVideos();
+    }
+
+    function toggleSelect(id) {
+        var idx = selectedIds.indexOf(id);
+        if (idx === -1) {
+            selectedIds.push(id);
+        } else {
+            selectedIds.splice(idx, 1);
+        }
+        updateSelectionUI();
+    }
+
+    function toggleSelectAll() {
+        var keyword = currentFilter.keyword.trim().toLowerCase();
+        var filtered = videoData.filter(function(v) {
+            if (currentFilter.scope !== 'all' && v.scope !== currentFilter.scope) return false;
+            if (keyword && !v.title.toLowerCase().includes(keyword) && !v.desc.toLowerCase().includes(keyword)) return false;
+            return true;
+        });
+        var allSelected = filtered.every(function(v) { return selectedIds.indexOf(v.id) !== -1; });
+
+        if (allSelected) {
+            // 取消全选
+            filtered.forEach(function(v) {
+                var idx = selectedIds.indexOf(v.id);
+                if (idx !== -1) selectedIds.splice(idx, 1);
+            });
+        } else {
+            // 全选
+            filtered.forEach(function(v) {
+                if (selectedIds.indexOf(v.id) === -1) selectedIds.push(v.id);
+            });
+        }
+        updateSelectionUI();
+    }
+
+    function updateSelectionUI() {
+        // 更新卡片选中样式
+        document.querySelectorAll('.video-card').forEach(function(card) {
+            var id = parseInt(card.dataset.id);
+            if (selectedIds.indexOf(id) !== -1) {
+                card.classList.add('selected');
+            } else {
+                card.classList.remove('selected');
+            }
+        });
+        // 更新计数
+        document.getElementById('selected-count').textContent = selectedIds.length;
+
+        // 更新全选按钮文字
+        var keyword = currentFilter.keyword.trim().toLowerCase();
+        var filtered = videoData.filter(function(v) {
+            if (currentFilter.scope !== 'all' && v.scope !== currentFilter.scope) return false;
+            if (keyword && !v.title.toLowerCase().includes(keyword) && !v.desc.toLowerCase().includes(keyword)) return false;
+            return true;
+        });
+        var allSelected = filtered.length > 0 && filtered.every(function(v) { return selectedIds.indexOf(v.id) !== -1; });
+        document.getElementById('select-all-btn').textContent = allSelected ? '取消全选' : '全选';
+    }
+
+    function batchDownload() {
+        if (selectedIds.length === 0) { showToast('请先选择视频'); return; }
+        showToast('⬇ 开始下载 ' + selectedIds.length + ' 个视频');
+    }
+
+    function batchDelete() {
+        if (selectedIds.length === 0) { showToast('请先选择视频'); return; }
+        deleteTargetId = 'batch';
+        document.getElementById('confirm-text').textContent = '确定要删除选中的 ' + selectedIds.length + ' 个视频吗？删除后无法恢复。';
+        document.getElementById('confirm-ov').classList.add('show');
+    }
+
+    // 覆盖 doDelete，支持批量删除
+    function doDelete() {
+        if (deleteTargetId === 'batch') {
+            // 批量删除
+            var count = selectedIds.length;
+            for (var i = videoData.length - 1; i >= 0; i--) {
+                if (selectedIds.indexOf(videoData[i].id) !== -1) {
+                    videoData.splice(i, 1);
+                }
+            }
+            selectedIds = [];
+            renderVideos();
+            showToast('✅ 已删除 ' + count + ' 个视频');
+            closeConfirm();
+        } else if (deleteTargetId !== null) {
+            // 单个删除
+            for (var j = 0; j < videoData.length; j++) {
+                if (videoData[j].id === deleteTargetId) { videoData.splice(j, 1); break; }
+            }
+            renderVideos();
+            showToast('✅ 视频已删除');
+            closeConfirm();
+        }
+    }
+
+    // ====== 排序 ======
+    function toggleSortDropdown() {
+        var dd = document.getElementById('sort-dropdown');
+        dd.classList.toggle('show');
+    }
+
+    function setSort(sort, label) {
+        currentSort = sort;
+        document.getElementById('sort-label').textContent = label;
+
+        // 更新活跃状态
+        document.querySelectorAll('.sort-option').forEach(function(opt) {
+            opt.classList.remove('active');
+            opt.querySelector('.check').textContent = ' ';
+        });
+        var activeOpt = document.querySelector('.sort-option[data-sort="' + sort + '"]');
+        if (activeOpt) {
+            activeOpt.classList.add('active');
+            activeOpt.querySelector('.check').textContent = '✓';
+        }
+
+        document.getElementById('sort-dropdown').classList.remove('show');
+        renderVideos();
+    }
+
+    // 点击外部关闭排序下拉
+    document.addEventListener('click', function(e) {
+        var dd = document.getElementById('sort-dropdown');
+        var btn = document.getElementById('sort-btn');
+        if (dd && !dd.contains(e.target) && !btn.contains(e.target)) {
+            dd.classList.remove('show');
+        }
+    });
+
+    // ====== 播放器控制 ======
+    var playerState = {
+        playing: false,
+        currentTime: 0,
+        totalDuration: 0,
+        volume: 80,
+        timer: null
+    };
+
+    function togglePlay(btn) {
+        if (playerState.playing) {
+            btn.textContent = '▶';
+            playerState.playing = false;
+            clearInterval(playerState.timer);
+        } else {
+            btn.textContent = '⏸';
+            playerState.playing = true;
+            playerState.timer = setInterval(function() {
+                playerState.currentTime += 1;
+                if (playerState.currentTime >= playerState.totalDuration) {
+                    playerState.currentTime = playerState.totalDuration;
+                    btn.textContent = '▶';
+                    playerState.playing = false;
+                    clearInterval(playerState.timer);
+                }
+                updatePlayerUI();
+            }, 1000);
+        }
+    }
+
+    function changeVolume(val) {
+        playerState.volume = parseInt(val);
+        var icon = document.getElementById('volume-icon');
+        if (val == 0) icon.textContent = '🔇';
+        else if (val < 40) icon.textContent = '🔈';
+        else if (val < 70) icon.textContent = '🔉';
+        else icon.textContent = '🔊';
+    }
+
+    function updatePlayerUI() {
+        // 更新时间显示
+        var cur = formatTime(playerState.currentTime);
+        var total = formatTime(playerState.totalDuration);
+        document.getElementById('player-time').textContent = cur + ' / ' + total;
+        // 更新进度条
+        var pct = playerState.totalDuration > 0 ? (playerState.currentTime / playerState.totalDuration * 100) : 0;
+        var fill = document.getElementById('progress-fill');
+        if (fill) fill.style.width = pct + '%';
+    }
+
+    function formatTime(seconds) {
+        var m = Math.floor(seconds / 60);
+        var s = Math.floor(seconds % 60);
+        return (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
+    }
+
+    // ====== 侧边栏折叠 ======
+    function toggleSection(titleEl) {
+        titleEl.classList.toggle('collapsed');
+        var children = titleEl.nextElementSibling;
+        if (children) {
+            children.classList.toggle('hidden');
+        }
+    }
+
+    function showToast(msg) {
+        var t = document.getElementById('toast');
+        t.textContent = msg; t.classList.add('show');
+        clearTimeout(t._timer);
+        t._timer = setTimeout(function() { t.classList.remove('show'); }, 2000);
+    }
+
+    document.addEventListener('DOMContentLoaded', function() { bindFilters(); renderVideos(); });
+</script>
+
+</body>
+</html>

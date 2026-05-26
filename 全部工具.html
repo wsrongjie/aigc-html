@@ -256,6 +256,336 @@
             color: #0a0a0a;
         }
         .tpl-preview-footer .btn-primary:hover { background: #00c853; }
+
+        /* 任务状态栏 */
+        .task-status-bar {
+            display: none;
+            align-items: center;
+            gap: 8px;
+            margin-top: 12px;
+            padding: 8px 12px;
+            background: #1a1a1a;
+            border-radius: 8px;
+            font-size: 12px;
+            color: #448aff;
+        }
+        .task-status-bar.show { display: flex; }
+        .task-spinner {
+            width: 14px;
+            height: 14px;
+            border: 2px solid #448aff33;
+            border-top-color: #448aff;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            flex-shrink: 0;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .task-status-text { flex: 1; }
+        .task-detail-btn {
+            background: none;
+            border: 1px solid #448aff44;
+            color: #448aff;
+            padding: 3px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.15s;
+        }
+        .task-detail-btn:hover { background: #448aff22; border-color: #448aff; }
+
+        /* 任务进度弹窗 - 参考 simple-mode 组合弹窗风格 */
+        .task-ov {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(2px);
+        }
+        .task-ov.show { display: flex; }
+        .task-modal {
+            background: #fff;
+            border-radius: 14px;
+            width: 780px;
+            max-width: 95vw;
+            max-height: 85vh;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            display: flex;
+            flex-direction: column;
+        }
+        .task-modal-hd {
+            padding: 20px 24px 12px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .task-modal-hd h3 {
+            font-size: 17px;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin-bottom: 4px;
+        }
+        .task-modal-hd p { font-size: 12px; color: #999; }
+        .task-modal-hd .close-btn {
+            position: absolute;
+            top: 18px; right: 20px;
+            width: 28px; height: 28px;
+            border-radius: 50%;
+            background: #f5f5f5;
+            border: none;
+            color: #999;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .task-modal-hd .close-btn:hover { background: #eee; color: #333; }
+
+        /* 状态筛选 */
+        .task-filters {
+            display: flex;
+            gap: 6px;
+            padding: 10px 24px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .task-filter {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 11px;
+            cursor: pointer;
+            border: 1px solid #e8e8e8;
+            background: #fafafa;
+            color: #666;
+            font-weight: 500;
+            transition: all 0.15s;
+        }
+        .task-filter:hover { background: #f0f0f0; }
+        .task-filter.active { background: #eef2ff; border-color: #6366f1; color: #6366f1; }
+
+        /* 任务列表 */
+        .task-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0 24px;
+        }
+
+        /* 分组样式 */
+        .task-group { margin-bottom: 16px; }
+        .task-group:last-child { margin-bottom: 8px; }
+        .task-group-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #1a1a2e;
+            padding: 6px 0;
+            margin-bottom: 6px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .task-group-title .tg-badge {
+            background: #eef2ff;
+            color: #6366f1;
+            padding: 1px 8px;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: 500;
+            margin-left: 6px;
+        }
+
+        .task-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+        .task-table thead th {
+            font-size: 11px;
+            color: #999;
+            font-weight: 500;
+            text-align: left;
+            padding: 8px 10px;
+            border-bottom: 1.5px solid #e8e8e8;
+            letter-spacing: 0.3px;
+        }
+        .task-table tbody tr { transition: background 0.1s; }
+        .task-table tbody tr:hover { background: #f5f7ff; }
+        .task-table tbody tr.off { opacity: 0.3; }
+        .task-table td {
+            font-size: 13px;
+            color: #333;
+            padding: 10px 10px;
+            vertical-align: middle;
+            position: relative;
+        }
+        .task-table td.td-name {
+            font-weight: 500;
+            color: #1a1a2e;
+            cursor: pointer;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .task-table td.td-script {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            cursor: pointer;
+            color: #555;
+        }
+        .task-table td.td-status { width: 80px; text-align: center; }
+        .task-table td.td-progress { width: 100px; }
+        .task-table td.td-error { width: 100px; }
+        .task-table td.td-op { width: 50px; text-align: center; }
+
+        /* 列宽分配 */
+        .task-table col.col-person { width: 20%; }
+        .task-table col.col-bg { width: 14%; }
+        .task-table col.col-script { width: 30%; }
+        .task-table col.col-status { width: 12%; }
+        .task-table col.col-progress { width: 14%; }
+        .task-table col.col-error { width: 18%; }
+        .task-table col.col-op { width: 12%; }
+
+        /* 失败原因缩略 */
+        .td-error .err-short {
+            font-size: 11px;
+            color: #ef4444;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: block;
+            cursor: pointer;
+        }
+
+        /* 状态标签 */
+        .ts { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 500; }
+        .ts .ico { font-size: 13px; }
+        .ts.generating { color: #0066ff; }
+        .ts.queued { color: #f59e0b; }
+        .ts.completed { color: #059669; }
+        .ts.failed { color: #ef4444; }
+
+        /* 进度条 */
+        .tpb { width: 80px; height: 5px; background: #e8e8e8; border-radius: 3px; overflow: hidden; display: inline-block; vertical-align: middle; margin-right: 4px; }
+        .tpb-fill { height: 100%; background: linear-gradient(90deg, #0066ff, #5856d6); border-radius: 3px; transition: width 0.3s; }
+        .tpb-text { font-size: 11px; color: #999; }
+
+        /* 操作按钮 */
+        .tg-op-btn {
+            font-size: 11px;
+            color: #ef4444;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+        .tg-op-btn:hover { background: #fef2f2; }
+        .tg-op-btn.retry { color: #059669; }
+        .tg-op-btn.retry:hover { background: #f0fdf4; }
+
+        /* 行内取消确认 */
+        .tg-cancel-cfm {
+            display: none;
+            align-items: center;
+            gap: 4px;
+            font-size: 11px;
+            color: #ef4444;
+        }
+        .tg-cancel-cfm.show { display: inline-flex; }
+        .tg-cancel-cfm .cfm-ok {
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            cursor: pointer;
+            border: 1px solid #ef4444;
+            background: #ef4444;
+            color: #fff;
+        }
+        .tg-cancel-cfm .cfm-no {
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            cursor: pointer;
+            border: 1px solid #ccc;
+            background: none;
+            color: #999;
+        }
+
+        /* hover 预览 tooltip */
+        .tg-tip {
+            display: none;
+            position: fixed;
+            border-radius: 8px;
+            padding: 4px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+            z-index: 2000;
+            pointer-events: none;
+            background: #fff;
+            border: 1px solid #e8e8e8;
+        }
+        .tg-tip.show { display: block; }
+        .tg-tip img {
+            width: 80px; height: 80px;
+            object-fit: cover;
+            border-radius: 6px;
+            display: block;
+        }
+        .tg-tip-ph {
+            width: 80px; height: 80px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+        }
+        .tg-tip-lbl { font-size: 10px; color: #999; text-align: center; margin-top: 2px; }
+        .tg-tip-txt {
+            display: none;
+            position: fixed;
+            background: #1a1a2e;
+            color: #fff;
+            padding: 8px 14px;
+            font-size: 11px;
+            line-height: 1.5;
+            max-width: 320px;
+            white-space: normal;
+            border-radius: 8px;
+            z-index: 2000;
+            pointer-events: none;
+        }
+        .tg-tip-txt.show { display: block; }
+
+        /* 弹窗底部 */
+        .task-modal-ft {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 24px;
+            border-top: 1px solid #f0f0f0;
+        }
+        .task-modal-ft .info { font-size: 12px; color: #666; }
+        .task-modal-ft .info strong { color: #1a1a2e; }
+        .task-modal-ft .acts { display: flex; gap: 8px; }
+        .task-modal-ft .btn {
+            padding: 9px 20px;
+            border-radius: 8px;
+            font-size: 13px;
+            cursor: pointer;
+            border: none;
+            font-weight: 500;
+            transition: all 0.15s;
+        }
+        .task-modal-ft .btn-sec {
+            background: #f5f5f5;
+            color: #666;
+        }
+        .task-modal-ft .btn-sec:hover { background: #eee; }
+
+        /* 空状态 */
+        .task-empty {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+            font-size: 13px;
+        }
     </style>
 </head>
 <body>
@@ -322,6 +652,11 @@
                         <div class="name">模板成片</div>
                         <div class="desc">选择模板，上传素材和台词，一键生成口播短视频</div>
                         <span class="badge blue">新手推荐</span>
+                        <div class="task-status-bar" id="task-status-bar" onclick="event.preventDefault();event.stopPropagation();">
+                            <div class="task-spinner"></div>
+                            <span class="task-status-text" id="task-status-text">3个任务正在生成...</span>
+                            <button class="task-detail-btn" onclick="event.preventDefault();event.stopPropagation();openTaskModal()">查看详情</button>
+                        </div>
                     </div>
                 </a>
             </div>
@@ -351,7 +686,42 @@
         </div>
     </div>
 
+    <!-- 任务进度弹窗 -->
+    <div class="task-ov" id="task-ov" onclick="if(event.target===this)closeTaskModal()">
+        <div class="task-modal" style="position:relative;">
+            <div class="task-modal-hd">
+                <h3>批量任务进度</h3>
+                <p>按人物×背景分组，查看生成状态</p>
+                <button class="close-btn" onclick="closeTaskModal()">✕</button>
+            </div>
+            <div class="task-filters" id="task-filters"></div>
+            <div class="task-list" id="task-list"></div>
+            <div class="task-modal-ft">
+                <div class="info">已选 <strong id="task-total-count">0</strong> 个 · 预计 <strong id="task-total-time">0</strong> 分钟</div>
+                <div class="acts"><button class="btn btn-sec" onclick="closeTaskModal()">关闭</button></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- hover 预览 tooltip -->
+    <div class="tg-tip" id="tg-tip-img">
+        <img id="tg-tip-img-src" style="display:none;">
+        <div class="tg-tip-ph" id="tg-tip-ph"></div>
+        <div class="tg-tip-lbl" id="tg-tip-lbl"></div>
+    </div>
+    <div class="tg-tip-txt" id="tg-tip-txt" style="display:none;"></div>
+
     <script>
+        // 模拟任务数据
+        var mockTasks = [
+            { id: 1, script: '大家好，今天我要分享的是如何高效学习AI技术，让你在30天内掌握核心知识点。', status: 'completed', progress: 100, color: '黑色' },
+            { id: 2, script: '各位好，本期我们探讨的是AI在视频生成领域的最新进展和应用。', status: 'generating', progress: 60, color: '黑色' },
+            { id: 3, script: '嗨喽朋友们，本期带来的是超实用的AI工具测评，赶紧一起来看看吧！', status: 'generating', progress: 35, color: '蓝色' },
+            { id: 4, script: '本期我们探讨一下如何用AI提升工作效率，这个话题很多粉丝都在问我。', status: 'queued', progress: 0, color: '黑色' },
+            { id: 5, script: '今天来分享一下AI视频制作的完整流程，从台词到成片一步到位。', status: 'failed', progress: 0, color: '黑色', error: '素材分辨率不足，请上传720p以上图片' },
+        ];
+        var currentFilter = 'all';
+        var cancelConfirmId = null;
         var tplInfo = {
             '口播讲解': {
                 desc: '<strong>口播讲解</strong>适合知识分享、产品推荐、教程教学等场景。数字人对着镜头讲解，配合字幕和背景音乐，专业且高效。',
@@ -390,6 +760,304 @@
             document.body.appendChild(t);
             setTimeout(function(){ t.remove(); }, 2000);
         }
+
+        // ====== 任务进度弹窗 ======
+        // 模拟任务数据（增加人物和背景信息）
+        var mockTasks = [
+            { id: 1, script: '大家好，今天我要分享的是如何高效学习AI技术，让你在30天内掌握核心知识点。', status: 'completed', progress: 100, person: { name: '角色 A · 知性女性', emoji: '👩', gradient: 'linear-gradient(135deg,#ff9a9e,#fad0c4)' }, bg: { name: '办公室', gradient: 'linear-gradient(135deg,#667eea,#764ba2)' } },
+            { id: 2, script: '各位好，本期我们探讨的是AI在视频生成领域的最新进展和应用。', status: 'generating', progress: 60, person: { name: '角色 A · 知性女性', emoji: '👩', gradient: 'linear-gradient(135deg,#ff9a9e,#fad0c4)' }, bg: { name: '办公室', gradient: 'linear-gradient(135deg,#667eea,#764ba2)' } },
+            { id: 3, script: '嗨喽朋友们，本期带来的是超实用的AI工具测评，赶紧一起来看看吧！', status: 'generating', progress: 35, person: { name: '角色 A · 知性女性', emoji: '👩', gradient: 'linear-gradient(135deg,#ff9a9e,#fad0c4)' }, bg: { name: '居家', gradient: 'linear-gradient(135deg,#a8edea,#fed6e3)' } },
+            { id: 4, script: '本期我们探讨一下如何用AI提升工作效率，这个话题很多粉丝都在问我。', status: 'queued', progress: 0, person: { name: '角色 A · 知性女性', emoji: '👩', gradient: 'linear-gradient(135deg,#ff9a9e,#fad0c4)' }, bg: { name: '居家', gradient: 'linear-gradient(135deg,#a8edea,#fed6e3)' } },
+            { id: 5, script: '今天来分享一下AI视频制作的完整流程，从台词到成片一步到位。', status: 'failed', progress: 0, person: { name: '角色 B · 商务男性', emoji: '👨', gradient: 'linear-gradient(135deg,#a18cd1,#fbc2eb)' }, bg: { name: '咖啡厅', gradient: 'linear-gradient(135deg,#fbc2eb,#a6c1ee)' }, error: '素材分辨率不足，请上传720p以上图片' },
+        ];
+        var currentFilter = 'all';
+        var cancelConfirmId = null;
+
+        function getTaskCounts() {
+            var counts = { all: mockTasks.length, generating: 0, queued: 0, completed: 0, failed: 0 };
+            for (var i = 0; i < mockTasks.length; i++) {
+                counts[mockTasks[i].status]++;
+            }
+            return counts;
+        }
+
+        function updateTaskStatusBar() {
+            var bar = document.getElementById('task-status-bar');
+            var text = document.getElementById('task-status-text');
+            var generating = getTaskCounts().generating;
+            if (generating > 0) {
+                bar.classList.add('show');
+                text.textContent = generating + '个任务正在生成...';
+            } else {
+                bar.classList.remove('show');
+            }
+        }
+
+        function openTaskModal() {
+            cancelConfirmId = null;
+            renderTaskModal();
+            document.getElementById('task-ov').classList.add('show');
+        }
+
+        function closeTaskModal() {
+            document.getElementById('task-ov').classList.remove('show');
+        }
+
+        function setTaskFilter(status) {
+            currentFilter = status;
+            cancelConfirmId = null;
+            renderTaskModal();
+        }
+
+        function renderTaskModal() {
+            var counts = getTaskCounts();
+            var filters = [
+                { key: 'all', label: '全部', count: counts.all },
+                { key: 'generating', label: '生成中', count: counts.generating },
+                { key: 'queued', label: '排队中', count: counts.queued },
+                { key: 'completed', label: '已完成', count: counts.completed },
+                { key: 'failed', label: '已失败', count: counts.failed },
+            ];
+
+            var filtersHtml = '';
+            for (var i = 0; i < filters.length; i++) {
+                var f = filters[i];
+                if (f.count === 0) continue;
+                var active = currentFilter === f.key ? ' active' : '';
+                filtersHtml += '<button class="task-filter' + active + '" onclick="setTaskFilter(\'' + f.key + '\')">' + f.label + ' (' + f.count + ')</button>';
+            }
+            document.getElementById('task-filters').innerHTML = filtersHtml;
+
+            // 按人物×背景分组
+            var filtered = currentFilter === 'all' ? mockTasks : mockTasks.filter(function(t) { return t.status === currentFilter; });
+
+            // 分组
+            var groups = {};
+            for (var j = 0; j < filtered.length; j++) {
+                var t = filtered[j];
+                var key = t.person.name + '|||' + t.bg.name;
+                if (!groups[key]) groups[key] = { person: t.person, bg: t.bg, items: [] };
+                groups[key].items.push(t);
+            }
+
+            var listHtml = '';
+            var totalCount = 0;
+
+            if (filtered.length === 0) {
+                listHtml = '<div class="task-empty">暂无任务</div>';
+            } else {
+                for (var gk in groups) {
+                    var g = groups[gk];
+                    listHtml += '<div class="task-group">';
+                    listHtml += '<div class="task-group-title">' + g.person.name + ' × ' + g.bg.name + '<span class="tg-badge">' + g.items.length + '条</span></div>';
+                    listHtml += '<table class="task-table"><colgroup><col class="col-person"><col class="col-bg"><col class="col-script"><col class="col-status"><col class="col-progress"><col class="col-error"><col class="col-op"></colgroup><thead><tr><th>主体</th><th>背景</th><th>台词</th><th>状态</th><th>进度</th><th>失败原因</th><th>操作</th></tr></thead><tbody>';
+
+                    for (var k = 0; k < g.items.length; k++) {
+                        var task = g.items[k];
+                        totalCount++;
+                        var statusHtml, progressHtml, errorHtml, actionHtml;
+
+                        if (task.status === 'completed') {
+                            statusHtml = '<span class="ts completed"><span class="ico">✅</span>已完成</span>';
+                            progressHtml = '<div class="tpb"><div class="tpb-fill" style="width:100%"></div></div><span class="tpb-text">100%</span>';
+                            errorHtml = '<span style="font-size:11px;color:#ccc;">-</span>';
+                            actionHtml = '<span style="font-size:11px;color:#ccc;">-</span>';
+                        } else if (task.status === 'generating') {
+                            statusHtml = '<span class="ts generating"><span class="ico">🔄</span>生成中</span>';
+                            progressHtml = '<div class="tpb"><div class="tpb-fill" style="width:' + task.progress + '%"></div></div><span class="tpb-text">' + task.progress + '%</span>';
+                            errorHtml = '<span style="font-size:11px;color:#ccc;">-</span>';
+                            actionHtml = '<span style="font-size:11px;color:#ccc;">-</span>';
+                        } else if (task.status === 'queued') {
+                            statusHtml = '<span class="ts queued"><span class="ico">⏳</span>排队中</span>';
+                            progressHtml = '<span class="tpb-text">等待中</span>';
+                            errorHtml = '<span style="font-size:11px;color:#ccc;">-</span>';
+                            if (cancelConfirmId === task.id) {
+                                actionHtml = '<div class="tg-cancel-cfm show"><button class="cfm-ok" onclick="confirmCancel(' + task.id + ')">确认</button><button class="cfm-no" onclick="abortCancel()">取消</button></div>';
+                            } else {
+                                actionHtml = '<button class="tg-op-btn" onclick="requestCancel(' + task.id + ')">取消</button>';
+                            }
+                        } else if (task.status === 'failed') {
+                            statusHtml = '<span class="ts failed"><span class="ico">❌</span>已失败</span>';
+                            progressHtml = '<span class="tpb-text">-</span>';
+                            errorHtml = '<span style="font-size:11px;color:#ccc;">-</span>';
+                            actionHtml = '<button class="tg-op-btn retry" onclick="retryTask(' + task.id + ')">重试</button>';
+                        }
+
+                        var shortScript = task.script.length > 25 ? task.script.substring(0, 25) + '...' : task.script;
+                        var txtEscaped = task.script.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                        var pGradEsc = task.person.gradient.replace(/'/g, "\\'");
+                        var bgGradEsc = task.bg.gradient.replace(/'/g, "\\'");
+
+                        listHtml += '<tr>';
+                        listHtml += '<td class="td-name" onmouseenter="showTgTip(event,\'gradient\',\'' + pGradEsc + '\',\'' + task.person.emoji + '\',\'' + task.person.name.replace(/'/g, "\\'") + '\')" onmouseleave="hideTgTip()">' + task.person.name + '</td>';
+                        listHtml += '<td class="td-name" onmouseenter="showTgBgTip(event,\'' + bgGradEsc + '\',\'' + task.bg.name.replace(/'/g, "\\'") + '\')" onmouseleave="hideTgTip()">' + task.bg.name + '</td>';
+                        listHtml += '<td class="td-script" onmouseenter="showTgTxtTip(event,\'' + txtEscaped + '\')" onmouseleave="hideTgTip()">' + shortScript + '</td>';
+                        listHtml += '<td class="td-status">' + statusHtml + '</td>';
+                        listHtml += '<td class="td-progress">' + progressHtml + '</td>';
+                        // 失败原因列
+                        if (task.status === 'failed' && task.error) {
+                            var errShort = task.error.length > 12 ? task.error.substring(0, 12) + '...' : task.error;
+                            var errEscaped = task.error.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                            errorHtml = '<span class="err-short" onmouseenter="showTgErrTip(event,\'' + errEscaped + '\')" onmouseleave="hideTgTip()">' + errShort + '</span>';
+                        } else {
+                            errorHtml = '<span style="font-size:11px;color:#ccc;">-</span>';
+                        }
+                        listHtml += '<td class="td-error">' + errorHtml + '</td>';
+                        listHtml += '<td class="td-op">' + actionHtml + '</td>';
+                        listHtml += '</tr>';
+                    }
+
+                    listHtml += '</tbody></table></div>';
+                }
+            }
+            document.getElementById('task-list').innerHTML = listHtml;
+
+            // 更新底部统计
+            var activeCount = mockTasks.filter(function(t) { return t.status !== 'cancelled'; }).length;
+            var generatingCount = getTaskCounts().generating;
+            var queuedCount = getTaskCounts().queued;
+            var etaText = '';
+            if (generatingCount > 0 || queuedCount > 0) {
+                var totalRemaining = generatingCount + queuedCount;
+                etaText = Math.ceil(totalRemaining * 1.5) + '-' + Math.ceil(totalRemaining * 3);
+            } else {
+                etaText = '0';
+            }
+            document.getElementById('task-total-count').textContent = activeCount;
+            document.getElementById('task-total-time').textContent = etaText;
+        }
+
+        function requestCancel(id) {
+            cancelConfirmId = id;
+            renderTaskModal();
+        }
+
+        function abortCancel() {
+            cancelConfirmId = null;
+            renderTaskModal();
+        }
+
+        function confirmCancel(id) {
+            cancelConfirmId = null;
+            for (var i = 0; i < mockTasks.length; i++) {
+                if (mockTasks[i].id === id) {
+                    mockTasks.splice(i, 1);
+                    break;
+                }
+            }
+            updateTaskStatusBar();
+            renderTaskModal();
+            toast('已取消任务');
+        }
+
+        function retryTask(id) {
+            for (var i = 0; i < mockTasks.length; i++) {
+                if (mockTasks[i].id === id) {
+                    mockTasks[i].status = 'queued';
+                    mockTasks[i].progress = 0;
+                    delete mockTasks[i].error;
+                    break;
+                }
+            }
+            updateTaskStatusBar();
+            renderTaskModal();
+            toast('任务已重新排队');
+        }
+
+        // Tooltip 预览函数（参考 simple-mode）
+        function posTip(tip, e, dir) {
+            var r = e.target.getBoundingClientRect();
+            var tw = tip.offsetWidth, th = tip.offsetHeight;
+            var left = r.left + r.width / 2 - tw / 2;
+            var top = dir === 'top' ? (r.top - th - 8) : (r.bottom + 8);
+            if (left < 8) left = 8;
+            if (left + tw > window.innerWidth - 8) left = window.innerWidth - tw - 8;
+            tip.style.left = left + 'px';
+            tip.style.top = top + 'px';
+        }
+
+        function showTgTxtTip(e, txt) {
+            var tip = document.getElementById('tg-tip-txt');
+            tip.innerHTML = txt.replace(/\\'/g, "'").replace(/&quot;/g, '"');
+            tip.style.display = 'block';
+            tip.classList.add('show');
+            posTip(tip, e, 'top');
+        }
+
+        function showTgTip(e, type, src, emoji, name) {
+            var tip = document.getElementById('tg-tip-img');
+            var imgEl = document.getElementById('tg-tip-img-src');
+            var phEl = document.getElementById('tg-tip-ph');
+            var lblEl = document.getElementById('tg-tip-lbl');
+            lblEl.textContent = name;
+            if (type === 'img' && src) {
+                imgEl.src = src; imgEl.style.display = ''; phEl.style.display = 'none';
+            } else {
+                imgEl.style.display = 'none'; phEl.style.display = ''; phEl.style.background = src; phEl.textContent = emoji;
+            }
+            tip.className = 'tg-tip show';
+            posTip(tip, e, 'bottom');
+        }
+
+        function showTgBgTip(e, gradient, name) {
+            var tip = document.getElementById('tg-tip-img');
+            var imgEl = document.getElementById('tg-tip-img-src');
+            var phEl = document.getElementById('tg-tip-ph');
+            var lblEl = document.getElementById('tg-tip-lbl');
+            lblEl.textContent = name;
+            imgEl.style.display = 'none'; phEl.style.display = ''; phEl.style.background = gradient; phEl.textContent = '🖼️';
+            tip.className = 'tg-tip show';
+            posTip(tip, e, 'bottom');
+        }
+
+        function hideTgTip() {
+            document.getElementById('tg-tip-img').className = 'tg-tip';
+            var txtTip = document.getElementById('tg-tip-txt');
+            txtTip.style.display = 'none';
+            txtTip.classList.remove('show');
+        }
+
+        function showTgErrTip(e, txt) {
+            var tip = document.getElementById('tg-tip-txt');
+            tip.innerHTML = '<span style="color:#ef4444;font-weight:600;">失败原因：</span>' + txt.replace(/\\'/g, "'").replace(/&quot;/g, '"');
+            tip.style.display = 'block';
+            tip.classList.add('show');
+            posTip(tip, e, 'top');
+        }
+
+        // 模拟任务进度变化（演示用）
+        var taskSimInterval = setInterval(function() {
+            var changed = false;
+            for (var i = 0; i < mockTasks.length; i++) {
+                var t = mockTasks[i];
+                if (t.status === 'generating') {
+                    t.progress += Math.floor(Math.random() * 8) + 3;
+                    if (t.progress >= 100) {
+                        t.progress = 100;
+                        t.status = 'completed';
+                    }
+                    changed = true;
+                }
+            }
+            // 如果生成的少于2个，推进队列
+            var genCount = mockTasks.filter(function(t){return t.status==='generating';}).length;
+            if (genCount < 2) {
+                for (var j = 0; j < mockTasks.length; j++) {
+                    if (mockTasks[j].status === 'queued') {
+                        mockTasks[j].status = 'generating';
+                        mockTasks[j].progress = 5;
+                        changed = true;
+                        break;
+                    }
+                }
+            }
+            if (changed) {
+                updateTaskStatusBar();
+                if (document.getElementById('task-ov').classList.contains('show')) {
+                    renderTaskModal();
+                }
+            }
+        }, 3000);
     </script>
 </body>
 </html>

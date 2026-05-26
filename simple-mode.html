@@ -99,24 +99,96 @@
     .img-item .del { position: absolute; top: 3px; right: 3px; width: 18px; height: 18px; background: rgba(0,0,0,0.55); border-radius: 50%; color: #fff; font-size: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; opacity: 0; transition: opacity 0.15s; line-height: 1; }
     .img-item:hover .del { opacity: 1; }
 
-    /* 数字人 */
-    .av-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-    .av-item { border: 1.5px solid #e8e8e8; border-radius: 10px; padding: 14px; text-align: center; cursor: pointer; transition: all 0.2s; background: #fafafa; position: relative; }
-    .av-item:hover { border-color: #0066ff33; background: #fff; }
-    .av-item.sel { border-color: #0066ff; background: #fff; box-shadow: 0 2px 8px rgba(0,102,255,0.1); }
-    .av-item.sel::after { content: '✓'; position: absolute; top: 6px; right: 6px; width: 18px; height: 18px; background: #0066ff; border-radius: 50%; color: #fff; font-size: 10px; display: flex; align-items: center; justify-content: center; }
-    .av-item .av-face { width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #667eea, #764ba2); margin: 0 auto 8px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 20px; }
-    .av-item .av-nm { font-size: 12px; font-weight: 600; color: #1a1a2e; }
-    .av-item .av-tg { font-size: 10px; color: #999; margin-top: 1px; }
+    /* 数字人 - 紧凑多列网格 */
+    .av-search { margin-bottom: 8px; }
+    .av-search input { width: 100%; padding: 7px 10px; border: 1.5px solid #e8e8e8; border-radius: 8px; font-size: 12px; background: #fafafa; transition: all 0.2s; }
+    .av-search input:focus { outline: none; border-color: #0066ff; background: #fff; box-shadow: 0 0 0 3px rgba(0,102,255,0.08); }
+    .av-grid-compact { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; max-height: 240px; overflow-y: auto; padding-right: 4px; position: relative; }
+    .av-item-compact {
+      display: flex; flex-direction: column; align-items: center;
+      padding: 8px 4px; border-radius: 8px; cursor: pointer;
+      transition: all 0.15s; background: #fafafa;
+      border: 1.5px solid #e8e8e8; position: relative;
+    }
+    .av-item-compact:hover { background: #f5f8ff; border-color: #0066ff33; }
+    .av-item-compact.sel { background: #f0f4ff; border-color: #0066ff; }
+    .av-item-compact .av-cb-compact {
+      position: absolute; top: 4px; right: 4px;
+      width: 14px; height: 14px; border-radius: 50%;
+      background: #e8e8e8; display: flex; align-items: center;
+      justify-content: center; font-size: 8px; color: #fff;
+      transition: all 0.15s; opacity: 0;
+    }
+    .av-item-compact.sel .av-cb-compact { background: #0066ff; opacity: 1; }
+    .av-item-compact .av-listen-btn {
+      position: absolute; bottom: 2px; right: 2px;
+      width: 18px; height: 18px; border-radius: 50%;
+      background: rgba(0,102,255,0.85); display: flex; align-items: center;
+      justify-content: center; cursor: pointer; opacity: 0;
+      transition: opacity 0.15s; border: none; color: #fff; font-size: 9px;
+      z-index: 3;
+    }
+    .av-item-compact:hover .av-listen-btn { opacity: 1; }
+    .av-item-compact .av-listen-btn:hover { background: #0066ff; }
+    .av-item-compact .av-face-compact {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 16px; margin-bottom: 4px;
+      position: relative;
+    }
+    /* 头像hover大图 */
+    .av-preview-tooltip {
+      display: none; position: fixed; z-index: 2000;
+      width: 120px; height: 120px; border-radius: 12px;
+      background: #fff; box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+      pointer-events: none; overflow: hidden;
+      flex-direction: column; align-items: center; justify-content: center;
+    }
+    .av-preview-tooltip.show { display: flex; }
+    .av-preview-tooltip .av-preview-emoji { font-size: 56px; }
+    .av-preview-tooltip .av-preview-name { font-size: 11px; color: #666; padding: 0 8px 6px; text-align: center; }
+    .av-item-compact .av-nm-compact { font-size: 11px; font-weight: 600; color: #1a1a2e; }
+    .av-item-compact .av-tg-compact { font-size: 9px; color: #999; }
+    .av-nore { font-size: 11px; color: #bbb; text-align: center; padding: 16px 0; grid-column: 1 / -1; }
 
-    /* 预设背景 */
-    .bg-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 0; }
-    .bg-card { border: 1.5px solid #e8e8e8; border-radius: 8px; overflow: hidden; cursor: pointer; transition: all 0.2s; background: #fafafa; position: relative; }
-    .bg-card:hover { border-color: #0066ff33; }
-    .bg-card.sel { border-color: #0066ff; box-shadow: 0 2px 8px rgba(0,102,255,0.1); }
-    .bg-card.sel::after { content: '✓'; position: absolute; top: 6px; right: 6px; width: 18px; height: 18px; background: #0066ff; border-radius: 50%; color: #fff; font-size: 10px; display: flex; align-items: center; justify-content: center; }
-    .bg-card .bg-pv { height: 52px; background-size: cover; background-position: center; }
-    .bg-card .bg-lb { padding: 5px; font-size: 11px; text-align: center; color: #666; font-weight: 500; }
+    /* 预设背景 - 紧凑多列网格 */
+    .bg-search { margin-bottom: 8px; }
+    .bg-search input { width: 100%; padding: 7px 10px; border: 1.5px solid #e8e8e8; border-radius: 8px; font-size: 12px; background: #fafafa; transition: all 0.2s; }
+    .bg-search input:focus { outline: none; border-color: #0066ff; background: #fff; box-shadow: 0 0 0 3px rgba(0,102,255,0.08); }
+    .bg-grid-compact { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; max-height: 240px; overflow-y: auto; padding-right: 4px; }
+    .bg-card-compact {
+      border-radius: 8px; cursor: pointer;
+      transition: all 0.15s; background: #fafafa;
+      border: 1.5px solid #e8e8e8; position: relative;
+      overflow: hidden;
+    }
+    .bg-card-compact:hover { border-color: #0066ff33; }
+    .bg-card-compact.sel { border-color: #0066ff; }
+    .bg-card-compact .bg-cb-compact {
+      position: absolute; top: 4px; right: 4px; z-index: 2;
+      width: 14px; height: 14px; border-radius: 50%;
+      background: rgba(0,0,0,0.4); display: flex; align-items: center;
+      justify-content: center; font-size: 8px; color: #fff;
+      transition: all 0.15s; opacity: 0;
+    }
+    .bg-card-compact.sel .bg-cb-compact { background: #0066ff; opacity: 1; }
+    .bg-card-compact .bg-thumb-compact { height: 36px; background-size: cover; background-position: center; }
+    .bg-card-compact .bg-lb-compact { padding: 4px; font-size: 10px; text-align: center; color: #333; font-weight: 500; }
+    /* 背景hover大图 */
+    .bg-preview-tooltip {
+      display: none; position: fixed; z-index: 2000;
+      width: 200px; height: 80px; border-radius: 10px;
+      background-size: cover; background-position: center;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+      pointer-events: none; overflow: hidden;
+    }
+    .bg-preview-tooltip.show { display: block; }
+    .bg-preview-tooltip .bg-preview-name {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      padding: 4px 8px; background: rgba(0,0,0,0.5);
+      font-size: 11px; color: #fff; text-align: center; font-weight: 500;
+    }
 
     /* 音色 */
     .voice-section { margin-top: 14px; padding-top: 14px; border-top: 1px solid #f0f0f0; display: flex; gap: 10px; align-items: center; }
@@ -142,62 +214,94 @@
     .fg input { width: 100%; padding: 9px 12px; border: 1.5px solid #e8e8e8; border-radius: 8px; font-size: 13px; background: #fafafa; margin-top: 4px; transition: all 0.2s; }
     .fg input:focus { outline: none; border-color: #0066ff; background: #fff; box-shadow: 0 0 0 3px rgba(0,102,255,0.08); }
 
-    /* 台词卡片 */
+    /* 台词卡片 - 扁平 */
     .script-cards { display: flex; flex-direction: column; gap: 10px; }
-
-    /* 台词组 */
-    .sc-group { border: 1.5px solid #e8e8e8; border-radius: 10px; overflow: hidden; background: #fafafa; }
-    .sc-group-header { display: flex; align-items: center; padding: 10px 12px; background: #f5f8ff; border-bottom: 1px solid #e8e8e8; gap: 8px; cursor: pointer; }
-    .sc-group-header:hover { background: #eef4ff; }
-    .sc-group-header .sc-group-title { font-size: 13px; font-weight: 600; color: #1a1a2e; flex: 1; }
-    .sc-group-header .sc-group-sub { font-size: 10px; color: #999; }
-    .sc-group-header .sc-group-acts { display: flex; gap: 4px; align-items: center; flex-shrink: 0; }
-    .sc-arrow { font-size: 10px; color: #999; transition: transform 0.2s; width: 14px; text-align: center; flex-shrink: 0; }
-    .sc-arrow.open { transform: rotate(90deg); }
-
-    /* 父台词 */
-    .sc-parent { padding: 8px 12px; }
-    .sc-parent textarea { width: 100%; min-height: 56px; border: 1.5px solid #e8e8e8; border-radius: 6px; padding: 8px 10px; font-size: 13px; line-height: 1.6; resize: vertical; font-family: inherit; background: #fff; transition: all 0.2s; }
-    .sc-parent textarea:focus { outline: none; border-color: #0066ff; box-shadow: 0 0 0 3px rgba(0,102,255,0.08); }
-    .sc-parent textarea:disabled { background: #f5f5f5; cursor: not-allowed; }
-    .sc-parent .sc-ft { display: flex; gap: 6px; align-items: center; margin-top: 6px; }
-    .sc-parent .sc-ft .btn { font-size: 10px; padding: 3px 8px; }
-    .sc-parent .sc-ft .rc-input { width: 48px; padding: 3px 4px; border: 1.5px solid #d8d8d8; border-radius: 6px; font-size: 11px; text-align: center; background: #fafafa; color: #333; }
-    .sc-parent .sc-ft .rc-input:focus { outline: none; border-color: #0066ff; background: #fff; }
-    .sc-parent .sc-ft .rc-label { font-size: 11px; color: #999; }
-
-    /* 折叠状态 */
-    .sc-group.collapsed .sc-parent,
-    .sc-group.collapsed .sc-children { display: none; }
-    .sc-group.collapsed .sc-group-header { border-bottom: none; }
-
-    /* 子版本 */
-    .sc-children { border-top: 1px solid #f0f0f0; background: #fff; }
-    .sc-child { padding: 8px 12px; border-bottom: 1px solid #f5f5f5; }
-    .sc-child:last-child { border-bottom: none; }
-    .sc-child .sc-child-header { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
-    .sc-child .sc-child-tag { font-size: 10px; color: #0066ff; font-weight: 600; white-space: nowrap; flex-shrink: 0; width: 42px; }
-    .sc-child .sc-child-sub { font-size: 10px; color: #999; flex: 1; }
-    .sc-child .sc-child-acts { display: flex; gap: 2px; flex-shrink: 0; align-items: center; }
-    .sc-child textarea { width: 100%; min-height: 44px; border: 1.5px solid #e8e8e8; border-radius: 6px; padding: 8px 10px; font-size: 12px; line-height: 1.6; resize: vertical; font-family: inherit; background: #fafafa; transition: all 0.2s; }
-    .sc-child textarea:focus { outline: none; border-color: #0066ff; background: #fff; box-shadow: 0 0 0 3px rgba(0,102,255,0.08); }
-    .sc-child textarea:disabled { background: #f5f5f5; cursor: not-allowed; }
-    .sc-child.off { opacity: 0.35; }
-
-    /* Toggle 开关 */
-    .sc-toggle { position: relative; width: 32px; height: 18px; cursor: pointer; display: inline-block; vertical-align: middle; }
-    .sc-toggle input { opacity: 0; width: 0; height: 0; position: absolute; }
-    .sc-toggle .slider { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: #d0d0d0; border-radius: 18px; transition: 0.2s; }
-    .sc-toggle .slider::before { content: ''; position: absolute; width: 14px; height: 14px; left: 2px; bottom: 2px; background: #fff; border-radius: 50%; transition: 0.2s; }
-    .sc-toggle input:checked + .slider { background: #0066ff; }
-    .sc-toggle input:checked + .slider::before { transform: translateX(14px); }
-    .sc-toggle.sm { width: 26px; height: 14px; }
-    .sc-toggle.sm .slider::before { width: 10px; height: 10px; }
-    .sc-toggle.sm input:checked + .slider::before { transform: translateX(12px); }
+    .sc-flat {
+      border: 1.5px solid #e8e8e8;
+      border-radius: 10px;
+      padding: 12px;
+      background: #fafafa;
+      position: relative;
+      transition: all 0.15s;
+    }
+    .sc-flat:hover { border-color: #d0d0d0; }
+    .sc-flat-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .sc-flat-tag {
+      font-size: 11px;
+      font-weight: 600;
+      color: #0066ff;
+      flex: 1;
+    }
+    .sc-flat-acts {
+      display: flex;
+      gap: 4px;
+      flex-shrink: 0;
+      align-items: center;
+    }
+    .sc-flat textarea {
+      width: 100%;
+      min-height: 64px;
+      border: 1.5px solid #e8e8e8;
+      border-radius: 6px;
+      padding: 8px 10px;
+      font-size: 13px;
+      line-height: 1.6;
+      resize: vertical;
+      font-family: inherit;
+      background: #fff;
+      transition: all 0.2s;
+    }
+    .sc-flat textarea:focus {
+      outline: none;
+      border-color: #0066ff;
+      box-shadow: 0 0 0 3px rgba(0,102,255,0.08);
+    }
 
     /* 追加按钮 */
-    .sc-add { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 12px; border: 1.5px dashed #d8d8d8; border-radius: 10px; cursor: pointer; color: #999; font-size: 12px; transition: all 0.15s; background: #fafafa; }
+    .sc-add {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 12px;
+      border: 1.5px dashed #d8d8d8;
+      border-radius: 10px;
+      cursor: pointer;
+      color: #999;
+      font-size: 12px;
+      transition: all 0.15s;
+      background: #fafafa;
+    }
     .sc-add:hover { border-color: #0066ff; color: #0066ff; background: #f5f8ff; }
+
+    /* 批量导入弹窗 */
+    .imp-ov { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1500; align-items: center; justify-content: center; backdrop-filter: blur(2px); }
+    .imp-ov.show { display: flex; }
+    .imp-modal { background: #fff; border-radius: 14px; width: 440px; max-width: 90vw; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.15); }
+    .imp-hd { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid #f0f0f0; }
+    .imp-hd h3 { font-size: 15px; font-weight: 600; color: #1a1a2e; }
+    .imp-hd .close-btn { width: 26px; height: 26px; border-radius: 50%; background: #f0f0f0; border: none; color: #666; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .imp-hd .close-btn:hover { background: #e0e0e0; }
+    .imp-bd { padding: 20px; }
+    .imp-tip { font-size: 13px; color: #666; line-height: 1.8; }
+    .imp-tip strong { color: #1a1a2e; }
+    .imp-tip ul { margin: 8px 0 12px 18px; }
+    .imp-tip li { margin-bottom: 4px; }
+    .imp-format { display: flex; gap: 8px; margin: 12px 0; }
+    .imp-format-item { flex: 1; background: #f5f5f5; border-radius: 8px; padding: 10px 12px; text-align: center; font-size: 12px; color: #333; font-weight: 500; }
+    .imp-format-item .ext { font-size: 10px; color: #999; margin-top: 2px; }
+    .imp-actions { display: flex; gap: 8px; margin-top: 16px; }
+    .imp-actions .btn { flex: 1; text-align: center; font-size: 13px; padding: 9px 0; font-weight: 500; }
+    .imp-up-zone { border: 1.5px dashed #d8d8d8; border-radius: 10px; padding: 18px; text-align: center; cursor: pointer; transition: all 0.2s; background: #fafafa; margin-top: 12px; }
+    .imp-up-zone:hover { border-color: #0066ff; background: #f5f8ff; }
+    .imp-up-zone .ico { font-size: 22px; margin-bottom: 4px; }
+    .imp-up-zone .txt { font-size: 12px; color: #666; font-weight: 500; }
+    .imp-up-zone .hint { font-size: 11px; color: #999; margin-top: 2px; }
 
     /* 底部 */
     .bottom-bar { background: #fff; border-top: 1px solid #e8e8e8; padding: 16px 32px; box-shadow: 0 -2px 8px rgba(0,0,0,0.04); }
@@ -327,32 +431,31 @@
           </div>
           <input type="file" id="p-file" accept="image/*" multiple style="display:none" onchange="upPerson(this)">
           <div class="img-grid" id="p-grid"></div>
+
+          <!-- 音色（仅上传照片时可见） -->
+          <div class="voice-section">
+            <div class="voice-label">音色</div>
+            <select class="voice-sel" id="voice-sel">
+              <option value="default-female">默认女声（温柔知性）</option>
+              <option value="default-male">默认男声（沉稳商务）</option>
+              <option value="young-female">年轻女声（活泼可爱）</option>
+              <option value="young-male">年轻男声（阳光开朗）</option>
+              <option value="ai-voice-1">AI 音色 A（磁性男声）</option>
+              <option value="ai-voice-2">AI 音色 B（甜美少女）</option>
+            </select>
+            <button class="voice-btn" onclick="toast('试听：播放3秒语音预览')">试听</button>
+          </div>
         </div>
         <div id="p-avatar" style="display:none;">
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
             <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:#666;cursor:pointer;font-weight:500;">
               <input type="checkbox" id="avatar-batch-toggle" onchange="toggleBatchAvatar()" style="width:15px;height:15px;accent-color:#0066ff;cursor:pointer;">
               多选角色
             </label>
-            <span style="font-size:10px;color:#999;">（开启后可多选，每个角色生成一个视频）</span>
+            <span style="font-size:10px;color:#999;">（开启后可多选）</span>
           </div>
-          <div class="av-grid" id="avatar-grid">
-            <div class="av-item" onclick="selAvatar(this,'知性女性')"><div class="av-face">👩</div><div class="av-nm">角色 A</div><div class="av-tg">女 · 知性</div></div>
-            <div class="av-item" onclick="selAvatar(this,'商务男性')"><div class="av-face">👨</div><div class="av-nm">角色 B</div><div class="av-tg">男 · 商务</div></div>
-            <div class="av-item" onclick="selAvatar(this,'活泼女性')"><div class="av-face">👧</div><div class="av-nm">角色 C</div><div class="av-tg">女 · 活泼</div></div>
-          </div>
-        </div>
-
-        <!-- 音色 -->
-        <div class="voice-section">
-          <div class="voice-label">音色</div>
-          <select class="voice-sel" id="voice-sel">
-            <option value="default-female">默认女声（温柔知性）</option>
-            <option value="default-male">默认男声（沉稳商务）</option>
-            <option value="young-female">年轻女声（活泼可爱）</option>
-            <option value="young-male">年轻男声（阳光开朗）</option>
-          </select>
-          <button class="voice-btn" onclick="toast('试听：播放3秒语音预览')">试听</button>
+          <div class="av-search"><input type="text" placeholder="搜索角色名称、标签..." oninput="filterAvatarList(this.value)"></div>
+          <div class="av-grid-compact" id="avatar-grid"></div>
         </div>
       </div>
 
@@ -377,21 +480,15 @@
           <div class="img-grid" id="bg-grid"></div>
         </div>
         <div id="bg-preset" style="display:none;">
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
             <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:#666;cursor:pointer;font-weight:500;">
               <input type="checkbox" id="bg-batch-toggle" onchange="toggleBatchBg()" style="width:15px;height:15px;accent-color:#0066ff;cursor:pointer;">
               批量场景生成
             </label>
-            <span style="font-size:10px;color:#999;">（开启后可多选场景，每个场景生成一个视频）</span>
+            <span style="font-size:10px;color:#999;">（开启后可多选）</span>
           </div>
-          <div class="bg-grid" id="bg-preset-grid">
-            <div class="bg-card" onclick="selBgSingle(this,'办公室')"><div class="bg-pv" style="background:linear-gradient(135deg,#667eea,#764ba2)"></div><div class="bg-lb">办公室</div></div>
-            <div class="bg-card" onclick="selBgSingle(this,'居家')"><div class="bg-pv" style="background:linear-gradient(135deg,#f093fb,#f5576c)"></div><div class="bg-lb">居家</div></div>
-            <div class="bg-card" onclick="selBgSingle(this,'咖啡厅')"><div class="bg-pv" style="background:linear-gradient(135deg,#4facfe,#00f2fe)"></div><div class="bg-lb">咖啡厅</div></div>
-            <div class="bg-card" onclick="selBgSingle(this,'户外')"><div class="bg-pv" style="background:linear-gradient(135deg,#43e97b,#38f9d7)"></div><div class="bg-lb">户外</div></div>
-            <div class="bg-card" onclick="selBgSingle(this,'演播室')"><div class="bg-pv" style="background:linear-gradient(135deg,#fa709a,#fee140)"></div><div class="bg-lb">演播室</div></div>
-            <div class="bg-card" onclick="selBgSingle(this,'书架')"><div class="bg-pv" style="background:linear-gradient(135deg,#a8edea,#fed6e3)"></div><div class="bg-lb">书架</div></div>
-          </div>
+          <div class="bg-search"><input type="text" placeholder="搜索场景名称..." oninput="filterBgList(this.value)"></div>
+          <div class="bg-grid-compact" id="bg-grid-preset"></div>
         </div>
       </div>
     </div>
@@ -404,30 +501,13 @@
           <div class="section-icon blue">📝</div>
           <div class="section-name">台词列表</div>
         </div>
-        <div class="seg-bar">
-          <div class="seg-btn on" onclick="swScriptMode(this,'manual')">手动输入</div>
-          <div class="seg-btn" onclick="swScriptMode(this,'ai')">AI 生成</div>
-        </div>
 
         <!-- 手动模式 -->
         <div id="sc-manual">
           <div class="script-cards" id="script-cards"></div>
           <div style="margin-top:10px; display:flex; gap:8px;">
-            <div class="sc-add" onclick="addGroup()" style="flex:1;">＋ 新增台词</div>
-            <div style="display:flex;align-items:center;gap:6px;flex:1;">
-              <div class="sc-add" onclick="aiRewriteAll(getRewriteCount())" style="flex:1;">✨ AI 批量改写</div>
-              <input type="number" id="rewrite-count" value="3" min="1" max="5" style="width:52px;padding:10px 6px;border:1.5px solid #d8d8d8;border-radius:10px;font-size:12px;text-align:center;background:#fafafa;color:#333;">
-            </div>
-          </div>
-        </div>
-
-        <!-- AI 生成模式 -->
-        <div id="sc-ai" style="display:none;">
-          <div class="ai-form">
-            <div class="fg"><label>视频主题</label><input id="ai-topic" placeholder="例如：如何高效学习AI技术"></div>
-            <div class="fg"><label>目标受众 <span class="opt">（选填）</span></label><input id="ai-audience" placeholder="例如：25-35岁职场人士"></div>
-            <div class="fg"><label>核心卖点 <span class="opt">（选填）</span></label><input id="ai-selling" placeholder="例如：零基础也能上手"></div>
-            <button class="btn btn1" onclick="aiGenCards()" style="align-self:flex-start;margin-top:4px;">生成台词</button>
+            <div class="sc-add" onclick="addScriptCard()" style="flex:1;">＋ 新增台词</div>
+            <div class="sc-add" onclick="showImportModal()" style="flex:1;">📥 批量导入</div>
           </div>
         </div>
       </div>
@@ -475,6 +555,37 @@
     </div>
   </div>
 
+  <!-- 批量导入弹窗 -->
+  <div class="imp-ov" id="imp-ov">
+    <div class="imp-modal">
+      <div class="imp-hd"><h3>批量导入台词</h3><button class="close-btn" onclick="closeImportModal()">✕</button></div>
+      <div class="imp-bd">
+        <div class="imp-tip">
+          <strong>支持的格式：</strong>
+          <div class="imp-format">
+            <div class="imp-format-item">📄 CSV 文件<div class="ext">.csv</div></div>
+            <div class="imp-format-item">📊 Excel 文件<div class="ext">.xlsx / .xls</div></div>
+          </div>
+          <strong>文件要求：</strong>
+          <ul>
+            <li>每行一条台词</li>
+            <li>第一列为台词内容（必填）</li>
+            <li>文件不超过 100 条台词</li>
+          </ul>
+        </div>
+        <div class="imp-actions">
+          <button class="btn btn2" onclick="downloadTemplate()">📥 下载模板</button>
+        </div>
+        <div class="imp-up-zone" onclick="document.getElementById('imp-file').click()">
+          <div class="ico">📁</div>
+          <div class="txt">点击上传 CSV / Excel 文件</div>
+          <div class="hint">支持 .csv, .xlsx, .xls 格式</div>
+        </div>
+        <input type="file" id="imp-file" accept=".csv,.xlsx,.xls" style="display:none" onchange="handleImportFile(this)">
+      </div>
+    </div>
+  </div>
+
   <!-- 进度弹窗 -->
   <div class="p-overlay" id="p-overlay">
     <div class="p-modal">
@@ -493,14 +604,44 @@
 
   <div class="toast" id="toast-el"></div>
 
+  <!-- 角色hover大图预览 -->
+  <div class="av-preview-tooltip" id="av-preview-tooltip">
+    <div class="av-preview-emoji" id="av-preview-emoji"></div>
+    <div class="av-preview-name" id="av-preview-name"></div>
+  </div>
+
+  <!-- 背景hover大图预览 -->
+  <div class="bg-preview-tooltip" id="bg-preview-tooltip">
+    <div class="bg-preview-name" id="bg-preview-name"></div>
+  </div>
+
   <script>
     var S = { tpl:null, pSrc:'upload', persons:[], avatarMulti:[], bgSrc:'upload', bgFiles:[], bgMulti:[], voice:'default-female', cards:[], nextId:1 };
-    var rwS = [{n:'口播语气',d:'更口语化'},{n:'专业语气',d:'更正式'},{n:'转化更强',d:'更有吸引力'},{n:'轻松幽默',d:'加入幽默'},{n:'情感共鸣',d:'引发共鸣'}];
     var pf = ['大家好','哈喽','嗨喽','各位好','朋友们好'];
     var ed = ['谢谢观看！','感谢你的时间，我们下期见！','希望对你有启发，再见！','如果觉得有用，别忘了点赞，拜拜！','期待下次和你分享更多，再会！'];
-    var bgM = {'办公室':'linear-gradient(135deg,#667eea,#764ba2)','居家':'linear-gradient(135deg,#f093fb,#f5576c)','咖啡厅':'linear-gradient(135deg,#4facfe,#00f2fe)','户外':'linear-gradient(135deg,#43e97b,#38f9d7)','演播室':'linear-gradient(135deg,#fa709a,#fee140)','书架':'linear-gradient(135deg,#a8edea,#fed6e3)'};
-    var avI = {'知性女性':'👩','商务男性':'👨','活泼女性':'👧'};
-    var exampleScript = '大家好，今天我要分享的是如何高效学习AI技术。首先，我们需要了解AI的基本概念和应用场景。其次，选择合适的学习路径非常重要。最后，实践是最好的老师，多动手做项目才能真正掌握AI技能。希望今天的分享对大家有所帮助，谢谢观看！';
+    var bgM = {'办公室':'linear-gradient(135deg,#667eea,#764ba2)','居家':'linear-gradient(135deg,#f093fb,#f5576c)','咖啡厅':'linear-gradient(135deg,#4facfe,#00f2fe)','户外':'linear-gradient(135deg,#43e97b,#38f9d7)','演播室':'linear-gradient(135deg,#fa709a,#fee140)','书架':'linear-gradient(135deg,#a8edea,#fed6e3)','教室':'linear-gradient(135deg,#ffecd2,#fcb69f)','会议室':'linear-gradient(135deg,#a1c4fd,#c2e9fb)','公园':'linear-gradient(135deg,#d4fc79,#96e6a1)','海边':'linear-gradient(135deg,#89f7fe,#66a6ff)','天台':'linear-gradient(135deg,#f6d365,#fda085)','展厅':'linear-gradient(135deg,#fbc2eb,#a6c1ee)','厨房':'linear-gradient(135deg,#ff9a9e,#fecfef)','健身房':'linear-gradient(135deg,#fddb92,#d1fdff)','图书馆':'linear-gradient(135deg,#c1dfc4,#deecdd)','花园':'linear-gradient(135deg,#f5f7fa,#c3cfe2)','餐厅':'linear-gradient(135deg,#e0c3fc,#8ec5fc)','地铁站':'linear-gradient(135deg,#434343,#000000)','机场':'linear-gradient(135deg,#c9d6ff,#e2e2e2)','雪山':'linear-gradient(135deg,#e6e9f0,#eef1f5)','森林':'linear-gradient(135deg,#134e5e,#71b280)','沙漠':'linear-gradient(135deg,#f4a460,#deb887)','草原':'linear-gradient(135deg,#96e6a1,#d4fc79)','城市夜景':'linear-gradient(135deg,#0f2027,#203a43,#2c5364)','工作室':'linear-gradient(135deg,#c9c6ff,#8b87af)'};
+    var avList = [
+      { key: '知性女性', name: '角色 A', tag: '女 · 知性' },
+      { key: '商务男性', name: '角色 B', tag: '男 · 商务' },
+      { key: '活泼女性', name: '角色 C', tag: '女 · 活泼' },
+      { key: '青年男声', name: '角色 D', tag: '男 · 阳光' },
+      { key: '成熟女性', name: '角色 E', tag: '女 · 优雅' },
+      { key: '老年男性', name: '角色 F', tag: '男 · 沉稳' },
+      { key: '儿童女孩', name: '角色 G', tag: '女 · 可爱' },
+      { key: '新闻主播', name: '角色 H', tag: '女 · 专业' },
+      { key: '科技达人', name: '角色 I', tag: '男 · 科技感' },
+      { key: '医疗顾问', name: '角色 J', tag: '男 · 医学' },
+      { key: '教育讲师', name: '角色 K', tag: '女 · 教学' },
+      { key: '运动教练', name: '角色 L', tag: '男 · 运动' },
+      { key: '时尚博主', name: '角色 M', tag: '女 · 时尚' },
+      { key: '旅行者', name: '角色 N', tag: '男 · 户外' },
+      { key: '厨师', name: '角色 O', tag: '男 · 美食' },
+      { key: '艺术家', name: '角色 P', tag: '男 · 创意' },
+      { key: '程序员', name: '角色 Q', tag: '男 · 技术' },
+      { key: '律师', name: '角色 R', tag: '男 · 法律' },
+      { key: '歌手', name: '角色 S', tag: '女 · 音乐' },
+      { key: '设计师', name: '角色 T', tag: '女 · 设计' },
+    ];
 
     function toast(m) { var t = document.getElementById('toast-el'); t.textContent = m; t.classList.add('show'); setTimeout(function(){t.classList.remove('show');}, 2000); }
 
@@ -508,7 +649,7 @@
     function hasTpl() { return !!S.tpl; }
     function hasPerson() { return S.pSrc === 'upload' ? S.persons.length > 0 : S.avatarMulti.length > 0; }
     function hasBg() { return S.bgSrc === 'upload' ? S.bgFiles.length > 0 : S.bgMulti.length > 0; }
-    function hasScript() { return S.cards.some(function(c){return !c.off && c.content.trim();}); }
+    function hasScript() { return S.cards.some(function(c){return c.content.trim();}); }
     function canGen() { return hasTpl() && hasPerson() && hasBg() && hasScript(); }
 
     function getMissingItems() {
@@ -522,7 +663,7 @@
 
     function getPersonCount() { return S.pSrc === 'upload' ? S.persons.length : S.avatarMulti.length; }
     function getBgCount() { return S.bgSrc === 'upload' ? S.bgFiles.length : S.bgMulti.length; }
-    function getScriptCount() { return S.cards.filter(function(c){return !c.off && c.content.trim();}).length; }
+    function getScriptCount() { return S.cards.filter(function(c){return c.content.trim();}).length; }
 
     function updGenInfo() {
       var el = document.getElementById('gen-info');
@@ -606,38 +747,69 @@
       updGenInfo();
     }
 
+    var avI = {'知性女性':'👩','商务男性':'👨','活泼女性':'👧','青年男声':'🧑','成熟女性':'👩‍💼','老年男性':'👴','儿童女孩':'👧','新闻主播':'👩‍💻','科技达人':'👨‍💻','医疗顾问':'👨‍⚕️','教育讲师':'👩‍🏫','运动教练':'🏃','时尚博主':'💃','旅行者':'🧳','厨师':'👨‍🍳','艺术家':'🎨','程序员':'💻','律师':'⚖️','歌手':'🎤','设计师':'✏️'};
+
+    function renderAvatarList(keyword) {
+      keyword = (keyword || '').toLowerCase();
+      var filtered = avList.filter(function(a) { return a.name.toLowerCase().indexOf(keyword) > -1 || a.tag.toLowerCase().indexOf(keyword) > -1 || a.key.toLowerCase().indexOf(keyword) > -1; });
+      var container = document.getElementById('avatar-grid');
+      if (filtered.length === 0) { container.innerHTML = '<div class="av-nore">没有找到匹配的角色</div>'; return; }
+      var h = '';
+      filtered.forEach(function(a) {
+        var sel = S.avatarMulti.indexOf(a.key) > -1;
+        var emoji = avI[a.key] || '👤';
+        var nameEsc = a.name.replace(/'/g,"\\'").replace(/"/g,'&quot;');
+        var tagEsc = a.tag.replace(/'/g,"\\'").replace(/"/g,'&quot;');
+        h += '<div class="av-item-compact' + (sel ? ' sel' : '') + '" onclick="selAvatarByKey(\'' + a.key + '\')">';
+        h += '<div class="av-cb-compact">✓</div>';
+        h += '<div class="av-face-compact" onmouseenter="showAvPreview(event,\'' + nameEsc + '\',\'' + tagEsc + '\',\'' + emoji + '\')" onmouseleave="hideAvPreview()">' + emoji + '</div>';
+        h += '<div class="av-nm-compact">' + a.name + '</div>';
+        h += '<div class="av-tg-compact">' + a.tag + '</div>';
+        h += '<button class="av-listen-btn" onclick="event.stopPropagation();toast(\'试听：' + nameEsc + ' 的音色预览\')" title="试听音色">🔊</button>';
+        h += '</div>';
+      });
+      container.innerHTML = h;
+    }
+
+    function showAvPreview(e, name, tag, emoji) {
+      var tip = document.getElementById('av-preview-tooltip');
+      document.getElementById('av-preview-emoji').textContent = emoji;
+      document.getElementById('av-preview-name').textContent = name + ' · ' + tag;
+      tip.classList.add('show');
+      var r = e.target.getBoundingClientRect();
+      tip.style.left = (r.left + r.width / 2 - 60) + 'px';
+      tip.style.top = (r.bottom + 8) + 'px';
+    }
+
+    function hideAvPreview() {
+      document.getElementById('av-preview-tooltip').classList.remove('show');
+    }
+
+    function filterAvatarList(v) { renderAvatarList(v); }
+
     function toggleBatchAvatar() {
       S.avatarMulti = [];
-      document.querySelectorAll('#avatar-grid .av-item').forEach(function(c){c.classList.remove('sel');});
       document.getElementById('t-person').style.display = 'none';
+      renderAvatarList();
       updGenInfo();
     }
 
-    function selAvatar(el, n) {
+    function selAvatarByKey(key) {
       var batchMode = document.getElementById('avatar-batch-toggle') && document.getElementById('avatar-batch-toggle').checked;
       if (batchMode) {
-        el.classList.toggle('sel');
-        var idx = S.avatarMulti.indexOf(n);
-        if (idx > -1) { S.avatarMulti.splice(idx, 1); } else { S.avatarMulti.push(n); }
+        var idx = S.avatarMulti.indexOf(key);
+        if (idx > -1) { S.avatarMulti.splice(idx, 1); } else { S.avatarMulti.push(key); }
         document.getElementById('t-person').textContent = S.avatarMulti.length + '个人物';
       } else {
-        document.querySelectorAll('#avatar-grid .av-item').forEach(function(c){c.classList.remove('sel');});
-        el.classList.add('sel');
-        S.avatarMulti = [n];
+        S.avatarMulti = [key];
         document.getElementById('t-person').textContent = '已选择';
       }
       document.getElementById('t-person').style.display = S.avatarMulti.length > 0 ? 'inline-block' : 'none';
+      renderAvatarList(document.querySelector('#p-avatar .av-search input') ? document.querySelector('#p-avatar .av-search input').value : '');
       updGenInfo();
     }
 
     /* ========== 背景 ========== */
-    function toggleBatchBg() {
-      S.bgMulti = [];
-      document.querySelectorAll('#bg-preset-grid .bg-card').forEach(function(c){c.classList.remove('sel');});
-      document.getElementById('t-bg').style.display = 'none';
-      updGenInfo();
-    }
-
     function swBg(el, s) { el.parentElement.querySelectorAll('.seg-btn').forEach(function(x){x.classList.remove('on');}); el.classList.add('on'); S.bgSrc = s; document.getElementById('bg-upload').style.display = s === 'upload' ? '' : 'none'; document.getElementById('bg-preset').style.display = s === 'preset' ? '' : 'none'; updGenInfo(); }
 
     function upBg(inp) {
@@ -675,193 +847,171 @@
       updGenInfo();
     }
 
-    function selBgSingle(el, n) {
-      var batchMode = document.getElementById('bg-batch-toggle').checked;
+    function renderBgList(keyword) {
+      keyword = (keyword || '').toLowerCase();
+      var keys = Object.keys(bgM).filter(function(k) { return k.toLowerCase().indexOf(keyword) > -1; });
+      var container = document.getElementById('bg-grid-preset');
+      if (keys.length === 0) { container.innerHTML = '<div class="av-nore">没有找到匹配的场景</div>'; return; }
+      var h = '';
+      keys.forEach(function(n) {
+        var sel = S.bgMulti.indexOf(n) > -1;
+        var nameEsc = n.replace(/'/g,"\\'").replace(/"/g,'&quot;');
+        h += '<div class="bg-card-compact' + (sel ? ' sel' : '') + '" onclick="selBgByKey(\'' + n.replace(/'/g,"\\'") + '\')">';
+        h += '<div class="bg-cb-compact">✓</div>';
+        h += '<div class="bg-thumb-compact" style="background:' + bgM[n] + '" onmouseenter="showBgPreview(event,\'' + nameEsc + '\',\'' + bgM[n].replace(/'/g,"\\'") + '\')" onmouseleave="hideBgPreview()"></div>';
+        h += '<div class="bg-lb-compact">' + n + '</div>';
+        h += '</div>';
+      });
+      container.innerHTML = h;
+    }
+
+    function showBgPreview(e, name, gradient) {
+      var tip = document.getElementById('bg-preview-tooltip');
+      tip.style.background = gradient;
+      document.getElementById('bg-preview-name').textContent = name;
+      tip.classList.add('show');
+      var r = e.target.getBoundingClientRect();
+      tip.style.left = (r.left + r.width / 2 - 100) + 'px';
+      tip.style.top = (r.bottom + 8) + 'px';
+    }
+
+    function hideBgPreview() {
+      document.getElementById('bg-preview-tooltip').classList.remove('show');
+    }
+
+    function filterBgList(v) { renderBgList(v); }
+
+    function toggleBatchBg() {
+      S.bgMulti = [];
+      document.getElementById('t-bg').style.display = 'none';
+      renderBgList();
+      updGenInfo();
+    }
+
+    function selBgByKey(key) {
+      var batchMode = document.getElementById('bg-batch-toggle') && document.getElementById('bg-batch-toggle').checked;
       if (batchMode) {
-        el.classList.toggle('sel');
-        var idx = S.bgMulti.indexOf(n);
-        if (idx > -1) { S.bgMulti.splice(idx, 1); } else { S.bgMulti.push(n); }
+        var idx = S.bgMulti.indexOf(key);
+        if (idx > -1) { S.bgMulti.splice(idx, 1); } else { S.bgMulti.push(key); }
         document.getElementById('t-bg').textContent = S.bgMulti.length + '个场景';
       } else {
-        document.querySelectorAll('#bg-preset-grid .bg-card').forEach(function(c){c.classList.remove('sel');});
-        el.classList.add('sel');
-        S.bgMulti = [n];
+        S.bgMulti = [key];
         document.getElementById('t-bg').textContent = '已选择';
       }
       document.getElementById('t-bg').style.display = S.bgMulti.length > 0 ? 'inline-block' : 'none';
+      renderBgList(document.querySelector('#bg-preset .bg-search input') ? document.querySelector('#bg-preset .bg-search input').value : '');
       updGenInfo();
     }
 
-    function getRewriteCount() { var v = document.getElementById('rewrite-count'); return v ? Math.max(1, Math.min(5, parseInt(v.value) || 3)) : 3; }
-    function getCardRewriteCount(id) { var v = document.getElementById('rc-'+id); return v ? Math.max(1, Math.min(5, parseInt(v.value) || 3)) : 3; }
+    /* ========== 台词卡片（扁平结构） ========== */
 
-    /* ========== 台词卡片（层级结构） ========== */
-    var swScriptMode = function(el, m) { el.parentElement.querySelectorAll('.seg-btn').forEach(function(x){x.classList.remove('on');}); el.classList.add('on'); document.getElementById('sc-manual').style.display = m === 'manual' ? '' : 'none'; document.getElementById('sc-ai').style.display = m === 'ai' ? '' : 'none'; };
-
-    function addGroup(content) {
-      S.cards.push({ id: S.nextId++, content: content || '', children: [], off: false });
+    function addScriptCard(content) {
+      S.cards.push({ id: S.nextId++, content: content || '' });
       renderCards();
     }
 
-    function aiRewriteAll(count) {
-      var active = S.cards.filter(function(c){return !c.off && c.content.trim();});
-      if (active.length === 0) { toast('请先填写至少一个台词版本'); return; }
-      var n = count || 3;
-      active.forEach(function(g) {
-        for (var i = 0; i < n; i++) {
-          var st = rwS[i % rwS.length];
-          var m = g.content;
-          var ci = m.indexOf('，');
-          if (ci > 0) m = pf[i % pf.length] + '，' + m.substring(ci + 1);
-          var le = m.lastIndexOf('！');
-          if (le > 0) m = m.substring(0, le) + ed[i % ed.length];
-          g.children.push({ id: S.nextId++, content: m, style: st.n, desc: st.d, off: false });
-        }
-      });
-      renderCards();
-      toast('已为 ' + active.length + ' 条台词各生成 ' + n + ' 个改写版本');
-      updGenInfo();
-    }
-
-    function aiRewriteGroup(id, count) {
-      var group = S.cards.find(function(c){return c.id===id;});
-      if (!group || !group.content.trim()) { toast('请先填写台词内容'); return; }
-      var n = count || 3;
-      var newCards = [];
-      for (var i = 0; i < n; i++) {
-        var st = rwS[i % rwS.length];
-        var m = group.content;
-        var ci = m.indexOf('，');
-        if (ci > 0) m = pf[i % pf.length] + '，' + m.substring(ci + 1);
-        var le = m.lastIndexOf('！');
-        if (le > 0) m = m.substring(0, le) + ed[i % ed.length];
-        newCards.push({ id: S.nextId++, content: m, style: st.n, desc: st.d, off: false });
-      }
-      group.children = group.children.concat(newCards);
-      renderCards();
-      toast('已生成 ' + n + ' 个改写版本');
-      updGenInfo();
-    }
-
-    function aiGenCards() {
-      var t = document.getElementById('ai-topic').value;
-      if (!t) { toast('请输入视频主题'); return; }
-      var a = document.getElementById('ai-audience').value || '广大观众';
-      var s = document.getElementById('ai-selling').value || '';
-      var base = '大家好，欢迎收看本期视频。今天我们要聊的话题是' + t + '。这对于' + a + '来说非常重要。' + (s ? '我们的核心卖点是：' + s + '。' : '') + '接下来我会详细为大家讲解相关内容，希望对大家有所帮助。如果你喜欢本期内容，请点赞关注，我们下期再见！';
-      S.cards = [];
-      var g = { id: S.nextId++, content: base, children: [], off: false };
-      for (var i = 0; i < 3; i++) {
-        var st = rwS[i % rwS.length];
-        var m = base;
-        var ci = m.indexOf('，');
-        if (ci > 0) m = pf[i % pf.length] + '，' + m.substring(ci + 1);
-        var le = m.lastIndexOf('！');
-        if (le > 0) m = m.substring(0, le) + ed[i % ed.length];
-        g.children.push({ id: S.nextId++, content: m, style: st.n, desc: st.d, off: false });
-      }
-      S.cards.push(g);
-      var segBar = document.querySelector('#sc-manual').parentElement.querySelector('.seg-bar');
-      segBar.querySelectorAll('.seg-btn')[0].classList.add('on');
-      segBar.querySelectorAll('.seg-btn')[1].classList.remove('on');
-      document.getElementById('sc-manual').style.display = '';
-      document.getElementById('sc-ai').style.display = 'none';
-      renderCards();
-      toast('AI 已生成 1 条台词 + 3 个改写版本');
-      updGenInfo();
-    }
-
-    function toggleGroup(id, on) {
-      var g = S.cards.find(function(x){return x.id===id;});
-      if (g) { g.off = !on; renderCards(); }
-    }
-
-    function delGroup(id) {
+    function delScript(id) {
       S.cards = S.cards.filter(function(x){return x.id!==id;});
       renderCards();
+      updGenInfo();
     }
 
-    function updGroup(id, v) {
+    function updScript(id, v) {
       var g = S.cards.find(function(x){return x.id===id;});
       if (g) g.content = v;
       updGenInfo();
     }
 
-    function toggleChild(childId, on) {
-      S.cards.forEach(function(g) {
-        g.children.forEach(function(c) {
-          if (c.id === childId) c.off = !on;
-        });
-      });
-      renderCards();
-    }
-
-    function updChild(childId, v) {
-      S.cards.forEach(function(g) {
-        g.children.forEach(function(c) {
-          if (c.id === childId) c.content = v;
-        });
-      });
-      updGenInfo();
-    }
-
-    function delChild(childId) {
-      S.cards.forEach(function(g) {
-        g.children = g.children.filter(function(c){return c.id!==childId;});
-      });
-      renderCards();
-    }
-
-    function toggleFold(id) {
-      var el = document.querySelector('.sc-group[data-group="'+id+'"]');
-      if (el) el.classList.toggle('collapsed');
-    }
-
     function renderCards() {
       var c = document.getElementById('script-cards');
       if (S.cards.length === 0) {
-        c.innerHTML = '<div style="font-size:12px;color:#999;text-align:center;padding:10px;">点击下方「+ 新增台词」开始</div>';
+        c.innerHTML = '<div style="font-size:12px;color:#999;text-align:center;padding:10px;">点击下方「+ 新增台词」或「📥 批量导入」开始</div>';
         updGenInfo();
         return;
       }
       var h = '';
       S.cards.forEach(function(g) {
-        var childCount = g.children.length;
-        var activeChild = g.children.filter(function(x){return !x.off;}).length;
-        h += '<div class="sc-group' + (g.collapsed ? ' collapsed' : '') + '" data-group="'+g.id+'">';
-        // header
-        h += '<div class="sc-group-header" onclick="toggleFold('+g.id+')">';
-        h += '<span class="sc-arrow' + (g.collapsed ? '' : ' open') + '">▶</span>';
-        h += '<span class="sc-group-title">台词 ' + g.id + '</span>';
-        if (childCount > 0) h += '<span class="sc-group-sub">' + activeChild + '/' + childCount + ' 个改写版本</span>';
-        h += '<div class="sc-group-acts">';
-        h += '<label class="sc-toggle"><input type="checkbox" ' + (g.off ? '' : 'checked') + ' onclick="event.stopPropagation();toggleGroup(' + g.id + ',this.checked)"><span class="slider"></span></label>';
-        h += '<button class="btn btn2" style="font-size:10px;padding:2px 6px;" onclick="event.stopPropagation();delGroup(' + g.id + ')">删除</button>';
+        h += '<div class="sc-flat" data-script="'+g.id+'">';
+        h += '<div class="sc-flat-header">';
+        h += '<span class="sc-flat-tag">台词 ' + g.id + '</span>';
+        h += '<div class="sc-flat-acts">';
+        h += '<button class="btn btn2" style="font-size:10px;padding:2px 6px;" onclick="delScript(' + g.id + ')">删除</button>';
         h += '</div></div>';
-        // parent text
-        h += '<div class="sc-parent"><textarea' + (g.off ? ' disabled' : '') + ' oninput="updGroup(' + g.id + ',this.value)">' + g.content + '</textarea>';
-        h += '<div class="sc-ft"><span class="rc-label">改写</span><input type="number" class="rc-input" id="rc-'+g.id+'" value="3" min="1" max="5" style="width:48px;padding:3px 4px;border:1.5px solid #d8d8d8;border-radius:6px;font-size:11px;text-align:center;background:#fafafa;color:#333;"><button class="btn btn2" onclick="aiRewriteGroup(' + g.id + ', getCardRewriteCount('+g.id+'))">✨ AI 改写此条</button></div></div>';
-        // children
-        if (g.children.length > 0) {
-          h += '<div class="sc-children">';
-          g.children.forEach(function(ch, idx) {
-            h += '<div class="sc-child' + (ch.off ? ' off' : '') + '">';
-            h += '<div class="sc-child-header">';
-            h += '<span class="sc-child-tag">改写' + (idx+1) + '</span>';
-            h += '<span class="sc-child-sub">' + ch.desc + '</span>';
-            h += '<div class="sc-child-acts">';
-            h += '<label class="sc-toggle sm" style="width:26px;height:14px;"><input type="checkbox" ' + (ch.off ? '' : 'checked') + ' onclick="toggleChild('+ch.id+',this.checked)"><span class="slider"></span></label>';
-            h += '<button class="btn btn2" style="font-size:9px;padding:2px 6px;" onclick="delChild('+ch.id+')">删除</button>';
-            h += '</div></div>';
-            h += '<textarea' + (ch.off ? ' disabled' : '') + ' oninput="updChild('+ch.id+',this.value)">' + ch.content + '</textarea>';
-            h += '</div>';
-          });
-          h += '</div>';
-        }
+        h += '<textarea oninput="updScript(' + g.id + ',this.value)">' + g.content + '</textarea>';
         h += '</div>';
       });
       c.innerHTML = h;
       updGenInfo();
+    }
+
+    /* ========== 批量导入 ========== */
+
+    function showImportModal() {
+      document.getElementById('imp-ov').classList.add('show');
+    }
+
+    function closeImportModal() {
+      document.getElementById('imp-ov').classList.remove('show');
+      document.getElementById('imp-file').value = '';
+    }
+
+    document.getElementById('imp-ov').addEventListener('click', function(e) {
+      if (e.target === this) closeImportModal();
+    });
+
+    function downloadTemplate() {
+      // 生成 CSV 模板（UTF-8 with BOM）
+      var csv = '﻿台词内容\n' + '大家好，今天我要分享的是如何高效学习AI技术。\n' + '首先，我们需要了解AI的基本概念和应用场景。\n' + '其次，选择合适的学习路径非常重要。\n' + '最后，实践是最好的老师，多动手做项目才能真正掌握AI技能。\n' + '希望今天的分享对大家有所帮助，谢谢观看！';
+      var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = '台词导入模板.csv';
+      a.click();
+      URL.revokeObjectURL(url);
+      toast('模板已下载');
+    }
+
+    function handleImportFile(inp) {
+      if (!inp.files || inp.files.length === 0) return;
+      var file = inp.files[0];
+      var ext = file.name.split('.').pop().toLowerCase();
+      if (ext !== 'csv' && ext !== 'xlsx' && ext !== 'xls') {
+        toast('请上传 CSV 或 Excel 格式文件');
+        return;
+      }
+
+      if (ext === 'csv') {
+        var reader = new FileReader();
+        reader.onload = function(e) {
+          var text = e.target.result;
+          // 去除 BOM
+          if (text.charCodeAt(0) === 0xFEFF) text = text.substring(1);
+          var lines = text.split(/\r?\n/).filter(function(l){return l.trim();});
+          // 跳过表头
+          var contents = lines.slice(1).map(function(l){
+            // 处理 CSV 引号
+            return l.replace(/^["']|["']$/g, '').trim();
+          }).filter(function(c){return c;});
+
+          if (contents.length === 0) { toast('文件中没有找到台词数据'); return; }
+          if (contents.length > 100) { toast('台词数量超过100条限制，已导入前100条'); contents = contents.slice(0, 100); }
+
+          contents.forEach(function(c) { S.cards.push({ id: S.nextId++, content: c }); });
+          renderCards();
+          closeImportModal();
+          toast('成功导入 ' + contents.length + ' 条台词');
+          updGenInfo();
+        };
+        reader.readAsText(file, 'UTF-8');
+      } else {
+        // Excel 文件 - 原型阶段用模拟数据代替
+        toast('检测到 Excel 文件，原型阶段演示：模拟导入 3 条台词');
+        addScriptCard('这是从 Excel 导入的第一条台词');
+        addScriptCard('这是从 Excel 导入的第二条台词');
+        addScriptCard('这是从 Excel 导入的第三条台词');
+        closeImportModal();
+      }
     }
 
     /* ========== 生成弹窗（分组表格） ========== */
@@ -880,17 +1030,12 @@
         S.bgMulti.forEach(function(n) { bgList.push({ name: n, src: null, style: bgM[n] || bgM['办公室'] }); });
       }
 
-      // 收集所有有效台词：父台词 + 子版本
+      // 收集所有有效台词（扁平结构）
       var scriptList = [];
       S.cards.forEach(function(g) {
-        if (!g.off && g.content.trim()) {
+        if (g.content.trim()) {
           scriptList.push({ content: g.content, style: '台词' + g.id });
         }
-        g.children.forEach(function(ch) {
-          if (!ch.off && ch.content.trim()) {
-            scriptList.push({ content: ch.content, style: ch.style });
-          }
-        });
       });
 
       var groups = [];
@@ -1031,8 +1176,10 @@
     function closeProgress(){document.getElementById('p-overlay').classList.remove('show');document.getElementById('p-title').textContent='正在生成视频...';document.getElementById('p-acts').style.display='none';document.getElementById('p-fill').style.width='0%';document.querySelectorAll('.p-step').forEach(function(s){s.className='p-step w';s.querySelector('.ico').textContent=s.id.split('-')[1];});}
     function viewResults(){closeProgress();toast('跳转到导演台...');}
 
-    // 初始化：添加一个默认空台词组
-    addGroup();
+    // 初始化
+    renderAvatarList();
+    renderBgList();
+    addScriptCard();
     updGenInfo();
   </script>
 </body>

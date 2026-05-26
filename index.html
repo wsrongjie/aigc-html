@@ -3,165 +3,324 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI 视频/音频原型</title>
+    <title>投顾视频平台 - AIGC 短视频制作</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #2f6bff;
+            --primary-light: #e8efff;
+            --sidebar-bg: #1C1C1E;
+            --sidebar-text: #A1A1AA;
+            --sidebar-active: #FFFFFF;
+            --card-bg: #FFFFFF;
+            --border: #E4E4E7;
+            --text-primary: #18181B;
+            --text-secondary: #71717A;
+            --text-muted: #A1A1AA;
+            --bg: #F7F7F8;
+            --radius: 12px;
+            --radius-sm: 8px;
+            --shadow: 0 1px 3px rgba(0,0,0,0.08);
+            --shadow-md: 0 4px 16px rgba(0,0,0,0.10);
+        }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #f5f7fa;
-            color: #333;
-            min-height: 100vh;
+            font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Helvetica Neue', sans-serif;
+            background: var(--bg);
+            color: var(--text-primary);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+            font-size: 14px;
+        }
+
+        /* 侧边栏 */
+        .sidebar {
+            width: 220px;
+            background: var(--sidebar-bg);
             display: flex;
             flex-direction: column;
-            align-items: center;
-            padding: 48px 24px;
+            flex-shrink: 0;
         }
-        h1 {
-            font-size: 28px;
-            margin-bottom: 8px;
+        .sidebar-logo { padding: 24px 20px 20px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+        .logo-mark { display: flex; align-items: center; gap: 10px; }
+        .logo-icon {
+            width: 32px; height: 32px; background: var(--primary);
+            border-radius: 8px; display: flex; align-items: center;
+            justify-content: center; color: #fff; font-weight: 700; font-size: 14px;
         }
-        .subtitle {
-            color: #888;
-            font-size: 14px;
-            margin-bottom: 40px;
+        .logo-text { color: #fff; font-weight: 600; font-size: 15px; }
+        .logo-sub { color: var(--sidebar-text); font-size: 11px; margin-top: 2px; }
+
+        .sidebar-nav { flex: 1; padding: 12px 0; overflow-y: auto; }
+        .nav-section { padding: 8px 0; }
+        .nav-section-title {
+            padding: 6px 20px; font-size: 14px; color: #A1A1AA; letter-spacing: 0.04em;
+            font-weight: 600; cursor: pointer; display: flex; align-items: center;
+            justify-content: space-between; user-select: none; transition: color 0.15s;
         }
-        .grid {
+        .nav-section-title:hover { color: #E4E4E7; }
+        .nav-section-title .collapse-icon { font-size: 10px; transition: transform 0.2s; }
+        .nav-section-title.collapsed .collapse-icon { transform: rotate(-90deg); }
+        .nav-section-children {
+            overflow: hidden; transition: max-height 0.25s ease, opacity 0.2s;
+            max-height: 300px; opacity: 1;
+        }
+        .nav-section-children.hidden { max-height: 0; opacity: 0; }
+        .nav-sub-item {
+            display: flex; align-items: center; gap: 10px; padding: 9px 20px 9px 36px;
+            cursor: pointer; color: var(--sidebar-text); transition: all 0.15s;
+            border-left: 3px solid transparent; font-size: 13px; text-decoration: none;
+        }
+        .nav-sub-item:hover { color: #E4E4E7; background: rgba(255,255,255,0.04); }
+        .nav-sub-item.active { color: var(--sidebar-active); background: rgba(47,107,255,0.15); border-left-color: var(--primary); }
+
+        .sidebar-bottom { padding: 16px 20px; border-top: 1px solid rgba(255,255,255,0.06); }
+        .user-info { display: flex; align-items: center; gap: 10px; }
+        .user-avatar {
+            width: 32px; height: 32px; border-radius: 50%; background: var(--primary);
+            display: flex; align-items: center; justify-content: center;
+            color: #fff; font-size: 13px; font-weight: 600;
+        }
+        .user-name { color: #E4E4E7; font-size: 13px; }
+        .user-role { color: var(--sidebar-text); font-size: 11px; }
+
+        /* 主内容 */
+        .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+        .topbar {
+            height: 56px; background: var(--card-bg); border-bottom: 1px solid var(--border);
+            display: flex; align-items: center; padding: 0 28px; flex-shrink: 0;
+        }
+        .topbar-title { font-size: 16px; font-weight: 600; }
+        .topbar-desc { font-size: 12px; color: var(--text-muted); margin-left: 16px; }
+
+        .content { flex: 1; overflow-y: auto; padding: 24px 28px; }
+
+        /* 卡片网格 */
+        .card-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 16px;
-            max-width: 960px;
-            width: 100%;
         }
         .card {
-            background: #fff;
-            border-radius: 12px;
+            background: var(--card-bg);
+            border-radius: var(--radius);
             padding: 24px;
             text-decoration: none;
             color: inherit;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-            transition: box-shadow 0.2s, transform 0.2s;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            transition: all 0.2s;
             display: flex;
             flex-direction: column;
             gap: 8px;
         }
         .card:hover {
-            box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+            box-shadow: var(--shadow-md);
             transform: translateY(-2px);
+            border-color: var(--primary);
         }
-        .card .step {
-            font-size: 12px;
-            font-weight: 600;
-            color: #6366f1;
-            background: #eef2ff;
-            display: inline-block;
-            padding: 2px 10px;
-            border-radius: 20px;
-            width: fit-content;
+        .card .card-tag {
+            font-size: 11px; font-weight: 600; padding: 2px 10px;
+            border-radius: 20px; width: fit-content;
         }
-        .card .title {
-            font-size: 18px;
-            font-weight: 600;
-        }
-        .card .desc {
-            font-size: 13px;
-            color: #666;
-        }
-        .section-title {
-            font-size: 18px;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 12px;
-            padding-left: 4px;
-            border-left: 3px solid #6366f1;
-            width: fit-content;
-        }
-        .audio .card .step {
-            color: #059669;
-            background: #ecfdf5;
-        }
-        .audio .section-title {
-            border-left-color: #059669;
-        }
-        .subject .card .step {
-            color: #d97706;
-            background: #fffbeb;
-        }
-        .subject .section-title {
-            border-left-color: #d97706;
-        }
+        .card .card-title { font-size: 16px; font-weight: 600; }
+        .card .card-desc { font-size: 13px; color: var(--text-secondary); line-height: 1.5; }
+
+        /* 颜色主题 */
+        .tag-subject { color: #d97706; background: #fffbeb; }
+        .tag-audio { color: #059669; background: #ecfdf5; }
+        .tag-video { color: #2563eb; background: #eff6ff; }
+        .tag-studio { color: #7c3aed; background: #f5f3ff; }
+        .tag-tools { color: #475569; background: #f1f5f9; }
+
+        /* 面板切换 */
+        .panel { display: none; }
+        .panel.active { display: block; }
     </style>
 </head>
 <body>
-    <h1>AI 创作原型</h1>
-    <p class="subtitle">点击卡片进入对应页面原型</p>
-    <div class="grid">
-        <div style="grid-column: 1 / -1;">
-            <div class="section-title subject">主体管理</div>
+
+<aside class="sidebar">
+    <div class="sidebar-logo">
+        <div class="logo-mark">
+            <div class="logo-icon">AI</div>
+            <div>
+                <div class="logo-text">投顾视频平台</div>
+                <div class="logo-sub">AIGC · 短视频制作</div>
+            </div>
         </div>
-        <a class="card" href="主体管理-首页.html">
-            <span class="step">模块</span>
-            <span class="title">主体管理 - 首页</span>
-            <span class="desc">主体列表与管理入口</span>
-        </a>
-        <a class="card" href="主体管理-创建主体.html">
-            <span class="step">模块</span>
-            <span class="title">主体管理 - 创建主体</span>
-            <span class="desc">新建主体信息表单</span>
-        </a>
-        <div style="grid-column: 1 / -1; margin-top: 16px;">
-            <div class="section-title audio">音频模块</div>
-        </div>
-        <a class="card" href="语音首页.html">
-            <span class="step">入口</span>
-            <span class="title">音频首页</span>
-            <span class="desc">语音模型列表与管理入口</span>
-        </a>
-        <a class="card" href="新建语音模型.html">
-            <span class="step">模块</span>
-            <span class="title">新建语音模型</span>
-            <span class="desc">创建自定义语音模型</span>
-        </a>
-        <div style="grid-column: 1 / -1; margin-top: 16px;">
-            <div class="section-title">视频模块</div>
-        </div>
-        <a class="card" href="导演台首页.html">
-            <span class="step">入口</span>
-            <span class="title">导演台首页</span>
-            <span class="desc">工作台入口与项目概览</span>
-        </a>
-        <a class="card" href="step1-台词创建-含模型选择.html">
-            <span class="step">精细模式 Step 1</span>
-            <span class="title">台词创建</span>
-            <span class="desc">创作台词脚本（含模型选择）</span>
-        </a>
-        <a class="card" href="step2-主体管理首页（一级主体联动版）.html">
-            <span class="step">精细模式 Step 2</span>
-            <span class="title">主体管理（联动版）</span>
-            <span class="desc">主体选择与联动配置</span>
-        </a>
-        <a class="card" href="step3-常规分镜管理.html">
-            <span class="step">精细模式 Step 3</span>
-            <span class="title">分镜管理</span>
-            <span class="desc">分镜编排与管理</span>
-        </a>
-        <a class="card" href="step3-通灵xz模型.html">
-            <span class="step">精细模式 Step 3</span>
-            <span class="title">通灵xz模型</span>
-            <span class="desc">通灵XZ大模型分镜生成</span>
-        </a>
-        <a class="card" href="step4-成片合成.html">
-            <span class="step">精细模式 Step 4</span>
-            <span class="title">成片合成</span>
-            <span class="desc">视频预览、封面/水印/BGM配置与导出</span>
-        </a>
-        <div style="grid-column: 1 / -1; margin-top: 16px;">
-            <div class="section-title" style="border-left-color: #8b5cf6;">全部工具</div>
-        </div>
-        <a class="card" href="全部工具.html">
-            <span class="step">入口</span>
-            <span class="title">全部工具首页</span>
-            <span class="desc">工具集市入口，包含模板成片等所有工具</span>
-        </a>
     </div>
+
+    <nav class="sidebar-nav">
+        <div class="nav-section">
+            <div class="nav-section-title" onclick="toggleSection(this)">
+                资产 <span class="collapse-icon">▾</span>
+            </div>
+            <div class="nav-section-children">
+                <a class="nav-sub-item" href="javascript:void(0)" data-panel="panel-subject"><span class="nav-icon">👤</span> 主体</a>
+                <a class="nav-sub-item" href="javascript:void(0)" data-panel="panel-audio"><span class="nav-icon">🎙</span> 音频</a>
+                <a class="nav-sub-item" href="javascript:void(0)" data-panel="panel-video"><span class="nav-icon">🎬</span> 视频</a>
+            </div>
+        </div>
+        <div class="nav-section">
+            <a class="nav-sub-item" href="javascript:void(0)" data-panel="panel-studio"><span class="nav-icon">🎬</span> 导演台</a>
+            <a class="nav-sub-item" href="javascript:void(0)" data-panel="panel-tools"><span class="nav-icon">🛠</span> 全部工具</a>
+        </div>
+    </nav>
+
+    <div class="sidebar-bottom">
+        <div class="user-info">
+            <div class="user-avatar">顾</div>
+            <div><div class="user-name">管理员</div><div class="user-role">内容运营</div></div>
+        </div>
+    </div>
+</aside>
+
+<main class="main">
+    <!-- 主体 -->
+    <div class="topbar panel active" id="panel-subject">
+        <span class="topbar-title">主体管理</span>
+        <span class="topbar-desc">主体列表与创建入口</span>
+    </div>
+    <!-- 音频 -->
+    <div class="topbar panel" id="panel-audio">
+        <span class="topbar-title">音频</span>
+        <span class="topbar-desc">语音模型与音色管理</span>
+    </div>
+    <!-- 视频 -->
+    <div class="topbar panel" id="panel-video">
+        <span class="topbar-title">视频资产</span>
+        <span class="topbar-desc">已创建视频的管理与共享</span>
+    </div>
+    <!-- 导演台 -->
+    <div class="topbar panel" id="panel-studio">
+        <span class="topbar-title">导演台</span>
+        <span class="topbar-desc">从台词到成片的全流程创作</span>
+    </div>
+    <!-- 全部工具 -->
+    <div class="topbar panel" id="panel-tools">
+        <span class="topbar-title">全部工具</span>
+        <span class="topbar-desc">模板成片、批量生成等工具集市</span>
+    </div>
+
+    <div class="content">
+        <!-- 主体面板 -->
+        <div class="panel active card-grid" id="content-subject">
+            <a class="card" href="主体管理-首页.html">
+                <span class="card-tag tag-subject">主体管理</span>
+                <span class="card-title">主体管理 - 首页</span>
+                <span class="card-desc">主体列表与管理入口</span>
+            </a>
+            <a class="card" href="主体管理-创建主体.html">
+                <span class="card-tag tag-subject">主体管理</span>
+                <span class="card-title">创建主体</span>
+                <span class="card-desc">新建主体信息表单</span>
+            </a>
+        </div>
+
+        <!-- 音频面板 -->
+        <div class="panel card-grid" id="content-audio">
+            <a class="card" href="语音首页.html">
+                <span class="card-tag tag-audio">音频</span>
+                <span class="card-title">音频首页</span>
+                <span class="card-desc">语音模型列表与管理入口</span>
+            </a>
+            <a class="card" href="新建语音模型.html">
+                <span class="card-tag tag-audio">音频</span>
+                <span class="card-title">新建语音模型</span>
+                <span class="card-desc">创建自定义语音模型</span>
+            </a>
+        </div>
+
+        <!-- 视频面板 -->
+        <div class="panel card-grid" id="content-video">
+            <a class="card" href="视频资产.html">
+                <span class="card-tag tag-video">视频</span>
+                <span class="card-title">视频资产</span>
+                <span class="card-desc">管理已创建的视频，支持团队共享</span>
+            </a>
+        </div>
+
+        <!-- 导演台面板 -->
+        <div class="panel card-grid" id="content-studio">
+            <a class="card" href="导演台首页.html">
+                <span class="card-tag tag-studio">导演台</span>
+                <span class="card-title">导演台首页</span>
+                <span class="card-desc">工作台入口与项目概览</span>
+            </a>
+            <a class="card" href="step1-台词创建-含模型选择.html">
+                <span class="card-tag tag-studio">导演台</span>
+                <span class="card-title">台词创建</span>
+                <span class="card-desc">创作台词脚本（含模型选择）</span>
+            </a>
+            <a class="card" href="step2-主体管理首页（一级主体联动版）.html">
+                <span class="card-tag tag-studio">导演台</span>
+                <span class="card-title">主体管理（联动版）</span>
+                <span class="card-desc">主体选择与联动配置</span>
+            </a>
+            <a class="card" href="step3-常规分镜管理.html">
+                <span class="card-tag tag-studio">导演台</span>
+                <span class="card-title">分镜管理</span>
+                <span class="card-desc">分镜编排与管理</span>
+            </a>
+            <a class="card" href="step3-通灵xz模型.html">
+                <span class="card-tag tag-studio">导演台</span>
+                <span class="card-title">通灵xz模型</span>
+                <span class="card-desc">通灵XZ大模型分镜生成</span>
+            </a>
+            <a class="card" href="step4-成片合成.html">
+                <span class="card-tag tag-studio">导演台</span>
+                <span class="card-title">成片合成</span>
+                <span class="card-desc">视频预览、封面/水印/BGM配置与导出</span>
+            </a>
+        </div>
+
+        <!-- 全部工具面板 -->
+        <div class="panel card-grid" id="content-tools">
+            <a class="card" href="全部工具.html">
+                <span class="card-tag tag-tools">全部工具</span>
+                <span class="card-title">全部工具首页</span>
+                <span class="card-desc">工具集市入口，包含模板成片等所有工具</span>
+            </a>
+        </div>
+    </div>
+</main>
+
+<script>
+    // 菜单点击切换面板
+    document.querySelectorAll('.nav-sub-item').forEach(function(item) {
+        item.addEventListener('click', function() {
+            var panelId = item.getAttribute('data-panel');
+            if (!panelId) return;
+
+            // 更新菜单 active
+            document.querySelectorAll('.nav-sub-item').forEach(function(n) { n.classList.remove('active'); });
+            item.classList.add('active');
+
+            // 切换 topbar
+            document.querySelectorAll('.topbar').forEach(function(t) { t.classList.remove('active'); });
+            var tb = document.getElementById(panelId);
+            if (tb) tb.classList.add('active');
+
+            // 切换内容面板
+            document.querySelectorAll('.content > .panel').forEach(function(p) { p.classList.remove('active'); });
+            var contentId = panelId.replace('panel-', 'content-');
+            var cp = document.getElementById(contentId);
+            if (cp) cp.classList.add('active');
+        });
+    });
+
+    // 侧边栏折叠
+    function toggleSection(titleEl) {
+        titleEl.classList.toggle('collapsed');
+        var children = titleEl.nextElementSibling;
+        if (children) children.classList.toggle('hidden');
+    }
+
+    // 默认选中第一个
+    var firstItem = document.querySelector('.nav-sub-item');
+    if (firstItem) firstItem.classList.add('active');
+</script>
+
 </body>
 </html>

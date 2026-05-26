@@ -182,7 +182,7 @@
 
     .basic-grid {
       display: grid;
-      grid-template-columns: minmax(220px, 400px) 170px minmax(280px, 1fr) minmax(260px, 350px);
+      grid-template-columns: 1.8fr 0.8fr 1.4fr 1.3fr 1fr;
       gap: 16px;
       align-items: start;
     }
@@ -848,6 +848,16 @@
               </label>
               <select id="resolutionSelect" class="select" onchange="markChanged()"></select>
             </div>
+
+            <div class="field">
+              <label class="field-label">
+                可见范围 <span class="required">*</span>
+              </label>
+              <div class="segment" id="scopeSegment">
+                <button class="segment-btn active" type="button" onclick="setScope('private', this)">自己</button>
+                <button class="segment-btn" type="button" onclick="setScope('team', this)">团队</button>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -981,6 +991,7 @@
   <script>
     var currentLanguage = "zh";
     var currentRatio = "vertical";
+    var currentScope = "private";
     var currentModel = "wan";
     var currentGoal = "更口语自然";
     var previousScriptText = "";
@@ -1024,6 +1035,12 @@
       setActiveInSegment("ratioSegment", btn);
       document.getElementById("ratioHint").innerText = ratioHintMap[ratio];
       renderResolutionOptions();
+      markChanged();
+    }
+
+    function setScope(scope, btn) {
+      currentScope = scope;
+      setActiveInSegment("scopeSegment", btn);
       markChanged();
     }
 
