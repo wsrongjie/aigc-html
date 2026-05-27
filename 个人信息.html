@@ -1,0 +1,1270 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>个人信息 - 个人中心</title>
+<style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+        --primary: #2f6bff;
+        --primary-light: #e8efff;
+        --primary-dark: #1f4fd9;
+        --success: #16a34a;
+        --success-light: #dcfce7;
+        --warning: #f59e0b;
+        --warning-light: #fef3c7;
+        --danger: #dc2626;
+        --danger-light: #fee2e2;
+        --sidebar-bg: #1C1C1E;
+        --sidebar-text: #A1A1AA;
+        --sidebar-active: #FFFFFF;
+        --card-bg: #FFFFFF;
+        --border: #E4E4E7;
+        --border-strong: #D4D4D8;
+        --text-primary: #18181B;
+        --text-secondary: #71717A;
+        --text-muted: #A1A1AA;
+        --bg: #F7F7F8;
+        --radius: 12px;
+        --radius-sm: 8px;
+        --shadow: 0 1px 3px rgba(0,0,0,0.06);
+        --shadow-md: 0 4px 16px rgba(0,0,0,0.10);
+    }
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Helvetica Neue', sans-serif;
+        background: var(--bg);
+        color: var(--text-primary);
+        display: flex;
+        height: 100vh;
+        overflow: hidden;
+        font-size: 14px;
+    }
+
+    /* ========== 侧边栏 ========== */
+    .sidebar {
+        width: 220px; background: var(--sidebar-bg);
+        display: flex; flex-direction: column; flex-shrink: 0;
+    }
+    .sidebar-logo { padding: 24px 20px 20px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .logo-mark { display: flex; align-items: center; gap: 10px; }
+    .logo-icon {
+        width: 32px; height: 32px; background: var(--primary);
+        border-radius: 8px; display: flex; align-items: center;
+        justify-content: center; color: #fff; font-weight: 700; font-size: 14px;
+    }
+    .logo-text { color: #fff; font-weight: 600; font-size: 15px; }
+    .logo-sub { color: var(--sidebar-text); font-size: 11px; margin-top: 2px; }
+    .sidebar-nav { flex: 1; padding: 12px 0; overflow-y: auto; }
+    .nav-section { padding: 8px 0; }
+    .nav-section-title {
+        padding: 6px 20px; font-size: 14px; color: #A1A1AA; letter-spacing: 0.04em;
+        font-weight: 600; cursor: pointer; display: flex; align-items: center;
+        justify-content: space-between; user-select: none; transition: color 0.15s;
+    }
+    .nav-section-title:hover { color: #E4E4E7; }
+    .nav-section-title .collapse-icon { font-size: 10px; transition: transform 0.2s; }
+    .nav-section-title.collapsed .collapse-icon { transform: rotate(-90deg); }
+    .nav-section-children {
+        overflow: hidden; transition: max-height 0.25s ease, opacity 0.2s;
+        max-height: 400px; opacity: 1;
+    }
+    .nav-section-children.hidden { max-height: 0; opacity: 0; }
+    .nav-sub-item {
+        display: flex; align-items: center; gap: 10px; padding: 9px 20px 9px 36px;
+        cursor: pointer; color: var(--sidebar-text); transition: all 0.15s;
+        border-left: 3px solid transparent; font-size: 13px; text-decoration: none;
+    }
+    .nav-sub-item:hover { color: #E4E4E7; background: rgba(255,255,255,0.04); }
+    .nav-sub-item.active { color: var(--sidebar-active); background: rgba(47,107,255,0.15); border-left-color: var(--primary); }
+    .nav-icon { width: 18px; text-align: center; font-size: 15px; }
+
+    .sidebar-bottom { padding: 16px 20px; border-top: 1px solid rgba(255,255,255,0.06); }
+    .user-info { display: flex; align-items: center; gap: 10px; }
+    .user-avatar {
+        width: 32px; height: 32px; border-radius: 50%; background: var(--primary);
+        display: flex; align-items: center; justify-content: center;
+        color: #fff; font-size: 13px; font-weight: 600;
+    }
+    .user-name { color: #E4E4E7; font-size: 13px; }
+    .user-role { color: var(--sidebar-text); font-size: 11px; }
+
+    /* ========== 主区 ========== */
+    .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+    .topbar {
+        height: 56px; background: var(--card-bg); border-bottom: 1px solid var(--border);
+        display: flex; align-items: center; padding: 0 28px; gap: 12px; flex-shrink: 0;
+    }
+    .crumb { font-size: 13px; color: var(--text-secondary); }
+    .crumb-sep { margin: 0 6px; color: var(--text-muted); }
+    .topbar-title { font-size: 16px; font-weight: 600; }
+
+    .content { flex: 1; overflow-y: auto; scroll-behavior: smooth; }
+
+    /* ========== 吸顶锚点 ========== */
+    .anchor-bar {
+        position: sticky; top: 0; z-index: 20;
+        background: rgba(247,247,248,0.85);
+        backdrop-filter: saturate(180%) blur(10px);
+        -webkit-backdrop-filter: saturate(180%) blur(10px);
+        border-bottom: 1px solid var(--border);
+        padding: 10px 28px;
+        display: flex; gap: 6px;
+    }
+    .anchor-item {
+        padding: 6px 14px; border-radius: 999px;
+        font-size: 13px; color: var(--text-secondary);
+        cursor: pointer; transition: all 0.15s;
+        border: 1px solid transparent;
+        text-decoration: none;
+    }
+    .anchor-item:hover { background: #fff; color: var(--text-primary); border-color: var(--border); }
+    .anchor-item.active { background: var(--primary); color: #fff; }
+
+    /* ========== 卡片容器 ========== */
+    .page-wrap { max-width: 960px; margin: 0 auto; padding: 24px 28px 80px; }
+    .card {
+        background: var(--card-bg); border-radius: var(--radius);
+        border: 1px solid var(--border); box-shadow: var(--shadow);
+        margin-bottom: 20px; overflow: hidden;
+        scroll-margin-top: 80px;
+    }
+    .card-header {
+        padding: 18px 24px; border-bottom: 1px solid var(--border);
+        display: flex; justify-content: space-between; align-items: center;
+    }
+    .card-title { font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+    .card-title-icon { font-size: 16px; }
+    .card-subtitle { font-size: 12px; color: var(--text-muted); margin-top: 3px; }
+    .card-body { padding: 8px 24px; }
+
+    /* ========== 表单行 ========== */
+    .row {
+        display: flex; align-items: center; padding: 16px 0;
+        border-bottom: 1px solid var(--border);
+        gap: 16px;
+    }
+    .row:last-child { border-bottom: none; }
+    .row-label {
+        width: 110px; flex-shrink: 0;
+        font-size: 13px; color: var(--text-secondary);
+    }
+    .row-value { flex: 1; font-size: 14px; color: var(--text-primary); display: flex; align-items: center; gap: 10px; }
+    .row-action { flex-shrink: 0; }
+    .row-desc { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+
+    /* ========== 按钮 ========== */
+    .btn {
+        height: 32px; padding: 0 14px; border-radius: 6px;
+        font-size: 13px; cursor: pointer; border: 1px solid var(--border);
+        background: #fff; color: var(--text-primary); transition: all 0.15s;
+        display: inline-flex; align-items: center; gap: 6px;
+    }
+    .btn:hover { border-color: var(--primary); color: var(--primary); }
+    .btn-primary { background: var(--primary); color: #fff; border-color: var(--primary); }
+    .btn-primary:hover { background: var(--primary-dark); color: #fff; border-color: var(--primary-dark); }
+    .btn-danger { color: var(--danger); }
+    .btn-danger:hover { border-color: var(--danger); color: var(--danger); background: var(--danger-light); }
+    .btn-text { background: transparent; border: none; color: var(--primary); padding: 0 6px; height: auto; }
+    .btn-text:hover { color: var(--primary-dark); border: none; background: transparent; text-decoration: underline; }
+    .btn-sm { height: 28px; padding: 0 10px; font-size: 12px; }
+    .btn-lg { height: 38px; padding: 0 20px; font-size: 14px; }
+
+    /* ========== 头像 ========== */
+    .avatar-row { display: flex; align-items: center; gap: 24px; }
+    .avatar-large {
+        position: relative; width: 96px; height: 96px; border-radius: 50%;
+        background: linear-gradient(135deg, #2f6bff, #6b8eff);
+        color: #fff; display: flex; align-items: center; justify-content: center;
+        font-size: 36px; font-weight: 600;
+        cursor: pointer; overflow: hidden;
+    }
+    .avatar-large .avatar-mask {
+        position: absolute; inset: 0; background: rgba(0,0,0,0.5);
+        color: #fff; display: flex; align-items: center; justify-content: center;
+        font-size: 12px; opacity: 0; transition: opacity 0.2s;
+    }
+    .avatar-large:hover .avatar-mask { opacity: 1; }
+    .avatar-tip { font-size: 12px; color: var(--text-muted); line-height: 1.6; }
+
+    /* ========== 标签 ========== */
+    .tag {
+        display: inline-flex; align-items: center; gap: 4px;
+        padding: 2px 10px; border-radius: 999px;
+        font-size: 12px; font-weight: 500;
+    }
+    .tag-success { background: var(--success-light); color: var(--success); }
+    .tag-warning { background: var(--warning-light); color: var(--warning); }
+    .tag-danger { background: var(--danger-light); color: var(--danger); }
+    .tag-info { background: var(--primary-light); color: var(--primary); }
+    .tag-default { background: #f4f4f5; color: var(--text-secondary); }
+    .dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; }
+    .dot-success { background: var(--success); }
+    .dot-danger { background: var(--danger); }
+
+    /* 复制图标 */
+    .copy-btn {
+        cursor: pointer; color: var(--text-muted); font-size: 13px;
+        transition: color 0.15s; user-select: none;
+    }
+    .copy-btn:hover { color: var(--primary); }
+
+    /* ========== 安全等级条 ========== */
+    .security-level {
+        margin: 4px 0 16px;
+        padding: 14px 16px; background: var(--primary-light); border-radius: 8px;
+        display: flex; align-items: center; gap: 14px;
+    }
+    .security-level-icon {
+        width: 36px; height: 36px; border-radius: 8px;
+        background: var(--primary); color: #fff;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 18px;
+    }
+    .security-level-info { flex: 1; }
+    .security-level-label { font-size: 13px; color: var(--text-secondary); }
+    .security-level-value { font-size: 15px; font-weight: 600; color: var(--text-primary); margin-top: 2px; }
+    .security-level-bar {
+        flex: 0 0 160px; height: 6px; border-radius: 3px;
+        background: rgba(47,107,255,0.15); position: relative; overflow: hidden;
+    }
+    .security-level-bar-fill {
+        position: absolute; left: 0; top: 0; bottom: 0;
+        background: var(--primary); border-radius: 3px;
+    }
+
+    /* ========== 表格 ========== */
+    .table-wrap { margin-top: 4px; }
+    .table { width: 100%; border-collapse: collapse; }
+    .table th, .table td {
+        padding: 12px 14px; text-align: left;
+        font-size: 13px; border-bottom: 1px solid var(--border);
+    }
+    .table th {
+        background: #fafafa; color: var(--text-secondary);
+        font-weight: 500; font-size: 12px;
+        text-transform: uppercase; letter-spacing: 0.04em;
+    }
+    .table tbody tr:hover { background: #fafafa; }
+    .table td.actions { text-align: right; white-space: nowrap; }
+    .table .key-mono {
+        font-family: 'SF Mono', Menlo, Consolas, monospace;
+        background: #f4f4f5; padding: 2px 8px; border-radius: 4px;
+        font-size: 12px;
+    }
+
+    .empty {
+        padding: 40px 20px; text-align: center;
+        color: var(--text-muted); font-size: 13px;
+    }
+    .empty-icon { font-size: 32px; margin-bottom: 8px; opacity: 0.6; }
+
+    /* 设备项 */
+    .device-icon {
+        display: inline-flex; align-items: center; justify-content: center;
+        width: 32px; height: 32px; border-radius: 8px;
+        background: var(--primary-light); color: var(--primary);
+        margin-right: 10px; font-size: 16px;
+    }
+    .device-cell { display: flex; align-items: center; }
+    .device-name { font-weight: 500; font-size: 13px; }
+    .device-sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+    .row-current { background: rgba(47,107,255,0.04); }
+
+    /* 开关 */
+    .switch {
+        position: relative; display: inline-block;
+        width: 38px; height: 22px;
+    }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .switch-slider {
+        position: absolute; cursor: pointer; inset: 0;
+        background: #d4d4d8; border-radius: 22px;
+        transition: 0.2s;
+    }
+    .switch-slider::before {
+        content: ''; position: absolute; left: 3px; top: 3px;
+        width: 16px; height: 16px; background: #fff; border-radius: 50%;
+        transition: 0.2s;
+    }
+    .switch input:checked + .switch-slider { background: var(--primary); }
+    .switch input:checked + .switch-slider::before { transform: translateX(16px); }
+
+    /* ========== 弹窗 ========== */
+    .modal-mask {
+        position: fixed; inset: 0; background: rgba(0,0,0,0.45);
+        display: none; align-items: center; justify-content: center; z-index: 100;
+        animation: fadeIn 0.15s;
+    }
+    .modal-mask.show { display: flex; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .modal {
+        background: #fff; border-radius: 12px; min-width: 440px; max-width: 560px;
+        box-shadow: 0 24px 48px rgba(0,0,0,0.2);
+        animation: zoomIn 0.18s;
+    }
+    @keyframes zoomIn { from { transform: scale(0.96); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    .modal-header { padding: 20px 24px; border-bottom: 1px solid var(--border); }
+    .modal-title { font-size: 16px; font-weight: 600; }
+    .modal-sub { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+    .modal-body { padding: 20px 24px; max-height: 60vh; overflow-y: auto; }
+    .modal-footer {
+        padding: 14px 24px; border-top: 1px solid var(--border);
+        display: flex; justify-content: flex-end; gap: 10px;
+    }
+    .form-group { margin-bottom: 16px; }
+    .form-group:last-child { margin-bottom: 0; }
+    .form-label { display: block; font-size: 13px; color: var(--text-secondary); margin-bottom: 6px; }
+    .form-input {
+        width: 100%; height: 38px; padding: 0 12px;
+        border: 1px solid var(--border); border-radius: 6px;
+        font-size: 14px; transition: all 0.15s;
+        background: #fff;
+    }
+    .form-input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(47,107,255,0.12); }
+    .form-input[disabled] { background: #f4f4f5; color: var(--text-muted); }
+    .input-group { display: flex; gap: 8px; }
+    .input-group .form-input { flex: 1; }
+    .input-group .btn { flex-shrink: 0; height: 38px; }
+
+    /* 预设头像选择 */
+    .avatar-picker {
+        display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;
+        margin-top: 8px;
+    }
+    .avatar-option {
+        aspect-ratio: 1; border-radius: 50%; cursor: pointer;
+        display: flex; align-items: center; justify-content: center;
+        color: #fff; font-size: 24px; font-weight: 600;
+        border: 3px solid transparent; transition: all 0.15s;
+    }
+    .avatar-option.selected { border-color: var(--primary); transform: scale(1.05); }
+    .avatar-upload {
+        margin-top: 12px; padding: 16px;
+        border: 1px dashed var(--border-strong); border-radius: 8px;
+        text-align: center; cursor: pointer;
+        color: var(--text-secondary); font-size: 13px;
+        transition: all 0.15s;
+    }
+    .avatar-upload:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
+
+    /* 警告框 */
+    .alert {
+        padding: 12px 14px; border-radius: 8px;
+        font-size: 13px; display: flex; gap: 10px; align-items: flex-start;
+    }
+    .alert-warning { background: var(--warning-light); color: #92400e; }
+    .alert-info { background: var(--primary-light); color: var(--primary-dark); }
+    .alert-danger { background: var(--danger-light); color: var(--danger); }
+    .alert-icon { font-size: 16px; flex-shrink: 0; }
+
+    /* API key 一次性展示 */
+    .key-show {
+        margin-top: 12px;
+        padding: 14px; background: #18181b; border-radius: 8px;
+        color: #4ade80; font-family: 'SF Mono', Menlo, Consolas, monospace;
+        font-size: 13px; word-break: break-all;
+        display: flex; justify-content: space-between; align-items: center; gap: 12px;
+    }
+    .key-show button {
+        background: rgba(255,255,255,0.1); border: none; color: #fff;
+        padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px;
+        white-space: nowrap;
+    }
+    .key-show button:hover { background: rgba(255,255,255,0.2); }
+
+    /* Toast */
+    .toast {
+        position: fixed; top: 24px; left: 50%; transform: translateX(-50%);
+        background: #18181B; color: #fff;
+        padding: 10px 18px; border-radius: 8px;
+        font-size: 13px; z-index: 200;
+        opacity: 0; pointer-events: none; transition: all 0.25s;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .toast.success { background: var(--success); }
+    .toast.error { background: var(--danger); }
+</style>
+</head>
+<body>
+
+<!-- 侧边栏 -->
+<aside class="sidebar">
+    <div class="sidebar-logo">
+        <div class="logo-mark">
+            <div class="logo-icon">AI</div>
+            <div>
+                <div class="logo-text">投顾视频平台</div>
+                <div class="logo-sub">AIGC · 短视频制作</div>
+            </div>
+        </div>
+    </div>
+    <nav class="sidebar-nav">
+        <div class="nav-section">
+            <div class="nav-section-title" onclick="toggleSection(this)">
+                资产 <span class="collapse-icon">▾</span>
+            </div>
+            <div class="nav-section-children">
+                <a class="nav-sub-item" href="主体管理-首页.html"><span class="nav-icon">👤</span> 主体</a>
+                <a class="nav-sub-item" href="语音首页.html"><span class="nav-icon">🎙</span> 音频</a>
+                <a class="nav-sub-item" href="视频资产.html"><span class="nav-icon">🎬</span> 视频</a>
+            </div>
+        </div>
+        <div class="nav-section">
+            <a class="nav-sub-item" href="导演台首页.html"><span class="nav-icon">🎬</span> 导演台</a>
+            <a class="nav-sub-item" href="全部工具.html"><span class="nav-icon">🛠</span> 全部工具</a>
+        </div>
+        <div class="nav-section">
+            <div class="nav-section-title" onclick="toggleSection(this)">
+                个人中心 <span class="collapse-icon">▾</span>
+            </div>
+            <div class="nav-section-children">
+                <a class="nav-sub-item active" href="个人信息.html"><span class="nav-icon">👤</span> 个人信息</a>
+                <a class="nav-sub-item" href="javascript:void(0)" onclick="toast('该模块占位中', 'info')"><span class="nav-icon">⚙️</span> 偏好设置</a>
+                <a class="nav-sub-item" href="javascript:void(0)" onclick="toast('该模块占位中', 'info')"><span class="nav-icon">🔔</span> 消息通知</a>
+            </div>
+        </div>
+    </nav>
+    <div class="sidebar-bottom">
+        <div class="user-info">
+            <div class="user-avatar">顾</div>
+            <div><div class="user-name">王晓明</div><div class="user-role">投顾管理员</div></div>
+        </div>
+    </div>
+</aside>
+
+<main class="main">
+    <div class="topbar">
+        <span class="crumb">个人中心</span>
+        <span class="crumb-sep">/</span>
+        <span class="topbar-title">个人信息</span>
+    </div>
+
+    <div class="content" id="content">
+        <!-- 吸顶锚点 -->
+        <div class="anchor-bar">
+            <a class="anchor-item active" data-anchor="basic" href="#basic">基础信息</a>
+            <a class="anchor-item" data-anchor="contact" href="#contact">联系方式</a>
+            <a class="anchor-item" data-anchor="security" href="#security">账号安全</a>
+            <a class="anchor-item" data-anchor="apikey" href="#apikey">API Key</a>
+            <a class="anchor-item" data-anchor="devices" href="#devices">登录设备</a>
+        </div>
+
+        <div class="page-wrap">
+
+            <!-- ========== 1. 基础信息 ========== -->
+            <section class="card" id="basic">
+                <div class="card-header">
+                    <div>
+                        <div class="card-title"><span class="card-title-icon">👤</span> 基础信息</div>
+                        <div class="card-subtitle">头像、昵称等个人资料</div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="row-label">头像</div>
+                        <div class="row-value">
+                            <div class="avatar-row">
+                                <div class="avatar-large" id="avatarMain" onclick="openModal('modalAvatar')">
+                                    <span id="avatarText">王</span>
+                                    <div class="avatar-mask">更换</div>
+                                </div>
+                                <div class="avatar-tip">
+                                    支持上传 JPG / PNG，建议 1:1<br>
+                                    或从系统预设头像中选择
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="row-label">昵称</div>
+                        <div class="row-value">
+                            <span id="nicknameText">王晓明</span>
+                        </div>
+                        <div class="row-action">
+                            <button class="btn btn-sm" onclick="openModal('modalNickname')">编辑</button>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="row-label">用户 ID</div>
+                        <div class="row-value">
+                            <span style="font-family: monospace; color: var(--text-secondary);">U10000023</span>
+                            <span class="copy-btn" onclick="copyText('U10000023')" title="复制">⧉</span>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="row-label">账号</div>
+                        <div class="row-value">
+                            <span>wangxm@invest.cn</span>
+                            <span class="tag tag-default">登录账号</span>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="row-label">角色</div>
+                        <div class="row-value">
+                            <span class="tag tag-info">投顾管理员</span>
+                            <span class="tag tag-default">内容审核员</span>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="row-label">注册时间</div>
+                        <div class="row-value">
+                            <span style="color: var(--text-secondary);">2024-05-12 09:30</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ========== 2. 联系方式 ========== -->
+            <section class="card" id="contact">
+                <div class="card-header">
+                    <div>
+                        <div class="card-title"><span class="card-title-icon">📞</span> 联系方式</div>
+                        <div class="card-subtitle">用于接收任务完成通知与安全验证</div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="row-label">手机号</div>
+                        <div class="row-value">
+                            <span id="phoneText">138****1234</span>
+                            <span class="tag tag-success"><span class="dot dot-success"></span> 已验证</span>
+                        </div>
+                        <div class="row-action">
+                            <button class="btn btn-sm" onclick="openModal('modalPhone')">更换</button>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="row-label">邮箱</div>
+                        <div class="row-value">
+                            <span id="emailText">wan***@invest.cn</span>
+                            <span class="tag tag-success"><span class="dot dot-success"></span> 已验证</span>
+                        </div>
+                        <div class="row-action">
+                            <button class="btn btn-sm" onclick="openModal('modalEmail')">更换</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ========== 3. 账号安全 ========== -->
+            <section class="card" id="security">
+                <div class="card-header">
+                    <div>
+                        <div class="card-title"><span class="card-title-icon">🔒</span> 账号安全</div>
+                        <div class="card-subtitle">保护你的账号不被未授权访问</div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="security-level">
+                        <div class="security-level-icon">🛡️</div>
+                        <div class="security-level-info">
+                            <div class="security-level-label">当前安全等级</div>
+                            <div class="security-level-value">中等 · 建议开启二次验证</div>
+                        </div>
+                        <div class="security-level-bar">
+                            <div class="security-level-bar-fill" style="width: 60%"></div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="row-label">登录密码</div>
+                        <div class="row-value">
+                            <span>••••••••</span>
+                            <span style="color: var(--text-muted); font-size: 12px;">上次修改 30 天前</span>
+                        </div>
+                        <div class="row-action">
+                            <button class="btn btn-sm" onclick="openModal('modalPassword')">修改密码</button>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="row-label">二次验证</div>
+                        <div class="row-value">
+                            <span>短信 / 身份验证器</span>
+                            <span class="tag tag-warning" id="twoFaTag">未开启</span>
+                        </div>
+                        <div class="row-action">
+                            <label class="switch">
+                                <input type="checkbox" id="twoFaSwitch" onchange="toggle2FA(this)">
+                                <span class="switch-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="row-label">异地登录提醒</div>
+                        <div class="row-value">
+                            <span>非常用地登录时发短信通知</span>
+                        </div>
+                        <div class="row-action">
+                            <label class="switch">
+                                <input type="checkbox" checked onchange="toast('设置已保存', 'success')">
+                                <span class="switch-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="row-label">登录保护</div>
+                        <div class="row-value">
+                            <span>新设备登录需手机验证</span>
+                        </div>
+                        <div class="row-action">
+                            <label class="switch">
+                                <input type="checkbox" checked onchange="toast('设置已保存', 'success')">
+                                <span class="switch-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ========== 4. API Key ========== -->
+            <section class="card" id="apikey">
+                <div class="card-header">
+                    <div>
+                        <div class="card-title"><span class="card-title-icon">🔑</span> API Key</div>
+                        <div class="card-subtitle">用于第三方系统调用本平台开放接口，请妥善保管</div>
+                    </div>
+                    <button class="btn btn-primary btn-sm" onclick="openModal('modalCreateKey')">
+                        <span>＋</span> 创建 Key
+                    </button>
+                </div>
+                <div class="card-body" style="padding: 16px 24px 20px;">
+                    <div class="alert alert-info" style="margin-bottom: 12px;">
+                        <span class="alert-icon">ℹ️</span>
+                        <div>
+                            创建 API Key 后，完整密钥仅在创建时展示一次，请立即复制保存。如遗失需重置或重新创建。
+                            <a href="javascript:void(0)" onclick="toast('跳转到 API 文档', 'info')" style="color: var(--primary); margin-left: 4px;">查看接入文档 →</a>
+                        </div>
+                    </div>
+                    <div class="table-wrap">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 22%">名称</th>
+                                    <th style="width: 26%">Key</th>
+                                    <th style="width: 16%">创建时间</th>
+                                    <th style="width: 14%">最后使用</th>
+                                    <th style="width: 10%">状态</th>
+                                    <th style="width: 12%; text-align: right;">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="apikeyTbody">
+                                <tr>
+                                    <td>生产环境 - 投顾官网</td>
+                                    <td>
+                                        <span class="key-mono">sk-prd-xxxx****xxxx9a3f</span>
+                                        <span class="copy-btn" onclick="copyText('sk-prd-xxxx****xxxx9a3f')" style="margin-left: 4px;" title="复制">⧉</span>
+                                    </td>
+                                    <td style="color: var(--text-secondary);">2025-09-12</td>
+                                    <td style="color: var(--text-secondary);">2 小时前</td>
+                                    <td><span class="tag tag-success"><span class="dot dot-success"></span> 启用</span></td>
+                                    <td class="actions">
+                                        <button class="btn-text" onclick="resetKey(this, '生产环境 - 投顾官网')">重置</button>
+                                        <button class="btn-text" onclick="toggleKeyStatus(this)">禁用</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>测试环境</td>
+                                    <td>
+                                        <span class="key-mono">sk-dev-aaaa****bbbb2e1c</span>
+                                        <span class="copy-btn" onclick="copyText('sk-dev-aaaa****bbbb2e1c')" style="margin-left: 4px;" title="复制">⧉</span>
+                                    </td>
+                                    <td style="color: var(--text-secondary);">2025-08-03</td>
+                                    <td style="color: var(--text-secondary);">3 天前</td>
+                                    <td><span class="tag tag-success"><span class="dot dot-success"></span> 启用</span></td>
+                                    <td class="actions">
+                                        <button class="btn-text" onclick="resetKey(this, '测试环境')">重置</button>
+                                        <button class="btn-text" onclick="toggleKeyStatus(this)">禁用</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>临时调试</td>
+                                    <td>
+                                        <span class="key-mono" style="color: var(--text-muted);">sk-tmp-1234****cccc77a8</span>
+                                    </td>
+                                    <td style="color: var(--text-secondary);">2025-05-21</td>
+                                    <td style="color: var(--text-secondary);">3 个月前</td>
+                                    <td><span class="tag tag-default"><span class="dot" style="background: #a1a1aa;"></span> 已禁用</span></td>
+                                    <td class="actions">
+                                        <button class="btn-text" onclick="toggleKeyStatus(this)">启用</button>
+                                        <button class="btn-text" style="color: var(--danger);" onclick="deleteKey(this, '临时调试')">删除</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ========== 5. 登录设备 ========== -->
+            <section class="card" id="devices">
+                <div class="card-header">
+                    <div>
+                        <div class="card-title"><span class="card-title-icon">💻</span> 登录设备</div>
+                        <div class="card-subtitle">查看账号近期登录设备，发现异常请立即下线</div>
+                    </div>
+                    <button class="btn btn-sm btn-danger" onclick="logoutOthers()">一键下线其他设备</button>
+                </div>
+                <div class="card-body" style="padding: 0 24px 8px;">
+                    <div class="table-wrap">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 30%">设备</th>
+                                    <th style="width: 16%">IP</th>
+                                    <th style="width: 16%">位置</th>
+                                    <th style="width: 18%">最后活跃</th>
+                                    <th style="width: 10%">状态</th>
+                                    <th style="width: 10%; text-align: right;">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="devicesTbody">
+                                <tr class="row-current">
+                                    <td>
+                                        <div class="device-cell">
+                                            <div class="device-icon">💻</div>
+                                            <div>
+                                                <div class="device-name">MacBook Pro · Chrome 130</div>
+                                                <div class="device-sub">macOS 15.3</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td style="color: var(--text-secondary);">123.118.42.51</td>
+                                    <td style="color: var(--text-secondary);">北京</td>
+                                    <td style="color: var(--text-secondary);">刚刚</td>
+                                    <td><span class="tag tag-info">本次登录</span></td>
+                                    <td class="actions"><span style="color: var(--text-muted); font-size: 12px;">—</span></td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="device-cell">
+                                            <div class="device-icon">📱</div>
+                                            <div>
+                                                <div class="device-name">iPhone 15 · Safari</div>
+                                                <div class="device-sub">iOS 18.2</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td style="color: var(--text-secondary);">123.118.42.51</td>
+                                    <td style="color: var(--text-secondary);">北京</td>
+                                    <td style="color: var(--text-secondary);">28 分钟前</td>
+                                    <td><span class="tag tag-success"><span class="dot dot-success"></span> 在线</span></td>
+                                    <td class="actions"><button class="btn-text" style="color: var(--danger);" onclick="logoutDevice(this, 'iPhone 15')">下线</button></td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="device-cell">
+                                            <div class="device-icon" style="background: #f4f4f5; color: var(--text-secondary);">🖥️</div>
+                                            <div>
+                                                <div class="device-name">Windows · Edge 128</div>
+                                                <div class="device-sub">Windows 11</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td style="color: var(--text-secondary);">58.213.94.27</td>
+                                    <td style="color: var(--text-secondary);">上海</td>
+                                    <td style="color: var(--text-secondary);">昨天 21:14</td>
+                                    <td><span class="tag tag-default">离线</span></td>
+                                    <td class="actions"><button class="btn-text" style="color: var(--danger);" onclick="logoutDevice(this, 'Windows Edge')">下线</button></td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="device-cell">
+                                            <div class="device-icon" style="background: var(--warning-light); color: var(--warning);">⚠️</div>
+                                            <div>
+                                                <div class="device-name">Android · 微信内置浏览器</div>
+                                                <div class="device-sub" style="color: var(--warning);">异常 · 非常用地</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td style="color: var(--text-secondary);">112.65.18.92</td>
+                                    <td style="color: var(--warning);">深圳</td>
+                                    <td style="color: var(--text-secondary);">3 天前</td>
+                                    <td><span class="tag tag-default">离线</span></td>
+                                    <td class="actions"><button class="btn-text" style="color: var(--danger);" onclick="logoutDevice(this, 'Android 异常')">下线</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </div>
+</main>
+
+<!-- ========== 弹窗：更换头像 ========== -->
+<div class="modal-mask" id="modalAvatar">
+    <div class="modal">
+        <div class="modal-header">
+            <div class="modal-title">更换头像</div>
+            <div class="modal-sub">从预设头像中选择，或上传本地图片</div>
+        </div>
+        <div class="modal-body">
+            <div class="form-label">系统预设</div>
+            <div class="avatar-picker" id="avatarPicker">
+                <div class="avatar-option selected" style="background: linear-gradient(135deg, #2f6bff, #6b8eff);" data-letter="王">王</div>
+                <div class="avatar-option" style="background: linear-gradient(135deg, #16a34a, #4ade80);" data-letter="顾">顾</div>
+                <div class="avatar-option" style="background: linear-gradient(135deg, #f59e0b, #fbbf24);" data-letter="投">投</div>
+                <div class="avatar-option" style="background: linear-gradient(135deg, #ec4899, #f472b6);" data-letter="W">W</div>
+                <div class="avatar-option" style="background: linear-gradient(135deg, #8b5cf6, #a78bfa);" data-letter="X">X</div>
+                <div class="avatar-option" style="background: linear-gradient(135deg, #06b6d4, #22d3ee);" data-letter="M">M</div>
+                <div class="avatar-option" style="background: linear-gradient(135deg, #475569, #64748b);" data-letter="🦊">🦊</div>
+                <div class="avatar-option" style="background: linear-gradient(135deg, #dc2626, #f87171);" data-letter="🐱">🐱</div>
+            </div>
+            <div class="avatar-upload" onclick="toast('请选择本地图片', 'info')">
+                <div style="font-size: 22px; margin-bottom: 4px;">📁</div>
+                点击上传图片 · 支持 JPG / PNG，2MB 以内
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn" onclick="closeModal('modalAvatar')">取消</button>
+            <button class="btn btn-primary" onclick="saveAvatar()">保存</button>
+        </div>
+    </div>
+</div>
+
+<!-- ========== 弹窗：修改昵称 ========== -->
+<div class="modal-mask" id="modalNickname">
+    <div class="modal" style="min-width: 400px;">
+        <div class="modal-header">
+            <div class="modal-title">修改昵称</div>
+            <div class="modal-sub">2-20 个字符，支持中英文、数字</div>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <input type="text" class="form-input" id="nicknameInput" value="王晓明" maxlength="20">
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn" onclick="closeModal('modalNickname')">取消</button>
+            <button class="btn btn-primary" onclick="saveNickname()">保存</button>
+        </div>
+    </div>
+</div>
+
+<!-- ========== 弹窗：更换手机号 ========== -->
+<div class="modal-mask" id="modalPhone">
+    <div class="modal">
+        <div class="modal-header">
+            <div class="modal-title">更换手机号</div>
+            <div class="modal-sub">先验证当前手机号，再绑定新手机号</div>
+        </div>
+        <div class="modal-body">
+            <div class="alert alert-warning" style="margin-bottom: 14px;">
+                <span class="alert-icon">⚠️</span>
+                <span>更换手机号后，下一次登录请使用新手机号</span>
+            </div>
+            <div class="form-group">
+                <label class="form-label">当前手机号</label>
+                <div class="input-group">
+                    <input type="text" class="form-input" value="138****1234" disabled>
+                    <button class="btn" onclick="sendCode(this, 'old')">获取验证码</button>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">原手机验证码</label>
+                <input type="text" class="form-input" placeholder="请输入 6 位验证码" maxlength="6">
+            </div>
+            <div class="form-group">
+                <label class="form-label">新手机号</label>
+                <div class="input-group">
+                    <input type="text" class="form-input" placeholder="请输入新手机号" maxlength="11">
+                    <button class="btn" onclick="sendCode(this, 'new')">获取验证码</button>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">新手机验证码</label>
+                <input type="text" class="form-input" placeholder="请输入 6 位验证码" maxlength="6">
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn" onclick="closeModal('modalPhone')">取消</button>
+            <button class="btn btn-primary" onclick="closeModal('modalPhone'); toast('手机号已更换', 'success')">确认更换</button>
+        </div>
+    </div>
+</div>
+
+<!-- ========== 弹窗：更换邮箱 ========== -->
+<div class="modal-mask" id="modalEmail">
+    <div class="modal">
+        <div class="modal-header">
+            <div class="modal-title">更换邮箱</div>
+            <div class="modal-sub">输入新邮箱并完成验证</div>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label class="form-label">当前邮箱</label>
+                <input type="text" class="form-input" value="wan***@invest.cn" disabled>
+            </div>
+            <div class="form-group">
+                <label class="form-label">新邮箱</label>
+                <div class="input-group">
+                    <input type="email" class="form-input" placeholder="请输入新邮箱">
+                    <button class="btn" onclick="sendCode(this, 'email')">获取验证码</button>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">邮箱验证码</label>
+                <input type="text" class="form-input" placeholder="请输入 6 位验证码" maxlength="6">
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn" onclick="closeModal('modalEmail')">取消</button>
+            <button class="btn btn-primary" onclick="closeModal('modalEmail'); toast('邮箱已更换', 'success')">确认更换</button>
+        </div>
+    </div>
+</div>
+
+<!-- ========== 弹窗：修改密码 ========== -->
+<div class="modal-mask" id="modalPassword">
+    <div class="modal">
+        <div class="modal-header">
+            <div class="modal-title">修改登录密码</div>
+            <div class="modal-sub">密码长度 8-20 位，需包含字母和数字</div>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label class="form-label">原密码</label>
+                <input type="password" class="form-input" placeholder="请输入原密码">
+            </div>
+            <div class="form-group">
+                <label class="form-label">新密码</label>
+                <input type="password" class="form-input" placeholder="请输入新密码">
+            </div>
+            <div class="form-group">
+                <label class="form-label">确认新密码</label>
+                <input type="password" class="form-input" placeholder="请再次输入新密码">
+            </div>
+            <div class="alert alert-info">
+                <span class="alert-icon">💡</span>
+                <span>修改成功后，其他登录设备将被自动下线</span>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn" onclick="closeModal('modalPassword')">取消</button>
+            <button class="btn btn-primary" onclick="closeModal('modalPassword'); toast('密码修改成功，请重新登录', 'success')">确认修改</button>
+        </div>
+    </div>
+</div>
+
+<!-- ========== 弹窗：创建 API Key ========== -->
+<div class="modal-mask" id="modalCreateKey">
+    <div class="modal">
+        <div class="modal-header">
+            <div class="modal-title">创建 API Key</div>
+            <div class="modal-sub">为该 Key 命名以便后续识别用途</div>
+        </div>
+        <div class="modal-body" id="createKeyStep1">
+            <div class="form-group">
+                <label class="form-label">Key 名称</label>
+                <input type="text" class="form-input" id="keyNameInput" placeholder="例如：生产环境 - 投顾官网" maxlength="32">
+            </div>
+            <div class="form-group">
+                <label class="form-label">有效期</label>
+                <select class="form-input">
+                    <option>永久有效</option>
+                    <option>30 天</option>
+                    <option>90 天</option>
+                    <option>180 天</option>
+                    <option>1 年</option>
+                </select>
+            </div>
+            <div class="alert alert-warning">
+                <span class="alert-icon">⚠️</span>
+                <span>密钥创建后将仅展示一次，请立即保存到安全位置</span>
+            </div>
+        </div>
+        <div class="modal-body" id="createKeyStep2" style="display: none;">
+            <div class="alert alert-danger">
+                <span class="alert-icon">🚨</span>
+                <span>请立即复制保存以下密钥，关闭窗口后将无法再次查看！</span>
+            </div>
+            <div class="form-group" style="margin-top: 12px;">
+                <label class="form-label">Key 名称</label>
+                <div id="newKeyName" style="font-weight: 600;">—</div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">API Key</label>
+                <div class="key-show">
+                    <span id="newKeyValue">sk-prd-9f8e7d6c5b4a3210fedcba9876543210</span>
+                    <button onclick="copyText(document.getElementById('newKeyValue').textContent); toast('已复制到剪贴板', 'success')">复制</button>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer" id="createKeyFooter1">
+            <button class="btn" onclick="closeModal('modalCreateKey')">取消</button>
+            <button class="btn btn-primary" onclick="createKeyStep2()">创建</button>
+        </div>
+        <div class="modal-footer" id="createKeyFooter2" style="display: none;">
+            <button class="btn btn-primary" onclick="finishCreateKey()">我已保存</button>
+        </div>
+    </div>
+</div>
+
+<!-- ========== 弹窗：二次确认（通用） ========== -->
+<div class="modal-mask" id="modalConfirm">
+    <div class="modal" style="min-width: 380px;">
+        <div class="modal-header">
+            <div class="modal-title" id="confirmTitle">提示</div>
+        </div>
+        <div class="modal-body">
+            <div id="confirmContent" style="font-size: 14px; color: var(--text-primary); line-height: 1.6;">确定要执行该操作吗？</div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn" onclick="closeModal('modalConfirm')">取消</button>
+            <button class="btn btn-primary" id="confirmOkBtn">确定</button>
+        </div>
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+    /* ========== 侧栏 ========== */
+    function toggleSection(titleEl) {
+        titleEl.classList.toggle('collapsed');
+        var children = titleEl.nextElementSibling;
+        if (children) children.classList.toggle('hidden');
+    }
+
+    /* ========== Toast ========== */
+    var toastTimer;
+    function toast(msg, type) {
+        var t = document.getElementById('toast');
+        t.textContent = msg;
+        t.className = 'toast show ' + (type || '');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(function(){ t.className = 'toast ' + (type || ''); }, 2000);
+    }
+
+    /* ========== 弹窗 ========== */
+    function openModal(id) {
+        document.getElementById(id).classList.add('show');
+    }
+    function closeModal(id) {
+        document.getElementById(id).classList.remove('show');
+        // 重置创建 key 流程
+        if (id === 'modalCreateKey') resetCreateKey();
+    }
+    // 点击遮罩关闭
+    document.querySelectorAll('.modal-mask').forEach(function(m){
+        m.addEventListener('click', function(e){
+            if (e.target === m) closeModal(m.id);
+        });
+    });
+
+    /* ========== 复制 ========== */
+    function copyText(text) {
+        if (navigator.clipboard) {
+            navigator.clipboard.writeText(text).then(function(){
+                toast('已复制：' + (text.length > 24 ? text.slice(0,24)+'...' : text), 'success');
+            });
+        } else {
+            var ta = document.createElement('textarea'); ta.value = text;
+            document.body.appendChild(ta); ta.select(); document.execCommand('copy');
+            document.body.removeChild(ta);
+            toast('已复制', 'success');
+        }
+    }
+
+    /* ========== 锚点滚动联动 ========== */
+    var content = document.getElementById('content');
+    var anchors = document.querySelectorAll('.anchor-item');
+    var sections = ['basic','contact','security','apikey','devices'].map(function(id){ return document.getElementById(id); });
+
+    anchors.forEach(function(a){
+        a.addEventListener('click', function(e){
+            e.preventDefault();
+            var id = a.getAttribute('data-anchor');
+            var el = document.getElementById(id);
+            if (el) {
+                var offset = el.offsetTop - 60;
+                content.scrollTo({ top: offset, behavior: 'smooth' });
+            }
+        });
+    });
+    content.addEventListener('scroll', function(){
+        var st = content.scrollTop;
+        var activeId = sections[0].id;
+        for (var i = 0; i < sections.length; i++) {
+            if (sections[i].offsetTop - 100 <= st) activeId = sections[i].id;
+        }
+        anchors.forEach(function(a){
+            a.classList.toggle('active', a.getAttribute('data-anchor') === activeId);
+        });
+    });
+
+    /* ========== 头像 ========== */
+    document.querySelectorAll('#avatarPicker .avatar-option').forEach(function(opt){
+        opt.addEventListener('click', function(){
+            document.querySelectorAll('#avatarPicker .avatar-option').forEach(function(o){ o.classList.remove('selected'); });
+            opt.classList.add('selected');
+        });
+    });
+    function saveAvatar() {
+        var sel = document.querySelector('#avatarPicker .avatar-option.selected');
+        if (sel) {
+            var avatar = document.getElementById('avatarMain');
+            avatar.style.background = sel.style.background;
+            document.getElementById('avatarText').textContent = sel.dataset.letter;
+        }
+        closeModal('modalAvatar');
+        toast('头像已更新', 'success');
+    }
+
+    /* ========== 昵称 ========== */
+    function saveNickname() {
+        var v = document.getElementById('nicknameInput').value.trim();
+        if (!v) { toast('昵称不能为空', 'error'); return; }
+        document.getElementById('nicknameText').textContent = v;
+        closeModal('modalNickname');
+        toast('昵称已更新', 'success');
+    }
+
+    /* ========== 验证码倒计时 ========== */
+    function sendCode(btn, kind) {
+        var sec = 60;
+        btn.disabled = true;
+        btn.style.color = 'var(--text-muted)';
+        btn.style.borderColor = 'var(--border)';
+        var orig = btn.textContent;
+        btn.textContent = sec + 's 后重发';
+        var t = setInterval(function(){
+            sec--;
+            if (sec <= 0) {
+                clearInterval(t);
+                btn.disabled = false;
+                btn.style.color = '';
+                btn.style.borderColor = '';
+                btn.textContent = orig;
+            } else {
+                btn.textContent = sec + 's 后重发';
+            }
+        }, 1000);
+        toast('验证码已发送', 'success');
+    }
+
+    /* ========== 2FA ========== */
+    function toggle2FA(el) {
+        var tag = document.getElementById('twoFaTag');
+        if (el.checked) {
+            tag.className = 'tag tag-success';
+            tag.innerHTML = '<span class="dot dot-success"></span> 已开启';
+            toast('二次验证已开启', 'success');
+        } else {
+            tag.className = 'tag tag-warning';
+            tag.textContent = '未开启';
+            toast('二次验证已关闭', 'info');
+        }
+    }
+
+    /* ========== 通用二次确认 ========== */
+    function confirmAction(title, content, onOk) {
+        document.getElementById('confirmTitle').textContent = title;
+        document.getElementById('confirmContent').innerHTML = content;
+        var okBtn = document.getElementById('confirmOkBtn');
+        var newBtn = okBtn.cloneNode(true);
+        okBtn.parentNode.replaceChild(newBtn, okBtn);
+        newBtn.addEventListener('click', function(){
+            closeModal('modalConfirm');
+            onOk && onOk();
+        });
+        openModal('modalConfirm');
+    }
+
+    /* ========== API Key ========== */
+    function resetCreateKey() {
+        document.getElementById('createKeyStep1').style.display = '';
+        document.getElementById('createKeyStep2').style.display = 'none';
+        document.getElementById('createKeyFooter1').style.display = '';
+        document.getElementById('createKeyFooter2').style.display = 'none';
+        document.getElementById('keyNameInput').value = '';
+    }
+    function createKeyStep2() {
+        var name = document.getElementById('keyNameInput').value.trim();
+        if (!name) { toast('请填写 Key 名称', 'error'); return; }
+        document.getElementById('newKeyName').textContent = name;
+        // 生成一个伪 key
+        var rand = 'sk-prd-' + Math.random().toString(36).slice(2, 10) + Math.random().toString(36).slice(2, 10) + Math.random().toString(36).slice(2, 10);
+        document.getElementById('newKeyValue').textContent = rand;
+        document.getElementById('createKeyStep1').style.display = 'none';
+        document.getElementById('createKeyStep2').style.display = '';
+        document.getElementById('createKeyFooter1').style.display = 'none';
+        document.getElementById('createKeyFooter2').style.display = '';
+    }
+    function finishCreateKey() {
+        var name = document.getElementById('newKeyName').textContent;
+        var keyVal = document.getElementById('newKeyValue').textContent;
+        // 插入新行
+        var masked = keyVal.slice(0,10) + '****' + keyVal.slice(-6);
+        var tr = document.createElement('tr');
+        tr.innerHTML =
+            '<td>'+ name +'</td>' +
+            '<td><span class="key-mono">'+ masked +'</span> <span class="copy-btn" onclick="copyText(\''+ masked +'\')" style="margin-left:4px;">⧉</span></td>' +
+            '<td style="color: var(--text-secondary);">刚刚</td>' +
+            '<td style="color: var(--text-secondary);">从未使用</td>' +
+            '<td><span class="tag tag-success"><span class="dot dot-success"></span> 启用</span></td>' +
+            '<td class="actions">'+
+                '<button class="btn-text" onclick="resetKey(this, \''+ name +'\')">重置</button>'+
+                '<button class="btn-text" onclick="toggleKeyStatus(this)">禁用</button>'+
+            '</td>';
+        document.getElementById('apikeyTbody').insertBefore(tr, document.getElementById('apikeyTbody').firstChild);
+        closeModal('modalCreateKey');
+        toast('API Key 创建成功', 'success');
+    }
+    function resetKey(btn, name) {
+        confirmAction('重置 API Key',
+            '重置后旧 Key 立即失效，使用旧 Key 的接入将报错。<br>确认重置 <b>'+ name +'</b> 吗？',
+            function(){ toast('Key 已重置，请到操作日志查看新值', 'success'); });
+    }
+    function toggleKeyStatus(btn) {
+        var tr = btn.closest('tr');
+        var tagCell = tr.children[4];
+        var isEnabled = tagCell.textContent.indexOf('启用') > -1;
+        if (isEnabled) {
+            tagCell.innerHTML = '<span class="tag tag-default"><span class="dot" style="background:#a1a1aa"></span> 已禁用</span>';
+            btn.textContent = '启用';
+            toast('Key 已禁用', 'info');
+        } else {
+            tagCell.innerHTML = '<span class="tag tag-success"><span class="dot dot-success"></span> 启用</span>';
+            btn.textContent = '禁用';
+            toast('Key 已启用', 'success');
+        }
+    }
+    function deleteKey(btn, name) {
+        confirmAction('删除 API Key',
+            '删除后无法恢复，请确认 <b>'+ name +'</b> 已不再使用。',
+            function(){
+                btn.closest('tr').remove();
+                toast('Key 已删除', 'success');
+            });
+    }
+
+    /* ========== 登录设备 ========== */
+    function logoutDevice(btn, name) {
+        confirmAction('下线设备',
+            '将下线设备 <b>'+ name +'</b>，该设备需重新登录。',
+            function(){
+                var tr = btn.closest('tr');
+                tr.style.transition = 'opacity 0.2s';
+                tr.style.opacity = '0';
+                setTimeout(function(){ tr.remove(); }, 200);
+                toast('设备已下线', 'success');
+            });
+    }
+    function logoutOthers() {
+        confirmAction('一键下线其他设备',
+            '将下线除当前设备外的所有登录设备，确认操作？',
+            function(){
+                var rows = document.querySelectorAll('#devicesTbody tr:not(.row-current)');
+                rows.forEach(function(r){
+                    r.style.transition = 'opacity 0.2s'; r.style.opacity = '0';
+                    setTimeout(function(){ r.remove(); }, 200);
+                });
+                toast('其他设备已全部下线', 'success');
+            });
+    }
+</script>
+</body>
+</html>

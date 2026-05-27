@@ -132,6 +132,7 @@
         .tag-video { color: #2563eb; background: #eff6ff; }
         .tag-studio { color: #7c3aed; background: #f5f3ff; }
         .tag-tools { color: #475569; background: #f1f5f9; }
+        .tag-account { color: #be185d; background: #fce7f3; }
 
         /* 面板切换 */
         .panel { display: none; }
@@ -165,6 +166,14 @@
         <div class="nav-section">
             <a class="nav-sub-item" href="javascript:void(0)" data-panel="panel-studio"><span class="nav-icon">🎬</span> 导演台</a>
             <a class="nav-sub-item" href="javascript:void(0)" data-panel="panel-tools"><span class="nav-icon">🛠</span> 全部工具</a>
+        </div>
+        <div class="nav-section">
+            <div class="nav-section-title" onclick="toggleSection(this)">
+                个人中心 <span class="collapse-icon">▾</span>
+            </div>
+            <div class="nav-section-children">
+                <a class="nav-sub-item" href="javascript:void(0)" data-panel="panel-account"><span class="nav-icon">👤</span> 个人信息</a>
+            </div>
         </div>
     </nav>
 
@@ -201,6 +210,11 @@
     <div class="topbar panel" id="panel-tools">
         <span class="topbar-title">全部工具</span>
         <span class="topbar-desc">模板成片、批量生成等工具集市</span>
+    </div>
+    <!-- 个人中心 -->
+    <div class="topbar panel" id="panel-account">
+        <span class="topbar-title">个人中心</span>
+        <span class="topbar-desc">账号资料、安全设置与开发者接入</span>
     </div>
 
     <div class="content">
@@ -281,6 +295,15 @@
                 <span class="card-tag tag-tools">全部工具</span>
                 <span class="card-title">全部工具首页</span>
                 <span class="card-desc">工具集市入口，包含模板成片等所有工具</span>
+            </a>
+        </div>
+
+        <!-- 个人中心面板 -->
+        <div class="panel card-grid" id="content-account">
+            <a class="card" href="个人信息.html">
+                <span class="card-tag tag-account">个人中心</span>
+                <span class="card-title">个人信息</span>
+                <span class="card-desc">头像、昵称、联系方式、账号安全、API Key、登录设备</span>
             </a>
         </div>
     </div>
