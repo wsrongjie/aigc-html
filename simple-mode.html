@@ -98,6 +98,16 @@
     .img-item img { width: 100%; height: 100%; object-fit: cover; }
     .img-item .del { position: absolute; top: 3px; right: 3px; width: 18px; height: 18px; background: rgba(0,0,0,0.55); border-radius: 50%; color: #fff; font-size: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; opacity: 0; transition: opacity 0.15s; line-height: 1; }
     .img-item:hover .del { opacity: 1; }
+    .person-card { min-width: 0; }
+    .person-card .img-item { width: 100%; }
+    .person-wm-input { margin-top: 5px; width: 100%; padding: 5px 6px; border: 1.5px solid #e8e8e8; border-radius: 7px; font-size: 10px; background: #fff; transition: all 0.15s; }
+    .person-wm-input:focus { outline: none; border-color: #0066ff; box-shadow: 0 0 0 3px rgba(0,102,255,0.08); }
+    .img-grid.voice-per-photo { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+    .person-voice-row { display: flex; gap: 4px; margin-top: 5px; align-items: center; }
+    .person-voice-sel { flex: 1; min-width: 0; padding: 5px 18px 5px 5px; border: 1.5px solid #e8e8e8; border-radius: 7px; font-size: 10px; background: #fafafa; cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cpath fill='%23999' d='M5 7L1 3h8z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 4px center; transition: all 0.15s; }
+    .person-voice-sel:focus { outline: none; border-color: #0066ff; box-shadow: 0 0 0 3px rgba(0,102,255,0.08); }
+    .person-voice-btn { flex-shrink: 0; height: 22px; padding: 0 6px; border-radius: 5px; border: 1.5px solid #e8e8e8; background: #fff; font-size: 9px; cursor: pointer; color: #666; transition: all 0.15s; line-height: 1; }
+    .person-voice-btn:hover { border-color: #0066ff; color: #0066ff; }
 
     /* 数字人 - 紧凑多列网格 */
     .av-search { margin-bottom: 8px; }
@@ -197,6 +207,27 @@
     .voice-sel:focus { outline: none; border-color: #0066ff; background: #fff; }
     .voice-btn { padding: 7px 10px; border-radius: 7px; border: 1.5px solid #e8e8e8; background: #fff; font-size: 11px; cursor: pointer; color: #666; transition: all 0.15s; }
     .voice-btn:hover { border-color: #0066ff; color: #0066ff; }
+
+    /* 角色水印 */
+    .watermark-panel { margin: 10px 0 0; border: 1.5px solid #e8e8e8; border-radius: 12px; background: #fbfcff; overflow: hidden; }
+    .avatar-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
+    .avatar-toolbar-left { display: flex; align-items: center; gap: 8px; min-width: 0; }
+    .avatar-wm-switch { display: flex; align-items: center; gap: 6px; margin-left: auto; font-size: 12px; color: #666; cursor: pointer; font-weight: 500; white-space: nowrap; }
+    .avatar-wm-switch input { width: 15px; height: 15px; accent-color: #0066ff; cursor: pointer; }
+    .wm-switch { display: flex; align-items: center; gap: 10px; padding: 10px 12px; cursor: pointer; }
+    .wm-switch input { width: 15px; height: 15px; accent-color: #0066ff; cursor: pointer; }
+    .wm-switch strong { display: block; font-size: 12px; color: #1a1a2e; line-height: 1.2; }
+    .wm-switch em { display: block; margin-top: 2px; font-style: normal; font-size: 10px; color: #888; line-height: 1.3; }
+    .wm-body { padding: 0 12px 12px 37px; }
+    .wm-input-row { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
+    .wm-input-row input { width: 100%; padding: 8px 10px; border: 1.5px solid #e8e8e8; border-radius: 8px; font-size: 12px; background: #fff; transition: all 0.2s; }
+    .wm-input-row input:focus { outline: none; border-color: #0066ff; box-shadow: 0 0 0 3px rgba(0,102,255,0.08); }
+    .wm-preview { font-size: 10px; color: #888; line-height: 1.45; }
+    .wm-preview.warn { color: #d97706; }
+    .img-wm { position: absolute; left: 4px; bottom: 4px; max-width: calc(100% - 8px); padding: 2px 5px; border-radius: 5px; background: rgba(0,0,0,0.58); color: #fff; font-size: 9px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .av-watermark-missing { position: absolute; left: 4px; top: 4px; width: 15px; height: 15px; border-radius: 50%; background: #ef4444; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 800; line-height: 1; z-index: 4; }
+    .av-watermark-missing::after { content: "当前角色未配置角色水印"; display: none; position: absolute; left: 0; top: 20px; width: max-content; max-width: 150px; padding: 5px 7px; border-radius: 6px; background: #1a1a2e; color: #fff; font-size: 10px; font-weight: 500; line-height: 1.4; box-shadow: 0 4px 14px rgba(0,0,0,0.16); }
+    .av-watermark-missing:hover::after { display: block; }
 
     /* 右侧台词 */
     .script-ta { width: 100%; min-height: 100px; border: 1.5px solid #e8e8e8; border-radius: 10px; padding: 14px; font-size: 14px; line-height: 1.7; resize: vertical; font-family: inherit; transition: all 0.2s; background: #fafafa; }
@@ -335,6 +366,11 @@
     .cg-table tbody tr.off { opacity: 0.3; }
     .cg-table td { font-size: 12px; color: #333; padding: 6px 8px; vertical-align: middle; position: relative; }
     .cg-table td.td-name { font-weight: 500; color: #1a1a2e; cursor: pointer; }
+    .td-main { display: block; }
+    .wm-line { display: block; margin-top: 2px; font-size: 10px; color: #c2410c; font-weight: 500; line-height: 1.35; }
+    .wm-line.muted { color: #aaa; font-weight: 400; }
+    .voice-line { display: block; margin-top: 1px; font-size: 10px; color: #0066ff; font-weight: 500; line-height: 1.35; }
+    .voice-line.muted { color: #aaa; font-weight: 400; }
     .cg-table td.td-script { max-width: 220px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; }
     .cg-table td.td-op { width: 50px; text-align: center; }
     .cg-tip-fixed { display: none; position: fixed; border-radius: 8px; padding: 4px; box-shadow: 0 4px 16px rgba(0,0,0,0.15); z-index: 2000; pointer-events: none; }
@@ -431,9 +467,23 @@
           </div>
           <input type="file" id="p-file" accept="image/*" multiple style="display:none" onchange="upPerson(this)">
           <div class="img-grid" id="p-grid"></div>
+          <div class="watermark-panel" id="upload-watermark-panel" style="display:none;">
+            <label class="wm-switch">
+              <input type="checkbox" id="upload-wm-enabled" onchange="toggleWatermark(this.checked)">
+              <span>
+                <strong>为上传人物添加统一角色水印</strong>
+              </span>
+            </label>
+            <div class="wm-body" id="wm-body" style="display:none;">
+              <div class="wm-input-row" id="wm-input-row">
+                <input id="wm-text" maxlength="24" type="text" placeholder="请输入统一角色水印，例如：张老师" oninput="updateWatermarkText(this.value)">
+              </div>
+              <div class="wm-preview" id="wm-preview">未填写水印内容</div>
+            </div>
+          </div>
 
           <!-- 音色（仅上传照片时可见） -->
-          <div class="voice-section">
+          <div class="voice-section" id="voice-section-unified">
             <div class="voice-label">音色</div>
             <select class="voice-sel" id="voice-sel">
               <option value="default-female">默认女声（温柔知性）</option>
@@ -444,15 +494,25 @@
               <option value="ai-voice-2">AI 音色 B（甜美少女）</option>
             </select>
             <button class="voice-btn" onclick="toast('试听：播放3秒语音预览')">试听</button>
+            <label style="display:flex;align-items:center;gap:6px;font-size:11px;color:#666;cursor:pointer;white-space:nowrap;margin-left:4px;">
+              <input type="checkbox" id="voice-per-photo-toggle" onchange="toggleVoicePerPhoto(this.checked)" style="width:14px;height:14px;accent-color:#0066ff;cursor:pointer;">
+              每张单独配置音色
+            </label>
           </div>
         </div>
         <div id="p-avatar" style="display:none;">
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
-            <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:#666;cursor:pointer;font-weight:500;">
+          <div class="avatar-toolbar">
+            <div class="avatar-toolbar-left">
+              <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:#666;cursor:pointer;font-weight:500;">
               <input type="checkbox" id="avatar-batch-toggle" onchange="toggleBatchAvatar()" style="width:15px;height:15px;accent-color:#0066ff;cursor:pointer;">
               多选角色
+              </label>
+              <span style="font-size:10px;color:#999;">（开启后可多选）</span>
+            </div>
+            <label class="avatar-wm-switch">
+              <input type="checkbox" id="avatar-wm-enabled" onchange="toggleWatermark(this.checked)">
+              开启角色水印
             </label>
-            <span style="font-size:10px;color:#999;">（开启后可多选）</span>
           </div>
           <div class="av-search"><input type="text" placeholder="搜索角色名称、标签..." oninput="filterAvatarList(this.value)"></div>
           <div class="av-grid-compact" id="avatar-grid"></div>
@@ -616,31 +676,44 @@
   </div>
 
   <script>
-    var S = { tpl:null, pSrc:'upload', persons:[], avatarMulti:[], bgSrc:'upload', bgFiles:[], bgMulti:[], voice:'default-female', cards:[], nextId:1 };
+    var S = {
+      tpl:null,
+      pSrc:'upload',
+      persons:[],
+      avatarMulti:[],
+      bgSrc:'upload',
+      bgFiles:[],
+      bgMulti:[],
+      voice:'default-female',
+      voicePerPhoto:false,
+      watermark:{ uploadUnified:false, uploadText:'', avatarEnabled:false },
+      cards:[],
+      nextId:1
+    };
     var pf = ['大家好','哈喽','嗨喽','各位好','朋友们好'];
     var ed = ['谢谢观看！','感谢你的时间，我们下期见！','希望对你有启发，再见！','如果觉得有用，别忘了点赞，拜拜！','期待下次和你分享更多，再会！'];
     var bgM = {'办公室':'linear-gradient(135deg,#667eea,#764ba2)','居家':'linear-gradient(135deg,#f093fb,#f5576c)','咖啡厅':'linear-gradient(135deg,#4facfe,#00f2fe)','户外':'linear-gradient(135deg,#43e97b,#38f9d7)','演播室':'linear-gradient(135deg,#fa709a,#fee140)','书架':'linear-gradient(135deg,#a8edea,#fed6e3)','教室':'linear-gradient(135deg,#ffecd2,#fcb69f)','会议室':'linear-gradient(135deg,#a1c4fd,#c2e9fb)','公园':'linear-gradient(135deg,#d4fc79,#96e6a1)','海边':'linear-gradient(135deg,#89f7fe,#66a6ff)','天台':'linear-gradient(135deg,#f6d365,#fda085)','展厅':'linear-gradient(135deg,#fbc2eb,#a6c1ee)','厨房':'linear-gradient(135deg,#ff9a9e,#fecfef)','健身房':'linear-gradient(135deg,#fddb92,#d1fdff)','图书馆':'linear-gradient(135deg,#c1dfc4,#deecdd)','花园':'linear-gradient(135deg,#f5f7fa,#c3cfe2)','餐厅':'linear-gradient(135deg,#e0c3fc,#8ec5fc)','地铁站':'linear-gradient(135deg,#434343,#000000)','机场':'linear-gradient(135deg,#c9d6ff,#e2e2e2)','雪山':'linear-gradient(135deg,#e6e9f0,#eef1f5)','森林':'linear-gradient(135deg,#134e5e,#71b280)','沙漠':'linear-gradient(135deg,#f4a460,#deb887)','草原':'linear-gradient(135deg,#96e6a1,#d4fc79)','城市夜景':'linear-gradient(135deg,#0f2027,#203a43,#2c5364)','工作室':'linear-gradient(135deg,#c9c6ff,#8b87af)'};
     var avList = [
-      { key: '知性女性', name: '角色 A', tag: '女 · 知性' },
-      { key: '商务男性', name: '角色 B', tag: '男 · 商务' },
-      { key: '活泼女性', name: '角色 C', tag: '女 · 活泼' },
-      { key: '青年男声', name: '角色 D', tag: '男 · 阳光' },
-      { key: '成熟女性', name: '角色 E', tag: '女 · 优雅' },
-      { key: '老年男性', name: '角色 F', tag: '男 · 沉稳' },
-      { key: '儿童女孩', name: '角色 G', tag: '女 · 可爱' },
-      { key: '新闻主播', name: '角色 H', tag: '女 · 专业' },
-      { key: '科技达人', name: '角色 I', tag: '男 · 科技感' },
-      { key: '医疗顾问', name: '角色 J', tag: '男 · 医学' },
-      { key: '教育讲师', name: '角色 K', tag: '女 · 教学' },
-      { key: '运动教练', name: '角色 L', tag: '男 · 运动' },
-      { key: '时尚博主', name: '角色 M', tag: '女 · 时尚' },
-      { key: '旅行者', name: '角色 N', tag: '男 · 户外' },
-      { key: '厨师', name: '角色 O', tag: '男 · 美食' },
-      { key: '艺术家', name: '角色 P', tag: '男 · 创意' },
-      { key: '程序员', name: '角色 Q', tag: '男 · 技术' },
-      { key: '律师', name: '角色 R', tag: '男 · 法律' },
-      { key: '歌手', name: '角色 S', tag: '女 · 音乐' },
-      { key: '设计师', name: '角色 T', tag: '女 · 设计' },
+      { key: '知性女性', name: '角色 A', tag: '女 · 知性', watermark: '知性讲师' },
+      { key: '商务男性', name: '角色 B', tag: '男 · 商务', watermark: '' },
+      { key: '活泼女性', name: '角色 C', tag: '女 · 活泼', watermark: '活力主播' },
+      { key: '青年男声', name: '角色 D', tag: '男 · 阳光', watermark: '青年讲解员' },
+      { key: '成熟女性', name: '角色 E', tag: '女 · 优雅', watermark: '品牌主理人' },
+      { key: '老年男性', name: '角色 F', tag: '男 · 沉稳', watermark: '资深专家' },
+      { key: '儿童女孩', name: '角色 G', tag: '女 · 可爱', watermark: '童趣角色' },
+      { key: '新闻主播', name: '角色 H', tag: '女 · 专业', watermark: '新闻主播' },
+      { key: '科技达人', name: '角色 I', tag: '男 · 科技感', watermark: '科技达人' },
+      { key: '医疗顾问', name: '角色 J', tag: '男 · 医学', watermark: '医疗顾问' },
+      { key: '教育讲师', name: '角色 K', tag: '女 · 教学', watermark: '教育讲师' },
+      { key: '运动教练', name: '角色 L', tag: '男 · 运动', watermark: '运动教练' },
+      { key: '时尚博主', name: '角色 M', tag: '女 · 时尚', watermark: '时尚博主' },
+      { key: '旅行者', name: '角色 N', tag: '男 · 户外', watermark: '旅行者' },
+      { key: '厨师', name: '角色 O', tag: '男 · 美食', watermark: '主厨' },
+      { key: '艺术家', name: '角色 P', tag: '男 · 创意', watermark: '艺术家' },
+      { key: '程序员', name: '角色 Q', tag: '男 · 技术', watermark: '程序员' },
+      { key: '律师', name: '角色 R', tag: '男 · 法律', watermark: '律师' },
+      { key: '歌手', name: '角色 S', tag: '女 · 音乐', watermark: '歌手' },
+      { key: '设计师', name: '角色 T', tag: '女 · 设计', watermark: '设计师' },
     ];
 
     function toast(m) { var t = document.getElementById('toast-el'); t.textContent = m; t.classList.add('show'); setTimeout(function(){t.classList.remove('show');}, 2000); }
@@ -658,6 +731,21 @@
       if (!hasPerson()) missing.push('主体');
       if (!hasBg()) missing.push('背景');
       if (!hasScript()) missing.push('台词');
+      if (S.pSrc === 'upload' && S.persons.length > 0) {
+        if (!S.voicePerPhoto && !S.voice) {
+          missing.push('音色');
+        }
+        if (S.voicePerPhoto) {
+          var missingVoice = S.persons.some(function(p){ return !String(p.voice || '').trim(); });
+          if (missingVoice) missing.push('单张照片音色');
+        }
+        if (S.watermark.uploadUnified && !S.watermark.uploadText.trim()) {
+          missing.push('统一角色水印');
+        } else if (!S.watermark.uploadUnified) {
+          var missingPersonWm = S.persons.some(function(p){ return !String(p.watermark || '').trim(); });
+          if (missingPersonWm) missing.push('单张角色水印');
+        }
+      }
       return missing;
     }
 
@@ -710,7 +798,146 @@
     });
 
     /* ========== 人物 ========== */
-    function swPerson(el, s) { el.parentElement.querySelectorAll('.seg-btn').forEach(function(x){x.classList.remove('on');}); el.classList.add('on'); S.pSrc = s; document.getElementById('p-upload').style.display = s === 'upload' ? '' : 'none'; document.getElementById('p-avatar').style.display = s === 'avatar' ? '' : 'none'; updGenInfo(); }
+    function escapeHtml(v) {
+      return String(v || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    function getAvatarMeta(key) {
+      for (var i = 0; i < avList.length; i++) {
+        if (avList[i].key === key) return avList[i];
+      }
+      return { key: key, name: key, tag: '', watermark: '' };
+    }
+
+    function getWatermarkForPerson(person) {
+      if (S.pSrc === 'upload') {
+        return S.watermark.uploadUnified ? S.watermark.uploadText.trim() : String(person.watermark || '').trim();
+      }
+      if (!S.watermark.avatarEnabled) return '';
+      return person.watermark || '';
+    }
+
+    function getVoiceForPerson(person) {
+      if (S.pSrc === 'upload' && S.voicePerPhoto) return String(person.voice || '').trim();
+      return S.voice;
+    }
+
+    function getVoiceLabel(value) {
+      var sel = document.getElementById('voice-sel');
+      if (!sel) return value || '未选择';
+      for (var i = 0; i < sel.options.length; i++) {
+        if (sel.options[i].value === value) return sel.options[i].text;
+      }
+      return value || '未选择';
+    }
+
+    function getAvatarSearchValue() {
+      var el = document.querySelector('#p-avatar .av-search input');
+      return el ? el.value : '';
+    }
+
+    function updateWatermarkPanel() {
+      var uploadPanel = document.getElementById('upload-watermark-panel');
+      var uploadToggle = document.getElementById('upload-wm-enabled');
+      var avatarToggle = document.getElementById('avatar-wm-enabled');
+      var body = document.getElementById('wm-body');
+      var input = document.getElementById('wm-text');
+      var preview = document.getElementById('wm-preview');
+      var showUploadConfig = S.pSrc === 'upload' && S.persons.length > 0;
+
+      if (uploadToggle) uploadToggle.checked = !!S.watermark.uploadUnified;
+      if (avatarToggle) avatarToggle.checked = !!S.watermark.avatarEnabled;
+      if (uploadPanel) uploadPanel.style.display = showUploadConfig ? '' : 'none';
+      if (body) body.style.display = showUploadConfig && S.watermark.uploadUnified ? '' : 'none';
+      if (input) input.value = S.watermark.uploadText;
+      if (preview) {
+        preview.textContent = S.watermark.uploadText.trim() ? '当前统一水印：' + S.watermark.uploadText.trim() : '';
+        preview.classList.toggle('warn', S.watermark.uploadUnified && !S.watermark.uploadText.trim());
+      }
+
+      renderPersonGrid();
+      renderAvatarList(getAvatarSearchValue());
+      updGenInfo();
+    }
+
+    function toggleWatermark(checked) {
+      if (S.pSrc === 'upload') {
+        S.watermark.uploadUnified = checked;
+      } else {
+        S.watermark.avatarEnabled = checked;
+      }
+      updateWatermarkPanel();
+    }
+
+    function updateWatermarkText(value) {
+      S.watermark.uploadText = value;
+      updateWatermarkPanel();
+    }
+
+    function toggleVoicePerPhoto(checked) {
+      S.voicePerPhoto = checked;
+      var unifiedSection = document.getElementById('voice-section-unified');
+      if (unifiedSection) {
+        // 独立模式下隐藏统一音色行
+        unifiedSection.querySelector('.voice-label').style.display = checked ? 'none' : '';
+        unifiedSection.querySelector('.voice-sel').style.display = checked ? 'none' : '';
+        unifiedSection.querySelector('.voice-btn').style.display = checked ? 'none' : '';
+      }
+      var grid = document.getElementById('p-grid');
+      if (grid) grid.classList.toggle('voice-per-photo', checked);
+      renderPersonGrid();
+      updGenInfo();
+    }
+
+    function setPersonVoice(index, value) {
+      if (!S.persons[index]) return;
+      S.persons[index].voice = value;
+      updGenInfo();
+    }
+
+    function previewPersonVoice(index) {
+      var voice = getVoiceForPerson(S.persons[index]);
+      if (!voice) { toast('请先为该照片选择音色'); return; }
+      var label = getVoiceLabel(voice);
+      toast('试听：' + label + ' 音色预览');
+    }
+
+    function updatePersonWatermark(index, value) {
+      if (!S.persons[index]) return;
+      S.persons[index].watermark = value;
+      var badge = document.querySelector('[data-person-index="' + index + '"] .img-wm');
+      if (badge) {
+        var text = String(value || '').trim();
+        badge.textContent = text;
+        badge.style.display = text ? '' : 'none';
+      }
+      updGenInfo();
+    }
+
+    function swPerson(el, s) {
+      el.parentElement.querySelectorAll('.seg-btn').forEach(function(x){x.classList.remove('on');});
+      el.classList.add('on');
+      S.pSrc = s;
+      document.getElementById('p-upload').style.display = s === 'upload' ? '' : 'none';
+      document.getElementById('p-avatar').style.display = s === 'avatar' ? '' : 'none';
+      if (s !== 'upload') {
+        // 切到预设角色时恢复统一音色 UI
+        var unifiedSection = document.getElementById('voice-section-unified');
+        if (unifiedSection) {
+          unifiedSection.querySelector('.voice-label').style.display = '';
+          unifiedSection.querySelector('.voice-sel').style.display = '';
+          unifiedSection.querySelector('.voice-btn').style.display = '';
+        }
+        var grid = document.getElementById('p-grid');
+        if (grid) grid.classList.remove('voice-per-photo');
+        document.getElementById('voice-per-photo-toggle').checked = false;
+      }
+      updateWatermarkPanel();
+    }
 
     function upPerson(inp) {
       if (!inp.files || inp.files.length === 0) return;
@@ -718,11 +945,10 @@
         (function(file) {
           var r = new FileReader();
           r.onload = function(e) {
-            S.persons.push({ name: file.name, src: e.target.result });
-            renderPersonGrid();
+            S.persons.push({ name: file.name, src: e.target.result, watermark: '', voice: '' });
             document.getElementById('t-person').style.display = 'inline-block';
             document.getElementById('t-person').textContent = S.persons.length + '个人物';
-            updGenInfo();
+            updateWatermarkPanel();
           };
           r.readAsDataURL(file);
         })(inp.files[i]);
@@ -733,18 +959,42 @@
     function renderPersonGrid() {
       var g = document.getElementById('p-grid');
       var h = '';
+      var voiceOptions = document.getElementById('voice-sel') ? document.getElementById('voice-sel').innerHTML : '';
       S.persons.forEach(function(p, i) {
-        h += '<div class="img-item"><img src="'+p.src+'"><div class="del" onclick="delPerson('+i+')">✕</div></div>';
+        var wm = getWatermarkForPerson(p);
+        h += '<div class="person-card" data-person-index="' + i + '">';
+        h += '<div class="img-item"><img src="' + escapeHtml(p.src) + '">';
+        h += '<div class="img-wm" style="' + (wm ? '' : 'display:none;') + '">' + escapeHtml(wm) + '</div>';
+        h += '<div class="del" onclick="delPerson('+i+')">✕</div></div>';
+        if (!S.watermark.uploadUnified) {
+          h += '<input class="person-wm-input" maxlength="24" type="text" value="' + escapeHtml(p.watermark || '') + '" placeholder="单独水印" oninput="updatePersonWatermark(' + i + ', this.value)">';
+        }
+        if (S.voicePerPhoto) {
+          h += '<div class="person-voice-row">';
+          h += '<select class="person-voice-sel" onchange="setPersonVoice(' + i + ', this.value)">';
+          h += '<option value="">选择音色</option>';
+          h += voiceOptions;
+          h += '</select>';
+          h += '<button class="person-voice-btn" onclick="previewPersonVoice(' + i + ')">试听</button>';
+          h += '</div>';
+        }
+        h += '</div>';
       });
       g.innerHTML = h;
+      // 设置已选值
+      if (S.voicePerPhoto) {
+        S.persons.forEach(function(p, i) {
+          var sel = g.querySelector('[data-person-index="' + i + '"] .person-voice-sel');
+          if (sel && p.voice) sel.value = p.voice;
+        });
+      }
     }
 
     function delPerson(i) {
       S.persons.splice(i, 1);
-      renderPersonGrid();
       document.getElementById('t-person').textContent = S.persons.length > 0 ? S.persons.length + '个人物' : '';
       document.getElementById('t-person').style.display = S.persons.length > 0 ? 'inline-block' : 'none';
-      updGenInfo();
+      updateWatermarkPanel();
     }
 
     var avI = {'知性女性':'👩','商务男性':'👨','活泼女性':'👧','青年男声':'🧑','成熟女性':'👩‍💼','老年男性':'👴','儿童女孩':'👧','新闻主播':'👩‍💻','科技达人':'👨‍💻','医疗顾问':'👨‍⚕️','教育讲师':'👩‍🏫','运动教练':'🏃','时尚博主':'💃','旅行者':'🧳','厨师':'👨‍🍳','艺术家':'🎨','程序员':'💻','律师':'⚖️','歌手':'🎤','设计师':'✏️'};
@@ -762,6 +1012,7 @@
         var tagEsc = a.tag.replace(/'/g,"\\'").replace(/"/g,'&quot;');
         h += '<div class="av-item-compact' + (sel ? ' sel' : '') + '" onclick="selAvatarByKey(\'' + a.key + '\')">';
         h += '<div class="av-cb-compact">✓</div>';
+        if (sel && S.watermark.avatarEnabled && !a.watermark) h += '<div class="av-watermark-missing" title="当前角色未配置角色水印">!</div>';
         h += '<div class="av-face-compact" onmouseenter="showAvPreview(event,\'' + nameEsc + '\',\'' + tagEsc + '\',\'' + emoji + '\')" onmouseleave="hideAvPreview()">' + emoji + '</div>';
         h += '<div class="av-nm-compact">' + a.name + '</div>';
         h += '<div class="av-tg-compact">' + a.tag + '</div>';
@@ -790,8 +1041,7 @@
     function toggleBatchAvatar() {
       S.avatarMulti = [];
       document.getElementById('t-person').style.display = 'none';
-      renderAvatarList();
-      updGenInfo();
+      updateWatermarkPanel();
     }
 
     function selAvatarByKey(key) {
@@ -805,8 +1055,7 @@
         document.getElementById('t-person').textContent = '已选择';
       }
       document.getElementById('t-person').style.display = S.avatarMulti.length > 0 ? 'inline-block' : 'none';
-      renderAvatarList(document.querySelector('#p-avatar .av-search input') ? document.querySelector('#p-avatar .av-search input').value : '');
-      updGenInfo();
+      updateWatermarkPanel();
     }
 
     /* ========== 背景 ========== */
@@ -1022,7 +1271,30 @@
         return;
       }
 
-      var personList = S.pSrc === 'upload' ? S.persons : S.avatarMulti.map(function(n) { return { name: n, src: null, emoji: avI[n] || '👤' }; });
+      var personList = S.pSrc === 'upload'
+        ? S.persons.map(function(p) {
+            var voiceVal = getVoiceForPerson(p);
+            return {
+              name: p.name,
+              src: p.src,
+              emoji: '',
+              watermark: getWatermarkForPerson(p),
+              voice: voiceVal,
+              voiceLabel: getVoiceLabel(voiceVal)
+            };
+          })
+        : S.avatarMulti.map(function(n) {
+            var meta = getAvatarMeta(n);
+            var voiceVal = getVoiceForPerson(meta);
+            return {
+              name: meta.name || n,
+              src: null,
+              emoji: avI[n] || '👤',
+              watermark: getWatermarkForPerson(meta),
+              voice: voiceVal,
+              voiceLabel: getVoiceLabel(voiceVal)
+            };
+          });
       var bgList = [];
       if (S.bgSrc === 'upload') {
         S.bgFiles.forEach(function(f) { bgList.push({ name: f.name, src: f.src, style: 'url('+f.src+') center/cover no-repeat' }); });
@@ -1064,19 +1336,21 @@
           var pTipGradient = g.person.src ? '' : 'linear-gradient(135deg,#ff9a9e,#fad0c4)';
           var pTipEmoji = g.person.emoji || '👤';
           h += '<td class="td-name" onmouseenter="showTipName(event,\'' + pTipType + '\',\'' + pTipSrc.replace(/'/g,"\\'") + '\',\'' + pTipEmoji + '\',\'' + g.person.name.replace(/'/g,"\\'") + '\')" onmouseleave="hideTip()">';
-          h += g.person.name;
+          h += '<span class="td-main">' + escapeHtml(g.person.name) + '</span>';
+          h += g.person.voiceLabel ? '<span class="voice-line">音色：' + escapeHtml(g.person.voiceLabel) + '</span>' : '<span class="voice-line muted">未选音色</span>';
+          h += g.person.watermark ? '<span class="wm-line">水印：' + escapeHtml(g.person.watermark) + '</span>' : '<span class="wm-line muted">无水印</span>';
           h += '</td>';
           // 背景列
           var bTipType = g.bg.src ? 'img' : 'gradient';
           var bTipSrc = g.bg.src || '';
           var bTipGradient = g.bg.src ? '' : (bgM[g.bg.name] || bgM['办公室']);
           h += '<td class="td-name" onmouseenter="showTipBg(event,\'' + bTipType + '\',\'' + bTipSrc.replace(/'/g,"\\'") + '\',\'' + g.bg.name.replace(/'/g,"\\'") + '\',\'' + bTipGradient.replace(/'/g,"\\'") + '\')" onmouseleave="hideTip()">';
-          h += g.bg.name;
+          h += escapeHtml(g.bg.name);
           h += '</td>';
           // 台词列
           var preview = it.content.length > 30 ? it.content.substring(0, 30) + '...' : it.content;
           var txtEscaped = it.content.replace(/'/g,"\\'").replace(/"/g,'&quot;');
-          h += '<td class="td-script" onmouseenter="showTipTxt(event,\'' + txtEscaped + '\')" onmouseleave="hideTip()">' + preview + '</td>';
+          h += '<td class="td-script" onmouseenter="showTipTxt(event,\'' + txtEscaped + '\')" onmouseleave="hideTip()">' + escapeHtml(preview) + '</td>';
           // 操作列
           h += '<td class="td-op"><button class="cg-op-btn" onclick="cgRemoveRow(this)">移除</button></td>';
           h += '</tr>';
@@ -1179,6 +1453,7 @@
     // 初始化
     renderAvatarList();
     renderBgList();
+    updateWatermarkPanel();
     addScriptCard();
     updGenInfo();
   </script>

@@ -112,7 +112,8 @@
 
         .form-top {
             display: grid;
-            grid-template-columns: minmax(0, 1fr) 360px;
+            grid-template-columns: minmax(220px, 320px) minmax(220px, 280px) minmax(360px, 1fr);
+            align-items: end;
             gap: 16px;
             padding: 24px;
             border-bottom: 1px solid #e5e7eb;
@@ -143,8 +144,7 @@
         .name-count {
             position: absolute;
             right: 12px;
-            top: 50%;
-            transform: translateY(-50%);
+            bottom: 12px;
             color: #6b7280;
             font-size: 13px;
         }
@@ -162,11 +162,28 @@
 
         .name-wrap {
             position: relative;
-            max-width: 320px;
         }
 
         .name-wrap .form-control {
             padding-right: 68px;
+        }
+
+        .field-wrap {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .field-label {
+            color: #6b7280;
+            font-size: 13px;
+            font-weight: 600;
+            line-height: 1.2;
+        }
+
+        .field-label .required {
+            margin-left: 2px;
+            color: #ef4444;
         }
 
         .edit-grid {
@@ -303,6 +320,34 @@
             object-fit: cover;
             flex-shrink: 0;
         }
+
+        /* AI 生图 */
+        .image-source-bar { margin-bottom: 14px; }
+        .image-source-bar .seg-btn { padding: 7px 16px; border-radius: 6px; font-size: 12px; cursor: pointer; color: #6b7280; background: transparent; border: none; font-weight: 500; transition: all 0.15s; }
+        .image-source-bar .seg-btn.on { background: #eef2ff; color: #4f46e5; }
+        #imageAiArea { display: flex; flex-direction: column; gap: 14px; }
+        #aiPromptInput { width: 100%; min-height: 96px; padding: 12px; border: 1px solid #d1d5db; border-radius: 10px; font-size: 14px; line-height: 1.7; resize: vertical; outline: none; background: #ffffff; transition: border-color 0.2s ease, box-shadow 0.2s ease; }
+        #aiPromptInput:focus { border-color: #4f46e5; box-shadow: 0 0 0 3px rgba(79,70,229,0.1); }
+        .ai-ref-row { display: flex; align-items: center; gap: 14px; }
+        .ai-ref-label { font-size: 13px; color: #6b7280; font-weight: 500; display: flex; align-items: center; gap: 8px; cursor: pointer; }
+        .ai-ref-label input { display: none; }
+        .ai-ref-upload { width: 72px; height: 72px; border: 1px dashed #cbd5e1; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #9ca3af; font-size: 24px; cursor: pointer; transition: border-color 0.2s ease, color 0.2s ease; background: #f8fafc; }
+        .ai-ref-upload:hover { border-color: #4f46e5; color: #4f46e5; }
+        .ai-ref-preview { width: 72px; height: 72px; border-radius: 12px; overflow: hidden; border: 1px solid #e5e7eb; display: none; position: relative; }
+        .ai-ref-preview img { width: 100%; height: 100%; object-fit: cover; }
+        .ai-ref-preview .ai-ref-del { position: absolute; top: 2px; right: 2px; width: 18px; height: 18px; border-radius: 50%; background: rgba(0,0,0,0.55); color: #fff; font-size: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; line-height: 1; }
+        .ai-gen-btn { width: 100%; height: 44px; border-radius: 12px; border: none; background: #4f46e5; color: #fff; font-size: 15px; font-weight: 600; cursor: pointer; transition: background 0.2s ease, box-shadow 0.2s ease; }
+        .ai-gen-btn:hover { background: #4338ca; box-shadow: 0 4px 14px rgba(79,70,229,0.3); }
+        .ai-gen-btn:disabled { background: #d1d5db; color: #9ca3af; cursor: not-allowed; box-shadow: none; }
+        .ai-gen-status { text-align: center; font-size: 13px; color: #6b7280; min-height: 20px; }
+        .ai-result-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+        .ai-result-card { aspect-ratio: 9/16; border-radius: 12px; border: 2px solid #e5e7eb; overflow: hidden; cursor: pointer; position: relative; transition: border-color 0.2s ease, box-shadow 0.2s ease; background: #f3f4f6; }
+        .ai-result-card:hover { border-color: #a5b4fc; box-shadow: 0 2px 8px rgba(79,70,229,0.12); }
+        .ai-result-card.sel { border-color: #4f46e5; box-shadow: 0 0 0 3px rgba(79,70,229,0.15); }
+        .ai-result-card .ai-result-check { position: absolute; top: 6px; right: 6px; width: 20px; height: 20px; border-radius: 50%; background: #4f46e5; color: #fff; font-size: 10px; display: flex; align-items: center; justify-content: center; opacity: 0; transform: scale(0.5); transition: all 0.2s ease; }
+        .ai-result-card.sel .ai-result-check { opacity: 1; transform: scale(1); }
+        .ai-result-card img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .ai-result-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 13px; color: #9ca3af; }
 
         .auth-check,
         .form-tip {
@@ -588,6 +633,18 @@
         }
 
         @media (max-width: 1100px) {
+            .form-top {
+                grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+            }
+
+            .form-top.scene-mode {
+                grid-template-columns: 1fr;
+            }
+
+            .voice-select-row {
+                grid-column: 1 / -1;
+            }
+
             .edit-grid,
             .asset-stage {
                 grid-template-columns: 1fr;
@@ -657,9 +714,14 @@
 
             <section class="workbench">
                 <div class="form-top">
-                    <div class="name-wrap">
-                        <input id="subjectName" class="form-control" maxlength="200" type="text" placeholder="请输入主体名称" />
+                    <div class="name-wrap field-wrap">
+                        <label class="field-label" for="subjectName" id="subjectNameLabel">角色名称<span class="required">*</span></label>
+                        <input id="subjectName" class="form-control" maxlength="200" type="text" placeholder="请输入角色名称" required />
                         <span class="name-count" id="nameCount">0/200</span>
+                    </div>
+                    <div class="field-wrap" id="qualificationNoRow">
+                        <label class="field-label" for="qualificationNo">角色水印</label>
+                        <input id="qualificationNo" class="form-control" maxlength="80" type="text" placeholder="xxx老师" />
                     </div>
                     <div class="voice-select-row" id="voiceSelectRow">
                         <select id="subjectVoice" class="form-control">
@@ -686,14 +748,45 @@
                             <textarea id="subjectDesc" class="form-control textarea" placeholder="请输入角色小传，例如年龄、职业、形象气质、服装风格等"></textarea>
                         </div>
 
-                        <div class="form-group">
-                            <label for="subjectImage" id="imageLabel">上传主图 <span class="required">*</span></label>
-                            <label class="upload-box" for="subjectImage">
-                                <div class="upload-icon">+</div>
-                                <div class="upload-title" id="uploadTitle">上传一张角色主图</div>
-                                <div class="upload-desc" id="uploadDesc">支持 JPG、PNG。建议上传人物清晰、正面、无遮挡的图片。</div>
-                                <input id="subjectImage" type="file" accept="image/jpeg,image/png,image/webp" />
-                            </label>
+                        <div class="form-group" id="imageFormGroup">
+                            <label id="imageLabel">上传主图 <span class="required">*</span></label>
+
+                            <!-- 场景模式：本地上传 / AI 生图 切换（角色模式隐藏） -->
+                            <div class="seg-bar image-source-bar" id="imageSourceBar" style="display:none;">
+                                <div class="seg-btn on" id="segUpload" onclick="switchImageSource('upload')">本地上传</div>
+                                <div class="seg-btn" id="segAi" onclick="switchImageSource('ai')">AI 生图</div>
+                            </div>
+
+                            <!-- 本地上传 -->
+                            <div id="imageUploadArea">
+                                <label class="upload-box" for="subjectImage">
+                                    <div class="upload-icon">+</div>
+                                    <div class="upload-title" id="uploadTitle">上传一张角色主图</div>
+                                    <div class="upload-desc" id="uploadDesc">支持 JPG、PNG。建议上传人物清晰、正面、无遮挡的图片。</div>
+                                    <input id="subjectImage" type="file" accept="image/jpeg,image/png,image/webp" />
+                                </label>
+                            </div>
+
+                            <!-- AI 生图 -->
+                            <div id="imageAiArea" style="display:none;">
+                                <textarea id="aiPromptInput" placeholder="请输入提示词，描述你想要的场景画面，例如：现代财经演播室，背景有大屏数据图表，蓝白配色，暖色调灯光，专业简洁风格，9:16竖版构图"></textarea>
+                                <div class="ai-ref-row">
+                                    <label class="ai-ref-label">
+                                        <div class="ai-ref-upload" id="aiRefUpload">+</div>
+                                        <span id="aiRefLabel">参考图（可选）</span>
+                                        <input id="aiRefFileInput" type="file" accept="image/jpeg,image/png,image/webp" />
+                                    </label>
+                                    <div class="ai-ref-preview" id="aiRefPreview">
+                                        <img id="aiRefPreviewImg" src="" alt="" />
+                                        <div class="ai-ref-del" id="aiRefDel" onclick="clearAiRef()">✕</div>
+                                    </div>
+                                </div>
+                                <button class="ai-gen-btn" id="aiGenBtn" onclick="generateAIImage()" disabled>🎨 生成场景图</button>
+                                <div class="ai-gen-status" id="aiGenStatus"></div>
+                                <div class="ai-result-grid" id="aiResultGrid" style="display:none;"></div>
+                            </div>
+
+                            <!-- 共用预览 -->
                             <div class="upload-preview" id="uploadPreview">
                                 <span>暂未上传主图</span>
                             </div>
@@ -722,7 +815,7 @@
                                     <div class="edit-preview-empty">上传主图后显示预览</div>
                                 </div>
                                 <div class="asset-main-caption">
-                                    <strong id="previewName">主体名称</strong>
+                                    <strong id="previewName">角色名称</strong>
                                     <span id="previewMeta">未选择音色</span>
                                 </div>
                             </div>
@@ -758,12 +851,18 @@
         const source = params.get("from") || "library";
         let subjectType = params.get("type") === "scene" ? "scene" : "role";
         let imageData = "";
+        let imageSource = "upload"; // 'upload' | 'ai'
+        let aiPrompt = "";
+        let aiRefImage = "";
+        let aiResults = [];
+        let aiSelectedIndex = -1;
         let viewsReady = false;
 
         const libraryKey = "subjectLibraryItems";
         const step2Key = "step2NewSubject";
 
         const subjectName = document.getElementById("subjectName");
+        const qualificationNo = document.getElementById("qualificationNo");
         const subjectVoice = document.getElementById("subjectVoice");
         const subjectDesc = document.getElementById("subjectDesc");
         const nameCount = document.getElementById("nameCount");
@@ -778,6 +877,17 @@
         const voiceSelectRow = document.getElementById("voiceSelectRow");
         const previewVoiceBtn = document.getElementById("previewVoiceBtn");
         const addVoiceBtn = document.getElementById("addVoiceBtn");
+        const imageSourceBar = document.getElementById("imageSourceBar");
+        const imageUploadArea = document.getElementById("imageUploadArea");
+        const imageAiArea = document.getElementById("imageAiArea");
+        const aiPromptInput = document.getElementById("aiPromptInput");
+        const aiRefFileInput = document.getElementById("aiRefFileInput");
+        const aiRefPreview = document.getElementById("aiRefPreview");
+        const aiRefPreviewImg = document.getElementById("aiRefPreviewImg");
+        const aiRefUpload = document.getElementById("aiRefUpload");
+        const aiGenBtn = document.getElementById("aiGenBtn");
+        const aiGenStatus = document.getElementById("aiGenStatus");
+        const aiResultGrid = document.getElementById("aiResultGrid");
 
         function typeName() {
             return subjectType === "scene" ? "场景" : "角色";
@@ -807,7 +917,7 @@
         }
 
         function updatePreviewText() {
-            const name = subjectName.value.trim() || "主体名称";
+            const name = subjectName.value.trim() || (subjectType === "scene" ? "主体名称" : "角色名称");
             previewName.textContent = name;
             previewMeta.textContent = subjectType === "scene" ? "9:16 竖版短视频场景" : (subjectVoice.value || "未选择音色");
         }
@@ -830,8 +940,9 @@
             return "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(svg);
         }
 
-        function setPreview(src, fileName) {
+        function setPreview(src, fileName, srcType) {
             imageData = src || "";
+            if (srcType) imageSource = srcType;
             viewsReady = false;
             viewsGrid.style.display = "none";
             createViewsBtn.disabled = !imageData;
@@ -842,8 +953,9 @@
                 return;
             }
 
-            uploadPreview.innerHTML = '<img src="' + imageData + '" alt="主图预览" /><span>' + escapeHtml(fileName || "已生成主图") + '</span>';
-            previewFrame.innerHTML = '<img src="' + imageData + '" alt="主图预览" />';
+            const label = fileName || (imageSource === "ai" ? "AI生成场景图" : "已上传主图");
+            uploadPreview.innerHTML = '<img src="' + imageData + '" alt="预览" /><span>' + escapeHtml(label) + '</span>';
+            previewFrame.innerHTML = '<img src="' + imageData + '" alt="预览" />';
         }
 
         function renderViews() {
@@ -877,6 +989,97 @@
             showToast("视角资产已创建");
         }
 
+        function switchImageSource(source) {
+            imageSource = source;
+            const isUpload = source === "upload";
+            document.getElementById("segUpload").classList.toggle("on", isUpload);
+            document.getElementById("segAi").classList.toggle("on", !isUpload);
+            imageUploadArea.style.display = isUpload ? "" : "none";
+            imageAiArea.style.display = isUpload ? "none" : "";
+            // 切换回上传模式时保持已有图片；切换回 AI 模式时保持已有 prompt 和生成结果
+            updGenBtnAndStatus();
+        }
+
+        function updGenBtnAndStatus() {
+            const hasPrompt = aiPromptInput.value.trim().length > 0;
+            aiGenBtn.disabled = !hasPrompt;
+            aiGenStatus.textContent = aiResults.length > 0 ? "已生成 " + aiResults.length + " 张候选图，点击选择一张" : "";
+        }
+
+        function generateAIImage() {
+            const prompt = aiPromptInput.value.trim();
+            if (!prompt) { showToast("请先输入场景描述"); return; }
+            aiGenBtn.disabled = true;
+            aiGenStatus.textContent = "正在生成中...";
+            // 原型模拟：1.5s 后生成 4 张不同色调的占位图
+            setTimeout(() => {
+                const baseColors = [
+                    ["#1e3a5f", "#2d6aa0", "#e8f0f8"],
+                    ["#4a3728", "#7a5c3e", "#f5efe8"],
+                    ["#2d4a3e", "#5a8a6e", "#eaf5ef"],
+                    ["#4a2d4a", "#8a5a8a", "#f5eaf5"]
+                ];
+                aiResults = baseColors.map((colors, i) => ({
+                    index: i,
+                    name: "AI生成-" + (i + 1),
+                    dataUrl: createAiPlaceholder(colors, i + 1, prompt)
+                }));
+                aiSelectedIndex = -1;
+                renderAiResults();
+                aiGenBtn.disabled = false;
+                aiGenStatus.textContent = "已生成 4 张候选图，请点击选择一张作为场景图";
+            }, 1500);
+        }
+
+        function createAiPlaceholder(colors, num, prompt) {
+            const shortPrompt = (prompt || "AI生成场景").slice(0, 18);
+            const svg =
+                '<svg xmlns="http://www.w3.org/2000/svg" width="720" height="1280" viewBox="0 0 720 1280">' +
+                    '<defs><linearGradient id="bg' + num + '" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="' + colors[0] + '"/><stop offset="100%" stop-color="' + colors[1] + '"/></linearGradient></defs>' +
+                    '<rect width="720" height="1280" fill="url(#bg' + num + ')"/>' +
+                    '<rect x="40" y="120" width="280" height="260" rx="24" fill="' + colors[2] + '" opacity="0.25"/>' +
+                    '<rect x="360" y="160" width="320" height="380" rx="24" fill="' + colors[2] + '" opacity="0.18"/>' +
+                    '<rect x="80" y="540" width="560" height="160" rx="20" fill="' + colors[2] + '" opacity="0.2"/>' +
+                    '<circle cx="130" cy="260" r="48" fill="' + colors[2] + '" opacity="0.35"/>' +
+                    '<rect x="60" y="760" width="600" height="120" rx="16" fill="' + colors[2] + '" opacity="0.14"/>' +
+                    '<rect x="80" y="940" width="560" height="100" rx="16" fill="' + colors[2] + '" opacity="0.12"/>' +
+                    '<text x="360" y="640" fill="#ffffff" font-size="28" font-weight="700" text-anchor="middle" font-family="Arial,sans-serif" opacity="0.9">' + shortPrompt + '</text>' +
+                    '<text x="360" y="680" fill="#ffffff" font-size="18" text-anchor="middle" font-family="Arial,sans-serif" opacity="0.6">方案 ' + num + '</text>' +
+                '</svg>';
+            return "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(svg);
+        }
+
+        function renderAiResults() {
+            if (aiResults.length === 0) {
+                aiResultGrid.style.display = "none";
+                return;
+            }
+            aiResultGrid.style.display = "grid";
+            aiResultGrid.innerHTML = aiResults.map((r, i) => (
+                '<div class="ai-result-card' + (i === aiSelectedIndex ? ' sel' : '') + '" onclick="selectAIResult(' + i + ')">' +
+                    '<div class="ai-result-check">✓</div>' +
+                    '<img src="' + r.dataUrl + '" alt="方案' + (i + 1) + '" />' +
+                '</div>'
+            )).join("");
+        }
+
+        function selectAIResult(index) {
+            aiSelectedIndex = index;
+            renderAiResults();
+            const result = aiResults[index];
+            if (result) {
+                setPreview(result.dataUrl, result.name, "ai");
+            }
+        }
+
+        function clearAiRef() {
+            aiRefImage = "";
+            aiRefPreviewImg.src = "";
+            aiRefPreview.style.display = "none";
+            aiRefUpload.style.display = "";
+            aiRefFileInput.value = "";
+        }
+
         function setType(nextType) {
             subjectType = nextType === "scene" ? "scene" : "role";
             const isScene = subjectType === "scene";
@@ -898,6 +1101,21 @@
                 "支持 JPG、PNG。建议使用 9:16 竖版图片，适合信息流短视频投放。" :
                 "支持 JPG、PNG。建议上传人物清晰、正面、无遮挡的图片。";
             document.getElementById("assetTitle").textContent = isScene ? "场景视角资产" : "角色视角资产";
+            document.getElementById("subjectNameLabel").innerHTML = (isScene ? "场景名称" : "角色名称") + '<span class="required">*</span>';
+            subjectName.placeholder = isScene ? "请输入场景名称" : "请输入角色名称";
+            // 场景模式显示 AI 生图切换条，角色模式隐藏（仅本地上传）
+            imageSourceBar.style.display = isScene ? "inline-flex" : "none";
+            if (!isScene) {
+                switchImageSource("upload"); // 角色模式强制切回上传
+                // 清空 AI 生成结果
+                aiResults = [];
+                aiSelectedIndex = -1;
+                aiPromptInput.value = "";
+                aiPrompt = "";
+                clearAiRef();
+                renderAiResults();
+            }
+            document.getElementById("qualificationNoRow").style.display = isScene ? "none" : "flex";
             document.getElementById("authCheckRow").style.display = isScene ? "none" : "flex";
             document.getElementById("sceneTip").style.display = isScene ? "flex" : "none";
             document.querySelector(".form-top").classList.toggle("scene-mode", isScene);
@@ -967,8 +1185,10 @@
                 type: subjectType,
                 name,
                 desc,
+                qualificationNo: subjectType === "role" ? qualificationNo.value.trim() : "",
                 voice: subjectType === "role" ? subjectVoice.value : "",
                 img: imageData,
+                imageSource: imageSource,
                 owner: "my",
                 createdByMe: true,
                 favorite: false,
@@ -979,7 +1199,7 @@
 
         function validateBeforeCreate() {
             if (!subjectName.value.trim()) {
-                showToast("请输入主体名称");
+                showToast("请输入" + (subjectType === "role" ? "角色名称" : "主体名称"));
                 subjectName.focus();
                 return false;
             }
@@ -989,7 +1209,7 @@
                 return false;
             }
             if (!imageData) {
-                showToast("请上传主体主图");
+                showToast(subjectType === "scene" && imageSource === "ai" ? "请先选择一张 AI 生成的场景图" : "请上传主体主图");
                 return false;
             }
             if (subjectType === "role" && !document.getElementById("authCheck").checked) {
@@ -1072,6 +1292,27 @@
         });
 
         createViewsBtn.addEventListener("click", createViews);
+
+        // AI 生图 prompt 输入监听
+        aiPromptInput.addEventListener("input", () => {
+            aiPrompt = aiPromptInput.value;
+            updGenBtnAndStatus();
+        });
+
+        // AI 参考图上传
+        aiRefFileInput.addEventListener("change", (event) => {
+            const file = event.target.files && event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (loadEvent) => {
+                aiRefImage = loadEvent.target.result;
+                aiRefPreviewImg.src = aiRefImage;
+                aiRefPreview.style.display = "block";
+                aiRefUpload.style.display = "none";
+            };
+            reader.readAsDataURL(file);
+        });
+
         document.getElementById("createSubjectBtn").addEventListener("click", finishCreate);
         document.getElementById("cancelBtn").addEventListener("click", () => {
             window.location.href = returnUrl();
