@@ -508,6 +508,13 @@
                         </div>
                     </div>
                     <div class="row">
+                        <div class="row-label">所属租户</div>
+                        <div class="row-value">
+                            <span>华泰证券投顾部</span>
+                            <span class="tag tag-info">租户内角色：投顾管理员</span>
+                        </div>
+                    </div>
+                    <div class="row">
                         <div class="row-label">注册时间</div>
                         <div class="row-value">
                             <span style="color: var(--text-secondary);">2024-05-12 09:30</span>
@@ -557,16 +564,6 @@
                     </div>
                 </div>
                 <div class="card-body">
-                    <div class="security-level">
-                        <div class="security-level-icon">🛡️</div>
-                        <div class="security-level-info">
-                            <div class="security-level-label">当前安全等级</div>
-                            <div class="security-level-value">中等 · 建议开启二次验证</div>
-                        </div>
-                        <div class="security-level-bar">
-                            <div class="security-level-bar-fill" style="width: 60%"></div>
-                        </div>
-                    </div>
                     <div class="row">
                         <div class="row-label">登录密码</div>
                         <div class="row-value">
@@ -575,43 +572,6 @@
                         </div>
                         <div class="row-action">
                             <button class="btn btn-sm" onclick="openModal('modalPassword')">修改密码</button>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="row-label">二次验证</div>
-                        <div class="row-value">
-                            <span>短信 / 身份验证器</span>
-                            <span class="tag tag-warning" id="twoFaTag">未开启</span>
-                        </div>
-                        <div class="row-action">
-                            <label class="switch">
-                                <input type="checkbox" id="twoFaSwitch" onchange="toggle2FA(this)">
-                                <span class="switch-slider"></span>
-                            </label>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="row-label">异地登录提醒</div>
-                        <div class="row-value">
-                            <span>非常用地登录时发短信通知</span>
-                        </div>
-                        <div class="row-action">
-                            <label class="switch">
-                                <input type="checkbox" checked onchange="toast('设置已保存', 'success')">
-                                <span class="switch-slider"></span>
-                            </label>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="row-label">登录保护</div>
-                        <div class="row-value">
-                            <span>新设备登录需手机验证</span>
-                        </div>
-                        <div class="row-action">
-                            <label class="switch">
-                                <input type="checkbox" checked onchange="toast('设置已保存', 'success')">
-                                <span class="switch-slider"></span>
-                            </label>
                         </div>
                     </div>
                 </div>
@@ -738,22 +698,6 @@
                                 <tr>
                                     <td>
                                         <div class="device-cell">
-                                            <div class="device-icon">📱</div>
-                                            <div>
-                                                <div class="device-name">iPhone 15 · Safari</div>
-                                                <div class="device-sub">iOS 18.2</div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td style="color: var(--text-secondary);">123.118.42.51</td>
-                                    <td style="color: var(--text-secondary);">北京</td>
-                                    <td style="color: var(--text-secondary);">28 分钟前</td>
-                                    <td><span class="tag tag-success"><span class="dot dot-success"></span> 在线</span></td>
-                                    <td class="actions"><button class="btn-text" style="color: var(--danger);" onclick="logoutDevice(this, 'iPhone 15')">下线</button></td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <div class="device-cell">
                                             <div class="device-icon" style="background: #f4f4f5; color: var(--text-secondary);">🖥️</div>
                                             <div>
                                                 <div class="device-name">Windows · Edge 128</div>
@@ -766,22 +710,6 @@
                                     <td style="color: var(--text-secondary);">昨天 21:14</td>
                                     <td><span class="tag tag-default">离线</span></td>
                                     <td class="actions"><button class="btn-text" style="color: var(--danger);" onclick="logoutDevice(this, 'Windows Edge')">下线</button></td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <div class="device-cell">
-                                            <div class="device-icon" style="background: var(--warning-light); color: var(--warning);">⚠️</div>
-                                            <div>
-                                                <div class="device-name">Android · 微信内置浏览器</div>
-                                                <div class="device-sub" style="color: var(--warning);">异常 · 非常用地</div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td style="color: var(--text-secondary);">112.65.18.92</td>
-                                    <td style="color: var(--warning);">深圳</td>
-                                    <td style="color: var(--text-secondary);">3 天前</td>
-                                    <td><span class="tag tag-default">离线</span></td>
-                                    <td class="actions"><button class="btn-text" style="color: var(--danger);" onclick="logoutDevice(this, 'Android 异常')">下线</button></td>
                                 </tr>
                             </tbody>
                         </table>
@@ -1143,20 +1071,6 @@
             }
         }, 1000);
         toast('验证码已发送', 'success');
-    }
-
-    /* ========== 2FA ========== */
-    function toggle2FA(el) {
-        var tag = document.getElementById('twoFaTag');
-        if (el.checked) {
-            tag.className = 'tag tag-success';
-            tag.innerHTML = '<span class="dot dot-success"></span> 已开启';
-            toast('二次验证已开启', 'success');
-        } else {
-            tag.className = 'tag tag-warning';
-            tag.textContent = '未开启';
-            toast('二次验证已关闭', 'info');
-        }
     }
 
     /* ========== 通用二次确认 ========== */
