@@ -293,6 +293,55 @@
       box-shadow: 0 0 0 3px rgba(0,102,255,0.08);
     }
 
+    /* 语音合成配置 */
+    .tts-bar {
+      padding: 10px 12px; margin-bottom: 14px;
+      border: 1.5px solid #e8e8e8; border-radius: 10px;
+      background: #fbfcff;
+    }
+    .tts-bar-label { font-size: 12px; font-weight: 600; color: #1a1a2e; white-space: nowrap; }
+    .tts-item { display: flex; align-items: center; gap: 4px; }
+    .tts-item span { font-size: 11px; color: #666; white-space: nowrap; min-width: 28px; }
+    .tts-item input[type="range"] { width: 72px; accent-color: #0066ff; }
+    .tts-item .tts-val { font-size: 11px; font-weight: 600; color: #0066ff; min-width: 36px; text-align: right; }
+
+    /* 每张台词卡内的 TTS 区 */
+    .tts-instr { margin-top: 8px; }
+    .tts-instr textarea {
+      width: 100%; min-height: 40px; border: 1.5px solid #e8e8e8;
+      border-radius: 6px; padding: 6px 10px; font-size: 12px;
+      line-height: 1.5; resize: vertical; font-family: inherit;
+      background: #fff; transition: all 0.2s;
+    }
+    .tts-instr textarea:focus { outline: none; border-color: #0066ff; box-shadow: 0 0 0 3px rgba(0,102,255,0.08); }
+    .tts-play-row {
+      display: flex; align-items: center; gap: 8px; margin-top: 6px;
+    }
+    .tts-play-btn {
+      width: 30px; height: 30px; border-radius: 50%; border: 1.5px solid #0066ff;
+      background: #eef4ff; color: #0066ff; font-size: 11px;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; transition: all 0.15s;
+    }
+    .tts-play-btn:hover { background: #0066ff; color: #fff; }
+    .tts-play-btn.playing { background: #0066ff; color: #fff; }
+    .tts-play-btn:disabled, .tts-play-btn.disabled {
+      border-color: #d0d0d0; background: #f5f5f5; color: #bbb; cursor: not-allowed;
+    }
+    .tts-play-btn.disabled:hover { background: #f5f5f5; color: #bbb; }
+    .tts-progress-wrap { flex: 1; min-width: 0; height: 26px; position: relative; cursor: pointer; }
+    .tts-progress-bar { position: absolute; left: 0; top: 50%; transform: translateY(-50%); width: 100%; height: 4px; background: #e8e8e8; border-radius: 2px; overflow: hidden; }
+    .tts-progress-fill { height: 100%; background: #0066ff; border-radius: 2px; width: 0%; transition: width 0.1s linear; }
+    .tts-progress-time { display: flex; justify-content: space-between; font-size: 10px; color: #999; margin-top: 1px; }
+    .tts-dl-btn {
+      width: 26px; height: 26px; border-radius: 6px; border: 1.5px solid #e8e8e8;
+      background: #fff; color: #666; font-size: 12px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; transition: all 0.15s;
+    }
+    .tts-dl-btn:hover { border-color: #0066ff; color: #0066ff; background: #f5f8ff; }
+    .tts-dl-btn.done { border-color: #059669; color: #059669; background: #f0fdf4; }
+
     /* 追加按钮 */
     .sc-add {
       display: flex;
@@ -427,23 +476,41 @@
           <span class="section-badge done" id="t-tpl" style="display:none;">已选择</span>
         </div>
         <div class="tpl-grid">
-          <div class="tpl" onclick="selTpl(this,'口播讲解')">
+          <div class="tpl" onclick="selTpl(this,'站立全身')">
             <div class="tpl-c">✓</div>
-            <button class="tpl-play" onclick="event.stopPropagation();openTplPreview('口播讲解')" title="预览模板效果">▶</button>
-            <div class="tpl-i">👤</div><div class="tpl-n">口播讲解</div><div class="tpl-d">数字人对着镜头说</div>
+            <button class="tpl-play" onclick="event.stopPropagation();openTplPreview('站立全身')" title="预览模板效果">▶</button>
+            <div class="tpl-i">🧍</div><div class="tpl-n">站立全身</div><div class="tpl-d">全身出镜，适合开场</div>
             <div class="tpl-tags"><span class="tpl-tag">竖屏 9:16</span><span class="tpl-tag">720p</span></div>
           </div>
-          <div class="tpl" onclick="selTpl(this,'漫剧/短剧')">
+          <div class="tpl" onclick="selTpl(this,'站立半身')">
             <div class="tpl-c">✓</div>
-            <button class="tpl-play" onclick="event.stopPropagation();openTplPreview('漫剧/短剧')" title="预览模板效果">▶</button>
-            <div class="tpl-i">🎬</div><div class="tpl-n">漫剧/短剧</div><div class="tpl-d">多场景切换剧情</div>
-            <div class="tpl-tags"><span class="tpl-tag">竖屏 9:16</span><span class="tpl-tag">1080p</span></div>
+            <button class="tpl-play" onclick="event.stopPropagation();openTplPreview('站立半身')" title="预览模板效果">▶</button>
+            <div class="tpl-i">🧑‍💼</div><div class="tpl-n">站立半身</div><div class="tpl-d">上半身出镜，聚焦表情</div>
+            <div class="tpl-tags"><span class="tpl-tag">竖屏 9:16</span><span class="tpl-tag">720p</span></div>
           </div>
-          <div class="tpl" onclick="selTpl(this,'产品展示')">
+          <div class="tpl" onclick="selTpl(this,'坐着半身')">
             <div class="tpl-c">✓</div>
-            <button class="tpl-play" onclick="event.stopPropagation();openTplPreview('产品展示')" title="预览模板效果">▶</button>
-            <div class="tpl-i">📦</div><div class="tpl-n">产品展示</div><div class="tpl-d">产品为主角讲解</div>
-            <div class="tpl-tags"><span class="tpl-tag">横屏 16:9</span><span class="tpl-tag">1080p</span></div>
+            <button class="tpl-play" onclick="event.stopPropagation();openTplPreview('坐着半身')" title="预览模板效果">▶</button>
+            <div class="tpl-i">🪑</div><div class="tpl-n">坐着半身</div><div class="tpl-d">坐姿出镜，亲和自然</div>
+            <div class="tpl-tags"><span class="tpl-tag">竖屏 9:16</span><span class="tpl-tag">720p</span></div>
+          </div>
+          <div class="tpl" onclick="selTpl(this,'坐姿近景')">
+            <div class="tpl-c">✓</div>
+            <button class="tpl-play" onclick="event.stopPropagation();openTplPreview('坐姿近景')" title="预览模板效果">▶</button>
+            <div class="tpl-i">🗣️</div><div class="tpl-n">坐姿近景</div><div class="tpl-d">胸部以上特写，强调观点</div>
+            <div class="tpl-tags"><span class="tpl-tag">竖屏 9:16</span><span class="tpl-tag">720p</span></div>
+          </div>
+          <div class="tpl" onclick="selTpl(this,'侧身半身')">
+            <div class="tpl-c">✓</div>
+            <button class="tpl-play" onclick="event.stopPropagation();openTplPreview('侧身半身')" title="预览模板效果">▶</button>
+            <div class="tpl-i">↗️</div><div class="tpl-n">侧身半身</div><div class="tpl-d">侧身角度，展示数据/屏幕</div>
+            <div class="tpl-tags"><span class="tpl-tag">竖屏 9:16</span><span class="tpl-tag">720p</span></div>
+          </div>
+          <div class="tpl" onclick="selTpl(this,'走姿讲解')">
+            <div class="tpl-c">✓</div>
+            <button class="tpl-play" onclick="event.stopPropagation();openTplPreview('走姿讲解')" title="预览模板效果">▶</button>
+            <div class="tpl-i">🚶</div><div class="tpl-n">走姿讲解</div><div class="tpl-d">边走边说，动态生动</div>
+            <div class="tpl-tags"><span class="tpl-tag">竖屏 9:16</span><span class="tpl-tag">720p</span></div>
           </div>
         </div>
       </div>
@@ -457,50 +524,7 @@
           <div class="section-name">选择人物</div>
           <span class="section-badge done" id="t-person" style="display:none;">已选择</span>
         </div>
-        <div class="seg-bar">
-          <div class="seg-btn on" onclick="swPerson(this,'upload')">上传照片</div>
-          <div class="seg-btn" onclick="swPerson(this,'avatar')">预设角色</div>
-        </div>
-        <div id="p-upload">
-          <div class="up-zone" onclick="document.getElementById('p-file').click()">
-            <div class="up-ph"><div class="up-ico">📁</div><div class="up-txt">点击上传人物照片</div><div class="up-h">支持多选，可一次选择多张 JPG/PNG</div></div>
-          </div>
-          <input type="file" id="p-file" accept="image/*" multiple style="display:none" onchange="upPerson(this)">
-          <div class="img-grid" id="p-grid"></div>
-          <div class="watermark-panel" id="upload-watermark-panel" style="display:none;">
-            <label class="wm-switch">
-              <input type="checkbox" id="upload-wm-enabled" onchange="toggleWatermark(this.checked)">
-              <span>
-                <strong>为上传人物添加统一角色水印</strong>
-              </span>
-            </label>
-            <div class="wm-body" id="wm-body" style="display:none;">
-              <div class="wm-input-row" id="wm-input-row">
-                <input id="wm-text" maxlength="24" type="text" placeholder="请输入统一角色水印，例如：张老师" oninput="updateWatermarkText(this.value)">
-              </div>
-              <div class="wm-preview" id="wm-preview">未填写水印内容</div>
-            </div>
-          </div>
-
-          <!-- 音色（仅上传照片时可见） -->
-          <div class="voice-section" id="voice-section-unified">
-            <div class="voice-label">音色</div>
-            <select class="voice-sel" id="voice-sel">
-              <option value="default-female">默认女声（温柔知性）</option>
-              <option value="default-male">默认男声（沉稳商务）</option>
-              <option value="young-female">年轻女声（活泼可爱）</option>
-              <option value="young-male">年轻男声（阳光开朗）</option>
-              <option value="ai-voice-1">AI 音色 A（磁性男声）</option>
-              <option value="ai-voice-2">AI 音色 B（甜美少女）</option>
-            </select>
-            <button class="voice-btn" onclick="toast('试听：播放3秒语音预览')">试听</button>
-            <label style="display:flex;align-items:center;gap:6px;font-size:11px;color:#666;cursor:pointer;white-space:nowrap;margin-left:4px;">
-              <input type="checkbox" id="voice-per-photo-toggle" onchange="toggleVoicePerPhoto(this.checked)" style="width:14px;height:14px;accent-color:#0066ff;cursor:pointer;">
-              每张单独配置音色
-            </label>
-          </div>
-        </div>
-        <div id="p-avatar" style="display:none;">
+        <div id="p-avatar">
           <div class="avatar-toolbar">
             <div class="avatar-toolbar-left">
               <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:#666;cursor:pointer;font-weight:500;">
@@ -528,18 +552,7 @@
           <div class="section-name">选择背景</div>
           <span class="section-badge done" id="t-bg" style="display:none;">已选择</span>
         </div>
-        <div class="seg-bar">
-          <div class="seg-btn on" onclick="swBg(this,'upload')">上传背景</div>
-          <div class="seg-btn" onclick="swBg(this,'preset')">预设场景</div>
-        </div>
-        <div id="bg-upload">
-          <div class="up-zone" onclick="document.getElementById('bg-file').click()">
-            <div class="up-ph"><div class="up-ico">🖼️</div><div class="up-txt">点击上传背景图</div><div class="up-h">支持多选，可一次选择多张 JPG/PNG</div></div>
-          </div>
-          <input type="file" id="bg-file" accept="image/*" multiple style="display:none" onchange="upBg(this)">
-          <div class="img-grid" id="bg-grid"></div>
-        </div>
-        <div id="bg-preset" style="display:none;">
+        <div id="bg-preset">
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
             <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:#666;cursor:pointer;font-weight:500;">
               <input type="checkbox" id="bg-batch-toggle" onchange="toggleBatchBg()" style="width:15px;height:15px;accent-color:#0066ff;cursor:pointer;">
@@ -560,6 +573,20 @@
         <div class="section-header">
           <div class="section-icon blue">📝</div>
           <div class="section-name">台词列表</div>
+        </div>
+
+        <!-- 语音合成配置 -->
+        <div class="tts-bar">
+          <span class="tts-bar-label" style="margin-bottom:6px;display:block;">🎤 语音合成</span>
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+            <div class="tts-item"><span>语速</span><input type="range" id="tts-speed" min="5" max="20" value="10" oninput="updTtsLabel()"><span class="tts-val" id="tts-speed-val">1.0x</span></div>
+            <div class="tts-item"><span>音调</span><input type="range" id="tts-pitch" min="-10" max="10" value="0" oninput="updTtsLabel()"><span class="tts-val" id="tts-pitch-val">0</span></div>
+            <div class="tts-item"><span>音量</span><input type="range" id="tts-volume" min="0" max="100" value="80" oninput="updTtsLabel()"><span class="tts-val" id="tts-volume-val">80%</span></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <input type="text" id="tts-instruction" placeholder="合成指令，例如：用沉稳专业的语气，适当停顿，语速偏慢，重读关键数字..." style="flex:1;min-width:0;padding:8px 10px;border:1.5px solid #e8e8e8;border-radius:6px;font-size:12px;background:#fff;transition:all 0.2s;" oninput="updTtsInstruction()">
+            <button class="btn btn1" style="flex-shrink:0;font-size:12px;padding:6px 14px;white-space:nowrap;" onclick="resynthesizeAll()">🔊 合成</button>
+          </div>
         </div>
 
         <!-- 手动模式 -->
@@ -678,17 +705,19 @@
   <script>
     var S = {
       tpl:null,
-      pSrc:'upload',
+      pSrc:'avatar',
       persons:[],
       avatarMulti:[],
-      bgSrc:'upload',
+      bgSrc:'preset',
       bgFiles:[],
       bgMulti:[],
       voice:'default-female',
       voicePerPhoto:false,
       watermark:{ uploadUnified:false, uploadText:'', avatarEnabled:false },
       cards:[],
-      nextId:1
+      nextId:1,
+      ttsInstruction:'',
+      ttsPlaying:{}
     };
     var pf = ['大家好','哈喽','嗨喽','各位好','朋友们好'];
     var ed = ['谢谢观看！','感谢你的时间，我们下期见！','希望对你有启发，再见！','如果觉得有用，别忘了点赞，拜拜！','期待下次和你分享更多，再会！'];
@@ -721,36 +750,21 @@
     /* ========== 状态判断 ========== */
     function hasTpl() { return !!S.tpl; }
     function hasPerson() { return S.pSrc === 'upload' ? S.persons.length > 0 : S.avatarMulti.length > 0; }
-    function hasBg() { return S.bgSrc === 'upload' ? S.bgFiles.length > 0 : S.bgMulti.length > 0; }
+    function hasBg() { return S.bgMulti.length > 0; }
     function hasScript() { return S.cards.some(function(c){return c.content.trim();}); }
     function canGen() { return hasTpl() && hasPerson() && hasBg() && hasScript(); }
 
     function getMissingItems() {
       var missing = [];
-      if (!hasTpl()) missing.push('视频模板');
-      if (!hasPerson()) missing.push('主体');
+      if (!hasTpl()) missing.push('主播镜头');
+      if (!hasPerson()) missing.push('人物');
       if (!hasBg()) missing.push('背景');
       if (!hasScript()) missing.push('台词');
-      if (S.pSrc === 'upload' && S.persons.length > 0) {
-        if (!S.voicePerPhoto && !S.voice) {
-          missing.push('音色');
-        }
-        if (S.voicePerPhoto) {
-          var missingVoice = S.persons.some(function(p){ return !String(p.voice || '').trim(); });
-          if (missingVoice) missing.push('单张照片音色');
-        }
-        if (S.watermark.uploadUnified && !S.watermark.uploadText.trim()) {
-          missing.push('统一角色水印');
-        } else if (!S.watermark.uploadUnified) {
-          var missingPersonWm = S.persons.some(function(p){ return !String(p.watermark || '').trim(); });
-          if (missingPersonWm) missing.push('单张角色水印');
-        }
-      }
       return missing;
     }
 
-    function getPersonCount() { return S.pSrc === 'upload' ? S.persons.length : S.avatarMulti.length; }
-    function getBgCount() { return S.bgSrc === 'upload' ? S.bgFiles.length : S.bgMulti.length; }
+    function getPersonCount() { return S.avatarMulti.length; }
+    function getBgCount() { return S.bgMulti.length; }
     function getScriptCount() { return S.cards.filter(function(c){return c.content.trim();}).length; }
 
     function updGenInfo() {
@@ -773,9 +787,12 @@
     function selTpl(el, n) { document.querySelectorAll('.tpl').forEach(function(c){c.classList.remove('sel');}); el.classList.add('sel'); S.tpl = n; document.getElementById('t-tpl').style.display = 'inline-block'; updGenInfo(); }
 
     var tplInfo = {
-      '口播讲解': { desc: '<strong>口播讲解</strong>适合知识分享、产品推荐、教程教学等场景。数字人对着镜头讲解，配合字幕和背景音乐，专业且高效。', ratio: '竖屏 9:16', res: '720p' },
-      '漫剧/短剧': { desc: '<strong>漫剧/短剧</strong>适合故事化表达、情感类内容。支持多场景切换，剧情连贯，适合打造系列化IP内容。', ratio: '竖屏 9:16', res: '1080p' },
-      '产品展示': { desc: '<strong>产品展示</strong>以产品为主角，配合画外音讲解。适合电商带货、产品评测、新品发布等场景。', ratio: '横屏 16:9', res: '1080p' }
+      '站立全身': { desc: '<strong>站立全身</strong>数字人全身出镜，适合视频开场、身份介绍等场景。构图饱满，视觉冲击力强。', ratio: '竖屏 9:16', res: '720p' },
+      '站立半身': { desc: '<strong>站立半身</strong>腰部以上出镜，聚焦面部表情和手势，适合核心内容讲解，是口播最常用的镜头。', ratio: '竖屏 9:16', res: '720p' },
+      '坐着半身': { desc: '<strong>坐着半身</strong>坐姿出镜，营造轻松的对话氛围，适合深度分析、解读类内容。', ratio: '竖屏 9:16', res: '720p' },
+      '坐姿近景': { desc: '<strong>坐姿近景</strong>胸部以上特写镜头，强调观点和情绪表达，适合金句、总结等关键节点。', ratio: '竖屏 9:16', res: '720p' },
+      '侧身半身': { desc: '<strong>侧身半身</strong>侧身角度出镜，画面一侧可叠加数据图表或产品信息，适合数据解读类内容。', ratio: '竖屏 9:16', res: '720p' },
+      '走姿讲解': { desc: '<strong>走姿讲解</strong>数字人边走边说，画面动态自然，适合过渡段落或轻松风格的财经内容。', ratio: '竖屏 9:16', res: '720p' }
     };
 
     function openTplPreview(name) {
@@ -814,9 +831,6 @@
     }
 
     function getWatermarkForPerson(person) {
-      if (S.pSrc === 'upload') {
-        return S.watermark.uploadUnified ? S.watermark.uploadText.trim() : String(person.watermark || '').trim();
-      }
       if (!S.watermark.avatarEnabled) return '';
       return person.watermark || '';
     }
@@ -841,35 +855,14 @@
     }
 
     function updateWatermarkPanel() {
-      var uploadPanel = document.getElementById('upload-watermark-panel');
-      var uploadToggle = document.getElementById('upload-wm-enabled');
       var avatarToggle = document.getElementById('avatar-wm-enabled');
-      var body = document.getElementById('wm-body');
-      var input = document.getElementById('wm-text');
-      var preview = document.getElementById('wm-preview');
-      var showUploadConfig = S.pSrc === 'upload' && S.persons.length > 0;
-
-      if (uploadToggle) uploadToggle.checked = !!S.watermark.uploadUnified;
       if (avatarToggle) avatarToggle.checked = !!S.watermark.avatarEnabled;
-      if (uploadPanel) uploadPanel.style.display = showUploadConfig ? '' : 'none';
-      if (body) body.style.display = showUploadConfig && S.watermark.uploadUnified ? '' : 'none';
-      if (input) input.value = S.watermark.uploadText;
-      if (preview) {
-        preview.textContent = S.watermark.uploadText.trim() ? '当前统一水印：' + S.watermark.uploadText.trim() : '';
-        preview.classList.toggle('warn', S.watermark.uploadUnified && !S.watermark.uploadText.trim());
-      }
-
-      renderPersonGrid();
       renderAvatarList(getAvatarSearchValue());
       updGenInfo();
     }
 
     function toggleWatermark(checked) {
-      if (S.pSrc === 'upload') {
-        S.watermark.uploadUnified = checked;
-      } else {
-        S.watermark.avatarEnabled = checked;
-      }
+      S.watermark.avatarEnabled = checked;
       updateWatermarkPanel();
     }
 
@@ -1155,7 +1148,7 @@
     /* ========== 台词卡片（扁平结构） ========== */
 
     function addScriptCard(content) {
-      S.cards.push({ id: S.nextId++, content: content || '' });
+      S.cards.push({ id: S.nextId++, content: content || '', tts: { instruction: '', duration: 3 } });
       renderCards();
     }
 
@@ -1180,6 +1173,8 @@
       }
       var h = '';
       S.cards.forEach(function(g) {
+        var tts = g.tts || {};
+        var dur = tts.duration || 3;
         h += '<div class="sc-flat" data-script="'+g.id+'">';
         h += '<div class="sc-flat-header">';
         h += '<span class="sc-flat-tag">台词 ' + g.id + '</span>';
@@ -1187,9 +1182,23 @@
         h += '<button class="btn btn2" style="font-size:10px;padding:2px 6px;" onclick="delScript(' + g.id + ')">删除</button>';
         h += '</div></div>';
         h += '<textarea oninput="updScript(' + g.id + ',this.value)">' + g.content + '</textarea>';
+        // 试听播放条
+        h += '<div class="tts-play-row">';
+        var ttsReady = g.tts && g.tts.ready;
+h += '<button class="tts-play-btn' + (ttsReady ? '' : ' disabled') + '" id="tts-btn-' + g.id + '" onclick="toggleTtsPlay(' + g.id + ')" title="' + (ttsReady ? '试听' : '请先合成语音') + '"' + (ttsReady ? '' : ' disabled') + '>▶</button>';
+        h += '<div class="tts-progress-wrap" onclick="seekTts(event, ' + g.id + ')">';
+        h += '<div class="tts-progress-bar"><div class="tts-progress-fill" id="tts-fill-' + g.id + '" style="width:0%"></div></div>';
+        h += '</div>';
+        h += '<span style="font-size:10px;color:#999;min-width:30px;text-align:right;" id="tts-time-' + g.id + '">0:00</span>';
+        h += '<button class="tts-dl-btn" id="tts-dl-' + g.id + '" onclick="downloadTts(' + g.id + ')" title="下载音频">⬇</button>';
+        h += '</div>';
         h += '</div>';
       });
       c.innerHTML = h;
+      // restore playing state
+      Object.keys(S.ttsPlaying || {}).forEach(function(id) {
+        if (S.ttsPlaying[id]) resumeTtsUI(parseInt(id));
+      });
       updGenInfo();
     }
 
@@ -1197,6 +1206,102 @@
 
     function showImportModal() {
       document.getElementById('imp-ov').classList.add('show');
+    }
+
+    /* ========== TTS 语音合成 ========== */
+    function getTtsConfig() {
+      return {
+        speed: parseInt(document.getElementById('tts-speed').value),
+        pitch: parseInt(document.getElementById('tts-pitch').value),
+        volume: parseInt(document.getElementById('tts-volume').value)
+      };
+    }
+    function updTtsLabel() {
+      var s = parseInt(document.getElementById('tts-speed').value);
+      var p = parseInt(document.getElementById('tts-pitch').value);
+      var v = parseInt(document.getElementById('tts-volume').value);
+      document.getElementById('tts-speed-val').textContent = (s/10).toFixed(1) + 'x';
+      document.getElementById('tts-pitch-val').textContent = p > 0 ? '+' + p : p;
+      document.getElementById('tts-volume-val').textContent = v + '%';
+    }
+    function updTtsInstruction() {
+      S.ttsInstruction = document.getElementById('tts-instruction').value;
+    }
+    function resynthesizeAll() {
+      S.cards.forEach(function(g) {
+        stopTts(g.id);
+        if (!g.tts) g.tts = { instruction: '', duration: 3 };
+        g.tts.duration = Math.max(2, Math.ceil(g.content.length / 4));
+        g.tts.ready = true;
+      });
+      var total = S.cards.length;
+      toast('已合成 ' + total + ' 条台词语音');
+      renderCards();
+    }
+    function toggleTtsPlay(id) {
+      if (S.ttsPlaying[id]) { stopTts(id); return; }
+      var g = S.cards.find(function(x){ return x.id === id; });
+      if (!g) return;
+      if (!g.tts || !g.tts.ready) { toast('请先点击「合成」生成语音'); return; }
+      var dur = g.tts.duration;
+      S.ttsPlaying[id] = { start: Date.now(), duration: dur, timer: null };
+      var btn = document.getElementById('tts-btn-' + id);
+      if (btn) { btn.textContent = '⏸'; btn.classList.add('playing'); }
+      runTtsTick(id, dur);
+    }
+    function runTtsTick(id, dur) {
+      if (!S.ttsPlaying[id]) return;
+      var elapsed = (Date.now() - S.ttsPlaying[id].start) / 1000;
+      var pct = Math.min(100, (elapsed / dur) * 100);
+      var fill = document.getElementById('tts-fill-' + id);
+      var time = document.getElementById('tts-time-' + id);
+      if (fill) fill.style.width = pct + '%';
+      if (time) time.textContent = formatTime(Math.min(elapsed, dur));
+      if (pct >= 100) { finishTts(id); return; }
+      S.ttsPlaying[id].timer = setTimeout(function(){ runTtsTick(id, dur); }, 80);
+    }
+    function stopTts(id) {
+      if (S.ttsPlaying[id] && S.ttsPlaying[id].timer) clearTimeout(S.ttsPlaying[id].timer);
+      delete S.ttsPlaying[id];
+      var btn = document.getElementById('tts-btn-' + id);
+      if (btn) { btn.textContent = '▶'; btn.classList.remove('playing'); }
+    }
+    function finishTts(id) {
+      if (S.ttsPlaying[id] && S.ttsPlaying[id].timer) clearTimeout(S.ttsPlaying[id].timer);
+      delete S.ttsPlaying[id];
+      var btn = document.getElementById('tts-btn-' + id);
+      if (btn) { btn.textContent = '▶'; btn.classList.remove('playing'); }
+      var dl = document.getElementById('tts-dl-' + id);
+      if (dl) dl.classList.add('done');
+    }
+    function resumeTtsUI(id) {
+      var btn = document.getElementById('tts-btn-' + id);
+      if (btn) { btn.textContent = '⏸'; btn.classList.add('playing'); }
+      var g = S.cards.find(function(x){ return x.id === id; });
+      var dur = (g && g.tts) ? g.tts.duration : 3;
+      runTtsTick(id, dur);
+    }
+    function seekTts(e, id) {
+      if (!S.ttsPlaying[id]) return;
+      var wrap = e.currentTarget;
+      var rect = wrap.getBoundingClientRect();
+      var pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+      var g = S.cards.find(function(x){ return x.id === id; });
+      var dur = (g && g.tts) ? g.tts.duration : 3;
+      S.ttsPlaying[id].start = Date.now() - (pct * dur * 1000);
+      if (S.ttsPlaying[id].timer) clearTimeout(S.ttsPlaying[id].timer);
+      runTtsTick(id, dur);
+    }
+    function downloadTts(id) {
+      var g = S.cards.find(function(x){ return x.id === id; });
+      var content = g ? g.content : '';
+      var dur = (g && g.tts) ? g.tts.duration : 3;
+      toast('已下载音频文件：台词' + id + '.mp3（' + formatTime(dur) + '）');
+    }
+    function formatTime(sec) {
+      var m = Math.floor(sec / 60);
+      var s = Math.floor(sec % 60);
+      return m + ':' + (s < 10 ? '0' : '') + s;
     }
 
     function closeImportModal() {
@@ -1246,7 +1351,7 @@
           if (contents.length === 0) { toast('文件中没有找到台词数据'); return; }
           if (contents.length > 100) { toast('台词数量超过100条限制，已导入前100条'); contents = contents.slice(0, 100); }
 
-          contents.forEach(function(c) { S.cards.push({ id: S.nextId++, content: c }); });
+          contents.forEach(function(c) { S.cards.push({ id: S.nextId++, content: c, tts: { instruction: '', duration: 3 } }); });
           renderCards();
           closeImportModal();
           toast('成功导入 ' + contents.length + ' 条台词');
@@ -1271,36 +1376,18 @@
         return;
       }
 
-      var personList = S.pSrc === 'upload'
-        ? S.persons.map(function(p) {
-            var voiceVal = getVoiceForPerson(p);
-            return {
-              name: p.name,
-              src: p.src,
-              emoji: '',
-              watermark: getWatermarkForPerson(p),
-              voice: voiceVal,
-              voiceLabel: getVoiceLabel(voiceVal)
-            };
-          })
-        : S.avatarMulti.map(function(n) {
+      var personList = S.avatarMulti.map(function(n) {
             var meta = getAvatarMeta(n);
-            var voiceVal = getVoiceForPerson(meta);
             return {
               name: meta.name || n,
               src: null,
               emoji: avI[n] || '👤',
               watermark: getWatermarkForPerson(meta),
-              voice: voiceVal,
-              voiceLabel: getVoiceLabel(voiceVal)
+              voice: '',
+              voiceLabel: ''
             };
           });
-      var bgList = [];
-      if (S.bgSrc === 'upload') {
-        S.bgFiles.forEach(function(f) { bgList.push({ name: f.name, src: f.src, style: 'url('+f.src+') center/cover no-repeat' }); });
-      } else {
-        S.bgMulti.forEach(function(n) { bgList.push({ name: n, src: null, style: bgM[n] || bgM['办公室'] }); });
-      }
+      var bgList = S.bgMulti.map(function(n) { return { name: n, src: null, style: bgM[n] || bgM['办公室'] }; });
 
       // 收集所有有效台词（扁平结构）
       var scriptList = [];

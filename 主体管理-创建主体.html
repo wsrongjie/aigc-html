@@ -112,7 +112,7 @@
 
         .form-top {
             display: grid;
-            grid-template-columns: minmax(220px, 320px) minmax(220px, 280px) minmax(360px, 1fr);
+            grid-template-columns: minmax(220px, 320px) minmax(360px, 1fr);
             align-items: end;
             gap: 16px;
             padding: 24px;
@@ -719,10 +719,6 @@
                         <input id="subjectName" class="form-control" maxlength="200" type="text" placeholder="请输入角色名称" required />
                         <span class="name-count" id="nameCount">0/200</span>
                     </div>
-                    <div class="field-wrap" id="qualificationNoRow">
-                        <label class="field-label" for="qualificationNo">角色水印</label>
-                        <input id="qualificationNo" class="form-control" maxlength="80" type="text" placeholder="xxx老师" />
-                    </div>
                     <div class="voice-select-row" id="voiceSelectRow">
                         <select id="subjectVoice" class="form-control">
                             <option value="">请选择角色音色</option>
@@ -738,9 +734,12 @@
 
                 <div class="edit-grid">
                     <section class="modal-section">
-                        <div class="section-title">
-                            <h3 id="infoTitle">角色信息</h3>
-                            <p id="infoDesc">填写角色基础信息并上传主图后，可点击右侧按钮生成多视图。</p>
+                        <div class="form-group">
+                            <label>可见范围</label>
+                            <select id="visibilitySelect" class="form-control">
+                                <option value="self" selected>仅自己</option>
+                                <option value="team">团队共享</option>
+                            </select>
                         </div>
 
                         <div class="form-group">
@@ -862,7 +861,7 @@
         const step2Key = "step2NewSubject";
 
         const subjectName = document.getElementById("subjectName");
-        const qualificationNo = document.getElementById("qualificationNo");
+        const visibilitySelect = document.getElementById("visibilitySelect");
         const subjectVoice = document.getElementById("subjectVoice");
         const subjectDesc = document.getElementById("subjectDesc");
         const nameCount = document.getElementById("nameCount");
@@ -1090,10 +1089,6 @@
             document.getElementById("pageDesc").textContent = isScene ?
                 "创建视频背景场景，上传场景图并生成多角度视图资产。" :
                 "创建视频中的人物主体，配置角色音色并生成多视图资产。";
-            document.getElementById("infoTitle").textContent = typeName() + "信息";
-            document.getElementById("infoDesc").textContent = isScene ?
-                "填写场景基础信息并上传图片后，可点击右侧按钮生成多角度视图。" :
-                "填写角色基础信息并上传主图后，可点击右侧按钮生成多视图。";
             document.getElementById("descLabel").textContent = isScene ? "场景描述" : "角色小传";
             document.getElementById("imageLabel").innerHTML = (isScene ? "上传场景图" : "上传主图") + ' <span class="required">*</span>';
             document.getElementById("uploadTitle").textContent = isScene ? "上传一张场景图" : "上传一张角色主图";
@@ -1115,7 +1110,6 @@
                 clearAiRef();
                 renderAiResults();
             }
-            document.getElementById("qualificationNoRow").style.display = isScene ? "none" : "flex";
             document.getElementById("authCheckRow").style.display = isScene ? "none" : "flex";
             document.getElementById("sceneTip").style.display = isScene ? "flex" : "none";
             document.querySelector(".form-top").classList.toggle("scene-mode", isScene);
@@ -1185,8 +1179,8 @@
                 type: subjectType,
                 name,
                 desc,
-                qualificationNo: subjectType === "role" ? qualificationNo.value.trim() : "",
                 voice: subjectType === "role" ? subjectVoice.value : "",
+                visibility: visibilitySelect.value,
                 img: imageData,
                 imageSource: imageSource,
                 owner: "my",

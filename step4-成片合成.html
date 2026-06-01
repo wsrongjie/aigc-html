@@ -1148,9 +1148,10 @@
 
     /* ========== 水印弹窗 ========== */
     .watermark-modal-body {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
+      display: grid;
+      grid-template-columns: 260px minmax(0, 1fr);
+      gap: 20px;
+      align-items: start;
     }
 
     .wm-editor-layout {
@@ -1190,11 +1191,12 @@
     .wm-list {
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 8px;
     }
 
     .wm-list-item {
-      padding: 10px 12px;
+      position: relative;
+      padding: 8px 28px 8px 10px;
       border: 1px solid #e5e7eb;
       border-radius: 8px;
       cursor: pointer;
@@ -1223,6 +1225,27 @@
       color: #94a3b8;
       display: block;
       margin-top: 2px;
+    }
+
+    .wm-list-item .wm-delete-emoji {
+      position: absolute;
+      top: -7px;
+      right: -7px;
+      width: 22px;
+      height: 22px;
+      border: 1px solid #fee2e2;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 2px 8px rgba(15,23,42,0.18);
+      cursor: pointer;
+      font-size: 12px;
+      line-height: 20px;
+      text-align: center;
+      z-index: 2;
+    }
+
+    .wm-list-item .wm-delete-emoji:hover {
+      background: #fef2f2;
     }
 
     .wm-empty-list {
@@ -1306,7 +1329,7 @@
     .wm-stage-preview {
       width: 100%;
       aspect-ratio: 9 / 16;
-      max-height: 300px;
+      max-height: 460px;
       border-radius: 12px;
       background: linear-gradient(135deg, #1e293b, #334155);
       margin: 0 auto;
@@ -1339,6 +1362,61 @@
       font-size: 12px;
       color: #94a3b8;
       text-align: center;
+      margin-top: 8px;
+    }
+
+    .wm-preview-pane {
+      position: sticky;
+      top: 88px;
+    }
+
+    .wm-stage-ratio {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      padding: 6px 10px;
+      border: 1px solid #eef2f7;
+      border-radius: 999px;
+      background: #f9fbff;
+      font-size: 12px;
+      color: #64748b;
+    }
+
+    .wm-stage-ratio strong {
+      color: #2f6bff;
+    }
+
+    .wm-config-pane {
+      min-width: 0;
+    }
+
+    .config-split-line {
+      height: 1px;
+      margin: 14px 0 0;
+      background: linear-gradient(90deg, transparent, #dbe5f4 10%, #dbe5f4 90%, transparent);
+    }
+
+    .config-split-line + .config-split-line {
+      margin: 6px 0 16px;
+      background: linear-gradient(90deg, transparent, #eef2f7 18%, #eef2f7 82%, transparent);
+    }
+
+    .config-block-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 10px;
+      font-size: 14px;
+      font-weight: 800;
+      color: #111827;
+    }
+
+    .config-block-title span {
+      font-size: 12px;
+      font-weight: 500;
+      color: #94a3b8;
     }
 
     .toggle-wrap {
@@ -1493,27 +1571,28 @@
       border: 1px solid rgba(255,255,255,0.1);
     }
 
-    .sub-preview-person {
-      position: absolute;
-      left: 50%;
-      bottom: 28%;
-      transform: translateX(-50%);
-      width: 64px;
-      height: 130px;
-      border-radius: 32px 32px 10px 10px;
-      background: linear-gradient(180deg, #f8fafc 0 23%, #111827 23% 100%);
-    }
-
     .sub-preview-text {
       position: absolute;
-      left: 12px;
-      right: 12px;
+      left: 50%;
+      top: 86%;
+      transform: translate(-50%, -50%);
+      width: calc(100% - 24px);
       font-size: 14px;
       line-height: 1.5;
       text-align: center;
       padding: 8px 10px;
       border-radius: 8px;
       transition: all 0.2s;
+      cursor: move;
+      user-select: none;
+      border: 1px dashed transparent;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.72);
+      z-index: 3;
+    }
+
+    .sub-preview-text:hover,
+    .sub-preview-text.dragging {
+      border-color: rgba(255,255,255,0.6);
     }
 
     /* Export modal */
@@ -1953,17 +2032,21 @@
         <button class="icon-btn" onclick="closeWmSubModal()">×</button>
       </div>
       <div class="modal-body">
-        <!-- Tab 切换 -->
-        <div class="cover-tabs" style="margin-bottom: 16px;">
-          <button class="cover-tab active" onclick="switchWmSubTab('watermark', this)">水印配置</button>
-          <button class="cover-tab" onclick="switchWmSubTab('subtitle', this)">字幕配置</button>
-        </div>
+        <div class="watermark-modal-body">
+          <!-- 左侧：9:16 视频预览 -->
+          <div class="wm-preview-pane">
+            <div class="wm-stage-ratio"><strong>9:16</strong><span>竖版视频预览</span></div>
+            <div class="wm-stage-preview" id="wmStage">
+              <div style="position:absolute;left:50%;top:38%;transform:translate(-50%,-50%);width:80px;height:160px;border-radius:40px 40px 14px 14px;background:linear-gradient(180deg,#f8fafc 0 23%,#111827 23% 100%);"></div>
+              <div class="sub-preview-text" id="subPreviewText"></div>
+            </div>
+            <div class="wm-stage-hint">可直接拖动水印和字幕调整位置</div>
+          </div>
 
-        <!-- 水印配置面板 -->
-        <div class="cover-panel active" id="watermarkPanel">
-          <div class="watermark-modal-body">
+          <!-- 右侧：水印 + 字幕配置 -->
+          <div class="wm-config-pane">
+            <div class="config-block-title">水印配置 <span>支持多个水印，点击标签选中</span></div>
             <div class="wm-editor-layout">
-              <!-- 左侧：水印列表 -->
               <div class="wm-list-pane">
                 <div class="wm-list-header">
                   <span class="wm-list-title">水印列表</span>
@@ -1972,7 +2055,6 @@
                 <div class="wm-list" id="wmList"></div>
               </div>
 
-              <!-- 右侧：编辑 + 预览 -->
               <div class="wm-detail-pane">
                 <div id="wmEditorSection" style="display:none;">
                   <div class="wm-settings">
@@ -1995,29 +2077,17 @@
                       <input class="wm-setting-color" type="color" id="wmColorPicker" value="#ffffff" oninput="syncActiveWm()" />
                       <span class="wm-setting-value" id="wmColorVal">#ffffff</span>
                     </div>
-                    <div class="wm-setting-row">
-                      <span class="wm-setting-label"></span>
-                      <button class="btn" type="button" onclick="deleteWatermark()" style="height:32px;padding:0 14px;font-size:12px;border-radius:8px;color:#ef4444;border-color:#fecaca;">删除水印</button>
-                    </div>
                   </div>
                 </div>
                 <div id="wmEditorEmpty" class="wm-empty-list">请先添加水印</div>
-
-                <div style="margin-top: 0;">
-                  <div class="wm-stage-preview" id="wmStage">
-                    <div style="position:absolute;left:50%;top:38%;transform:translate(-50%,-50%);width:80px;height:160px;border-radius:40px 40px 14px 14px;background:linear-gradient(180deg,#f8fafc 0 23%,#111827 23% 100%);"></div>
-                  </div>
-                  <div class="wm-stage-hint">拖拽水印到任意位置</div>
-                </div>
               </div>
             </div>
-          </div>
-        </div>
 
-        <!-- 字幕配置面板 -->
-        <div class="cover-panel" id="subtitlePanel">
-          <div class="subtitle-modal-body">
-            <div class="sub-edit-layout">
+            <div class="config-split-line"></div>
+            <div class="config-split-line"></div>
+
+            <div class="config-block-title">字幕配置 <span>无背景配置，位置可拖动</span></div>
+            <div class="subtitle-modal-body">
               <div class="sub-settings">
                 <div class="sub-setting-row">
                   <span class="sub-setting-label">字幕文字</span>
@@ -2040,19 +2110,6 @@
                     <button class="sub-pos-btn" data-pos="middle" onclick="setSubPos('middle', this)">中部</button>
                     <button class="sub-pos-btn active" data-pos="bottom" onclick="setSubPos('bottom', this)">底部</button>
                   </div>
-                </div>
-                <div class="sub-setting-row">
-                  <span class="sub-setting-label">背景</span>
-                  <input class="sub-setting-range" type="range" id="subBgRange" min="0" max="100" value="76" oninput="syncSubPreview()" />
-                  <span class="sub-setting-value" id="subBgVal">76%</span>
-                </div>
-              </div>
-
-              <div class="sub-preview-wrap">
-                <div class="sub-preview-label">实时预览</div>
-                <div class="sub-preview-frame" id="subPreviewFrame">
-                  <div class="sub-preview-person"></div>
-                  <div class="sub-preview-text" id="subPreviewText"></div>
                 </div>
               </div>
             </div>
@@ -2228,7 +2285,7 @@
       subtitleConfig.text = item.subtitle;
       playerSub.style.fontSize = subtitleConfig.size + "px";
       playerSub.style.color = subtitleConfig.color;
-      playerSub.style.background = "rgba(15, 23, 42, " + (subtitleConfig.bgOpacity / 100) + ")";
+      playerSub.style.background = "transparent";
       document.getElementById("endTime").innerText = item.duration;
       document.getElementById("progressInner").style.width = item.progress + "%";
       document.getElementById("currentStatus").innerText = item.type === "full" ? "全片可预览" : "分镜片段可预览";
@@ -2299,6 +2356,7 @@
 
     // ===== 水印与字幕配置弹窗 =====
     var wmDragging = false;
+    var subDragging = false;
     var watermarks = [];
     var activeWmIndex = -1;
 
@@ -2317,28 +2375,13 @@
       }
 
       // 初始化字幕预览
+      document.getElementById("subTextInput").value = subtitleConfig.text;
       syncSubPreview();
+      renderWmStage();
     }
 
     function closeWmSubModal() {
       document.getElementById("wmSubModal").classList.remove("show");
-    }
-
-    function switchWmSubTab(tab, btn) {
-      // 切换 Tab 按钮状态
-      document.querySelectorAll("#wmSubModal .cover-tab").forEach(function(t) {
-        t.classList.remove("active");
-      });
-      btn.classList.add("active");
-
-      // 切换面板显示
-      document.getElementById("watermarkPanel").classList.toggle("active", tab === "watermark");
-      document.getElementById("subtitlePanel").classList.toggle("active", tab === "subtitle");
-
-      // 如果切换到字幕面板，同步预览
-      if (tab === "subtitle") {
-        syncSubPreview();
-      }
     }
 
     function renderWmList() {
@@ -2352,8 +2395,12 @@
         var div = document.createElement("div");
         div.className = "wm-list-item" + (i === activeWmIndex ? " active" : "");
         var statusText = wm.visible ? "已显示" : "已隐藏";
-        div.innerHTML = '<span>' + (wm.text || "水印 " + (i + 1)) + '</span><span class="wm-item-status">' + statusText + '</span>';
+        div.innerHTML = '<span>' + (wm.text || "水印 " + (i + 1)) + '</span><span class="wm-item-status">' + statusText + '</span><button class="wm-delete-emoji" type="button" title="删除水印">🗑️</button>';
         div.onclick = function() { selectWatermark(i); };
+        div.querySelector(".wm-delete-emoji").onclick = function(e) {
+          e.stopPropagation();
+          deleteWatermark(i);
+        };
         list.appendChild(div);
       });
     }
@@ -2430,11 +2477,12 @@
       });
     }
 
-    function deleteWatermark() {
-      if (activeWmIndex < 0) return;
-      watermarks.splice(activeWmIndex, 1);
+    function deleteWatermark(index) {
+      var targetIndex = typeof index === "number" ? index : activeWmIndex;
+      if (targetIndex < 0) return;
+      watermarks.splice(targetIndex, 1);
       if (watermarks.length > 0) {
-        activeWmIndex = Math.min(activeWmIndex, watermarks.length - 1);
+        activeWmIndex = Math.min(targetIndex, watermarks.length - 1);
         selectWatermark(activeWmIndex);
       } else {
         activeWmIndex = -1;
@@ -2498,47 +2546,95 @@
       size: 14,
       color: "#ffffff",
       position: "bottom",
-      bgOpacity: 76
+      x: 50,
+      y: 86
     };
 
     function syncSubPreview() {
       subtitleConfig.text = document.getElementById("subTextInput").value;
       subtitleConfig.size = parseInt(document.getElementById("subSizeRange").value);
       subtitleConfig.color = document.getElementById("subColorPicker").value;
-      subtitleConfig.bgOpacity = parseInt(document.getElementById("subBgRange").value);
 
       document.getElementById("subSizeVal").innerText = subtitleConfig.size + "px";
       document.getElementById("subColorVal").innerText = subtitleConfig.color;
-      document.getElementById("subBgVal").innerText = subtitleConfig.bgOpacity + "%";
 
       var preview = document.getElementById("subPreviewText");
       preview.innerText = subtitleConfig.text;
       preview.style.fontSize = subtitleConfig.size + "px";
       preview.style.color = subtitleConfig.color;
-      preview.style.background = "rgba(15, 23, 42, " + (subtitleConfig.bgOpacity / 100) + ")";
-      applySubPos(preview, subtitleConfig.position);
+      preview.style.background = "transparent";
+      preview.onmousedown = startSubDrag;
+      applySubPos(preview);
 
       // 同步更新播放器中的字幕
       var playerSub = document.getElementById("subtitleText");
       playerSub.innerText = subtitleConfig.text.slice(0, 80);
       playerSub.style.fontSize = subtitleConfig.size + "px";
       playerSub.style.color = subtitleConfig.color;
-      playerSub.style.background = "rgba(15, 23, 42, " + (subtitleConfig.bgOpacity / 100) + ")";
+      playerSub.style.background = "transparent";
     }
 
-    function applySubPos(el, pos) {
-      el.style.top = "auto"; el.style.bottom = "auto";
-      if (pos === "top") { el.style.top = "16px"; }
-      else if (pos === "middle") { el.style.top = "42%"; }
-      else { el.style.bottom = "26px"; }
+    function applySubPos(el) {
+      el.style.left = subtitleConfig.x + "%";
+      el.style.top = subtitleConfig.y + "%";
+      el.style.bottom = "auto";
+      el.style.right = "auto";
+      el.style.transform = "translate(-50%, -50%)";
     }
 
     function setSubPos(pos, btn) {
       subtitleConfig.position = pos;
+      if (pos === "top") {
+        subtitleConfig.x = 50;
+        subtitleConfig.y = 14;
+      } else if (pos === "middle") {
+        subtitleConfig.x = 50;
+        subtitleConfig.y = 50;
+      } else {
+        subtitleConfig.x = 50;
+        subtitleConfig.y = 86;
+      }
       document.querySelectorAll("#subPosGroup .sub-pos-btn").forEach(function(b) {
         b.classList.toggle("active", b.getAttribute("data-pos") === pos);
       });
       syncSubPreview();
+    }
+
+    function startSubDrag(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      subDragging = true;
+      var stage = document.getElementById("wmStage");
+      var subEl = document.getElementById("subPreviewText");
+      var rect = stage.getBoundingClientRect();
+      var subRect = subEl.getBoundingClientRect();
+      var offsetX = e.clientX - subRect.left;
+      var offsetY = e.clientY - subRect.top;
+      subEl.classList.add("dragging");
+
+      function move(ev) {
+        var x = ((ev.clientX - rect.left) - offsetX + subRect.width / 2) / rect.width * 100;
+        var y = ((ev.clientY - rect.top) - offsetY + subRect.height / 2) / rect.height * 100;
+        x = Math.max(0, Math.min(100, x));
+        y = Math.max(0, Math.min(100, y));
+        subtitleConfig.x = x;
+        subtitleConfig.y = y;
+        subtitleConfig.position = "custom";
+        document.querySelectorAll("#subPosGroup .sub-pos-btn").forEach(function(b) {
+          b.classList.remove("active");
+        });
+        applySubPos(subEl);
+      }
+
+      function up() {
+        subDragging = false;
+        subEl.classList.remove("dragging");
+        document.removeEventListener("mousemove", move);
+        document.removeEventListener("mouseup", up);
+      }
+
+      document.addEventListener("mousemove", move);
+      document.addEventListener("mouseup", up);
     }
 
     // ===== 导出 =====

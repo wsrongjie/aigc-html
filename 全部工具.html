@@ -294,32 +294,36 @@
         }
         .task-detail-btn:hover { background: #448aff22; border-color: #448aff; }
 
-        /* 任务进度弹窗 - 参考 simple-mode 组合弹窗风格 */
+        /* 任务进度抽屉 - 从右侧滑出 */
         .task-ov {
             display: none;
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(0,0,0,0.5);
             z-index: 1000;
-            align-items: center;
-            justify-content: center;
             backdrop-filter: blur(2px);
         }
-        .task-ov.show { display: flex; }
+        .task-ov.show { display: block; }
         .task-modal {
+            position: fixed;
+            top: 0; right: 0;
+            height: 100vh;
+            width: 960px;
+            max-width: 94vw;
             background: #fff;
-            border-radius: 14px;
-            width: 780px;
-            max-width: 95vw;
-            max-height: 85vh;
+            border-radius: 14px 0 0 14px;
             overflow: hidden;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            box-shadow: -8px 0 40px rgba(0,0,0,0.2);
             display: flex;
             flex-direction: column;
+            transform: translateX(100%);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
+        .task-ov.show .task-modal { transform: translateX(0); }
         .task-modal-hd {
             padding: 20px 24px 12px;
             border-bottom: 1px solid #f0f0f0;
+            position: relative;
         }
         .task-modal-hd h3 {
             font-size: 17px;
@@ -344,26 +348,43 @@
         }
         .task-modal-hd .close-btn:hover { background: #eee; color: #333; }
 
-        /* 状态筛选 */
+        /* 状态筛选 - chip 风格 */
         .task-filters {
             display: flex;
-            gap: 6px;
-            padding: 10px 24px;
+            gap: 8px;
+            padding: 12px 24px;
             border-bottom: 1px solid #f0f0f0;
+            flex-wrap: wrap;
         }
         .task-filter {
-            padding: 4px 12px;
-            border-radius: 12px;
-            font-size: 11px;
+            padding: 4px 14px;
+            border-radius: 14px;
+            font-size: 12px;
             cursor: pointer;
-            border: 1px solid #e8e8e8;
+            border: 1.5px solid #e8e8e8;
             background: #fafafa;
             color: #666;
             font-weight: 500;
             transition: all 0.15s;
+            user-select: none;
         }
-        .task-filter:hover { background: #f0f0f0; }
-        .task-filter.active { background: #eef2ff; border-color: #6366f1; color: #6366f1; }
+        .task-filter:hover { border-color: #0066ff66; color: #0066ff; }
+        .task-filter.active { background: #eef4ff; border-color: #0066ff; color: #0066ff; font-weight: 600; }
+
+        /* 摘要栏 */
+        .task-summary {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin: 12px 24px;
+            padding: 12px 16px;
+            background: #eef4ff;
+            border-radius: 10px;
+            font-size: 13px;
+            color: #1a1a2e;
+            flex-wrap: wrap;
+        }
+        .task-summary strong { color: #0066ff; }
 
         /* 任务列表 */
         .task-list {
@@ -379,18 +400,20 @@
             font-size: 13px;
             font-weight: 600;
             color: #1a1a2e;
-            padding: 6px 0;
-            margin-bottom: 6px;
+            padding: 8px 0;
+            margin-bottom: 4px;
             border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
         .task-group-title .tg-badge {
-            background: #eef2ff;
-            color: #6366f1;
-            padding: 1px 8px;
+            background: #eef4ff;
+            color: #0066ff;
+            padding: 2px 10px;
             border-radius: 10px;
-            font-size: 10px;
+            font-size: 11px;
             font-weight: 500;
-            margin-left: 6px;
         }
 
         .task-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
@@ -400,18 +423,16 @@
             font-weight: 500;
             text-align: left;
             padding: 8px 10px;
-            border-bottom: 1.5px solid #e8e8e8;
-            letter-spacing: 0.3px;
+            border-bottom: 1px solid #f0f0f0;
         }
-        .task-table tbody tr { transition: background 0.1s; }
-        .task-table tbody tr:hover { background: #f5f7ff; }
-        .task-table tbody tr.off { opacity: 0.3; }
+        .task-table tbody tr { transition: background 0.1s; border-bottom: 1px solid #f5f5f5; }
+        .task-table tbody tr:hover { background: #f9fafb; }
+        .task-table tbody tr.off { opacity: 0.35; }
         .task-table td {
-            font-size: 13px;
+            font-size: 12px;
             color: #333;
-            padding: 10px 10px;
+            padding: 8px 10px;
             vertical-align: middle;
-            position: relative;
         }
         .task-table td.td-name {
             font-weight: 500;
@@ -430,17 +451,29 @@
         }
         .task-table td.td-status { width: 80px; text-align: center; }
         .task-table td.td-progress { width: 100px; }
-        .task-table td.td-error { width: 100px; }
+        .task-table td.td-error { width: 110px; }
         .task-table td.td-op { width: 50px; text-align: center; }
 
         /* 列宽分配 */
-        .task-table col.col-person { width: 20%; }
-        .task-table col.col-bg { width: 14%; }
-        .task-table col.col-script { width: 30%; }
-        .task-table col.col-status { width: 12%; }
-        .task-table col.col-progress { width: 14%; }
-        .task-table col.col-error { width: 18%; }
-        .task-table col.col-op { width: 12%; }
+        .task-table col.col-thumb { width: 8%; }
+        .task-table col.col-script { width: 28%; }
+        .task-table col.col-status { width: 11%; }
+        .task-table col.col-progress { width: 12%; }
+        .task-table col.col-error { width: 14%; }
+        .task-table col.col-op { width: 11%; }
+
+        /* 首帧缩略图 */
+        .cf-thumb-sm {
+            width: 30px; height: 53px;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.15s;
+        }
+        .cf-thumb-sm:hover { transform: scale(1.08); }
 
         /* 失败原因缩略 */
         .td-error .err-short {
@@ -451,18 +484,19 @@
             text-overflow: ellipsis;
             display: block;
             cursor: pointer;
+            font-weight: 500;
         }
 
         /* 状态标签 */
         .ts { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 500; }
-        .ts .ico { font-size: 13px; }
+        .ts .ico { font-size: 12px; }
         .ts.generating { color: #0066ff; }
         .ts.queued { color: #f59e0b; }
         .ts.completed { color: #059669; }
         .ts.failed { color: #ef4444; }
 
         /* 进度条 */
-        .tpb { width: 80px; height: 5px; background: #e8e8e8; border-radius: 3px; overflow: hidden; display: inline-block; vertical-align: middle; margin-right: 4px; }
+        .tpb { width: 72px; height: 5px; background: #e8e8e8; border-radius: 3px; overflow: hidden; display: inline-block; vertical-align: middle; margin-right: 4px; }
         .tpb-fill { height: 100%; background: linear-gradient(90deg, #0066ff, #5856d6); border-radius: 3px; transition: width 0.3s; }
         .tpb-text { font-size: 11px; color: #999; }
 
@@ -560,24 +594,22 @@
             justify-content: space-between;
             padding: 12px 24px;
             border-top: 1px solid #f0f0f0;
+            font-size: 12px;
+            color: #666;
         }
-        .task-modal-ft .info { font-size: 12px; color: #666; }
-        .task-modal-ft .info strong { color: #1a1a2e; }
-        .task-modal-ft .acts { display: flex; gap: 8px; }
+        .task-modal-ft strong { color: #1a1a2e; }
         .task-modal-ft .btn {
-            padding: 9px 20px;
+            padding: 8px 20px;
             border-radius: 8px;
             font-size: 13px;
             cursor: pointer;
             border: none;
             font-weight: 500;
-            transition: all 0.15s;
-        }
-        .task-modal-ft .btn-sec {
             background: #f5f5f5;
             color: #666;
+            transition: all 0.15s;
         }
-        .task-modal-ft .btn-sec:hover { background: #eee; }
+        .task-modal-ft .btn:hover { background: #eee; }
 
         /* 空状态 */
         .task-empty {
@@ -586,6 +618,423 @@
             color: #999;
             font-size: 13px;
         }
+
+        /* 视频预览弹窗 */
+        .preview-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.8);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+        }
+        .preview-overlay.show { display: flex; }
+        .preview-modal {
+            background: #141414;
+            border-radius: 16px;
+            width: 420px;
+            max-width: 95vw;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            border: 1px solid #222;
+            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .preview-modal.expanded { width: 840px; }
+        .preview-hd {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 18px;
+            border-bottom: 1px solid #222;
+        }
+        .preview-hd h3 { font-size: 14px; font-weight: 600; color: #fff; }
+        .preview-hd .close-btn {
+            width: 28px; height: 28px;
+            border-radius: 50%;
+            background: #222;
+            border: none;
+            color: #999;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s;
+        }
+        .preview-hd .close-btn:hover { background: #333; color: #fff; }
+
+        /* 左右双栏 */
+        .preview-body { display: flex; min-height: 0; }
+        .preview-left {
+            flex: 1; min-width: 0;
+            display: flex; flex-direction: column;
+        }
+        .preview-modal.expanded .preview-left { border-right: 1px solid #222; }
+        .preview-right {
+            display: none;
+            width: 340px; flex-shrink: 0;
+            flex-direction: column;
+            background: #111;
+            overflow: hidden;
+        }
+        .preview-modal.expanded .preview-right { display: flex; }
+
+        /* 播放器下方配置按钮栏 */
+        .preview-config-bar {
+            display: flex; align-items: center;
+            gap: 8px; padding: 6px 14px 10px;
+        }
+        .cfg-bar-btn {
+            height: 28px; border-radius: 7px;
+            border: 1px solid #333;
+            background: #1a1a1a;
+            color: #999; font-size: 11px;
+            font-weight: 500; cursor: pointer;
+            padding: 0 10px;
+            display: inline-flex; align-items: center;
+            gap: 4px; transition: all 0.15s;
+        }
+        .cfg-bar-btn:hover { border-color: #555; color: #ccc; }
+        .cfg-bar-btn.active { border-color: #00e67655; background: #00e67611; color: #00e676; }
+
+        .cfg-panel { display: none; padding: 14px; overflow-y: auto; flex: 1; }
+        .cfg-panel.active { display: block; }
+        .cfg-panel-title { font-size: 12px; font-weight: 600; color: #999; margin-bottom: 10px; }
+
+        /* 封面 - 截帧时间轴 */
+        .cover-timeline-bar {
+            width: 100%; height: 32px;
+            background: #1a1a1a;
+            border-radius: 6px;
+            position: relative;
+            cursor: pointer;
+            margin-bottom: 6px;
+        }
+        .cover-timeline-track {
+            height: 100%;
+            display: flex; align-items: center;
+            padding: 0 6px; gap: 2px;
+        }
+        .cover-timeline-frame {
+            flex: 1; height: 20px;
+            background: #333; border-radius: 3px;
+            cursor: pointer; transition: background 0.12s;
+        }
+        .cover-timeline-frame:hover { background: #555; }
+        .cover-timeline-pointer {
+            position: absolute; top: 0; bottom: 0;
+            width: 3px; background: #00e676;
+            border-radius: 2px; left: 50%;
+            transition: left 0.08s; pointer-events: none;
+        }
+        .cover-timeline-pointer::before {
+            content: "";
+            position: absolute; top: -3px; left: -4px;
+            width: 11px; height: 6px;
+            background: #00e676; border-radius: 3px 3px 0 0;
+        }
+        .cfg-hint { font-size: 11px; color: #555; text-align: center; margin-bottom: 10px; }
+
+        /* 封面上传区 */
+        .cfg-upload-zone {
+            border: 1.5px dashed #333;
+            border-radius: 8px;
+            padding: 20px; text-align: center;
+            cursor: pointer; transition: all 0.15s;
+        }
+        .cfg-upload-zone:hover { border-color: #00e676; background: rgba(0,230,118,0.04); }
+        .cfg-upload-zone .ico { font-size: 24px; margin-bottom: 4px; }
+        .cfg-upload-zone .txt { font-size: 12px; color: #999; font-weight: 500; }
+        .cfg-upload-zone .hint { font-size: 10px; color: #555; margin-top: 2px; }
+
+        /* 配置表单行 */
+        .cfg-row {
+            display: flex; align-items: center;
+            gap: 8px; margin-bottom: 10px;
+        }
+        .cfg-row .cfg-lbl {
+            font-size: 11px; font-weight: 600;
+            color: #999; min-width: 48px; flex-shrink: 0;
+        }
+        .cfg-row input[type="text"],
+        .cfg-row textarea {
+            flex: 1; min-width: 0;
+            height: 30px; border: 1px solid #333;
+            border-radius: 6px; padding: 0 8px;
+            font-size: 11px; color: #ccc; background: #1a1a1a;
+            outline: none; font-family: inherit;
+        }
+        .cfg-row textarea {
+            height: 48px; padding: 6px 8px;
+            resize: vertical; line-height: 1.4;
+        }
+        .cfg-row input:focus,
+        .cfg-row textarea:focus {
+            border-color: #00e67655;
+        }
+        .cfg-row input[type="range"] {
+            flex: 1; accent-color: #00e676; height: 20px;
+        }
+        .cfg-row .cfg-val {
+            font-size: 10px; font-weight: 600;
+            color: #00e676; min-width: 32px; text-align: right;
+        }
+        .cfg-row input[type="color"] {
+            width: 28px; height: 28px;
+            border: 1px solid #333; border-radius: 5px;
+            padding: 2px; cursor: pointer; background: none;
+        }
+
+        /* 位置选择 */
+        .cfg-pos-group {
+            display: flex; gap: 3px;
+            border: 1px solid #333; border-radius: 6px;
+            overflow: hidden;
+        }
+        .cfg-pos-btn {
+            flex: 1; height: 26px; border: none;
+            background: #1a1a1a; color: #666;
+            font-size: 10px; font-weight: 600;
+            cursor: pointer; transition: all 0.12s;
+        }
+        .cfg-pos-btn:hover { background: #222; color: #999; }
+        .cfg-pos-btn.active { background: #00e67622; color: #00e676; }
+
+        /* 水印两栏布局 */
+        .wm-two-col {
+            display: flex; gap: 10px;
+            margin-bottom: 8px;
+        }
+        .wm-col-left {
+            width: 90px; flex-shrink: 0;
+            display: flex; flex-direction: column;
+        }
+        .wm-col-right {
+            flex: 1; min-width: 0;
+        }
+
+        /* 水印列表 */
+        .wm-list-header {
+            display: flex; align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        .wm-list-header .cfg-panel-title { margin-bottom: 0; }
+        .wm-add-btn {
+            width: 24px; height: 24px; padding: 0;
+            border-radius: 5px; border: 1px solid #00e67644;
+            background: #00e67611; color: #00e676;
+            font-size: 14px; font-weight: 700; cursor: pointer;
+            transition: all 0.12s;
+            display: flex; align-items: center; justify-content: center;
+            line-height: 1;
+        }
+        .wm-add-btn:hover { background: #00e67622; }
+        .wm-list-items { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; }
+        .wm-list-item {
+            padding: 6px 8px; border: 1px solid #333;
+            border-radius: 6px; cursor: pointer;
+            font-size: 11px; color: #999; line-height: 1.5;
+            background: #1a1a1a; transition: all 0.12s;
+            word-break: break-all;
+            position: relative;
+            min-height: 32px;
+        }
+        .wm-list-item:hover { border-color: #555; }
+        .wm-list-item.active { border-color: #00e67666; background: #00e6760d; color: #00e676; font-weight: 600; }
+        .wm-list-item .wm-item-del {
+            position: absolute; top: 4px; right: 4px;
+            width: 16px; height: 16px;
+            border-radius: 50%; background: #333; color: #999;
+            border: none; font-size: 9px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.12s;
+        }
+        .wm-list-item .wm-item-del:hover { background: #ef4444; color: #fff; }
+        .wm-empty-list { text-align: center; color: #555; font-size: 11px; padding: 12px 0; }
+        .wm-editor-section { display: none; margin-bottom: 10px; }
+        .wm-editor-section.show { display: block; }
+
+        .preview-video-area {
+            width: 100%;
+            aspect-ratio: 9/16;
+            max-height: 500px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        .preview-video-area .pv-emoji {
+            font-size: 64px;
+            filter: drop-shadow(0 4px 16px rgba(0,0,0,0.4));
+            transition: transform 0.3s;
+        }
+        .preview-video-area .pv-corner {
+            position: absolute;
+            left: 10px; top: 10px;
+            background: rgba(0,0,0,0.5);
+            color: #fff; font-size: 10px;
+            padding: 2px 8px; border-radius: 5px;
+            font-weight: 500;
+        }
+        .preview-video-area .pv-corner-bottom {
+            position: absolute;
+            left: 10px; bottom: 10px;
+            background: rgba(0,0,0,0.5);
+            color: #fff; font-size: 10px;
+            padding: 2px 8px; border-radius: 5px;
+            font-weight: 500;
+        }
+
+        /* 水印叠加（动态元素用 .pv-wm-el） */
+
+        /* 字幕叠加 */
+        .pv-sub-overlay {
+            position: absolute; left: 10px; right: 10px;
+            text-align: center; padding: 6px 8px;
+            border-radius: 6px; font-size: 12px; line-height: 1.5;
+            cursor: move; user-select: none;
+        }
+        .pv-sub-overlay.dragging {
+            border: 1px dashed rgba(0,230,118,0.5);
+        }
+
+        .preview-video-area .pv-play-big {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 52px; height: 52px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid rgba(255,255,255,0.3);
+            z-index: 5;
+        }
+        .preview-video-area .pv-play-big:hover { background: rgba(255,255,255,0.25); }
+        .preview-video-area .pv-play-big svg { width: 20px; height: 20px; fill: #fff; }
+        .preview-video-area.playing .pv-play-big { opacity: 0; pointer-events: none; }
+        .preview-controls {
+            padding: 12px 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .preview-controls .pc-play {
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            background: #fff;
+            border: none;
+            color: #0a0a0a;
+            font-size: 11px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: all 0.15s;
+        }
+        .preview-controls .pc-play:hover { background: #e0e0e0; }
+        .preview-controls .pc-bar-wrap {
+            flex: 1; min-width: 0;
+            height: 18px; position: relative;
+            cursor: pointer;
+        }
+        .preview-controls .pc-bar {
+            position: absolute;
+            left: 0; top: 50%;
+            transform: translateY(-50%);
+            width: 100%; height: 4px;
+            background: #333;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        .preview-controls .pc-fill {
+            height: 100%;
+            background: #00e676;
+            border-radius: 2px;
+            width: 0%;
+            transition: width 0.15s linear;
+        }
+        .preview-controls .pc-time {
+            font-size: 10px; color: #666;
+            min-width: 54px; text-align: right;
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* 合成中遮罩 */
+        .pv-synth-overlay {
+            display: none;
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(2px);
+            z-index: 20;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+        .pv-synth-overlay.show { display: flex; }
+        .pv-synth-spinner {
+            width: 40px; height: 40px;
+            border: 3px solid rgba(255,255,255,0.15);
+            border-top-color: #00e676;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .pv-synth-text {
+            font-size: 13px; font-weight: 600;
+            color: #00e676;
+        }
+
+        /* 合成操作按钮 */
+        .cfg-synth-bar {
+            display: flex; align-items: center;
+            gap: 8px; padding-top: 14px;
+            border-top: 1px solid #222;
+            margin-top: 14px;
+        }
+        .cfg-synth-btn {
+            flex: 1; height: 34px;
+            border-radius: 8px; border: none;
+            background: #00e676; color: #0a0a0a;
+            font-size: 12px; font-weight: 700; cursor: pointer;
+            transition: all 0.15s;
+        }
+        .cfg-synth-btn:hover { background: #00c853; }
+        .cfg-synth-btn:disabled {
+            background: #333; color: #555; cursor: not-allowed;
+            pointer-events: none;
+        }
+        .cfg-cancel-synth-btn {
+            display: none;
+            flex: 1; height: 34px;
+            border-radius: 8px; border: 1px solid #ef4444;
+            background: transparent; color: #ef4444;
+            font-size: 12px; font-weight: 600; cursor: pointer;
+            transition: all 0.15s;
+        }
+        .cfg-cancel-synth-btn.show { display: block; }
+        .cfg-cancel-synth-btn:hover { background: #ef444422; }
+
+        /* 封面保存按钮 */
+        .cfg-save-btn {
+            width: 100%; height: 34px;
+            border-radius: 8px; border: none;
+            background: #00e676; color: #0a0a0a;
+            font-size: 12px; font-weight: 700; cursor: pointer;
+            transition: all 0.15s; margin-top: 12px;
+        }
+        .cfg-save-btn:hover { background: #00c853; }
     </style>
 </head>
 <body>
@@ -643,7 +1092,7 @@
                 </a>
 
                 <!-- 模板成片 -->
-                <a class="tool-card" href="simple-mode.html">
+                <a class="tool-card" href="简单模式-流程版.html">
                     <div class="thumb" style="background:linear-gradient(135deg,#1a0a2a 0%,#0a1a2a 60%,#2a1a0a 100%);">
                         <div style="position:absolute;bottom:0;left:0;right:0;height:80px;background:linear-gradient(transparent,rgba(68,138,255,0.1));"></div>
                         <div class="play-btn"><svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg></div>
@@ -688,17 +1137,18 @@
 
     <!-- 任务进度弹窗 -->
     <div class="task-ov" id="task-ov" onclick="if(event.target===this)closeTaskModal()">
-        <div class="task-modal" style="position:relative;">
+        <div class="task-modal">
             <div class="task-modal-hd">
                 <h3>批量任务进度</h3>
                 <p>按人物×背景分组，查看生成状态</p>
                 <button class="close-btn" onclick="closeTaskModal()">✕</button>
             </div>
             <div class="task-filters" id="task-filters"></div>
+            <div class="task-summary" id="task-summary" style="display:none;"></div>
             <div class="task-list" id="task-list"></div>
             <div class="task-modal-ft">
-                <div class="info">已选 <strong id="task-total-count">0</strong> 个 · 预计 <strong id="task-total-time">0</strong> 分钟</div>
-                <div class="acts"><button class="btn btn-sec" onclick="closeTaskModal()">关闭</button></div>
+                <span>共 <strong id="task-total-count">0</strong> 条任务 · 预计 <strong id="task-total-time">0</strong> 分钟</span>
+                <button class="btn" onclick="closeTaskModal()">关闭</button>
             </div>
         </div>
     </div>
@@ -711,17 +1161,132 @@
     </div>
     <div class="tg-tip-txt" id="tg-tip-txt" style="display:none;"></div>
 
+    <!-- 视频预览弹窗 -->
+    <div class="preview-overlay" id="preview-overlay" onclick="if(event.target===this)closePreview()">
+        <div class="preview-modal" id="preview-modal-el">
+            <div class="preview-hd">
+                <h3 id="pv-title">视频预览</h3>
+                <button class="close-btn" onclick="closePreview()">✕</button>
+            </div>
+            <div class="preview-body">
+                <!-- 左侧：视频 + 控件 -->
+                <div class="preview-left">
+                    <div class="preview-video-area" id="pv-video" onclick="togglePreviewPlay()">
+                        <div class="pv-corner" id="pv-corner"></div>
+                        <div class="pv-emoji" id="pv-emoji"></div>
+                        <div class="pv-corner-bottom" id="pv-corner-bottom"></div>
+                        <div class="pv-sub-overlay" id="pv-sub-overlay"></div>
+                        <div class="pv-play-big" id="pv-play-big">
+                            <svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>
+                        </div>
+                        <!-- 合成中遮罩 -->
+                        <div class="pv-synth-overlay" id="pv-synth-overlay">
+                            <div class="pv-synth-spinner"></div>
+                            <div class="pv-synth-text">合成中...</div>
+                        </div>
+                    </div>
+                    <div class="preview-controls">
+                        <button class="pc-play" id="pc-play-btn" onclick="togglePreviewPlay()">▶</button>
+                        <div class="pc-bar-wrap" onclick="seekPreview(event)">
+                            <div class="pc-bar"><div class="pc-fill" id="pc-fill"></div></div>
+                        </div>
+                        <span class="pc-time" id="pc-time">0:00 / 0:00</span>
+                    </div>
+                    <div class="preview-config-bar">
+                        <button class="cfg-bar-btn" id="cfg-bar-cover" onclick="toggleCfgPanel('cover')">🖼 封面配置</button>
+                        <button class="cfg-bar-btn" id="cfg-bar-wmsub" onclick="toggleCfgPanel('wmsub')">💧 水印与字幕</button>
+                    </div>
+                </div>
+                <!-- 右侧：配置面板 -->
+                <div class="preview-right">
+                    <!-- 封面配置面板 -->
+                    <div class="cfg-panel active" id="cfg-cover">
+                        <div class="cfg-panel-title">视频截帧</div>
+                        <div class="cover-timeline-bar" id="coverTimeline" onclick="moveCoverPtr(event)" onmousedown="startCoverPtrDrag(event)">
+                            <div class="cover-timeline-track">
+                                <div class="cover-timeline-frame"></div><div class="cover-timeline-frame"></div><div class="cover-timeline-frame"></div><div class="cover-timeline-frame"></div><div class="cover-timeline-frame"></div><div class="cover-timeline-frame"></div><div class="cover-timeline-frame"></div><div class="cover-timeline-frame"></div>
+                            </div>
+                            <div class="cover-timeline-pointer" id="coverPointer"></div>
+                        </div>
+                        <div class="cfg-hint">拖拽指针或点击时间轴选择当前帧</div>
+                        <div class="cfg-panel-title" style="margin-top:14px;">本地上传</div>
+                        <div class="cfg-upload-zone" onclick="toast('此处可接入文件上传能力，支持 JPG/PNG，建议 1080×1920')">
+                            <div class="ico">📁</div>
+                            <div class="txt">点击上传封面图片</div>
+                            <div class="hint">JPG / PNG · 建议 1080×1920 · ≤5MB</div>
+                        </div>
+                        <button class="cfg-save-btn" onclick="saveCover()">💾 保存封面</button>
+                    </div>
+                    <!-- 水印与字幕配置面板 -->
+                    <div class="cfg-panel" id="cfg-wmsub">
+                        <div class="cfg-panel-title">💧 水印配置</div>
+                        <!-- 水印：列表(左) + 编辑(右) -->
+                        <div class="wm-two-col">
+                            <div class="wm-col-left">
+                                <div class="wm-list-header">
+                                    <span style="font-size:11px;font-weight:600;color:#999;">水印列表</span>
+                                    <button class="wm-add-btn" onclick="addWm()" title="添加水印">+</button>
+                                </div>
+                                <div class="wm-list-items" id="wm-list-items"></div>
+                                <div class="wm-empty-list" id="wm-empty">暂无水印</div>
+                            </div>
+                            <div class="wm-col-right">
+                                <div class="wm-editor-section" id="wm-editor">
+                                    <div class="cfg-row">
+                                        <span class="cfg-lbl">文字</span>
+                                        <input type="text" id="wm-text" placeholder="输入水印文字" maxlength="24" oninput="syncWm()">
+                                    </div>
+                                    <div class="cfg-row">
+                                        <span class="cfg-lbl">字号</span>
+                                        <input type="range" id="wm-size" min="10" max="48" value="22" oninput="syncWm()">
+                                        <span class="cfg-val" id="wm-size-val">22px</span>
+                                    </div>
+                                    <div class="cfg-row">
+                                        <span class="cfg-lbl">透明度</span>
+                                        <input type="range" id="wm-opacity" min="5" max="100" value="30" oninput="syncWm()">
+                                        <span class="cfg-val" id="wm-opacity-val">30%</span>
+                                    </div>
+                                    <div class="cfg-row">
+                                        <span class="cfg-lbl">颜色</span>
+                                        <input type="color" id="wm-color" value="#ffffff" oninput="syncWm()">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="cfg-panel-title" style="margin-top:14px;">📝 字幕设置</div>
+                        <div class="cfg-row">
+                            <span class="cfg-lbl">文字</span>
+                            <textarea id="sub-text" placeholder="字幕内容（默认使用台词）" oninput="syncSub()"></textarea>
+                        </div>
+                        <div class="cfg-row">
+                            <span class="cfg-lbl">字号</span>
+                            <input type="range" id="sub-size" min="10" max="28" value="14" oninput="syncSub()">
+                            <span class="cfg-val" id="sub-size-val">14px</span>
+                        </div>
+                        <div class="cfg-row">
+                            <span class="cfg-lbl">颜色</span>
+                            <input type="color" id="sub-color" value="#ffffff" oninput="syncSub()">
+                        </div>
+                        <div class="cfg-row">
+                            <span class="cfg-lbl">位置</span>
+                            <div class="cfg-pos-group" id="sub-pos-group">
+                                <button class="cfg-pos-btn" data-pos="top" onclick="setSubPos('top',this)">顶部</button>
+                                <button class="cfg-pos-btn" data-pos="middle" onclick="setSubPos('middle',this)">中部</button>
+                                <button class="cfg-pos-btn active" data-pos="bottom" onclick="setSubPos('bottom',this)">底部</button>
+                            </div>
+                        </div>
+                        <!-- 合成操作区 -->
+                        <div class="cfg-synth-bar">
+                            <button class="cfg-synth-btn" id="cfg-synth-btn" onclick="startSynthesis()">⚡ 开始合成</button>
+                            <button class="cfg-cancel-synth-btn" id="cfg-cancel-synth-btn" onclick="cancelSynthesis()">取消合成</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
-        // 模拟任务数据
-        var mockTasks = [
-            { id: 1, script: '大家好，今天我要分享的是如何高效学习AI技术，让你在30天内掌握核心知识点。', status: 'completed', progress: 100, color: '黑色' },
-            { id: 2, script: '各位好，本期我们探讨的是AI在视频生成领域的最新进展和应用。', status: 'generating', progress: 60, color: '黑色' },
-            { id: 3, script: '嗨喽朋友们，本期带来的是超实用的AI工具测评，赶紧一起来看看吧！', status: 'generating', progress: 35, color: '蓝色' },
-            { id: 4, script: '本期我们探讨一下如何用AI提升工作效率，这个话题很多粉丝都在问我。', status: 'queued', progress: 0, color: '黑色' },
-            { id: 5, script: '今天来分享一下AI视频制作的完整流程，从台词到成片一步到位。', status: 'failed', progress: 0, color: '黑色', error: '素材分辨率不足，请上传720p以上图片' },
-        ];
-        var currentFilter = 'all';
-        var cancelConfirmId = null;
         var tplInfo = {
             '口播讲解': {
                 desc: '<strong>口播讲解</strong>适合知识分享、产品推荐、教程教学等场景。数字人对着镜头讲解，配合字幕和背景音乐，专业且高效。',
@@ -824,12 +1389,36 @@
                 var f = filters[i];
                 if (f.count === 0) continue;
                 var active = currentFilter === f.key ? ' active' : '';
-                filtersHtml += '<button class="task-filter' + active + '" onclick="setTaskFilter(\'' + f.key + '\')">' + f.label + ' (' + f.count + ')</button>';
+                filtersHtml += '<button class="task-filter' + active + '" onclick="setTaskFilter(\'' + f.key + '\')">' + f.label + ' <strong>' + f.count + '</strong></button>';
             }
             document.getElementById('task-filters').innerHTML = filtersHtml;
 
             // 按人物×背景分组
             var filtered = currentFilter === 'all' ? mockTasks : mockTasks.filter(function(t) { return t.status === currentFilter; });
+
+            // 计算摘要
+            var genCount = 0, queuedCount = 0, doneCount = 0, failCount = 0;
+            var personSet = {}, bgSet = {};
+            for (var j = 0; j < filtered.length; j++) {
+                var t = filtered[j];
+                if (t.status === 'generating') genCount++;
+                else if (t.status === 'queued') queuedCount++;
+                else if (t.status === 'completed') doneCount++;
+                else if (t.status === 'failed') failCount++;
+                personSet[t.person.name] = true;
+                bgSet[t.bg.name] = true;
+            }
+            var personCount = Object.keys(personSet).length;
+            var bgCount = Object.keys(bgSet).length;
+            var etaText2 = (genCount + queuedCount) > 0 ? Math.ceil((genCount + queuedCount) * 1.5) + '-' + Math.ceil((genCount + queuedCount) * 3) : '0';
+
+            // 摘要栏
+            var summaryHtml = '<div>人物：<strong>' + personCount + '</strong> 个</div>';
+            summaryHtml += '<div>背景：<strong>' + bgCount + '</strong> 个</div>';
+            summaryHtml += '<div>共 <strong>' + filtered.length + '</strong> 条 · 预计 <strong>' + etaText2 + '</strong> 分钟</div>';
+            var summaryEl = document.getElementById('task-summary');
+            summaryEl.innerHTML = summaryHtml;
+            summaryEl.style.display = filtered.length > 0 ? 'flex' : 'none';
 
             // 分组
             var groups = {};
@@ -850,7 +1439,7 @@
                     var g = groups[gk];
                     listHtml += '<div class="task-group">';
                     listHtml += '<div class="task-group-title">' + g.person.name + ' × ' + g.bg.name + '<span class="tg-badge">' + g.items.length + '条</span></div>';
-                    listHtml += '<table class="task-table"><colgroup><col class="col-person"><col class="col-bg"><col class="col-script"><col class="col-status"><col class="col-progress"><col class="col-error"><col class="col-op"></colgroup><thead><tr><th>主体</th><th>背景</th><th>台词</th><th>状态</th><th>进度</th><th>失败原因</th><th>操作</th></tr></thead><tbody>';
+                    listHtml += '<table class="task-table"><colgroup><col class="col-thumb"><col class="col-script"><col class="col-status"><col class="col-progress"><col class="col-error"><col class="col-op"></colgroup><thead><tr><th>首帧</th><th>台词</th><th>状态</th><th>进度</th><th>失败原因</th><th>操作</th></tr></thead><tbody>';
 
                     for (var k = 0; k < g.items.length; k++) {
                         var task = g.items[k];
@@ -861,7 +1450,7 @@
                             statusHtml = '<span class="ts completed"><span class="ico">✅</span>已完成</span>';
                             progressHtml = '<div class="tpb"><div class="tpb-fill" style="width:100%"></div></div><span class="tpb-text">100%</span>';
                             errorHtml = '<span style="font-size:11px;color:#ccc;">-</span>';
-                            actionHtml = '<span style="font-size:11px;color:#ccc;">-</span>';
+                            actionHtml = '<button class="tg-op-btn retry" onclick="openPreview(' + task.id + ')">预览</button>';
                         } else if (task.status === 'generating') {
                             statusHtml = '<span class="ts generating"><span class="ico">🔄</span>生成中</span>';
                             progressHtml = '<div class="tpb"><div class="tpb-fill" style="width:' + task.progress + '%"></div></div><span class="tpb-text">' + task.progress + '%</span>';
@@ -889,8 +1478,7 @@
                         var bgGradEsc = task.bg.gradient.replace(/'/g, "\\'");
 
                         listHtml += '<tr>';
-                        listHtml += '<td class="td-name" onmouseenter="showTgTip(event,\'gradient\',\'' + pGradEsc + '\',\'' + task.person.emoji + '\',\'' + task.person.name.replace(/'/g, "\\'") + '\')" onmouseleave="hideTgTip()">' + task.person.name + '</td>';
-                        listHtml += '<td class="td-name" onmouseenter="showTgBgTip(event,\'' + bgGradEsc + '\',\'' + task.bg.name.replace(/'/g, "\\'") + '\')" onmouseleave="hideTgTip()">' + task.bg.name + '</td>';
+                        listHtml += '<td><div class="cf-thumb-sm" style="background:' + bgGradEsc + '" onmouseenter="showTgTip(event,\'gradient\',\'' + pGradEsc + '\',\'' + task.person.emoji + '\',\'' + task.person.name.replace(/'/g, "\\'") + '\')" onmouseleave="hideTgTip()" title="' + task.person.name.replace(/'/g, "\\'") + ' · ' + task.bg.name.replace(/'/g, "\\'") + '">' + task.person.emoji + '</div></td>';
                         listHtml += '<td class="td-script" onmouseenter="showTgTxtTip(event,\'' + txtEscaped + '\')" onmouseleave="hideTgTip()">' + shortScript + '</td>';
                         listHtml += '<td class="td-status">' + statusHtml + '</td>';
                         listHtml += '<td class="td-progress">' + progressHtml + '</td>';
@@ -913,18 +1501,10 @@
             document.getElementById('task-list').innerHTML = listHtml;
 
             // 更新底部统计
-            var activeCount = mockTasks.filter(function(t) { return t.status !== 'cancelled'; }).length;
-            var generatingCount = getTaskCounts().generating;
-            var queuedCount = getTaskCounts().queued;
-            var etaText = '';
-            if (generatingCount > 0 || queuedCount > 0) {
-                var totalRemaining = generatingCount + queuedCount;
-                etaText = Math.ceil(totalRemaining * 1.5) + '-' + Math.ceil(totalRemaining * 3);
-            } else {
-                etaText = '0';
-            }
-            document.getElementById('task-total-count').textContent = activeCount;
-            document.getElementById('task-total-time').textContent = etaText;
+            var totalRemaining2 = genCount + queuedCount;
+            var etaText3 = totalRemaining2 > 0 ? Math.ceil(totalRemaining2 * 1.5) + '-' + Math.ceil(totalRemaining2 * 3) : '0';
+            document.getElementById('task-total-count').textContent = filtered.length;
+            document.getElementById('task-total-time').textContent = etaText3;
         }
 
         function requestCancel(id) {
@@ -1023,6 +1603,400 @@
             tip.style.display = 'block';
             tip.classList.add('show');
             posTip(tip, e, 'top');
+        }
+
+        // 视频预览
+        var pvTaskId = null;
+        var pvPlaying = false;
+        var pvTimer = null;
+        var pvCurrent = 0;
+        var pvDuration = 0;
+        var pvSynthesizing = false;
+        var pvSynthTimer = null;
+
+        function openPreview(id) {
+            var task = null;
+            for (var i = 0; i < mockTasks.length; i++) {
+                if (mockTasks[i].id === id) { task = mockTasks[i]; break; }
+            }
+            if (!task || task.status !== 'completed') return;
+            pvTaskId = id;
+            pvPlaying = false;
+            pvCurrent = 0;
+            pvDuration = Math.max(3, Math.ceil(task.script.length / 4));
+            if (pvTimer) { clearInterval(pvTimer); pvTimer = null; }
+
+            document.getElementById('pv-title').textContent = task.person.name + ' · 视频预览';
+            document.getElementById('pv-corner').textContent = task.bg.name;
+            document.getElementById('pv-corner-bottom').textContent = '9:16 · 720p';
+            document.getElementById('pv-emoji').textContent = task.person.emoji;
+            document.getElementById('pv-video').style.background = task.bg.gradient;
+            document.getElementById('pv-video').classList.remove('playing');
+            document.getElementById('pv-play-big').style.display = '';
+            document.getElementById('pc-fill').style.width = '0%';
+            document.getElementById('pc-time').textContent = '0:00 / ' + formatTime2(pvDuration);
+            document.getElementById('pc-play-btn').textContent = '▶';
+            // 收起右侧面板
+            cfgPanelKey = null;
+            document.getElementById('preview-modal-el').classList.remove('expanded');
+            document.querySelectorAll('.cfg-bar-btn').forEach(function(b){ b.classList.remove('active'); });
+            document.getElementById('cfg-cover').classList.add('active');
+            document.getElementById('cfg-wmsub').classList.remove('active');
+            // 重置合成状态
+            resetSynthesisUI();
+            // 初始化水印（默认1条）
+            wmList = [{ text: 'AI生成', size: 22, opacity: 30, color: '#ffffff', x: 50, y: 85 }];
+            wmActiveIdx = 0;
+            renderWmList();
+            selectWm(0);
+            syncAllWms();
+            // 初始化字幕
+            subPosition = 'bottom';
+            subY = 88;
+            document.getElementById('sub-text').value = task.script;
+            document.querySelectorAll('#sub-pos-group .cfg-pos-btn').forEach(function(b){
+                b.classList.toggle('active', b.getAttribute('data-pos') === 'bottom');
+            });
+            syncSub();
+            // 重置封面指针
+            document.getElementById('coverPointer').style.left = '50%';
+
+            document.getElementById('preview-overlay').classList.add('show');
+        }
+
+        function closePreview() {
+            if (pvTimer) { clearInterval(pvTimer); pvTimer = null; }
+            if (pvSynthTimer) { clearTimeout(pvSynthTimer); pvSynthTimer = null; }
+            pvPlaying = false;
+            pvSynthesizing = false;
+            pvTaskId = null;
+            document.getElementById('preview-overlay').classList.remove('show');
+        }
+
+        function togglePreviewPlay() {
+            if (pvPlaying) {
+                pausePreview();
+            } else {
+                playPreview();
+            }
+        }
+
+        function playPreview() {
+            if (!pvTaskId) return;
+            pvPlaying = true;
+            document.getElementById('pv-video').classList.add('playing');
+            document.getElementById('pv-play-big').style.display = 'none';
+            document.getElementById('pc-play-btn').textContent = '⏸';
+            if (pvTimer) clearInterval(pvTimer);
+            pvTimer = setInterval(function() {
+                pvCurrent += 0.1;
+                if (pvCurrent >= pvDuration) {
+                    pvCurrent = pvDuration;
+                    pausePreview();
+                }
+                var pct = Math.min(100, (pvCurrent / pvDuration) * 100);
+                document.getElementById('pc-fill').style.width = pct + '%';
+                document.getElementById('pc-time').textContent = formatTime2(pvCurrent) + ' / ' + formatTime2(pvDuration);
+            }, 100);
+        }
+
+        function pausePreview() {
+            pvPlaying = false;
+            document.getElementById('pv-video').classList.remove('playing');
+            document.getElementById('pv-play-big').style.display = '';
+            document.getElementById('pc-play-btn').textContent = '▶';
+            if (pvTimer) { clearInterval(pvTimer); pvTimer = null; }
+        }
+
+        function seekPreview(e) {
+            if (!pvTaskId) return;
+            var rect = e.currentTarget.getBoundingClientRect();
+            var pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+            pvCurrent = pct * pvDuration;
+            document.getElementById('pc-fill').style.width = (pct * 100) + '%';
+            document.getElementById('pc-time').textContent = formatTime2(pvCurrent) + ' / ' + formatTime2(pvDuration);
+        }
+
+        function formatTime2(sec) {
+            var m = Math.floor(sec / 60);
+            var s = Math.floor(sec % 60);
+            return m + ':' + (s < 10 ? '0' : '') + s;
+        }
+
+        // 配置面板 展开/收起
+        var cfgPanelKey = null;
+        function toggleCfgPanel(key) {
+            if (cfgPanelKey === key) {
+                // 收起
+                cfgPanelKey = null;
+                document.getElementById('preview-modal-el').classList.remove('expanded');
+                document.querySelectorAll('.cfg-bar-btn').forEach(function(b){ b.classList.remove('active'); });
+                document.getElementById('cfg-cover').classList.remove('active');
+                document.getElementById('cfg-wmsub').classList.remove('active');
+            } else {
+                // 展开
+                cfgPanelKey = key;
+                document.getElementById('preview-modal-el').classList.add('expanded');
+                document.querySelectorAll('.cfg-bar-btn').forEach(function(b){ b.classList.remove('active'); });
+                document.getElementById('cfg-bar-' + key).classList.add('active');
+                document.getElementById('cfg-cover').classList.toggle('active', key === 'cover');
+                document.getElementById('cfg-wmsub').classList.toggle('active', key === 'wmsub');
+            }
+        }
+
+        // 封面 - 时间轴拖拽
+        var coverDragOn = false;
+        function moveCoverPtr(e) {
+            if (coverDragOn) return;
+            var bar = document.getElementById('coverTimeline');
+            var rect = bar.getBoundingClientRect();
+            var pct = Math.max(0, Math.min(100, ((e.clientX - rect.left) / rect.width) * 100));
+            document.getElementById('coverPointer').style.left = pct + '%';
+        }
+        function startCoverPtrDrag(e) {
+            coverDragOn = true;
+            moveCoverPtr(e);
+            document.addEventListener('mousemove', moveCoverPtr);
+            document.addEventListener('mouseup', function(){
+                coverDragOn = false;
+                document.removeEventListener('mousemove', moveCoverPtr);
+            }, { once: true });
+        }
+
+        // 多水印管理
+        var wmList = [];
+        var wmActiveIdx = -1;
+        function addWm() {
+            wmList.push({ text: '水印 ' + (wmList.length + 1), size: 22, opacity: 30, color: '#ffffff', x: 50, y: 85 });
+            wmActiveIdx = wmList.length - 1;
+            renderWmList();
+            selectWm(wmActiveIdx);
+            syncAllWms();
+        }
+        function selectWm(idx) {
+            wmActiveIdx = idx;
+            var wm = wmList[idx];
+            if (!wm) { document.getElementById('wm-editor').classList.remove('show'); return; }
+            document.getElementById('wm-editor').classList.add('show');
+            document.getElementById('wm-text').value = wm.text;
+            document.getElementById('wm-size').value = wm.size;
+            document.getElementById('wm-opacity').value = wm.opacity;
+            document.getElementById('wm-color').value = wm.color;
+            document.getElementById('wm-size-val').textContent = wm.size + 'px';
+            document.getElementById('wm-opacity-val').textContent = wm.opacity + '%';
+            renderWmList();
+        }
+        function deleteWm(idx) {
+            event.stopPropagation();
+            wmList.splice(idx, 1);
+            if (wmList.length === 0) { wmActiveIdx = -1; document.getElementById('wm-editor').classList.remove('show'); }
+            else { wmActiveIdx = Math.min(wmActiveIdx, wmList.length - 1); selectWm(wmActiveIdx); }
+            renderWmList();
+            syncAllWms();
+        }
+        function renderWmList() {
+            var container = document.getElementById('wm-list-items');
+            var empty = document.getElementById('wm-empty');
+            if (wmList.length === 0) {
+                container.innerHTML = '';
+                empty.style.display = 'block';
+                return;
+            }
+            empty.style.display = 'none';
+            var h = '';
+            for (var i = 0; i < wmList.length; i++) {
+                var wm = wmList[i];
+                var active = i === wmActiveIdx ? ' active' : '';
+                h += '<div class="wm-list-item' + active + '" onclick="selectWm(' + i + ')">' + wm.text + '<button class="wm-item-del" onclick="deleteWm(' + i + ')">✕</button></div>';
+            }
+            container.innerHTML = h;
+        }
+        function syncWm() {
+            if (wmActiveIdx < 0) return;
+            var wm = wmList[wmActiveIdx];
+            wm.text = document.getElementById('wm-text').value;
+            wm.size = parseInt(document.getElementById('wm-size').value);
+            wm.opacity = parseInt(document.getElementById('wm-opacity').value);
+            wm.color = document.getElementById('wm-color').value;
+            document.getElementById('wm-size-val').textContent = wm.size + 'px';
+            document.getElementById('wm-opacity-val').textContent = wm.opacity + '%';
+            renderWmList();
+            syncAllWms();
+        }
+        function syncAllWms() {
+            var video = document.getElementById('pv-video');
+            // 移除旧水印
+            video.querySelectorAll('.pv-wm-el').forEach(function(el){ el.remove(); });
+            // 渲染所有水印
+            for (var i = 0; i < wmList.length; i++) {
+                (function(idx){
+                    var wm = wmList[idx];
+                    var div = document.createElement('div');
+                    div.className = 'pv-wm-el';
+                    div.textContent = wm.text;
+                    div.style.cssText = 'position:absolute;font-weight:600;white-space:nowrap;text-shadow:0 1px 3px rgba(0,0,0,0.5);cursor:move;border:1px dashed transparent;padding:2px 6px;font-size:' + wm.size + 'px;color:' + hexToRgba2(wm.color, wm.opacity / 100) + ';left:' + wm.x + '%;top:' + wm.y + '%;transform:translate(-50%,-50%);z-index:10;';
+                    div.addEventListener('mousedown', function(e){ startWmDrag(e, idx); });
+                    div.addEventListener('mouseenter', function(){ this.style.borderColor = 'rgba(0,230,118,0.5)'; });
+                    div.addEventListener('mouseleave', function(){ this.style.borderColor = 'transparent'; });
+                    video.appendChild(div);
+                })(i);
+            }
+        }
+
+        // 水印拖拽
+        var wmDragIdx = -1;
+        var wmDragOffX = 0, wmDragOffY = 0;
+        function startWmDrag(e, idx) {
+            e.preventDefault(); e.stopPropagation();
+            wmDragIdx = idx;
+            var video = document.getElementById('pv-video');
+            var rect = video.getBoundingClientRect();
+            var el = video.querySelectorAll('.pv-wm-el')[idx];
+            var elRect = el.getBoundingClientRect();
+            wmDragOffX = e.clientX - elRect.left;
+            wmDragOffY = e.clientY - elRect.top;
+            el.style.borderColor = 'rgba(0,230,118,0.7)';
+            document.addEventListener('mousemove', onWmDrag);
+            document.addEventListener('mouseup', stopWmDrag);
+        }
+        function onWmDrag(e) {
+            if (wmDragIdx < 0) return;
+            var video = document.getElementById('pv-video');
+            var rect = video.getBoundingClientRect();
+            var x = ((e.clientX - rect.left - wmDragOffX) / rect.width) * 100 + 50 / rect.width * 100;
+            var y = ((e.clientY - rect.top - wmDragOffY) / rect.height) * 100 + 50 / rect.height * 100;
+            x = Math.max(2, Math.min(98, x));
+            y = Math.max(2, Math.min(95, y));
+            wmList[wmDragIdx].x = Math.round(x);
+            wmList[wmDragIdx].y = Math.round(y);
+            var el = video.querySelectorAll('.pv-wm-el')[wmDragIdx];
+            if (el) { el.style.left = x + '%'; el.style.top = y + '%'; }
+        }
+        function stopWmDrag() {
+            if (wmDragIdx >= 0) {
+                var video = document.getElementById('pv-video');
+                var el = video.querySelectorAll('.pv-wm-el')[wmDragIdx];
+                if (el) el.style.borderColor = 'transparent';
+            }
+            wmDragIdx = -1;
+            document.removeEventListener('mousemove', onWmDrag);
+            document.removeEventListener('mouseup', stopWmDrag);
+        }
+
+        // 字幕同步
+        var subPosition = 'bottom';
+        var subY = 88; // 默认底部位置百分比（0=顶部, 100=底部）
+        function syncSub() {
+            var text = document.getElementById('sub-text').value;
+            var size = parseInt(document.getElementById('sub-size').value);
+            var color = document.getElementById('sub-color').value;
+            document.getElementById('sub-size-val').textContent = size + 'px';
+            var overlay = document.getElementById('pv-sub-overlay');
+            if (text.trim()) {
+                overlay.style.display = '';
+                overlay.textContent = text.length > 80 ? text.substring(0, 80) + '...' : text;
+                overlay.style.fontSize = size + 'px';
+                overlay.style.color = color;
+                overlay.style.background = 'rgba(15,23,42,0.76)';
+                overlay.style.top = subY + '%';
+                overlay.style.bottom = 'auto';
+                overlay.style.transform = 'translateY(-50%)';
+            } else {
+                overlay.style.display = 'none';
+            }
+        }
+
+        function setSubPos(pos, btn) {
+            subPosition = pos;
+            if (pos === 'top') subY = 8;
+            else if (pos === 'middle') subY = 45;
+            else subY = 88;
+            document.querySelectorAll('#sub-pos-group .cfg-pos-btn').forEach(function(b){
+                b.classList.toggle('active', b.getAttribute('data-pos') === pos);
+            });
+            syncSub();
+        }
+
+        // 字幕拖拽
+        var subDragOn = false;
+        var subDragStartY = 0;
+        var subDragStartSubY = 0;
+
+        function startSubDrag(e) {
+            if (pvSynthesizing) return;
+            e.preventDefault(); e.stopPropagation();
+            subDragOn = true;
+            subDragStartY = e.clientY;
+            subDragStartSubY = subY;
+            document.getElementById('pv-sub-overlay').classList.add('dragging');
+            document.addEventListener('mousemove', onSubDrag);
+            document.addEventListener('mouseup', stopSubDrag);
+        }
+
+        function onSubDrag(e) {
+            if (!subDragOn) return;
+            var video = document.getElementById('pv-video');
+            var rect = video.getBoundingClientRect();
+            var dy = ((e.clientY - subDragStartY) / rect.height) * 100;
+            subY = Math.max(2, Math.min(96, subDragStartSubY + dy));
+            subPosition = ''; // 手动拖拽后清除预设位置
+            document.querySelectorAll('#sub-pos-group .cfg-pos-btn').forEach(function(b){
+                b.classList.remove('active');
+            });
+            syncSub();
+        }
+
+        function stopSubDrag() {
+            subDragOn = false;
+            document.getElementById('pv-sub-overlay').classList.remove('dragging');
+            document.removeEventListener('mousemove', onSubDrag);
+            document.removeEventListener('mouseup', stopSubDrag);
+        }
+
+        // 绑定字幕拖拽事件
+        document.getElementById('pv-sub-overlay').addEventListener('mousedown', startSubDrag);
+
+        // 封面保存
+        function saveCover() {
+            var ptrLeft = document.getElementById('coverPointer').style.left;
+            toast('✅ 封面已保存（当前截帧位置：' + ptrLeft + '）');
+        }
+
+        // 合成状态管理
+        function resetSynthesisUI() {
+            pvSynthesizing = false;
+            if (pvSynthTimer) { clearTimeout(pvSynthTimer); pvSynthTimer = null; }
+            document.getElementById('pv-synth-overlay').classList.remove('show');
+            document.getElementById('cfg-synth-btn').disabled = false;
+            document.getElementById('cfg-cancel-synth-btn').classList.remove('show');
+        }
+
+        function startSynthesis() {
+            if (pvSynthesizing) return;
+            pvSynthesizing = true;
+            // 视频区显示合成遮罩
+            document.getElementById('pv-synth-overlay').classList.add('show');
+            // 按钮状态切换
+            document.getElementById('cfg-synth-btn').disabled = true;
+            document.getElementById('cfg-cancel-synth-btn').classList.add('show');
+            // 模拟合成进度（3秒后自动完成）
+            pvSynthTimer = setTimeout(function() {
+                toast('✅ 合成完成！');
+                resetSynthesisUI();
+            }, 3000);
+        }
+
+        function cancelSynthesis() {
+            if (!pvSynthesizing) return;
+            toast('已取消合成');
+            resetSynthesisUI();
+        }
+
+        function hexToRgba2(hex, alpha) {
+            var r = parseInt(hex.slice(1,3), 16);
+            var g = parseInt(hex.slice(3,5), 16);
+            var b = parseInt(hex.slice(5,7), 16);
+            return 'rgba(' + r + ',' + g + ',' + b + ',' + alpha + ')';
         }
 
         // 模拟任务进度变化（演示用）
