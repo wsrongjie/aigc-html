@@ -259,7 +259,7 @@
 
         /* 任务状态栏 */
         .task-status-bar {
-            display: none;
+            display: flex;
             align-items: center;
             gap: 8px;
             margin-top: 12px;
@@ -269,7 +269,6 @@
             font-size: 12px;
             color: #448aff;
         }
-        .task-status-bar.show { display: flex; }
         .task-spinner {
             width: 14px;
             height: 14px;
@@ -1098,11 +1097,11 @@
                         <div class="play-btn"><svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg></div>
                     </div>
                     <div class="info">
-                        <div class="name">模板成片</div>
+                        <div class="name">批量成片</div>
                         <div class="desc">选择模板，上传素材和台词，一键生成口播短视频</div>
                         <span class="badge blue">新手推荐</span>
-                        <div class="task-status-bar" id="task-status-bar" onclick="event.preventDefault();event.stopPropagation();">
-                            <div class="task-spinner"></div>
+                        <div class="task-status-bar show" id="task-status-bar" onclick="event.preventDefault();event.stopPropagation();">
+                            <div class="task-spinner" id="task-spinner-el"></div>
                             <span class="task-status-text" id="task-status-text">3个任务正在生成...</span>
                             <button class="task-detail-btn" onclick="event.preventDefault();event.stopPropagation();openTaskModal()">查看详情</button>
                         </div>
@@ -1142,6 +1141,13 @@
                 <h3>批量任务进度</h3>
                 <p>按人物×背景分组，查看生成状态</p>
                 <button class="close-btn" onclick="closeTaskModal()">✕</button>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;padding:10px 24px 6px;flex-wrap:wrap;">
+                <input type="text" id="task-search" placeholder="🔍 搜索台词关键词..." style="flex:1;min-width:180px;max-width:280px;height:32px;border:1.5px solid #e8e8e8;border-radius:8px;padding:0 10px;font-size:12px;color:#333;background:#fafafa;outline:none;transition:all 0.15s;" oninput="onTaskSearchChange()">
+                <span style="font-size:11px;color:#999;white-space:nowrap;">创建时间</span>
+                <input type="date" id="task-date-from" style="height:30px;border:1.5px solid #e8e8e8;border-radius:6px;padding:0 6px;font-size:11px;color:#333;background:#fafafa;outline:none;" onchange="onTaskSearchChange()">
+                <span style="font-size:11px;color:#999;">至</span>
+                <input type="date" id="task-date-to" style="height:30px;border:1.5px solid #e8e8e8;border-radius:6px;padding:0 6px;font-size:11px;color:#333;background:#fafafa;outline:none;" onchange="onTaskSearchChange()">
             </div>
             <div class="task-filters" id="task-filters"></div>
             <div class="task-summary" id="task-summary" style="display:none;"></div>
@@ -1193,8 +1199,7 @@
                         <span class="pc-time" id="pc-time">0:00 / 0:00</span>
                     </div>
                     <div class="preview-config-bar">
-                        <button class="cfg-bar-btn" id="cfg-bar-cover" onclick="toggleCfgPanel('cover')">🖼 封面配置</button>
-                        <button class="cfg-bar-btn" id="cfg-bar-wmsub" onclick="toggleCfgPanel('wmsub')">💧 水印与字幕</button>
+                        <button class="cfg-bar-btn" onclick="downloadVideo(pvTaskId)" style="color:#00e676;border-color:#00e67644;">⬇ 下载视频</button>
                     </div>
                 </div>
                 <!-- 右侧：配置面板 -->
@@ -1329,11 +1334,11 @@
         // ====== 任务进度弹窗 ======
         // 模拟任务数据（增加人物和背景信息）
         var mockTasks = [
-            { id: 1, script: '大家好，今天我要分享的是如何高效学习AI技术，让你在30天内掌握核心知识点。', status: 'completed', progress: 100, person: { name: '角色 A · 知性女性', emoji: '👩', gradient: 'linear-gradient(135deg,#ff9a9e,#fad0c4)' }, bg: { name: '办公室', gradient: 'linear-gradient(135deg,#667eea,#764ba2)' } },
-            { id: 2, script: '各位好，本期我们探讨的是AI在视频生成领域的最新进展和应用。', status: 'generating', progress: 60, person: { name: '角色 A · 知性女性', emoji: '👩', gradient: 'linear-gradient(135deg,#ff9a9e,#fad0c4)' }, bg: { name: '办公室', gradient: 'linear-gradient(135deg,#667eea,#764ba2)' } },
-            { id: 3, script: '嗨喽朋友们，本期带来的是超实用的AI工具测评，赶紧一起来看看吧！', status: 'generating', progress: 35, person: { name: '角色 A · 知性女性', emoji: '👩', gradient: 'linear-gradient(135deg,#ff9a9e,#fad0c4)' }, bg: { name: '居家', gradient: 'linear-gradient(135deg,#a8edea,#fed6e3)' } },
-            { id: 4, script: '本期我们探讨一下如何用AI提升工作效率，这个话题很多粉丝都在问我。', status: 'queued', progress: 0, person: { name: '角色 A · 知性女性', emoji: '👩', gradient: 'linear-gradient(135deg,#ff9a9e,#fad0c4)' }, bg: { name: '居家', gradient: 'linear-gradient(135deg,#a8edea,#fed6e3)' } },
-            { id: 5, script: '今天来分享一下AI视频制作的完整流程，从台词到成片一步到位。', status: 'failed', progress: 0, person: { name: '角色 B · 商务男性', emoji: '👨', gradient: 'linear-gradient(135deg,#a18cd1,#fbc2eb)' }, bg: { name: '咖啡厅', gradient: 'linear-gradient(135deg,#fbc2eb,#a6c1ee)' }, error: '素材分辨率不足，请上传720p以上图片' },
+            { id: 1, script: '大家好，今天我要分享的是如何高效学习AI技术，让你在30天内掌握核心知识点。', status: 'completed', progress: 100, createdAt: '2026-06-02T09:15:00', person: { name: '角色 A · 知性女性', emoji: '👩', gradient: 'linear-gradient(135deg,#ff9a9e,#fad0c4)' }, bg: { name: '办公室', gradient: 'linear-gradient(135deg,#667eea,#764ba2)' } },
+            { id: 2, script: '各位好，本期我们探讨的是AI在视频生成领域的最新进展和应用。', status: 'generating', progress: 60, createdAt: '2026-06-02T10:30:00', person: { name: '角色 A · 知性女性', emoji: '👩', gradient: 'linear-gradient(135deg,#ff9a9e,#fad0c4)' }, bg: { name: '办公室', gradient: 'linear-gradient(135deg,#667eea,#764ba2)' } },
+            { id: 3, script: '嗨喽朋友们，本期带来的是超实用的AI工具测评，赶紧一起来看看吧！', status: 'generating', progress: 35, createdAt: '2026-06-01T14:20:00', person: { name: '角色 A · 知性女性', emoji: '👩', gradient: 'linear-gradient(135deg,#ff9a9e,#fad0c4)' }, bg: { name: '居家', gradient: 'linear-gradient(135deg,#a8edea,#fed6e3)' } },
+            { id: 4, script: '本期我们探讨一下如何用AI提升工作效率，这个话题很多粉丝都在问我。', status: 'queued', progress: 0, createdAt: '2026-06-02T08:00:00', person: { name: '角色 A · 知性女性', emoji: '👩', gradient: 'linear-gradient(135deg,#ff9a9e,#fad0c4)' }, bg: { name: '居家', gradient: 'linear-gradient(135deg,#a8edea,#fed6e3)' } },
+            { id: 5, script: '今天来分享一下AI视频制作的完整流程，从台词到成片一步到位。', status: 'failed', progress: 0, createdAt: '2026-05-30T16:45:00', person: { name: '角色 B · 商务男性', emoji: '👨', gradient: 'linear-gradient(135deg,#a18cd1,#fbc2eb)' }, bg: { name: '咖啡厅', gradient: 'linear-gradient(135deg,#fbc2eb,#a6c1ee)' }, error: '素材分辨率不足，请上传720p以上图片' },
         ];
         var currentFilter = 'all';
         var cancelConfirmId = null;
@@ -1349,13 +1354,34 @@
         function updateTaskStatusBar() {
             var bar = document.getElementById('task-status-bar');
             var text = document.getElementById('task-status-text');
-            var generating = getTaskCounts().generating;
-            if (generating > 0) {
-                bar.classList.add('show');
-                text.textContent = generating + '个任务正在生成...';
+            var spinner = document.getElementById('task-spinner-el');
+            var counts = getTaskCounts();
+            if (counts.generating > 0) {
+                if (spinner) spinner.style.display = '';
+                text.textContent = counts.generating + '个任务正在生成...';
+                text.style.color = '#448aff';
+            } else if (counts.queued > 0) {
+                if (spinner) spinner.style.display = 'none';
+                text.textContent = counts.queued + '个任务排队中...';
+                text.style.color = '#f59e0b';
+            } else if (counts.completed > 0 && counts.failed === 0) {
+                if (spinner) spinner.style.display = 'none';
+                text.textContent = '视频任务完成';
+                text.style.color = '#00e676';
+            } else if (counts.completed > 0 && counts.failed > 0) {
+                if (spinner) spinner.style.display = 'none';
+                text.textContent = counts.completed + '个完成 · ' + counts.failed + '个失败';
+                text.style.color = '#f59e0b';
+            } else if (counts.failed > 0) {
+                if (spinner) spinner.style.display = 'none';
+                text.textContent = counts.failed + '个任务失败';
+                text.style.color = '#ef4444';
             } else {
-                bar.classList.remove('show');
+                if (spinner) spinner.style.display = 'none';
+                text.textContent = '暂无任务';
+                text.style.color = '#666';
             }
+            bar.classList.add('show');
         }
 
         function openTaskModal() {
@@ -1371,6 +1397,10 @@
         function setTaskFilter(status) {
             currentFilter = status;
             cancelConfirmId = null;
+            renderTaskModal();
+        }
+
+        function onTaskSearchChange() {
             renderTaskModal();
         }
 
@@ -1393,8 +1423,17 @@
             }
             document.getElementById('task-filters').innerHTML = filtersHtml;
 
-            // 按人物×背景分组
-            var filtered = currentFilter === 'all' ? mockTasks : mockTasks.filter(function(t) { return t.status === currentFilter; });
+            // 应用关键词 + 时间 + 状态过滤
+            var searchText = (document.getElementById('task-search').value || '').trim().toLowerCase();
+            var dateFrom = document.getElementById('task-date-from').value || '';
+            var dateTo = document.getElementById('task-date-to').value || '';
+            var filtered = mockTasks.filter(function(t) {
+                if (currentFilter !== 'all' && t.status !== currentFilter) return false;
+                if (searchText && t.script.toLowerCase().indexOf(searchText) === -1) return false;
+                if (dateFrom && t.createdAt < dateFrom + 'T00:00:00') return false;
+                if (dateTo && t.createdAt > dateTo + 'T23:59:59') return false;
+                return true;
+            });
 
             // 计算摘要
             var genCount = 0, queuedCount = 0, doneCount = 0, failCount = 0;
@@ -1450,7 +1489,7 @@
                             statusHtml = '<span class="ts completed"><span class="ico">✅</span>已完成</span>';
                             progressHtml = '<div class="tpb"><div class="tpb-fill" style="width:100%"></div></div><span class="tpb-text">100%</span>';
                             errorHtml = '<span style="font-size:11px;color:#ccc;">-</span>';
-                            actionHtml = '<button class="tg-op-btn retry" onclick="openPreview(' + task.id + ')">预览</button>';
+                            actionHtml = '<button class="tg-op-btn retry" onclick="openPreview(' + task.id + ')">预览</button> <button class="tg-op-btn retry" onclick="downloadVideo(' + task.id + ')" style="color:#0066ff;">下载</button>';
                         } else if (task.status === 'generating') {
                             statusHtml = '<span class="ts generating"><span class="ico">🔄</span>生成中</span>';
                             progressHtml = '<div class="tpb"><div class="tpb-fill" style="width:' + task.progress + '%"></div></div><span class="tpb-text">' + task.progress + '%</span>';
@@ -1542,6 +1581,18 @@
             updateTaskStatusBar();
             renderTaskModal();
             toast('任务已重新排队');
+        }
+
+        function downloadVideo(id) {
+            var task = null;
+            for (var i = 0; i < mockTasks.length; i++) {
+                if (mockTasks[i].id === id) { task = mockTasks[i]; break; }
+            }
+            if (task) {
+                toast('⬇ 正在下载：' + (task.person ? task.person.name : '') + ' · 视频' + id + '.mp4');
+            } else {
+                toast('⬇ 正在下载视频...');
+            }
         }
 
         // Tooltip 预览函数（参考 simple-mode）
