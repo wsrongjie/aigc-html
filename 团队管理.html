@@ -1,0 +1,1560 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>团队管理 - 个人中心</title>
+<style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+        --primary: #2f6bff;
+        --primary-light: #e8efff;
+        --primary-dark: #1f4fd9;
+        --success: #16a34a;
+        --success-light: #dcfce7;
+        --warning: #f59e0b;
+        --warning-light: #fef3c7;
+        --danger: #dc2626;
+        --danger-light: #fee2e2;
+        --sidebar-bg: #1C1C1E;
+        --sidebar-text: #A1A1AA;
+        --sidebar-active: #FFFFFF;
+        --card-bg: #FFFFFF;
+        --border: #E4E4E7;
+        --border-strong: #D4D4D8;
+        --text-primary: #18181B;
+        --text-secondary: #71717A;
+        --text-muted: #A1A1AA;
+        --bg: #F7F7F8;
+        --radius: 12px;
+        --radius-sm: 8px;
+        --shadow: 0 1px 3px rgba(0,0,0,0.06);
+        --shadow-md: 0 4px 16px rgba(0,0,0,0.10);
+    }
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Helvetica Neue', sans-serif;
+        background: var(--bg);
+        color: var(--text-primary);
+        display: flex;
+        height: 100vh;
+        overflow: hidden;
+        font-size: 14px;
+    }
+
+    /* ========== 侧边栏 ========== */
+    .sidebar {
+        width: 220px; background: var(--sidebar-bg);
+        display: flex; flex-direction: column; flex-shrink: 0;
+    }
+    .sidebar-logo { padding: 24px 20px 20px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .logo-mark { display: flex; align-items: center; gap: 10px; }
+    .logo-icon {
+        width: 32px; height: 32px; background: var(--primary);
+        border-radius: 8px; display: flex; align-items: center;
+        justify-content: center; color: #fff; font-weight: 700; font-size: 14px;
+    }
+    .logo-text { color: #fff; font-weight: 600; font-size: 15px; }
+    .logo-sub { color: var(--sidebar-text); font-size: 11px; margin-top: 2px; }
+    .sidebar-nav { flex: 1; padding: 12px 0; overflow-y: auto; }
+    .nav-section { padding: 8px 0; }
+    .nav-section-title {
+        padding: 6px 20px; font-size: 14px; color: #A1A1AA; letter-spacing: 0.04em;
+        font-weight: 600; cursor: pointer; display: flex; align-items: center;
+        justify-content: space-between; user-select: none; transition: color 0.15s;
+    }
+    .nav-section-title:hover { color: #E4E4E7; }
+    .nav-section-title .collapse-icon { font-size: 10px; transition: transform 0.2s; }
+    .nav-section-title.collapsed .collapse-icon { transform: rotate(-90deg); }
+    .nav-section-children {
+        overflow: hidden; transition: max-height 0.25s ease, opacity 0.2s;
+        max-height: 400px; opacity: 1;
+    }
+    .nav-section-children.hidden { max-height: 0; opacity: 0; }
+    .nav-sub-item {
+        display: flex; align-items: center; gap: 10px; padding: 9px 20px 9px 36px;
+        cursor: pointer; color: var(--sidebar-text); transition: all 0.15s;
+        border-left: 3px solid transparent; font-size: 13px; text-decoration: none;
+    }
+    .nav-sub-item:hover { color: #E4E4E7; background: rgba(255,255,255,0.04); }
+    .nav-sub-item.active { color: var(--sidebar-active); background: rgba(47,107,255,0.15); border-left-color: var(--primary); }
+    .nav-icon { width: 18px; text-align: center; font-size: 15px; }
+
+    .sidebar-bottom { padding: 16px 20px; border-top: 1px solid rgba(255,255,255,0.06); }
+    .user-info { display: flex; align-items: center; gap: 10px; }
+    .user-avatar {
+        width: 32px; height: 32px; border-radius: 50%; background: var(--primary);
+        display: flex; align-items: center; justify-content: center;
+        color: #fff; font-size: 13px; font-weight: 600;
+    }
+    .user-name { color: #E4E4E7; font-size: 13px; }
+    .user-role { color: var(--sidebar-text); font-size: 11px; }
+
+    /* ========== 主区 ========== */
+    .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+    .topbar {
+        height: 56px; background: var(--card-bg); border-bottom: 1px solid var(--border);
+        display: flex; align-items: center; padding: 0 28px; gap: 12px; flex-shrink: 0;
+    }
+    .crumb { font-size: 13px; color: var(--text-secondary); }
+    .crumb-sep { margin: 0 6px; color: var(--text-muted); }
+    .topbar-title { font-size: 16px; font-weight: 600; }
+
+    .content { flex: 1; overflow-y: auto; scroll-behavior: smooth; }
+
+    /* ========== 吸顶锚点 ========== */
+    .anchor-bar {
+        position: sticky; top: 0; z-index: 20;
+        background: rgba(247,247,248,0.85);
+        backdrop-filter: saturate(180%) blur(10px);
+        -webkit-backdrop-filter: saturate(180%) blur(10px);
+        border-bottom: 1px solid var(--border);
+        padding: 10px 28px;
+        display: flex; gap: 6px;
+    }
+    .anchor-item {
+        padding: 6px 14px; border-radius: 999px;
+        font-size: 13px; color: var(--text-secondary);
+        cursor: pointer; transition: all 0.15s;
+        border: 1px solid transparent;
+        text-decoration: none;
+    }
+    .anchor-item:hover { background: #fff; color: var(--text-primary); border-color: var(--border); }
+    .anchor-item.active { background: var(--primary); color: #fff; }
+
+    /* ========== 卡片容器 ========== */
+    .page-wrap { max-width: 960px; margin: 0 auto; padding: 24px 28px 80px; }
+    .card {
+        background: var(--card-bg); border-radius: var(--radius);
+        border: 1px solid var(--border); box-shadow: var(--shadow);
+        margin-bottom: 20px; overflow: hidden;
+        scroll-margin-top: 80px;
+    }
+    .card-header {
+        padding: 18px 24px; border-bottom: 1px solid var(--border);
+        display: flex; justify-content: space-between; align-items: center;
+    }
+    .card-title { font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+    .card-title-icon { font-size: 16px; }
+    .card-subtitle { font-size: 12px; color: var(--text-muted); margin-top: 3px; }
+    .card-body { padding: 16px 24px; }
+
+    /* ========== 表单行 ========== */
+    .row {
+        display: flex; align-items: center; padding: 16px 0;
+        border-bottom: 1px solid var(--border);
+        gap: 16px;
+    }
+    .row:last-child { border-bottom: none; }
+    .row-label {
+        width: 110px; flex-shrink: 0;
+        font-size: 13px; color: var(--text-secondary);
+    }
+    .row-value { flex: 1; font-size: 14px; color: var(--text-primary); display: flex; align-items: center; gap: 10px; }
+    .row-action { flex-shrink: 0; }
+
+    /* ========== 按钮 ========== */
+    .btn {
+        height: 32px; padding: 0 14px; border-radius: 6px;
+        font-size: 13px; cursor: pointer; border: 1px solid var(--border);
+        background: #fff; color: var(--text-primary); transition: all 0.15s;
+        display: inline-flex; align-items: center; gap: 6px;
+    }
+    .btn:hover { border-color: var(--primary); color: var(--primary); }
+    .btn-primary { background: var(--primary); color: #fff; border-color: var(--primary); }
+    .btn-primary:hover { background: var(--primary-dark); color: #fff; border-color: var(--primary-dark); }
+    .btn-danger { color: var(--danger); }
+    .btn-danger:hover { border-color: var(--danger); color: var(--danger); background: var(--danger-light); }
+    .btn-text { background: transparent; border: none; color: var(--primary); padding: 0 6px; height: auto; cursor: pointer; font-size: 13px; }
+    .btn-text:hover { color: var(--primary-dark); background: transparent; text-decoration: underline; }
+    .btn-sm { height: 28px; padding: 0 10px; font-size: 12px; }
+    .btn-lg { height: 38px; padding: 0 20px; font-size: 14px; }
+    .btn-outline-primary {
+        background: #fff; color: var(--primary); border-color: var(--primary);
+    }
+    .btn-outline-primary:hover { background: var(--primary-light); }
+    .btn:disabled { opacity: 0.45; cursor: not-allowed; pointer-events: none; }
+
+    /* ========== 标签 ========== */
+    .tag {
+        display: inline-flex; align-items: center; gap: 4px;
+        padding: 2px 10px; border-radius: 999px;
+        font-size: 12px; font-weight: 500;
+    }
+    .tag-success { background: var(--success-light); color: var(--success); }
+    .tag-warning { background: var(--warning-light); color: var(--warning); }
+    .tag-danger { background: var(--danger-light); color: var(--danger); }
+    .tag-info { background: var(--primary-light); color: var(--primary); }
+    .tag-default { background: #f4f4f5; color: var(--text-secondary); }
+    .dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; }
+    .dot-success { background: var(--success); }
+    .dot-warning { background: var(--warning); }
+    .dot-danger { background: var(--danger); }
+    .dot-info { background: var(--primary); }
+
+    /* ========== 积分概览卡片 ========== */
+    .credit-overview { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 20px; }
+    .credit-card {
+        background: var(--card-bg); border-radius: var(--radius);
+        border: 1px solid var(--border); padding: 18px 20px;
+        text-align: center;
+    }
+    .credit-card-label { font-size: 12px; color: var(--text-muted); margin-bottom: 6px; }
+    .credit-card-value { font-size: 28px; font-weight: 700; color: var(--text-primary); }
+    .credit-card-sub { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+    .credit-card.total { border-left: 3px solid var(--primary); }
+    .credit-card.allocated { border-left: 3px solid var(--warning); }
+    .credit-card.unallocated { border-left: 3px solid var(--success); }
+    .credit-card.consumed { border-left: 3px solid var(--danger); }
+
+    /* ========== 进度条 ========== */
+    .progress-bar {
+        height: 8px; background: #f4f4f5; border-radius: 4px; overflow: hidden;
+        margin-top: 8px;
+    }
+    .progress-fill {
+        height: 100%; border-radius: 4px; transition: width 0.4s ease;
+    }
+    .progress-fill.primary { background: var(--primary); }
+    .progress-fill.success { background: var(--success); }
+    .progress-fill.warning { background: var(--warning); }
+    .progress-fill.danger { background: var(--danger); }
+
+    /* ========== 表格 ========== */
+    .table-wrap { overflow-x: auto; }
+    .table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .table th {
+        text-align: left; padding: 10px 12px;
+        font-weight: 500; color: var(--text-muted); font-size: 12px;
+        border-bottom: 1px solid var(--border);
+        white-space: nowrap;
+    }
+    .table td {
+        padding: 12px 12px; border-bottom: 1px solid var(--border);
+        vertical-align: middle;
+    }
+    .table tbody tr:last-child td { border-bottom: none; }
+    .table tbody tr:hover { background: #fafafa; }
+    .table .actions { text-align: right; white-space: nowrap; }
+    .table .actions .btn-text { margin-left: 2px; }
+
+    /* ========== 成员头像 ========== */
+    .member-cell { display: flex; align-items: center; gap: 10px; }
+    .member-avatar {
+        width: 34px; height: 34px; border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        color: #fff; font-size: 14px; font-weight: 600; flex-shrink: 0;
+    }
+    .member-name { font-weight: 500; }
+    .member-role-tag { font-size: 11px; color: var(--text-muted); }
+
+    /* ========== 角色卡片 ========== */
+    .role-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+    .role-card {
+        background: #fff; border: 1px solid var(--border); border-radius: var(--radius);
+        padding: 18px; position: relative; overflow: hidden;
+        transition: box-shadow 0.15s;
+    }
+    .role-card:hover { box-shadow: var(--shadow-md); }
+    .role-card-bar {
+        position: absolute; top: 0; left: 0; right: 0; height: 4px;
+    }
+    .role-card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; margin-top: 4px; }
+    .role-card-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+    .role-card-name { font-size: 15px; font-weight: 600; }
+    .role-card-members { font-size: 12px; color: var(--text-muted); margin-left: auto; }
+    .role-card-stats { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+    .role-card-stat-row { display: flex; justify-content: space-between; font-size: 12px; }
+    .role-card-stat-label { color: var(--text-secondary); }
+    .role-card-stat-value { font-weight: 500; }
+    .role-card-actions { display: flex; gap: 8px; }
+    .role-card-empty { font-size: 12px; color: var(--text-muted); text-align: center; padding: 12px 0; }
+
+    /* ========== Tab 切换 ========== */
+    .tabs { display: flex; gap: 0; border-bottom: 2px solid var(--border); margin-bottom: 16px; }
+    .tab-item {
+        padding: 8px 18px; font-size: 13px; cursor: pointer;
+        color: var(--text-secondary); border-bottom: 2px solid transparent;
+        margin-bottom: -2px; transition: all 0.15s;
+    }
+    .tab-item:hover { color: var(--text-primary); }
+    .tab-item.active { color: var(--primary); border-bottom-color: var(--primary); font-weight: 500; }
+
+    /* ========== 搜索/筛选栏 ========== */
+    .toolbar {
+        display: flex; align-items: center; gap: 10px; margin-bottom: 16px; flex-wrap: wrap;
+    }
+    .input-search {
+        height: 32px; padding: 0 10px; border: 1px solid var(--border); border-radius: 6px;
+        font-size: 13px; outline: none; width: 200px; transition: border-color 0.15s;
+        font-family: inherit;
+    }
+    .input-search:focus { border-color: var(--primary); }
+    .input-search::placeholder { color: var(--text-muted); }
+
+    /* ========== 提示条 ========== */
+    .alert {
+        padding: 12px 16px; border-radius: var(--radius-sm);
+        font-size: 13px; display: flex; align-items: flex-start; gap: 8px;
+        line-height: 1.5; margin-bottom: 16px;
+    }
+    .alert-info { background: var(--primary-light); color: var(--primary-dark); }
+    .alert-warning { background: var(--warning-light); color: #92400e; }
+    .alert-danger { background: var(--danger-light); color: #991b1b; }
+    .alert-icon { flex-shrink: 0; font-size: 15px; line-height: 1.4; }
+
+    /* ========== 弹窗 ========== */
+    .modal-mask {
+        position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 100;
+        display: flex; align-items: center; justify-content: center;
+        opacity: 0; pointer-events: none; transition: opacity 0.2s;
+    }
+    .modal-mask.show { opacity: 1; pointer-events: auto; }
+    .modal {
+        background: #fff; border-radius: var(--radius); box-shadow: var(--shadow-md);
+        width: 480px; max-width: 90vw; max-height: 85vh; overflow-y: auto;
+    }
+    .modal-header { padding: 20px 24px 0; }
+    .modal-title { font-size: 16px; font-weight: 600; }
+    .modal-sub { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
+    .modal-body { padding: 20px 24px; }
+    .modal-body-no-pad { padding: 0; }
+    .modal-footer {
+        padding: 0 24px 20px;
+        display: flex; justify-content: flex-end; gap: 10px;
+    }
+
+    /* ========== 表单 ========== */
+    .form-group { margin-bottom: 16px; }
+    .form-group:last-child { margin-bottom: 0; }
+    .form-label { font-size: 13px; color: var(--text-secondary); margin-bottom: 6px; display: block; }
+    .form-input {
+        width: 100%; height: 36px; padding: 0 12px; border: 1px solid var(--border);
+        border-radius: 6px; font-size: 14px; outline: none; transition: border-color 0.15s;
+        font-family: inherit; background: #fff;
+    }
+    .form-input:focus { border-color: var(--primary); }
+    .form-input:disabled { background: #f9fafb; color: var(--text-muted); }
+    select.form-input { cursor: pointer; }
+    .input-group { display: flex; gap: 8px; align-items: center; }
+    .input-group .form-input { flex: 1; }
+
+    /* ========== 邀请链接 ========== */
+    .invite-link-box {
+        display: flex; align-items: center; gap: 8px; padding: 10px 14px;
+        background: #f9fafb; border: 1px solid var(--border); border-radius: 6px;
+        font-family: monospace; font-size: 13px; word-break: break-all;
+    }
+    .invite-link-box .link-text { flex: 1; color: var(--text-primary); }
+
+    /* ========== 套餐卡片 ========== */
+    .package-options { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px; }
+    .package-card {
+        border: 2px solid var(--border); border-radius: var(--radius-sm);
+        padding: 14px; text-align: center; cursor: pointer; transition: all 0.15s;
+    }
+    .package-card:hover { border-color: var(--primary); background: var(--primary-light); }
+    .package-card.selected { border-color: var(--primary); background: var(--primary-light); }
+    .package-card .package-credits { font-size: 22px; font-weight: 700; color: var(--text-primary); }
+    .package-card .package-price { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
+    .package-card .package-tag { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+    /* ========== 金额快捷输入 ========== */
+    .amount-quick { display: flex; gap: 8px; margin-bottom: 14px; }
+    .amount-chip {
+        padding: 4px 12px; border: 1px solid var(--border); border-radius: 999px;
+        font-size: 12px; cursor: pointer; transition: all 0.15s;
+    }
+    .amount-chip:hover { border-color: var(--primary); color: var(--primary); }
+    .amount-chip.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+    /* ========== Toast ========== */
+    .toast {
+        position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 9999;
+        padding: 10px 24px; border-radius: 8px; font-size: 14px; background: #18181B;
+        color: #fff; box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+        opacity: 0; pointer-events: none; transition: opacity 0.25s; white-space: nowrap;
+    }
+    .toast.show { opacity: 1; }
+    .toast.success { background: var(--success); }
+    .toast.error { background: var(--danger); }
+    .toast.info { background: var(--primary); }
+
+    /* ========== 响应式 ========== */
+    @media (max-width: 860px) {
+        .credit-overview { grid-template-columns: repeat(2, 1fr); }
+        .role-cards { grid-template-columns: 1fr; }
+        .package-options { grid-template-columns: 1fr; }
+    }
+</style>
+</head>
+<body>
+
+<!-- ========== 侧边栏 ========== -->
+<aside class="sidebar">
+    <div class="sidebar-logo">
+        <div class="logo-mark">
+            <div class="logo-icon">AI</div>
+            <div>
+                <div class="logo-text">投顾视频 AIGC</div>
+                <div class="logo-sub">v3.0b</div>
+            </div>
+        </div>
+    </div>
+    <nav class="sidebar-nav">
+        <div class="nav-section">
+            <div class="nav-section-title" onclick="toggleSection(this)">
+                资产 <span class="collapse-icon">▾</span>
+            </div>
+            <div class="nav-section-children">
+                <a class="nav-sub-item" href="主体管理-首页.html"><span class="nav-icon">👤</span> 主体</a>
+                <a class="nav-sub-item" href="语音首页.html"><span class="nav-icon">🎙</span> 音频</a>
+                <a class="nav-sub-item" href="视频资产.html"><span class="nav-icon">🎬</span> 视频</a>
+            </div>
+        </div>
+        <div class="nav-section">
+            <a class="nav-sub-item" href="导演台首页.html"><span class="nav-icon">🎬</span> 导演台</a>
+            <a class="nav-sub-item" href="全部工具.html"><span class="nav-icon">🛠</span> 全部工具</a>
+        </div>
+        <div class="nav-section">
+            <div class="nav-section-title" onclick="toggleSection(this)">
+                个人中心 <span class="collapse-icon">▾</span>
+            </div>
+            <div class="nav-section-children">
+                <a class="nav-sub-item" href="个人信息.html"><span class="nav-icon">👤</span> 个人信息</a>
+                <a class="nav-sub-item active" href="团队管理.html"><span class="nav-icon">👥</span> 团队管理</a>
+                <a class="nav-sub-item" href="javascript:void(0)" onclick="toast('该模块占位中', 'info')"><span class="nav-icon">⚙️</span> 偏好设置</a>
+                <a class="nav-sub-item" href="javascript:void(0)" onclick="toast('该模块占位中', 'info')"><span class="nav-icon">🔔</span> 消息通知</a>
+            </div>
+        </div>
+    </nav>
+    <div class="sidebar-bottom">
+        <div class="user-info">
+            <div class="user-avatar">王</div>
+            <div><div class="user-name">王晓明</div><div class="user-role">投顾管理员</div></div>
+        </div>
+    </div>
+</aside>
+
+<main class="main">
+    <div class="topbar">
+        <span class="crumb">个人中心</span>
+        <span class="crumb-sep">/</span>
+        <span class="topbar-title">团队管理</span>
+    </div>
+
+    <div class="content" id="content">
+        <!-- 吸顶锚点 -->
+        <div class="anchor-bar">
+            <a class="anchor-item active" data-anchor="overview" href="#overview">团队概览</a>
+            <a class="anchor-item" data-anchor="members" href="#members">成员管理</a>
+            <a class="anchor-item" data-anchor="roles" href="#roles">角色与积分</a>
+            <a class="anchor-item" data-anchor="records" href="#records">积分记录</a>
+        </div>
+
+        <div class="page-wrap">
+
+            <!-- ========== 1. 团队概览 ========== -->
+            <section class="card" id="overview">
+                <div class="card-header">
+                    <div>
+                        <div class="card-title"><span class="card-title-icon">🏢</span> 团队概览</div>
+                        <div class="card-subtitle">租户信息与积分总览</div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <!-- 租户信息 -->
+                    <div class="row">
+                        <div class="row-label">租户名称</div>
+                        <div class="row-value"><span id="tn-name">华泰证券投顾部</span></div>
+                    </div>
+                    <div class="row">
+                        <div class="row-label">租户 ID</div>
+                        <div class="row-value">
+                            <span style="font-family: monospace; color: var(--text-secondary);" id="tn-id">tenant_10087</span>
+                            <span class="copy-btn" onclick="copyText('tenant_10087')" title="复制" style="cursor:pointer;color:var(--text-muted);">⧉</span>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="row-label">管理员</div>
+                        <div class="row-value">
+                            <span class="member-avatar" style="width:24px;height:24px;font-size:11px;background:linear-gradient(135deg,#2f6bff,#6b8eff);">王</span>
+                            <span id="tn-admin">王晓明</span>
+                            <span class="tag tag-info">租户管理员</span>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="row-label">团队规模</div>
+                        <div class="row-value">
+                            <span><b id="tn-members">5</b> 名成员</span>
+                            <span style="color:var(--text-muted);">·</span>
+                            <span><b id="tn-roles">3</b> 个角色</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 积分总览 -->
+            <div class="credit-overview">
+                <div class="credit-card total" style="position:relative;">
+                    <div class="credit-card-label">积分总池</div>
+                    <div class="credit-card-value" id="cv-total">5,000</div>
+                    <div class="credit-card-sub">充值累积额度</div>
+                    <button class="btn btn-primary btn-sm" onclick="openModal('modalRecharge')" style="margin-top:10px;width:100%;justify-content:center;">＋ 积分充值</button>
+                </div>
+                <div class="credit-card allocated">
+                    <div class="credit-card-label">已分配</div>
+                    <div class="credit-card-value" id="cv-allocated">3,500</div>
+                    <div class="credit-card-sub">已划分至各角色</div>
+                </div>
+                <div class="credit-card unallocated">
+                    <div class="credit-card-label">待分配</div>
+                    <div class="credit-card-value" id="cv-unalloc">1,500</div>
+                    <div class="credit-card-sub">需管理员手动分配</div>
+                </div>
+                <div class="credit-card consumed">
+                    <div class="credit-card-label">已消耗</div>
+                    <div class="credit-card-value" id="cv-consumed">1,520</div>
+                    <div class="credit-card-sub">全团队累计用量</div>
+                </div>
+            </div>
+
+            <!-- ========== 2. 成员管理 ========== -->
+            <section class="card" id="members">
+                <div class="card-header">
+                    <div>
+                        <div class="card-title"><span class="card-title-icon">👥</span> 成员管理</div>
+                        <div class="card-subtitle">管理团队成员、分配角色与权限</div>
+                    </div>
+                    <button class="btn btn-primary btn-sm" onclick="openModal('modalInvite')">
+                        <span>＋</span> 添加成员
+                    </button>
+                </div>
+                <div class="card-body" style="padding-top: 12px;">
+                    <div class="toolbar">
+                        <input type="text" class="input-search" id="memberSearch" placeholder="🔍 搜索成员姓名..." oninput="renderMemberTable()">
+                        <span style="font-size:12px;color:var(--text-muted);" id="memberCount">共 5 人</span>
+                    </div>
+                    <div class="table-wrap">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th style="width:22%;">成员</th>
+                                    <th style="width:16%;">角色</th>
+                                    <th style="width:14%;">积分配额</th>
+                                    <th style="width:14%;">已消耗</th>
+                                    <th style="width:16%;">加入时间</th>
+                                    <th style="width:18%;text-align:right;">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="memberTbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ========== 3. 角色与积分 ========== -->
+            <section class="card" id="roles">
+                <div class="card-header">
+                    <div>
+                        <div class="card-title"><span class="card-title-icon">🎭</span> 角色与积分</div>
+                        <div class="card-subtitle">定义角色并为每个角色分配积分额度，角色内成员共享额度</div>
+                    </div>
+                    <button class="btn btn-primary btn-sm" onclick="openModal('modalRoleEdit')">
+                        <span>＋</span> 新建角色
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <span class="alert-icon">💡</span>
+                        <div>
+                            同一角色下的所有成员<b>共享</b>该角色的积分额度。例如：高级投顾额度 1000，该角色下 3 位成员的消耗总和不能超过 1000。<br>
+                            租户管理员可在"积分记录"中发起充值，充值后手动分配额度到各角色。
+                        </div>
+                    </div>
+                    <div class="role-cards" id="roleCards"></div>
+                </div>
+            </section>
+
+            <!-- ========== 4. 积分记录 ========== -->
+            <section class="card" id="records">
+                <div class="card-header">
+                    <div>
+                        <div class="card-title"><span class="card-title-icon">💰</span> 积分记录</div>
+                        <div class="card-subtitle">充值记录与消耗明细</div>
+                    </div>
+                    <button class="btn btn-outline-primary btn-sm" onclick="openModal('modalRecharge')">
+                        <span>＋</span> 积分充值
+                    </button>
+                </div>
+                <div class="card-body" style="padding-top: 4px;">
+                    <div class="tabs">
+                        <div class="tab-item active" data-tab="recharge" onclick="switchTab('recharge')">充值记录</div>
+                        <div class="tab-item" data-tab="consume" onclick="switchTab('consume')">消耗明细</div>
+                    </div>
+                    <!-- 充值记录 -->
+                    <div class="table-wrap" id="tab-recharge">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th style="width:14%;">充值编号</th>
+                                    <th style="width:16%;">金额</th>
+                                    <th style="width:16%;">积分数</th>
+                                    <th style="width:14%;">支付方式</th>
+                                    <th style="width:16%;">申请时间</th>
+                                    <th style="width:12%;">状态</th>
+                                    <th style="width:12%;text-align:right;">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="rechargeTbody"></tbody>
+                        </table>
+                    </div>
+                    <!-- 消耗明细 -->
+                    <div class="table-wrap" id="tab-consume" style="display:none;">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th style="width:16%;">成员</th>
+                                    <th style="width:14%;">角色</th>
+                                    <th style="width:28%;">用途</th>
+                                    <th style="width:14%;">消耗积分</th>
+                                    <th style="width:16%;">时间</th>
+                                    <th style="width:12%;text-align:right;">详情</th>
+                                </tr>
+                            </thead>
+                            <tbody id="consumeTbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </div>
+</main>
+
+<!-- ========== 弹窗：添加成员 ========== -->
+<div class="modal-mask" id="modalInvite">
+    <div class="modal" style="width:440px;">
+        <div class="modal-header">
+            <div class="modal-title">添加成员</div>
+            <div class="modal-sub">填写成员信息，添加后该成员将拥有对应角色的积分额度</div>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label class="form-label">姓名</label>
+                <input type="text" class="form-input" id="addMemberName" placeholder="请输入成员姓名" maxlength="16">
+            </div>
+            <div class="form-group">
+                <label class="form-label">手机号</label>
+                <input type="text" class="form-input" id="addMemberPhone" placeholder="请输入手机号" maxlength="11">
+            </div>
+            <div class="form-group">
+                <label class="form-label">归属角色</label>
+                <select class="form-input" id="inviteRole">
+                    <option value="">请选择角色</option>
+                </select>
+            </div>
+            <div class="alert alert-info" style="margin-top:12px;margin-bottom:0;">
+                <span class="alert-icon">ℹ️</span>
+                <span>添加后成员即可登录平台，使用所属角色的积分额度生成视频。</span>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn" onclick="closeModal('modalInvite')">取消</button>
+            <button class="btn btn-primary" onclick="addMember()">确认添加</button>
+        </div>
+    </div>
+</div>
+
+<!-- ========== 弹窗：变更角色 ========== -->
+<div class="modal-mask" id="modalChangeRole">
+    <div class="modal" style="width:420px;">
+        <div class="modal-header">
+            <div class="modal-title">变更角色</div>
+            <div class="modal-sub">修改成员所属角色，将同步更新其积分额度</div>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label class="form-label">成员</label>
+                <div id="changeRoleMember" style="font-weight:500;font-size:14px;"></div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">当前角色</label>
+                <div id="changeRoleCurrent" style="color:var(--text-secondary);"></div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">新角色</label>
+                <select class="form-input" id="changeRoleSelect"></select>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn" onclick="closeModal('modalChangeRole')">取消</button>
+            <button class="btn btn-primary" onclick="confirmChangeRole()">确认变更</button>
+        </div>
+    </div>
+</div>
+
+<!-- ========== 弹窗：移除成员 ========== -->
+<div class="modal-mask" id="modalRemoveMember">
+    <div class="modal" style="width:400px;">
+        <div class="modal-header">
+            <div class="modal-title">移除成员</div>
+        </div>
+        <div class="modal-body">
+            <div id="removeMemberContent" style="font-size:14px;line-height:1.6;"></div>
+            <div class="alert alert-warning" style="margin-top:12px;margin-bottom:0;">
+                <span class="alert-icon">⚠️</span>
+                <span>移除后该成员将无法使用本租户的积分和资源，但已生成的视频不会被删除。</span>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn" onclick="closeModal('modalRemoveMember')">取消</button>
+            <button class="btn btn-danger" id="removeMemberOkBtn">确认移除</button>
+        </div>
+    </div>
+</div>
+
+<!-- ========== 弹窗：新建/编辑角色 ========== -->
+<div class="modal-mask" id="modalRoleEdit">
+    <div class="modal" style="width:440px;">
+        <div class="modal-header">
+            <div class="modal-title" id="roleEditTitle">新建角色</div>
+            <div class="modal-sub">定义角色名称，创建后可为其分配积分额度</div>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label class="form-label">角色名称</label>
+                <input type="text" class="form-input" id="roleEditName" placeholder="例如：高级投顾" maxlength="16">
+            </div>
+            <div class="form-group">
+                <label class="form-label">描述（选填）</label>
+                <input type="text" class="form-input" id="roleEditDesc" placeholder="简要描述该角色的职责范围" maxlength="40">
+            </div>
+            <div class="form-group">
+                <label class="form-label">颜色标识</label>
+                <div style="display:flex;gap:8px;margin-top:6px;" id="roleColorPicker">
+                    <span class="role-color-opt active" data-color="#2f6bff" style="width:28px;height:28px;border-radius:50%;background:#2f6bff;cursor:pointer;border:2px solid transparent;transition:all 0.15s;"></span>
+                    <span class="role-color-opt" data-color="#16a34a" style="width:28px;height:28px;border-radius:50%;background:#16a34a;cursor:pointer;border:2px solid transparent;transition:all 0.15s;"></span>
+                    <span class="role-color-opt" data-color="#f59e0b" style="width:28px;height:28px;border-radius:50%;background:#f59e0b;cursor:pointer;border:2px solid transparent;transition:all 0.15s;"></span>
+                    <span class="role-color-opt" data-color="#dc2626" style="width:28px;height:28px;border-radius:50%;background:#dc2626;cursor:pointer;border:2px solid transparent;transition:all 0.15s;"></span>
+                    <span class="role-color-opt" data-color="#8b5cf6" style="width:28px;height:28px;border-radius:50%;background:#8b5cf6;cursor:pointer;border:2px solid transparent;transition:all 0.15s;"></span>
+                    <span class="role-color-opt" data-color="#06b6d4" style="width:28px;height:28px;border-radius:50%;background:#06b6d4;cursor:pointer;border:2px solid transparent;transition:all 0.15s;"></span>
+                    <span class="role-color-opt" data-color="#ec4899" style="width:28px;height:28px;border-radius:50%;background:#ec4899;cursor:pointer;border:2px solid transparent;transition:all 0.15s;"></span>
+                    <span class="role-color-opt" data-color="#78716c" style="width:28px;height:28px;border-radius:50%;background:#78716c;cursor:pointer;border:2px solid transparent;transition:all 0.15s;"></span>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn" onclick="closeModal('modalRoleEdit')">取消</button>
+            <button class="btn btn-primary" id="roleEditSaveBtn" onclick="saveRole()">保存</button>
+        </div>
+    </div>
+</div>
+
+<!-- ========== 弹窗：分配积分 ========== -->
+<div class="modal-mask" id="modalAllocCredits">
+    <div class="modal" style="width:460px;">
+        <div class="modal-header">
+            <div class="modal-title">分配积分额度</div>
+            <div class="modal-sub">从租户积分总池中划拨额度到该角色</div>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label class="form-label">目标角色</label>
+                <div id="allocRoleName" style="font-weight:500;font-size:14px;"></div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">当前额度</label>
+                <div id="allocCurrentQuota" style="color:var(--text-secondary);"></div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">租户待分配积分</label>
+                <div id="allocPoolRemain" style="color:var(--text-secondary);"></div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">分配额度</label>
+                <input type="number" class="form-input" id="allocAmount" placeholder="请输入要分配的数量" min="1" oninput="updateAllocPreview()">
+                <div id="allocPreview" style="font-size:12px;color:var(--text-muted);margin-top:6px;"></div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn" onclick="closeModal('modalAllocCredits')">取消</button>
+            <button class="btn btn-primary" onclick="confirmAllocCredits()">确认分配</button>
+        </div>
+    </div>
+</div>
+
+<!-- ========== 弹窗：删除角色 ========== -->
+<div class="modal-mask" id="modalDeleteRole">
+    <div class="modal" style="width:420px;">
+        <div class="modal-header">
+            <div class="modal-title">删除角色</div>
+        </div>
+        <div class="modal-body">
+            <div id="deleteRoleContent" style="font-size:14px;line-height:1.6;"></div>
+            <div id="deleteRoleWarning" class="alert alert-warning" style="margin-top:12px;margin-bottom:0;display:none;">
+                <span class="alert-icon">⚠️</span>
+                <span>该角色下仍有成员，请先将成员转移至其他角色后再删除。</span>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn" onclick="closeModal('modalDeleteRole')">取消</button>
+            <button class="btn btn-danger" id="deleteRoleOkBtn">确认删除</button>
+        </div>
+    </div>
+</div>
+
+<!-- ========== 弹窗：积分充值 ========== -->
+<div class="modal-mask" id="modalRecharge">
+    <div class="modal" style="width:560px;">
+        <div class="modal-header">
+            <div class="modal-title">积分充值</div>
+            <div class="modal-sub">1 元 = 10 积分，选择套餐或自定义金额，充值后积分进入租户总池</div>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label class="form-label">选择套餐</label>
+                <div class="package-options" id="packageOptions">
+                    <div class="package-card" data-amount="50" data-credits="500" onclick="selectPackage(this)">
+                        <div class="package-credits">500 积分</div>
+                        <div class="package-price">¥50</div>
+                        <div class="package-tag">1 元 = 10 积分</div>
+                    </div>
+                    <div class="package-card selected" data-amount="100" data-credits="1000" onclick="selectPackage(this)">
+                        <div class="package-credits">1,000 积分</div>
+                        <div class="package-price">¥100</div>
+                        <div class="package-tag">1 元 = 10 积分</div>
+                    </div>
+                    <div class="package-card" data-amount="300" data-credits="3300" onclick="selectPackage(this)">
+                        <div class="package-credits">3,300 积分</div>
+                        <div class="package-price">¥300</div>
+                        <div class="package-tag">加赠 10% · 1 元 ≈ 11 积分</div>
+                    </div>
+                    <div class="package-card" data-amount="500" data-credits="6000" onclick="selectPackage(this)">
+                        <div class="package-credits">6,000 积分</div>
+                        <div class="package-price">¥500</div>
+                        <div class="package-tag">加赠 20% · 1 元 ≈ 12 积分</div>
+                    </div>
+                    <div class="package-card" data-amount="1000" data-credits="13000" onclick="selectPackage(this)">
+                        <div class="package-credits">13,000 积分</div>
+                        <div class="package-price">¥1,000</div>
+                        <div class="package-tag">加赠 30% · 1 元 ≈ 13 积分</div>
+                    </div>
+                    <div class="package-card" data-amount="0" data-credits="0" onclick="selectPackage(this)">
+                        <div class="package-credits" style="font-size:18px;">💬 自定义</div>
+                        <div class="package-price">手动输入</div>
+                        <div class="package-tag">灵活设置金额</div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group" id="customAmountGroup" style="display:none;">
+                <label class="form-label">自定义金额（元）</label>
+                <div class="amount-quick">
+                    <span class="amount-chip" data-amount="50" onclick="setCustomAmount(50, this)">¥50</span>
+                    <span class="amount-chip" data-amount="200" onclick="setCustomAmount(200, this)">¥200</span>
+                    <span class="amount-chip" data-amount="800" onclick="setCustomAmount(800, this)">¥800</span>
+                    <span class="amount-chip" data-amount="2000" onclick="setCustomAmount(2000, this)">¥2,000</span>
+                </div>
+                <div class="input-group">
+                    <span style="color:var(--text-secondary);font-size:14px;">¥</span>
+                    <input type="number" class="form-input" id="customAmount" placeholder="请输入充值金额" min="10" step="10" oninput="updateCustomPreview()">
+                </div>
+                <div id="customPreview" style="font-size:12px;color:var(--text-muted);margin-top:6px;"></div>
+            </div>
+            <div id="rechargeSummary" style="background:#f9fafb;border-radius:8px;padding:14px 16px;margin-top:4px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <span style="font-size:13px;color:var(--text-secondary);">充值金额</span>
+                    <span style="font-weight:600;" id="summaryAmount">¥100</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;">
+                    <span style="font-size:13px;color:var(--text-secondary);">获得积分</span>
+                    <span style="font-weight:600;color:var(--primary);font-size:16px;" id="summaryCredits">1,000 积分</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;">
+                    <span style="font-size:13px;color:var(--text-secondary);">支付方式</span>
+                    <div style="display:flex;gap:8px;">
+                        <label style="display:flex;align-items:center;gap:4px;font-size:13px;cursor:pointer;">
+                            <input type="radio" name="payMethod" value="微信支付" checked onchange="document.getElementById('rechargeMethod').value='微信支付'"> 🟢 微信支付
+                        </label>
+                        <label style="display:flex;align-items:center;gap:4px;font-size:13px;cursor:pointer;">
+                            <input type="radio" name="payMethod" value="支付宝" onchange="document.getElementById('rechargeMethod').value='支付宝'"> 🔵 支付宝
+                        </label>
+                    </div>
+                    <input type="hidden" id="rechargeMethod" value="微信支付">
+                </div>
+            </div>
+            <div style="margin-top:14px;padding:14px 16px;background:#fffbf0;border:1px solid #fde68a;border-radius:8px;">
+                <div style="font-size:13px;color:#92400e;line-height:1.6;margin-bottom:10px;">
+                    💡 <b>开票说明：</b>如需开具发票，请联系客服提供开票信息（企业名称 + 税号）。电子发票将在 3 个工作日内发送至您的邮箱。
+                </div>
+                <div style="display:flex;align-items:center;gap:12px;">
+                    <div style="width:80px;height:80px;background:#f4f4f5;border:1px solid var(--border);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--text-muted);text-align:center;line-height:1.4;flex-shrink:0;">
+                        企微<br>二维码<br>占位
+                    </div>
+                    <div style="font-size:12px;color:#92400e;line-height:1.6;">
+                        <div>📱 扫码添加客服企业微信</div>
+                        <div style="color:#a16207;">工作日 9:00-18:00 在线</div>
+                        <div style="color:#a16207;">或拨打：400-xxx-xxxx</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn" onclick="closeModal('modalRecharge')">取消</button>
+            <button class="btn btn-primary btn-lg" onclick="submitRecharge()">提交充值</button>
+        </div>
+    </div>
+</div>
+
+<!-- ========== 弹窗：充值详情 ========== -->
+<div class="modal-mask" id="modalRechargeDetail">
+    <div class="modal" style="width:440px;">
+        <div class="modal-header">
+            <div class="modal-title">充值详情</div>
+        </div>
+        <div class="modal-body" id="rechargeDetailBody"></div>
+        <div class="modal-footer">
+            <button class="btn" onclick="closeModal('modalRechargeDetail')">关闭</button>
+        </div>
+    </div>
+</div>
+
+<!-- ========== 弹窗：消耗详情 ========== -->
+<div class="modal-mask" id="modalConsumeDetail">
+    <div class="modal" style="width:440px;">
+        <div class="modal-header">
+            <div class="modal-title">消耗详情</div>
+        </div>
+        <div class="modal-body" id="consumeDetailBody"></div>
+        <div class="modal-footer">
+            <button class="btn" onclick="closeModal('modalConsumeDetail')">关闭</button>
+        </div>
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ========== 侧栏 ========== */
+function toggleSection(titleEl) {
+    titleEl.classList.toggle('collapsed');
+    var children = titleEl.nextElementSibling;
+    if (children) children.classList.toggle('hidden');
+}
+
+/* ========== Toast ========== */
+var toastTimer;
+function toast(msg, type) {
+    var t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast show ' + (type || '');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ t.className = 'toast ' + (type || ''); }, 2000);
+}
+
+/* ========== 弹窗 ========== */
+function openModal(id) {
+    document.getElementById(id).classList.add('show');
+}
+function closeModal(id) {
+    document.getElementById(id).classList.remove('show');
+}
+document.querySelectorAll('.modal-mask').forEach(function(m){
+    m.addEventListener('click', function(e){
+        if (e.target === m) closeModal(m.id);
+    });
+});
+
+/* ========== 复制 ========== */
+function copyText(text) {
+    if (navigator.clipboard) {
+        navigator.clipboard.writeText(text).then(function(){
+            toast('已复制：' + (text.length > 24 ? text.slice(0,24)+'...' : text), 'success');
+        });
+    } else {
+        var ta = document.createElement('textarea'); ta.value = text;
+        document.body.appendChild(ta); ta.select(); document.execCommand('copy');
+        document.body.removeChild(ta);
+        toast('已复制', 'success');
+    }
+}
+
+/* ========== 锚点滚动联动 ========== */
+var content = document.getElementById('content');
+var anchors = document.querySelectorAll('.anchor-item');
+var sections = ['overview','members','roles','records'].map(function(id){ return document.getElementById(id); });
+
+anchors.forEach(function(a){
+    a.addEventListener('click', function(e){
+        e.preventDefault();
+        var id = a.getAttribute('data-anchor');
+        var el = document.getElementById(id);
+        if (el) {
+            var offset = el.offsetTop - 60;
+            content.scrollTo({ top: offset, behavior: 'smooth' });
+        }
+    });
+});
+content.addEventListener('scroll', function(){
+    var st = content.scrollTop;
+    var activeId = sections[0].id;
+    for (var i = 0; i < sections.length; i++) {
+        if (sections[i].offsetTop - 100 <= st) activeId = sections[i].id;
+    }
+    anchors.forEach(function(a){
+        a.classList.toggle('active', a.getAttribute('data-anchor') === activeId);
+    });
+});
+
+/* ========== Mock 数据 ========== */
+var M = {
+    tenant: {
+        name: '华泰证券投顾部',
+        id: 'tenant_10087',
+        admin: '王晓明',
+        totalMembers: 5,
+        totalRoles: 3
+    },
+    creditPool: {
+        total: 5000,
+        allocated: 3500,
+        consumed: 1520
+    },
+    roles: [
+        { id: 'r1', name: '投顾管理员', color: '#2f6bff', quota: 2000, consumed: 820, memberCount: 2, desc: '租户管理者，可管理团队和积分' },
+        { id: 'r2', name: '高级投顾', color: '#16a34a', quota: 1000, consumed: 600, memberCount: 2, desc: '资深投资顾问，可生成高质量视频' },
+        { id: 'r3', name: '内容审核员', color: '#f59e0b', quota: 500, consumed: 100, memberCount: 1, desc: '负责视频内容的合规审核' }
+    ],
+    members: [
+        { id: 'm1', name: '王晓明', avatar: '王', avatarBg: 'linear-gradient(135deg, #2f6bff, #6b8eff)', role: '投顾管理员', roleId: 'r1', consumed: 320, joined: '2024-05-12' },
+        { id: 'm2', name: '李建国', avatar: '李', avatarBg: 'linear-gradient(135deg, #16a34a, #4ade80)', role: '投顾管理员', roleId: 'r1', consumed: 500, joined: '2024-06-03' },
+        { id: 'm3', name: '张伟', avatar: '张', avatarBg: 'linear-gradient(135deg, #f59e0b, #fbbf24)', role: '高级投顾', roleId: 'r2', consumed: 400, joined: '2024-07-15' },
+        { id: 'm4', name: '陈静', avatar: '陈', avatarBg: 'linear-gradient(135deg, #ec4899, #f472b6)', role: '高级投顾', roleId: 'r2', consumed: 200, joined: '2024-08-20' },
+        { id: 'm5', name: '赵六', avatar: '赵', avatarBg: 'linear-gradient(135deg, #8b5cf6, #a78bfa)', role: '内容审核员', roleId: 'r3', consumed: 100, joined: '2024-09-01' }
+    ],
+    rechargeRecords: [
+        { id: 'RC20240112', amount: 300, credits: 3000, time: '2024-05-12 14:30', status: '已完成', method: '微信支付', operator: '王晓明', remark: '初始开通充值' },
+        { id: 'RC20240805', amount: 200, credits: 2000, time: '2024-08-05 10:15', status: '已完成', method: '支付宝', operator: '王晓明', remark: 'Q3 追加额度' },
+        { id: 'RC20250120', amount: 100, credits: 1000, time: '2025-01-20 16:00', status: '审核中', method: '微信支付', operator: '王晓明', remark: '—' }
+    ],
+    consumeRecords: [
+        { id: 'c1', member: '王晓明', role: '投顾管理员', usage: '视频生成 · 每日早评 2025-01-22', credits: 15, time: '2025-01-22 09:30' },
+        { id: 'c2', member: '张伟', role: '高级投顾', usage: '视频生成 · 午间解盘 2025-01-22', credits: 12, time: '2025-01-22 12:00' },
+        { id: 'c3', member: '李建国', role: '投顾管理员', usage: '视频生成 · 收盘综述 2025-01-21', credits: 18, time: '2025-01-21 15:45' },
+        { id: 'c4', member: '陈静', role: '高级投顾', usage: '视频生成 · 行业研报摘要', credits: 10, time: '2025-01-21 10:20' },
+        { id: 'c5', member: '赵六', role: '内容审核员', usage: '视频生成 · 合规培训素材', credits: 8, time: '2025-01-20 14:10' },
+        { id: 'c6', member: '张伟', role: '高级投顾', usage: '视频生成 · ETF 产品解读', credits: 14, time: '2025-01-20 11:30' },
+        { id: 'c7', member: '王晓明', role: '投顾管理员', usage: '视频生成 · 策略周报 2025W03', credits: 20, time: '2025-01-19 16:00' },
+        { id: 'c8', member: '李建国', role: '投顾管理员', usage: '视频生成 · 新股申购提醒', credits: 10, time: '2025-01-19 09:15' }
+    ]
+};
+
+// 当前操作上下文（弹窗间传递数据）
+var ctx = {
+    editingRoleId: null,
+    selectedRoleColor: '#2f6bff',
+    selectedPackage: { amount: 100, credits: 1000 },
+    currentMemberId: null,
+    currentDeleteRoleId: null,
+    currentConsumeId: null
+};
+
+/* ========== 初始化 ========== */
+function init() {
+    updateCreditOverview();
+    renderMemberTable();
+    renderRoleCards();
+    renderRechargeTable();
+    renderConsumeTable();
+    populateRoleSelects();
+}
+
+/* ========== 更新积分概览 ========== */
+function updateCreditOverview() {
+    var pool = M.creditPool;
+    var unalloc = pool.total - pool.allocated;
+    document.getElementById('cv-total').textContent = pool.total.toLocaleString();
+    document.getElementById('cv-allocated').textContent = pool.allocated.toLocaleString();
+    document.getElementById('cv-unalloc').textContent = unalloc.toLocaleString();
+    document.getElementById('cv-consumed').textContent = pool.consumed.toLocaleString();
+}
+
+/* ========== 渲染成员表格 ========== */
+function renderMemberTable() {
+    var search = (document.getElementById('memberSearch').value || '').trim().toLowerCase();
+    var filtered = M.members.filter(function(m){
+        if (!search) return true;
+        return m.name.toLowerCase().indexOf(search) > -1 || m.role.toLowerCase().indexOf(search) > -1;
+    });
+    document.getElementById('memberCount').textContent = '共 ' + filtered.length + ' 人';
+
+    var roleMap = {};
+    M.roles.forEach(function(r){ roleMap[r.id] = r; });
+
+    var html = '';
+    filtered.forEach(function(m){
+        var r = roleMap[m.roleId];
+        var quota = r ? r.quota.toLocaleString() : '—';
+        html += '<tr>' +
+            '<td><div class="member-cell"><div class="member-avatar" style="background:' + m.avatarBg + ';">' + m.avatar + '</div><div><div class="member-name">' + m.name + '</div></div></div></td>' +
+            '<td><span class="tag" style="background:' + (r ? r.color + '18' : '#f4f4f5') + ';color:' + (r ? r.color : 'var(--text-secondary)') + ';">' + m.role + '</span></td>' +
+            '<td style="color:var(--text-secondary);">' + quota + '</td>' +
+            '<td><span style="color:' + (m.consumed > 0 ? 'var(--danger)' : 'var(--text-secondary)') + ';">' + m.consumed.toLocaleString() + '</span></td>' +
+            '<td style="color:var(--text-secondary);">' + m.joined + '</td>' +
+            '<td class="actions">' +
+                '<button class="btn-text" onclick="changeRole(\'' + m.id + '\')">变更角色</button>' +
+                '<button class="btn-text" style="color:var(--danger);" onclick="removeMember(\'' + m.id + '\')">移除</button>' +
+            '</td>' +
+        '</tr>';
+    });
+    document.getElementById('memberTbody').innerHTML = html || '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:32px;">暂无匹配成员</td></tr>';
+}
+
+/* ========== 渲染角色卡片 ========== */
+function renderRoleCards() {
+    var html = '';
+    M.roles.forEach(function(r){
+        var remaining = r.quota - r.consumed;
+        var pct = r.quota > 0 ? Math.round(r.consumed / r.quota * 100) : 0;
+        var barColor = pct > 80 ? 'danger' : (pct > 50 ? 'warning' : 'success');
+        var remainingColor = remaining <= 0 ? 'var(--danger)' : (remaining < r.quota * 0.2 ? 'var(--warning)' : 'var(--success)');
+        html += '<div class="role-card">' +
+            '<div class="role-card-bar" style="background:' + r.color + ';"></div>' +
+            '<div class="role-card-header">' +
+                '<span class="role-card-dot" style="background:' + r.color + ';"></span>' +
+                '<span class="role-card-name">' + r.name + '</span>' +
+                '<span class="role-card-members">' + r.memberCount + ' 人</span>' +
+            '</div>' +
+            '<div class="role-card-stats">' +
+                '<div class="role-card-stat-row"><span class="role-card-stat-label">积分额度</span><span class="role-card-stat-value">' + r.quota.toLocaleString() + '</span></div>' +
+                '<div class="role-card-stat-row"><span class="role-card-stat-label">已消耗</span><span class="role-card-stat-value" style="color:var(--danger);">' + r.consumed.toLocaleString() + '</span></div>' +
+                '<div class="role-card-stat-row"><span class="role-card-stat-label">剩余</span><span class="role-card-stat-value" style="color:' + remainingColor + ';font-weight:600;">' + remaining.toLocaleString() + '</span></div>' +
+                '<div class="progress-bar"><div class="progress-fill ' + barColor + '" style="width:' + pct + '%;"></div></div>' +
+                '<div style="font-size:11px;color:var(--text-muted);text-align:right;">已用 ' + pct + '%</div>' +
+            '</div>' +
+            '<div class="role-card-actions">' +
+                '<button class="btn btn-sm" style="flex:1;" onclick="editRole(\'' + r.id + '\')">编辑</button>' +
+                '<button class="btn btn-sm" style="flex:1;" onclick="allocCredits(\'' + r.id + '\')">分配积分</button>' +
+                '<button class="btn btn-sm" style="color:var(--danger);" onclick="deleteRole(\'' + r.id + '\')">删除</button>' +
+            '</div>' +
+        '</div>';
+    });
+    document.getElementById('roleCards').innerHTML = html;
+}
+
+/* ========== 渲染充值记录 ========== */
+function renderRechargeTable() {
+    var html = '';
+    M.rechargeRecords.forEach(function(r){
+        var statusTag = '';
+        if (r.status === '已完成') statusTag = '<span class="tag tag-success"><span class="dot dot-success"></span> 已完成</span>';
+        else if (r.status === '审核中') statusTag = '<span class="tag tag-warning"><span class="dot dot-warning"></span> 审核中</span>';
+        else statusTag = '<span class="tag tag-default">' + r.status + '</span>';
+        html += '<tr>' +
+            '<td style="font-family:monospace;font-size:12px;">' + r.id + '</td>' +
+            '<td style="font-weight:500;">¥' + r.amount.toLocaleString() + '</td>' +
+            '<td><span style="color:var(--primary);font-weight:500;">' + r.credits.toLocaleString() + '</span></td>' +
+            '<td style="color:var(--text-secondary);">' + r.method + '</td>' +
+            '<td style="color:var(--text-secondary);">' + r.time + '</td>' +
+            '<td>' + statusTag + '</td>' +
+            '<td class="actions"><button class="btn-text" onclick="rechargeDetail(\'' + r.id + '\')">详情</button></td>' +
+        '</tr>';
+    });
+    document.getElementById('rechargeTbody').innerHTML = html;
+}
+
+/* ========== 渲染消耗明细 ========== */
+function renderConsumeTable() {
+    var html = '';
+    M.consumeRecords.forEach(function(c){
+        html += '<tr>' +
+            '<td><span style="font-weight:500;">' + c.member + '</span></td>' +
+            '<td style="color:var(--text-secondary);">' + c.role + '</td>' +
+            '<td>' + c.usage + '</td>' +
+            '<td><span style="color:var(--danger);font-weight:500;">-' + c.credits + '</span></td>' +
+            '<td style="color:var(--text-secondary);">' + c.time + '</td>' +
+            '<td class="actions"><button class="btn-text" onclick="consumeDetail(\'' + c.id + '\')">详情</button></td>' +
+        '</tr>';
+    });
+    document.getElementById('consumeTbody').innerHTML = html;
+}
+
+/* ========== Tab 切换 ========== */
+function switchTab(tab) {
+    document.querySelectorAll('.tab-item').forEach(function(t){ t.classList.remove('active'); });
+    document.querySelector('[data-tab="' + tab + '"]').classList.add('active');
+    document.getElementById('tab-recharge').style.display = tab === 'recharge' ? '' : 'none';
+    document.getElementById('tab-consume').style.display = tab === 'consume' ? '' : 'none';
+}
+
+/* ========== 填充角色选择器 ========== */
+function populateRoleSelects() {
+    var options = '';
+    M.roles.forEach(function(r){ options += '<option value="' + r.id + '">' + r.name + '</option>'; });
+    var inviteRole = document.getElementById('inviteRole');
+    if (inviteRole) inviteRole.innerHTML = '<option value="">请选择角色</option>' + options;
+    document.getElementById('changeRoleSelect').innerHTML = options;
+}
+
+/* ========== 添加成员 ========== */
+function addMember() {
+    var name = (document.getElementById('addMemberName').value || '').trim();
+    var phone = (document.getElementById('addMemberPhone').value || '').trim();
+    var roleId = document.getElementById('inviteRole').value;
+    if (!name) { toast('请输入成员姓名', 'error'); return; }
+    if (!phone) { toast('请输入手机号', 'error'); return; }
+    if (!/^1\d{10}$/.test(phone)) { toast('请输入正确的手机号', 'error'); return; }
+    if (!roleId) { toast('请选择归属角色', 'error'); return; }
+    var role = null;
+    M.roles.forEach(function(r){ if (r.id === roleId) role = r; });
+    if (!role) return;
+    var colors = ['#2f6bff','#16a34a','#f59e0b','#dc2626','#8b5cf6','#ec4899','#06b6d4'];
+    var avatarBg = 'linear-gradient(135deg, ' + role.color + ', ' + (colors[Math.floor(Math.random() * colors.length)]) + ')';
+    var newMember = {
+        id: 'm' + (M.members.length + 1) + '_' + Date.now().toString(36),
+        name: name, avatar: name.charAt(0), avatarBg: avatarBg,
+        role: role.name, roleId: roleId, consumed: 0, joined: new Date().toISOString().slice(0, 10)
+    };
+    M.members.push(newMember);
+    role.memberCount++;
+    closeModal('modalInvite');
+    // 清空表单
+    document.getElementById('addMemberName').value = '';
+    document.getElementById('addMemberPhone').value = '';
+    document.getElementById('inviteRole').value = '';
+    renderMemberTable();
+    renderRoleCards();
+    toast(name + ' 已添加至「' + role.name + '」', 'success');
+}
+
+/* ========== 变更角色 ========== */
+function changeRole(memberId) {
+    var member = null;
+    M.members.forEach(function(m){ if (m.id === memberId) member = m; });
+    if (!member) return;
+    ctx.currentMemberId = memberId;
+    document.getElementById('changeRoleMember').textContent = member.name;
+    document.getElementById('changeRoleCurrent').textContent = '当前角色：' + member.role;
+    var options = '';
+    M.roles.forEach(function(r){
+        var sel = r.id === member.roleId ? ' selected' : '';
+        options += '<option value="' + r.id + '"' + sel + '>' + r.name + '</option>';
+    });
+    document.getElementById('changeRoleSelect').innerHTML = options;
+    openModal('modalChangeRole');
+}
+function confirmChangeRole() {
+    var newRoleId = document.getElementById('changeRoleSelect').value;
+    var member = null;
+    M.members.forEach(function(m){ if (m.id === ctx.currentMemberId) member = m; });
+    var newRole = null;
+    M.roles.forEach(function(r){ if (r.id === newRoleId) newRole = r; });
+    if (!member || !newRole) return;
+    var oldRoleId = member.roleId;
+    // 更新角色成员数
+    M.roles.forEach(function(r){
+        if (r.id === oldRoleId) r.memberCount--;
+        if (r.id === newRoleId) r.memberCount++;
+    });
+    // 更新成员
+    member.roleId = newRoleId;
+    member.role = newRole.name;
+    closeModal('modalChangeRole');
+    renderMemberTable();
+    renderRoleCards();
+    toast(member.name + ' 的角色已变更为 ' + newRole.name, 'success');
+}
+
+/* ========== 移除成员 ========== */
+function removeMember(memberId) {
+    var member = null;
+    M.members.forEach(function(m){ if (m.id === memberId) member = m; });
+    if (!member) return;
+    ctx.currentMemberId = memberId;
+    document.getElementById('removeMemberContent').innerHTML = '确定将 <b>' + member.name + '</b>（角色：' + member.role + '）从团队中移除？<br>移除后该成员将无法使用本租户的积分和资源。';
+    document.getElementById('deleteRoleWarning').style.display = 'none';
+    var okBtn = document.getElementById('removeMemberOkBtn');
+    var newBtn = okBtn.cloneNode(true);
+    okBtn.parentNode.replaceChild(newBtn, okBtn);
+    newBtn.addEventListener('click', function(){
+        closeModal('modalRemoveMember');
+        var mid = ctx.currentMemberId;
+        M.members.forEach(function(m, i){
+            if (m.id === mid) {
+                M.roles.forEach(function(r){ if (r.id === m.roleId) r.memberCount--; });
+                M.members.splice(i, 1);
+            }
+        });
+        renderMemberTable();
+        renderRoleCards();
+        toast('成员已移除', 'success');
+    });
+    openModal('modalRemoveMember');
+}
+
+/* ========== 新建/编辑角色 ========== */
+function editRole(roleId) {
+    var role = null;
+    M.roles.forEach(function(r){ if (r.id === roleId) role = r; });
+    if (!role) return;
+    ctx.editingRoleId = roleId;
+    document.getElementById('roleEditTitle').textContent = '编辑角色';
+    document.getElementById('roleEditName').value = role.name;
+    document.getElementById('roleEditDesc').value = role.desc || '';
+    ctx.selectedRoleColor = role.color;
+    updateColorPicker();
+    openModal('modalRoleEdit');
+}
+// 重置新建角色弹窗（关闭时调用）
+function resetRoleEdit() {
+    ctx.editingRoleId = null;
+    document.getElementById('roleEditTitle').textContent = '新建角色';
+    document.getElementById('roleEditName').value = '';
+    document.getElementById('roleEditDesc').value = '';
+    ctx.selectedRoleColor = '#2f6bff';
+    updateColorPicker();
+}
+function updateColorPicker() {
+    document.querySelectorAll('#roleColorPicker .role-color-opt').forEach(function(opt){
+        opt.classList.toggle('active', opt.dataset.color === ctx.selectedRoleColor);
+        opt.style.boxShadow = opt.dataset.color === ctx.selectedRoleColor ? '0 0 0 2px #fff, 0 0 0 4px ' + ctx.selectedRoleColor : '';
+    });
+}
+document.querySelectorAll('#roleColorPicker .role-color-opt').forEach(function(opt){
+    opt.addEventListener('click', function(){
+        ctx.selectedRoleColor = opt.dataset.color;
+        updateColorPicker();
+    });
+});
+// 覆盖 openModal / closeModal 以处理角色弹窗重置
+var _origOpenModal = openModal;
+openModal = function(id) {
+    if (id === 'modalRoleEdit' && !ctx.editingRoleId) resetRoleEdit();
+    _origOpenModal(id);
+};
+function saveRole() {
+    var name = document.getElementById('roleEditName').value.trim();
+    if (!name) { toast('请输入角色名称', 'error'); return; }
+    var desc = document.getElementById('roleEditDesc').value.trim();
+    if (ctx.editingRoleId) {
+        // 编辑
+        M.roles.forEach(function(r){
+            if (r.id === ctx.editingRoleId) {
+                r.name = name;
+                r.desc = desc;
+                r.color = ctx.selectedRoleColor;
+            }
+        });
+        // 同步更新成员的 role 名称
+        M.members.forEach(function(m){
+            if (m.roleId === ctx.editingRoleId) {
+                // 需要找到旧的 role name → 新的 role name
+                m.role = name;
+            }
+        });
+        toast('角色已更新', 'success');
+    } else {
+        // 新建
+        var newId = 'r' + (M.roles.length + 1) + '_' + Date.now().toString(36);
+        M.roles.push({
+            id: newId, name: name, color: ctx.selectedRoleColor,
+            quota: 0, consumed: 0, memberCount: 0, desc: desc
+        });
+        toast('角色「' + name + '」已创建，记得为其分配积分额度', 'success');
+    }
+    closeModal('modalRoleEdit');
+    ctx.editingRoleId = null;
+    renderRoleCards();
+    renderMemberTable();
+    populateRoleSelects();
+}
+
+/* ========== 分配积分 ========== */
+var _allocRoleId = null;
+function allocCredits(roleId) {
+    var role = null;
+    M.roles.forEach(function(r){ if (r.id === roleId) role = r; });
+    if (!role) return;
+    _allocRoleId = roleId;
+    document.getElementById('allocRoleName').textContent = role.name + '（颜色标识）';
+    document.getElementById('allocRoleName').innerHTML = '<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:' + role.color + ';margin-right:6px;"></span>' + role.name;
+    document.getElementById('allocCurrentQuota').textContent = '当前额度：' + role.quota.toLocaleString() + ' 积分（已消耗 ' + role.consumed.toLocaleString() + '）';
+    var poolRemain = M.creditPool.total - M.creditPool.allocated;
+    document.getElementById('allocPoolRemain').textContent = '租户待分配积分：' + poolRemain.toLocaleString();
+    document.getElementById('allocAmount').value = '';
+    document.getElementById('allocPreview').textContent = '';
+    openModal('modalAllocCredits');
+}
+function updateAllocPreview() {
+    var val = parseInt(document.getElementById('allocAmount').value) || 0;
+    var poolRemain = M.creditPool.total - M.creditPool.allocated;
+    if (val <= 0) {
+        document.getElementById('allocPreview').textContent = '';
+    } else if (val > poolRemain) {
+        document.getElementById('allocPreview').innerHTML = '<span style="color:var(--danger);">⚠ 超出待分配积分（' + poolRemain.toLocaleString() + '），无法分配</span>';
+    } else {
+        var role = null;
+        M.roles.forEach(function(r){ if (r.id === _allocRoleId) role = r; });
+        var newQuota = (role ? role.quota : 0) + val;
+        document.getElementById('allocPreview').innerHTML = '分配后该角色额度：<b>' + newQuota.toLocaleString() + '</b> 积分，待分配剩余：<b>' + (poolRemain - val).toLocaleString() + '</b>';
+    }
+}
+function confirmAllocCredits() {
+    var val = parseInt(document.getElementById('allocAmount').value) || 0;
+    var poolRemain = M.creditPool.total - M.creditPool.allocated;
+    if (val <= 0) { toast('请输入有效的分配数量', 'error'); return; }
+    if (val > poolRemain) { toast('分配额度超出待分配积分', 'error'); return; }
+    var role = null;
+    M.roles.forEach(function(r){ if (r.id === _allocRoleId) role = r; });
+    if (!role) return;
+    role.quota += val;
+    M.creditPool.allocated += val;
+    closeModal('modalAllocCredits');
+    updateCreditOverview();
+    renderRoleCards();
+    renderMemberTable();
+    toast('已向「' + role.name + '」分配 ' + val.toLocaleString() + ' 积分', 'success');
+}
+
+/* ========== 删除角色 ========== */
+function deleteRole(roleId) {
+    var role = null;
+    M.roles.forEach(function(r){ if (r.id === roleId) role = r; });
+    if (!role) return;
+    ctx.currentDeleteRoleId = roleId;
+    var content = '确定要删除角色 <b>' + role.name + '</b> 吗？<br>该角色的积分额度将被收回至租户总池。';
+    var warning = document.getElementById('deleteRoleWarning');
+    var okBtn = document.getElementById('deleteRoleOkBtn');
+    if (role.memberCount > 0) {
+        warning.style.display = '';
+        okBtn.disabled = true;
+        content = '确定要删除角色 <b>' + role.name + '</b> 吗？';
+    } else {
+        warning.style.display = 'none';
+        okBtn.disabled = false;
+    }
+    document.getElementById('deleteRoleContent').innerHTML = content;
+    var newBtn = okBtn.cloneNode(true);
+    okBtn.parentNode.replaceChild(newBtn, okBtn);
+    newBtn.addEventListener('click', function(){
+        var rid = ctx.currentDeleteRoleId;
+        var delRole = null;
+        M.roles.forEach(function(r, i){
+            if (r.id === rid) { delRole = r; M.roles.splice(i, 1); }
+        });
+        if (delRole) {
+            // 收回积分
+            M.creditPool.allocated -= delRole.quota;
+        }
+        closeModal('modalDeleteRole');
+        updateCreditOverview();
+        renderRoleCards();
+        renderMemberTable();
+        populateRoleSelects();
+        if (delRole) toast('角色「' + delRole.name + '」已删除，积分已收回', 'success');
+    });
+    openModal('modalDeleteRole');
+}
+
+/* ========== 积分充值 ========== */
+function selectPackage(card) {
+    document.querySelectorAll('.package-card').forEach(function(c){ c.classList.remove('selected'); });
+    card.classList.add('selected');
+    var amount = parseInt(card.dataset.amount);
+    var credits = parseInt(card.dataset.credits);
+    ctx.selectedPackage = { amount: amount, credits: credits };
+    document.getElementById('customAmountGroup').style.display = amount === 0 ? '' : 'none';
+    if (amount === 0) {
+        ctx.selectedPackage = { amount: 0, credits: 0 };
+        document.getElementById('summaryAmount').textContent = '¥—';
+        document.getElementById('summaryCredits').textContent = '— 积分';
+    } else {
+        document.getElementById('summaryAmount').textContent = '¥' + amount.toLocaleString();
+        document.getElementById('summaryCredits').textContent = credits.toLocaleString() + ' 积分';
+    }
+}
+function setCustomAmount(amt, chip) {
+    document.querySelectorAll('.amount-chip').forEach(function(c){ c.classList.remove('active'); });
+    chip.classList.add('active');
+    document.getElementById('customAmount').value = amt;
+    updateCustomPreview();
+}
+function updateCustomPreview() {
+    var amt = parseInt(document.getElementById('customAmount').value) || 0;
+    if (amt > 0) {
+        ctx.selectedPackage = { amount: amt, credits: amt * 10 };
+        document.getElementById('summaryAmount').textContent = '¥' + amt.toLocaleString();
+        document.getElementById('summaryCredits').textContent = (amt * 10).toLocaleString() + ' 积分';
+        document.getElementById('customPreview').textContent = '1 元 = 10 积分';
+    } else {
+        document.getElementById('summaryAmount').textContent = '¥—';
+        document.getElementById('summaryCredits').textContent = '— 积分';
+        document.getElementById('customPreview').textContent = '';
+    }
+}
+function submitRecharge() {
+    var pkg = ctx.selectedPackage;
+    if (!pkg || pkg.amount <= 0) { toast('请选择套餐或输入金额', 'error'); return; }
+    var method = document.getElementById('rechargeMethod').value;
+    var recId = 'RC' + new Date().toISOString().slice(0,10).replace(/-/g,'') + Math.random().toString(36).slice(2,6).toUpperCase();
+    M.rechargeRecords.unshift({
+        id: recId, amount: pkg.amount, credits: pkg.credits,
+        time: new Date().toISOString().replace('T',' ').slice(0,16),
+        status: '审核中', method: method, operator: '王晓明', remark: '—'
+    });
+    closeModal('modalRecharge');
+    renderRechargeTable();
+    toast('充值已提交 · ¥' + pkg.amount.toLocaleString() + ' → ' + pkg.credits.toLocaleString() + ' 积分，请等待审核', 'success');
+    // 模拟 3 秒后审核通过
+    setTimeout(function(){
+        var rec = M.rechargeRecords[0];
+        if (rec && rec.status === '审核中') {
+            rec.status = '已完成';
+            M.creditPool.total += rec.credits;
+            renderRechargeTable();
+            updateCreditOverview();
+            renderRoleCards();
+            toast('充值审核已通过 · ' + rec.credits.toLocaleString() + ' 积分已到账', 'success');
+        }
+    }, 3000);
+}
+
+/* ========== 充值详情 ========== */
+function rechargeDetail(recId) {
+    var rec = null;
+    M.rechargeRecords.forEach(function(r){ if (r.id === recId) rec = r; });
+    if (!rec) return;
+    var html = '<div style="line-height:2.2;font-size:14px;">' +
+        '<div><span style="color:var(--text-secondary);">充值编号：</span>' + rec.id + '</div>' +
+        '<div><span style="color:var(--text-secondary);">充值金额：</span><b>¥' + rec.amount.toLocaleString() + '</b></div>' +
+        '<div><span style="color:var(--text-secondary);">获得积分：</span><b style="color:var(--primary);">' + rec.credits.toLocaleString() + '</b></div>' +
+        '<div><span style="color:var(--text-secondary);">支付方式：</span>' + rec.method + '</div>' +
+        '<div><span style="color:var(--text-secondary);">申请人：</span>' + rec.operator + '</div>' +
+        '<div><span style="color:var(--text-secondary);">申请时间：</span>' + rec.time + '</div>' +
+        '<div><span style="color:var(--text-secondary);">状态：</span>' + rec.status + '</div>' +
+        '<div><span style="color:var(--text-secondary);">备注：</span>' + rec.remark + '</div>' +
+    '</div>';
+    document.getElementById('rechargeDetailBody').innerHTML = html;
+    openModal('modalRechargeDetail');
+}
+
+/* ========== 消耗详情 ========== */
+function consumeDetail(cId) {
+    var rec = null;
+    M.consumeRecords.forEach(function(c){ if (c.id === cId) rec = c; });
+    if (!rec) return;
+    var html = '<div style="line-height:2.2;font-size:14px;">' +
+        '<div><span style="color:var(--text-secondary);">成员：</span><b>' + rec.member + '</b></div>' +
+        '<div><span style="color:var(--text-secondary);">角色：</span>' + rec.role + '</div>' +
+        '<div><span style="color:var(--text-secondary);">用途：</span>' + rec.usage + '</div>' +
+        '<div><span style="color:var(--text-secondary);">消耗积分：</span><b style="color:var(--danger);">-' + rec.credits + '</b></div>' +
+        '<div><span style="color:var(--text-secondary);">时间：</span>' + rec.time + '</div>' +
+    '</div>';
+    document.getElementById('consumeDetailBody').innerHTML = html;
+    openModal('modalConsumeDetail');
+}
+
+/* ========== 启动 ========== */
+init();
+</script>
+</body>
+</html>
