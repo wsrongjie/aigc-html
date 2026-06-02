@@ -614,6 +614,102 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
+    /* ===== Delete Button ===== */
+    .card-delete-btn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: rgba(0, 0, 0, 0.5);
+      border: none;
+      color: #ffffff;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity 0.15s, background 0.15s;
+      z-index: 2;
+    }
+    .project-card:hover .card-delete-btn {
+      opacity: 1;
+    }
+    .card-delete-btn:hover {
+      background: #ef4444;
+    }
+
+    /* ===== Delete Confirm Modal ===== */
+    .delete-modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.4);
+      z-index: 200;
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+    .delete-modal-overlay.show {
+      display: flex;
+    }
+    .delete-modal {
+      background: #ffffff;
+      border-radius: 14px;
+      padding: 24px;
+      width: 360px;
+      max-width: 90vw;
+      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.18);
+    }
+    .delete-modal-title {
+      font-size: 17px;
+      font-weight: 800;
+      color: #111827;
+      margin-bottom: 8px;
+    }
+    .delete-modal-desc {
+      font-size: 13px;
+      color: #64748b;
+      margin-bottom: 20px;
+      line-height: 1.6;
+    }
+    .delete-modal-desc strong {
+      color: #111827;
+      font-weight: 700;
+    }
+    .delete-modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+    .btn-modal-cancel {
+      padding: 8px 20px;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      background: transparent;
+      color: #6b7280;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-modal-cancel:hover {
+      background: #f3f4f6;
+    }
+    .btn-modal-confirm {
+      padding: 8px 20px;
+      border: none;
+      border-radius: 8px;
+      background: #ef4444;
+      color: #ffffff;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-modal-confirm:hover {
+      background: #dc2626;
+    }
+
     /* ===== Responsive ===== */
     @media (max-width: 760px) {
       .top-bar { padding: 0 16px; }
@@ -674,6 +770,20 @@
     <div id="toast" class="toast">
       <div id="toastTitle" class="toast-title"></div>
       <div id="toastText" class="toast-text"></div>
+    </div>
+
+    <div id="deleteModalOverlay" class="delete-modal-overlay" onclick="closeDeleteModal()">
+      <div class="delete-modal" onclick="event.stopPropagation()">
+        <div class="delete-modal-title">确认删除作品</div>
+        <div class="delete-modal-desc">
+          确定要删除 <strong id="deleteModalName"></strong> 吗？<br>
+          删除后无法恢复。
+        </div>
+        <div class="delete-modal-actions">
+          <button class="btn-modal-cancel" type="button" onclick="closeDeleteModal()">取消</button>
+          <button class="btn-modal-confirm" type="button" onclick="confirmDelete()">确认删除</button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -903,6 +1013,44 @@
       renderProjects();
     }
 
+    /* ===== Delete Project ===== */
+    var pendingDeleteId = null;
+    var pendingDeleteName = "";
+
+    function openDeleteModal(projectId, projectName) {
+      pendingDeleteId = projectId;
+      pendingDeleteName = projectName;
+      document.getElementById("deleteModalName").innerText = projectName;
+      document.getElementById("deleteModalOverlay").classList.add("show");
+    }
+
+    function closeDeleteModal() {
+      pendingDeleteId = null;
+      pendingDeleteName = "";
+      document.getElementById("deleteModalOverlay").classList.remove("show");
+    }
+
+    function confirmDelete() {
+      if (!pendingDeleteId) return;
+      var deletedName = pendingDeleteName;
+      var projects = loadProjects() || [];
+      projects = projects.filter(function(p) { return p.id !== pendingDeleteId; });
+      saveProjects(projects);
+      closeDeleteModal();
+      renderProjects();
+      showToast("已删除", deletedName + " 已从作品列表中移除");
+    }
+
+    // ESC 关闭删除确认弹窗
+    document.addEventListener("keydown", function(e) {
+      if (e.key === "Escape") {
+        var overlay = document.getElementById("deleteModalOverlay");
+        if (overlay.classList.contains("show")) {
+          closeDeleteModal();
+        }
+      }
+    });
+
     /* ===== Task Drawer ===== */
     var drawerSearchKeyword = "";
     var pendingCancelId = null;
@@ -1114,9 +1262,11 @@
               '<span>预览</span>' +
             '</div>';
 
+        var deleteBtnHtml = '<button class="card-delete-btn" type="button" onclick="event.stopPropagation();openDeleteModal(\'' + escapeHtml(p.id) + '\', \'' + escapeHtml(p.title) + '\')" title="删除作品">🗑</button>';
+
         html +=
           '<div class="project-card" onclick="openProject(\'' + escapeHtml(p.id) + '\', ' + p.currentStep + ')">' +
-            '<div class="' + thumbClass + '">' + thumbHtml + '</div>' +
+            '<div class="' + thumbClass + '">' + thumbHtml + deleteBtnHtml + '</div>' +
             '<div class="card-body">' +
               '<div class="card-title-row">' +
                 '<div class="card-title">' + escapeHtml(p.title) + '</div>' +

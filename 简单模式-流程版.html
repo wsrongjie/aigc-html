@@ -269,7 +269,7 @@
     .imp-ov.show { display: flex; }
     .imp-modal { background: #fff; border-radius: 14px; width: 440px; max-width: 90vw; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.15); }
     .imp-hd { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid #f0f0f0; }
-    .imp-hd h3 { font-size: 15px; font-weight: 600; color: #1a1a2e; }
+    .imp-hd h3 { font-size: 18px; font-weight: 700; color: #1a1a2e; }
     .imp-hd .close-btn { width: 26px; height: 26px; border-radius: 50%; background: #f0f0f0; border: none; color: #666; font-size: 13px; cursor: pointer; }
     .imp-bd { padding: 20px; }
     .imp-tip { font-size: 13px; color: #666; line-height: 1.8; }
@@ -480,6 +480,14 @@
             <div id="sb-wm-status" style="font-size:13px;color:#333;font-weight:600;margin-bottom:8px;line-height:1.6;">未开启水印 · 字幕已开启</div>
             <button class="btn btn1" style="width:100%;font-size:12px;padding:7px 0;" onclick="openWmModal()">水印字幕配置</button>
           </div>
+          <div class="sb-section">
+            <div class="sb-label">👁 可见范围</div>
+            <select id="sb-visibility" style="width:100%;height:34px;padding:0 10px;border:1px solid #e0e0e0;border-radius:8px;font-size:13px;color:#333;background:#fff;outline:none;cursor:pointer;" onchange="updateVisibility()">
+              <option value="private">仅自己</option>
+              <option value="team">团队共享</option>
+            </select>
+            <div id="sb-visibility-hint" style="font-size:11px;color:#999;margin-top:5px;line-height:1.5;">生成的视频仅自己可见，不会分享给团队成员</div>
+          </div>
         </div>
       </div>
     </div>
@@ -511,7 +519,7 @@
           <div>共 <strong id="cf-count">0</strong> 条视频 · 预计 <strong id="cf-time">0</strong> 分钟</div>
         </div>
         <table class="cf-table">
-          <thead><tr><th style="width:44px">序号</th><th style="width:50px">首帧</th><th>角色</th><th>背景</th><th>镜头</th><th>台词</th><th style="width:60px">操作</th></tr></thead>
+          <thead><tr><th style="width:44px">序号</th><th style="width:50px">首帧</th><th>角色</th><th>背景</th><th>镜头</th><th>台词</th><th style="width:70px">预估时长</th><th style="width:60px">操作</th></tr></thead>
           <tbody id="cf-tbody"></tbody>
         </table>
       </div>
@@ -710,7 +718,8 @@
       subtitleText: '字幕示例',
       subtitlePos: 'bottom',
       subtitleGap: 20,
-      subtitleSize: 36
+      subtitleSize: 36,
+      visibility: 'private'       // 可见范围：private=仅自己, team=团队共享
     };
 
     var POSES = ['站立', '坐姿', '侧身', '走动'];
@@ -739,6 +748,17 @@
     var avI = {'知性女性':'👩','商务男性':'👨','活泼女性':'👧','青年男声':'🧑','成熟女性':'👩‍💼','老年男性':'👴','儿童女孩':'👧','新闻主播':'👩‍💻','科技达人':'👨‍💻','医疗顾问':'👨‍⚕️','教育讲师':'👩‍🏫','运动教练':'🏃','时尚博主':'💃','旅行者':'🧳','厨师':'👨‍🍳','艺术家':'🎨'};
 
     function toast(m) { var t = document.getElementById('toast-el'); t.textContent = m; t.classList.add('show'); setTimeout(function(){t.classList.remove('show');}, 2000); }
+
+    function updateVisibility() {
+      var val = document.getElementById('sb-visibility').value;
+      S.visibility = val;
+      var hint = document.getElementById('sb-visibility-hint');
+      if (val === 'team') {
+        hint.textContent = '生成的视频将共享给团队成员，成员可查看和使用';
+      } else {
+        hint.textContent = '生成的视频仅自己可见，不会分享给团队成员';
+      }
+    }
     function escapeHtml(v) { return String(v || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
     function getAvatarMeta(key) { for (var i=0;i<avList.length;i++){ if(avList[i].key===key) return avList[i]; } return { key:key, name:key, tag:'' }; }
     function pick(arr) { return arr[Math.floor(Math.random()*arr.length)]; }
@@ -1225,7 +1245,8 @@
         h += '<div class="ff-right">';
         h += '<div class="ff-head"><span class="ff-no">台词 '+(i+1)+'</span>';
         if (t.custom) h += '<span class="badge-custom" style="margin-left:8px;">单独配置</span>';
-        h += '<span class="ff-cnt" id="ff-cnt-'+g.id+'">'+g.content.length+' 字</span></div>';
+        h += '<span class="ff-cnt" id="ff-cnt-'+g.id+'">'+g.content.length+' 字</span>';
+        h += '<span style="font-size:11px;color:#059669;font-weight:500;margin-left:6px;">预估时长 '+(t&&t.duration?t.duration+'s':'--')+'</span></div>';
         h += '<textarea oninput="updScript('+g.id+',this.value)">'+escapeHtml(g.content)+'</textarea>';
         // 播放条
         h += '<div class="tts-play-row">';
@@ -1438,6 +1459,7 @@
         h += '<td>'+f.pose+' · '+f.shot+(hasCustomTts?' · 单独语音':'')+'</td>';
         // 台词 - hover 显示全文
         h += '<td class="cf-script cf-hoverable" onmouseenter="showScriptTip(event,\''+escapeHtml(g.content).replace(/'/g,"\\'")+'\')" onmouseleave="hideScriptTip()">'+escapeHtml(preview)+'</td>';
+        h += '<td style="color:#059669;font-weight:500;">'+(g.tts&&g.tts.duration?g.tts.duration+'s':'--')+'</td>';
         h += '<td><button class="cf-op-btn" onclick="cfToggleRow(this)">移除</button></td>';
         h += '</tr>';
       });

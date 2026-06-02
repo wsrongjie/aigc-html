@@ -781,6 +781,65 @@
             background: #10b981;
         }
 
+        .composite-prompt {
+            margin-top: 12px;
+        }
+
+        .composite-prompt textarea {
+            width: 100%;
+            min-height: 60px;
+            padding: 10px 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            background: #f9fafb;
+            color: #111827;
+            font-size: 13px;
+            line-height: 1.6;
+            resize: vertical;
+            outline: none;
+            transition: border-color 0.15s;
+        }
+
+        .composite-prompt textarea:focus {
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        .composite-prompt textarea::placeholder {
+            color: #94a3b8;
+        }
+
+        .composite-prompt-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 8px;
+        }
+
+        .prompt-tag {
+            height: 28px;
+            padding: 0 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 999px;
+            background: #ffffff;
+            color: #374151;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .prompt-tag:hover {
+            border-color: #a5b4fc;
+            color: #4f46e5;
+        }
+
+        .prompt-tag.active {
+            border-color: #4f46e5;
+            background: #eef2ff;
+            color: #4f46e5;
+        }
+
         .composite-actions {
             display: grid;
             grid-template-columns: minmax(0, 1fr) auto;
@@ -2318,6 +2377,16 @@
                                 <ul class="composite-steps" id="compositeSteps"></ul>
                             </div>
                         </div>
+                        <div class="composite-prompt">
+                            <textarea id="compositePromptText" placeholder="输入提示词描述首帧构图，例如：人物居中站立，双手自然下垂，表情自信"></textarea>
+                            <div class="composite-prompt-tags" id="compositePromptTags">
+                                <button class="prompt-tag" type="button" data-tag="站立">站立</button>
+                                <button class="prompt-tag" type="button" data-tag="全身">全身</button>
+                                <button class="prompt-tag" type="button" data-tag="半身">半身</button>
+                                <button class="prompt-tag" type="button" data-tag="坐姿">坐姿</button>
+                                <button class="prompt-tag" type="button" data-tag="侧身">侧身</button>
+                            </div>
+                        </div>
                         <div class="composite-actions">
                             <button class="btn btn-primary" type="button" id="compositePrimaryBtn" disabled>合成首帧</button>
                             <button class="btn btn-light" type="button" id="compositeViewBtn" disabled>查看大图</button>
@@ -3201,7 +3270,7 @@
             return Math.abs(hash);
         }
 
-        function buildCompositeFirstFrame(role, scene, version) {
+        function buildCompositeFirstFrame(role, scene, version, prompt) {
             const roleName = escapeSubjectText(role.name || "未命名角色");
             const sceneName = escapeSubjectText(scene.name || "未命名场景");
             const roleVoice = escapeSubjectText(role.voice || "未配置音色");
@@ -3248,6 +3317,8 @@
                     '<rect x="112" y="102" width="226" height="44" rx="14" fill="' + accent + '"/>' +
                     '<text x="138" y="132" fill="#ffffff" font-size="24" font-weight="700" font-family="Arial, sans-serif">AI COMPOSITE</text>' +
                     '<text x="668" y="148" fill="#64748b" font-size="24" font-family="Arial, sans-serif">V' + version + '</text>' +
+                    (prompt ? '<rect x="112" y="1460" width="676" height="64" rx="14" fill="#1e293b" opacity="0.86"/>' +
+                    '<text x="130" y="1500" fill="#e2e8f0" font-size="22" font-family="Microsoft YaHei, Arial, sans-serif">PROMPT: ' + escapeSubjectText(prompt) + '</text>' : '') +
                 '</svg>';
             return "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(svg);
         }
@@ -3279,7 +3350,7 @@
 
                 clearCompositeTimer();
                 compositeVersion += 1;
-                compositeImageData = buildCompositeFirstFrame(selectedRole, selectedScene, compositeVersion);
+                compositeImageData = buildCompositeFirstFrame(selectedRole, selectedScene, compositeVersion, getCompositePrompt());
                 compositeSourceKey = sourceKey;
                 compositeStepIndex = compositeStepLabels.length;
                 setCompositeState("done");
@@ -3581,6 +3652,29 @@
             alert("主体配置已完成，即将进入分镜管理。");
             window.location.href = "step3-分镜管理.html";
         });
+
+        // 提示词快捷标签（单选切换）
+        let activePromptTag = "";
+        document.querySelectorAll("#compositePromptTags .prompt-tag").forEach((tag) => {
+            tag.addEventListener("click", () => {
+                if (tag.classList.contains("active")) {
+                    tag.classList.remove("active");
+                    activePromptTag = "";
+                } else {
+                    document.querySelectorAll("#compositePromptTags .prompt-tag").forEach((t) => t.classList.remove("active"));
+                    tag.classList.add("active");
+                    activePromptTag = tag.dataset.tag;
+                }
+            });
+        });
+
+        function getCompositePrompt() {
+            const text = document.getElementById("compositePromptText").value.trim();
+            const parts = [];
+            if (text) parts.push(text);
+            if (activePromptTag) parts.push(activePromptTag);
+            return parts.join("，");
+        }
 
         compositePrimaryBtn.addEventListener("click", startCompositeGeneration);
         compositeViewBtn.addEventListener("click", openFirstFrameViewModal);

@@ -970,6 +970,9 @@
         <h1>新建语音模型</h1>
       </div>
 
+      <div class="head-actions">
+        <span class="page-state" id="pageStateBadge">待配置</span>
+      </div>
     </header>
 
     <main class="layout">
@@ -1000,8 +1003,8 @@
               <div>
                 <div class="field-row">
                   <div class="field">
-                    <label for="modelName">模型名称 <span class="required">*</span></label>
-                    <input class="input" id="modelName" type="text" value="财经解读-稳重男声" />
+                    <label for="modelName">模型名称 <span class="required">*</span> <span id="modelNameCounter" style="margin-left:auto;font-weight:400;color:var(--muted);font-size:12px;">9/30</span></label>
+                    <input class="input" id="modelName" type="text" value="财经解读-稳重男声" maxlength="30" />
                   </div>
 
                   <div class="field">
@@ -1074,25 +1077,14 @@
                       <button class="button ghost" type="button" id="resetSampleButton">重选样本</button>
                       <span class="helper" id="cloneHelper">请先准备样本并确认授权。</span>
                     </div>
+
+                    <div id="cloneStatus" style="display:none;margin-top:10px;padding:10px 12px;border:1px solid var(--primary);border-radius:10px;background:var(--primary-soft);color:var(--primary);font-size:13px;font-weight:600;">
+                      <span id="cloneStatusIcon" style="margin-right:6px;">⏳</span>
+                      <span id="cloneStatusText">复刻音色生成中，请稍候（约 10-30 秒）…</span>
+                    </div>
                   </div>
                 </div>
               </div>
-
-              <aside class="mini-panel">
-                <div class="label">当前配置</div>
-                <dl class="summary">
-                  <dt>模型名称</dt>
-                  <dd id="configModelName">财经解读-稳重男声</dd>
-                  <dt>可见范围</dt>
-                  <dd id="configVisibility">仅自己</dd>
-                  <dt>音色来源</dt>
-                  <dd id="configSource">未选择</dd>
-                  <dt>当前音色</dt>
-                  <dd id="configVoice">未选择</dd>
-                  <dt>下一步</dt>
-                  <dd id="configNext">选择音色</dd>
-                </dl>
-              </aside>
             </div>
           </section>
 
@@ -1110,7 +1102,8 @@
               <div>
                 <div class="field">
                   <label for="previewText">试听文本 <span class="required">*</span></label>
-                  <textarea class="textarea" id="previewText">大家好，今天市场整体延续震荡走势，短线情绪有所分化。操作上建议控制仓位，关注业绩确定性较强的方向。</textarea>
+                  <textarea class="textarea" id="previewText" maxlength="500">大家好，今天市场整体延续震荡走势，短线情绪有所分化。操作上建议控制仓位，关注业绩确定性较强的方向。</textarea>
+                  <div id="previewTextCounter" style="text-align:right;color:var(--muted);font-size:12px;margin-top:4px;">49/500</div>
                 </div>
 
                 <div class="params-block">
@@ -1338,7 +1331,8 @@
       cloneGenerated: false,
       previewGenerated: false,
       seedMode: "random",
-      seedValue: 0
+      seedValue: 0,
+      recording: false
     };
 
     var modelNameInput = document.getElementById("modelName");
@@ -1355,8 +1349,7 @@
     var previewPlayer = document.getElementById("previewPlayer");
     var previewTitle = document.getElementById("previewTitle");
     var saveButton = document.getElementById("saveButton");
-    var saveTopButton = document.getElementById("saveTopButton");
-    var pageState = document.getElementById("pageState");
+    var pageStateEl = document.getElementById("pageStateBadge");
     var footerTip = document.getElementById("footerTip");
     var toast = document.getElementById("toast");
     var voiceModal = document.getElementById("voiceModal");
@@ -1452,16 +1445,10 @@
       document.getElementById("previewHelper").textContent = sourceDone ? "调整参数后点击生成试听。" : "完成音色配置后可生成试听。";
 
       saveButton.disabled = !saveReady;
-      saveTopButton.disabled = !saveReady;
 
-      pageState.textContent = saveReady ? "可保存" : sourceDone ? "待试听" : "待配置";
-      pageState.classList.toggle("ready", saveReady);
+      pageStateEl.textContent = saveReady ? "可保存" : sourceDone ? "待试听" : "待配置";
+      pageStateEl.classList.toggle("ready", saveReady);
 
-      document.getElementById("configModelName").textContent = state.modelName || "未填写";
-      document.getElementById("configVisibility").textContent = state.visibility === "team" ? "团队共享" : "仅自己";
-      document.getElementById("configSource").textContent = state.voiceSource || "未选择";
-      document.getElementById("configVoice").textContent = state.voiceName || "未选择";
-      document.getElementById("configNext").textContent = sourceDone ? "生成试听" : "选择音色";
 
       renderSeedUI();
 
@@ -1479,8 +1466,17 @@
 
     modelNameInput.addEventListener("input", function() {
       state.modelName = modelNameInput.value;
+      document.getElementById("modelNameCounter").textContent = modelNameInput.value.length + "/30";
       resetPreview();
       render();
+    });
+
+    document.getElementById("previewText").addEventListener("input", function() {
+      document.getElementById("previewTextCounter").textContent = document.getElementById("previewText").value.length + "/500";
+      if (state.previewGenerated) {
+        resetPreview();
+        render();
+      }
     });
 
     document.getElementById("visibility").addEventListener("change", function() {
@@ -1607,13 +1603,25 @@
     });
 
     document.getElementById("recordButton").addEventListener("click", function() {
-      state.sampleReady = true;
-      state.cloneGenerated = false;
-      document.getElementById("recordTitle").textContent = "录音已完成";
-      document.getElementById("recordDesc").textContent = "record_sample.wav · 16.8 秒";
-      sampleTitle.textContent = "record_sample.wav · 人声清晰度良好";
-      sampleStatus.classList.add("active");
-      updateCloneButton();
+      var btn = this;
+      if (!state.recording) {
+        state.recording = true;
+        btn.style.background = "#6b7280";
+        btn.textContent = "■";
+        document.getElementById("recordTitle").textContent = "正在录音…";
+        document.getElementById("recordDesc").textContent = "点击按钮停止录音";
+      } else {
+        state.recording = false;
+        btn.style.background = "#ef4444";
+        btn.textContent = "●";
+        state.sampleReady = true;
+        state.cloneGenerated = false;
+        document.getElementById("recordTitle").textContent = "录音已完成";
+        document.getElementById("recordDesc").textContent = "record_sample.wav · 16.8 秒";
+        sampleTitle.textContent = "record_sample.wav · 人声清晰度良好";
+        sampleStatus.classList.add("active");
+        updateCloneButton();
+      }
     });
 
     consentCheck.addEventListener("change", function() {
@@ -1632,9 +1640,32 @@
         return;
       }
 
-      state.cloneGenerated = true;
-      selectVoice("复刻音色 · 本次录音", "复刻音色 · 已生成 · 可试听", "复刻音色");
-      showToast("复刻音色已生成。");
+      var statusEl = document.getElementById("cloneStatus");
+      var statusIcon = document.getElementById("cloneStatusIcon");
+      var statusText = document.getElementById("cloneStatusText");
+
+      statusEl.style.display = "block";
+      statusEl.style.borderColor = "var(--primary)";
+      statusEl.style.background = "var(--primary-soft)";
+      statusEl.style.color = "var(--primary)";
+      statusIcon.textContent = "⏳";
+      statusText.textContent = "复刻音色生成中，请稍候（约 10-30 秒）…";
+      generateCloneButton.disabled = true;
+      cloneHelper.textContent = "正在生成复刻音色…";
+
+      setTimeout(function() {
+        state.cloneGenerated = true;
+        selectVoice("复刻音色 · 本次录音", "复刻音色 · 已生成 · 可试听", "复刻音色");
+
+        statusEl.style.borderColor = "var(--green)";
+        statusEl.style.background = "var(--green-soft)";
+        statusEl.style.color = "var(--green)";
+        statusIcon.textContent = "✓";
+        statusText.textContent = "复刻音色已生成完成，可进入下一步试听。";
+        generateCloneButton.disabled = false;
+        cloneHelper.textContent = "复刻音色已就绪。";
+        showToast("复刻音色已生成。");
+      }, 2000);
     });
 
     document.getElementById("resetSampleButton").addEventListener("click", function() {
@@ -1649,6 +1680,7 @@
 
       audioInput.value = "";
       sampleStatus.classList.remove("active");
+      document.getElementById("cloneStatus").style.display = "none";
       updateCloneButton();
       resetPreview();
       render();
@@ -1745,21 +1777,11 @@
     });
 
     document.getElementById("downloadPreviewButton").addEventListener("click", function() {
-      var text = document.getElementById("previewText").value.trim();
-
-      if (!text) {
-        showToast("没有可下载的试听内容。");
+      if (!state.previewGenerated) {
+        showToast("请先生成试听。");
         return;
       }
-
-      var utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = "zh-CN";
-      utterance.onend = function() {
-        showToast("下载已完成");
-      };
-
-      showToast("正在生成试听音频...");
-      window.speechSynthesis.speak(utterance);
+      showToast("原型演示，暂不支持真实下载。");
     });
 
     function saveModel() {
@@ -1789,13 +1811,8 @@
     }
 
     saveButton.addEventListener("click", saveModel);
-    saveTopButton.addEventListener("click", saveModel);
 
     document.getElementById("draftButton").addEventListener("click", function() {
-      showToast("草稿已保存。");
-    });
-
-    document.getElementById("draftTopButton").addEventListener("click", function() {
       showToast("草稿已保存。");
     });
 
@@ -1805,6 +1822,21 @@
 
     document.querySelector(".back").addEventListener("click", function() {
       showToast("返回声音模型管理。");
+    });
+
+    // ESC 关闭弹窗
+    document.addEventListener("keydown", function(e) {
+      if (e.key === "Escape" && voiceModal.classList.contains("active")) {
+        voiceModal.classList.remove("active");
+      }
+    });
+
+    // 离开页面未保存提醒
+    window.addEventListener("beforeunload", function(e) {
+      if (state.voiceName || state.modelName !== "财经解读-稳重男声") {
+        e.preventDefault();
+        e.returnValue = "";
+      }
     });
 
     updateCloneButton();
