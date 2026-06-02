@@ -29,7 +29,7 @@
     .stp-line.done { background: #059669; }
 
     /* 向导容器 */
-    .wizard { max-width: 1040px; margin: 0 auto; padding: 24px 24px 120px; }
+    .wizard { max-width: 1280px; margin: 0 auto; padding: 24px 24px 120px; }
     .step-panel { display: none; }
     .step-panel.active { display: block; animation: fadeIn 0.25s ease; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
@@ -65,7 +65,7 @@
     .av-search, .bg-search { margin-bottom: 8px; }
     .av-search input, .bg-search input { width: 100%; padding: 7px 10px; border: 1.5px solid #e8e8e8; border-radius: 8px; font-size: 12px; background: #fafafa; transition: all 0.2s; }
     .av-search input:focus, .bg-search input:focus { outline: none; border-color: #0066ff; background: #fff; box-shadow: 0 0 0 3px rgba(0,102,255,0.08); }
-    .av-grid-compact { display: grid; grid-template-columns: repeat(8, 1fr); gap: 6px; max-height: 240px; overflow-y: auto; padding-right: 4px; }
+    .av-grid-compact { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; max-height: 240px; overflow-y: auto; padding-right: 4px; }
     .av-item-compact { display: flex; flex-direction: column; align-items: center; padding: 8px 4px; border-radius: 8px; cursor: pointer; transition: all 0.15s; background: #fafafa; border: 1.5px solid #e8e8e8; position: relative; }
     .av-item-compact:hover { background: #f5f8ff; border-color: #0066ff33; }
     .av-item-compact.sel { background: #f0f4ff; border-color: #0066ff; }
@@ -82,7 +82,7 @@
     .av-nore { font-size: 11px; color: #bbb; text-align: center; padding: 16px 0; grid-column: 1 / -1; }
 
     /* 预设背景 */
-    .bg-grid-compact { display: grid; grid-template-columns: repeat(8, 1fr); gap: 6px; max-height: 240px; overflow-y: auto; padding-right: 4px; }
+    .bg-grid-compact { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; max-height: 240px; overflow-y: auto; padding-right: 4px; }
     .bg-card-compact { border-radius: 8px; cursor: pointer; transition: all 0.15s; background: #fafafa; border: 1.5px solid #e8e8e8; position: relative; overflow: hidden; }
     .bg-card-compact:hover { border-color: #0066ff33; }
     .bg-card-compact.sel { border-color: #0066ff; }
@@ -93,13 +93,16 @@
 
     /* 台词卡片 - 扁平 */
     .script-cards { display: flex; flex-direction: column; gap: 10px; }
-    .sc-flat { border: 1.5px solid #e8e8e8; border-radius: 10px; padding: 12px; background: #fafafa; position: relative; transition: all 0.15s; }
+    .sc-flat { border: 1.5px solid #e8e8e8; border-radius: 10px; padding: 12px; background: #fafafa; position: relative; transition: all 0.15s; display: flex; flex-direction: column; }
     .sc-flat:hover { border-color: #d0d0d0; }
     .sc-flat-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
     .sc-flat-tag { font-size: 11px; font-weight: 600; color: #0066ff; }
     .sc-count { font-size: 10px; color: #999; margin-left: auto; margin-right: 8px; }
     .sc-flat textarea { width: 100%; min-height: 56px; border: 1.5px solid #e8e8e8; border-radius: 6px; padding: 8px 10px; font-size: 13px; line-height: 1.6; resize: vertical; font-family: inherit; background: #fff; transition: all 0.2s; }
     .sc-flat textarea:focus { outline: none; border-color: #0066ff; box-shadow: 0 0 0 3px rgba(0,102,255,0.08); }
+    .sc-flat .tts-play-row { margin-top: 6px; }
+    .sc-flat .ff-voice-toggle { margin-top: 4px; }
+    .sc-flat .ff-voice-cfg { margin-top: 4px; }
     .btn { padding: 7px 14px; border-radius: 8px; font-size: 12px; cursor: pointer; border: none; transition: all 0.15s; font-weight: 500; }
     .btn2 { background: #f0f0f0; color: #666; }
     .btn2:hover { background: #e8e8e8; }
@@ -107,6 +110,17 @@
     .btn1:hover { background: #0055dd; box-shadow: 0 2px 8px rgba(0,102,255,0.3); }
     .sc-add { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 12px; border: 1.5px dashed #d8d8d8; border-radius: 10px; cursor: pointer; color: #999; font-size: 12px; transition: all 0.15s; background: #fafafa; }
     .sc-add:hover { border-color: #0066ff; color: #0066ff; background: #f5f8ff; }
+
+	    /* 语速步进 */
+	    .speed-row { display: flex; align-items: center; gap: 6px; font-size: 11px; flex: 1; justify-content: center; }
+	    .speed-row .speed-label { color: #888; font-size: 10px; flex-shrink: 0; }
+	    .speed-step { display: flex; align-items: center; border: 1.5px solid #e0e0e0; border-radius: 6px; overflow: hidden; background: #fff; }
+	    .speed-step-val { width: 38px; text-align: center; font-size: 12px; font-weight: 600; color: #1a1a2e; padding: 2px 0; user-select: none; }
+	    .speed-step-btn { width: 22px; height: 22px; border: none; background: #f5f5f5; color: #666; font-size: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.1s; padding: 0; line-height: 1; }
+	    .speed-step-btn:hover { background: #e8e8e8; color: #333; }
+	    .speed-step-btn:active { background: #0066ff; color: #fff; }
+	    .speed-synth { font-size: 12px; cursor: pointer; margin-left: 2px; }
+	    .speed-row .speed-est { margin-left: 4px; font-size: 10px; color: #059669; font-weight: 500; }
 
     /* 全局语音合成配置条 */
     .tts-bar { padding: 12px 14px; margin-bottom: 16px; border: 1.5px solid #e8e8e8; border-radius: 12px; background: #fbfcff; }
@@ -209,8 +223,9 @@
 
     /* Step1 右侧固定概览列 */
     .step1-layout { display: flex; gap: 24px; align-items: flex-start; }
-    .step1-main { flex: 1; min-width: 0; }
-    .step1-sidebar { width: 260px; flex-shrink: 0; position: sticky; top: 80px; background: #fff; border: 1px solid #e8e8e8; border-radius: 14px; padding: 18px 16px; max-height: calc(100vh - 140px); overflow-y: auto; }
+    .step1-left { width: 360px; flex-shrink: 0; display: flex; flex-direction: column; gap: 22px; }
+	    .step1-main { flex: 1; min-width: 0; }
+    .step1-sidebar { width: 180px; flex-shrink: 0; position: sticky; top: 80px; background: #fff; border: 1px solid #e8e8e8; border-radius: 14px; padding: 14px 12px; max-height: calc(100vh - 140px); overflow-y: auto; }
     .sb-title { font-size: 13px; font-weight: 700; color: #1a1a2e; margin-bottom: 14px; display: flex; align-items: center; gap: 6px; }
     .sb-section { margin-bottom: 14px; }
     .sb-section:last-child { margin-bottom: 0; }
@@ -223,15 +238,15 @@
     .sb-empty { font-size: 11px; color: #bbb; padding: 8px 10px; background: #fafafa; border-radius: 8px; text-align: center; }
     .sb-bg-list { display: flex; flex-direction: column; gap: 6px; }
     .sb-bg-tag { font-size: 10px; padding: 3px 8px; border-radius: 12px; background: #f0f4ff; color: #6366f1; font-weight: 500; }
-	    .sb-bg-item { display: flex; align-items: center; gap: 8px; padding: 6px 8px; background: #f8f9fb; border-radius: 8px; }
-	    .sb-bg-thumb { width: 36px; height: 28px; border-radius: 4px; flex-shrink: 0; background-size: cover; background-position: center; }
-	    .sb-bg-name { font-size: 11px; font-weight: 500; color: #333; }
+      .sb-bg-item { display: flex; align-items: center; gap: 8px; padding: 6px 8px; background: #f8f9fb; border-radius: 8px; }
+      .sb-bg-thumb { width: 36px; height: 28px; border-radius: 4px; flex-shrink: 0; background-size: cover; background-position: center; }
+      .sb-bg-name { font-size: 11px; font-weight: 500; color: #333; }
     .sb-stat { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; }
     .sb-stat .sb-stat-num { font-size: 18px; font-weight: 700; color: #0066ff; }
     .sb-stat .sb-stat-lbl { font-size: 11px; color: #888; }
-	    .sb-est { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; }
-	    .sb-est .sb-est-num { font-size: 14px; font-weight: 700; color: #f59e0b; }
-	    .sb-est .sb-est-lbl { font-size: 11px; color: #888; }
+      .sb-est { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; }
+      .sb-est .sb-est-num { font-size: 14px; font-weight: 700; color: #f59e0b; }
+      .sb-est .sb-est-lbl { font-size: 11px; color: #888; }
 
     /* Step2 首帧区域调整 */
     .ff-left .ff-regen-all { font-size: 11px; padding: 6px 12px; border-radius: 7px; border: 1.5px dashed #d97706; background: #fff7ed; color: #d97706; cursor: pointer; font-weight: 500; transition: all 0.15s; text-align: center; }
@@ -270,6 +285,70 @@
     .imp-up-zone .ico { font-size: 22px; margin-bottom: 4px; }
     .imp-up-zone .txt { font-size: 12px; color: #666; font-weight: 500; }
     .imp-up-zone .hint { font-size: 11px; color: #999; margin-top: 2px; }
+
+    /* 水印与字幕配置 */
+    .wm-modal { width: min(1180px, calc(100vw - 48px)); max-height: calc(100vh - 48px); display: flex; flex-direction: column; }
+    .wm-shell { display: grid; grid-template-columns: minmax(320px, 420px) 1fr; gap: 22px; padding: 20px; overflow: auto; background: #f7f9fc; }
+    .wm-preview-card, .wm-config-card { background: #fff; border: 1px solid #e8e8e8; border-radius: 14px; box-shadow: 0 6px 18px rgba(15,23,42,0.04); }
+    .wm-preview-card { padding: 18px; }
+    .wm-preview-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+    .wm-preview-title { font-size: 15px; font-weight: 700; color: #1a1a2e; }
+    .wm-preview-sub { font-size: 11px; color: #999; margin-top: 4px; line-height: 1.5; }
+    .wm-preview-meta { font-size: 11px; color: #666; background: #f0f2f5; border: 1px solid #e8e8e8; border-radius: 20px; padding: 4px 10px; white-space: nowrap; }
+    .wm-stage { width: min(100%, 320px); aspect-ratio: 9/16; margin: 0 auto; border-radius: 16px; overflow: hidden; position: relative; background: linear-gradient(135deg,#8ec5fc,#e0c3fc); box-shadow: inset 0 0 0 1px rgba(0,0,0,0.08), 0 14px 34px rgba(0,0,0,0.12); }
+    .wm-stage:before { content: ""; position: absolute; inset: 0; background: radial-gradient(circle at 65% 28%, rgba(255,255,255,0.35), transparent 22%), linear-gradient(180deg, rgba(0,0,0,0.02), rgba(0,0,0,0.18)); }
+    .wm-stage-person { position: absolute; left: 50%; top: 33%; transform: translateX(-50%); width: 96px; height: 96px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 54px; background: rgba(255,255,255,0.35); box-shadow: 0 12px 28px rgba(0,0,0,0.16); }
+    .wm-stage-desk { position: absolute; left: 14%; right: 14%; bottom: 25%; height: 18%; border-radius: 10px 10px 6px 6px; background: linear-gradient(135deg,#b98243,#e8b15c); box-shadow: 0 18px 34px rgba(0,0,0,0.2); }
+    .wm-preview-watermark { position: absolute; z-index: 2; max-width: 76%; color: #fff; font-weight: 800; text-shadow: 0 2px 10px rgba(0,0,0,0.38); line-height: 1.1; white-space: pre-line; word-break: break-word; }
+    .wm-preview-watermark.pos-lt { left: 18px; top: 18px; text-align: left; }
+    .wm-preview-watermark.pos-rt { right: 18px; top: 18px; text-align: right; }
+    .wm-preview-watermark.pos-lb { left: 18px; bottom: 88px; text-align: left; }
+    .wm-preview-watermark.pos-rb { right: 18px; bottom: 88px; text-align: right; }
+    .wm-preview-watermark.pos-center { left: 50%; top: 50%; transform: translate(-50%,-50%); text-align: center; }
+    .wm-preview-subtitle { position: absolute; z-index: 3; left: 22px; right: 22px; bottom: 28px; padding: 8px 12px; border-radius: 9px; background: rgba(0,0,0,0.46); color: #fff; font-weight: 700; text-align: center; line-height: 1.35; text-shadow: 0 1px 4px rgba(0,0,0,0.35); }
+    .wm-stage-off { display: none; }
+    .wm-config-stack { display: flex; flex-direction: column; gap: 14px; }
+    .wm-config-card { padding: 16px; }
+    .wm-config-title { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+    .wm-config-title strong { font-size: 14px; color: #1a1a2e; }
+    .wm-config-title span { font-size: 11px; color: #999; }
+    .wm-switch { position: relative; width: 42px; height: 24px; flex-shrink: 0; }
+    .wm-switch input { opacity: 0; width: 0; height: 0; }
+    .wm-switch i { position: absolute; inset: 0; border-radius: 24px; background: #d9dee8; cursor: pointer; transition: all 0.18s; }
+    .wm-switch i:before { content: ""; position: absolute; width: 18px; height: 18px; left: 3px; top: 3px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.2); transition: all 0.18s; }
+    .wm-switch input:checked + i { background: #22c55e; }
+    .wm-switch input:checked + i:before { transform: translateX(18px); }
+    .wm-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 12px 16px; }
+    .wm-field { display: flex; flex-direction: column; gap: 7px; min-width: 0; }
+    .wm-field.full { grid-column: 1 / -1; }
+    .wm-label { font-size: 12px; color: #666; font-weight: 600; }
+    .wm-label.req:before { content: "* "; color: #ef4444; }
+    .wm-input, .wm-select { height: 36px; width: 100%; border: 1.5px solid #e8e8e8; border-radius: 8px; background: #fff; color: #1a1a2e; font-size: 13px; padding: 0 10px; font-family: inherit; transition: all 0.18s; }
+    .wm-input:focus, .wm-select:focus { outline: none; border-color: #0066ff; box-shadow: 0 0 0 3px rgba(0,102,255,0.08); }
+    .wm-input-row { display: flex; align-items: center; }
+    .wm-input-row .wm-input { border-radius: 8px 0 0 8px; }
+    .wm-unit { height: 36px; min-width: 40px; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #666; background: #f5f6f8; border: 1.5px solid #e8e8e8; border-left: 0; border-radius: 0 8px 8px 0; }
+    .wm-hint-line { font-size: 11px; color: #999; line-height: 1.5; }
+    .wm-seg { display: flex; background: #f0f2f5; border: 1px solid #e8e8e8; border-radius: 8px; padding: 3px; gap: 3px; }
+    .wm-seg button { flex: 1; height: 28px; border: none; border-radius: 6px; background: transparent; color: #666; font-size: 12px; cursor: pointer; }
+    .wm-seg button.on { background: #fff; color: #0066ff; box-shadow: 0 1px 4px rgba(0,0,0,0.08); font-weight: 700; }
+    .wm-range-row { display: grid; grid-template-columns: 1fr 80px; gap: 10px; align-items: center; }
+    .wm-range-row input[type="range"] { width: 100%; accent-color: #0066ff; }
+    .wm-list { display: flex; gap: 8px; flex-wrap: wrap; }
+    .wm-chip-btn { border: 1.5px solid #e8e8e8; background: #fafafa; color: #666; border-radius: 8px; padding: 7px 12px; font-size: 12px; font-weight: 600; cursor: pointer; }
+    .wm-chip-btn.on, .wm-chip-btn:hover { border-color: #0066ff; color: #0066ff; background: #eef4ff; }
+    .wm-actions { display: flex; justify-content: flex-end; gap: 10px; padding: 14px 20px; border-top: 1px solid #edf0f5; background: #fff; flex-shrink: 0; }
+    .ff-preview .ff-subtitle { position: absolute; left: 6px; right: 6px; bottom: 7px; z-index: 2; padding: 2px 5px; border-radius: 5px; background: rgba(0,0,0,0.48); color: #fff; font-size: 9px; line-height: 1.25; font-weight: 600; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .ff-preview .ff-subtitle.sub-top { top: 24px; bottom: auto; }
+    .ff-preview .ff-subtitle.sub-middle { top: 50%; bottom: auto; transform: translateY(-50%); }
+    .ff-preview .ff-subtitle.sub-bottom { bottom: 7px; }
+    @media (max-width: 860px) {
+      .wm-modal { width: calc(100vw - 24px); max-height: calc(100vh - 24px); }
+      .wm-shell { grid-template-columns: 1fr; padding: 14px; }
+      .wm-grid { grid-template-columns: 1fr; }
+      .wm-actions { flex-wrap: wrap; }
+      .wm-actions .btn { flex: 1; min-width: 110px; }
+    }
 
     /* 进度弹窗 */
     .p-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(2px); }
@@ -318,7 +397,7 @@
     <!-- ===== Step 1 ===== -->
     <div class="step-panel active" id="panel-1">
       <div class="step1-layout">
-        <div class="step1-main">
+        <div class="step1-left">
           <!-- 角色（单选） -->
           <div class="section">
             <div class="section-header">
@@ -327,13 +406,7 @@
               <span class="section-hint">单选</span>
               <span class="section-badge done" id="t-person" style="display:none;">已选择</span>
             </div>
-            <div class="toggle-row" style="display:none;">
-              <label class="inline-toggle"><input type="checkbox" id="wm-toggle" onchange="toggleWm(this.checked)"> 为选中角色添加水印</label>
-            </div>
-            <div class="wm-input-wrap" id="wm-input-wrap" style="display:none;">
-              <input type="text" id="wm-input" maxlength="24" placeholder="输入水印文字，将叠加在该角色画面上" oninput="updWm(this.value)">
-              <span class="wm-hint" id="wm-hint"></span>
-            </div>
+
             <div class="av-search"><input type="text" placeholder="搜索角色名称、标签..." oninput="filterAvatarList(this.value)"></div>
             <div class="av-grid-compact" id="avatar-grid"></div>
           </div>
@@ -353,14 +426,28 @@
             <div class="bg-search"><input type="text" placeholder="搜索场景名称..." oninput="filterBgList(this.value)"></div>
             <div class="bg-grid-compact" id="bg-grid-preset"></div>
           </div>
-
+        </div>
+        <div class="step1-main">
           <!-- 台词 -->
           <div class="section">
             <div class="section-header">
               <div class="section-icon blue">📝</div>
               <div class="section-name">台词列表</div>
-              <span class="section-hint">一条台词 = 一条视频</span>
+              <span class="section-hint"></span>
               <span class="section-badge done" id="t-script" style="display:none;">0 条</span>
+            </div>
+            <!-- 全局语音合成配置条 -->
+            <div class="tts-bar" style="margin-bottom:12px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+                <span class="tts-bar-label">🎤 语音合成（全局默认）<span style="font-size:11px;font-weight:400;color:#999;margin-left:8px;" id="voice-name-hint"></span></span>
+                <button class="btn btn1" style="font-size:12px;padding:6px 16px;" onclick="resynthAll()">🔊 应用并合成全部</button>
+              </div>
+              <div style="display:flex;align-items:center;gap:14px;margin-bottom:8px;flex-wrap:wrap;">
+                <div class="tts-item"><span class="lb">语速</span><input type="range" id="g-speed" min="5" max="20" value="10" oninput="updGlobalLabel()"><span class="tts-val" id="g-speed-val">1.0x</span></div>
+                <div class="tts-item"><span class="lb">音调</span><input type="range" id="g-pitch" min="-10" max="10" value="0" oninput="updGlobalLabel()"><span class="tts-val" id="g-pitch-val">0</span></div>
+                <div class="tts-item"><span class="lb">音量</span><input type="range" id="g-volume" min="0" max="100" value="80" oninput="updGlobalLabel()"><span class="tts-val" id="g-volume-val">80%</span></div>
+              </div>
+              <input type="text" id="g-instruction" placeholder="全局合成指令，例如：用沉稳专业的语气，适当停顿，语速偏慢，重读关键数字..." style="width:100%;padding:8px 10px;border:1.5px solid #e8e8e8;border-radius:6px;font-size:12px;background:#fff;">
             </div>
             <div class="script-cards" id="script-cards"></div>
             <div style="margin-top:10px; display:flex; gap:8px;">
@@ -387,7 +474,11 @@
           <div class="sb-section">
             <div class="sb-label">📝 台词统计</div>
             <div class="sb-stat"><span class="sb-stat-lbl">台词数量</span><span class="sb-stat-num" id="sb-script-count">0</span></div>
-            <div class="sb-stat"><span class="sb-est-lbl">预估生成时间</span><span class="sb-est-num" id="sb-est-time">--</span></div>
+          </div>
+          <div class="sb-section">
+            <div class="sb-label">🛡️ 水印与字幕</div>
+            <div id="sb-wm-status" style="font-size:13px;color:#333;font-weight:600;margin-bottom:8px;line-height:1.6;">未开启水印 · 字幕已开启</div>
+            <button class="btn btn1" style="width:100%;font-size:12px;padding:7px 0;" onclick="openWmModal()">水印字幕配置</button>
           </div>
         </div>
       </div>
@@ -395,21 +486,7 @@
 
     <!-- ===== Step 2 ===== -->
     <div class="step-panel" id="panel-2">
-      <!-- 全局语音合成配置条 -->
-      <div class="tts-bar">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-          <span class="tts-bar-label">🎤 语音合成（全局默认）<span style="font-size:11px;font-weight:400;color:#999;margin-left:8px;" id="voice-name-hint"></span></span>
-          <button class="btn btn1" style="font-size:12px;padding:6px 16px;" onclick="resynthAll()">🔊 应用并合成全部</button>
-        </div>
-        <div style="display:flex;align-items:center;gap:14px;margin-bottom:8px;flex-wrap:wrap;">
-          <div class="tts-item"><span class="lb">语速</span><input type="range" id="g-speed" min="5" max="20" value="10" oninput="updGlobalLabel()"><span class="tts-val" id="g-speed-val">1.0x</span></div>
-          <div class="tts-item"><span class="lb">音调</span><input type="range" id="g-pitch" min="-10" max="10" value="0" oninput="updGlobalLabel()"><span class="tts-val" id="g-pitch-val">0</span></div>
-          <div class="tts-item"><span class="lb">音量</span><input type="range" id="g-volume" min="0" max="100" value="80" oninput="updGlobalLabel()"><span class="tts-val" id="g-volume-val">80%</span></div>
-        </div>
-        <input type="text" id="g-instruction" placeholder="全局合成指令，例如：用沉稳专业的语气，适当停顿，语速偏慢，重读关键数字..." style="width:100%;padding:8px 10px;border:1.5px solid #e8e8e8;border-radius:6px;font-size:12px;background:#fff;">
-      </div>
-
-      <!-- 首帧 + 语音卡片 -->
+      <!-- 首帧 + 语音卡片（全局语音配置已移至 Step1 台词列表） -->
       <div class="section">
         <div class="section-header">
           <div class="section-icon purple">🎞️</div>
@@ -481,6 +558,112 @@
     </div>
   </div>
 
+  <!-- 全局水印与字幕配置弹窗 -->
+  <div class="imp-ov" id="wm-modal-ov">
+    <div class="imp-modal wm-modal">
+      <div class="imp-hd"><h3>水印与字幕配置</h3><button class="close-btn" onclick="closeWmModal()">✕</button></div>
+      <div class="wm-shell">
+        <div class="wm-preview-card">
+          <div class="wm-preview-head">
+            <div>
+              <div class="wm-preview-title">实时预览</div>
+              <div class="wm-preview-sub">水印和字幕会同步到所有首帧与生成视频</div>
+            </div>
+            <div class="wm-preview-meta">9:16</div>
+          </div>
+          <div class="wm-stage" id="wm-preview-stage">
+            <div class="wm-stage-person" id="wm-preview-avatar">👤</div>
+            <div class="wm-stage-desk"></div>
+            <div class="wm-preview-watermark pos-lt" id="wm-preview-watermark">添加水印</div>
+            <div class="wm-preview-subtitle" id="wm-preview-subtitle">字幕示例</div>
+          </div>
+        </div>
+        <div class="wm-config-stack">
+          <div class="wm-config-card">
+            <div class="wm-config-title">
+              <div><strong>水印配置</strong><span>  文字、位置、字号和透明度</span></div>
+              <label class="wm-switch"><input type="checkbox" id="wm-modal-toggle" onchange="syncWmPreview()"><i></i></label>
+            </div>
+            <div class="wm-grid">
+              <div class="wm-field full">
+                <label class="wm-label req">水印内容</label>
+                <input class="wm-input" type="text" id="wm-modal-input" maxlength="24" placeholder="请输入水印文字" oninput="syncWmPreview()">
+                <div class="wm-hint-line">最多 24 个字符，留空时使用“添加水印”预览</div>
+              </div>
+              <div class="wm-field">
+                <label class="wm-label req">水印位置</label>
+                <select class="wm-select" id="wm-modal-pos" onchange="syncWmPreview()">
+                  <option value="lt">左上</option>
+                  <option value="rt">右上</option>
+                  <option value="lb">左下</option>
+                  <option value="rb">右下</option>
+                  <option value="center">居中</option>
+                </select>
+              </div>
+              <div class="wm-field">
+                <label class="wm-label req">字体大小</label>
+                <div class="wm-input-row"><input class="wm-input" type="number" id="wm-modal-size" min="16" max="72" step="1" oninput="syncWmPreview()"><span class="wm-unit">px</span></div>
+              </div>
+              <div class="wm-field">
+                <label class="wm-label req">段落对齐</label>
+                <div class="wm-seg" id="wm-align-seg">
+                  <button type="button" data-align="left" onclick="setWmAlign('left')">左</button>
+                  <button type="button" data-align="center" onclick="setWmAlign('center')">中</button>
+                  <button type="button" data-align="right" onclick="setWmAlign('right')">右</button>
+                </div>
+              </div>
+              <div class="wm-field">
+                <label class="wm-label req">透明度</label>
+                <div class="wm-range-row"><input type="range" id="wm-modal-opacity" min="0.2" max="1" step="0.05" oninput="syncWmPreview()"><input class="wm-input" id="wm-modal-opacity-val" readonly></div>
+              </div>
+            </div>
+          </div>
+          <div class="wm-config-card">
+            <div class="wm-config-title">
+              <div><strong>字幕配置</strong><span>  跟随语音自动生成</span></div>
+              <label class="wm-switch"><input type="checkbox" id="wm-modal-subtitle" onchange="syncWmPreview()"><i></i></label>
+            </div>
+            <div class="wm-grid">
+              <div class="wm-field full">
+                <label class="wm-label req">字幕内容</label>
+                <input class="wm-input" type="text" id="wm-modal-subtitle-text" maxlength="36" placeholder="字幕示例" oninput="syncWmPreview()">
+              </div>
+              <div class="wm-field">
+                <label class="wm-label req">字幕位置</label>
+                <select class="wm-select" id="wm-modal-subtitle-pos" onchange="syncWmPreview()">
+                  <option value="bottom">中下（默认）</option>
+                  <option value="middle">居中</option>
+                  <option value="top">中上</option>
+                </select>
+              </div>
+              <div class="wm-field">
+                <label class="wm-label req">距边</label>
+                <div class="wm-input-row"><input class="wm-input" type="number" id="wm-modal-subtitle-gap" min="0" max="120" step="1" oninput="syncWmPreview()"><span class="wm-unit">px</span></div>
+              </div>
+              <div class="wm-field">
+                <label class="wm-label req">字号</label>
+                <div class="wm-input-row"><input class="wm-input" type="number" id="wm-modal-subtitle-size" min="18" max="64" step="1" oninput="syncWmPreview()"><span class="wm-unit">px</span></div>
+              </div>
+              <div class="wm-field">
+                <label class="wm-label">预设</label>
+                <div class="wm-list">
+                  <button class="wm-chip-btn on" type="button" onclick="applySubtitlePreset('default')">默认</button>
+                  <button class="wm-chip-btn" type="button" onclick="applySubtitlePreset('large')">大字</button>
+                  <button class="wm-chip-btn" type="button" onclick="applySubtitlePreset('clean')">轻量</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="wm-actions">
+        <button class="btn btn2" onclick="resetWmModal()">重置</button>
+        <button class="btn btn2" onclick="closeWmModal()">取消</button>
+        <button class="btn btn1" onclick="saveWmModal()">应用</button>
+      </div>
+    </div>
+  </div>
+
   <!-- 进度弹窗 -->
   <div class="p-overlay" id="p-overlay">
     <div class="p-modal">
@@ -512,13 +695,22 @@
     var S = {
       step: 1,
       avatar: null,               // 单选角色 key
-      wmEnabled: false,           // 是否为选中角色添加水印
-      watermarks: {},             // key -> 水印文字
       bgMulti: [],                // 已选背景
       bgBatch: false,             // 背景是否多选
       cards: [],                  // {id, content, frame:{bg,pose,shot}, tts:{...}}
       nextId: 1,
-      ttsPlaying: {}
+      ttsPlaying: {},
+      globalWmEnabled: false,     // 全局水印开关
+      globalWmText: '',           // 全局水印文字
+      wmPos: 'lt',
+      wmSize: 28,
+      wmAlign: 'left',
+      wmOpacity: 0.85,
+      subtitleEnabled: true,      // 字幕开关
+      subtitleText: '字幕示例',
+      subtitlePos: 'bottom',
+      subtitleGap: 20,
+      subtitleSize: 36
     };
 
     var POSES = ['站立', '坐姿', '侧身', '走动'];
@@ -564,9 +756,7 @@
       if (!hasScript()) m.push('台词');
       return m;
     }
-    function curWatermark() { return (S.wmEnabled && S.avatar) ? (S.watermarks[S.avatar] || '') : ''; }
-
-    /* ========== 角色（单选 + 水印） ========== */
+    /* ========== 角色（单选） ========== */
     function getAvatarSearchValue() { var el=document.querySelector('.av-search input'); return el?el.value:''; }
     function filterAvatarList(v) { renderAvatarList(v); }
 
@@ -580,10 +770,8 @@
         var sel = S.avatar === a.key;
         var emoji = avI[a.key] || '👤';
         var nameEsc = a.name.replace(/'/g,"\\'");
-        var hasWm = sel && S.wmEnabled && S.watermarks[a.key];
         h += '<div class="av-item-compact' + (sel?' sel':'') + '" onclick="selAvatar(\''+a.key+'\')" onmouseenter="showCharTip(event,\''+emoji+'\',\''+a.name.replace(/'/g,"\\'")+'\',\''+a.tag.replace(/'/g,"\\'")+'\')" onmouseleave="hideTip()">';
         h += '<div class="av-cb-compact">✓</div>';
-        h += '<div class="av-wm-flag' + (hasWm?' show':'') + '">水印</div>';
         h += '<div class="av-face-compact">'+emoji+'</div>';
         h += '<div class="av-nm-compact">'+a.name+'</div>';
         h += '<div class="av-tg-compact">'+a.tag+'</div>';
@@ -598,38 +786,119 @@
       var badge = document.getElementById('t-person');
       if (S.avatar) { badge.style.display='inline-block'; badge.textContent = getAvatarMeta(S.avatar).name; }
       else { badge.style.display='none'; }
-      syncWmInput();
       renderAvatarList(getAvatarSearchValue());
       updFooter();
       updateSidebar();
     }
 
-    function toggleWm(checked) {
-      S.wmEnabled = checked;
-      document.getElementById('wm-input-wrap').style.display = checked ? 'flex' : 'none';
-      syncWmInput();
-      renderAvatarList(getAvatarSearchValue());
-      updateSidebar();
+    function openWmModal() {
+      document.getElementById('wm-modal-ov').classList.add('show');
+      document.getElementById('wm-modal-toggle').checked = S.globalWmEnabled;
+      document.getElementById('wm-modal-input').value = S.globalWmText;
+      document.getElementById('wm-modal-pos').value = S.wmPos || 'lt';
+      document.getElementById('wm-modal-size').value = S.wmSize || 28;
+      document.getElementById('wm-modal-opacity').value = S.wmOpacity || 0.85;
+      document.getElementById('wm-modal-subtitle').checked = S.subtitleEnabled;
+      document.getElementById('wm-modal-subtitle-text').value = S.subtitleText || '字幕示例';
+      document.getElementById('wm-modal-subtitle-pos').value = S.subtitlePos || 'bottom';
+      document.getElementById('wm-modal-subtitle-gap').value = S.subtitleGap || 20;
+      document.getElementById('wm-modal-subtitle-size').value = S.subtitleSize || 36;
+      setWmAlign(S.wmAlign || 'left', true);
+      syncWmPreview();
     }
-    function syncWmInput() {
-      if (!S.wmEnabled) return;
-      var input = document.getElementById('wm-input');
-      var hint = document.getElementById('wm-hint');
-      if (!S.avatar) {
-        input.value = ''; input.disabled = true;
-        hint.textContent = '请先在下方选择一个角色'; hint.className = 'wm-hint warn';
+    function closeWmModal() {
+      document.getElementById('wm-modal-ov').classList.remove('show');
+    }
+    function toggleWmModalInput(checked) {
+      document.getElementById('wm-modal-toggle').checked = checked;
+      syncWmPreview();
+    }
+    function setWmAlign(align, silent) {
+      document.querySelectorAll('#wm-align-seg button').forEach(function(btn){
+        btn.classList.toggle('on', btn.dataset.align === align);
+      });
+      document.getElementById('wm-align-seg').dataset.align = align;
+      if (!silent) syncWmPreview();
+    }
+    function getWmAlign() {
+      return document.getElementById('wm-align-seg').dataset.align || 'left';
+    }
+    function applySubtitlePreset(type) {
+      document.querySelectorAll('.wm-chip-btn').forEach(function(btn){ btn.classList.remove('on'); });
+      if (type === 'large') {
+        document.getElementById('wm-modal-subtitle-size').value = 42;
+        document.getElementById('wm-modal-subtitle-gap').value = 24;
+        document.querySelectorAll('.wm-chip-btn')[1].classList.add('on');
+      } else if (type === 'clean') {
+        document.getElementById('wm-modal-subtitle-size').value = 30;
+        document.getElementById('wm-modal-subtitle-gap').value = 28;
+        document.querySelectorAll('.wm-chip-btn')[2].classList.add('on');
       } else {
-        input.disabled = false;
-        input.value = S.watermarks[S.avatar] || '';
-        hint.textContent = '应用于「' + getAvatarMeta(S.avatar).name + '」'; hint.className = 'wm-hint';
+        document.getElementById('wm-modal-subtitle-size').value = 36;
+        document.getElementById('wm-modal-subtitle-gap').value = 20;
+        document.querySelectorAll('.wm-chip-btn')[0].classList.add('on');
       }
+      syncWmPreview();
     }
-    function updWm(value) {
-      if (!S.avatar) return;
-      S.watermarks[S.avatar] = value;
-      renderAvatarList(getAvatarSearchValue());
+    function resetWmModal() {
+      document.getElementById('wm-modal-toggle').checked = false;
+      document.getElementById('wm-modal-input').value = '';
+      document.getElementById('wm-modal-pos').value = 'lt';
+      document.getElementById('wm-modal-size').value = 28;
+      document.getElementById('wm-modal-opacity').value = 0.85;
+      setWmAlign('left', true);
+      document.getElementById('wm-modal-subtitle').checked = true;
+      document.getElementById('wm-modal-subtitle-text').value = '字幕示例';
+      document.getElementById('wm-modal-subtitle-pos').value = 'bottom';
+      applySubtitlePreset('default');
+    }
+    function syncWmPreview() {
+      var wmOn = document.getElementById('wm-modal-toggle').checked;
+      var wmText = document.getElementById('wm-modal-input').value.trim() || '添加水印';
+      var wmPos = document.getElementById('wm-modal-pos').value || 'lt';
+      var wmSize = parseInt(document.getElementById('wm-modal-size').value) || 28;
+      var wmOpacity = parseFloat(document.getElementById('wm-modal-opacity').value) || 0.85;
+      var wm = document.getElementById('wm-preview-watermark');
+      wm.textContent = wmText;
+      wm.className = 'wm-preview-watermark pos-' + wmPos + (wmOn ? '' : ' wm-stage-off');
+      wm.style.fontSize = Math.round(wmSize * 0.72) + 'px';
+      wm.style.opacity = wmOpacity;
+      wm.style.textAlign = getWmAlign();
+      document.getElementById('wm-modal-opacity-val').value = wmOpacity.toFixed(2);
+
+      var subOn = document.getElementById('wm-modal-subtitle').checked;
+      var sub = document.getElementById('wm-preview-subtitle');
+      var subText = document.getElementById('wm-modal-subtitle-text').value.trim() || '字幕示例';
+      var subPos = document.getElementById('wm-modal-subtitle-pos').value || 'bottom';
+      var subGap = parseInt(document.getElementById('wm-modal-subtitle-gap').value) || 20;
+      var subSize = parseInt(document.getElementById('wm-modal-subtitle-size').value) || 36;
+      sub.textContent = subText;
+      sub.classList.toggle('wm-stage-off', !subOn);
+      sub.style.fontSize = Math.round(subSize * 0.36) + 'px';
+      sub.style.top = '';
+      sub.style.bottom = '';
+      sub.style.transform = '';
+      if (subPos === 'top') sub.style.top = subGap + 'px';
+      else if (subPos === 'middle') { sub.style.top = '50%'; sub.style.transform = 'translateY(-50%)'; }
+      else sub.style.bottom = subGap + 'px';
+    }
+    function saveWmModal() {
+      S.globalWmEnabled = document.getElementById('wm-modal-toggle').checked;
+      S.globalWmText = document.getElementById('wm-modal-input').value.trim();
+      S.wmPos = document.getElementById('wm-modal-pos').value;
+      S.wmSize = parseInt(document.getElementById('wm-modal-size').value) || 28;
+      S.wmAlign = getWmAlign();
+      S.wmOpacity = parseFloat(document.getElementById('wm-modal-opacity').value) || 0.85;
+      S.subtitleEnabled = document.getElementById('wm-modal-subtitle').checked;
+      S.subtitleText = document.getElementById('wm-modal-subtitle-text').value.trim() || '字幕示例';
+      S.subtitlePos = document.getElementById('wm-modal-subtitle-pos').value;
+      S.subtitleGap = parseInt(document.getElementById('wm-modal-subtitle-gap').value) || 20;
+      S.subtitleSize = parseInt(document.getElementById('wm-modal-subtitle-size').value) || 36;
+      closeWmModal();
       updateSidebar();
+      toast('水印与字幕配置已保存');
     }
+    document.getElementById('wm-modal-ov').addEventListener('click', function(e){ if(e.target===this) closeWmModal(); });
 
     /* ========== 背景（单选/多选开关） ========== */
     function filterBgList(v) { renderBgList(v); }
@@ -701,11 +970,40 @@
       }
       var h = '';
       S.cards.forEach(function(g, i) {
+        var t = g.tts;
         h += '<div class="sc-flat">';
+        // header
         h += '<div class="sc-flat-header"><span class="sc-flat-tag">台词 '+(i+1)+'</span>';
-        h += '<span class="sc-count" id="cnt-'+g.id+'">'+g.content.length+' 字</span>';
+        if (t.custom) h += '<span class="badge-custom" style="font-size:10px;color:#d97706;background:#fff7ed;border-radius:8px;padding:1px 7px;">单独配置</span>';
+        // 语速步进
+        h += '<div class="speed-row"><span class="speed-label">语速</span>';
+        h += '<div class="speed-step"><button class="speed-step-btn" onclick="adjSpeed('+g.id+',-1)">▾</button>';
+        h += '<span class="speed-step-val" id="speed-val-'+g.id+'">'+(t.speed/10).toFixed(1)+'x</span>';
+        h += '<button class="speed-step-btn" onclick="adjSpeed('+g.id+',1)">▴</button></div>';
+        h += '<span class="speed-synth" onclick="resynthOne('+g.id+')" title="合成本条语音">🔄</span>';
+        h += '<span class="speed-est" id="speed-est-'+g.id+'">预估 '+estDuration(g.content, t.speed)+'</span></div>';
+        h += '<span class="sc-count" id="cnt-'+g.id+'" style="margin-left:auto;">'+g.content.length+' 字</span>';
         h += '<button class="btn btn2" style="font-size:10px;padding:2px 8px;" onclick="delScript('+g.id+')">删除</button></div>';
+        // textarea
         h += '<textarea placeholder="请输入这条台词的内容..." oninput="updScript('+g.id+',this.value)">'+escapeHtml(g.content)+'</textarea>';
+        // TTS 播放条
+        h += '<div class="tts-play-row" style="margin-top:6px;">';
+        h += '<button class="tts-play-btn" id="tts-btn-'+g.id+'" onclick="toggleTtsPlay('+g.id+')" title="试听">▶</button>';
+        h += '<div class="tts-progress-wrap" onclick="seekTts(event,'+g.id+')"><div class="tts-progress-bar"><div class="tts-progress-fill" id="tts-fill-'+g.id+'" style="width:0%"></div></div></div>';
+        h += '<span style="font-size:10px;color:#999;min-width:30px;text-align:right;" id="tts-time-'+g.id+'">0:00</span>';
+        h += '<button class="tts-dl-btn'+(t.ready?' done':'')+'" onclick="downloadTts('+g.id+')" title="下载音频" style="width:26px;height:26px;border-radius:6px;border:1.5px solid #e8e8e8;background:#fff;color:#666;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;">⬇</button>';
+        h += '</div>';
+        // 单条语音配置
+        h += '<div class="ff-voice-toggle" style="margin-top:4px;" onclick="toggleVoiceCfg('+g.id+')">⚙ 单独调整本条语音 ▾</div>';
+        h += '<div class="ff-voice-cfg" id="vcfg-'+g.id+'" style="margin-top:4px;">';
+        h += '<div class="row">';
+        h += '<div class="tts-item"><span class="lb">音调</span><input type="range" id="vc-pitch-'+g.id+'" min="-10" max="10" value="'+t.pitch+'" oninput="updVcLabel('+g.id+')"><span class="tts-val" id="vc-pitch-val-'+g.id+'">'+(t.pitch>0?'+'+t.pitch:t.pitch)+'</span></div>';
+        h += '<div class="tts-item"><span class="lb">音量</span><input type="range" id="vc-volume-'+g.id+'" min="0" max="100" value="'+t.volume+'" oninput="updVcLabel('+g.id+')"><span class="tts-val" id="vc-volume-val-'+g.id+'">'+t.volume+'%</span></div>';
+        h += '</div>';
+        h += '<input class="cfg-instr" id="vc-instr-'+g.id+'" type="text" placeholder="本条合成指令（留空则用全局）" value="'+escapeHtml(t.instruction)+'">';
+        h += '<div class="cfg-acts"><button class="btn btn1" style="font-size:11px;padding:5px 12px;" onclick="resynthOne('+g.id+')">🔊 重新合成本条</button>';
+        h += '<button class="btn btn2" style="font-size:11px;padding:5px 12px;" onclick="resetVoice('+g.id+')">↺ 恢复全局配置</button></div>';
+        h += '</div>';
         h += '</div>';
       });
       c.innerHTML = h;
@@ -766,6 +1064,7 @@
       document.getElementById('line-2').classList.toggle('done', n>=3);
       document.getElementById('btn-prev').style.display = n>1 ? 'inline-block' : 'none';
       document.getElementById('btn-next').textContent = n===3 ? '🎬 确认生成' : '下一步';
+      if (n === 1) { renderCards(); updateSidebar(); }
       if (n === 2) enterStep2();
       if (n === 3) renderConfirm();
       window.scrollTo({ top:0, behavior:'smooth' });
@@ -804,8 +1103,7 @@
       if (S.avatar) {
         var meta = getAvatarMeta(S.avatar);
         var emoji = avI[S.avatar] || '👤';
-        var wm = curWatermark();
-        avContent.innerHTML = '<div class="sb-avatar"><div class="sb-av-emoji">'+emoji+'</div><div class="sb-av-info"><div class="sb-av-name">'+escapeHtml(meta.name)+'</div><div class="sb-av-tag">'+escapeHtml(meta.tag)+(wm?' · 水印:'+escapeHtml(wm):'')+'</div></div></div>';
+        avContent.innerHTML = '<div class="sb-avatar"><div class="sb-av-emoji">'+emoji+'</div><div class="sb-av-info"><div class="sb-av-name">'+escapeHtml(meta.name)+'</div><div class="sb-av-tag">'+escapeHtml(meta.tag)+'</div></div></div>';
       } else {
         avContent.innerHTML = '<div class="sb-empty">未选择角色</div>';
       }
@@ -820,8 +1118,10 @@
       // 台词
       var cards = validCards();
       document.getElementById("sb-script-count").textContent = cards.length;
-      var etaMin = cards.length > 0 ? Math.ceil(cards.length*1.5)+"-"+Math.ceil(cards.length*3) : "--";
-      document.getElementById("sb-est-time").textContent = etaMin + " 分钟";
+      // 水印与字幕状态
+      var wmSt = S.globalWmEnabled ? ('水印：'+(S.globalWmText||'未填写')) : '未开启水印';
+      var subSt = S.subtitleEnabled ? '字幕已开启' : '字幕已关闭';
+      document.getElementById("sb-wm-status").textContent = wmSt + ' · ' + subSt;
       }
 
     /* ========== Step 2：首帧 + 语音 ========== */
@@ -838,8 +1138,27 @@
       document.getElementById('g-speed-val').textContent = (s/10).toFixed(1)+'x';
       document.getElementById('g-pitch-val').textContent = p>0?'+'+p:p;
       document.getElementById('g-volume-val').textContent = v+'%';
+      // 实时同步非自定义卡片的语速
+      S.cards.forEach(function(card){
+        if (card.tts.custom) return;
+        card.tts.speed = s;
+        card.tts.duration = durOf(card.content, s);
+        var vel = document.getElementById('speed-val-'+card.id);
+        var eel = document.getElementById('speed-est-'+card.id);
+        if (vel) vel.textContent = (s/10).toFixed(1)+'x';
+        if (eel) eel.textContent = '预估 '+estDuration(card.content, s);
+      });
     }
-    function durOf(text) { return Math.max(2, Math.ceil((text||'').length/4)); }
+    function durOf(text, speed) { speed = speed || 10; return Math.max(2, Math.ceil((text||'').length/(speed/10*4))); }
+	    function estDuration(text, speed) { var chars=(text||'').length; if(!chars)return'--'; var sec=Math.max(1,Math.round(chars/(speed/10*4))); return sec+'s'; }
+	    function adjSpeed(id, delta) {
+	      var g=S.cards.find(function(x){return x.id===id;});
+	      if(!g)return;
+	      var ns=g.tts.speed+delta;
+	      if(ns<10||ns>20)return;
+	      g.tts.speed=ns; g.tts.custom=true; g.tts.duration=durOf(g.content,ns);
+	      renderCards();
+	    }
 
     function enterStep2() {
       var g = getGlobalTts();
@@ -851,7 +1170,7 @@
         // 语音：默认用全局配置合成初版（未单独覆盖的）
         if (!card.tts) card.tts = defaultTts();
         if (!card.tts.custom) { card.tts.speed=g.speed; card.tts.pitch=g.pitch; card.tts.volume=g.volume; card.tts.instruction=g.instruction; }
-        card.tts.duration = durOf(card.content);
+        card.tts.duration = durOf(card.content, card.tts.speed);
         card.tts.ready = true;
       });
       var meta = S.avatar ? getAvatarMeta(S.avatar) : null;
@@ -862,7 +1181,7 @@
     function renderFirstFrames() {
       var emoji = S.avatar ? (avI[S.avatar]||'👤') : '👤';
       var avName = S.avatar ? getAvatarMeta(S.avatar).name : '角色';
-      var wm = curWatermark();
+      var wm = S.globalWmEnabled ? S.globalWmText : '';
       var c = document.getElementById('ff-cards');
       var h = '';
       // 全部重新生成按钮 - 左列顶部
@@ -879,7 +1198,8 @@
         h += '<div class="ff-preview" id="ff-prev-'+g.id+'" style="background:'+bgGrad+'">';
         h += '<div class="ff-corner">'+escapeHtml(f.bg)+'</div>';
         h += '<div class="ff-emoji">'+emoji+'</div>';
-        if (wm) h += '<div class="ff-wm">'+escapeHtml(wm)+'</div>';
+        if (wm) h += '<div class="ff-wm pos-'+(S.wmPos||'lt')+'" style="font-size:'+Math.max(8, Math.round((S.wmSize||28)/4))+'px;opacity:'+(S.wmOpacity||0.85)+';text-align:'+(S.wmAlign||'left')+';">'+escapeHtml(wm)+'</div>';
+        if (S.subtitleEnabled) h += '<div class="ff-subtitle sub-'+(S.subtitlePos||'bottom')+'" style="font-size:'+Math.max(8, Math.round((S.subtitleSize||36)/4))+'px;">'+escapeHtml(S.subtitleText || '字幕示例')+'</div>';
         h += '<div class="ff-corner-bottom">'+f.pose+' · '+f.shot+'</div>';
         h += '<div class="ff-loading"><div class="ff-spin"></div>生成中…</div>';
         h += '</div>';
@@ -913,18 +1233,6 @@
         h += '<div class="tts-progress-wrap" onclick="seekTts(event,'+g.id+')"><div class="tts-progress-bar"><div class="tts-progress-fill" id="tts-fill-'+g.id+'" style="width:0%"></div></div></div>';
         h += '<span style="font-size:10px;color:#999;min-width:30px;text-align:right;" id="tts-time-'+g.id+'">0:00</span>';
         h += '<button class="tts-dl-btn done" onclick="downloadTts('+g.id+')" title="下载音频">⬇</button>';
-        h += '</div>';
-        // 单条语音配置
-        h += '<div class="ff-voice-toggle" onclick="toggleVoiceCfg('+g.id+')">⚙ 单独调整本条语音 ▾</div>';
-        h += '<div class="ff-voice-cfg" id="vcfg-'+g.id+'">';
-        h += '<div class="row">';
-        h += '<div class="tts-item"><span class="lb">语速</span><input type="range" id="vc-speed-'+g.id+'" min="5" max="20" value="'+t.speed+'" oninput="updVcLabel('+g.id+')"><span class="tts-val" id="vc-speed-val-'+g.id+'">'+(t.speed/10).toFixed(1)+'x</span></div>';
-        h += '<div class="tts-item"><span class="lb">音调</span><input type="range" id="vc-pitch-'+g.id+'" min="-10" max="10" value="'+t.pitch+'" oninput="updVcLabel('+g.id+')"><span class="tts-val" id="vc-pitch-val-'+g.id+'">'+(t.pitch>0?'+'+t.pitch:t.pitch)+'</span></div>';
-        h += '<div class="tts-item"><span class="lb">音量</span><input type="range" id="vc-volume-'+g.id+'" min="0" max="100" value="'+t.volume+'" oninput="updVcLabel('+g.id+')"><span class="tts-val" id="vc-volume-val-'+g.id+'">'+t.volume+'%</span></div>';
-        h += '</div>';
-        h += '<input class="cfg-instr" id="vc-instr-'+g.id+'" type="text" placeholder="本条合成指令（留空则用全局）" value="'+escapeHtml(t.instruction)+'">';
-        h += '<div class="cfg-acts"><button class="btn btn1" style="font-size:11px;padding:5px 12px;" onclick="resynthOne('+g.id+')">🔊 重新合成本条</button>';
-        h += '<button class="btn btn2" style="font-size:11px;padding:5px 12px;" onclick="resetVoice('+g.id+')">↺ 恢复全局配置</button></div>';
         h += '</div>';
         h += '</div>'; // ff-right
         h += '</div>'; // ff-card
@@ -1018,8 +1326,7 @@
     /* ========== TTS ========== */
     function toggleVoiceCfg(id) { document.getElementById('vcfg-'+id).classList.toggle('show'); }
     function updVcLabel(id) {
-      var s=parseInt(document.getElementById('vc-speed-'+id).value), p=parseInt(document.getElementById('vc-pitch-'+id).value), v=parseInt(document.getElementById('vc-volume-'+id).value);
-      document.getElementById('vc-speed-val-'+id).textContent = (s/10).toFixed(1)+'x';
+      var p=parseInt(document.getElementById('vc-pitch-'+id).value), v=parseInt(document.getElementById('vc-volume-'+id).value);
       document.getElementById('vc-pitch-val-'+id).textContent = p>0?'+'+p:p;
       document.getElementById('vc-volume-val-'+id).textContent = v+'%';
     }
@@ -1027,14 +1334,14 @@
       var g = S.cards.find(function(x){return x.id===id;});
       if (!g) return;
       stopTts(id);
-      g.tts.speed = parseInt(document.getElementById('vc-speed-'+id).value);
       g.tts.pitch = parseInt(document.getElementById('vc-pitch-'+id).value);
       g.tts.volume = parseInt(document.getElementById('vc-volume-'+id).value);
       g.tts.instruction = document.getElementById('vc-instr-'+id).value;
       g.tts.custom = true;
-      g.tts.duration = durOf(g.content);
+      g.tts.duration = durOf(g.content, g.tts.speed);
       g.tts.ready = true;
       renderFirstFrames();
+      renderCards();
       document.getElementById('vcfg-'+id).classList.add('show');
       toast('已按单独配置重新合成台词 '+id);
     }
@@ -1045,8 +1352,9 @@
       var gt = getGlobalTts();
       g.tts.custom = false;
       g.tts.speed=gt.speed; g.tts.pitch=gt.pitch; g.tts.volume=gt.volume; g.tts.instruction=gt.instruction;
-      g.tts.duration = durOf(g.content); g.tts.ready = true;
+      g.tts.duration = durOf(g.content, g.tts.speed); g.tts.ready = true;
       renderFirstFrames();
+      renderCards();
       toast('台词 '+id+' 已恢复为全局配置');
     }
     function resynthAll() {
@@ -1054,9 +1362,10 @@
       validCards().forEach(function(card){
         stopTts(card.id);
         if (!card.tts.custom) { card.tts.speed=g.speed; card.tts.pitch=g.pitch; card.tts.volume=g.volume; card.tts.instruction=g.instruction; }
-        card.tts.duration = durOf(card.content); card.tts.ready = true;
+        card.tts.duration = durOf(card.content, card.tts.speed); card.tts.ready = true;
       });
       renderFirstFrames();
+      renderCards();
       var customCnt = validCards().filter(function(c){return c.tts.custom;}).length;
       toast('已合成全部语音' + (customCnt? ('（'+customCnt+'条保留单独配置）') : ''));
     }
@@ -1106,7 +1415,7 @@
       var emoji = S.avatar ? (avI[S.avatar]||'👤') : '👤';
       var avName = meta ? meta.name : '—';
       var avTag = meta ? meta.tag : '';
-      var wm = curWatermark();
+      var wm = S.globalWmEnabled ? S.globalWmText : '';
       var bgNameList = S.bgMulti.length ? S.bgMulti.join('、') : '—';
       document.getElementById('cf-avatar').textContent = avName;
       document.getElementById('cf-bgs').textContent = bgNameList;
