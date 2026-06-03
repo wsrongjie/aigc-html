@@ -373,6 +373,16 @@
 
     .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: #1a1a2e; color: #fff; padding: 10px 20px; border-radius: 8px; font-size: 12px; z-index: 2001; opacity: 0; transition: opacity 0.3s; pointer-events: none; font-weight: 500; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
     .toast.show { opacity: 1; }
+
+    /* 积分确认弹窗 */
+    .credits-confirm-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 2000; align-items: center; justify-content: center; }
+    .credits-confirm-overlay.active { display: flex; }
+    .credits-confirm-modal { background: #fff; border-radius: 18px; padding: 32px 36px; max-width: 400px; width: 90%; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.18); }
+    .credits-confirm-icon { font-size: 40px; margin-bottom: 12px; }
+    .credits-confirm-title { font-size: 18px; font-weight: 700; color: #111827; margin-bottom: 10px; }
+    .credits-confirm-desc { font-size: 14px; color: #6b7280; line-height: 1.7; margin-bottom: 24px; }
+    .credits-confirm-actions { display: flex; gap: 12px; justify-content: center; }
+    .credits-confirm-actions .btn { min-width: 120px; height: 42px; font-size: 14px; font-weight: 600; }
   </style>
 </head>
 <body>
@@ -699,7 +709,37 @@
   <!-- 台词 hover 弹窗 -->
   <div class="cf-script-tip" id="cf-script-tip"></div>
 
+  <!-- 积分消耗确认弹窗 -->
+  <div class="credits-confirm-overlay" id="creditsConfirmOverlay">
+    <div class="credits-confirm-modal">
+      <div class="credits-confirm-icon">🪙</div>
+      <div class="credits-confirm-title">积分消耗确认</div>
+      <div class="credits-confirm-desc" id="creditsConfirmDesc">此操作会消耗 🪙10 积分，请确定执行操作</div>
+      <div class="credits-confirm-actions">
+        <button class="btn btn-light" type="button" onclick="closeCreditsConfirm()">取消</button>
+        <button class="btn btn-primary" type="button" onclick="executeCreditsAction()">确定执行</button>
+      </div>
+    </div>
+  </div>
+
   <script>
+    /* ── 积分确认弹窗逻辑 ── */
+    var pendingCreditsAction = null;
+    function openCreditsConfirm(cost, actionFn) {
+      pendingCreditsAction = actionFn;
+      document.getElementById('creditsConfirmDesc').textContent =
+        '此操作会消耗 🪙' + cost + ' 积分，请确定执行操作';
+      document.getElementById('creditsConfirmOverlay').classList.add('active');
+    }
+    function closeCreditsConfirm() {
+      pendingCreditsAction = null;
+      document.getElementById('creditsConfirmOverlay').classList.remove('active');
+    }
+    function executeCreditsAction() {
+      if (pendingCreditsAction) pendingCreditsAction();
+      closeCreditsConfirm();
+    }
+
     var S = {
       step: 1,
       avatar: null,               // 单选角色 key
@@ -1083,7 +1123,13 @@
       document.getElementById('line-1').classList.toggle('done', n>=2);
       document.getElementById('line-2').classList.toggle('done', n>=3);
       document.getElementById('btn-prev').style.display = n>1 ? 'inline-block' : 'none';
-      document.getElementById('btn-next').textContent = n===3 ? '🎬 确认生成' : '下一步';
+      if (n === 3) {
+        var totalSec = 0;
+        validCards().forEach(function(g) { totalSec += durOf(g.content, g.tts ? g.tts.speed : 10); });
+        document.getElementById('btn-next').textContent = '🪙' + (20 * totalSec) + ' · 🎬 确认生成';
+      } else {
+        document.getElementById('btn-next').textContent = '下一步';
+      }
       if (n === 1) { renderCards(); updateSidebar(); }
       if (n === 2) enterStep2();
       if (n === 3) renderConfirm();
@@ -1095,7 +1141,12 @@
         if (S.step === 1) toast('请先配置：' + getMissing().join('、'));
         return;
       }
-      if (S.step === 3) { confirmGen(); return; }
+      if (S.step === 3) {
+        var totalSec = 0;
+        validCards().forEach(function(g) { totalSec += durOf(g.content, g.tts ? g.tts.speed : 10); });
+        openCreditsConfirm(20 * totalSec, confirmGen);
+        return;
+      }
       gotoStep(S.step + 1);
     }
     function prevStep() { if (S.step > 1) gotoStep(S.step - 1); }
@@ -1206,7 +1257,8 @@
       var h = '';
       // 全部重新生成按钮 - 左列顶部
       h += '<div style="display:flex;gap:16px;margin-bottom:14px;"><div style="width:200px;flex-shrink:0;display:flex;justify-content:center;">';
-      h += '<button class="ff-regen-all" onclick="regenAllFrames()" style="width:100%;">🔄 全部重新生成首帧</button>';
+      var regenAllCost = 10 * validCards().length;
+      h += '<button class="ff-regen-all" onclick="confirmRegenAll()" style="width:100%;">🪙'+regenAllCost+' · 🔄 全部重新生成首帧</button>';
       h += '</div><div style="flex:1;"></div></div>';
       validCards().forEach(function(g, i) {
         var f = g.frame;
@@ -1238,7 +1290,7 @@
         SHOTS.forEach(function(s){ h += '<span class="ff-chip'+(f.shot===s?' on':'')+'" onclick="setFrameTag('+g.id+',\'shot\',\''+s+'\')">'+s+'</span>'; });
         h += '</div>';
         h += '</div>';
-        h += '<button class="ff-regen" onclick="regenFrame('+g.id+')">🔄 重新生成首帧</button>';
+        h += '<button class="ff-regen" onclick="confirmRegenFrame('+g.id+')">🪙10 · 🔄 重新生成首帧</button>';
         h += '</div>'; // ff-left
 
         /* 右：台词 + 语音 */
@@ -1267,6 +1319,13 @@
       g.frame[type] = val;
       renderFirstFrames();
       toast('已选「'+val+'」，点「重新生成首帧」应用');
+    }
+    function confirmRegenFrame(id) {
+      openCreditsConfirm(10, function() { regenFrame(id); });
+    }
+    function confirmRegenAll() {
+      var cost = 10 * validCards().length;
+      openCreditsConfirm(cost, regenAllFrames);
     }
     function regenFrame(id) {
       var prev = document.getElementById('ff-prev-'+id);
@@ -1474,9 +1533,19 @@
       updCfCount();
     }
     function updCfCount() {
-      var total = document.querySelectorAll('#cf-tbody tr').length - document.querySelectorAll('#cf-tbody tr.off').length;
+      var rows = document.querySelectorAll('#cf-tbody tr');
+      var allCards = validCards();
+      var total = rows.length - document.querySelectorAll('#cf-tbody tr.off').length;
+      var totalSec = 0;
+      rows.forEach(function(row, i) {
+        if (!row.classList.contains('off') && allCards[i]) {
+          totalSec += durOf(allCards[i].content, allCards[i].tts ? allCards[i].tts.speed : 10);
+        }
+      });
       document.getElementById('cf-count').textContent = total;
       document.getElementById('cf-time').textContent = Math.ceil(total*1.5)+'-'+Math.ceil(total*3);
+      // 更新确认生成按钮的积分显示
+      document.getElementById('btn-next').textContent = '🪙' + (20 * totalSec) + ' · 🎬 确认生成';
     }
 
     /* ========== 生成进度 ========== */

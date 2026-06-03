@@ -660,6 +660,56 @@
             }
         }
 
+        /* 积分确认弹窗 */
+        .credits-confirm-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.45);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+        }
+        .credits-confirm-overlay.active {
+            display: flex;
+        }
+        .credits-confirm-modal {
+            background: #ffffff;
+            border-radius: 18px;
+            padding: 32px 36px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18);
+        }
+        .credits-confirm-icon {
+            font-size: 40px;
+            margin-bottom: 12px;
+        }
+        .credits-confirm-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #111827;
+            margin-bottom: 10px;
+        }
+        .credits-confirm-desc {
+            font-size: 14px;
+            color: #6b7280;
+            line-height: 1.7;
+            margin-bottom: 24px;
+        }
+        .credits-confirm-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+        .credits-confirm-actions .btn {
+            min-width: 120px;
+            height: 42px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
         @media (max-width: 720px) {
             .topbar {
                 padding: 0 16px;
@@ -780,7 +830,7 @@
                                         <div class="ai-ref-del" id="aiRefDel" onclick="clearAiRef()">✕</div>
                                     </div>
                                 </div>
-                                <button class="ai-gen-btn" id="aiGenBtn" onclick="generateAIImage()" disabled>🎨 生成场景图</button>
+                                <button class="ai-gen-btn" id="aiGenBtn" onclick="confirmGenerateAIImage()" disabled>🪙40 · 🎨 生成场景图</button>
                                 <div class="ai-gen-status" id="aiGenStatus"></div>
                                 <div class="ai-result-grid" id="aiResultGrid" style="display:none;"></div>
                             </div>
@@ -841,6 +891,19 @@
                 </div>
             </div>
         </footer>
+    </div>
+
+    <!-- 积分消耗确认弹窗 -->
+    <div class="credits-confirm-overlay" id="creditsConfirmOverlay">
+        <div class="credits-confirm-modal">
+            <div class="credits-confirm-icon">🪙</div>
+            <div class="credits-confirm-title">积分消耗确认</div>
+            <div class="credits-confirm-desc" id="creditsConfirmDesc">此操作会消耗 🪙40 积分，请确定执行操作</div>
+            <div class="credits-confirm-actions">
+                <button class="btn btn-light" onclick="closeCreditsConfirm()">取消</button>
+                <button class="btn btn-primary" id="creditsConfirmOk" onclick="executeCreditsAction()">确定执行</button>
+            </div>
+        </div>
     </div>
 
     <div class="toast" id="toast">已保存</div>
@@ -1003,6 +1066,32 @@
             const hasPrompt = aiPromptInput.value.trim().length > 0;
             aiGenBtn.disabled = !hasPrompt;
             aiGenStatus.textContent = aiResults.length > 0 ? "已生成 " + aiResults.length + " 张候选图，点击选择一张" : "";
+        }
+
+        /* ── 积分确认弹窗逻辑 ── */
+        let pendingCreditsAction = null;
+
+        function openCreditsConfirm(cost, actionFn) {
+            pendingCreditsAction = actionFn;
+            document.getElementById("creditsConfirmDesc").textContent =
+                "此操作会消耗 🪙" + cost + " 积分，请确定执行操作";
+            document.getElementById("creditsConfirmOverlay").classList.add("active");
+        }
+
+        function closeCreditsConfirm() {
+            pendingCreditsAction = null;
+            document.getElementById("creditsConfirmOverlay").classList.remove("active");
+        }
+
+        function executeCreditsAction() {
+            if (pendingCreditsAction) pendingCreditsAction();
+            closeCreditsConfirm();
+        }
+
+        function confirmGenerateAIImage() {
+            const prompt = aiPromptInput.value.trim();
+            if (!prompt) { showToast("请先输入场景描述"); return; }
+            openCreditsConfirm(40, generateAIImage);
         }
 
         function generateAIImage() {

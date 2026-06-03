@@ -2125,6 +2125,56 @@
                 overflow-x: auto;
             }
         }
+
+        /* 积分确认弹窗 */
+        .credits-confirm-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.45);
+            z-index: 200;
+            align-items: center;
+            justify-content: center;
+        }
+        .credits-confirm-overlay.active {
+            display: flex;
+        }
+        .credits-confirm-modal {
+            background: #ffffff;
+            border-radius: 18px;
+            padding: 32px 36px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18);
+        }
+        .credits-confirm-icon {
+            font-size: 40px;
+            margin-bottom: 12px;
+        }
+        .credits-confirm-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #111827;
+            margin-bottom: 10px;
+        }
+        .credits-confirm-desc {
+            font-size: 14px;
+            color: #6b7280;
+            line-height: 1.7;
+            margin-bottom: 24px;
+        }
+        .credits-confirm-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+        .credits-confirm-actions .btn {
+            min-width: 120px;
+            height: 42px;
+            font-size: 14px;
+            font-weight: 600;
+        }
     </style>
 </head>
 
@@ -2388,7 +2438,7 @@
                             </div>
                         </div>
                         <div class="composite-actions">
-                            <button class="btn btn-primary" type="button" id="compositePrimaryBtn" disabled>合成首帧</button>
+                            <button class="btn btn-primary" type="button" id="compositePrimaryBtn" disabled>🪙10 · 合成首帧</button>
                             <button class="btn btn-light" type="button" id="compositeViewBtn" disabled>查看大图</button>
                         </div>
                     </div>
@@ -3045,13 +3095,46 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-light" type="button" id="firstFrameRegenerateBtn">重新合成</button>
+                <button class="btn btn-light" type="button" id="firstFrameRegenerateBtn">🪙10 · 重新合成</button>
                 <button class="btn btn-primary" type="button" data-close="firstFrameViewModal">关闭</button>
             </div>
         </div>
     </div>
 
+    <!-- 积分消耗确认弹窗 -->
+    <div class="credits-confirm-overlay" id="creditsConfirmOverlay">
+        <div class="credits-confirm-modal">
+            <div class="credits-confirm-icon">🪙</div>
+            <div class="credits-confirm-title">积分消耗确认</div>
+            <div class="credits-confirm-desc" id="creditsConfirmDesc">此操作会消耗 🪙10 积分，请确定执行操作</div>
+            <div class="credits-confirm-actions">
+                <button class="btn btn-light" type="button" onclick="closeCreditsConfirm()">取消</button>
+                <button class="btn btn-primary" type="button" onclick="executeCreditsAction()">确定执行</button>
+            </div>
+        </div>
+    </div>
+
     <script>
+        // ==================== 积分确认弹窗逻辑 ====================
+        let pendingCreditsAction = null;
+
+        function openCreditsConfirm(cost, actionFn) {
+            pendingCreditsAction = actionFn;
+            document.getElementById("creditsConfirmDesc").textContent =
+                "此操作会消耗 🪙" + cost + " 积分，请确定执行操作";
+            document.getElementById("creditsConfirmOverlay").classList.add("active");
+        }
+
+        function closeCreditsConfirm() {
+            pendingCreditsAction = null;
+            document.getElementById("creditsConfirmOverlay").classList.remove("active");
+        }
+
+        function executeCreditsAction() {
+            if (pendingCreditsAction) pendingCreditsAction();
+            closeCreditsConfirm();
+        }
+
         // ==================== 主体选择逻辑 ====================
         const roleCards = document.querySelectorAll(".role-card");
         const sceneCards = document.querySelectorAll(".scene-card");
@@ -3181,13 +3264,13 @@
                     badge: "未开始",
                     hint: "选择角色和场景后，调用多模态模型生成视频首帧。",
                     empty: "等待角色和场景选择完成。",
-                    primary: "合成首帧",
+                    primary: "🪙10 · 合成首帧",
                 },
                 ready: {
                     badge: "待合成",
                     hint: "角色和场景已就绪，点击后开始合成首帧。",
                     empty: "将角色置入场景前景，生成用于视频生成的首帧。",
-                    primary: "合成首帧",
+                    primary: "🪙10 · 合成首帧",
                 },
                 generating: {
                     badge: "合成中",
@@ -3199,20 +3282,20 @@
                     badge: "已完成",
                     hint: "首帧已生成，可查看大图；如果效果不好，可以重新合成。",
                     empty: "首帧已生成。",
-                    primary: "重新合成",
+                    primary: "🪙10 · 重新合成",
                 },
                 stale: {
                     badge: "需重新合成",
                     hint: "当前角色或场景已变化，旧首帧不能继续用于下一步。",
                     empty: "请重新合成当前角色与场景。",
-                    primary: "重新合成首帧",
+                    primary: "🪙10 · 重新合成首帧",
                 },
             }[compositeState] || {};
 
             compositeStatusBadge.textContent = stateMeta.badge || "未开始";
             compositeHint.textContent = stateMeta.hint || "";
             compositeEmptyText.textContent = stateMeta.empty || "";
-            compositePrimaryBtn.textContent = stateMeta.primary || "合成首帧";
+            compositePrimaryBtn.textContent = stateMeta.primary || "🪙10 · 合成首帧";
             compositePrimaryBtn.disabled = !hasSelection || compositeState === "generating";
             compositeViewBtn.disabled = !hasImage;
             firstFrameRegenerateBtn.disabled = !hasSelection || compositeState === "generating";
@@ -3676,11 +3759,13 @@
             return parts.join("，");
         }
 
-        compositePrimaryBtn.addEventListener("click", startCompositeGeneration);
+        compositePrimaryBtn.addEventListener("click", () => {
+            openCreditsConfirm(10, startCompositeGeneration);
+        });
         compositeViewBtn.addEventListener("click", openFirstFrameViewModal);
         firstFrameRegenerateBtn.addEventListener("click", () => {
             document.getElementById("firstFrameViewModal").classList.remove("active");
-            startCompositeGeneration();
+            openCreditsConfirm(10, startCompositeGeneration);
         });
         renderCompositeUI();
 

@@ -1985,6 +1985,16 @@
         grid-template-columns: 1fr;
       }
     }
+
+    /* 积分确认弹窗 */
+    .credits-confirm-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 5000; align-items: center; justify-content: center; }
+    .credits-confirm-overlay.active { display: flex; }
+    .credits-confirm-modal { background: #fff; border-radius: 18px; padding: 32px 36px; max-width: 400px; width: 90%; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.18); }
+    .credits-confirm-icon { font-size: 40px; margin-bottom: 12px; }
+    .credits-confirm-title { font-size: 18px; font-weight: 700; color: #111827; margin-bottom: 10px; }
+    .credits-confirm-desc { font-size: 14px; color: #6b7280; line-height: 1.7; margin-bottom: 24px; }
+    .credits-confirm-actions { display: flex; gap: 12px; justify-content: center; }
+    .credits-confirm-actions .btn { min-width: 120px; height: 42px; font-size: 14px; font-weight: 600; }
   </style>
 </head>
 <body>
@@ -2051,7 +2061,7 @@
     <div class="bottom-left"></div>
 
     <div class="bottom-right">
-      <button class="btn btn-light-primary" onclick="batchGenerateVideo()">批量生成视频</button>
+      <button class="btn btn-light-primary" id="batchGenVideoBtn" onclick="confirmBatchGenerateVideo()">批量生成视频</button>
       <button class="btn" onclick="previewAll()">预览全部</button>
       <button class="btn btn-primary compose-btn" onclick="composeFilm()">成片合成</button>
     </div>
@@ -2338,7 +2348,37 @@
     </div>
   </div>
 
+  <!-- 积分消耗确认弹窗 -->
+  <div class="credits-confirm-overlay" id="creditsConfirmOverlay">
+    <div class="credits-confirm-modal">
+      <div class="credits-confirm-icon">🪙</div>
+      <div class="credits-confirm-title">积分消耗确认</div>
+      <div class="credits-confirm-desc" id="creditsConfirmDesc">此操作会消耗 🪙20 积分，请确定执行操作</div>
+      <div class="credits-confirm-actions">
+        <button class="btn" onclick="closeCreditsConfirm()">取消</button>
+        <button class="btn btn-primary" onclick="executeCreditsAction()">确定执行</button>
+      </div>
+    </div>
+  </div>
+
   <script>
+    /* ── 积分确认弹窗逻辑 ── */
+    var pendingCreditsAction = null;
+    function openCreditsConfirm(cost, actionFn) {
+      pendingCreditsAction = actionFn;
+      document.getElementById('creditsConfirmDesc').textContent =
+        '此操作会消耗 🪙' + cost + ' 积分，请确定执行操作';
+      document.getElementById('creditsConfirmOverlay').classList.add('active');
+    }
+    function closeCreditsConfirm() {
+      pendingCreditsAction = null;
+      document.getElementById('creditsConfirmOverlay').classList.remove('active');
+    }
+    function executeCreditsAction() {
+      if (pendingCreditsAction) pendingCreditsAction();
+      closeCreditsConfirm();
+    }
+
     (function() {
       var stories = [
         {
@@ -2616,7 +2656,7 @@
             headerButtons.push("<button class=\"btn\" onclick=\"cancelEditStory(" + story.id + ")\">取消</button>");
           }
 
-          var videoMainButtonText = "生成";
+          var videoMainButtonText = "🪙" + (20 * story.duration) + " · 生成";
           var downloadDisabled = story.videoStatus === "done" ? "" : " disabled";
 
           var selectedClip = selectedClips[story.id];
@@ -2703,7 +2743,7 @@
                       "</div>",
                     "</div>",
                     "<div class=\"video-actions\">",
-                      "<button class=\"btn btn-light-primary\" onclick=\"generateVideo(" + story.id + ")\">" + videoMainButtonText + "</button>",
+                      "<button class=\"btn btn-light-primary\" onclick=\"confirmGenerateVideo(" + story.id + ")\">" + videoMainButtonText + "</button>",
                       "<button class=\"btn btn-success\"" + downloadDisabled + " onclick=\"downloadVideo(" + story.id + ")\">下载</button>",
                     "</div>",
                   "</div>",
@@ -2723,6 +2763,12 @@
 
           list.appendChild(card);
         });
+
+        // 更新批量生成视频按钮的积分显示
+        var totalBatchSec = 0;
+        stories.forEach(function(s) { totalBatchSec += s.duration; });
+        var batchBtn = document.getElementById("batchGenVideoBtn");
+        if (batchBtn) batchBtn.textContent = "🪙" + (20 * totalBatchSec) + " · 批量生成视频";
 
         renderLeftNav();
       }
@@ -3204,6 +3250,19 @@
           renderStories();
           showToast("批量完成", "所有分镜音频已生成。");
         }, 1200);
+      };
+
+      window.confirmGenerateVideo = function(id) {
+        var story = findStory(id);
+        if (!story) return;
+        var cost = 20 * story.duration;
+        openCreditsConfirm(cost, function() { window.generateVideo(id); });
+      };
+
+      window.confirmBatchGenerateVideo = function() {
+        var totalSec = 0;
+        stories.forEach(function(s) { totalSec += s.duration; });
+        openCreditsConfirm(20 * totalSec, window.batchGenerateVideo);
       };
 
       window.generateVideo = function(id) {
