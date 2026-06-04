@@ -42,13 +42,6 @@
     }
     .page-title { font-size: 22px; font-weight: 700; color: var(--text); }
     .page-sub { margin-top: 6px; color: var(--text-mute); font-size: 13px; }
-    .credit-pill {
-        height: 32px; padding: 0 12px; border-radius: 999px;
-        background: #fff; border: 1px solid var(--line);
-        color: var(--text-sub); display: inline-flex; align-items: center; gap: 6px;
-        font-size: 12px; font-weight: 600;
-    }
-
     .workspace {
         min-height: 100vh;
         padding: 22px 36px 168px;
@@ -405,7 +398,6 @@
     }
     @media (max-width: 640px) {
         .page-head { display: block; }
-        .credit-pill { margin-top: 12px; }
         .scene-board { grid-template-columns: repeat(2, minmax(0, 1fr)); width: 100%; }
         .scene-card { width: 100%; border-radius: 12px; }
         .composer-wrap { width: calc(100vw - 24px); bottom: 12px; }
@@ -423,7 +415,6 @@
             <div class="page-title">图片创作</div>
             <div class="page-sub">输入提示词或上传参考图，生成可直接加入角色与场景库的图片。</div>
         </div>
-        <div class="credit-pill">🪙 生成图片 10 积分/张</div>
     </header>
 
     <main class="workspace">
@@ -507,9 +498,6 @@
             </div>
             <div class="confirm-body">
                 <div class="confirm-line"><span>图片名称</span><b id="deleteTargetName">-</b></div>
-                <div class="confirm-cost" style="background:#fef2f2;border-color:#fecaca;">
-                    <span>操作影响</span><b style="color:var(--danger);">删除图片</b>
-                </div>
             </div>
             <div class="confirm-footer">
                 <button class="confirm-btn" onclick="closeDeleteConfirm()">取消</button>
