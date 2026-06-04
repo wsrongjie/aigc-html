@@ -269,6 +269,50 @@
     .role-card-actions { display: flex; gap: 8px; }
     .role-card-empty { font-size: 12px; color: var(--text-muted); text-align: center; padding: 12px 0; }
 
+    /* ========== 权限配置 ========== */
+    .permission-head {
+        display: flex; align-items: center; justify-content: space-between;
+        gap: 12px; margin-bottom: 8px;
+    }
+    .permission-head .form-label { margin-bottom: 0; }
+    .permission-actions { display: flex; gap: 8px; }
+    .permission-summary {
+        min-height: 28px; display: flex; align-items: center; gap: 8px;
+        padding: 7px 10px; border-radius: 6px;
+        background: #f9fafb; border: 1px solid var(--border);
+        color: var(--text-secondary); font-size: 12px; margin-bottom: 10px;
+    }
+    .permission-grid {
+        display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+    }
+    .permission-module {
+        border: 1px solid var(--border); border-radius: var(--radius-sm);
+        background: #fff; overflow: hidden;
+    }
+    .permission-module-head {
+        min-height: 42px; padding: 10px 12px;
+        display: flex; align-items: center; justify-content: space-between;
+        gap: 10px; border-bottom: 1px solid var(--border);
+        background: #fafafa;
+    }
+    .permission-module-name { display: flex; align-items: center; gap: 8px; font-weight: 500; }
+    .permission-module-meta { font-size: 11px; color: var(--text-muted); white-space: nowrap; }
+    .permission-action-list {
+        padding: 10px 12px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px 10px;
+    }
+    .permission-check {
+        display: inline-flex; align-items: center; gap: 6px;
+        font-size: 12px; color: var(--text-secondary);
+        cursor: pointer; min-width: 0;
+    }
+    .permission-check input { width: 14px; height: 14px; accent-color: var(--primary); flex-shrink: 0; }
+    .permission-check span {
+        overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .permission-check.disabled { color: var(--text-muted); cursor: not-allowed; opacity: 0.58; }
+
     /* ========== Tab 切换 ========== */
     .tabs { display: flex; gap: 0; border-bottom: 2px solid var(--border); margin-bottom: 16px; }
     .tab-item {
@@ -384,6 +428,8 @@
         .credit-overview { grid-template-columns: repeat(2, 1fr); }
         .role-cards { grid-template-columns: 1fr; }
         .package-options { grid-template-columns: 1fr; }
+        .permission-grid { grid-template-columns: 1fr; }
+        .permission-action-list { grid-template-columns: 1fr; }
     }
 </style>
 </head>
@@ -422,8 +468,8 @@
             <div class="nav-section-children">
                 <a class="nav-sub-item" href="个人信息.html"><span class="nav-icon">👤</span> 个人信息</a>
                 <a class="nav-sub-item active" href="团队管理.html"><span class="nav-icon">👥</span> 团队管理</a>
-                <a class="nav-sub-item" href="javascript:void(0)" onclick="toast('该模块占位中', 'info')"><span class="nav-icon">⚙️</span> 偏好设置</a>
-                <a class="nav-sub-item" href="javascript:void(0)" onclick="toast('该模块占位中', 'info')"><span class="nav-icon">🔔</span> 消息通知</a>
+                <a class="nav-sub-item" href="套餐与支付.html"><span class="nav-icon">💳</span> 套餐与支付</a>
+                <a class="nav-sub-item" href="消费账单.html"><span class="nav-icon">🧾</span> 消费账单</a>
             </div>
         </div>
     </nav>
@@ -448,7 +494,6 @@
             <a class="anchor-item active" data-anchor="overview" href="#overview">团队概览</a>
             <a class="anchor-item" data-anchor="members" href="#members">成员管理</a>
             <a class="anchor-item" data-anchor="roles" href="#roles">角色与积分</a>
-            <a class="anchor-item" data-anchor="records" href="#records">积分记录</a>
         </div>
 
         <div class="page-wrap">
@@ -559,7 +604,7 @@
                         <div class="card-title"><span class="card-title-icon">🎭</span> 角色与积分</div>
                         <div class="card-subtitle">定义角色并为每个角色分配积分额度，角色内成员共享额度</div>
                     </div>
-                    <button class="btn btn-primary btn-sm" onclick="openModal('modalRoleEdit')">
+                    <button class="btn btn-primary btn-sm" onclick="openNewRoleModal()">
                         <span>＋</span> 新建角色
                     </button>
                 </div>
@@ -568,62 +613,10 @@
                         <span class="alert-icon">💡</span>
                         <div>
                             同一角色下的所有成员<b>共享</b>该角色的积分额度。例如：高级投顾额度 1000，该角色下 3 位成员的消耗总和不能超过 1000。<br>
-                            租户管理员可在"积分记录"中发起充值，充值后手动分配额度到各角色。
+                            租户管理员可在积分总池中发起充值，充值后手动分配额度到各角色。
                         </div>
                     </div>
                     <div class="role-cards" id="roleCards"></div>
-                </div>
-            </section>
-
-            <!-- ========== 4. 积分记录 ========== -->
-            <section class="card" id="records">
-                <div class="card-header">
-                    <div>
-                        <div class="card-title"><span class="card-title-icon">💰</span> 积分记录</div>
-                        <div class="card-subtitle">充值记录与消耗明细</div>
-                    </div>
-                    <button class="btn btn-outline-primary btn-sm" onclick="openModal('modalRecharge')">
-                        <span>＋</span> 积分充值
-                    </button>
-                </div>
-                <div class="card-body" style="padding-top: 4px;">
-                    <div class="tabs">
-                        <div class="tab-item active" data-tab="recharge" onclick="switchTab('recharge')">充值记录</div>
-                        <div class="tab-item" data-tab="consume" onclick="switchTab('consume')">消耗明细</div>
-                    </div>
-                    <!-- 充值记录 -->
-                    <div class="table-wrap" id="tab-recharge">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th style="width:14%;">充值编号</th>
-                                    <th style="width:16%;">金额</th>
-                                    <th style="width:16%;">积分数</th>
-                                    <th style="width:14%;">支付方式</th>
-                                    <th style="width:16%;">申请时间</th>
-                                    <th style="width:12%;">状态</th>
-                                    <th style="width:12%;text-align:right;">操作</th>
-                                </tr>
-                            </thead>
-                            <tbody id="rechargeTbody"></tbody>
-                        </table>
-                    </div>
-                    <!-- 消耗明细 -->
-                    <div class="table-wrap" id="tab-consume" style="display:none;">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th style="width:16%;">成员</th>
-                                    <th style="width:14%;">角色</th>
-                                    <th style="width:28%;">用途</th>
-                                    <th style="width:14%;">消耗积分</th>
-                                    <th style="width:16%;">时间</th>
-                                    <th style="width:12%;text-align:right;">详情</th>
-                                </tr>
-                            </thead>
-                            <tbody id="consumeTbody"></tbody>
-                        </table>
-                    </div>
                 </div>
             </section>
 
@@ -715,10 +708,10 @@
 
 <!-- ========== 弹窗：新建/编辑角色 ========== -->
 <div class="modal-mask" id="modalRoleEdit">
-    <div class="modal" style="width:440px;">
+    <div class="modal" style="width:680px;">
         <div class="modal-header">
             <div class="modal-title" id="roleEditTitle">新建角色</div>
-            <div class="modal-sub">定义角色名称，创建后可为其分配积分额度</div>
+            <div class="modal-sub">定义角色信息、页面访问范围与按钮操作权限</div>
         </div>
         <div class="modal-body">
             <div class="form-group">
@@ -741,6 +734,17 @@
                     <span class="role-color-opt" data-color="#ec4899" style="width:28px;height:28px;border-radius:50%;background:#ec4899;cursor:pointer;border:2px solid transparent;transition:all 0.15s;"></span>
                     <span class="role-color-opt" data-color="#78716c" style="width:28px;height:28px;border-radius:50%;background:#78716c;cursor:pointer;border:2px solid transparent;transition:all 0.15s;"></span>
                 </div>
+            </div>
+            <div class="form-group">
+                <div class="permission-head">
+                    <label class="form-label">页面与操作权限</label>
+                    <div class="permission-actions">
+                        <button class="btn btn-sm" type="button" onclick="selectAllRolePermissions()">全选</button>
+                        <button class="btn btn-sm" type="button" onclick="clearRolePermissions()">清空</button>
+                    </div>
+                </div>
+                <div class="permission-summary" id="rolePermSummary">已选择 0 个页面 · 0 项操作</div>
+                <div class="permission-grid" id="rolePermissionList"></div>
             </div>
         </div>
         <div class="modal-footer">
@@ -981,7 +985,7 @@ function copyText(text) {
 /* ========== 锚点滚动联动 ========== */
 var content = document.getElementById('content');
 var anchors = document.querySelectorAll('.anchor-item');
-var sections = ['overview','members','roles','records'].map(function(id){ return document.getElementById(id); });
+var sections = ['overview','members','roles'].map(function(id){ return document.getElementById(id); });
 
 anchors.forEach(function(a){
     a.addEventListener('click', function(e){
@@ -996,6 +1000,7 @@ anchors.forEach(function(a){
 });
 content.addEventListener('scroll', function(){
     var st = content.scrollTop;
+    if (!sections.length) return;
     var activeId = sections[0].id;
     for (var i = 0; i < sections.length; i++) {
         if (sections[i].offsetTop - 100 <= st) activeId = sections[i].id;
@@ -1004,6 +1009,113 @@ content.addEventListener('scroll', function(){
         a.classList.toggle('active', a.getAttribute('data-anchor') === activeId);
     });
 });
+
+/* ========== 权限目录 ========== */
+var permissionCatalog = [
+    {
+        id: 'assetSubject',
+        name: '主体管理',
+        icon: '👤',
+        actions: [
+            { id: 'create', name: '创建主体' },
+            { id: 'edit', name: '编辑资料' },
+            { id: 'delete', name: '删除主体' },
+            { id: 'publish', name: '设为可用' }
+        ]
+    },
+    {
+        id: 'assetAudio',
+        name: '音频资产',
+        icon: '🎙',
+        actions: [
+            { id: 'upload', name: '上传音频' },
+            { id: 'clone', name: '克隆声音' },
+            { id: 'audit', name: '审核音频' },
+            { id: 'delete', name: '删除音频' }
+        ]
+    },
+    {
+        id: 'assetVideo',
+        name: '视频资产',
+        icon: '🎬',
+        actions: [
+            { id: 'upload', name: '上传视频' },
+            { id: 'preview', name: '预览视频' },
+            { id: 'download', name: '下载视频' },
+            { id: 'delete', name: '删除视频' }
+        ]
+    },
+    {
+        id: 'director',
+        name: '导演台',
+        icon: '🎞',
+        actions: [
+            { id: 'create', name: '新建项目' },
+            { id: 'generate', name: '生成视频' },
+            { id: 'export', name: '导出成片' },
+            { id: 'template', name: '保存模板' }
+        ]
+    },
+    {
+        id: 'tools',
+        name: '全部工具',
+        icon: '🛠',
+        actions: [
+            { id: 'use', name: '使用工具' },
+            { id: 'batch', name: '批量处理' },
+            { id: 'download', name: '下载结果' },
+            { id: 'manage', name: '管理工具' }
+        ]
+    },
+    {
+        id: 'team',
+        name: '团队管理',
+        icon: '👥',
+        actions: [
+            { id: 'invite', name: '添加成员' },
+            { id: 'role', name: '管理角色' },
+            { id: 'credit', name: '分配积分' },
+            { id: 'remove', name: '移除成员' }
+        ]
+    },
+    {
+        id: 'billing',
+        name: '消费账单',
+        icon: '💰',
+        actions: [
+            { id: 'view', name: '查看明细' },
+            { id: 'export', name: '导出账单' },
+            { id: 'recharge', name: '积分充值' },
+            { id: 'invoice', name: '申请发票' }
+        ]
+    }
+];
+
+function makePermissions(pageIds, actionMap) {
+    var permissions = { pages: [], actions: {} };
+    permissionCatalog.forEach(function(module){
+        if (pageIds.indexOf(module.id) > -1) {
+            permissions.pages.push(module.id);
+            permissions.actions[module.id] = actionMap && actionMap[module.id]
+                ? actionMap[module.id].slice()
+                : module.actions.map(function(a){ return a.id; });
+        }
+    });
+    return permissions;
+}
+
+function clonePermissions(permissions) {
+    var source = permissions || makePermissions([], {});
+    var cloned = { pages: (source.pages || []).slice(), actions: {} };
+    Object.keys(source.actions || {}).forEach(function(pageId){
+        cloned.actions[pageId] = source.actions[pageId].slice();
+    });
+    return cloned;
+}
+
+function getAllPermissions() {
+    return makePermissions(permissionCatalog.map(function(module){ return module.id; }));
+}
 
 /* ========== Mock 数据 ========== */
 var M = {
@@ -1020,9 +1132,21 @@ var M = {
         consumed: 1520
     },
     roles: [
-        { id: 'r1', name: '投顾管理员', color: '#2f6bff', quota: 2000, consumed: 820, memberCount: 2, desc: '租户管理者，可管理团队和积分' },
-        { id: 'r2', name: '高级投顾', color: '#16a34a', quota: 1000, consumed: 600, memberCount: 2, desc: '资深投资顾问，可生成高质量视频' },
-        { id: 'r3', name: '内容审核员', color: '#f59e0b', quota: 500, consumed: 100, memberCount: 1, desc: '负责视频内容的合规审核' }
+        { id: 'r1', name: '投顾管理员', color: '#2f6bff', quota: 2000, consumed: 820, memberCount: 2, desc: '租户管理者，可管理团队和积分', permissions: getAllPermissions() },
+        { id: 'r2', name: '高级投顾', color: '#16a34a', quota: 1000, consumed: 600, memberCount: 2, desc: '资深投资顾问，可生成高质量视频', permissions: makePermissions(['assetSubject','assetAudio','assetVideo','director','tools','billing'], {
+            assetSubject: ['create','edit','publish'],
+            assetAudio: ['upload','clone'],
+            assetVideo: ['preview','download'],
+            director: ['create','generate','export','template'],
+            tools: ['use','download'],
+            billing: ['view']
+        }) },
+        { id: 'r3', name: '内容审核员', color: '#f59e0b', quota: 500, consumed: 100, memberCount: 1, desc: '负责视频内容的合规审核', permissions: makePermissions(['assetAudio','assetVideo','director','billing'], {
+            assetAudio: ['audit'],
+            assetVideo: ['preview'],
+            director: ['generate'],
+            billing: ['view']
+        }) }
     ],
     members: [
         { id: 'm1', name: '王晓明', avatar: '王', avatarBg: 'linear-gradient(135deg, #2f6bff, #6b8eff)', role: '投顾管理员', roleId: 'r1', consumed: 320, joined: '2024-05-12' },
@@ -1117,6 +1241,7 @@ function renderRoleCards() {
         var pct = r.quota > 0 ? Math.round(r.consumed / r.quota * 100) : 0;
         var barColor = pct > 80 ? 'danger' : (pct > 50 ? 'warning' : 'success');
         var remainingColor = remaining <= 0 ? 'var(--danger)' : (remaining < r.quota * 0.2 ? 'var(--warning)' : 'var(--success)');
+        var permSummary = getPermissionSummary(r.permissions);
         html += '<div class="role-card">' +
             '<div class="role-card-bar" style="background:' + r.color + ';"></div>' +
             '<div class="role-card-header">' +
@@ -1130,6 +1255,8 @@ function renderRoleCards() {
                 '<div class="role-card-stat-row"><span class="role-card-stat-label">剩余</span><span class="role-card-stat-value" style="color:' + remainingColor + ';font-weight:600;">' + remaining.toLocaleString() + '</span></div>' +
                 '<div class="progress-bar"><div class="progress-fill ' + barColor + '" style="width:' + pct + '%;"></div></div>' +
                 '<div style="font-size:11px;color:var(--text-muted);text-align:right;">已用 ' + pct + '%</div>' +
+                '<div class="role-card-stat-row"><span class="role-card-stat-label">可见页面</span><span class="role-card-stat-value">' + permSummary.pageCount + ' 个</span></div>' +
+                '<div class="role-card-stat-row"><span class="role-card-stat-label">操作权限</span><span class="role-card-stat-value">' + permSummary.actionCount + ' 项</span></div>' +
             '</div>' +
             '<div class="role-card-actions">' +
                 '<button class="btn btn-sm" style="flex:1;" onclick="editRole(\'' + r.id + '\')">编辑</button>' +
@@ -1143,6 +1270,8 @@ function renderRoleCards() {
 
 /* ========== 渲染充值记录 ========== */
 function renderRechargeTable() {
+    var tbody = document.getElementById('rechargeTbody');
+    if (!tbody) return;
     var html = '';
     M.rechargeRecords.forEach(function(r){
         var statusTag = '';
@@ -1159,11 +1288,13 @@ function renderRechargeTable() {
             '<td class="actions"><button class="btn-text" onclick="rechargeDetail(\'' + r.id + '\')">详情</button></td>' +
         '</tr>';
     });
-    document.getElementById('rechargeTbody').innerHTML = html;
+    tbody.innerHTML = html;
 }
 
 /* ========== 渲染消耗明细 ========== */
 function renderConsumeTable() {
+    var tbody = document.getElementById('consumeTbody');
+    if (!tbody) return;
     var html = '';
     M.consumeRecords.forEach(function(c){
         html += '<tr>' +
@@ -1175,11 +1306,12 @@ function renderConsumeTable() {
             '<td class="actions"><button class="btn-text" onclick="consumeDetail(\'' + c.id + '\')">详情</button></td>' +
         '</tr>';
     });
-    document.getElementById('consumeTbody').innerHTML = html;
+    tbody.innerHTML = html;
 }
 
 /* ========== Tab 切换 ========== */
 function switchTab(tab) {
+    if (!document.getElementById('tab-recharge') || !document.getElementById('tab-consume')) return;
     document.querySelectorAll('.tab-item').forEach(function(t){ t.classList.remove('active'); });
     document.querySelector('[data-tab="' + tab + '"]').classList.add('active');
     document.getElementById('tab-recharge').style.display = tab === 'recharge' ? '' : 'none';
@@ -1292,6 +1424,112 @@ function removeMember(memberId) {
 }
 
 /* ========== 新建/编辑角色 ========== */
+function getPermissionSummary(permissions) {
+    var pages = permissions && permissions.pages ? permissions.pages : [];
+    var actionCount = 0;
+    Object.keys((permissions && permissions.actions) || {}).forEach(function(pageId){
+        actionCount += permissions.actions[pageId].length;
+    });
+    return { pageCount: pages.length, actionCount: actionCount };
+}
+
+function updatePermissionSummary() {
+    var permissions = collectRolePermissions();
+    var summary = getPermissionSummary(permissions);
+    var pageNames = permissionCatalog
+        .filter(function(module){ return permissions.pages.indexOf(module.id) > -1; })
+        .map(function(module){ return module.name; })
+        .slice(0, 3)
+        .join('、');
+    var suffix = summary.pageCount > 3 ? ' 等' : '';
+    document.getElementById('rolePermSummary').textContent =
+        '已选择 ' + summary.pageCount + ' 个页面 · ' + summary.actionCount + ' 项操作' +
+        (pageNames ? '：' + pageNames + suffix : '');
+}
+
+function syncPermissionModule(pageId) {
+    var pageCheckbox = document.querySelector('.perm-page[data-page="' + pageId + '"]');
+    var actionCheckboxes = document.querySelectorAll('.perm-action[data-page="' + pageId + '"]');
+    var enabled = pageCheckbox && pageCheckbox.checked;
+    actionCheckboxes.forEach(function(box){
+        box.disabled = !enabled;
+        if (!enabled) box.checked = false;
+        box.closest('.permission-check').classList.toggle('disabled', !enabled);
+    });
+    var checkedCount = 0;
+    actionCheckboxes.forEach(function(box){ if (box.checked) checkedCount++; });
+    var meta = document.querySelector('.permission-module-meta[data-page="' + pageId + '"]');
+    if (meta) meta.textContent = enabled ? checkedCount + '/' + actionCheckboxes.length + ' 项操作' : '未开放';
+}
+
+function renderRolePermissions(permissions) {
+    var selected = clonePermissions(permissions);
+    var html = '';
+    permissionCatalog.forEach(function(module){
+        var pageChecked = selected.pages.indexOf(module.id) > -1;
+        html += '<div class="permission-module">' +
+            '<div class="permission-module-head">' +
+                '<label class="permission-check permission-module-name">' +
+                    '<input type="checkbox" class="perm-page" data-page="' + module.id + '"' + (pageChecked ? ' checked' : '') + '>' +
+                    '<span>' + module.icon + ' ' + module.name + '</span>' +
+                '</label>' +
+                '<span class="permission-module-meta" data-page="' + module.id + '"></span>' +
+            '</div>' +
+            '<div class="permission-action-list">';
+        module.actions.forEach(function(action){
+            var actionChecked = selected.actions[module.id] && selected.actions[module.id].indexOf(action.id) > -1;
+            html += '<label class="permission-check">' +
+                '<input type="checkbox" class="perm-action" data-page="' + module.id + '" data-action="' + action.id + '"' + (actionChecked ? ' checked' : '') + '>' +
+                '<span title="' + action.name + '">' + action.name + '</span>' +
+            '</label>';
+        });
+        html += '</div></div>';
+    });
+    document.getElementById('rolePermissionList').innerHTML = html;
+    document.querySelectorAll('.perm-page').forEach(function(box){
+        box.addEventListener('change', function(){
+            syncPermissionModule(box.dataset.page);
+            updatePermissionSummary();
+        });
+    });
+    document.querySelectorAll('.perm-action').forEach(function(box){
+        box.addEventListener('change', function(){
+            var pageBox = document.querySelector('.perm-page[data-page="' + box.dataset.page + '"]');
+            if (box.checked && pageBox && !pageBox.checked) pageBox.checked = true;
+            syncPermissionModule(box.dataset.page);
+            updatePermissionSummary();
+        });
+    });
+    permissionCatalog.forEach(function(module){ syncPermissionModule(module.id); });
+    updatePermissionSummary();
+}
+
+function collectRolePermissions() {
+    var permissions = { pages: [], actions: {} };
+    document.querySelectorAll('.perm-page').forEach(function(pageBox){
+        if (!pageBox.checked) return;
+        var pageId = pageBox.dataset.page;
+        permissions.pages.push(pageId);
+        permissions.actions[pageId] = [];
+        document.querySelectorAll('.perm-action[data-page="' + pageId + '"]').forEach(function(actionBox){
+            if (actionBox.checked) permissions.actions[pageId].push(actionBox.dataset.action);
+        });
+    });
+    return permissions;
+}
+
+function selectAllRolePermissions() {
+    document.querySelectorAll('.perm-page, .perm-action').forEach(function(box){ box.checked = true; });
+    permissionCatalog.forEach(function(module){ syncPermissionModule(module.id); });
+    updatePermissionSummary();
+}
+
+function clearRolePermissions() {
+    document.querySelectorAll('.perm-page, .perm-action').forEach(function(box){ box.checked = false; });
+    permissionCatalog.forEach(function(module){ syncPermissionModule(module.id); });
+    updatePermissionSummary();
+}
+
 function editRole(roleId) {
     var role = null;
     M.roles.forEach(function(r){ if (r.id === roleId) role = r; });
@@ -1302,6 +1540,7 @@ function editRole(roleId) {
     document.getElementById('roleEditDesc').value = role.desc || '';
     ctx.selectedRoleColor = role.color;
     updateColorPicker();
+    renderRolePermissions(role.permissions || makePermissions([], {}));
     openModal('modalRoleEdit');
 }
 // 重置新建角色弹窗（关闭时调用）
@@ -1312,6 +1551,13 @@ function resetRoleEdit() {
     document.getElementById('roleEditDesc').value = '';
     ctx.selectedRoleColor = '#2f6bff';
     updateColorPicker();
+    renderRolePermissions(makePermissions(['assetSubject','assetAudio','assetVideo','director','tools'], {
+        assetSubject: ['create','edit'],
+        assetAudio: ['upload'],
+        assetVideo: ['preview'],
+        director: ['create','generate'],
+        tools: ['use']
+    }));
 }
 function updateColorPicker() {
     document.querySelectorAll('#roleColorPicker .role-color-opt').forEach(function(opt){
@@ -1331,10 +1577,22 @@ openModal = function(id) {
     if (id === 'modalRoleEdit' && !ctx.editingRoleId) resetRoleEdit();
     _origOpenModal(id);
 };
+var _origCloseModal = closeModal;
+closeModal = function(id) {
+    _origCloseModal(id);
+    if (id === 'modalRoleEdit') ctx.editingRoleId = null;
+};
+function openNewRoleModal() {
+    ctx.editingRoleId = null;
+    resetRoleEdit();
+    openModal('modalRoleEdit');
+}
 function saveRole() {
     var name = document.getElementById('roleEditName').value.trim();
     if (!name) { toast('请输入角色名称', 'error'); return; }
     var desc = document.getElementById('roleEditDesc').value.trim();
+    var permissions = collectRolePermissions();
+    if (!permissions.pages.length) { toast('请至少选择一个可查看页面', 'error'); return; }
     if (ctx.editingRoleId) {
         // 编辑
         M.roles.forEach(function(r){
@@ -1342,6 +1600,7 @@ function saveRole() {
                 r.name = name;
                 r.desc = desc;
                 r.color = ctx.selectedRoleColor;
+                r.permissions = clonePermissions(permissions);
             }
         });
         // 同步更新成员的 role 名称
@@ -1357,7 +1616,8 @@ function saveRole() {
         var newId = 'r' + (M.roles.length + 1) + '_' + Date.now().toString(36);
         M.roles.push({
             id: newId, name: name, color: ctx.selectedRoleColor,
-            quota: 0, consumed: 0, memberCount: 0, desc: desc
+            quota: 0, consumed: 0, memberCount: 0, desc: desc,
+            permissions: clonePermissions(permissions)
         });
         toast('角色「' + name + '」已创建，记得为其分配积分额度', 'success');
     }
