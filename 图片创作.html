@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>图片创作</title>
+<style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+        --primary: #0066ff;
+        --primary-dark: #0055dd;
+        --primary-soft: #eef4ff;
+        --success: #059669;
+        --warning: #d97706;
+        --danger: #ef4444;
+        --bg: #f0f2f5;
+        --panel: #ffffff;
+        --panel-soft: #fafafa;
+        --line: #e8e8e8;
+        --line-strong: #d8d8d8;
+        --text: #1a1a2e;
+        --text-sub: #666666;
+        --text-mute: #999999;
+        --shadow: 0 8px 24px rgba(0,0,0,0.08);
+        --shadow-strong: 0 18px 48px rgba(0,0,0,0.18);
+    }
+    body {
+        min-height: 100vh;
+        background: var(--bg);
+        color: var(--text);
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", sans-serif;
+        -webkit-font-smoothing: antialiased;
+        overflow: hidden;
+    }
+    button, input, textarea { font: inherit; }
+    button { border: none; cursor: pointer; }
+
+    .app-shell { min-height: 100vh; position: relative; }
+    .page-head {
+        padding: 28px 36px 0;
+        display: flex; align-items: flex-end; justify-content: space-between; gap: 16px;
+    }
+    .page-title { font-size: 22px; font-weight: 700; color: var(--text); }
+    .page-sub { margin-top: 6px; color: var(--text-mute); font-size: 13px; }
+    .credit-pill {
+        height: 32px; padding: 0 12px; border-radius: 999px;
+        background: #fff; border: 1px solid var(--line);
+        color: var(--text-sub); display: inline-flex; align-items: center; gap: 6px;
+        font-size: 12px; font-weight: 600;
+    }
+
+    .workspace {
+        min-height: 100vh;
+        padding: 22px 36px 168px;
+    }
+    .scene-board {
+        display: grid;
+        grid-template-columns: repeat(3, 178px);
+        gap: 14px;
+        align-items: start;
+    }
+    .scene-card {
+        width: 178px; aspect-ratio: 9 / 16;
+        border-radius: 14px; overflow: hidden; position: relative;
+        background: #fff; border: 1.5px solid var(--line);
+        box-shadow: var(--shadow); cursor: pointer;
+        transition: transform 0.18s, border-color 0.18s, box-shadow 0.18s;
+        animation: fadeIn 0.22s ease both;
+    }
+    .scene-card:hover {
+        transform: translateY(-2px);
+        border-color: rgba(0,102,255,0.42);
+        box-shadow: 0 12px 30px rgba(0,102,255,0.12);
+    }
+    .scene-card:nth-child(2) { animation-delay: 0.04s; }
+    .scene-card:nth-child(3) { animation-delay: 0.08s; }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(6px); }
+        to { opacity: 1; transform: none; }
+    }
+
+    .scene-art, .generated-img {
+        position: absolute; inset: 0; width: 100%; height: 100%;
+    }
+    .generated-img { object-fit: cover; display: block; }
+    .scene-art::before, .scene-art::after { content: ""; position: absolute; pointer-events: none; }
+    .scene-art.dragon {
+        background:
+            radial-gradient(circle at 72% 13%, #ffd06a 0 7%, transparent 16%),
+            linear-gradient(160deg, rgba(255,137,83,0.88), transparent 23%),
+            linear-gradient(180deg, #7da4d6 0 18%, #416a9a 36%, #20324b 62%, #111827 100%);
+    }
+    .scene-art.dragon::before {
+        left: 9%; right: 10%; bottom: 8%; height: 54%;
+        background:
+            radial-gradient(ellipse at 54% 38%, #2fa06d 0 18%, transparent 20%),
+            radial-gradient(ellipse at 48% 54%, #135b49 0 28%, transparent 30%),
+            linear-gradient(145deg, transparent 24%, rgba(14,71,54,0.94) 25% 43%, transparent 44%),
+            linear-gradient(28deg, transparent 35%, rgba(217,162,57,0.84) 36% 42%, transparent 43%);
+        border-radius: 48% 48% 42% 42%;
+        transform: rotate(-10deg);
+        filter: drop-shadow(0 18px 22px rgba(0,0,0,0.35));
+    }
+    .scene-art.dragon::after {
+        left: -28%; right: -18%; bottom: -5%; height: 48%;
+        background:
+            radial-gradient(ellipse at 30% 10%, rgba(255,255,255,0.6), transparent 27%),
+            radial-gradient(ellipse at 60% 18%, rgba(255,255,255,0.38), transparent 30%),
+            linear-gradient(115deg, transparent 42%, rgba(255,255,255,0.25) 43% 48%, transparent 49%);
+    }
+    .scene-art.city {
+        background:
+            radial-gradient(circle at 64% 22%, rgba(255,225,151,0.92), transparent 14%),
+            linear-gradient(180deg, #375c9f 0 32%, #111827 100%);
+    }
+    .scene-art.city::before {
+        inset: auto 0 0; height: 58%;
+        background:
+            linear-gradient(90deg, transparent 0 8%, #101827 8% 18%, transparent 18% 23%, #17223a 23% 33%, transparent 33% 40%, #0f172a 40% 58%, transparent 58% 63%, #1e293b 63% 80%, transparent 80%),
+            linear-gradient(0deg, #080b12, transparent);
+        clip-path: polygon(0 100%, 0 38%, 8% 38%, 8% 10%, 17% 10%, 17% 54%, 25% 54%, 25% 22%, 36% 22%, 36% 72%, 46% 72%, 46% 30%, 60% 30%, 60% 60%, 70% 60%, 70% 16%, 83% 16%, 83% 46%, 100% 46%, 100% 100%);
+    }
+    .scene-art.product {
+        background:
+            radial-gradient(circle at 50% 30%, rgba(255,255,255,0.88), transparent 18%),
+            linear-gradient(145deg, #dbeafe, #111827);
+    }
+    .scene-art.product::before {
+        width: 48%; aspect-ratio: 1; left: 26%; top: 28%;
+        background: linear-gradient(145deg, #f7f1db, #b9a565);
+        border-radius: 24% 24% 18% 18%;
+        box-shadow: 0 22px 46px rgba(0,0,0,0.36);
+    }
+    .scene-art.product::after {
+        width: 70%; height: 18%; left: 15%; bottom: 24%;
+        background: radial-gradient(ellipse, rgba(255,255,255,0.42), transparent 68%);
+    }
+    .scene-overlay {
+        position: absolute; inset: 0;
+        background: linear-gradient(180deg, rgba(0,0,0,0.02) 48%, rgba(0,0,0,0.72) 100%);
+        pointer-events: none;
+    }
+    .scene-meta {
+        position: absolute; left: 10px; top: 10px;
+        padding: 3px 8px; border-radius: 999px;
+        color: rgba(255,255,255,0.92); font-size: 10px;
+        background: rgba(17,24,39,0.36); backdrop-filter: blur(8px);
+    }
+    .scene-caption {
+        position: absolute; left: 12px; right: 12px; bottom: 12px;
+        color: #fff; font-size: 12px; font-weight: 600; line-height: 1.45;
+        text-shadow: 0 2px 10px rgba(0,0,0,0.75);
+        display: flex; align-items: flex-start; gap: 6px;
+    }
+    .image-menu-wrap {
+        position: absolute; top: 8px; right: 8px; z-index: 6;
+    }
+    .image-menu-btn {
+        width: 30px; height: 30px; border-radius: 9px;
+        background: rgba(255,255,255,0.92); color: #374151;
+        border: 1px solid rgba(255,255,255,0.68);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 18px; line-height: 1; font-weight: 800;
+        box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+        transition: all 0.15s;
+    }
+    .image-menu-btn:hover {
+        background: #fff; color: var(--primary);
+        border-color: rgba(0,102,255,0.22);
+    }
+    .image-menu {
+        position: absolute; right: 0; top: 36px; width: 142px;
+        background: #fff; border: 1px solid var(--line);
+        border-radius: 10px; box-shadow: var(--shadow-strong);
+        padding: 6px; display: none;
+    }
+    .image-menu.show { display: block; }
+    .image-menu button {
+        width: 100%; height: 32px; border-radius: 7px;
+        background: transparent; color: var(--text-sub);
+        display: flex; align-items: center; gap: 7px; padding: 0 9px;
+        font-size: 12px; text-align: left;
+    }
+    .image-menu button:hover { background: var(--primary-soft); color: var(--primary); }
+    .image-menu button.danger:hover { background: #fef2f2; color: var(--danger); }
+    .loading-layer {
+        position: absolute; inset: 0; background: rgba(255,255,255,0.78);
+        display: none; align-items: center; justify-content: center; flex-direction: column;
+        gap: 10px; color: var(--primary); font-size: 12px; font-weight: 600;
+        backdrop-filter: blur(5px); z-index: 5;
+    }
+    .scene-card.generating .loading-layer { display: flex; }
+    .spinner {
+        width: 28px; height: 28px; border-radius: 50%;
+        border: 3px solid #d8e4ff; border-top-color: var(--primary);
+        animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .composer-wrap {
+        position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%);
+        width: min(760px, calc(100vw - 48px)); z-index: 40;
+    }
+    .config-panel {
+        position: absolute; right: 8px; bottom: 90px; width: 430px;
+        max-height: calc(100vh - 170px); overflow-y: auto;
+        background: #fff; border: 1px solid var(--line);
+        border-radius: 16px; padding: 16px; box-shadow: var(--shadow-strong);
+        display: none; animation: panelIn 0.16s ease both;
+    }
+    .config-panel.show { display: block; }
+    @keyframes panelIn {
+        from { opacity: 0; transform: translateY(8px); }
+        to { opacity: 1; transform: none; }
+    }
+    .panel-title { font-size: 14px; font-weight: 700; margin-bottom: 12px; color: var(--text); }
+    .panel-label { font-size: 12px; color: var(--text-mute); margin: 12px 0 8px; font-weight: 600; }
+    .option-row { display: grid; gap: 8px; }
+    .ratio-grid { grid-template-columns: repeat(5, 1fr); }
+    .count-grid { grid-template-columns: repeat(4, 1fr); }
+    .option {
+        height: 46px; border-radius: 10px; background: #fafafa;
+        color: var(--text-sub); font-weight: 700; display: flex;
+        align-items: center; justify-content: center; flex-direction: column; gap: 3px;
+        border: 1.5px solid var(--line); transition: all 0.15s;
+    }
+    .option:hover { border-color: rgba(0,102,255,0.35); color: var(--primary); }
+    .option.active { background: var(--primary-soft); border-color: var(--primary); color: var(--primary); }
+    .option span:first-child { font-size: 15px; line-height: 1; }
+    .option span:last-child { font-size: 12px; }
+    .model-list { position: relative; }
+    .model-trigger {
+        width: 100%; min-height: 44px; border-radius: 10px; border: 1.5px solid var(--line);
+        background: #fafafa; display: flex; align-items: center; justify-content: space-between;
+        gap: 12px; padding: 9px 11px; color: var(--text); transition: all 0.15s;
+        text-align: left; font-weight: 700;
+    }
+    .model-trigger:hover, .model-trigger.open { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+    .model-trigger-arrow { font-size: 12px; transition: transform 0.15s; }
+    .model-trigger.open .model-trigger-arrow { transform: rotate(180deg); }
+    .model-dropdown {
+        display: none; margin-top: 8px; padding: 6px;
+        border: 1.5px solid var(--line); border-radius: 12px; background: #fff;
+        box-shadow: 0 12px 28px rgba(15,23,42,0.12);
+        max-height: 184px; overflow-y: auto;
+    }
+    .model-dropdown.show { display: flex; flex-direction: column; gap: 6px; }
+    .model-option {
+        width: 100%; min-height: 56px; border-radius: 10px; border: 1.5px solid var(--line);
+        background: #fafafa; display: flex; align-items: center; justify-content: space-between;
+        gap: 12px; padding: 9px 11px; color: var(--text-sub); transition: all 0.15s;
+        text-align: left;
+    }
+    .model-option:hover { border-color: rgba(0,102,255,0.35); color: var(--primary); background: #fbfcff; }
+    .model-option.active { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+    .model-main { display: flex; flex-direction: column; align-items: flex-start; gap: 3px; min-width: 0; }
+    .model-name { color: inherit; font-size: 13px; font-weight: 700; }
+    .model-desc { color: var(--text-mute); font-size: 11px; font-weight: 500; }
+    .model-badge { flex-shrink: 0; color: var(--primary); font-size: 11px; font-weight: 700; }
+    .model-check {
+        width: 18px; height: 18px; border-radius: 50%; border: 1.5px solid var(--line-strong);
+        display: inline-flex; align-items: center; justify-content: center;
+        color: #fff; font-size: 10px; flex-shrink: 0;
+    }
+    .model-option.active .model-check { background: var(--primary); border-color: var(--primary); }
+
+    .composer {
+        min-height: 116px; border-radius: 18px; background: #fff;
+        border: 1px solid var(--line); box-shadow: var(--shadow-strong);
+        padding: 16px 14px 12px;
+    }
+    .prompt-input {
+        width: 100%; min-height: 38px; max-height: 120px; resize: none;
+        background: transparent; color: var(--text); border: none; outline: none;
+        font-size: 15px; line-height: 1.55; padding: 0 8px;
+    }
+    .prompt-input::placeholder { color: #999; font-weight: 600; }
+    .reference-preview {
+        display: none; align-items: center; gap: 10px; margin: 8px 8px 10px;
+        padding: 8px; border-radius: 12px; background: #f8fafc;
+        border: 1px solid var(--line);
+    }
+    .reference-preview.show { display: flex; }
+    .reference-thumb {
+        width: 42px; height: 42px; border-radius: 10px; object-fit: cover;
+        background: #f3f4f6; border: 1px solid var(--line);
+    }
+    .reference-name { color: var(--text-sub); font-size: 13px; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .composer-actions {
+        display: flex; align-items: center; justify-content: space-between; gap: 12px;
+        margin-top: 6px;
+    }
+    .left-tools, .right-tools { display: flex; align-items: center; gap: 10px; }
+    .add-btn {
+        width: 36px; height: 36px; border-radius: 50%; background: transparent;
+        color: var(--text-mute); font-size: 30px; line-height: 1;
+        display: flex; align-items: center; justify-content: center;
+        transition: all 0.15s;
+    }
+    .add-btn:hover { color: var(--primary); background: var(--primary-soft); }
+    .tool-tip-wrap { position: relative; display: inline-flex; }
+    .tool-tip-wrap::after {
+        content: attr(data-tip);
+        position: absolute; left: 50%; bottom: 44px; transform: translateX(-50%) translateY(4px);
+        white-space: nowrap; background: #111827; color: #fff; border-radius: 8px;
+        padding: 6px 9px; font-size: 12px; opacity: 0;
+        pointer-events: none; transition: all 0.16s;
+        box-shadow: 0 10px 28px rgba(0,0,0,0.22);
+    }
+    .tool-tip-wrap:hover::after { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .icon-btn {
+        width: 30px; height: 30px; border-radius: 50%;
+        background: #f3f4f6; color: var(--text-sub);
+        border: 1px solid var(--line);
+        display: inline-flex; align-items: center; justify-content: center;
+        transition: all 0.15s;
+    }
+    .icon-btn:hover { color: var(--primary); background: var(--primary-soft); border-color: rgba(0,102,255,0.24); }
+    .config-chip {
+        height: 38px; padding: 0 14px; border-radius: 999px;
+        background: #f5f8ff; color: var(--text-sub); border: 1px solid #d8e4ff;
+        display: inline-flex; align-items: center; gap: 8px; font-weight: 700;
+        min-width: 242px; justify-content: space-between; transition: all 0.15s;
+    }
+    .config-chip:hover, .config-chip.active { color: var(--primary); background: var(--primary-soft); border-color: var(--primary); }
+    .send-btn {
+        width: 42px; height: 42px; border-radius: 50%;
+        background: #e8e8e8; color: #999; font-size: 22px;
+        display: flex; align-items: center; justify-content: center;
+        transition: all 0.18s;
+    }
+    .send-btn.ready { background: var(--primary); color: #fff; }
+    .send-btn.ready:hover { transform: translateX(2px); box-shadow: 0 4px 12px rgba(0,102,255,0.28); }
+
+    .toast {
+        position: fixed; top: 22px; left: 50%; transform: translate(-50%, -8px);
+        padding: 10px 14px; border-radius: 12px; color: #fff;
+        background: rgba(17,24,39,0.92);
+        box-shadow: 0 12px 34px rgba(0,0,0,0.22);
+        opacity: 0; pointer-events: none; transition: all 0.2s; z-index: 120;
+        font-size: 13px;
+    }
+    .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+    .modal-mask {
+        position: fixed; inset: 0; background: rgba(0,0,0,0.45);
+        display: none; align-items: center; justify-content: center; z-index: 90;
+        padding: 20px;
+    }
+    .modal-mask.show { display: flex; }
+    .confirm-modal, .preview-modal {
+        background: #fff; border: 1px solid var(--line);
+        border-radius: 16px; box-shadow: var(--shadow-strong); overflow: hidden;
+    }
+    .confirm-modal { width: 380px; max-width: 100%; }
+    .confirm-head { padding: 18px 20px; border-bottom: 1px solid var(--line); }
+    .confirm-title { font-size: 16px; font-weight: 700; }
+    .confirm-sub { color: var(--text-mute); font-size: 12px; margin-top: 6px; line-height: 1.5; }
+    .confirm-body { padding: 18px 20px; }
+    .confirm-line { display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; font-size: 13px; }
+    .confirm-line span:first-child { color: var(--text-sub); }
+    .confirm-line b { color: var(--text); }
+    .confirm-cost {
+        margin-top: 10px; padding: 12px; border-radius: 12px;
+        background: var(--primary-soft); border: 1px solid #d8e4ff;
+        display: flex; justify-content: space-between; align-items: center;
+    }
+    .confirm-cost span { color: var(--text-sub); font-size: 13px; }
+    .confirm-cost b { color: var(--primary); font-size: 18px; }
+    .confirm-footer {
+        padding: 14px 20px; border-top: 1px solid var(--line);
+        display: flex; justify-content: flex-end; gap: 10px;
+    }
+    .confirm-btn {
+        height: 34px; padding: 0 14px; border-radius: 8px;
+        background: #f0f0f0; color: var(--text-sub); font-weight: 650;
+    }
+    .confirm-btn:hover { background: #e8e8e8; }
+    .confirm-btn.primary { background: var(--primary); color: #fff; }
+    .confirm-btn.primary:hover { background: var(--primary-dark); }
+    .confirm-btn.danger { background: var(--danger); color: #fff; }
+    .confirm-btn.danger:hover { background: #dc2626; }
+
+    .preview-modal { width: min(420px, calc(100vw - 40px)); }
+    .preview-head {
+        height: 48px; display: flex; align-items: center; justify-content: space-between;
+        padding: 0 14px; border-bottom: 1px solid var(--line);
+    }
+    .preview-title { font-weight: 700; font-size: 14px; }
+    .preview-body { padding: 14px; background: #f8fafc; }
+    .preview-frame {
+        width: 100%; aspect-ratio: 9 / 16; border-radius: 14px;
+        overflow: hidden; background: #fff; position: relative;
+        border: 1px solid var(--line);
+    }
+    .preview-frame img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .preview-frame .scene-art { position: absolute; }
+
+    @media (max-width: 980px) {
+        body { overflow: auto; }
+        .page-head { padding: 22px 16px 0; }
+        .workspace { padding: 18px 16px 180px; }
+        .scene-board { grid-template-columns: repeat(2, 178px); }
+        .config-panel { right: 0; width: min(430px, 100%); }
+    }
+    @media (max-width: 640px) {
+        .page-head { display: block; }
+        .credit-pill { margin-top: 12px; }
+        .scene-board { grid-template-columns: repeat(2, minmax(0, 1fr)); width: 100%; }
+        .scene-card { width: 100%; border-radius: 12px; }
+        .composer-wrap { width: calc(100vw - 24px); bottom: 12px; }
+        .composer { border-radius: 16px; }
+        .right-tools { gap: 8px; }
+        .config-chip { min-width: 188px; max-width: 230px; font-size: 12px; padding: 0 10px; }
+        .ratio-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+</style>
+</head>
+<body>
+<div class="app-shell">
+    <header class="page-head">
+        <div>
+            <div class="page-title">图片创作</div>
+            <div class="page-sub">输入提示词或上传参考图，生成可直接加入角色与场景库的图片。</div>
+        </div>
+        <div class="credit-pill">🪙 生成图片 10 积分/张</div>
+    </header>
+
+    <main class="workspace">
+        <section class="scene-board" id="sceneBoard"></section>
+    </main>
+
+    <section class="composer-wrap">
+        <div class="config-panel" id="configPanel">
+            <div class="panel-title">图片生成配置</div>
+            <div class="panel-label">画幅</div>
+            <div class="option-row ratio-grid" id="ratioOptions"></div>
+            <div class="panel-label">生成数量</div>
+            <div class="option-row count-grid" id="countOptions"></div>
+            <div class="panel-label">模型</div>
+            <div class="model-list" id="modelList"></div>
+        </div>
+
+        <div class="composer">
+            <textarea class="prompt-input" id="promptInput" rows="2" placeholder="您希望创作什么内容？" oninput="syncPromptState()"></textarea>
+            <div class="reference-preview" id="referencePreview">
+                <img class="reference-thumb" id="referenceThumb" alt="参考图预览">
+                <div class="reference-name" id="referenceName">参考图</div>
+                <button class="icon-btn" onclick="removeReference()">×</button>
+            </div>
+            <div class="composer-actions">
+                <div class="left-tools">
+                    <input type="file" id="fileInput" accept="image/*" hidden onchange="handleReferenceUpload(event)">
+                    <span class="tool-tip-wrap" data-tip="添加参考图">
+                        <button class="add-btn" onclick="document.getElementById('fileInput').click()">＋</button>
+                    </span>
+                </div>
+                <div class="right-tools">
+                    <button class="config-chip" id="configChip" onclick="toggleConfig()">
+                        <span><span id="chipCost">10 积分</span> · <span id="chipModel">Nano Banana Pro</span></span>
+                        <span><span id="chipRatio">9:16</span> · <span id="chipCount">1张</span></span>
+                    </button>
+                    <button class="send-btn" id="sendBtn" onclick="startGenerate()">➜</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="toast" id="toast"></div>
+
+    <div class="modal-mask" id="confirmModal">
+        <div class="confirm-modal">
+            <div class="confirm-head">
+                <div class="confirm-title">积分消耗确认</div>
+                <div class="confirm-sub">生成任务会扣减团队积分，提交后将进入图片生成队列。</div>
+            </div>
+            <div class="confirm-body">
+                <div class="confirm-line"><span>生成数量</span><b id="confirmCount">1 张</b></div>
+                <div class="confirm-line"><span>画幅</span><b id="confirmRatio">9:16</b></div>
+                <div class="confirm-line"><span>模型</span><b id="confirmModel">Nano Banana Pro</b></div>
+                <div class="confirm-cost"><span>本次预计消耗</span><b id="confirmCost">10 积分</b></div>
+            </div>
+            <div class="confirm-footer">
+                <button class="confirm-btn" onclick="closeConfirm()">取消</button>
+                <button class="confirm-btn primary" onclick="confirmGenerate()">确定执行</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-mask" id="previewModal">
+        <div class="preview-modal">
+            <div class="preview-head">
+                <div class="preview-title" id="previewTitle">图片预览</div>
+                <button class="icon-btn" onclick="closePreview()">×</button>
+            </div>
+            <div class="preview-body">
+                <div class="preview-frame" id="previewFrame"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-mask" id="deleteModal">
+        <div class="confirm-modal">
+            <div class="confirm-head">
+                <div class="confirm-title">确认删除图片</div>
+                <div class="confirm-sub">删除后当前页面将不再展示该图片，请确认是否继续。</div>
+            </div>
+            <div class="confirm-body">
+                <div class="confirm-line"><span>图片名称</span><b id="deleteTargetName">-</b></div>
+                <div class="confirm-cost" style="background:#fef2f2;border-color:#fecaca;">
+                    <span>操作影响</span><b style="color:var(--danger);">删除图片</b>
+                </div>
+            </div>
+            <div class="confirm-footer">
+                <button class="confirm-btn" onclick="closeDeleteConfirm()">取消</button>
+                <button class="confirm-btn danger" onclick="confirmDeleteImage()">确认删除</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+var state = {
+    ratio: '9:16',
+    count: 1,
+    model: 'Nano Banana Pro',
+    modelOpen: false,
+    reference: null,
+    menuOpenId: null,
+    generated: []
+};
+var hiddenDemoIds = [];
+var pendingDeleteId = null;
+
+var ratios = [
+    { id: '16:9', icon: '▭' },
+    { id: '4:3', icon: '▭' },
+    { id: '1:1', icon: '□' },
+    { id: '3:4', icon: '▯' },
+    { id: '9:16', icon: '▯' }
+];
+var counts = [1, 2, 3, 4];
+var models = [
+    { id: 'Nano Banana Pro', icon: '🍌', desc: '通用高质量，适合主体和封面' },
+    { id: 'GPT image2', icon: '🖼', desc: 'GPT 原生图像生成，语义理解强' },
+    { id: 'wan2.7', icon: '🎬', desc: 'wan2.7-image，Wan 系列生图模型' },
+    { id: 'seedream', icon: '🌱', desc: 'Seedream 高质量图像生成' }
+];
+var demos = [
+    { id: 'dragon', title: '玄幻场景，一个少年骑着巨龙...', type: '推荐', kind: 'demo' },
+    { id: 'city', title: '未来城市，霓虹街区与高楼剪影', type: '科幻', kind: 'demo' },
+    { id: 'product', title: '高端产品静物，柔光棚拍风格', type: '商品', kind: 'demo' }
+];
+
+function renderScenes() {
+    var visibleDemos = demos.filter(function(item) { return hiddenDemoIds.indexOf(item.id) === -1; });
+    var cards = state.generated.concat(visibleDemos);
+    document.getElementById('sceneBoard').innerHTML = cards.map(function(item) {
+        var isGenerated = item.kind === 'generated';
+        var visual = isGenerated
+            ? '<img class="generated-img" src="' + item.dataUrl + '" alt="' + escapeHtml(item.title) + '">'
+            : '<div class="scene-art ' + item.id + '"></div>';
+        var menu = '<div class="image-menu-wrap" onclick="event.stopPropagation()">' +
+            '<button class="image-menu-btn" title="更多操作" onclick="toggleImageMenu(\'' + item.id + '\')">⋯</button>' +
+            '<div class="image-menu' + (state.menuOpenId === item.id ? ' show' : '') + '" id="menu-' + item.id + '">' +
+                '<button onclick="addToSubject(\'role\', \'' + item.id + '\')"><span>👤</span>添加到角色</button>' +
+                '<button onclick="addToSubject(\'scene\', \'' + item.id + '\')"><span>🏞</span>添加到场景</button>' +
+                '<button class="danger" onclick="requestDeleteImage(\'' + item.id + '\')"><span>🗑</span>删除</button>' +
+            '</div>' +
+        '</div>';
+        return '<article class="scene-card" data-id="' + item.id + '" onclick="openPreview(\'' + item.id + '\')">' +
+            visual +
+            '<div class="scene-overlay"></div>' +
+            '<div class="scene-meta">' + item.type + '</div>' +
+            menu +
+            '<div class="scene-caption"><span>▧</span><span>' + escapeHtml(item.title) + '</span></div>' +
+            '<div class="loading-layer"><div class="spinner"></div><div>正在生成图片</div></div>' +
+        '</article>';
+    }).join('');
+}
+
+function renderOptions() {
+    document.getElementById('ratioOptions').innerHTML = ratios.map(function(item) {
+        return '<button class="option' + (state.ratio === item.id ? ' active' : '') + '" onclick="setRatio(\'' + item.id + '\')"><span>' + item.icon + '</span><span>' + item.id + '</span></button>';
+    }).join('');
+    document.getElementById('countOptions').innerHTML = counts.map(function(count) {
+        return '<button class="option' + (state.count === count ? ' active' : '') + '" onclick="setCount(' + count + ')">' + count + '张</button>';
+    }).join('');
+    var current = models.find(function(model) { return model.id === state.model; }) || models[0];
+    document.getElementById('modelList').innerHTML =
+        '<button class="model-trigger' + (state.modelOpen ? ' open' : '') + '" onclick="toggleModelDropdown(event)">' +
+            '<span>' + current.icon + ' ' + current.id + '</span>' +
+            '<span class="model-trigger-arrow">▾</span>' +
+        '</button>' +
+        '<div class="model-dropdown' + (state.modelOpen ? ' show' : '') + '">' +
+        models.map(function(model) {
+        return '<button class="model-option' + (state.model === model.id ? ' active' : '') + '" onclick="setModel(\'' + model.id + '\')">' +
+            '<span class="model-main"><span class="model-name">' + model.icon + ' ' + model.id + '</span><span class="model-desc">' + model.desc + '</span></span>' +
+            '<span class="model-check">' + (state.model === model.id ? '✓' : '') + '</span>' +
+        '</button>';
+    }).join('') + '</div>';
+}
+
+function setRatio(ratio) {
+    state.ratio = ratio;
+    renderOptions();
+    updateCost();
+}
+
+function setCount(count) {
+    state.count = count;
+    renderOptions();
+    updateCost();
+}
+
+function setModel(model) {
+    state.model = model;
+    state.modelOpen = false;
+    renderOptions();
+    updateCost();
+}
+
+function toggleModelDropdown(event) {
+    if (event) event.stopPropagation();
+    state.modelOpen = !state.modelOpen;
+    renderOptions();
+}
+
+function toggleConfig() {
+    var panel = document.getElementById('configPanel');
+    var chip = document.getElementById('configChip');
+    panel.classList.toggle('show');
+    chip.classList.toggle('active', panel.classList.contains('show'));
+}
+
+function updateCost() {
+    document.getElementById('chipCost').textContent = getCost() + ' 积分';
+    document.getElementById('chipModel').textContent = state.model;
+    document.getElementById('chipRatio').textContent = state.ratio;
+    document.getElementById('chipCount').textContent = state.count + '张';
+}
+
+function syncPromptState() {
+    var value = document.getElementById('promptInput').value.trim();
+    document.getElementById('sendBtn').classList.toggle('ready', value.length > 0);
+}
+
+function handleReferenceUpload(event) {
+    var file = event.target.files && event.target.files[0];
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function(e) {
+        state.reference = e.target.result;
+        document.getElementById('referenceThumb').src = state.reference;
+        document.getElementById('referenceName').textContent = file.name;
+        document.getElementById('referencePreview').classList.add('show');
+        toast('已添加参考图');
+    };
+    reader.readAsDataURL(file);
+}
+
+function removeReference() {
+    state.reference = null;
+    document.getElementById('fileInput').value = '';
+    document.getElementById('referencePreview').classList.remove('show');
+}
+
+function startGenerate() {
+    var prompt = document.getElementById('promptInput').value.trim();
+    if (!prompt) {
+        toast('请先输入创作提示词');
+        return;
+    }
+    document.getElementById('configPanel').classList.remove('show');
+    document.getElementById('configChip').classList.remove('active');
+    openConfirm();
+}
+
+function openConfirm() {
+    document.getElementById('confirmCount').textContent = state.count + ' 张';
+    document.getElementById('confirmRatio').textContent = state.ratio;
+    document.getElementById('confirmModel').textContent = state.model;
+    document.getElementById('confirmCost').textContent = getCost() + ' 积分';
+    document.getElementById('confirmModal').classList.add('show');
+}
+
+function closeConfirm() {
+    document.getElementById('confirmModal').classList.remove('show');
+}
+
+function confirmGenerate() {
+    var prompt = document.getElementById('promptInput').value.trim();
+    closeConfirm();
+    var cards = Array.from(document.querySelectorAll('.scene-card')).slice(0, Math.min(state.count, 3));
+    cards.forEach(function(card) { card.classList.add('generating'); });
+    toast('已提交生成任务，消耗 ' + getCost() + ' 积分');
+    setTimeout(function() {
+        var created = [];
+        for (var i = 0; i < state.count; i++) {
+            created.push({
+                id: 'gen-' + Date.now() + '-' + i,
+                title: '生成结果 ' + (i + 1) + ' · ' + state.ratio,
+                type: '生成图',
+                kind: 'generated',
+                prompt: prompt,
+                model: state.model,
+                ratio: state.ratio,
+                dataUrl: createGeneratedImageData(i, prompt)
+            });
+        }
+        state.generated = created.concat(state.generated);
+        state.menuOpenId = null;
+        renderScenes();
+        toast('图片生成完成');
+    }, 1200);
+}
+
+function createGeneratedImageData(index, prompt) {
+    var palettes = [
+        ['#dbeafe', '#0066ff', '#1e293b'],
+        ['#fef3c7', '#d97706', '#111827'],
+        ['#dcfce7', '#059669', '#0f172a'],
+        ['#fce7f3', '#be185d', '#111827']
+    ];
+    var p = palettes[index % palettes.length];
+    var text = escapeSvg((prompt || '图片创作').slice(0, 16));
+    var svg =
+        '<svg xmlns="http://www.w3.org/2000/svg" width="720" height="1280" viewBox="0 0 720 1280">' +
+            '<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="' + p[0] + '"/><stop offset="1" stop-color="#ffffff"/></linearGradient></defs>' +
+            '<rect width="720" height="1280" fill="url(#g)"/>' +
+            '<rect x="54" y="78" width="612" height="1124" rx="42" fill="#ffffff" opacity="0.72"/>' +
+            '<rect x="108" y="150" width="504" height="280" rx="30" fill="' + p[2] + '" opacity="0.92"/>' +
+            '<rect x="138" y="204" width="170" height="102" rx="18" fill="' + p[1] + '" opacity="0.72"/>' +
+            '<rect x="338" y="204" width="210" height="102" rx="18" fill="#22c55e" opacity="0.34"/>' +
+            '<path d="M130 515 C220 420 286 480 366 392 S518 340 590 458" fill="none" stroke="#93c5fd" stroke-width="14" opacity="0.9"/>' +
+            '<ellipse cx="360" cy="885" rx="244" ry="118" fill="#94a3b8" opacity="0.22"/>' +
+            '<circle cx="360" cy="704" r="110" fill="#d1d5db"/>' +
+            '<path d="M250 692 C270 582 472 570 490 694 C436 646 304 646 250 692 Z" fill="' + p[2] + '" opacity="0.86"/>' +
+            '<path d="M250 1038 C274 872 446 872 470 1038 L504 1168 H216 Z" fill="' + p[1] + '" opacity="0.88"/>' +
+            '<rect x="108" y="1074" width="504" height="88" rx="22" fill="#ffffff" opacity="0.9"/>' +
+            '<text x="132" y="1128" fill="#1a1a2e" font-size="36" font-weight="800" font-family="Microsoft YaHei, Arial, sans-serif">' + text + '</text>' +
+            '<rect x="108" y="104" width="188" height="42" rx="14" fill="' + p[1] + '"/>' +
+            '<text x="134" y="132" fill="#ffffff" font-size="22" font-weight="700" font-family="Arial, sans-serif">AI IMAGE</text>' +
+        '</svg>';
+    return 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(svg);
+}
+
+function openPreview(id) {
+    var item = findImage(id);
+    if (!item) return;
+    document.getElementById('previewTitle').textContent = item.title;
+    var frame = document.getElementById('previewFrame');
+    if (item.kind === 'generated') {
+        frame.innerHTML = '<img src="' + item.dataUrl + '" alt="' + escapeHtml(item.title) + '">';
+    } else {
+        frame.innerHTML = '<div class="scene-art ' + item.id + '"></div>';
+    }
+    document.getElementById('previewModal').classList.add('show');
+}
+
+function closePreview() {
+    document.getElementById('previewModal').classList.remove('show');
+}
+
+function toggleImageMenu(id) {
+    state.menuOpenId = state.menuOpenId === id ? null : id;
+    renderScenes();
+}
+
+function requestDeleteImage(id) {
+    var item = findImage(id);
+    if (!item) return;
+    pendingDeleteId = id;
+    state.menuOpenId = null;
+    renderScenes();
+    document.getElementById('deleteTargetName').textContent = item.title;
+    document.getElementById('deleteModal').classList.add('show');
+}
+
+function closeDeleteConfirm() {
+    pendingDeleteId = null;
+    document.getElementById('deleteModal').classList.remove('show');
+}
+
+function confirmDeleteImage() {
+    if (!pendingDeleteId) return;
+    deleteImage(pendingDeleteId);
+    closeDeleteConfirm();
+}
+
+function deleteImage(id) {
+    if (id.indexOf('gen-') === 0) {
+        state.generated = state.generated.filter(function(item) { return item.id !== id; });
+    } else if (hiddenDemoIds.indexOf(id) === -1) {
+        hiddenDemoIds.push(id);
+    }
+    state.menuOpenId = null;
+    renderScenes();
+    toast('已删除图片');
+}
+
+function addToSubject(type, id) {
+    var item = findImage(id);
+    if (!item) return;
+    var image = item.kind === 'generated' ? item.dataUrl : createDemoImageData(item);
+    var payload = {
+        type: type === 'scene' ? 'scene' : 'role',
+        image: image,
+        name: item.title,
+        prompt: item.prompt || item.title,
+        model: item.model || 'Demo',
+        ratio: item.ratio || '9:16',
+        from: '图片创作'
+    };
+    sessionStorage.setItem('imageCreationHandoff', JSON.stringify(payload));
+    window.location.href = '主体管理-创建主体.html?type=' + encodeURIComponent(payload.type) + '&from=imageCreation';
+}
+
+function findImage(id) {
+    return state.generated.concat(demos).find(function(item) { return item.id === id; });
+}
+
+function createDemoImageData(item) {
+    var paletteMap = {
+        dragon: ['#dbeafe', '#0066ff', '#1e293b', '玄幻场景'],
+        city: ['#e0f2fe', '#0284c7', '#0f172a', '未来城市'],
+        product: ['#fef3c7', '#d97706', '#111827', '产品静物']
+    };
+    var p = paletteMap[item.id] || paletteMap.dragon;
+    var svg =
+        '<svg xmlns="http://www.w3.org/2000/svg" width="720" height="1280" viewBox="0 0 720 1280">' +
+            '<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="' + p[0] + '"/><stop offset="1" stop-color="#ffffff"/></linearGradient></defs>' +
+            '<rect width="720" height="1280" fill="url(#g)"/>' +
+            '<rect x="54" y="78" width="612" height="1124" rx="42" fill="#ffffff" opacity="0.76"/>' +
+            '<rect x="108" y="150" width="504" height="280" rx="30" fill="' + p[2] + '" opacity="0.92"/>' +
+            '<rect x="138" y="204" width="170" height="102" rx="18" fill="' + p[1] + '" opacity="0.72"/>' +
+            '<path d="M130 515 C220 420 286 480 366 392 S518 340 590 458" fill="none" stroke="#93c5fd" stroke-width="14" opacity="0.9"/>' +
+            '<ellipse cx="360" cy="885" rx="244" ry="118" fill="#94a3b8" opacity="0.22"/>' +
+            '<circle cx="360" cy="704" r="110" fill="#d1d5db"/>' +
+            '<path d="M250 692 C270 582 472 570 490 694 C436 646 304 646 250 692 Z" fill="' + p[2] + '" opacity="0.86"/>' +
+            '<path d="M250 1038 C274 872 446 872 470 1038 L504 1168 H216 Z" fill="' + p[1] + '" opacity="0.88"/>' +
+            '<rect x="108" y="1074" width="504" height="88" rx="22" fill="#ffffff" opacity="0.9"/>' +
+            '<text x="132" y="1128" fill="#1a1a2e" font-size="36" font-weight="800" font-family="Microsoft YaHei, Arial, sans-serif">' + escapeSvg(p[3]) + '</text>' +
+        '</svg>';
+    return 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(svg);
+}
+
+function getCost() {
+    return state.count * 10;
+}
+
+function escapeHtml(value) {
+    return String(value || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+}
+
+function escapeSvg(value) {
+    return String(value || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+}
+
+var toastTimer = null;
+function toast(message) {
+    var el = document.getElementById('toast');
+    el.textContent = message;
+    el.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function() {
+        el.classList.remove('show');
+    }, 1600);
+}
+
+document.addEventListener('click', function(event) {
+    if (!event.target.closest('.image-menu-wrap') && state.menuOpenId) {
+        state.menuOpenId = null;
+        renderScenes();
+    }
+    if (!event.target.closest('#modelList') && state.modelOpen) {
+        state.modelOpen = false;
+        renderOptions();
+    }
+});
+document.getElementById('confirmModal').addEventListener('click', function(event) {
+    if (event.target === this) closeConfirm();
+});
+document.getElementById('previewModal').addEventListener('click', function(event) {
+    if (event.target === this) closePreview();
+});
+document.getElementById('deleteModal').addEventListener('click', function(event) {
+    if (event.target === this) closeDeleteConfirm();
+});
+
+renderScenes();
+renderOptions();
+updateCost();
+syncPromptState();
+</script>
+</body>
+</html>

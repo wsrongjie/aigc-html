@@ -1035,6 +1035,31 @@
             previewFrame.innerHTML = '<img src="' + imageData + '" alt="预览" />';
         }
 
+        function applyImageCreationHandoff() {
+            let payload = null;
+            try {
+                const raw = sessionStorage.getItem("imageCreationHandoff");
+                payload = raw ? JSON.parse(raw) : null;
+            } catch (error) {
+                payload = null;
+            }
+            if (!payload || !payload.image) return;
+            const targetType = payload.type === "scene" ? "scene" : "role";
+            if (subjectType !== targetType) {
+                setType(targetType);
+            }
+            setPreview(payload.image, payload.name || "图片创作生成图", "ai");
+            if (!subjectName.value.trim()) {
+                subjectName.value = targetType === "scene" ? "图片创作场景" : "图片创作角色";
+                updateNameCount();
+            }
+            if (payload.prompt && !subjectDesc.value.trim()) {
+                subjectDesc.value = payload.prompt;
+            }
+            showToast(targetType === "scene" ? "已带入图片创作生成图，可继续创建场景" : "已带入图片创作生成图，可继续创建角色");
+            sessionStorage.removeItem("imageCreationHandoff");
+        }
+
         function renderViews() {
             if (subjectType === "role") {
                 viewsGrid.className = "view-assets-grid role-long";
@@ -1471,6 +1496,7 @@
         setType(subjectType);
         updateNameCount();
         checkNewVoice();
+        applyImageCreationHandoff();
     </script>
 </body>
 </html>
