@@ -2175,6 +2175,40 @@
             font-size: 14px;
             font-weight: 600;
         }
+
+        /* 积分不足提示 toast */
+        .toast-insufficient {
+            position: fixed;
+            left: 50%;
+            bottom: 90px;
+            z-index: 60;
+            transform: translateX(-50%) translateY(8px);
+            opacity: 0;
+            pointer-events: none;
+            border-radius: 12px;
+            background: rgba(17, 24, 39, 0.92);
+            color: #ffffff;
+            padding: 10px 16px;
+            font-size: 14px;
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+        .toast-insufficient.active {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* 积分不足时的按钮置灰（不用 disabled，以便点击时仍能触发事件） */
+        .btn-credits-insufficient {
+            cursor: not-allowed !important;
+            transform: none !important;
+            box-shadow: none !important;
+            opacity: 0.48 !important;
+        }
+        .btn-credits-insufficient:hover {
+            background: inherit !important;
+            transform: none !important;
+            box-shadow: none !important;
+        }
     </style>
 </head>
 
@@ -3114,7 +3148,21 @@
         </div>
     </div>
 
+    <!-- 积分不足提示 -->
+    <div class="toast-insufficient" id="toastInsufficient"></div>
+
     <script>
+        // ==================== 积分状态 ====================
+        // 模拟当前账户积分（设为 0 触发积分不足提示，改 >0 即可恢复正常）
+        let userCredits = 0;
+
+        function showToast(msg) {
+            var el = document.getElementById("toastInsufficient");
+            el.textContent = msg;
+            el.classList.add("active");
+            setTimeout(function () { el.classList.remove("active"); }, 2000);
+        }
+
         // ==================== 积分确认弹窗逻辑 ====================
         let pendingCreditsAction = null;
 
@@ -3296,9 +3344,20 @@
             compositeHint.textContent = stateMeta.hint || "";
             compositeEmptyText.textContent = stateMeta.empty || "";
             compositePrimaryBtn.textContent = stateMeta.primary || "🪙10 · 合成首帧";
-            compositePrimaryBtn.disabled = !hasSelection || compositeState === "generating";
-            compositeViewBtn.disabled = !hasImage;
-            firstFrameRegenerateBtn.disabled = !hasSelection || compositeState === "generating";
+            // 基础禁用逻辑（生成中 / 未选择）仍然用 disabled
+            var baseDisabled = !hasSelection || compositeState === "generating";
+            compositePrimaryBtn.disabled = baseDisabled;
+            compositeViewBtn.disabled = baseDisabled || !hasImage;
+            firstFrameRegenerateBtn.disabled = baseDisabled;
+            // 积分不足时：按钮不禁用，改用 CSS 置灰 + 点击时 toast
+            var creditsOk = userCredits >= 10;
+            if (!creditsOk && !baseDisabled) {
+                compositePrimaryBtn.classList.add("btn-credits-insufficient");
+                firstFrameRegenerateBtn.classList.add("btn-credits-insufficient");
+            } else {
+                compositePrimaryBtn.classList.remove("btn-credits-insufficient");
+                firstFrameRegenerateBtn.classList.remove("btn-credits-insufficient");
+            }
             renderCompositeSteps(compositeStepIndex, compositeState === "done");
             updateNextButtonState();
         }
@@ -3760,10 +3819,18 @@
         }
 
         compositePrimaryBtn.addEventListener("click", () => {
+            if (userCredits < 10) {
+                showToast("当前账户积分不足，请联系管理员进行分配或者充值");
+                return;
+            }
             openCreditsConfirm(10, startCompositeGeneration);
         });
         compositeViewBtn.addEventListener("click", openFirstFrameViewModal);
         firstFrameRegenerateBtn.addEventListener("click", () => {
+            if (userCredits < 10) {
+                showToast("当前账户积分不足，请联系管理员进行分配或者充值");
+                return;
+            }
             document.getElementById("firstFrameViewModal").classList.remove("active");
             openCreditsConfirm(10, startCompositeGeneration);
         });
