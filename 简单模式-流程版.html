@@ -408,6 +408,26 @@
     <div class="step-panel active" id="panel-1">
       <div class="step1-layout">
         <div class="step1-left">
+          <!-- 任务配置 -->
+          <div class="section">
+            <div class="section-header">
+              <div class="section-icon blue">📋</div>
+              <div class="section-name">任务配置</div>
+            </div>
+            <div style="display:flex;gap:12px;align-items:flex-end;">
+              <div style="flex:1;">
+                <label style="font-size:12px;color:var(--text-secondary);display:block;margin-bottom:6px;">任务名称</label>
+                <input type="text" id="task-name-input" placeholder="留空自动生成" oninput="onTaskNameChange()" style="width:100%;height:36px;border:1.5px solid #e8e8e8;border-radius:8px;padding:0 10px;font-size:13px;outline:none;font-family:inherit;" maxlength="30">
+              </div>
+              <div style="flex-shrink:0;width:130px;">
+                <label style="font-size:12px;color:var(--text-secondary);display:block;margin-bottom:6px;">可见范围</label>
+                <select id="task-visibility" style="width:100%;height:36px;padding:0 8px;border:1.5px solid #e8e8e8;border-radius:8px;font-size:13px;color:#333;background:#fff;outline:none;cursor:pointer;" onchange="onVisibilityChange()">
+                  <option value="private">🔒 仅自己</option>
+                  <option value="team">👥 团队共享</option>
+                </select>
+              </div>
+            </div>
+          </div>
           <!-- 角色（单选） -->
           <div class="section">
             <div class="section-header">
@@ -470,6 +490,16 @@
         <!-- 右侧固定概览列 -->
         <div class="step1-sidebar" id="step1-sidebar">
           <div class="sb-title">📋 配置概览</div>
+          <!-- 任务名称 -->
+          <div class="sb-section">
+            <div class="sb-label">📛 任务名称</div>
+            <div id="sb-task-name" style="font-size:12px;color:#333;font-weight:600;line-height:1.5;">未填写</div>
+          </div>
+          <!-- 可见范围 -->
+          <div class="sb-section">
+            <div class="sb-label">👁 可见范围</div>
+            <div id="sb-visibility-display" style="font-size:12px;color:#333;font-weight:600;">🔒 仅自己</div>
+          </div>
           <!-- 角色 -->
           <div class="sb-section">
             <div class="sb-label">👤 已选角色</div>
@@ -489,14 +519,6 @@
             <div class="sb-label">🛡️ 水印与字幕</div>
             <div id="sb-wm-status" style="font-size:13px;color:#333;font-weight:600;margin-bottom:8px;line-height:1.6;">未开启水印 · 字幕已开启</div>
             <button class="btn btn1" style="width:100%;font-size:12px;padding:7px 0;" onclick="openWmModal()">水印字幕配置</button>
-          </div>
-          <div class="sb-section">
-            <div class="sb-label">👁 可见范围</div>
-            <select id="sb-visibility" style="width:100%;height:34px;padding:0 10px;border:1px solid #e0e0e0;border-radius:8px;font-size:13px;color:#333;background:#fff;outline:none;cursor:pointer;" onchange="updateVisibility()">
-              <option value="private">仅自己</option>
-              <option value="team">团队共享</option>
-            </select>
-            <div id="sb-visibility-hint" style="font-size:11px;color:#999;margin-top:5px;line-height:1.5;">生成的视频仅自己可见，不会分享给团队成员</div>
           </div>
         </div>
       </div>
@@ -524,6 +546,7 @@
           <span class="section-hint">每条台词将生成一条视频</span>
         </div>
         <div class="cf-summary">
+          <div>📛 任务：<strong id="cf-task">—</strong></div>
           <div>角色：<strong id="cf-avatar">—</strong></div>
           <div>背景池：<strong id="cf-bgs">—</strong></div>
           <div>共 <strong id="cf-count">0</strong> 条视频 · 预计 <strong id="cf-time">0</strong> 分钟</div>
@@ -742,6 +765,7 @@
 
     var S = {
       step: 1,
+      taskName: '',                // 任务名称，空则自动生成
       avatar: null,               // 单选角色 key
       bgMulti: [],                // 已选背景
       bgBatch: false,             // 背景是否多选
@@ -789,15 +813,22 @@
 
     function toast(m) { var t = document.getElementById('toast-el'); t.textContent = m; t.classList.add('show'); setTimeout(function(){t.classList.remove('show');}, 2000); }
 
-    function updateVisibility() {
-      var val = document.getElementById('sb-visibility').value;
-      S.visibility = val;
-      var hint = document.getElementById('sb-visibility-hint');
-      if (val === 'team') {
-        hint.textContent = '生成的视频将共享给团队成员，成员可查看和使用';
-      } else {
-        hint.textContent = '生成的视频仅自己可见，不会分享给团队成员';
-      }
+    function getTaskName() {
+      if (S.taskName.trim()) return S.taskName.trim();
+      var avatarName = S.avatar ? getAvatarMeta(S.avatar).name : '未选角色';
+      var today = new Date();
+      var mm = ('0' + (today.getMonth()+1)).slice(-2);
+      var dd = ('0' + today.getDate()).slice(-2);
+      var count = validCards().length || 0;
+      return avatarName + '_' + mm + dd + '_' + count + '条视频';
+    }
+    function onTaskNameChange() {
+      S.taskName = document.getElementById('task-name-input').value;
+      updateSidebar();
+    }
+    function onVisibilityChange() {
+      S.visibility = document.getElementById('task-visibility').value;
+      updateSidebar();
     }
     function escapeHtml(v) { return String(v || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
     function getAvatarMeta(key) { for (var i=0;i<avList.length;i++){ if(avList[i].key===key) return avList[i]; } return { key:key, name:key, tag:'' }; }
@@ -1136,9 +1167,18 @@
       window.scrollTo({ top:0, behavior:'smooth' });
       updFooter();
     }
+    function hasAllSynth() {
+      var cards = validCards();
+      if (cards.length === 0) return true;
+      return cards.every(function(c){ return c.tts && c.tts.ready; });
+    }
     function nextStep() {
       if (document.getElementById('btn-next').classList.contains('disabled')) {
         if (S.step === 1) toast('请先配置：' + getMissing().join('、'));
+        return;
+      }
+      if (S.step === 1 && !hasAllSynth()) {
+        toast('请先进行语音合成操作再进入下一步');
         return;
       }
       if (S.step === 3) {
@@ -1156,8 +1196,13 @@
       var next = document.getElementById('btn-next');
       if (S.step === 1) {
         var miss = getMissing();
-        if (miss.length > 0) { next.classList.add('disabled'); info.textContent = '缺少：' + miss.join('、'); }
-        else { next.classList.remove('disabled'); info.textContent = validCards().length + ' 条台词 → ' + validCards().length + ' 条视频'; }
+        if (miss.length > 0) {
+          next.classList.add('disabled'); info.textContent = '缺少：' + miss.join('、');
+        } else if (!hasAllSynth()) {
+          next.classList.add('disabled'); info.textContent = '请先合成语音：点击「应用并合成全部」或逐条合成后再进入下一步';
+        } else {
+          next.classList.remove('disabled'); info.textContent = validCards().length + ' 条台词 → ' + validCards().length + ' 条视频';
+        }
       } else if (S.step === 2) {
         next.classList.remove('disabled');
         info.textContent = '已生成 ' + validCards().length + ' 张首帧并合成语音，可逐条调整';
@@ -1189,6 +1234,10 @@
       // 台词
       var cards = validCards();
       document.getElementById("sb-script-count").textContent = cards.length;
+      // 任务名称
+      document.getElementById('sb-task-name').textContent = getTaskName();
+      // 可见范围
+      document.getElementById('sb-visibility-display').innerHTML = S.visibility === 'team' ? '👥 团队共享' : '🔒 仅自己';
       // 水印与字幕状态
       var wmSt = S.globalWmEnabled ? ('水印：'+(S.globalWmText||'未填写')) : '未开启水印';
       var subSt = S.subtitleEnabled ? '字幕已开启' : '字幕已关闭';
@@ -1242,7 +1291,6 @@
         if (!card.tts) card.tts = defaultTts();
         if (!card.tts.custom) { card.tts.speed=g.speed; card.tts.pitch=g.pitch; card.tts.volume=g.volume; card.tts.instruction=g.instruction; }
         card.tts.duration = durOf(card.content, card.tts.speed);
-        card.tts.ready = true;
       });
       var meta = S.avatar ? getAvatarMeta(S.avatar) : null;
       document.getElementById('voice-name-hint').textContent = meta ? ('· 音色跟随「'+meta.name+'」') : '';
@@ -1420,7 +1468,6 @@
       g.tts.custom = true;
       g.tts.duration = durOf(g.content, g.tts.speed);
       g.tts.ready = true;
-      renderFirstFrames();
       renderCards();
       document.getElementById('vcfg-'+id).classList.add('show');
       toast('已按单独配置重新合成台词 '+id);
@@ -1433,7 +1480,6 @@
       g.tts.custom = false;
       g.tts.speed=gt.speed; g.tts.pitch=gt.pitch; g.tts.volume=gt.volume; g.tts.instruction=gt.instruction;
       g.tts.duration = durOf(g.content, g.tts.speed); g.tts.ready = true;
-      renderFirstFrames();
       renderCards();
       toast('台词 '+id+' 已恢复为全局配置');
     }
@@ -1444,7 +1490,6 @@
         if (!card.tts.custom) { card.tts.speed=g.speed; card.tts.pitch=g.pitch; card.tts.volume=g.volume; card.tts.instruction=g.instruction; }
         card.tts.duration = durOf(card.content, card.tts.speed); card.tts.ready = true;
       });
-      renderFirstFrames();
       renderCards();
       var customCnt = validCards().filter(function(c){return c.tts.custom;}).length;
       toast('已合成全部语音' + (customCnt? ('（'+customCnt+'条保留单独配置）') : ''));
@@ -1453,7 +1498,7 @@
     function toggleTtsPlay(id) {
       if (S.ttsPlaying[id]) { stopTts(id); return; }
       var g = S.cards.find(function(x){return x.id===id;});
-      if (!g || !g.tts || !g.tts.ready) { toast('该条语音尚未合成'); return; }
+      if (!g || !g.tts || !g.tts.ready) { toast('请先进行语音合成操作再试听'); return; }
       S.ttsPlaying[id] = { start: Date.now(), duration: g.tts.duration, timer: null };
       var btn = document.getElementById('tts-btn-'+id); if(btn){ btn.textContent='⏸'; btn.classList.add('playing'); }
       runTtsTick(id, g.tts.duration);
@@ -1485,7 +1530,7 @@
     }
     function downloadTts(id) {
       var g = S.cards.find(function(x){return x.id===id;});
-      if (!g || !g.tts || !g.tts.ready) { toast('该条语音尚未合成'); return; }
+      if (!g || !g.tts || !g.tts.ready) { toast('请先进行语音合成操作再试听'); return; }
       toast('已下载音频文件：台词'+id+'.mp3（'+formatTime(g.tts.duration)+'）');
     }
 
@@ -1497,6 +1542,7 @@
       var avTag = meta ? meta.tag : '';
       var wm = S.globalWmEnabled ? S.globalWmText : '';
       var bgNameList = S.bgMulti.length ? S.bgMulti.join('、') : '—';
+      document.getElementById('cf-task').textContent = getTaskName();
       document.getElementById('cf-avatar').textContent = avName;
       document.getElementById('cf-bgs').textContent = bgNameList;
       var rows = validCards();
