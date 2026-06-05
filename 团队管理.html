@@ -40,6 +40,21 @@
         overflow: hidden;
         font-size: 14px;
     }
+    :focus-visible {
+        outline: 2px solid rgba(47,107,255,0.42);
+        outline-offset: 2px;
+    }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+    .text-secondary { color: var(--text-secondary); }
+    .text-muted { color: var(--text-muted); }
+    .icon-action {
+        width: 26px; height: 26px; border: none; border-radius: 6px;
+        display: inline-flex; align-items: center; justify-content: center;
+        background: transparent; color: var(--text-muted); cursor: pointer;
+        font-size: 14px; transition: all 0.15s;
+    }
+    .icon-action:hover { background: #f4f4f5; color: var(--primary); }
+    .admin-avatar-sm { width: 24px; height: 24px; font-size: 11px; }
 
     /* ========== 侧边栏 ========== */
     .sidebar {
@@ -173,6 +188,7 @@
     }
     .btn-outline-primary:hover { background: var(--primary-light); }
     .btn:disabled { opacity: 0.45; cursor: not-allowed; pointer-events: none; }
+    .btn-fluid { width: 100%; justify-content: center; }
 
     /* ========== 标签 ========== */
     .tag {
@@ -312,6 +328,36 @@
         overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
     }
     .permission-check.disabled { color: var(--text-muted); cursor: not-allowed; opacity: 0.58; }
+    .permission-review {
+        margin-top: 12px; padding: 12px;
+        border: 1px solid var(--border); border-radius: var(--radius-sm);
+        background: #fbfbfc;
+    }
+    .permission-review-title {
+        font-size: 13px; font-weight: 600; margin-bottom: 10px;
+        display: flex; align-items: center; justify-content: space-between;
+    }
+    .permission-review-grid {
+        display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+    }
+    .permission-review-block {
+        min-height: 76px; padding: 10px;
+        border-radius: 8px; background: #fff; border: 1px solid var(--border);
+    }
+    .permission-review-label {
+        font-size: 12px; color: var(--text-secondary); margin-bottom: 8px;
+        display: flex; align-items: center; gap: 6px;
+    }
+    .permission-pill-list { display: flex; flex-wrap: wrap; gap: 6px; }
+    .permission-pill {
+        max-width: 100%; padding: 3px 8px; border-radius: 999px;
+        background: var(--primary-light); color: var(--primary-dark);
+        font-size: 12px; line-height: 1.4;
+        overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .permission-pill.muted { background: #f4f4f5; color: var(--text-muted); }
+    .permission-empty { color: var(--text-muted); font-size: 12px; line-height: 1.6; }
 
     /* ========== Tab 切换 ========== */
     .tabs { display: flex; gap: 0; border-bottom: 2px solid var(--border); margin-bottom: 16px; }
@@ -357,6 +403,10 @@
         background: #fff; border-radius: var(--radius); box-shadow: var(--shadow-md);
         width: 480px; max-width: 90vw; max-height: 85vh; overflow-y: auto;
     }
+    .modal:focus { outline: none; }
+    .modal-sm { width: 420px; }
+    .modal-md { width: 480px; }
+    .modal-lg { width: 680px; }
     .modal-header { padding: 20px 24px 0; }
     .modal-title { font-size: 16px; font-weight: 600; }
     .modal-sub { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
@@ -381,6 +431,31 @@
     select.form-input { cursor: pointer; }
     .input-group { display: flex; gap: 8px; align-items: center; }
     .input-group .form-input { flex: 1; }
+    .field-note { font-size: 12px; color: var(--text-muted); margin-top: 6px; line-height: 1.5; }
+    .segmented {
+        display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 4px; padding: 4px; border: 1px solid var(--border);
+        background: #f4f4f5; border-radius: 8px;
+    }
+    .segmented-option {
+        height: 32px; border: none; border-radius: 6px; background: transparent;
+        color: var(--text-secondary); cursor: pointer; font-size: 13px;
+        font-family: inherit; transition: all 0.15s;
+    }
+    .segmented-option:hover { color: var(--text-primary); background: rgba(255,255,255,0.7); }
+    .segmented-option.active {
+        background: #fff; color: var(--primary); font-weight: 600;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    }
+    .credit-preview {
+        margin-top: 10px; padding: 10px 12px; border-radius: 8px;
+        background: #f9fafb; border: 1px solid var(--border);
+        color: var(--text-secondary); font-size: 12px; line-height: 1.7;
+        display: none;
+    }
+    .credit-preview.show { display: block; }
+    .credit-preview.error { background: var(--danger-light); border-color: #fecaca; color: #991b1b; }
+    .credit-preview strong { color: var(--text-primary); }
 
     /* ========== 邀请链接 ========== */
     .invite-link-box {
@@ -410,6 +485,11 @@
     }
     .amount-chip:hover { border-color: var(--primary); color: var(--primary); }
     .amount-chip.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+    .role-color-opt {
+        width: 28px; height: 28px; border-radius: 50%;
+        cursor: pointer; border: 2px solid transparent; transition: all 0.15s;
+        display: inline-flex; flex-shrink: 0;
+    }
 
     /* ========== Toast ========== */
     .toast {
@@ -429,6 +509,7 @@
         .role-cards { grid-template-columns: 1fr; }
         .package-options { grid-template-columns: 1fr; }
         .permission-grid { grid-template-columns: 1fr; }
+        .permission-review-grid { grid-template-columns: 1fr; }
         .permission-action-list { grid-template-columns: 1fr; }
     }
 </style>
@@ -515,14 +596,14 @@
                     <div class="row">
                         <div class="row-label">租户 ID</div>
                         <div class="row-value">
-                            <span style="font-family: monospace; color: var(--text-secondary);" id="tn-id">tenant_10087</span>
-                            <span class="copy-btn" onclick="copyText('tenant_10087')" title="复制" style="cursor:pointer;color:var(--text-muted);">⧉</span>
+                            <span class="mono text-secondary" id="tn-id">tenant_10087</span>
+                            <button class="icon-action" type="button" onclick="copyText('tenant_10087')" aria-label="复制租户 ID" title="复制">⧉</button>
                         </div>
                     </div>
                     <div class="row">
                         <div class="row-label">管理员</div>
                         <div class="row-value">
-                            <span class="member-avatar" style="width:24px;height:24px;font-size:11px;background:linear-gradient(135deg,#2f6bff,#6b8eff);">王</span>
+                            <span class="member-avatar admin-avatar-sm" style="background:linear-gradient(135deg,#2f6bff,#6b8eff);">王</span>
                             <span id="tn-admin">王晓明</span>
                             <span class="tag tag-info">租户管理员</span>
                         </div>
@@ -544,7 +625,7 @@
                     <div class="credit-card-label">积分总池</div>
                     <div class="credit-card-value" id="cv-total">5,000</div>
                     <div class="credit-card-sub">充值累积额度</div>
-                    <button class="btn btn-primary btn-sm" onclick="openModal('modalRecharge')" style="margin-top:10px;width:100%;justify-content:center;">＋ 积分充值</button>
+                    <button class="btn btn-primary btn-sm btn-fluid" onclick="openModal('modalRecharge')" style="margin-top:10px;">＋ 积分充值</button>
                 </div>
                 <div class="credit-card allocated">
                     <div class="credit-card-label">已分配</div>
@@ -626,9 +707,9 @@
 
 <!-- ========== 弹窗：添加成员 ========== -->
 <div class="modal-mask" id="modalInvite">
-    <div class="modal" style="width:440px;">
+    <div class="modal modal-md" role="dialog" aria-modal="true" aria-labelledby="modalInviteTitle" tabindex="-1">
         <div class="modal-header">
-            <div class="modal-title">添加成员</div>
+            <div class="modal-title" id="modalInviteTitle">添加成员</div>
             <div class="modal-sub">填写成员信息，添加后该成员将拥有对应角色的积分额度</div>
         </div>
         <div class="modal-body">
@@ -660,9 +741,9 @@
 
 <!-- ========== 弹窗：变更角色 ========== -->
 <div class="modal-mask" id="modalChangeRole">
-    <div class="modal" style="width:420px;">
+    <div class="modal modal-sm" role="dialog" aria-modal="true" aria-labelledby="modalChangeRoleTitle" tabindex="-1">
         <div class="modal-header">
-            <div class="modal-title">变更角色</div>
+            <div class="modal-title" id="modalChangeRoleTitle">变更角色</div>
             <div class="modal-sub">修改成员所属角色，将同步更新其积分额度</div>
         </div>
         <div class="modal-body">
@@ -688,9 +769,9 @@
 
 <!-- ========== 弹窗：移除成员 ========== -->
 <div class="modal-mask" id="modalRemoveMember">
-    <div class="modal" style="width:400px;">
+    <div class="modal modal-sm" role="dialog" aria-modal="true" aria-labelledby="modalRemoveMemberTitle" tabindex="-1">
         <div class="modal-header">
-            <div class="modal-title">移除成员</div>
+            <div class="modal-title" id="modalRemoveMemberTitle">移除成员</div>
         </div>
         <div class="modal-body">
             <div id="removeMemberContent" style="font-size:14px;line-height:1.6;"></div>
@@ -708,7 +789,7 @@
 
 <!-- ========== 弹窗：新建/编辑角色 ========== -->
 <div class="modal-mask" id="modalRoleEdit">
-    <div class="modal" style="width:680px;">
+    <div class="modal modal-lg" role="dialog" aria-modal="true" aria-labelledby="roleEditTitle" tabindex="-1">
         <div class="modal-header">
             <div class="modal-title" id="roleEditTitle">新建角色</div>
             <div class="modal-sub">定义角色信息、页面访问范围与按钮操作权限</div>
@@ -725,14 +806,14 @@
             <div class="form-group">
                 <label class="form-label">颜色标识</label>
                 <div style="display:flex;gap:8px;margin-top:6px;" id="roleColorPicker">
-                    <span class="role-color-opt active" data-color="#2f6bff" style="width:28px;height:28px;border-radius:50%;background:#2f6bff;cursor:pointer;border:2px solid transparent;transition:all 0.15s;"></span>
-                    <span class="role-color-opt" data-color="#16a34a" style="width:28px;height:28px;border-radius:50%;background:#16a34a;cursor:pointer;border:2px solid transparent;transition:all 0.15s;"></span>
-                    <span class="role-color-opt" data-color="#f59e0b" style="width:28px;height:28px;border-radius:50%;background:#f59e0b;cursor:pointer;border:2px solid transparent;transition:all 0.15s;"></span>
-                    <span class="role-color-opt" data-color="#dc2626" style="width:28px;height:28px;border-radius:50%;background:#dc2626;cursor:pointer;border:2px solid transparent;transition:all 0.15s;"></span>
-                    <span class="role-color-opt" data-color="#8b5cf6" style="width:28px;height:28px;border-radius:50%;background:#8b5cf6;cursor:pointer;border:2px solid transparent;transition:all 0.15s;"></span>
-                    <span class="role-color-opt" data-color="#06b6d4" style="width:28px;height:28px;border-radius:50%;background:#06b6d4;cursor:pointer;border:2px solid transparent;transition:all 0.15s;"></span>
-                    <span class="role-color-opt" data-color="#ec4899" style="width:28px;height:28px;border-radius:50%;background:#ec4899;cursor:pointer;border:2px solid transparent;transition:all 0.15s;"></span>
-                    <span class="role-color-opt" data-color="#78716c" style="width:28px;height:28px;border-radius:50%;background:#78716c;cursor:pointer;border:2px solid transparent;transition:all 0.15s;"></span>
+                    <button class="role-color-opt active" type="button" data-color="#2f6bff" style="background:#2f6bff;" aria-label="选择蓝色"></button>
+                    <button class="role-color-opt" type="button" data-color="#16a34a" style="background:#16a34a;" aria-label="选择绿色"></button>
+                    <button class="role-color-opt" type="button" data-color="#f59e0b" style="background:#f59e0b;" aria-label="选择橙色"></button>
+                    <button class="role-color-opt" type="button" data-color="#dc2626" style="background:#dc2626;" aria-label="选择红色"></button>
+                    <button class="role-color-opt" type="button" data-color="#8b5cf6" style="background:#8b5cf6;" aria-label="选择紫色"></button>
+                    <button class="role-color-opt" type="button" data-color="#06b6d4" style="background:#06b6d4;" aria-label="选择青色"></button>
+                    <button class="role-color-opt" type="button" data-color="#ec4899" style="background:#ec4899;" aria-label="选择粉色"></button>
+                    <button class="role-color-opt" type="button" data-color="#78716c" style="background:#78716c;" aria-label="选择灰色"></button>
                 </div>
             </div>
             <div class="form-group">
@@ -745,6 +826,30 @@
                 </div>
                 <div class="permission-summary" id="rolePermSummary">已选择 0 个页面 · 0 项操作</div>
                 <div class="permission-grid" id="rolePermissionList"></div>
+                <div class="permission-review" id="permissionImpact">
+                    <div class="permission-review-title">
+                        <span>权限影响摘要</span>
+                        <span class="tag tag-default" id="permissionRiskTag">未选择权限</span>
+                    </div>
+                    <div class="permission-review-grid">
+                        <div class="permission-review-block">
+                            <div class="permission-review-label">可访问页面</div>
+                            <div class="permission-pill-list" id="permissionAllowedPages"></div>
+                        </div>
+                        <div class="permission-review-block">
+                            <div class="permission-review-label">不可访问页面</div>
+                            <div class="permission-pill-list" id="permissionBlockedPages"></div>
+                        </div>
+                        <div class="permission-review-block">
+                            <div class="permission-review-label">关键操作</div>
+                            <div class="permission-pill-list" id="permissionKeyActions"></div>
+                        </div>
+                        <div class="permission-review-block">
+                            <div class="permission-review-label">保存后影响</div>
+                            <div class="permission-empty" id="permissionImpactNote">选择权限后展示角色进入系统后的菜单和按钮范围。</div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="modal-footer">
@@ -756,10 +861,10 @@
 
 <!-- ========== 弹窗：分配积分 ========== -->
 <div class="modal-mask" id="modalAllocCredits">
-    <div class="modal" style="width:460px;">
+    <div class="modal modal-md" role="dialog" aria-modal="true" aria-labelledby="modalAllocCreditsTitle" tabindex="-1">
         <div class="modal-header">
-            <div class="modal-title">分配积分额度</div>
-            <div class="modal-sub">从租户积分总池中划拨额度到该角色</div>
+            <div class="modal-title" id="modalAllocCreditsTitle">调整积分额度</div>
+            <div class="modal-sub">支持追加、回收或直接设置角色总额度</div>
         </div>
         <div class="modal-body">
             <div class="form-group">
@@ -771,27 +876,36 @@
                 <div id="allocCurrentQuota" style="color:var(--text-secondary);"></div>
             </div>
             <div class="form-group">
-                <label class="form-label">租户待分配积分</label>
+                <label class="form-label">租户积分状态</label>
                 <div id="allocPoolRemain" style="color:var(--text-secondary);"></div>
             </div>
             <div class="form-group">
-                <label class="form-label">分配额度</label>
-                <input type="number" class="form-input" id="allocAmount" placeholder="请输入要分配的数量" min="1" oninput="updateAllocPreview()">
-                <div id="allocPreview" style="font-size:12px;color:var(--text-muted);margin-top:6px;"></div>
+                <label class="form-label">调整方式</label>
+                <div class="segmented" id="allocModeGroup">
+                    <button class="segmented-option active" type="button" data-mode="add" onclick="setAllocMode('add')">追加</button>
+                    <button class="segmented-option" type="button" data-mode="reclaim" onclick="setAllocMode('reclaim')">回收</button>
+                    <button class="segmented-option" type="button" data-mode="set" onclick="setAllocMode('set')">设为总额</button>
+                </div>
+                <div class="field-note" id="allocModeNote">从租户待分配积分中追加到该角色。</div>
+            </div>
+            <div class="form-group">
+                <label class="form-label" id="allocAmountLabel">追加额度</label>
+                <input type="number" class="form-input" id="allocAmount" placeholder="请输入要追加的积分" min="1" oninput="updateAllocPreview()">
+                <div class="credit-preview" id="allocPreview"></div>
             </div>
         </div>
         <div class="modal-footer">
             <button class="btn" onclick="closeModal('modalAllocCredits')">取消</button>
-            <button class="btn btn-primary" onclick="confirmAllocCredits()">确认分配</button>
+            <button class="btn btn-primary" id="allocConfirmBtn" onclick="confirmAllocCredits()">确认调整</button>
         </div>
     </div>
 </div>
 
 <!-- ========== 弹窗：删除角色 ========== -->
 <div class="modal-mask" id="modalDeleteRole">
-    <div class="modal" style="width:420px;">
+    <div class="modal modal-sm" role="dialog" aria-modal="true" aria-labelledby="modalDeleteRoleTitle" tabindex="-1">
         <div class="modal-header">
-            <div class="modal-title">删除角色</div>
+            <div class="modal-title" id="modalDeleteRoleTitle">删除角色</div>
         </div>
         <div class="modal-body">
             <div id="deleteRoleContent" style="font-size:14px;line-height:1.6;"></div>
@@ -809,9 +923,9 @@
 
 <!-- ========== 弹窗：积分充值 ========== -->
 <div class="modal-mask" id="modalRecharge">
-    <div class="modal" style="width:560px;">
+    <div class="modal modal-md" role="dialog" aria-modal="true" aria-labelledby="modalRechargeTitle" tabindex="-1">
         <div class="modal-header">
-            <div class="modal-title">积分充值</div>
+            <div class="modal-title" id="modalRechargeTitle">积分充值</div>
             <div class="modal-sub">1 元 = 10 积分，选择套餐或自定义金额，充值后积分进入租户总池</div>
         </div>
         <div class="modal-body">
@@ -911,9 +1025,9 @@
 
 <!-- ========== 弹窗：充值详情 ========== -->
 <div class="modal-mask" id="modalRechargeDetail">
-    <div class="modal" style="width:440px;">
+    <div class="modal modal-md" role="dialog" aria-modal="true" aria-labelledby="modalRechargeDetailTitle" tabindex="-1">
         <div class="modal-header">
-            <div class="modal-title">充值详情</div>
+            <div class="modal-title" id="modalRechargeDetailTitle">充值详情</div>
         </div>
         <div class="modal-body" id="rechargeDetailBody"></div>
         <div class="modal-footer">
@@ -924,9 +1038,9 @@
 
 <!-- ========== 弹窗：消耗详情 ========== -->
 <div class="modal-mask" id="modalConsumeDetail">
-    <div class="modal" style="width:440px;">
+    <div class="modal modal-md" role="dialog" aria-modal="true" aria-labelledby="modalConsumeDetailTitle" tabindex="-1">
         <div class="modal-header">
-            <div class="modal-title">消耗详情</div>
+            <div class="modal-title" id="modalConsumeDetailTitle">消耗详情</div>
         </div>
         <div class="modal-body" id="consumeDetailBody"></div>
         <div class="modal-footer">
@@ -956,16 +1070,65 @@ function toast(msg, type) {
 }
 
 /* ========== 弹窗 ========== */
+var activeModalId = null;
+var lastFocusedBeforeModal = null;
+var modalFocusSelector = [
+    'button:not([disabled])',
+    'input:not([disabled])',
+    'select:not([disabled])',
+    'textarea:not([disabled])',
+    'a[href]',
+    '[tabindex]:not([tabindex="-1"])'
+].join(',');
+
 function openModal(id) {
-    document.getElementById(id).classList.add('show');
+    var mask = document.getElementById(id);
+    if (!mask) return;
+    lastFocusedBeforeModal = document.activeElement;
+    mask.classList.add('show');
+    activeModalId = id;
+    var dialog = mask.querySelector('.modal');
+    setTimeout(function(){
+        var firstField = mask.querySelector('input:not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled])');
+        (firstField || dialog || mask).focus();
+    }, 0);
 }
 function closeModal(id) {
-    document.getElementById(id).classList.remove('show');
+    var mask = document.getElementById(id);
+    if (!mask) return;
+    mask.classList.remove('show');
+    if (activeModalId === id) activeModalId = null;
+    if (lastFocusedBeforeModal && typeof lastFocusedBeforeModal.focus === 'function') {
+        setTimeout(function(){ lastFocusedBeforeModal.focus(); }, 0);
+    }
 }
 document.querySelectorAll('.modal-mask').forEach(function(m){
     m.addEventListener('click', function(e){
         if (e.target === m) closeModal(m.id);
     });
+});
+document.addEventListener('keydown', function(e){
+    if (!activeModalId) return;
+    var mask = document.getElementById(activeModalId);
+    if (!mask || !mask.classList.contains('show')) return;
+    if (e.key === 'Escape') {
+        e.preventDefault();
+        closeModal(activeModalId);
+        return;
+    }
+    if (e.key !== 'Tab') return;
+    var focusables = Array.prototype.slice.call(mask.querySelectorAll(modalFocusSelector))
+        .filter(function(el){ return el.offsetParent !== null || el === document.activeElement; });
+    if (!focusables.length) return;
+    var first = focusables[0];
+    var last = focusables[focusables.length - 1];
+    if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+    }
 });
 
 /* ========== 复制 ========== */
@@ -1090,6 +1253,7 @@ var permissionCatalog = [
         ]
     }
 ];
+var highRiskActionIds = ['delete', 'remove', 'recharge', 'invoice', 'role', 'credit', 'audit', 'manage', 'export'];
 
 function makePermissions(pageIds, actionMap) {
     var permissions = { pages: [], actions: {} };
@@ -1115,6 +1279,64 @@ function clonePermissions(permissions) {
 
 function getAllPermissions() {
     return makePermissions(permissionCatalog.map(function(module){ return module.id; }));
+}
+
+function getPermissionActionName(pageId, actionId) {
+    var name = actionId;
+    permissionCatalog.forEach(function(module){
+        if (module.id !== pageId) return;
+        module.actions.forEach(function(action){
+            if (action.id === actionId) name = action.name;
+        });
+    });
+    return name;
+}
+
+function renderPillList(el, items, emptyText, muted) {
+    if (!el) return;
+    if (!items.length) {
+        el.innerHTML = '<span class="permission-empty">' + emptyText + '</span>';
+        return;
+    }
+    el.innerHTML = items.map(function(item){
+        return '<span class="permission-pill' + (muted ? ' muted' : '') + '" title="' + item + '">' + item + '</span>';
+    }).join('');
+}
+
+function updatePermissionImpact(permissions) {
+    var selected = permissions || collectRolePermissions();
+    var allowedPages = [];
+    var blockedPages = [];
+    var keyActions = [];
+    permissionCatalog.forEach(function(module){
+        var allowed = selected.pages.indexOf(module.id) > -1;
+        if (allowed) {
+            allowedPages.push(module.name);
+            (selected.actions[module.id] || []).forEach(function(actionId){
+                if (highRiskActionIds.indexOf(actionId) > -1) {
+                    keyActions.push(module.name + ' · ' + getPermissionActionName(module.id, actionId));
+                }
+            });
+        } else {
+            blockedPages.push(module.name);
+        }
+    });
+    renderPillList(document.getElementById('permissionAllowedPages'), allowedPages, '暂未开放任何页面', false);
+    renderPillList(document.getElementById('permissionBlockedPages'), blockedPages, '已开放全部页面', true);
+    renderPillList(document.getElementById('permissionKeyActions'), keyActions, '未包含删除、充值、导出等关键操作', false);
+
+    var note = document.getElementById('permissionImpactNote');
+    var riskTag = document.getElementById('permissionRiskTag');
+    if (!note || !riskTag) return;
+    if (!allowedPages.length) {
+        note.textContent = '保存前至少开放一个页面，否则该角色进入系统后没有可用菜单。';
+        riskTag.className = 'tag tag-danger';
+        riskTag.textContent = '无可用页面';
+    } else {
+        note.textContent = '保存后，该角色成员只能看到已开放页面；未勾选的操作按钮将在对应页面隐藏或禁用。';
+        riskTag.className = keyActions.length >= 4 ? 'tag tag-warning' : 'tag tag-info';
+        riskTag.textContent = keyActions.length >= 4 ? '关键权限较多' : '权限范围清晰';
+    }
 }
 
 /* ========== Mock 数据 ========== */
@@ -1179,7 +1401,8 @@ var ctx = {
     selectedPackage: { amount: 100, credits: 1000 },
     currentMemberId: null,
     currentDeleteRoleId: null,
-    currentConsumeId: null
+    currentConsumeId: null,
+    allocMode: 'add'
 };
 
 /* ========== 初始化 ========== */
@@ -1260,7 +1483,7 @@ function renderRoleCards() {
             '</div>' +
             '<div class="role-card-actions">' +
                 '<button class="btn btn-sm" style="flex:1;" onclick="editRole(\'' + r.id + '\')">编辑</button>' +
-                '<button class="btn btn-sm" style="flex:1;" onclick="allocCredits(\'' + r.id + '\')">分配积分</button>' +
+                '<button class="btn btn-sm" style="flex:1;" onclick="allocCredits(\'' + r.id + '\')">调整额度</button>' +
                 '<button class="btn btn-sm" style="color:var(--danger);" onclick="deleteRole(\'' + r.id + '\')">删除</button>' +
             '</div>' +
         '</div>';
@@ -1445,6 +1668,7 @@ function updatePermissionSummary() {
     document.getElementById('rolePermSummary').textContent =
         '已选择 ' + summary.pageCount + ' 个页面 · ' + summary.actionCount + ' 项操作' +
         (pageNames ? '：' + pageNames + suffix : '');
+    updatePermissionImpact(permissions);
 }
 
 function syncPermissionModule(pageId) {
@@ -1561,8 +1785,10 @@ function resetRoleEdit() {
 }
 function updateColorPicker() {
     document.querySelectorAll('#roleColorPicker .role-color-opt').forEach(function(opt){
-        opt.classList.toggle('active', opt.dataset.color === ctx.selectedRoleColor);
-        opt.style.boxShadow = opt.dataset.color === ctx.selectedRoleColor ? '0 0 0 2px #fff, 0 0 0 4px ' + ctx.selectedRoleColor : '';
+        var selected = opt.dataset.color === ctx.selectedRoleColor;
+        opt.classList.toggle('active', selected);
+        opt.setAttribute('aria-pressed', selected ? 'true' : 'false');
+        opt.style.boxShadow = selected ? '0 0 0 2px #fff, 0 0 0 4px ' + ctx.selectedRoleColor : '';
     });
 }
 document.querySelectorAll('#roleColorPicker .role-color-opt').forEach(function(opt){
@@ -1628,51 +1854,147 @@ function saveRole() {
     populateRoleSelects();
 }
 
-/* ========== 分配积分 ========== */
+/* ========== 调整积分额度 ========== */
 var _allocRoleId = null;
 function allocCredits(roleId) {
     var role = null;
     M.roles.forEach(function(r){ if (r.id === roleId) role = r; });
     if (!role) return;
     _allocRoleId = roleId;
+    ctx.allocMode = 'add';
     document.getElementById('allocRoleName').textContent = role.name + '（颜色标识）';
     document.getElementById('allocRoleName').innerHTML = '<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:' + role.color + ';margin-right:6px;"></span>' + role.name;
     document.getElementById('allocCurrentQuota').textContent = '当前额度：' + role.quota.toLocaleString() + ' 积分（已消耗 ' + role.consumed.toLocaleString() + '）';
     var poolRemain = M.creditPool.total - M.creditPool.allocated;
-    document.getElementById('allocPoolRemain').textContent = '租户待分配积分：' + poolRemain.toLocaleString();
+    document.getElementById('allocPoolRemain').textContent = '总池 ' + M.creditPool.total.toLocaleString() + ' · 已分配 ' + M.creditPool.allocated.toLocaleString() + ' · 待分配 ' + poolRemain.toLocaleString();
     document.getElementById('allocAmount').value = '';
-    document.getElementById('allocPreview').textContent = '';
+    setAllocMode('add');
     openModal('modalAllocCredits');
 }
-function updateAllocPreview() {
-    var val = parseInt(document.getElementById('allocAmount').value) || 0;
-    var poolRemain = M.creditPool.total - M.creditPool.allocated;
-    if (val <= 0) {
-        document.getElementById('allocPreview').textContent = '';
-    } else if (val > poolRemain) {
-        document.getElementById('allocPreview').innerHTML = '<span style="color:var(--danger);">⚠ 超出待分配积分（' + poolRemain.toLocaleString() + '），无法分配</span>';
+
+function setAllocMode(mode) {
+    ctx.allocMode = mode;
+    document.querySelectorAll('#allocModeGroup .segmented-option').forEach(function(btn){
+        btn.classList.toggle('active', btn.dataset.mode === mode);
+    });
+    var label = document.getElementById('allocAmountLabel');
+    var input = document.getElementById('allocAmount');
+    var note = document.getElementById('allocModeNote');
+    if (mode === 'add') {
+        label.textContent = '追加额度';
+        input.placeholder = '请输入要追加的积分';
+        note.textContent = '从租户待分配积分中追加到该角色。';
+    } else if (mode === 'reclaim') {
+        label.textContent = '回收额度';
+        input.placeholder = '请输入要回收的积分';
+        note.textContent = '从该角色额度中回收到租户待分配积分，不能回收到低于已消耗。';
     } else {
-        var role = null;
-        M.roles.forEach(function(r){ if (r.id === _allocRoleId) role = r; });
-        var newQuota = (role ? role.quota : 0) + val;
-        document.getElementById('allocPreview').innerHTML = '分配后该角色额度：<b>' + newQuota.toLocaleString() + '</b> 积分，待分配剩余：<b>' + (poolRemain - val).toLocaleString() + '</b>';
+        label.textContent = '目标总额度';
+        input.placeholder = '请输入调整后的角色总额度';
+        note.textContent = '直接设置该角色的总额度，系统会自动计算追加或回收差额。';
     }
+    updateAllocPreview();
 }
-function confirmAllocCredits() {
-    var val = parseInt(document.getElementById('allocAmount').value) || 0;
-    var poolRemain = M.creditPool.total - M.creditPool.allocated;
-    if (val <= 0) { toast('请输入有效的分配数量', 'error'); return; }
-    if (val > poolRemain) { toast('分配额度超出待分配积分', 'error'); return; }
+
+function calculateCreditAdjustment() {
     var role = null;
     M.roles.forEach(function(r){ if (r.id === _allocRoleId) role = r; });
-    if (!role) return;
-    role.quota += val;
-    M.creditPool.allocated += val;
+    var rawAmount = (document.getElementById('allocAmount').value || '').trim();
+    var val = parseInt(rawAmount, 10) || 0;
+    var poolRemain = M.creditPool.total - M.creditPool.allocated;
+    var mode = ctx.allocMode || 'add';
+    var result = {
+        valid: false,
+        role: role,
+        amount: val,
+        hasInput: rawAmount !== '',
+        poolRemain: poolRemain,
+        delta: 0,
+        newQuota: role ? role.quota : 0,
+        message: ''
+    };
+    if (!role) {
+        result.message = '未找到目标角色。';
+        return result;
+    }
+    if (!result.hasInput) {
+        return result;
+    }
+    if (val <= 0) {
+        result.message = '请输入大于 0 的积分数量。';
+        return result;
+    }
+    if (mode === 'add') {
+        result.delta = val;
+        result.newQuota = role.quota + val;
+        if (val > poolRemain) {
+            result.message = '超出待分配积分（' + poolRemain.toLocaleString() + '），无法追加。';
+            return result;
+        }
+    } else if (mode === 'reclaim') {
+        result.delta = -val;
+        result.newQuota = role.quota - val;
+        if (result.newQuota < role.consumed) {
+            result.message = '回收后额度不能低于已消耗积分（' + role.consumed.toLocaleString() + '）。';
+            return result;
+        }
+    } else {
+        result.newQuota = val;
+        result.delta = val - role.quota;
+        if (val < role.consumed) {
+            result.message = '目标总额度不能低于已消耗积分（' + role.consumed.toLocaleString() + '）。';
+            return result;
+        }
+        if (result.delta > poolRemain) {
+            result.message = '需要追加 ' + result.delta.toLocaleString() + ' 积分，但当前待分配只有 ' + poolRemain.toLocaleString() + '。';
+            return result;
+        }
+        if (result.delta === 0) {
+            result.message = '目标额度与当前额度一致，无需调整。';
+            return result;
+        }
+    }
+    result.valid = true;
+    return result;
+}
+
+function updateAllocPreview() {
+    var preview = document.getElementById('allocPreview');
+    var confirmBtn = document.getElementById('allocConfirmBtn');
+    var result = calculateCreditAdjustment();
+    preview.className = 'credit-preview';
+    if (!result.hasInput) {
+        preview.textContent = '';
+        confirmBtn.disabled = true;
+        return;
+    }
+    preview.classList.add('show');
+    if (!result.valid) {
+        preview.classList.add('error');
+        preview.textContent = result.message;
+        confirmBtn.disabled = true;
+        return;
+    }
+    confirmBtn.disabled = false;
+    var poolAfter = result.poolRemain - result.delta;
+    var verb = result.delta > 0 ? '追加' : '回收';
+    preview.innerHTML =
+        verb + '额度：<strong>' + Math.abs(result.delta).toLocaleString() + '</strong> 积分<br>' +
+        '调整后角色额度：<strong>' + result.newQuota.toLocaleString() + '</strong> 积分，租户待分配剩余：<strong>' + poolAfter.toLocaleString() + '</strong>';
+}
+
+function confirmAllocCredits() {
+    var result = calculateCreditAdjustment();
+    if (!result.hasInput) { toast('请输入有效的调整数量', 'error'); return; }
+    if (!result.valid) { toast(result.message || '当前额度调整无效', 'error'); return; }
+    result.role.quota = result.newQuota;
+    M.creditPool.allocated += result.delta;
     closeModal('modalAllocCredits');
     updateCreditOverview();
     renderRoleCards();
     renderMemberTable();
-    toast('已向「' + role.name + '」分配 ' + val.toLocaleString() + ' 积分', 'success');
+    var actionText = result.delta > 0 ? '追加' : '回收';
+    toast('已为「' + result.role.name + '」' + actionText + ' ' + Math.abs(result.delta).toLocaleString() + ' 积分', 'success');
 }
 
 /* ========== 删除角色 ========== */

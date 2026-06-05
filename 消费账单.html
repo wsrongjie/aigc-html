@@ -145,7 +145,7 @@
     }
     .scope-tabs button.active { background: var(--primary); color: #fff; }
     .metric-grid {
-        display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
+        display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: 14px; padding-top: 16px;
     }
     .metric-card {
@@ -355,7 +355,6 @@
             <span class="topbar-title">消费账单</span>
         </div>
         <div class="topbar-actions">
-            <button class="btn" onclick="resetFilters()">重置筛选</button>
             <button class="btn" onclick="toast('已生成当前账单导出任务', 'info')">导出账单</button>
             <button class="btn btn-primary" onclick="location.href='套餐与支付.html'">充值积分</button>
         </div>
@@ -396,13 +395,6 @@
                         </div>
                         <div class="metric-foot">充值、套餐赠送、失败返还</div>
                     </div>
-                    <div class="metric-card">
-                        <div>
-                            <div class="metric-label">待处理事项</div>
-                            <div class="metric-value" id="metricPending">-</div>
-                        </div>
-                        <div class="metric-foot">对公转账、处理中任务、失败任务</div>
-                    </div>
                 </div>
             </section>
 
@@ -439,8 +431,8 @@
                                 <option value="已失败">已失败</option>
                             </select>
                         </div>
-                        <button class="btn btn-outline-primary" onclick="render()">查询</button>
                         <button class="btn" onclick="resetFilters()">清空</button>
+                        <button class="btn btn-outline-primary" onclick="render()">查询</button>
                     </div>
                 </div>
             </section>
@@ -498,7 +490,7 @@ var state = {
     type: '全部'
 };
 
-var billTypes = ['全部', '图片生成', '视频生成', '积分充值', '套餐订单', '退款/调整'];
+var billTypes = ['全部', '图片生成', '视频生成', '积分充值', '套餐订单', '其他'];
 
 var bills = [
     {
@@ -539,9 +531,16 @@ var bills = [
     {
         id: 'BILL20260531007', taskId: 'TASK-ADJ-1022', orderId: '-',
         time: '2026-05-31 18:20', member: '系统', avatar: '系', role: '系统',
-        type: '退款/调整', title: '失败任务积分返还', detail: '视频生成失败自动返还',
+        type: '其他', title: '失败任务积分返还', detail: '视频生成失败自动返还',
         model: '标准视频生成', amount: 120, status: '已完成', balance: 4590,
         invoice: '不涉及', payMethod: '-', trace: ['检测任务失败', '自动返还积分', '通知任务创建人']
+    },
+    {
+        id: 'BILL20260605011', taskId: 'TASK-ADJ-1035', orderId: '-',
+        time: '2026-06-05 14:10', member: '系统', avatar: '系', role: '系统',
+        type: '其他', title: '平台补偿赠送积分', detail: '6月系统维护补偿 · 全员赠送',
+        model: '-', amount: 500, status: '已完成', balance: 49180,
+        invoice: '不涉及', payMethod: '-', trace: ['系统维护公告', '平台统一补偿', '积分到账通知']
     },
     {
         id: 'BILL20260530008', taskId: 'TASK-COST-7712', orderId: '-',
@@ -653,12 +652,10 @@ function render() {
 function renderMetrics(items) {
     var cost = items.filter(function(item) { return item.amount < 0; }).reduce(function(sum, item) { return sum + Math.abs(item.amount); }, 0);
     var inflow = items.filter(function(item) { return item.amount > 0; }).reduce(function(sum, item) { return sum + item.amount; }, 0);
-    var pending = items.filter(function(item) { return item.status === '待确认' || item.status === '处理中' || item.status === '已失败'; }).length;
     document.getElementById('metricBalance').textContent = state.scope === 'mine' ? '8,600' : '48,680';
     document.getElementById('metricBalanceFoot').textContent = state.scope === 'mine' ? '个人剩余额度' : '租户总池余额';
     document.getElementById('metricCost').textContent = '-' + formatNumber(cost);
     document.getElementById('metricInflow').textContent = '+' + formatNumber(inflow);
-    document.getElementById('metricPending').textContent = pending + ' 项';
 }
 
 function renderTable(items) {
@@ -719,7 +716,7 @@ function typeTag(type) {
     var cls = 'tag-info';
     if (type === '视频生成' || type === '图片生成') cls = 'tag-danger';
     if (type === '积分充值' || type === '套餐订单') cls = 'tag-success';
-    if (type === '退款/调整') cls = 'tag-warning';
+    if (type === '其他') cls = 'tag-warning';
     return '<span class="tag ' + cls + '">' + type + '</span>';
 }
 

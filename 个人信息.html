@@ -209,30 +209,6 @@
     }
     .copy-btn:hover { color: var(--primary); }
 
-    /* ========== 安全等级条 ========== */
-    .security-level {
-        margin: 4px 0 16px;
-        padding: 14px 16px; background: var(--primary-light); border-radius: 8px;
-        display: flex; align-items: center; gap: 14px;
-    }
-    .security-level-icon {
-        width: 36px; height: 36px; border-radius: 8px;
-        background: var(--primary); color: #fff;
-        display: flex; align-items: center; justify-content: center;
-        font-size: 18px;
-    }
-    .security-level-info { flex: 1; }
-    .security-level-label { font-size: 13px; color: var(--text-secondary); }
-    .security-level-value { font-size: 15px; font-weight: 600; color: var(--text-primary); margin-top: 2px; }
-    .security-level-bar {
-        flex: 0 0 160px; height: 6px; border-radius: 3px;
-        background: rgba(47,107,255,0.15); position: relative; overflow: hidden;
-    }
-    .security-level-bar-fill {
-        position: absolute; left: 0; top: 0; bottom: 0;
-        background: var(--primary); border-radius: 3px;
-    }
-
     /* ========== 表格 ========== */
     .table-wrap { margin-top: 4px; }
     .table { width: 100%; border-collapse: collapse; }
@@ -447,7 +423,6 @@
         <div class="anchor-bar">
             <a class="anchor-item active" data-anchor="basic" href="#basic">基础信息</a>
             <a class="anchor-item" data-anchor="contact" href="#contact">联系方式</a>
-            <a class="anchor-item" data-anchor="security" href="#security">账号安全</a>
             <a class="anchor-item" data-anchor="apikey" href="#apikey">API Key</a>
             <a class="anchor-item" data-anchor="devices" href="#devices">登录设备</a>
         </div>
@@ -505,7 +480,6 @@
                         <div class="row-label">角色</div>
                         <div class="row-value">
                             <span class="tag tag-info">投顾管理员</span>
-                            <span class="tag tag-default">内容审核员</span>
                         </div>
                     </div>
                     <div class="row">
@@ -543,42 +517,10 @@
                             <button class="btn btn-sm" onclick="openModal('modalPhone')">更换</button>
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="row-label">邮箱</div>
-                        <div class="row-value">
-                            <span id="emailText">wan***@invest.cn</span>
-                            <span class="tag tag-success"><span class="dot dot-success"></span> 已验证</span>
-                        </div>
-                        <div class="row-action">
-                            <button class="btn btn-sm" onclick="openModal('modalEmail')">更换</button>
-                        </div>
-                    </div>
                 </div>
             </section>
 
-            <!-- ========== 3. 账号安全 ========== -->
-            <section class="card" id="security">
-                <div class="card-header">
-                    <div>
-                        <div class="card-title"><span class="card-title-icon">🔒</span> 账号安全</div>
-                        <div class="card-subtitle">保护你的账号不被未授权访问</div>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="row-label">登录密码</div>
-                        <div class="row-value">
-                            <span>••••••••</span>
-                            <span style="color: var(--text-muted); font-size: 12px;">上次修改 30 天前</span>
-                        </div>
-                        <div class="row-action">
-                            <button class="btn btn-sm" onclick="openModal('modalPassword')">修改密码</button>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- ========== 4. API Key ========== -->
+            <!-- ========== 3. API Key ========== -->
             <section class="card" id="apikey">
                 <div class="card-header">
                     <div>
@@ -657,7 +599,7 @@
                 </div>
             </section>
 
-            <!-- ========== 5. 登录设备 ========== -->
+            <!-- ========== 4. 登录设备 ========== -->
             <section class="card" id="devices">
                 <div class="card-header">
                     <div>
@@ -814,69 +756,6 @@
     </div>
 </div>
 
-<!-- ========== 弹窗：更换邮箱 ========== -->
-<div class="modal-mask" id="modalEmail">
-    <div class="modal">
-        <div class="modal-header">
-            <div class="modal-title">更换邮箱</div>
-            <div class="modal-sub">输入新邮箱并完成验证</div>
-        </div>
-        <div class="modal-body">
-            <div class="form-group">
-                <label class="form-label">当前邮箱</label>
-                <input type="text" class="form-input" value="wan***@invest.cn" disabled>
-            </div>
-            <div class="form-group">
-                <label class="form-label">新邮箱</label>
-                <div class="input-group">
-                    <input type="email" class="form-input" placeholder="请输入新邮箱">
-                    <button class="btn" onclick="sendCode(this, 'email')">获取验证码</button>
-                </div>
-            </div>
-            <div class="form-group">
-                <label class="form-label">邮箱验证码</label>
-                <input type="text" class="form-input" placeholder="请输入 6 位验证码" maxlength="6">
-            </div>
-        </div>
-        <div class="modal-footer">
-            <button class="btn" onclick="closeModal('modalEmail')">取消</button>
-            <button class="btn btn-primary" onclick="closeModal('modalEmail'); toast('邮箱已更换', 'success')">确认更换</button>
-        </div>
-    </div>
-</div>
-
-<!-- ========== 弹窗：修改密码 ========== -->
-<div class="modal-mask" id="modalPassword">
-    <div class="modal">
-        <div class="modal-header">
-            <div class="modal-title">修改登录密码</div>
-            <div class="modal-sub">密码长度 8-20 位，需包含字母和数字</div>
-        </div>
-        <div class="modal-body">
-            <div class="form-group">
-                <label class="form-label">原密码</label>
-                <input type="password" class="form-input" placeholder="请输入原密码">
-            </div>
-            <div class="form-group">
-                <label class="form-label">新密码</label>
-                <input type="password" class="form-input" placeholder="请输入新密码">
-            </div>
-            <div class="form-group">
-                <label class="form-label">确认新密码</label>
-                <input type="password" class="form-input" placeholder="请再次输入新密码">
-            </div>
-            <div class="alert alert-info">
-                <span class="alert-icon">💡</span>
-                <span>修改成功后，其他登录设备将被自动下线</span>
-            </div>
-        </div>
-        <div class="modal-footer">
-            <button class="btn" onclick="closeModal('modalPassword')">取消</button>
-            <button class="btn btn-primary" onclick="closeModal('modalPassword'); toast('密码修改成功，请重新登录', 'success')">确认修改</button>
-        </div>
-    </div>
-</div>
-
 <!-- ========== 弹窗：创建 API Key ========== -->
 <div class="modal-mask" id="modalCreateKey">
     <div class="modal">
@@ -1000,7 +879,7 @@
     /* ========== 锚点滚动联动 ========== */
     var content = document.getElementById('content');
     var anchors = document.querySelectorAll('.anchor-item');
-    var sections = ['basic','contact','security','apikey','devices'].map(function(id){ return document.getElementById(id); });
+    var sections = ['basic','contact','apikey','devices'].map(function(id){ return document.getElementById(id); });
 
     anchors.forEach(function(a){
         a.addEventListener('click', function(e){

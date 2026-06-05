@@ -125,7 +125,7 @@
     .tag-default { background: #f4f4f5; color: var(--text-secondary); }
 
     .summary-band {
-        display: grid; grid-template-columns: 1.25fr repeat(3, 1fr); gap: 14px;
+        display: grid; grid-template-columns: 1.25fr repeat(2, 1fr); gap: 14px;
         margin-bottom: 18px;
     }
     .summary-panel {
@@ -466,7 +466,6 @@
             <span class="topbar-title">套餐与支付</span>
         </div>
         <div class="topbar-actions">
-            <button class="btn" onclick="switchTab('payment')">订单记录</button>
             <button class="btn btn-primary" onclick="openCheckout('credit', 'credit-1000')">积分充值</button>
         </div>
     </div>
@@ -492,18 +491,13 @@
                     <div class="summary-value" id="tenantCredits">5,000</div>
                     <div class="summary-foot">已分配 3,500 · 待分配 1,500</div>
                 </div>
-                <div class="summary-panel">
-                    <div class="summary-eyebrow">已启用支付方式</div>
-                    <div class="summary-value" style="font-size:22px;">微信 / 支付宝</div>
-                    <div class="summary-foot">需发票订单请添加客服走对公转账</div>
-                </div>
             </div>
 
             <div class="tabs" role="tablist">
                 <button class="tab-item active" data-tab="plans" onclick="switchTab('plans')">套餐订购</button>
                 <button class="tab-item" data-tab="credits" onclick="switchTab('credits')">积分充值</button>
                 <button class="tab-item" data-tab="rights" onclick="switchTab('rights')">套餐权益</button>
-                <button class="tab-item" data-tab="payment" onclick="switchTab('payment')">支付管理</button>
+                <button class="tab-item" data-tab="payment" onclick="switchTab('payment')">充值记录</button>
             </div>
 
             <section class="tab-panel active" id="tab-plans">
@@ -570,59 +564,10 @@
             <section class="tab-panel" id="tab-payment">
                 <div class="section-head">
                     <div>
-                        <div class="section-title">支付管理</div>
-                        <div class="section-sub">管理支付方式、订单状态与发票申请入口。</div>
-                    </div>
-                    <button class="btn btn-primary" onclick="openCheckout('plan', 'team')">续费团队版</button>
-                </div>
-                <div class="payment-layout">
-                    <div class="panel-box">
-                        <div class="panel-box-head">
-                            <div class="panel-box-title">支付方式</div>
-                            <button class="btn btn-sm" onclick="toast('支付方式绑定流程占位', 'info')">添加方式</button>
-                        </div>
-                        <div class="panel-box-body">
-                            <div class="pay-method">
-                                <div class="pay-left">
-                                    <div class="pay-icon">🟢</div>
-                                    <div><div class="pay-name">微信支付</div><div class="pay-desc">企业微信扫码或个人微信扫码支付</div></div>
-                                </div>
-                                <span class="tag tag-success">已启用</span>
-                            </div>
-                            <div class="pay-method">
-                                <div class="pay-left">
-                                    <div class="pay-icon">🔵</div>
-                                    <div><div class="pay-name">支付宝</div><div class="pay-desc">支持支付宝扫码支付</div></div>
-                                </div>
-                                <span class="tag tag-success">已启用</span>
-                            </div>
-                            <div class="pay-method">
-                                <div class="pay-left">
-                                    <div class="pay-icon">🏦</div>
-                                    <div><div class="pay-name">对公转账</div><div class="pay-desc">添加客服沟通转账与开票</div></div>
-                                </div>
-                                <span class="tag tag-warning">待确认</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="panel-box">
-                        <div class="panel-box-head">
-                            <div class="panel-box-title">发票与合同</div>
-                            <button class="btn btn-sm" onclick="toast('发票申请入口占位', 'info')">申请发票</button>
-                        </div>
-                        <div class="panel-box-body">
-                            <div class="alert alert-info">
-                                <span>ℹ️</span>
-                                <div>如需发票，请选择对公转账并添加客服沟通。微信、支付宝扫码支付暂不支持在本原型流程内直接开票。</div>
-                            </div>
-                            <div style="height:12px;"></div>
-                            <div class="order-line"><span>开票抬头</span><b>华泰证券投顾部</b></div>
-                            <div class="order-line"><span>纳税人识别号</span><b>9132**********87</b></div>
-                            <div class="order-line"><span>接收邮箱</span><b>finance@example.com</b></div>
-                        </div>
+                        <div class="section-title">充值记录</div>
+                        <div class="section-sub">查看充值记录与订单状态。</div>
                     </div>
                 </div>
-                <div style="height:16px;"></div>
                 <div class="panel-box">
                     <div class="panel-box-head">
                         <div class="panel-box-title">最近订单</div>
@@ -698,6 +643,19 @@
     </div>
 </div>
 
+<div class="drawer-mask" id="detailDrawer">
+    <div class="drawer">
+        <div class="drawer-head">
+            <div class="drawer-title" id="detailTitle">订单详情</div>
+            <div class="drawer-sub" id="detailSub"></div>
+        </div>
+        <div class="drawer-body" id="detailBody"></div>
+        <div class="drawer-footer">
+            <button class="btn" onclick="closeDetail()">关闭</button>
+        </div>
+    </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -710,9 +668,9 @@ var state = {
     needInvoice: false,
     activeRightsPlan: 'team',
     orders: [
-        { id: 'ORD20260601001', type: '套餐订购', name: '团队版 · 月付', amount: 2999, method: '微信支付', status: '已完成', invoice: '不开票', time: '2026-06-01 10:32' },
-        { id: 'ORD20260528003', type: '积分充值', name: '3,300 积分包', amount: 300, method: '支付宝', status: '已完成', invoice: '不开票', time: '2026-05-28 15:18' },
-        { id: 'ORD20260512002', type: '积分充值', name: '自定义充值 · 5,000 积分', amount: 500, method: '对公转账', status: '待确认', invoice: '需开票', time: '2026-05-12 09:45' }
+        { id: 'ORD20260601001', type: '套餐订购', name: '团队版 · 月付', amount: 2999, method: '微信支付', status: '已完成', invoice: '不开票', time: '2026-06-01 10:32', seats: 20, credits: 15000, billingCycle: '月付', planId: 'team' },
+        { id: 'ORD20260528003', type: '积分充值', name: '3,300 积分包', amount: 300, method: '支付宝', status: '已完成', invoice: '不开票', time: '2026-05-28 15:18', credits: 3300, pool: '租户总池' },
+        { id: 'ORD20260512002', type: '积分充值', name: '自定义充值 · 5,000 积分', amount: 500, method: '对公转账', status: '待确认', invoice: '需开票', time: '2026-05-12 09:45', credits: 5000, pool: '租户总池' }
     ]
 };
 
@@ -870,7 +828,7 @@ function renderOrders() {
             '<td><span class="tag ' + tagClass + '">' + order.status + '</span></td>' +
             '<td>' + (order.invoice || '不开票') + '</td>' +
             '<td style="color:var(--text-secondary);">' + order.time + '</td>' +
-            '<td style="text-align:right;"><button class="btn-text" onclick="toast(\'订单详情占位\', \'info\')">详情</button></td>' +
+            '<td style="text-align:right;"><button class="btn-text" onclick="showOrderDetail(\'' + order.id + '\')">详情</button></td>' +
         '</tr>';
     });
     document.getElementById('orderTbody').innerHTML = html;
@@ -1014,9 +972,10 @@ function completeCheckout() {
     if (!item) return;
     var now = new Date();
     var stamp = now.toISOString().replace('T', ' ').slice(0, 16);
+    var isPlan = item.type === 'plan';
     var order = {
         id: 'ORD' + now.toISOString().slice(0,10).replace(/-/g,'') + Math.random().toString(36).slice(2,5).toUpperCase(),
-        type: item.type === 'plan' ? '套餐订购' : '积分充值',
+        type: isPlan ? '套餐订购' : '积分充值',
         name: item.name,
         amount: item.amount,
         method: state.payMethod,
@@ -1024,6 +983,15 @@ function completeCheckout() {
         time: stamp,
         invoice: state.needInvoice ? '需开票' : '不开票'
     };
+    if (isPlan && item.plan) {
+        order.seats = item.plan.seats;
+        order.credits = item.plan.credits;
+        order.billingCycle = state.billingCycle === 'monthly' ? '月付' : '年付';
+        order.planId = item.plan.id;
+    } else if (!isPlan) {
+        order.credits = item.credits;
+        order.pool = '租户总池';
+    }
     state.orders.unshift(order);
     if (item.type === 'plan' && order.status === '已完成') {
         state.currentPlan = item.id;
@@ -1043,6 +1011,48 @@ function completeCheckout() {
 document.getElementById('checkoutDrawer').addEventListener('click', function(e){
     if (e.target.id === 'checkoutDrawer') closeCheckout();
 });
+
+document.getElementById('detailDrawer').addEventListener('click', function(e){
+    if (e.target.id === 'detailDrawer') closeDetail();
+});
+
+function showOrderDetail(orderId) {
+    var order = state.orders.find(function(o){ return o.id === orderId; });
+    if (!order) return;
+    var isPlan = order.type === '套餐订购';
+    var statusTag = order.status === '已完成' ? '<span class="tag tag-success">已完成</span>' : (order.status === '待确认' ? '<span class="tag tag-warning">待确认</span>' : '<span class="tag tag-default">' + order.status + '</span>');
+    document.getElementById('detailTitle').innerHTML = '订单详情';
+    document.getElementById('detailSub').innerHTML = '<span class="order-id">' + order.id + '</span> &nbsp;' + statusTag;
+    var html = '';
+    if (isPlan) {
+        html += '<div class="order-summary">' +
+            '<div class="order-line"><span>套餐名称</span><b>' + order.name + '</b></div>' +
+            '<div class="order-line"><span>成员席位</span><b>' + (order.seats || '-') + '</b></div>' +
+            '<div class="order-line"><span>每月赠送积分</span><b>' + (order.credits ? Number(order.credits).toLocaleString() : '-') + '</b></div>' +
+            '<div class="order-line"><span>计费周期</span><b>' + (order.billingCycle || '-') + '</b></div>' +
+            '<div class="order-line"><span>应付金额</span><strong>' + formatMoney(order.amount) + '</strong></div>' +
+            '<div class="order-line"><span>支付方式</span><b>' + order.method + '</b></div>' +
+            '<div class="order-line"><span>发票</span><b>' + (order.invoice || '不开票') + '</b></div>' +
+            '<div class="order-line"><span>下单时间</span><b>' + order.time + '</b></div>' +
+        '</div>';
+    } else {
+        html += '<div class="order-summary">' +
+            '<div class="order-line"><span>充值内容</span><b>' + order.name + '</b></div>' +
+            '<div class="order-line"><span>到账积分</span><b>' + (order.credits ? Number(order.credits).toLocaleString() : '-') + '</b></div>' +
+            '<div class="order-line"><span>入账位置</span><b>' + (order.pool || '租户总池') + '</b></div>' +
+            '<div class="order-line"><span>应付金额</span><strong>' + formatMoney(order.amount) + '</strong></div>' +
+            '<div class="order-line"><span>支付方式</span><b>' + order.method + '</b></div>' +
+            '<div class="order-line"><span>发票</span><b>' + (order.invoice || '不开票') + '</b></div>' +
+            '<div class="order-line"><span>下单时间</span><b>' + order.time + '</b></div>' +
+        '</div>';
+    }
+    document.getElementById('detailBody').innerHTML = html;
+    document.getElementById('detailDrawer').classList.add('show');
+}
+
+function closeDetail() {
+    document.getElementById('detailDrawer').classList.remove('show');
+}
 
 function init() {
     renderPlans();
