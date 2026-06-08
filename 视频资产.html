@@ -202,13 +202,87 @@
     .batch-bar .batch-exit:hover { color: var(--text-primary); }
 
     .filter-group { display: flex; align-items: center; gap: 8px; padding-left: 4px; }
-    .filter-label { font-size: 12.5px; color: var(--text-muted); margin-right: 2px; }
+    .filter-group-wrap { flex-wrap: wrap; }
+    .filter-label { font-size: 12.5px; color: var(--text-muted); margin-right: 2px; white-space: nowrap; }
     .filter-tag {
         padding: 6px 14px; border-radius: 20px; font-size: 12.5px; cursor: pointer;
         border: 1px solid var(--border); background: var(--card-bg); color: var(--text-secondary); transition: all 0.15s;
     }
     .filter-tag:hover { border-color: var(--primary); color: var(--primary); }
     .filter-tag.active { background: var(--primary-light); color: var(--primary); border-color: var(--primary); }
+
+    /* 高级搜索 */
+    .adv-search-toggle {
+        display: flex; align-items: center; gap: 4px;
+        padding: 6px 14px; border-radius: 20px; font-size: 12.5px; cursor: pointer;
+        border: 1px dashed var(--border-strong); background: transparent; color: var(--text-muted);
+        transition: all 0.15s; white-space: nowrap; font-family: inherit;
+    }
+    .adv-search-toggle:hover { border-color: var(--primary); color: var(--primary); }
+    .adv-search-toggle.open { border-style: solid; border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
+    .adv-search-toggle .adv-dot { margin-left: 2px; width: 6px; height: 6px; border-radius: 50%; background: var(--danger); display: none; }
+    .adv-search-toggle.has-active .adv-dot { display: inline-block; }
+
+    .adv-search-panel {
+        display: none; margin-bottom: 16px;
+        background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius-sm);
+        padding: 16px 20px; box-shadow: var(--shadow);
+    }
+    .adv-search-panel.show { display: block; }
+    .adv-search-row { display: flex; align-items: center; gap: 16px; margin-bottom: 12px; flex-wrap: wrap; }
+    .adv-search-row:last-child { margin-bottom: 0; }
+    .adv-search-label { font-size: 12.5px; color: var(--text-secondary); white-space: nowrap; min-width: 56px; }
+    .adv-date-input {
+        height: 32px; padding: 0 10px; border: 1px solid var(--border); border-radius: 6px;
+        font-size: 13px; color: var(--text-primary); background: #fff; font-family: inherit;
+        outline: none; transition: border-color 0.15s;
+    }
+    .adv-date-input:focus { border-color: var(--primary); }
+    .adv-date-sep { color: var(--text-muted); font-size: 13px; }
+
+    /* 下拉多选 */
+    .adv-ms { position: relative; display: inline-block; }
+    .adv-ms-trigger {
+        display: flex; align-items: center; gap: 6px;
+        height: 32px; padding: 0 10px; border: 1px solid var(--border); border-radius: 6px;
+        background: #fff; color: var(--text-primary); font-size: 13px; cursor: pointer;
+        transition: border-color 0.15s; white-space: nowrap; font-family: inherit;
+        min-width: 120px;
+    }
+    .adv-ms-trigger:hover { border-color: var(--primary); }
+    .adv-ms-trigger .ms-arrow { font-size: 10px; color: var(--text-muted); margin-left: auto; transition: transform 0.15s; }
+    .adv-ms.open .adv-ms-trigger { border-color: var(--primary); }
+    .adv-ms.open .ms-arrow { transform: rotate(180deg); }
+    .adv-ms-trigger .ms-placeholder { color: var(--text-muted); }
+    .adv-ms-dropdown {
+        display: none; position: absolute; top: calc(100% + 4px); left: 0; z-index: 110;
+        background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius-sm);
+        box-shadow: 0 8px 24px rgba(0,0,0,0.12); min-width: 200px; overflow: hidden;
+    }
+    .adv-ms.open .adv-ms-dropdown { display: block; }
+    .adv-ms-search {
+        width: 100%; border: none; border-bottom: 1px solid var(--border);
+        padding: 8px 12px; font-size: 13px; outline: none; background: #fafafa; font-family: inherit;
+    }
+    .adv-ms-search::placeholder { color: var(--text-muted); }
+    .adv-ms-list { max-height: 180px; overflow-y: auto; padding: 4px 0; }
+    .adv-ms-item {
+        display: flex; align-items: center; gap: 8px;
+        padding: 7px 12px; font-size: 13px; cursor: pointer;
+        color: var(--text-primary); transition: background 0.1s;
+    }
+    .adv-ms-item:hover { background: var(--bg); }
+    .adv-ms-item input[type="checkbox"] { accent-color: var(--primary); margin: 0; }
+    .adv-ms-item.hidden { display: none; }
+    .adv-ms-foot {
+        display: flex; gap: 8px; padding: 8px 12px;
+        border-top: 1px solid var(--border); background: #fafafa;
+    }
+    .adv-ms-foot button {
+        background: none; border: none; color: var(--primary); font-size: 12px;
+        cursor: pointer; padding: 2px 4px; font-family: inherit;
+    }
+    .adv-ms-foot button:hover { text-decoration: underline; }
 
     /* ====== 视频网格 - 竖屏9:16，一行6个 ====== */
     .video-grid {
@@ -662,6 +736,57 @@
     .tool-item .tool-desc { font-size: 11px; color: var(--text-muted); }
     .tool-item .tool-arrow { color: var(--text-muted); font-size: 14px; }
 
+    /* 水印字幕编辑面板 */
+    .wm-edit-panel { display: none; flex-direction: column; gap: 14px; }
+    .wm-edit-panel.show { display: flex; }
+    .wm-edit-card {
+        background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 14px;
+    }
+    .wm-edit-card-title {
+        display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;
+    }
+    .wm-edit-card-title strong { font-size: 13px; color: var(--text-primary); }
+    .wm-edit-card-title span { font-size: 11px; color: var(--text-muted); }
+    .wm-switch { position: relative; width: 42px; height: 24px; flex-shrink: 0; }
+    .wm-switch input { opacity: 0; width: 0; height: 0; }
+    .wm-switch i { position: absolute; inset: 0; border-radius: 24px; background: #d9dee8; cursor: pointer; transition: all 0.18s; }
+    .wm-switch i:before { content: ""; position: absolute; width: 18px; height: 18px; left: 3px; top: 3px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.2); transition: all 0.18s; }
+    .wm-switch input:checked + i { background: #22c55e; }
+    .wm-switch input:checked + i:before { transform: translateX(18px); }
+    .wm-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px 14px; }
+    .wm-field { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+    .wm-field.full { grid-column: 1 / -1; }
+    .wm-label { font-size: 11.5px; color: var(--text-secondary); font-weight: 600; }
+    .wm-input, .wm-select { height: 34px; width: 100%; border: 1.5px solid var(--border); border-radius: 8px; background: #fff; color: var(--text-primary); font-size: 13px; padding: 0 10px; font-family: inherit; transition: all 0.15s; }
+    .wm-input:focus, .wm-select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-light); }
+    .wm-range-row { display: grid; grid-template-columns: 1fr 48px; gap: 8px; align-items: center; }
+    .wm-range-row input[type="range"] { width: 100%; accent-color: var(--primary); }
+    .wm-range-val { font-size: 12px; font-weight: 600; color: var(--primary); text-align: center; }
+    .wm-seg { display: flex; background: #eee; border: 1px solid var(--border); border-radius: 8px; padding: 2px; gap: 2px; }
+    .wm-seg button { flex: 1; height: 28px; border: none; border-radius: 6px; background: transparent; color: var(--text-secondary); font-size: 12px; cursor: pointer; transition: all 0.12s; }
+    .wm-seg button.on { background: #fff; color: var(--primary); box-shadow: 0 1px 4px rgba(0,0,0,0.08); font-weight: 700; }
+    .wm-hint { font-size: 11px; color: var(--text-muted); line-height: 1.4; }
+    .wm-actions { display: flex; justify-content: flex-end; gap: 8px; padding-top: 4px; }
+    .wm-actions .btn { padding: 7px 16px; border-radius: var(--radius-sm); font-size: 12.5px; cursor: pointer; border: none; font-weight: 500; transition: all 0.15s; font-family: inherit; }
+    .wm-actions .btn-reset { background: var(--bg); color: var(--text-secondary); }
+    .wm-actions .btn-reset:hover { background: #eee; }
+    .wm-actions .btn-cancel { background: var(--bg); color: var(--text-secondary); }
+    .wm-actions .btn-cancel:hover { background: #eee; }
+    .wm-actions .btn-apply { background: var(--primary); color: #fff; }
+    .wm-actions .btn-apply:hover { background: var(--primary-dark); }
+
+    /* 播放器水印/字幕覆盖层 */
+    .player-wm-el {
+        position: absolute; z-index: 5; font-weight: 700; white-space: nowrap;
+        text-shadow: 0 1px 3px rgba(0,0,0,0.5); pointer-events: none;
+    }
+    .player-sub-el {
+        position: absolute; z-index: 5; left: 10px; right: 10px;
+        text-align: center; padding: 6px 10px; border-radius: 6px;
+        background: rgba(0,0,0,0.5); color: #fff; pointer-events: none;
+        font-weight: 600; line-height: 1.4;
+    }
+
     .detail-modal-ft {
         padding: 12px 24px;
         border-top: 1px solid var(--border);
@@ -743,7 +868,7 @@
         <div class="list-header">
             <div class="search-box">
                 <span>🔍</span>
-                <input type="text" id="video-search" placeholder="搜索视频名称或描述…">
+                <input type="text" id="video-search" placeholder="搜索视频名称或台词…">
             </div>
             <div class="filter-group" data-filter="scope">
                 <span class="filter-label">可见范围</span>
@@ -751,6 +876,17 @@
                 <button class="filter-tag" data-value="private">仅自己</button>
                 <button class="filter-tag" data-value="team">团队可见</button>
             </div>
+            <div class="filter-group" data-filter="wm">
+                <span class="filter-label">水印字幕</span>
+                <button class="filter-tag active" data-value="all">全部</button>
+                <button class="filter-tag" data-value="both">有水印+字幕</button>
+                <button class="filter-tag" data-value="wm-only">仅水印</button>
+                <button class="filter-tag" data-value="sub-only">仅字幕</button>
+                <button class="filter-tag" data-value="none">无水印无字幕</button>
+            </div>
+            <button class="adv-search-toggle" id="adv-search-toggle" onclick="toggleAdvSearch()">
+                ⚙ 高级搜索 <span class="adv-dot" id="adv-dot"></span>
+            </button>
             <div class="sort-wrapper">
                 <button class="sort-btn" id="sort-btn" onclick="toggleSortDropdown()">
                     ↕ <span id="sort-label">创建时间 ↓</span> <span class="sort-icon">▾</span>
@@ -776,6 +912,46 @@
             <button class="batch-btn" id="batch-btn" onclick="toggleBatchMode()">
                 ☐ <span id="batch-btn-label">批量操作</span>
             </button>
+        </div>
+
+        <!-- 高级搜索面板 -->
+        <div class="adv-search-panel" id="adv-search-panel">
+            <div class="adv-search-row">
+                <span class="adv-search-label">创建时间</span>
+                <input type="date" class="adv-date-input" id="adv-date-from">
+                <span class="adv-date-sep">至</span>
+                <input type="date" class="adv-date-input" id="adv-date-to">
+                <span class="adv-search-label" style="margin-left: 16px;">角色</span>
+                <div class="adv-ms" id="adv-ms-char">
+                    <button class="adv-ms-trigger" onclick="toggleMsDropdown('adv-ms-char')">
+                        <span class="ms-placeholder">全部</span><span class="ms-arrow">▾</span>
+                    </button>
+                    <div class="adv-ms-dropdown">
+                        <input class="adv-ms-search" placeholder="搜索角色…" oninput="filterMsItems('adv-ms-char')">
+                        <div class="adv-ms-list"></div>
+                        <div class="adv-ms-foot">
+                            <button onclick="selectAllMs('adv-ms-char')">全选</button>
+                            <button onclick="clearMs('adv-ms-char')">清空</button>
+                        </div>
+                    </div>
+                </div>
+                <span class="adv-search-label">场景</span>
+                <div class="adv-ms" id="adv-ms-scene">
+                    <button class="adv-ms-trigger" onclick="toggleMsDropdown('adv-ms-scene')">
+                        <span class="ms-placeholder">全部</span><span class="ms-arrow">▾</span>
+                    </button>
+                    <div class="adv-ms-dropdown">
+                        <input class="adv-ms-search" placeholder="搜索场景…" oninput="filterMsItems('adv-ms-scene')">
+                        <div class="adv-ms-list"></div>
+                        <div class="adv-ms-foot">
+                            <button onclick="selectAllMs('adv-ms-scene')">全选</button>
+                            <button onclick="clearMs('adv-ms-scene')">清空</button>
+                        </div>
+                    </div>
+                </div>
+                <button class="adv-btn-apply" onclick="clearAdvSearch()" style="height:32px;padding:0 14px;border-radius:6px;font-size:12px;cursor:pointer;border:1px solid var(--border);background:#fff;color:var(--text-secondary);font-family:inherit;">清空</button>
+                <button class="adv-btn-apply" onclick="renderVideos()" style="height:32px;padding:0 14px;border-radius:6px;font-size:12px;cursor:pointer;border:1px solid var(--primary);background:var(--primary);color:#fff;font-family:inherit;margin-left:6px;">查询</button>
+            </div>
         </div>
 
         <div class="batch-bar" id="batch-bar">
@@ -815,10 +991,12 @@
             <!-- 左侧播放器 -->
             <div class="detail-player">
                 <div class="player-screen" id="player-screen">
-                    <div class="screen-content">
+                    <div class="screen-content" id="screen-content-layer">
                         <div class="screen-emoji" id="screen-emoji">🎬</div>
                         <div class="screen-label" id="screen-label">视频播放区域</div>
                     </div>
+                    <div class="player-wm-el" id="player-wm-el" style="display:none;"></div>
+                    <div class="player-sub-el" id="player-sub-el" style="display:none;"></div>
                 </div>
                 <div class="player-controls">
                     <button class="ctrl-btn" onclick="togglePlay(this)" id="play-btn">▶</button>
@@ -834,31 +1012,100 @@
             </div>
             <!-- 右侧信息 -->
             <div class="detail-info">
-                <div class="info-section">
+                <div class="info-section" id="info-basic-section">
                     <h4>基本信息</h4>
                     <div class="info-grid">
                         <div class="info-item"><div class="info-label">视频名称</div><div class="info-value" id="d-title">-</div></div>
                         <div class="info-item"><div class="info-label">时长</div><div class="info-value" id="d-duration">-</div></div>
                         <div class="info-item"><div class="info-label">创建人</div><div class="info-value" id="d-creator">-</div></div>
                         <div class="info-item"><div class="info-label">创建日期</div><div class="info-value" id="d-date">-</div></div>
+                        <div class="info-item"><div class="info-label">角色</div><div class="info-value" id="d-character">-</div></div>
+                        <div class="info-item"><div class="info-label">背景</div><div class="info-value" id="d-scene">-</div></div>
                         <div class="info-item"><div class="info-label">画幅比例</div><div class="info-value">竖屏 9:16</div></div>
                         <div class="info-item"><div class="info-label">分辨率</div><div class="info-value">1080 × 1920</div></div>
                         <div class="info-item"><div class="info-label">可见范围</div><div class="info-value" id="d-scope">-</div></div>
                         <div class="info-item"><div class="info-label">文件大小</div><div class="info-value">28.6 MB</div></div>
                     </div>
                 </div>
-                <div class="info-section">
+                <div class="info-section" id="info-script-section">
+                    <h4>台词</h4>
+                    <div class="info-desc" id="d-script">-</div>
+                </div>
+                <div class="info-section" id="info-desc-section">
                     <h4>视频描述</h4>
                     <div class="info-desc" id="d-desc">-</div>
                 </div>
-                <div class="info-section">
+                <div class="info-section" id="info-tools-section">
                     <h4>后期处理工具</h4>
                     <div class="tool-list">
-                        <div class="tool-item" onclick="showToast('🎬 水印字幕编辑功能开发中')">
+                        <div class="tool-item" onclick="openWmEditor()">
                             <div class="tool-icon" style="background:#EDE9FE;">🎬</div>
                             <div class="tool-info"><div class="tool-name">水印字幕编辑</div><div class="tool-desc">添加水印、编辑或替换字幕</div></div>
                             <span class="tool-arrow">›</span>
                         </div>
+                    </div>
+                </div>
+                <!-- 水印字幕编辑面板 -->
+                <div class="wm-edit-panel" id="wm-edit-panel">
+                    <div class="wm-edit-card">
+                        <div class="wm-edit-card-title">
+                            <div><strong>💧 水印配置</strong><span>  文字、位置、字号和透明度</span></div>
+                            <label class="wm-switch"><input type="checkbox" id="detail-wm-toggle" onchange="syncDetailWm()"><i></i></label>
+                        </div>
+                        <div class="wm-grid">
+                            <div class="wm-field full">
+                                <label class="wm-label">水印内容</label>
+                                <input class="wm-input" type="text" id="detail-wm-text" maxlength="24" placeholder="请输入水印文字" oninput="syncDetailWm()">
+                                <div class="wm-hint">最多 24 个字符</div>
+                            </div>
+                            <div class="wm-field">
+                                <label class="wm-label">水印位置</label>
+                                <select class="wm-select" id="detail-wm-pos" onchange="syncDetailWm()">
+                                    <option value="lt">左上</option>
+                                    <option value="rt">右上</option>
+                                    <option value="lb">左下</option>
+                                    <option value="rb">右下</option>
+                                    <option value="center">居中</option>
+                                </select>
+                            </div>
+                            <div class="wm-field">
+                                <label class="wm-label">字号</label>
+                                <div class="wm-range-row"><input type="range" id="detail-wm-size" min="12" max="48" value="22" oninput="syncDetailWm()"><span class="wm-range-val" id="detail-wm-size-val">22px</span></div>
+                            </div>
+                            <div class="wm-field">
+                                <label class="wm-label">透明度</label>
+                                <div class="wm-range-row"><input type="range" id="detail-wm-opacity" min="10" max="100" value="50" oninput="syncDetailWm()"><span class="wm-range-val" id="detail-wm-opacity-val">50%</span></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="wm-edit-card">
+                        <div class="wm-edit-card-title">
+                            <div><strong>📝 字幕配置</strong><span>  跟随语音自动生成</span></div>
+                            <label class="wm-switch"><input type="checkbox" id="detail-sub-toggle" onchange="syncDetailWm()"><i></i></label>
+                        </div>
+                        <div class="wm-grid">
+                            <div class="wm-field full">
+                                <label class="wm-label">字幕内容</label>
+                                <input class="wm-input" type="text" id="detail-sub-text" maxlength="50" placeholder="字幕内容（默认使用台词）" oninput="syncDetailWm()">
+                            </div>
+                            <div class="wm-field">
+                                <label class="wm-label">字幕位置</label>
+                                <div class="wm-seg" id="detail-sub-pos-seg">
+                                    <button type="button" data-pos="top" onclick="setDetailSubPos('top')">顶部</button>
+                                    <button type="button" data-pos="middle" onclick="setDetailSubPos('middle')">中部</button>
+                                    <button type="button" data-pos="bottom" class="on" onclick="setDetailSubPos('bottom')">底部</button>
+                                </div>
+                            </div>
+                            <div class="wm-field">
+                                <label class="wm-label">字号</label>
+                                <div class="wm-range-row"><input type="range" id="detail-sub-size" min="12" max="36" value="16" oninput="syncDetailWm()"><span class="wm-range-val" id="detail-sub-size-val">16px</span></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="wm-actions">
+                        <button class="btn btn-reset" onclick="resetDetailWm()">重置</button>
+                        <button class="btn btn-cancel" onclick="closeWmEditor()">取消</button>
+                        <button class="btn btn-apply" onclick="applyDetailWm()">应用水印字幕</button>
                     </div>
                 </div>
             </div>
@@ -874,38 +1121,68 @@
 
 <script>
     var videoData = [
-        { id: 1, title: '5月A股策略展望', desc: '震荡市中的结构性机会，重点关注科技消费两条主线。策略研报口播，适合专业投资者观看。', duration: '03:24', scope: 'team', gradient: 'linear-gradient(135deg,#667eea,#764ba2)', coverThumb: 'finance-chart', creator: '王小明', date: '2026-05-22' },
-        { id: 2, title: '新能源赛道周报', desc: '锂电产业链最新跟踪，上游锂矿到下游电池全链分析。', duration: '02:18', scope: 'team', gradient: 'linear-gradient(135deg,#a8edea,#fed6e3)', coverThumb: 'energy-solar', creator: '王小明', date: '2026-05-21' },
-        { id: 3, title: '科技股投资框架', desc: '从算力到应用的产业链梳理，AI芯片到终端应用的投资逻辑。', duration: '05:42', scope: 'private', gradient: 'linear-gradient(135deg,#fbc2eb,#a6c1ee)', coverThumb: 'tech-chip', creator: '李总', date: '2026-05-20' },
-        { id: 4, title: '每日复盘', desc: '三大指数涨跌分析，板块轮动节奏判断。日更内容。', duration: '01:56', scope: 'team', gradient: 'linear-gradient(135deg,#ffecd2,#fcb69f)', coverThumb: 'market-review', creator: '王小明', date: '2026-05-19' },
-        { id: 5, title: '消费行业深度', desc: '白酒板块估值回归，消费复苏逻辑下的投资机会。', duration: '04:30', scope: 'private', gradient: 'linear-gradient(135deg,#a1c4fd,#c2e9fb)', coverThumb: 'consumer-goods', creator: '王小明', date: '2026-05-18' },
-        { id: 6, title: 'AI+金融应用', desc: '大模型在投顾场景的应用，智能投研和智能客服实践。', duration: '06:15', scope: 'team', gradient: 'linear-gradient(135deg,#d4fc79,#96e6a1)', coverThumb: 'ai-robot', creator: '张总', date: '2026-05-17' },
-        { id: 7, title: '宏观数据速报', desc: '4月PMI超预期，制造业景气度回升，后续关注通胀数据。', duration: '01:22', scope: 'private', gradient: 'linear-gradient(135deg,#f093fb,#f5576c)', coverThumb: 'data-report', creator: '王小明', date: '2026-05-16' },
-        { id: 8, title: '港股科技周度', desc: '港股科技板块周度回顾与展望，重点关注头部平台。', duration: '03:08', scope: 'team', gradient: 'linear-gradient(135deg,#4facfe,#00f2fe)', coverThumb: 'hk-market', creator: '王小明', date: '2026-05-15' },
-        { id: 9, title: '医药投资逻辑', desc: '医药生物行业投资逻辑解析，创新药与医疗器械两条线。', duration: '04:55', scope: 'private', gradient: 'linear-gradient(135deg,#43e97b,#38f9d7)', coverThumb: 'medical', creator: '李总', date: '2026-05-14' },
-        { id: 10, title: '券商板块指南', desc: '券商板块投资指南，估值修复逻辑下的配置建议。', duration: '03:45', scope: 'private', gradient: 'linear-gradient(135deg,#a8c0ff,#3f2b96)', coverThumb: 'finance-office', creator: '王小明', date: '2026-05-12' },
-        { id: 11, title: '半导体产业链全景', desc: '半导体产业链全景图，从设计到封测各环节梳理。', duration: '05:30', scope: 'team', gradient: 'linear-gradient(135deg,#fa709a,#fee140)', coverThumb: 'semiconductor', creator: '王小明', date: '2026-05-11' },
-        { id: 12, title: '量化策略周报', desc: '量化因子最新表现，市场微观结构分析。', duration: '02:48', scope: 'team', gradient: 'linear-gradient(135deg,#48c6ef,#6f86d6)', coverThumb: 'quant-chart', creator: '张总', date: '2026-05-10' },
-        { id: 13, title: 'ETF周报：宽基指数', desc: '沪深300、中证500等宽基ETF资金流向跟踪。', duration: '03:15', scope: 'private', gradient: 'linear-gradient(135deg,#fe9a8b,#f78ca0)', coverThumb: 'etf-flow', creator: '王小明', date: '2026-05-09' },
-        { id: 14, title: '地产链观察', desc: '房地产产业链周度跟踪，销售数据和政策变化。', duration: '04:12', scope: 'team', gradient: 'linear-gradient(135deg,#a18cd1,#fbc2eb)', coverThumb: 'real-estate', creator: '李总', date: '2026-05-08' },
-        { id: 15, title: '海外市场速览', desc: '美股科技巨头财报速览，美联储议息会议前瞻。', duration: '02:36', scope: 'private', gradient: 'linear-gradient(135deg,#fad0c4,#ffd1ff)', coverThumb: 'global-market', creator: '王小明', date: '2026-05-07' },
-        { id: 16, title: 'ESG投资趋势', desc: 'ESG投资框架和实践，绿色金融政策解读。', duration: '05:08', scope: 'team', gradient: 'linear-gradient(135deg,#89f7fe,#66a6ff)', coverThumb: 'esg-green', creator: '张总', date: '2026-05-06' },
+        { id: 1, title: '5月A股策略展望', desc: '震荡市中的结构性机会，重点关注科技消费两条主线。策略研报口播，适合专业投资者观看。', script: '大家好，我是投顾小王。今天我们来聊聊5月A股市场的策略展望。震荡市中，结构性机会值得关注，重点关注科技和消费两条主线。', duration: '03:24', scope: 'team', gradient: 'linear-gradient(135deg,#667eea,#764ba2)', coverThumb: 'finance-chart', creator: '王小明', date: '2026-05-22', character: '投顾小王', scene: '办公室', hasWatermark: true, hasSubtitle: true },
+        { id: 2, title: '新能源赛道周报', desc: '锂电产业链最新跟踪，上游锂矿到下游电池全链分析。', script: '各位投资者朋友好，我是李教授。本周新能源赛道有哪些新变化？锂电产业链从上游锂矿到下游电池，全链分析来了。', duration: '02:18', scope: 'team', gradient: 'linear-gradient(135deg,#a8edea,#fed6e3)', coverThumb: 'energy-solar', creator: '王小明', date: '2026-05-21', character: '李教授', scene: '演播室', hasWatermark: true, hasSubtitle: false },
+        { id: 3, title: '科技股投资框架', desc: '从算力到应用的产业链梳理，AI芯片到终端应用的投资逻辑。', script: '大家好，我是张分析师。今天我们来梳理一下科技股的投资框架，从算力到应用，AI芯片到终端应用的投资逻辑一一道来。', duration: '05:42', scope: 'private', gradient: 'linear-gradient(135deg,#fbc2eb,#a6c1ee)', coverThumb: 'tech-chip', creator: '李总', date: '2026-05-20', character: '张分析师', scene: '办公室', hasWatermark: false, hasSubtitle: true },
+        { id: 4, title: '每日复盘', desc: '三大指数涨跌分析，板块轮动节奏判断。日更内容。', script: '大家好，我是女主播小艾。今天是每日复盘时间，我们来看看三大指数的涨跌分析和板块轮动的节奏判断。', duration: '01:56', scope: 'team', gradient: 'linear-gradient(135deg,#ffecd2,#fcb69f)', coverThumb: 'market-review', creator: '王小明', date: '2026-05-19', character: '女主播小艾', scene: '纯色背景', hasWatermark: false, hasSubtitle: false },
+        { id: 5, title: '消费行业深度', desc: '白酒板块估值回归，消费复苏逻辑下的投资机会。', script: '大家好，我是投顾小王。今天我们来深入分析消费行业，白酒板块估值回归，消费复苏逻辑下的投资机会值得关注。', duration: '04:30', scope: 'private', gradient: 'linear-gradient(135deg,#a1c4fd,#c2e9fb)', coverThumb: 'consumer-goods', creator: '王小明', date: '2026-05-18', character: '投顾小王', scene: '书房', hasWatermark: true, hasSubtitle: true },
+        { id: 6, title: 'AI+金融应用', desc: '大模型在投顾场景的应用，智能投研和智能客服实践。', script: '大家好，我是张分析师。大模型在投顾场景的应用越来越广泛，今天我们聊聊智能投研和智能客服的实践案例。', duration: '06:15', scope: 'team', gradient: 'linear-gradient(135deg,#d4fc79,#96e6a1)', coverThumb: 'ai-robot', creator: '张总', date: '2026-05-17', character: '张分析师', scene: '纯色背景', hasWatermark: false, hasSubtitle: true },
+        { id: 7, title: '宏观数据速报', desc: '4月PMI超预期，制造业景气度回升，后续关注通胀数据。', script: '大家好，我是女主播小艾。4月PMI数据超预期，制造业景气度回升，后续我们需要重点关注通胀数据的变化。', duration: '01:22', scope: 'private', gradient: 'linear-gradient(135deg,#f093fb,#f5576c)', coverThumb: 'data-report', creator: '王小明', date: '2026-05-16', character: '女主播小艾', scene: '演播室', hasWatermark: false, hasSubtitle: false },
+        { id: 8, title: '港股科技周度', desc: '港股科技板块周度回顾与展望，重点关注头部平台。', script: '大家好，我是李教授。本周港股科技板块表现如何？我们重点关注头部平台的最新动态和未来展望。', duration: '03:08', scope: 'team', gradient: 'linear-gradient(135deg,#4facfe,#00f2fe)', coverThumb: 'hk-market', creator: '王小明', date: '2026-05-15', character: '李教授', scene: '办公室', hasWatermark: true, hasSubtitle: false },
+        { id: 9, title: '医药投资逻辑', desc: '医药生物行业投资逻辑解析，创新药与医疗器械两条线。', script: '大家好，我是投顾小王。医药生物行业投资逻辑怎么梳理？今天我给大家拆解创新药与医疗器械两条主线。', duration: '04:55', scope: 'private', gradient: 'linear-gradient(135deg,#43e97b,#38f9d7)', coverThumb: 'medical', creator: '李总', date: '2026-05-14', character: '投顾小王', scene: '演播室', hasWatermark: true, hasSubtitle: true },
+        { id: 10, title: '券商板块指南', desc: '券商板块投资指南，估值修复逻辑下的配置建议。', script: '大家好，我是张分析师。券商板块估值修复逻辑下，有哪些配置建议？今天我来给大家详细分析。', duration: '03:45', scope: 'private', gradient: 'linear-gradient(135deg,#a8c0ff,#3f2b96)', coverThumb: 'finance-office', creator: '王小明', date: '2026-05-12', character: '张分析师', scene: '书房', hasWatermark: false, hasSubtitle: false },
+        { id: 11, title: '半导体产业链全景', desc: '半导体产业链全景图，从设计到封测各环节梳理。', script: '大家好，我是李教授。半导体产业链全景图来了，从设计到封测各环节，我们来逐一梳理投资机会。', duration: '05:30', scope: 'team', gradient: 'linear-gradient(135deg,#fa709a,#fee140)', coverThumb: 'semiconductor', creator: '王小明', date: '2026-05-11', character: '李教授', scene: '纯色背景', hasWatermark: false, hasSubtitle: true },
+        { id: 12, title: '量化策略周报', desc: '量化因子最新表现，市场微观结构分析。', script: '大家好，我是投顾小王。本周量化因子表现如何？市场微观结构有哪些新变化？一起来看周报。', duration: '02:48', scope: 'team', gradient: 'linear-gradient(135deg,#48c6ef,#6f86d6)', coverThumb: 'quant-chart', creator: '张总', date: '2026-05-10', character: '投顾小王', scene: '办公室', hasWatermark: true, hasSubtitle: false },
+        { id: 13, title: 'ETF周报：宽基指数', desc: '沪深300、中证500等宽基ETF资金流向跟踪。', script: '大家好，我是女主播小艾。沪深300、中证500等宽基ETF资金流向如何？本周ETF周报为您解读。', duration: '03:15', scope: 'private', gradient: 'linear-gradient(135deg,#fe9a8b,#f78ca0)', coverThumb: 'etf-flow', creator: '王小明', date: '2026-05-09', character: '女主播小艾', scene: '书房', hasWatermark: true, hasSubtitle: true },
+        { id: 14, title: '地产链观察', desc: '房地产产业链周度跟踪，销售数据和政策变化。', script: '大家好，我是张分析师。房地产产业链周度跟踪来了，我们关注最新销售数据和政策变化的深层影响。', duration: '04:12', scope: 'team', gradient: 'linear-gradient(135deg,#a18cd1,#fbc2eb)', coverThumb: 'real-estate', creator: '李总', date: '2026-05-08', character: '张分析师', scene: '演播室', hasWatermark: false, hasSubtitle: false },
+        { id: 15, title: '海外市场速览', desc: '美股科技巨头财报速览，美联储议息会议前瞻。', script: '大家好，我是李教授。美股科技巨头财报速览，美联储议息会议前瞻，海外市场最新动态一网打尽。', duration: '02:36', scope: 'private', gradient: 'linear-gradient(135deg,#fad0c4,#ffd1ff)', coverThumb: 'global-market', creator: '王小明', date: '2026-05-07', character: '李教授', scene: '纯色背景', hasWatermark: false, hasSubtitle: true },
+        { id: 16, title: 'ESG投资趋势', desc: 'ESG投资框架和实践，绿色金融政策解读。', script: '大家好，我是投顾小王。ESG投资框架和实践越来越重要，今天我们解读绿色金融最新政策方向。', duration: '05:08', scope: 'team', gradient: 'linear-gradient(135deg,#89f7fe,#66a6ff)', coverThumb: 'esg-green', creator: '张总', date: '2026-05-06', character: '投顾小王', scene: '书房', hasWatermark: true, hasSubtitle: true },
     ];
 
-    var currentFilter = { scope: 'all', keyword: '' };
+    var currentFilter = { scope: 'all', keyword: '', wm: 'all' };
+    var advFilter = { dateFrom: '', dateTo: '', characters: [], scenes: [] };
     var currentSort = 'date-desc';
     var deleteTargetId = null;
     var openMenuId = null;
     var playingCardId = null;
     var playTimer = null;
+    var advOpen = false;
 
     // 批量选择
     var batchMode = false;
     var selectedIds = [];
 
+    // 从数据中提取可选项
+    function getAdvOptions() {
+        var chars = [], scenes = [];
+        var charSet = {}, sceneSet = {};
+        videoData.forEach(function(v) {
+            if (!charSet[v.character]) { charSet[v.character] = true; chars.push(v.character); }
+            if (!sceneSet[v.scene]) { sceneSet[v.scene] = true; scenes.push(v.scene); }
+        });
+        return { chars: chars, scenes: scenes };
+    }
+
     function parseDuration(str) {
         var parts = str.split(':');
         return parseInt(parts[0]) * 60 + parseInt(parts[1]);
+    }
+
+    function getFilteredVideos() {
+        var keyword = currentFilter.keyword.trim().toLowerCase();
+        return videoData.filter(function(v) {
+            if (currentFilter.scope !== 'all' && v.scope !== currentFilter.scope) return false;
+            if (keyword && !v.title.toLowerCase().includes(keyword) && !v.desc.toLowerCase().includes(keyword)) return false;
+            if (currentFilter.wm === 'both' && !(v.hasWatermark && v.hasSubtitle)) return false;
+            if (currentFilter.wm === 'wm-only' && !(v.hasWatermark && !v.hasSubtitle)) return false;
+            if (currentFilter.wm === 'sub-only' && !(!v.hasWatermark && v.hasSubtitle)) return false;
+            if (currentFilter.wm === 'none' && (v.hasWatermark || v.hasSubtitle)) return false;
+            if (advFilter.dateFrom && v.date < advFilter.dateFrom) return false;
+            if (advFilter.dateTo && v.date > advFilter.dateTo) return false;
+            if (advFilter.characters.length > 0 && advFilter.characters.indexOf(v.character) === -1) return false;
+            if (advFilter.scenes.length > 0 && advFilter.scenes.indexOf(v.scene) === -1) return false;
+            return true;
+        });
     }
 
     // 生成 SVG 封面缩略图
@@ -951,13 +1228,7 @@
     function renderVideos() {
         var grid = document.getElementById('video-grid');
         var empty = document.getElementById('empty-state');
-        var keyword = currentFilter.keyword.trim().toLowerCase();
-
-        var filtered = videoData.filter(function(v) {
-            if (currentFilter.scope !== 'all' && v.scope !== currentFilter.scope) return false;
-            if (keyword && !v.title.toLowerCase().includes(keyword) && !v.desc.toLowerCase().includes(keyword)) return false;
-            return true;
-        });
+        var filtered = getFilteredVideos();
 
         if (filtered.length === 0) {
             grid.innerHTML = '';
@@ -1034,12 +1305,14 @@
     }
 
     // ====== 详情弹窗 ======
+    var detailVideo = null;
     function openDetail(id) {
         var v = null;
         for (var i = 0; i < videoData.length; i++) {
             if (videoData[i].id === id) { v = videoData[i]; break; }
         }
         if (!v) return;
+        detailVideo = v;
 
         // 重置播放器状态
         clearInterval(playerState.timer);
@@ -1053,14 +1326,20 @@
 
         document.getElementById('detail-title').textContent = v.title;
         var coverURL = generateCoverSVG(v.coverThumb, v.gradient);
-        document.getElementById('player-screen').innerHTML = '<img src="' + coverURL + '" style="width:100%;height:100%;object-fit:cover;display:block;" alt="' + v.title + '">';
+        document.getElementById('player-screen').innerHTML = '<div class="screen-content" id="screen-content-layer"><img src="' + coverURL + '" style="width:100%;height:100%;object-fit:cover;display:block;" alt="' + v.title + '"></div><div class="player-wm-el" id="player-wm-el" style="display:none;"></div><div class="player-sub-el" id="player-sub-el" style="display:none;"></div>';
         document.getElementById('player-time').textContent = '00:00 / ' + v.duration;
         document.getElementById('d-title').textContent = v.title;
         document.getElementById('d-duration').textContent = v.duration;
         document.getElementById('d-creator').textContent = v.creator;
         document.getElementById('d-date').textContent = v.date;
+        document.getElementById('d-character').textContent = v.character;
+        document.getElementById('d-scene').textContent = v.scene;
         document.getElementById('d-scope').textContent = v.scope === 'team' ? '团队可见' : '仅自己';
+        document.getElementById('d-script').textContent = v.script || '-';
         document.getElementById('d-desc').textContent = v.desc;
+
+        // 确保信息区显示、水印编辑面板隐藏
+        closeWmEditor(true);
 
         document.getElementById('detail-ov').classList.add('show');
     }
@@ -1068,7 +1347,160 @@
     function closeDetail() {
         clearInterval(playerState.timer);
         playerState.playing = false;
+        detailVideo = null;
         document.getElementById('detail-ov').classList.remove('show');
+    }
+
+    // ====== 水印字幕编辑 ======
+    var detailSubPos = 'bottom';
+    function openWmEditor() {
+        if (!detailVideo) return;
+
+        // 隐藏信息区
+        document.getElementById('info-basic-section').style.display = 'none';
+        document.getElementById('info-script-section').style.display = 'none';
+        document.getElementById('info-desc-section').style.display = 'none';
+        document.getElementById('info-tools-section').style.display = 'none';
+
+        // 显示水印编辑面板
+        document.getElementById('wm-edit-panel').classList.add('show');
+
+        // 初始化水印配置（从视频当前状态读取）
+        document.getElementById('detail-wm-toggle').checked = detailVideo.hasWatermark;
+        document.getElementById('detail-wm-text').value = detailVideo.wmText || '';
+        document.getElementById('detail-wm-pos').value = detailVideo.wmPos || 'rb';
+        document.getElementById('detail-wm-size').value = detailVideo.wmSize || 22;
+        document.getElementById('detail-wm-opacity').value = detailVideo.wmOpacity || 50;
+        document.getElementById('detail-wm-size-val').textContent = (detailVideo.wmSize || 22) + 'px';
+        document.getElementById('detail-wm-opacity-val').textContent = (detailVideo.wmOpacity || 50) + '%';
+
+        // 初始化字幕配置
+        document.getElementById('detail-sub-toggle').checked = detailVideo.hasSubtitle;
+        document.getElementById('detail-sub-text').value = detailVideo.subText || detailVideo.script || '';
+        document.getElementById('detail-sub-size').value = detailVideo.subSize || 16;
+        document.getElementById('detail-sub-size-val').textContent = (detailVideo.subSize || 16) + 'px';
+        detailSubPos = detailVideo.subPos || 'bottom';
+        document.querySelectorAll('#detail-sub-pos-seg button').forEach(function(b) {
+            b.classList.toggle('on', b.dataset.pos === detailSubPos);
+        });
+
+        syncDetailWm();
+    }
+
+    function closeWmEditor(silent) {
+        // 恢复信息区
+        document.getElementById('info-basic-section').style.display = '';
+        document.getElementById('info-script-section').style.display = '';
+        document.getElementById('info-desc-section').style.display = '';
+        document.getElementById('info-tools-section').style.display = '';
+
+        // 隐藏水印编辑面板
+        document.getElementById('wm-edit-panel').classList.remove('show');
+
+        // 隐藏播放器覆盖层
+        var wmEl = document.getElementById('player-wm-el');
+        var subEl = document.getElementById('player-sub-el');
+        if (wmEl) wmEl.style.display = 'none';
+        if (subEl) subEl.style.display = 'none';
+    }
+
+    function syncDetailWm() {
+        var wmEl = document.getElementById('player-wm-el');
+        var subEl = document.getElementById('player-sub-el');
+        if (!wmEl || !subEl) return;
+
+        // 水印同步
+        var wmOn = document.getElementById('detail-wm-toggle').checked;
+        var wmText = (document.getElementById('detail-wm-text').value || '').trim() || '水印文字';
+        var wmPos = document.getElementById('detail-wm-pos').value || 'rb';
+        var wmSize = parseInt(document.getElementById('detail-wm-size').value) || 22;
+        var wmOpacity = parseInt(document.getElementById('detail-wm-opacity').value) || 50;
+
+        document.getElementById('detail-wm-size-val').textContent = wmSize + 'px';
+        document.getElementById('detail-wm-opacity-val').textContent = wmOpacity + '%';
+
+        if (wmOn) {
+            wmEl.style.display = '';
+            wmEl.textContent = wmText;
+            wmEl.style.fontSize = wmSize + 'px';
+            wmEl.style.opacity = wmOpacity / 100;
+            wmEl.style.color = '#fff';
+            // 重置定位
+            wmEl.style.left = ''; wmEl.style.right = ''; wmEl.style.top = ''; wmEl.style.bottom = ''; wmEl.style.transform = '';
+            wmEl.style.textAlign = 'left';
+            switch (wmPos) {
+                case 'lt': wmEl.style.left = '18px'; wmEl.style.top = '18px'; break;
+                case 'rt': wmEl.style.right = '18px'; wmEl.style.top = '18px'; wmEl.style.textAlign = 'right'; break;
+                case 'lb': wmEl.style.left = '18px'; wmEl.style.bottom = '88px'; break;
+                case 'rb': wmEl.style.right = '18px'; wmEl.style.bottom = '88px'; wmEl.style.textAlign = 'right'; break;
+                case 'center': wmEl.style.left = '50%'; wmEl.style.top = '50%'; wmEl.style.transform = 'translate(-50%,-50%)'; wmEl.style.textAlign = 'center'; break;
+            }
+        } else {
+            wmEl.style.display = 'none';
+        }
+
+        // 字幕同步
+        var subOn = document.getElementById('detail-sub-toggle').checked;
+        var subText = (document.getElementById('detail-sub-text').value || '').trim() || '字幕内容';
+        var subSize = parseInt(document.getElementById('detail-sub-size').value) || 16;
+
+        document.getElementById('detail-sub-size-val').textContent = subSize + 'px';
+
+        if (subOn) {
+            subEl.style.display = '';
+            subEl.textContent = subText;
+            subEl.style.fontSize = subSize + 'px';
+            subEl.style.top = ''; subEl.style.bottom = ''; subEl.style.transform = '';
+            if (detailSubPos === 'top') { subEl.style.top = '24px'; }
+            else if (detailSubPos === 'middle') { subEl.style.top = '50%'; subEl.style.transform = 'translateY(-50%)'; }
+            else { subEl.style.bottom = '36px'; }
+        } else {
+            subEl.style.display = 'none';
+        }
+    }
+
+    function setDetailSubPos(pos) {
+        detailSubPos = pos;
+        document.querySelectorAll('#detail-sub-pos-seg button').forEach(function(b) {
+            b.classList.toggle('on', b.dataset.pos === pos);
+        });
+        syncDetailWm();
+    }
+
+    function resetDetailWm() {
+        document.getElementById('detail-wm-toggle').checked = false;
+        document.getElementById('detail-wm-text').value = '';
+        document.getElementById('detail-wm-pos').value = 'rb';
+        document.getElementById('detail-wm-size').value = 22;
+        document.getElementById('detail-wm-opacity').value = 50;
+        document.getElementById('detail-wm-size-val').textContent = '22px';
+        document.getElementById('detail-wm-opacity-val').textContent = '50%';
+        document.getElementById('detail-sub-toggle').checked = false;
+        document.getElementById('detail-sub-text').value = detailVideo ? (detailVideo.script || '') : '';
+        document.getElementById('detail-sub-size').value = 16;
+        document.getElementById('detail-sub-size-val').textContent = '16px';
+        detailSubPos = 'bottom';
+        document.querySelectorAll('#detail-sub-pos-seg button').forEach(function(b) {
+            b.classList.toggle('on', b.dataset.pos === 'bottom');
+        });
+        syncDetailWm();
+    }
+
+    function applyDetailWm() {
+        if (!detailVideo) return;
+        // 保存配置到视频数据
+        detailVideo.hasWatermark = document.getElementById('detail-wm-toggle').checked;
+        detailVideo.wmText = document.getElementById('detail-wm-text').value.trim();
+        detailVideo.wmPos = document.getElementById('detail-wm-pos').value;
+        detailVideo.wmSize = parseInt(document.getElementById('detail-wm-size').value) || 22;
+        detailVideo.wmOpacity = parseInt(document.getElementById('detail-wm-opacity').value) || 50;
+        detailVideo.hasSubtitle = document.getElementById('detail-sub-toggle').checked;
+        detailVideo.subText = document.getElementById('detail-sub-text').value.trim();
+        detailVideo.subSize = parseInt(document.getElementById('detail-sub-size').value) || 16;
+        detailVideo.subPos = detailSubPos;
+
+        closeWmEditor();
+        showToast('✅ 水印字幕配置已应用');
     }
 
     // ====== 菜单 ======
@@ -1126,6 +1558,130 @@
         }
     }
 
+    // ====== 高级搜索 ======
+    function toggleAdvSearch() {
+        advOpen = !advOpen;
+        var panel = document.getElementById('adv-search-panel');
+        var toggle = document.getElementById('adv-search-toggle');
+        panel.classList.toggle('show', advOpen);
+        toggle.classList.toggle('open', advOpen);
+        if (advOpen) { initMsDropdown('adv-ms-char'); initMsDropdown('adv-ms-scene'); }
+    }
+
+    // 初始化下拉多选列表
+    function initMsDropdown(wrapperId) {
+        var wrapper = document.getElementById(wrapperId);
+        var type = wrapperId === 'adv-ms-char' ? 'characters' : 'scenes';
+        var opts = getAdvOptions();
+        var items = type === 'characters' ? opts.chars : opts.scenes;
+        var selected = advFilter[type];
+        var list = wrapper.querySelector('.adv-ms-list');
+        var html = '';
+        items.forEach(function(item) {
+            var checked = selected.indexOf(item) !== -1;
+            html += '<label class="adv-ms-item"><input type="checkbox" value="' + item + '"' + (checked ? ' checked' : '') + ' onchange="onMsCheckboxChange(\'' + wrapperId + '\', this)">' + item + '</label>';
+        });
+        list.innerHTML = html;
+        updateMsTrigger(wrapperId);
+        // 重置搜索框
+        var searchInput = wrapper.querySelector('.adv-ms-search');
+        if (searchInput) searchInput.value = '';
+    }
+
+    function toggleMsDropdown(wrapperId) {
+        var wrapper = document.getElementById(wrapperId);
+        var isOpen = wrapper.classList.contains('open');
+        // 关闭所有其他下拉
+        document.querySelectorAll('.adv-ms.open').forEach(function(w) { w.classList.remove('open'); });
+        if (!isOpen) {
+            wrapper.classList.add('open');
+            initMsDropdown(wrapperId);
+            // 聚焦搜索框
+            var si = wrapper.querySelector('.adv-ms-search');
+            if (si) setTimeout(function(){ si.focus(); }, 50);
+        }
+    }
+
+    function filterMsItems(wrapperId) {
+        var wrapper = document.getElementById(wrapperId);
+        var kw = (wrapper.querySelector('.adv-ms-search').value || '').toLowerCase();
+        wrapper.querySelectorAll('.adv-ms-item').forEach(function(item) {
+            item.classList.toggle('hidden', kw.length > 0 && item.textContent.toLowerCase().indexOf(kw) === -1);
+        });
+    }
+
+    function onMsCheckboxChange(wrapperId, cb) {
+        var type = wrapperId === 'adv-ms-char' ? 'characters' : 'scenes';
+        var idx = advFilter[type].indexOf(cb.value);
+        if (cb.checked && idx === -1) {
+            advFilter[type].push(cb.value);
+        } else if (!cb.checked && idx !== -1) {
+            advFilter[type].splice(idx, 1);
+        }
+        updateMsTrigger(wrapperId);
+        updateAdvToggleDot();
+        renderVideos();
+    }
+
+    function updateMsTrigger(wrapperId) {
+        var type = wrapperId === 'adv-ms-char' ? 'characters' : 'scenes';
+        var sel = advFilter[type];
+        var wrapper = document.getElementById(wrapperId);
+        var trigger = wrapper.querySelector('.adv-ms-trigger');
+        var placeholder = trigger.querySelector('.ms-placeholder');
+        if (sel.length === 0) {
+            placeholder.textContent = '全部';
+            placeholder.className = 'ms-placeholder';
+        } else if (sel.length <= 2) {
+            placeholder.textContent = sel.join(', ');
+            placeholder.className = '';
+        } else {
+            placeholder.textContent = '已选 ' + sel.length + ' 项';
+            placeholder.className = '';
+        }
+    }
+
+    function selectAllMs(wrapperId) {
+        var type = wrapperId === 'adv-ms-char' ? 'characters' : 'scenes';
+        var opts = getAdvOptions();
+        advFilter[type] = (type === 'characters' ? opts.chars : opts.scenes).slice();
+        initMsDropdown(wrapperId);
+        updateAdvToggleDot();
+        renderVideos();
+    }
+
+    function clearMs(wrapperId) {
+        var type = wrapperId === 'adv-ms-char' ? 'characters' : 'scenes';
+        advFilter[type] = [];
+        initMsDropdown(wrapperId);
+        updateAdvToggleDot();
+        renderVideos();
+    }
+
+    function clearAdvSearch() {
+        advFilter.dateFrom = '';
+        advFilter.dateTo = '';
+        advFilter.characters = [];
+        advFilter.scenes = [];
+        document.getElementById('adv-date-from').value = '';
+        document.getElementById('adv-date-to').value = '';
+        updateAdvToggleDot();
+        renderVideos();
+    }
+
+    function updateAdvToggleDot() {
+        var hasActive = advFilter.dateFrom || advFilter.dateTo || advFilter.characters.length > 0 || advFilter.scenes.length > 0;
+        var toggle = document.getElementById('adv-search-toggle');
+        toggle.classList.toggle('has-active', hasActive);
+    }
+
+    // 点击外部关闭下拉
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.adv-ms')) {
+            document.querySelectorAll('.adv-ms.open').forEach(function(w) { w.classList.remove('open'); });
+        }
+    });
+
     // ====== 卡片点击（批量模式切换选择/详情） ======
     function handleCardClick(id, event) {
         if (batchMode) {
@@ -1178,22 +1734,15 @@
     }
 
     function toggleSelectAll() {
-        var keyword = currentFilter.keyword.trim().toLowerCase();
-        var filtered = videoData.filter(function(v) {
-            if (currentFilter.scope !== 'all' && v.scope !== currentFilter.scope) return false;
-            if (keyword && !v.title.toLowerCase().includes(keyword) && !v.desc.toLowerCase().includes(keyword)) return false;
-            return true;
-        });
+        var filtered = getFilteredVideos();
         var allSelected = filtered.every(function(v) { return selectedIds.indexOf(v.id) !== -1; });
 
         if (allSelected) {
-            // 取消全选
             filtered.forEach(function(v) {
                 var idx = selectedIds.indexOf(v.id);
                 if (idx !== -1) selectedIds.splice(idx, 1);
             });
         } else {
-            // 全选
             filtered.forEach(function(v) {
                 if (selectedIds.indexOf(v.id) === -1) selectedIds.push(v.id);
             });
@@ -1215,12 +1764,7 @@
         document.getElementById('selected-count').textContent = selectedIds.length;
 
         // 更新全选按钮文字
-        var keyword = currentFilter.keyword.trim().toLowerCase();
-        var filtered = videoData.filter(function(v) {
-            if (currentFilter.scope !== 'all' && v.scope !== currentFilter.scope) return false;
-            if (keyword && !v.title.toLowerCase().includes(keyword) && !v.desc.toLowerCase().includes(keyword)) return false;
-            return true;
-        });
+        var filtered = getFilteredVideos();
         var allSelected = filtered.length > 0 && filtered.every(function(v) { return selectedIds.indexOf(v.id) !== -1; });
         document.getElementById('select-all-btn').textContent = allSelected ? '取消全选' : '全选';
     }
@@ -1368,7 +1912,14 @@
         t._timer = setTimeout(function() { t.classList.remove('show'); }, 2000);
     }
 
-    document.addEventListener('DOMContentLoaded', function() { bindFilters(); renderVideos(); });
+    document.addEventListener('DOMContentLoaded', function() {
+        bindFilters(); renderVideos();
+        // 日期输入变更时同步到 advFilter（实时生效）
+        var df = document.getElementById('adv-date-from');
+        var dt = document.getElementById('adv-date-to');
+        if (df) df.addEventListener('change', function() { advFilter.dateFrom = df.value; updateAdvToggleDot(); renderVideos(); });
+        if (dt) dt.addEventListener('change', function() { advFilter.dateTo = dt.value; updateAdvToggleDot(); renderVideos(); });
+    });
 </script>
 
 </body>

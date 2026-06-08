@@ -139,7 +139,6 @@
     .ff-preview .ff-emoji { font-size: 46px; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.25)); transition: transform 0.25s; }
     .ff-preview .ff-corner { position: absolute; left: 5px; top: 5px; background: rgba(0,0,0,0.5); color: #fff; font-size: 9px; padding: 2px 6px; border-radius: 5px; font-weight: 500; max-width: calc(100% - 10px); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .ff-preview .ff-corner-bottom { position: absolute; left: 5px; bottom: 5px; right: 5px; background: rgba(0,0,0,0.5); color: #fff; font-size: 9px; padding: 2px 6px; border-radius: 5px; font-weight: 500; text-align: center; }
-    .ff-preview .ff-wm { position: absolute; left: 5px; bottom: 24px; background: rgba(0,102,255,0.78); color: #fff; font-size: 9px; padding: 1px 5px; border-radius: 4px; max-width: calc(100% - 10px); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .ff-preview .ff-loading { position: absolute; inset: 0; background: rgba(255,255,255,0.85); display: none; align-items: center; justify-content: center; flex-direction: column; gap: 6px; font-size: 11px; color: #0066ff; font-weight: 600; }
     .ff-preview.gen .ff-loading { display: flex; }
     .ff-spin { width: 22px; height: 22px; border: 2.5px solid #d8e4ff; border-top-color: #0066ff; border-radius: 50%; animation: spin 0.7s linear infinite; }
@@ -204,7 +203,6 @@
     .cf-table tbody tr.off { opacity: 0.35; }
     .cf-table td { font-size: 12px; color: #333; padding: 8px 10px; vertical-align: middle; }
     .cf-thumb { width: 30px; height: 53px; border-radius: 5px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
-    .cf-wm { display: block; font-size: 10px; color: #0066ff; margin-top: 2px; }
     .cf-script { max-width: 340px; }
     .cf-op-btn { font-size: 11px; color: #ef4444; cursor: pointer; background: none; border: none; padding: 3px 8px; border-radius: 4px; font-weight: 500; }
     .cf-op-btn:hover { background: #fef2f2; }
@@ -285,70 +283,6 @@
     .imp-up-zone .ico { font-size: 22px; margin-bottom: 4px; }
     .imp-up-zone .txt { font-size: 12px; color: #666; font-weight: 500; }
     .imp-up-zone .hint { font-size: 11px; color: #999; margin-top: 2px; }
-
-    /* 水印与字幕配置 */
-    .wm-modal { width: min(1180px, calc(100vw - 48px)); max-height: calc(100vh - 48px); display: flex; flex-direction: column; }
-    .wm-shell { display: grid; grid-template-columns: minmax(320px, 420px) 1fr; gap: 22px; padding: 20px; overflow: auto; background: #f7f9fc; }
-    .wm-preview-card, .wm-config-card { background: #fff; border: 1px solid #e8e8e8; border-radius: 14px; box-shadow: 0 6px 18px rgba(15,23,42,0.04); }
-    .wm-preview-card { padding: 18px; }
-    .wm-preview-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
-    .wm-preview-title { font-size: 15px; font-weight: 700; color: #1a1a2e; }
-    .wm-preview-sub { font-size: 11px; color: #999; margin-top: 4px; line-height: 1.5; }
-    .wm-preview-meta { font-size: 11px; color: #666; background: #f0f2f5; border: 1px solid #e8e8e8; border-radius: 20px; padding: 4px 10px; white-space: nowrap; }
-    .wm-stage { width: min(100%, 320px); aspect-ratio: 9/16; margin: 0 auto; border-radius: 16px; overflow: hidden; position: relative; background: linear-gradient(135deg,#8ec5fc,#e0c3fc); box-shadow: inset 0 0 0 1px rgba(0,0,0,0.08), 0 14px 34px rgba(0,0,0,0.12); }
-    .wm-stage:before { content: ""; position: absolute; inset: 0; background: radial-gradient(circle at 65% 28%, rgba(255,255,255,0.35), transparent 22%), linear-gradient(180deg, rgba(0,0,0,0.02), rgba(0,0,0,0.18)); }
-    .wm-stage-person { position: absolute; left: 50%; top: 33%; transform: translateX(-50%); width: 96px; height: 96px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 54px; background: rgba(255,255,255,0.35); box-shadow: 0 12px 28px rgba(0,0,0,0.16); }
-    .wm-stage-desk { position: absolute; left: 14%; right: 14%; bottom: 25%; height: 18%; border-radius: 10px 10px 6px 6px; background: linear-gradient(135deg,#b98243,#e8b15c); box-shadow: 0 18px 34px rgba(0,0,0,0.2); }
-    .wm-preview-watermark { position: absolute; z-index: 2; max-width: 76%; color: #fff; font-weight: 800; text-shadow: 0 2px 10px rgba(0,0,0,0.38); line-height: 1.1; white-space: pre-line; word-break: break-word; }
-    .wm-preview-watermark.pos-lt { left: 18px; top: 18px; text-align: left; }
-    .wm-preview-watermark.pos-rt { right: 18px; top: 18px; text-align: right; }
-    .wm-preview-watermark.pos-lb { left: 18px; bottom: 88px; text-align: left; }
-    .wm-preview-watermark.pos-rb { right: 18px; bottom: 88px; text-align: right; }
-    .wm-preview-watermark.pos-center { left: 50%; top: 50%; transform: translate(-50%,-50%); text-align: center; }
-    .wm-preview-subtitle { position: absolute; z-index: 3; left: 22px; right: 22px; bottom: 28px; padding: 8px 12px; border-radius: 9px; background: rgba(0,0,0,0.46); color: #fff; font-weight: 700; text-align: center; line-height: 1.35; text-shadow: 0 1px 4px rgba(0,0,0,0.35); }
-    .wm-stage-off { display: none; }
-    .wm-config-stack { display: flex; flex-direction: column; gap: 14px; }
-    .wm-config-card { padding: 16px; }
-    .wm-config-title { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
-    .wm-config-title strong { font-size: 14px; color: #1a1a2e; }
-    .wm-config-title span { font-size: 11px; color: #999; }
-    .wm-switch { position: relative; width: 42px; height: 24px; flex-shrink: 0; }
-    .wm-switch input { opacity: 0; width: 0; height: 0; }
-    .wm-switch i { position: absolute; inset: 0; border-radius: 24px; background: #d9dee8; cursor: pointer; transition: all 0.18s; }
-    .wm-switch i:before { content: ""; position: absolute; width: 18px; height: 18px; left: 3px; top: 3px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.2); transition: all 0.18s; }
-    .wm-switch input:checked + i { background: #22c55e; }
-    .wm-switch input:checked + i:before { transform: translateX(18px); }
-    .wm-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 12px 16px; }
-    .wm-field { display: flex; flex-direction: column; gap: 7px; min-width: 0; }
-    .wm-field.full { grid-column: 1 / -1; }
-    .wm-label { font-size: 12px; color: #666; font-weight: 600; }
-    .wm-label.req:before { content: "* "; color: #ef4444; }
-    .wm-input, .wm-select { height: 36px; width: 100%; border: 1.5px solid #e8e8e8; border-radius: 8px; background: #fff; color: #1a1a2e; font-size: 13px; padding: 0 10px; font-family: inherit; transition: all 0.18s; }
-    .wm-input:focus, .wm-select:focus { outline: none; border-color: #0066ff; box-shadow: 0 0 0 3px rgba(0,102,255,0.08); }
-    .wm-input-row { display: flex; align-items: center; }
-    .wm-input-row .wm-input { border-radius: 8px 0 0 8px; }
-    .wm-unit { height: 36px; min-width: 40px; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #666; background: #f5f6f8; border: 1.5px solid #e8e8e8; border-left: 0; border-radius: 0 8px 8px 0; }
-    .wm-hint-line { font-size: 11px; color: #999; line-height: 1.5; }
-    .wm-seg { display: flex; background: #f0f2f5; border: 1px solid #e8e8e8; border-radius: 8px; padding: 3px; gap: 3px; }
-    .wm-seg button { flex: 1; height: 28px; border: none; border-radius: 6px; background: transparent; color: #666; font-size: 12px; cursor: pointer; }
-    .wm-seg button.on { background: #fff; color: #0066ff; box-shadow: 0 1px 4px rgba(0,0,0,0.08); font-weight: 700; }
-    .wm-range-row { display: grid; grid-template-columns: 1fr 80px; gap: 10px; align-items: center; }
-    .wm-range-row input[type="range"] { width: 100%; accent-color: #0066ff; }
-    .wm-list { display: flex; gap: 8px; flex-wrap: wrap; }
-    .wm-chip-btn { border: 1.5px solid #e8e8e8; background: #fafafa; color: #666; border-radius: 8px; padding: 7px 12px; font-size: 12px; font-weight: 600; cursor: pointer; }
-    .wm-chip-btn.on, .wm-chip-btn:hover { border-color: #0066ff; color: #0066ff; background: #eef4ff; }
-    .wm-actions { display: flex; justify-content: flex-end; gap: 10px; padding: 14px 20px; border-top: 1px solid #edf0f5; background: #fff; flex-shrink: 0; }
-    .ff-preview .ff-subtitle { position: absolute; left: 6px; right: 6px; bottom: 7px; z-index: 2; padding: 2px 5px; border-radius: 5px; background: rgba(0,0,0,0.48); color: #fff; font-size: 9px; line-height: 1.25; font-weight: 600; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .ff-preview .ff-subtitle.sub-top { top: 24px; bottom: auto; }
-    .ff-preview .ff-subtitle.sub-middle { top: 50%; bottom: auto; transform: translateY(-50%); }
-    .ff-preview .ff-subtitle.sub-bottom { bottom: 7px; }
-    @media (max-width: 860px) {
-      .wm-modal { width: calc(100vw - 24px); max-height: calc(100vh - 24px); }
-      .wm-shell { grid-template-columns: 1fr; padding: 14px; }
-      .wm-grid { grid-template-columns: 1fr; }
-      .wm-actions { flex-wrap: wrap; }
-      .wm-actions .btn { flex: 1; min-width: 110px; }
-    }
 
     /* 进度弹窗 */
     .p-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(2px); }
@@ -515,11 +449,6 @@
             <div class="sb-label">📝 台词统计</div>
             <div class="sb-stat"><span class="sb-stat-lbl">台词数量</span><span class="sb-stat-num" id="sb-script-count">0</span></div>
           </div>
-          <div class="sb-section">
-            <div class="sb-label">🛡️ 水印与字幕</div>
-            <div id="sb-wm-status" style="font-size:13px;color:#333;font-weight:600;margin-bottom:8px;line-height:1.6;">未开启水印 · 字幕已开启</div>
-            <button class="btn btn1" style="width:100%;font-size:12px;padding:7px 0;" onclick="openWmModal()">水印字幕配置</button>
-          </div>
         </div>
       </div>
     </div>
@@ -599,112 +528,6 @@
     </div>
   </div>
 
-  <!-- 全局水印与字幕配置弹窗 -->
-  <div class="imp-ov" id="wm-modal-ov">
-    <div class="imp-modal wm-modal">
-      <div class="imp-hd"><h3>水印与字幕配置</h3><button class="close-btn" onclick="closeWmModal()">✕</button></div>
-      <div class="wm-shell">
-        <div class="wm-preview-card">
-          <div class="wm-preview-head">
-            <div>
-              <div class="wm-preview-title">实时预览</div>
-              <div class="wm-preview-sub">水印和字幕会同步到所有首帧与生成视频</div>
-            </div>
-            <div class="wm-preview-meta">9:16</div>
-          </div>
-          <div class="wm-stage" id="wm-preview-stage">
-            <div class="wm-stage-person" id="wm-preview-avatar">👤</div>
-            <div class="wm-stage-desk"></div>
-            <div class="wm-preview-watermark pos-lt" id="wm-preview-watermark">添加水印</div>
-            <div class="wm-preview-subtitle" id="wm-preview-subtitle">字幕示例</div>
-          </div>
-        </div>
-        <div class="wm-config-stack">
-          <div class="wm-config-card">
-            <div class="wm-config-title">
-              <div><strong>水印配置</strong><span>  文字、位置、字号和透明度</span></div>
-              <label class="wm-switch"><input type="checkbox" id="wm-modal-toggle" onchange="syncWmPreview()"><i></i></label>
-            </div>
-            <div class="wm-grid">
-              <div class="wm-field full">
-                <label class="wm-label req">水印内容</label>
-                <input class="wm-input" type="text" id="wm-modal-input" maxlength="24" placeholder="请输入水印文字" oninput="syncWmPreview()">
-                <div class="wm-hint-line">最多 24 个字符，留空时使用“添加水印”预览</div>
-              </div>
-              <div class="wm-field">
-                <label class="wm-label req">水印位置</label>
-                <select class="wm-select" id="wm-modal-pos" onchange="syncWmPreview()">
-                  <option value="lt">左上</option>
-                  <option value="rt">右上</option>
-                  <option value="lb">左下</option>
-                  <option value="rb">右下</option>
-                  <option value="center">居中</option>
-                </select>
-              </div>
-              <div class="wm-field">
-                <label class="wm-label req">字体大小</label>
-                <div class="wm-input-row"><input class="wm-input" type="number" id="wm-modal-size" min="16" max="72" step="1" oninput="syncWmPreview()"><span class="wm-unit">px</span></div>
-              </div>
-              <div class="wm-field">
-                <label class="wm-label req">段落对齐</label>
-                <div class="wm-seg" id="wm-align-seg">
-                  <button type="button" data-align="left" onclick="setWmAlign('left')">左</button>
-                  <button type="button" data-align="center" onclick="setWmAlign('center')">中</button>
-                  <button type="button" data-align="right" onclick="setWmAlign('right')">右</button>
-                </div>
-              </div>
-              <div class="wm-field">
-                <label class="wm-label req">透明度</label>
-                <div class="wm-range-row"><input type="range" id="wm-modal-opacity" min="0.2" max="1" step="0.05" oninput="syncWmPreview()"><input class="wm-input" id="wm-modal-opacity-val" readonly></div>
-              </div>
-            </div>
-          </div>
-          <div class="wm-config-card">
-            <div class="wm-config-title">
-              <div><strong>字幕配置</strong><span>  跟随语音自动生成</span></div>
-              <label class="wm-switch"><input type="checkbox" id="wm-modal-subtitle" onchange="syncWmPreview()"><i></i></label>
-            </div>
-            <div class="wm-grid">
-              <div class="wm-field full">
-                <label class="wm-label req">字幕内容</label>
-                <input class="wm-input" type="text" id="wm-modal-subtitle-text" maxlength="36" placeholder="字幕示例" oninput="syncWmPreview()">
-              </div>
-              <div class="wm-field">
-                <label class="wm-label req">字幕位置</label>
-                <select class="wm-select" id="wm-modal-subtitle-pos" onchange="syncWmPreview()">
-                  <option value="bottom">中下（默认）</option>
-                  <option value="middle">居中</option>
-                  <option value="top">中上</option>
-                </select>
-              </div>
-              <div class="wm-field">
-                <label class="wm-label req">距边</label>
-                <div class="wm-input-row"><input class="wm-input" type="number" id="wm-modal-subtitle-gap" min="0" max="120" step="1" oninput="syncWmPreview()"><span class="wm-unit">px</span></div>
-              </div>
-              <div class="wm-field">
-                <label class="wm-label req">字号</label>
-                <div class="wm-input-row"><input class="wm-input" type="number" id="wm-modal-subtitle-size" min="18" max="64" step="1" oninput="syncWmPreview()"><span class="wm-unit">px</span></div>
-              </div>
-              <div class="wm-field">
-                <label class="wm-label">预设</label>
-                <div class="wm-list">
-                  <button class="wm-chip-btn on" type="button" onclick="applySubtitlePreset('default')">默认</button>
-                  <button class="wm-chip-btn" type="button" onclick="applySubtitlePreset('large')">大字</button>
-                  <button class="wm-chip-btn" type="button" onclick="applySubtitlePreset('clean')">轻量</button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="wm-actions">
-        <button class="btn btn2" onclick="resetWmModal()">重置</button>
-        <button class="btn btn2" onclick="closeWmModal()">取消</button>
-        <button class="btn btn1" onclick="saveWmModal()">应用</button>
-      </div>
-    </div>
-  </div>
-
   <!-- 进度弹窗 -->
   <div class="p-overlay" id="p-overlay">
     <div class="p-modal">
@@ -772,17 +595,6 @@
       cards: [],                  // {id, content, frame:{bg,pose,shot}, tts:{...}}
       nextId: 1,
       ttsPlaying: {},
-      globalWmEnabled: false,     // 全局水印开关
-      globalWmText: '',           // 全局水印文字
-      wmPos: 'lt',
-      wmSize: 28,
-      wmAlign: 'left',
-      wmOpacity: 0.85,
-      subtitleEnabled: true,      // 字幕开关
-      subtitleText: '字幕示例',
-      subtitlePos: 'bottom',
-      subtitleGap: 20,
-      subtitleSize: 36,
       visibility: 'private'       // 可见范围：private=仅自己, team=团队共享
     };
 
@@ -881,115 +693,6 @@
       updFooter();
       updateSidebar();
     }
-
-    function openWmModal() {
-      document.getElementById('wm-modal-ov').classList.add('show');
-      document.getElementById('wm-modal-toggle').checked = S.globalWmEnabled;
-      document.getElementById('wm-modal-input').value = S.globalWmText;
-      document.getElementById('wm-modal-pos').value = S.wmPos || 'lt';
-      document.getElementById('wm-modal-size').value = S.wmSize || 28;
-      document.getElementById('wm-modal-opacity').value = S.wmOpacity || 0.85;
-      document.getElementById('wm-modal-subtitle').checked = S.subtitleEnabled;
-      document.getElementById('wm-modal-subtitle-text').value = S.subtitleText || '字幕示例';
-      document.getElementById('wm-modal-subtitle-pos').value = S.subtitlePos || 'bottom';
-      document.getElementById('wm-modal-subtitle-gap').value = S.subtitleGap || 20;
-      document.getElementById('wm-modal-subtitle-size').value = S.subtitleSize || 36;
-      setWmAlign(S.wmAlign || 'left', true);
-      syncWmPreview();
-    }
-    function closeWmModal() {
-      document.getElementById('wm-modal-ov').classList.remove('show');
-    }
-    function toggleWmModalInput(checked) {
-      document.getElementById('wm-modal-toggle').checked = checked;
-      syncWmPreview();
-    }
-    function setWmAlign(align, silent) {
-      document.querySelectorAll('#wm-align-seg button').forEach(function(btn){
-        btn.classList.toggle('on', btn.dataset.align === align);
-      });
-      document.getElementById('wm-align-seg').dataset.align = align;
-      if (!silent) syncWmPreview();
-    }
-    function getWmAlign() {
-      return document.getElementById('wm-align-seg').dataset.align || 'left';
-    }
-    function applySubtitlePreset(type) {
-      document.querySelectorAll('.wm-chip-btn').forEach(function(btn){ btn.classList.remove('on'); });
-      if (type === 'large') {
-        document.getElementById('wm-modal-subtitle-size').value = 42;
-        document.getElementById('wm-modal-subtitle-gap').value = 24;
-        document.querySelectorAll('.wm-chip-btn')[1].classList.add('on');
-      } else if (type === 'clean') {
-        document.getElementById('wm-modal-subtitle-size').value = 30;
-        document.getElementById('wm-modal-subtitle-gap').value = 28;
-        document.querySelectorAll('.wm-chip-btn')[2].classList.add('on');
-      } else {
-        document.getElementById('wm-modal-subtitle-size').value = 36;
-        document.getElementById('wm-modal-subtitle-gap').value = 20;
-        document.querySelectorAll('.wm-chip-btn')[0].classList.add('on');
-      }
-      syncWmPreview();
-    }
-    function resetWmModal() {
-      document.getElementById('wm-modal-toggle').checked = false;
-      document.getElementById('wm-modal-input').value = '';
-      document.getElementById('wm-modal-pos').value = 'lt';
-      document.getElementById('wm-modal-size').value = 28;
-      document.getElementById('wm-modal-opacity').value = 0.85;
-      setWmAlign('left', true);
-      document.getElementById('wm-modal-subtitle').checked = true;
-      document.getElementById('wm-modal-subtitle-text').value = '字幕示例';
-      document.getElementById('wm-modal-subtitle-pos').value = 'bottom';
-      applySubtitlePreset('default');
-    }
-    function syncWmPreview() {
-      var wmOn = document.getElementById('wm-modal-toggle').checked;
-      var wmText = document.getElementById('wm-modal-input').value.trim() || '添加水印';
-      var wmPos = document.getElementById('wm-modal-pos').value || 'lt';
-      var wmSize = parseInt(document.getElementById('wm-modal-size').value) || 28;
-      var wmOpacity = parseFloat(document.getElementById('wm-modal-opacity').value) || 0.85;
-      var wm = document.getElementById('wm-preview-watermark');
-      wm.textContent = wmText;
-      wm.className = 'wm-preview-watermark pos-' + wmPos + (wmOn ? '' : ' wm-stage-off');
-      wm.style.fontSize = Math.round(wmSize * 0.72) + 'px';
-      wm.style.opacity = wmOpacity;
-      wm.style.textAlign = getWmAlign();
-      document.getElementById('wm-modal-opacity-val').value = wmOpacity.toFixed(2);
-
-      var subOn = document.getElementById('wm-modal-subtitle').checked;
-      var sub = document.getElementById('wm-preview-subtitle');
-      var subText = document.getElementById('wm-modal-subtitle-text').value.trim() || '字幕示例';
-      var subPos = document.getElementById('wm-modal-subtitle-pos').value || 'bottom';
-      var subGap = parseInt(document.getElementById('wm-modal-subtitle-gap').value) || 20;
-      var subSize = parseInt(document.getElementById('wm-modal-subtitle-size').value) || 36;
-      sub.textContent = subText;
-      sub.classList.toggle('wm-stage-off', !subOn);
-      sub.style.fontSize = Math.round(subSize * 0.36) + 'px';
-      sub.style.top = '';
-      sub.style.bottom = '';
-      sub.style.transform = '';
-      if (subPos === 'top') sub.style.top = subGap + 'px';
-      else if (subPos === 'middle') { sub.style.top = '50%'; sub.style.transform = 'translateY(-50%)'; }
-      else sub.style.bottom = subGap + 'px';
-    }
-    function saveWmModal() {
-      S.globalWmEnabled = document.getElementById('wm-modal-toggle').checked;
-      S.globalWmText = document.getElementById('wm-modal-input').value.trim();
-      S.wmPos = document.getElementById('wm-modal-pos').value;
-      S.wmSize = parseInt(document.getElementById('wm-modal-size').value) || 28;
-      S.wmAlign = getWmAlign();
-      S.wmOpacity = parseFloat(document.getElementById('wm-modal-opacity').value) || 0.85;
-      S.subtitleEnabled = document.getElementById('wm-modal-subtitle').checked;
-      S.subtitleText = document.getElementById('wm-modal-subtitle-text').value.trim() || '字幕示例';
-      S.subtitlePos = document.getElementById('wm-modal-subtitle-pos').value;
-      S.subtitleGap = parseInt(document.getElementById('wm-modal-subtitle-gap').value) || 20;
-      S.subtitleSize = parseInt(document.getElementById('wm-modal-subtitle-size').value) || 36;
-      closeWmModal();
-      updateSidebar();
-      toast('水印与字幕配置已保存');
-    }
-    document.getElementById('wm-modal-ov').addEventListener('click', function(e){ if(e.target===this) closeWmModal(); });
 
     /* ========== 背景（单选/多选开关） ========== */
     function filterBgList(v) { renderBgList(v); }
@@ -1238,10 +941,6 @@
       document.getElementById('sb-task-name').textContent = getTaskName();
       // 可见范围
       document.getElementById('sb-visibility-display').innerHTML = S.visibility === 'team' ? '👥 团队共享' : '🔒 仅自己';
-      // 水印与字幕状态
-      var wmSt = S.globalWmEnabled ? ('水印：'+(S.globalWmText||'未填写')) : '未开启水印';
-      var subSt = S.subtitleEnabled ? '字幕已开启' : '字幕已关闭';
-      document.getElementById("sb-wm-status").textContent = wmSt + ' · ' + subSt;
       }
 
     /* ========== Step 2：首帧 + 语音 ========== */
@@ -1300,7 +999,6 @@
     function renderFirstFrames() {
       var emoji = S.avatar ? (avI[S.avatar]||'👤') : '👤';
       var avName = S.avatar ? getAvatarMeta(S.avatar).name : '角色';
-      var wm = S.globalWmEnabled ? S.globalWmText : '';
       var c = document.getElementById('ff-cards');
       var h = '';
       // 全部重新生成按钮 - 左列顶部
@@ -1318,8 +1016,6 @@
         h += '<div class="ff-preview" id="ff-prev-'+g.id+'" style="background:'+bgGrad+'">';
         h += '<div class="ff-corner">'+escapeHtml(f.bg)+'</div>';
         h += '<div class="ff-emoji">'+emoji+'</div>';
-        if (wm) h += '<div class="ff-wm pos-'+(S.wmPos||'lt')+'" style="font-size:'+Math.max(8, Math.round((S.wmSize||28)/4))+'px;opacity:'+(S.wmOpacity||0.85)+';text-align:'+(S.wmAlign||'left')+';">'+escapeHtml(wm)+'</div>';
-        if (S.subtitleEnabled) h += '<div class="ff-subtitle sub-'+(S.subtitlePos||'bottom')+'" style="font-size:'+Math.max(8, Math.round((S.subtitleSize||36)/4))+'px;">'+escapeHtml(S.subtitleText || '字幕示例')+'</div>';
         h += '<div class="ff-corner-bottom">'+f.pose+' · '+f.shot+'</div>';
         h += '<div class="ff-loading"><div class="ff-spin"></div>生成中…</div>';
         h += '</div>';
@@ -1540,7 +1236,6 @@
       var emoji = S.avatar ? (avI[S.avatar]||'👤') : '👤';
       var avName = meta ? meta.name : '—';
       var avTag = meta ? meta.tag : '';
-      var wm = S.globalWmEnabled ? S.globalWmText : '';
       var bgNameList = S.bgMulti.length ? S.bgMulti.join('、') : '—';
       document.getElementById('cf-task').textContent = getTaskName();
       document.getElementById('cf-avatar').textContent = avName;
@@ -1557,7 +1252,7 @@
         // 首帧 - hover 大图
         h += '<td><div class="cf-thumb cf-thumb-hover" style="background:'+bgGrad+'" onmouseenter="showImgTip(event,\''+emoji+'\',\''+bgGrad.replace(/'/g,"\\'")+'\',\''+escapeHtml(f.bg)+' · '+f.pose+' · '+f.shot+'\')" onmouseleave="hideTip()">'+emoji+'</div></td>';
         // 角色 - hover 大图
-        h += '<td><span class="cf-hoverable" onmouseenter="showCharTip(event,\''+emoji+'\',\''+avName.replace(/'/g,"\\'")+'\',\''+avTag.replace(/'/g,"\\'")+'\')" onmouseleave="hideTip()">'+(meta?escapeHtml(meta.name):'—')+'</span>'+(wm?'<span class="cf-wm">水印：'+escapeHtml(wm)+'</span>':'')+'</td>';
+        h += '<td><span class="cf-hoverable" onmouseenter="showCharTip(event,\''+emoji+'\',\''+avName.replace(/'/g,"\\'")+'\',\''+avTag.replace(/'/g,"\\'")+'\')" onmouseleave="hideTip()">'+(meta?escapeHtml(meta.name):'—')+'</span></td>';
         // 背景 - hover 大图
         h += '<td><span class="cf-hoverable" onmouseenter="showBgTip(event,\''+bgGrad.replace(/'/g,"\\'")+'\',\''+f.bg.replace(/'/g,"\\'")+'\')" onmouseleave="hideTip()">'+escapeHtml(f.bg)+'</span></td>';
         // 镜头

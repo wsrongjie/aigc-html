@@ -553,6 +553,7 @@ function renderScenes() {
             '<div class="image-menu' + (state.menuOpenId === item.id ? ' show' : '') + '" id="menu-' + item.id + '">' +
                 '<button onclick="addToSubject(\'role\', \'' + item.id + '\')"><span>👤</span>添加到角色</button>' +
                 '<button onclick="addToSubject(\'scene\', \'' + item.id + '\')"><span>🏞</span>添加到场景</button>' +
+                '<button onclick="addToReference(\'' + item.id + '\')"><span>🖼</span>添加到参考图</button>' +
                 '<button class="danger" onclick="requestDeleteImage(\'' + item.id + '\')"><span>🗑</span>删除</button>' +
             '</div>' +
         '</div>';
@@ -651,6 +652,19 @@ function removeReference() {
     state.reference = null;
     document.getElementById('fileInput').value = '';
     document.getElementById('referencePreview').classList.remove('show');
+}
+
+function addToReference(id) {
+    var item = findImage(id);
+    if (!item) return;
+    var dataUrl = item.kind === 'generated' ? item.dataUrl : createDemoImageData(item);
+    state.reference = dataUrl;
+    state.menuOpenId = null;
+    renderScenes();
+    document.getElementById('referenceThumb').src = dataUrl;
+    document.getElementById('referenceName').textContent = item.title;
+    document.getElementById('referencePreview').classList.add('show');
+    toast('已添加为参考图，可继续编辑生成');
 }
 
 function startGenerate() {

@@ -414,6 +414,27 @@
             font-size: 11px;
             font-weight: 500;
         }
+        .tg-config-btn {
+            margin-left: auto;
+            padding: 3px 10px;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            background: #fafafa;
+            color: #666;
+            font-size: 11px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.15s;
+        }
+        .tg-config-btn:hover { border-color: #0066ff; color: #0066ff; background: #eef4ff; }
+        .tg-config-btn:disabled { color: #bbb; border-color: #e8e8e8; background: #f5f5f5; cursor: not-allowed; }
+        .tg-config-btn:disabled:hover { border-color: #e8e8e8; color: #bbb; background: #f5f5f5; }
+        /* 预览版本切换 */
+        .pv-view-toggle { display: flex; background: #1a1a1a; border: 1px solid #333; border-radius: 7px; padding: 2px; gap: 2px; }
+        .pv-view-toggle button { height: 26px; padding: 0 10px; border: none; border-radius: 6px; background: transparent; color: #888; font-size: 11px; cursor: pointer; white-space: nowrap; transition: all 0.15s; }
+        .pv-view-toggle button.on { background: #0066ff; color: #fff; font-weight: 600; }
+        /* 水印合成中状态 */
+        .ts.wm-processing { color: #f59e0b; }
 
         .task-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
         .task-table thead th {
@@ -617,6 +638,73 @@
             padding: 40px 20px;
             color: #999;
             font-size: 13px;
+        }
+
+        /* 批次水印字幕配置弹窗 */
+        .batch-wm-ov { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 3000; align-items: center; justify-content: center; backdrop-filter: blur(2px); }
+        .batch-wm-ov.show { display: flex; }
+        .batch-wm-modal { background: #fff; border-radius: 14px; width: min(1180px, calc(100vw - 48px)); max-height: calc(100vh - 48px); display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.15); }
+        .batch-wm-hd { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid #f0f0f0; }
+        .batch-wm-hd h3 { font-size: 18px; font-weight: 700; color: #1a1a2e; }
+        .batch-wm-hd .close-btn { width: 26px; height: 26px; border-radius: 50%; background: #f0f0f0; border: none; color: #666; font-size: 13px; cursor: pointer; }
+        .batch-wm-hd .close-btn:hover { background: #e0e0e0; }
+        .batch-wm-shell { display: grid; grid-template-columns: minmax(320px, 420px) 1fr; gap: 22px; padding: 20px; overflow: auto; background: #f7f9fc; }
+        .batch-wm-preview-card, .batch-wm-config-card { background: #fff; border: 1px solid #e8e8e8; border-radius: 14px; box-shadow: 0 6px 18px rgba(15,23,42,0.04); }
+        .batch-wm-preview-card { padding: 18px; }
+        .batch-wm-preview-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+        .batch-wm-preview-title { font-size: 15px; font-weight: 700; color: #1a1a2e; }
+        .batch-wm-preview-sub { font-size: 11px; color: #999; margin-top: 4px; line-height: 1.5; }
+        .batch-wm-preview-meta { font-size: 11px; color: #666; background: #f0f2f5; border: 1px solid #e8e8e8; border-radius: 20px; padding: 4px 10px; white-space: nowrap; }
+        .batch-wm-stage { width: min(100%, 320px); aspect-ratio: 9/16; margin: 0 auto; border-radius: 16px; overflow: hidden; position: relative; background: linear-gradient(135deg,#8ec5fc,#e0c3fc); box-shadow: inset 0 0 0 1px rgba(0,0,0,0.08), 0 14px 34px rgba(0,0,0,0.12); }
+        .batch-wm-stage:before { content: ""; position: absolute; inset: 0; background: radial-gradient(circle at 65% 28%, rgba(255,255,255,0.35), transparent 22%), linear-gradient(180deg, rgba(0,0,0,0.02), rgba(0,0,0,0.18)); }
+        .batch-wm-stage-person { position: absolute; left: 50%; top: 33%; transform: translateX(-50%); width: 96px; height: 96px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 54px; background: rgba(255,255,255,0.35); box-shadow: 0 12px 28px rgba(0,0,0,0.16); }
+        .batch-wm-stage-desk { position: absolute; left: 14%; right: 14%; bottom: 25%; height: 18%; border-radius: 10px 10px 6px 6px; background: linear-gradient(135deg,#b98243,#e8b15c); box-shadow: 0 18px 34px rgba(0,0,0,0.2); }
+        .batch-wm-watermark { position: absolute; z-index: 2; max-width: 76%; color: #fff; font-weight: 800; text-shadow: 0 2px 10px rgba(0,0,0,0.38); line-height: 1.1; white-space: pre-line; word-break: break-word; }
+        .batch-wm-watermark.pos-lt { left: 18px; top: 18px; text-align: left; }
+        .batch-wm-watermark.pos-rt { right: 18px; top: 18px; text-align: right; }
+        .batch-wm-watermark.pos-lb { left: 18px; bottom: 88px; text-align: left; }
+        .batch-wm-watermark.pos-rb { right: 18px; bottom: 88px; text-align: right; }
+        .batch-wm-watermark.pos-center { left: 50%; top: 50%; transform: translate(-50%,-50%); text-align: center; }
+        .batch-wm-watermark.off { display: none; }
+        .batch-wm-subtitle { position: absolute; z-index: 3; left: 22px; right: 22px; bottom: 28px; padding: 8px 12px; border-radius: 9px; background: rgba(0,0,0,0.46); color: #fff; font-weight: 700; text-align: center; line-height: 1.35; text-shadow: 0 1px 4px rgba(0,0,0,0.35); }
+        .batch-wm-subtitle.off { display: none; }
+        .batch-wm-config-stack { display: flex; flex-direction: column; gap: 14px; }
+        .batch-wm-config-card { padding: 16px; }
+        .batch-wm-config-title { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+        .batch-wm-config-title strong { font-size: 14px; color: #1a1a2e; }
+        .batch-wm-config-title span { font-size: 11px; color: #999; }
+        .batch-wm-switch { position: relative; width: 42px; height: 24px; flex-shrink: 0; }
+        .batch-wm-switch input { opacity: 0; width: 0; height: 0; }
+        .batch-wm-switch i { position: absolute; inset: 0; border-radius: 24px; background: #d9dee8; cursor: pointer; transition: all 0.18s; }
+        .batch-wm-switch i:before { content: ""; position: absolute; width: 18px; height: 18px; left: 3px; top: 3px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.2); transition: all 0.18s; }
+        .batch-wm-switch input:checked + i { background: #22c55e; }
+        .batch-wm-switch input:checked + i:before { transform: translateX(18px); }
+        .batch-wm-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 12px 16px; }
+        .batch-wm-field { display: flex; flex-direction: column; gap: 7px; min-width: 0; }
+        .batch-wm-field.full { grid-column: 1 / -1; }
+        .batch-wm-label { font-size: 12px; color: #666; font-weight: 600; }
+        .batch-wm-label.req:before { content: "* "; color: #ef4444; }
+        .batch-wm-input, .batch-wm-select { height: 36px; width: 100%; border: 1.5px solid #e8e8e8; border-radius: 8px; background: #fff; color: #1a1a2e; font-size: 13px; padding: 0 10px; font-family: inherit; transition: all 0.18s; }
+        .batch-wm-input:focus, .batch-wm-select:focus { outline: none; border-color: #0066ff; box-shadow: 0 0 0 3px rgba(0,102,255,0.08); }
+        .batch-wm-input-row { display: flex; align-items: center; }
+        .batch-wm-input-row .batch-wm-input { border-radius: 8px 0 0 8px; }
+        .batch-wm-unit { height: 36px; min-width: 40px; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #666; background: #f5f6f8; border: 1.5px solid #e8e8e8; border-left: 0; border-radius: 0 8px 8px 0; }
+        .batch-wm-hint-line { font-size: 11px; color: #999; line-height: 1.5; }
+        .batch-wm-seg { display: flex; background: #f0f2f5; border: 1px solid #e8e8e8; border-radius: 8px; padding: 3px; gap: 3px; }
+        .batch-wm-seg button { flex: 1; height: 28px; border: none; border-radius: 6px; background: transparent; color: #666; font-size: 12px; cursor: pointer; }
+        .batch-wm-seg button.on { background: #fff; color: #0066ff; box-shadow: 0 1px 4px rgba(0,0,0,0.08); font-weight: 700; }
+        .batch-wm-range-row { display: grid; grid-template-columns: 1fr 80px; gap: 10px; align-items: center; }
+        .batch-wm-range-row input[type="range"] { width: 100%; accent-color: #0066ff; }
+        .batch-wm-chip-list { display: flex; gap: 8px; flex-wrap: wrap; }
+        .batch-wm-chip-btn { border: 1.5px solid #e8e8e8; background: #fafafa; color: #666; border-radius: 8px; padding: 7px 12px; font-size: 12px; font-weight: 600; cursor: pointer; }
+        .batch-wm-chip-btn.on, .batch-wm-chip-btn:hover { border-color: #0066ff; color: #0066ff; background: #eef4ff; }
+        .batch-wm-actions { display: flex; justify-content: flex-end; gap: 10px; padding: 14px 20px; border-top: 1px solid #edf0f5; background: #fff; flex-shrink: 0; }
+        @media (max-width: 860px) {
+          .batch-wm-modal { width: calc(100vw - 24px); max-height: calc(100vh - 24px); }
+          .batch-wm-shell { grid-template-columns: 1fr; padding: 14px; }
+          .batch-wm-grid { grid-template-columns: 1fr; }
+          .batch-wm-actions { flex-wrap: wrap; }
+          .batch-wm-actions .btn { flex: 1; min-width: 110px; }
         }
 
         /* 视频预览弹窗 */
@@ -1175,6 +1263,112 @@
         </div>
     </div>
 
+    <!-- 批次水印字幕配置弹窗 -->
+    <div class="batch-wm-ov" id="batch-wm-ov">
+      <div class="batch-wm-modal">
+        <div class="batch-wm-hd"><h3>水印与字幕配置</h3><span style="font-size:12px;color:#999;" id="batch-wm-task-label"></span><button class="close-btn" onclick="closeBatchWmConfig()">✕</button></div>
+        <div class="batch-wm-shell">
+          <div class="batch-wm-preview-card">
+            <div class="batch-wm-preview-head">
+              <div>
+                <div class="batch-wm-preview-title">实时预览</div>
+                <div class="batch-wm-preview-sub">水印和字幕将应用到该批次全部视频</div>
+              </div>
+              <div class="batch-wm-preview-meta">9:16</div>
+            </div>
+            <div class="batch-wm-stage" id="batch-wm-preview-stage">
+              <div class="batch-wm-stage-person" id="batch-wm-preview-avatar">👤</div>
+              <div class="batch-wm-stage-desk"></div>
+              <div class="batch-wm-watermark pos-lt" id="batch-wm-preview-watermark">添加水印</div>
+              <div class="batch-wm-subtitle" id="batch-wm-preview-subtitle">字幕示例</div>
+            </div>
+          </div>
+          <div class="batch-wm-config-stack">
+            <div class="batch-wm-config-card">
+              <div class="batch-wm-config-title">
+                <div><strong>水印配置</strong><span>  文字、位置、字号和透明度</span></div>
+                <label class="batch-wm-switch"><input type="checkbox" id="batch-wm-toggle" onchange="syncBatchWmPreview()"><i></i></label>
+              </div>
+              <div class="batch-wm-grid">
+                <div class="batch-wm-field full">
+                  <label class="batch-wm-label req">水印内容</label>
+                  <input class="batch-wm-input" type="text" id="batch-wm-input" maxlength="24" placeholder="请输入水印文字" oninput="syncBatchWmPreview()">
+                  <div class="batch-wm-hint-line">最多 24 个字符，留空时使用"添加水印"预览</div>
+                </div>
+                <div class="batch-wm-field">
+                  <label class="batch-wm-label req">水印位置</label>
+                  <select class="batch-wm-select" id="batch-wm-pos" onchange="syncBatchWmPreview()">
+                    <option value="lt">左上</option>
+                    <option value="rt">右上</option>
+                    <option value="lb">左下</option>
+                    <option value="rb">右下</option>
+                    <option value="center">居中</option>
+                  </select>
+                </div>
+                <div class="batch-wm-field">
+                  <label class="batch-wm-label req">字体大小</label>
+                  <div class="batch-wm-input-row"><input class="batch-wm-input" type="number" id="batch-wm-size" min="16" max="72" step="1" oninput="syncBatchWmPreview()"><span class="batch-wm-unit">px</span></div>
+                </div>
+                <div class="batch-wm-field">
+                  <label class="batch-wm-label req">段落对齐</label>
+                  <div class="batch-wm-seg" id="batch-wm-align-seg">
+                    <button type="button" data-align="left" onclick="setBatchWmAlign('left')">左</button>
+                    <button type="button" data-align="center" onclick="setBatchWmAlign('center')">中</button>
+                    <button type="button" data-align="right" onclick="setBatchWmAlign('right')">右</button>
+                  </div>
+                </div>
+                <div class="batch-wm-field">
+                  <label class="batch-wm-label req">透明度</label>
+                  <div class="batch-wm-range-row"><input type="range" id="batch-wm-opacity" min="0.2" max="1" step="0.05" oninput="syncBatchWmPreview()"><input class="batch-wm-input" id="batch-wm-opacity-val" readonly></div>
+                </div>
+              </div>
+            </div>
+            <div class="batch-wm-config-card">
+              <div class="batch-wm-config-title">
+                <div><strong>字幕配置</strong><span>  跟随语音自动生成</span></div>
+                <label class="batch-wm-switch"><input type="checkbox" id="batch-wm-subtitle" onchange="syncBatchWmPreview()"><i></i></label>
+              </div>
+              <div class="batch-wm-grid">
+                <div class="batch-wm-field full">
+                  <label class="batch-wm-label req">字幕内容</label>
+                  <input class="batch-wm-input" type="text" id="batch-wm-subtitle-text" maxlength="36" placeholder="字幕示例" oninput="syncBatchWmPreview()">
+                </div>
+                <div class="batch-wm-field">
+                  <label class="batch-wm-label req">字幕位置</label>
+                  <select class="batch-wm-select" id="batch-wm-subtitle-pos" onchange="syncBatchWmPreview()">
+                    <option value="bottom">中下（默认）</option>
+                    <option value="middle">居中</option>
+                    <option value="top">中上</option>
+                  </select>
+                </div>
+                <div class="batch-wm-field">
+                  <label class="batch-wm-label req">距边</label>
+                  <div class="batch-wm-input-row"><input class="batch-wm-input" type="number" id="batch-wm-subtitle-gap" min="0" max="120" step="1" oninput="syncBatchWmPreview()"><span class="batch-wm-unit">px</span></div>
+                </div>
+                <div class="batch-wm-field">
+                  <label class="batch-wm-label req">字号</label>
+                  <div class="batch-wm-input-row"><input class="batch-wm-input" type="number" id="batch-wm-subtitle-size" min="18" max="64" step="1" oninput="syncBatchWmPreview()"><span class="batch-wm-unit">px</span></div>
+                </div>
+                <div class="batch-wm-field">
+                  <label class="batch-wm-label">预设</label>
+                  <div class="batch-wm-chip-list">
+                    <button class="batch-wm-chip-btn on" type="button" onclick="applyBatchSubPreset('default')">默认</button>
+                    <button class="batch-wm-chip-btn" type="button" onclick="applyBatchSubPreset('large')">大字</button>
+                    <button class="batch-wm-chip-btn" type="button" onclick="applyBatchSubPreset('clean')">轻量</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="batch-wm-actions">
+          <button class="btn btn2" onclick="resetBatchWmConfig()">重置</button>
+          <button class="btn btn2" onclick="closeBatchWmConfig()">取消</button>
+          <button class="btn btn1" onclick="saveBatchWmConfig()">应用至该批次</button>
+        </div>
+      </div>
+    </div>
+
     <!-- hover 预览 tooltip -->
     <div class="tg-tip" id="tg-tip-img">
         <img id="tg-tip-img-src" style="display:none;">
@@ -1215,7 +1409,11 @@
                         <span class="pc-time" id="pc-time">0:00 / 0:00</span>
                     </div>
                     <div class="preview-config-bar">
-                        <button class="cfg-bar-btn" onclick="downloadVideo(pvTaskId)" style="color:#00e676;border-color:#00e67644;">⬇ 下载视频</button>
+                        <button class="cfg-bar-btn" id="pv-download-btn" onclick="downloadVideo(pvTaskId)" style="color:#00e676;border-color:#00e67644;">⬇ 下载原片</button>
+                        <div class="pv-view-toggle" id="pv-view-toggle">
+                            <button data-mode="original" onclick="setPvViewMode('original')" class="on">🎬 原片</button>
+                            <button data-mode="wm" onclick="setPvViewMode('wm')">🛡️ 字幕水印版</button>
+                        </div>
                     </div>
                 </div>
                 <!-- 右侧：配置面板 -->
@@ -1350,14 +1548,17 @@
         // ====== 任务进度弹窗 ======
         // 模拟任务数据（增加人物和背景信息）
         var mockTasks = [
-            { id: 1, script: '大家好，今天我要分享的是如何高效学习AI技术，让你在30天内掌握核心知识点。', status: 'completed', progress: 100, duration: 8, createdAt: '2026-06-02T09:15:00', person: { name: '角色 A · 知性女性', emoji: '👩', gradient: 'linear-gradient(135deg,#ff9a9e,#fad0c4)' }, bg: { name: '办公室', gradient: 'linear-gradient(135deg,#667eea,#764ba2)' } },
-            { id: 2, script: '各位好，本期我们探讨的是AI在视频生成领域的最新进展和应用。', status: 'generating', progress: 60, duration: 7, createdAt: '2026-06-02T10:30:00', person: { name: '角色 A · 知性女性', emoji: '👩', gradient: 'linear-gradient(135deg,#ff9a9e,#fad0c4)' }, bg: { name: '办公室', gradient: 'linear-gradient(135deg,#667eea,#764ba2)' } },
-            { id: 3, script: '嗨喽朋友们，本期带来的是超实用的AI工具测评，赶紧一起来看看吧！', status: 'generating', progress: 35, duration: 7, createdAt: '2026-06-01T14:20:00', person: { name: '角色 A · 知性女性', emoji: '👩', gradient: 'linear-gradient(135deg,#ff9a9e,#fad0c4)' }, bg: { name: '居家', gradient: 'linear-gradient(135deg,#a8edea,#fed6e3)' } },
-            { id: 4, script: '本期我们探讨一下如何用AI提升工作效率，这个话题很多粉丝都在问我。', status: 'queued', progress: 0, duration: 7, createdAt: '2026-06-02T08:00:00', person: { name: '角色 A · 知性女性', emoji: '👩', gradient: 'linear-gradient(135deg,#ff9a9e,#fad0c4)' }, bg: { name: '居家', gradient: 'linear-gradient(135deg,#a8edea,#fed6e3)' } },
-            { id: 5, script: '今天来分享一下AI视频制作的完整流程，从台词到成片一步到位。', status: 'failed', progress: 0, duration: 7, createdAt: '2026-05-30T16:45:00', person: { name: '角色 B · 商务男性', emoji: '👨', gradient: 'linear-gradient(135deg,#a18cd1,#fbc2eb)' }, bg: { name: '咖啡厅', gradient: 'linear-gradient(135deg,#fbc2eb,#a6c1ee)' }, error: '素材分辨率不足，请上传720p以上图片' },
+            { id: 1, taskName: '角色A_0602_2条视频', script: '大家好，今天我要分享的是如何高效学习AI技术，让你在30天内掌握核心知识点。', status: 'completed', progress: 100, duration: 8, createdAt: '2026-06-02T09:15:00', wmStatus: null, person: { name: '角色 A · 知性女性', emoji: '👩', gradient: 'linear-gradient(135deg,#ff9a9e,#fad0c4)' }, bg: { name: '办公室', gradient: 'linear-gradient(135deg,#667eea,#764ba2)' } },
+            { id: 2, taskName: '角色A_0602_2条视频', script: '各位好，本期我们探讨的是AI在视频生成领域的最新进展和应用。', status: 'generating', progress: 60, duration: 7, createdAt: '2026-06-02T10:30:00', wmStatus: null, person: { name: '角色 A · 知性女性', emoji: '👩', gradient: 'linear-gradient(135deg,#ff9a9e,#fad0c4)' }, bg: { name: '办公室', gradient: 'linear-gradient(135deg,#667eea,#764ba2)' } },
+            { id: 3, taskName: '角色A_0601_2条视频', script: '嗨喽朋友们，本期带来的是超实用的AI工具测评，赶紧一起来看看吧！', status: 'generating', progress: 35, duration: 7, createdAt: '2026-06-01T14:20:00', wmStatus: null, person: { name: '角色 A · 知性女性', emoji: '👩', gradient: 'linear-gradient(135deg,#ff9a9e,#fad0c4)' }, bg: { name: '居家', gradient: 'linear-gradient(135deg,#a8edea,#fed6e3)' } },
+            { id: 4, taskName: '角色A_0601_2条视频', script: '本期我们探讨一下如何用AI提升工作效率，这个话题很多粉丝都在问我。', status: 'queued', progress: 0, duration: 7, createdAt: '2026-06-02T08:00:00', wmStatus: null, person: { name: '角色 A · 知性女性', emoji: '👩', gradient: 'linear-gradient(135deg,#ff9a9e,#fad0c4)' }, bg: { name: '居家', gradient: 'linear-gradient(135deg,#a8edea,#fed6e3)' } },
+            { id: 5, taskName: '角色B_0530_1条视频', script: '今天来分享一下AI视频制作的完整流程，从台词到成片一步到位。', status: 'failed', progress: 0, duration: 7, createdAt: '2026-05-30T16:45:00', wmStatus: null, person: { name: '角色 B · 商务男性', emoji: '👨', gradient: 'linear-gradient(135deg,#a18cd1,#fbc2eb)' }, bg: { name: '咖啡厅', gradient: 'linear-gradient(135deg,#fbc2eb,#a6c1ee)' }, error: '素材分辨率不足，请上传720p以上图片' },
         ];
         var currentFilter = 'all';
         var cancelConfirmId = null;
+        // 批次水印字幕配置
+        var batchConfigs = {};
+        var _batchCfgTaskName = null;
 
         function getTaskCounts() {
             var counts = { all: mockTasks.length, generating: 0, queued: 0, completed: 0, failed: 0 };
@@ -1453,24 +1654,17 @@
 
             // 计算摘要
             var genCount = 0, queuedCount = 0, doneCount = 0, failCount = 0;
-            var personSet = {}, bgSet = {};
             for (var j = 0; j < filtered.length; j++) {
                 var t = filtered[j];
                 if (t.status === 'generating') genCount++;
                 else if (t.status === 'queued') queuedCount++;
                 else if (t.status === 'completed') doneCount++;
                 else if (t.status === 'failed') failCount++;
-                personSet[t.person.name] = true;
-                bgSet[t.bg.name] = true;
             }
-            var personCount = Object.keys(personSet).length;
-            var bgCount = Object.keys(bgSet).length;
             var etaText2 = (genCount + queuedCount) > 0 ? Math.ceil((genCount + queuedCount) * 1.5) + '-' + Math.ceil((genCount + queuedCount) * 3) : '0';
 
             // 摘要栏
-            var summaryHtml = '<div>人物：<strong>' + personCount + '</strong> 个</div>';
-            summaryHtml += '<div>背景：<strong>' + bgCount + '</strong> 个</div>';
-            summaryHtml += '<div>共 <strong>' + filtered.length + '</strong> 条 · 预计 <strong>' + etaText2 + '</strong> 分钟</div>';
+            var summaryHtml = '<div>共 <strong>' + filtered.length + '</strong> 条 · 预计 <strong>' + etaText2 + '</strong> 分钟</div>';
             var summaryEl = document.getElementById('task-summary');
             summaryEl.innerHTML = summaryHtml;
             summaryEl.style.display = filtered.length > 0 ? 'flex' : 'none';
@@ -1479,8 +1673,8 @@
             var groups = {};
             for (var j = 0; j < filtered.length; j++) {
                 var t = filtered[j];
-                var key = t.person.name + '|||' + t.bg.name;
-                if (!groups[key]) groups[key] = { person: t.person, bg: t.bg, items: [] };
+                var key = t.taskName;
+                if (!groups[key]) groups[key] = { taskName: t.taskName, items: [] };
                 groups[key].items.push(t);
             }
 
@@ -1493,7 +1687,24 @@
                 for (var gk in groups) {
                     var g = groups[gk];
                     listHtml += '<div class="task-group">';
-                    listHtml += '<div class="task-group-title">' + g.person.name + ' × ' + g.bg.name + '<span class="tg-badge">' + g.items.length + '条</span></div>';
+                    var allCompleted = true, anyWmProc = false, anyWmDone = false;
+                    for (var gi = 0; gi < g.items.length; gi++) {
+                        if (g.items[gi].status !== 'completed') allCompleted = false;
+                        if (g.items[gi].wmStatus === 'processing') anyWmProc = true;
+                        if (g.items[gi].wmStatus === 'done') anyWmDone = true;
+                    }
+                    var wmBtnHtml = '';
+                    var tnEsc = g.taskName.replace(/'/g, "\\'");
+                    if (anyWmProc) {
+                        wmBtnHtml = '<button class="tg-config-btn" disabled>⏳ 水印字幕合成中...</button>';
+                    } else if (anyWmDone && !anyWmProc) {
+                        wmBtnHtml = '<button class="tg-config-btn" onclick="event.stopPropagation();openBatchWmConfig(\'' + tnEsc + '\')">🛡️ 水印字幕（已完成）</button>';
+                    } else if (allCompleted) {
+                        wmBtnHtml = '<button class="tg-config-btn" onclick="event.stopPropagation();openBatchWmConfig(\'' + tnEsc + '\')">🛡️ 水印字幕</button>';
+                    } else {
+                        wmBtnHtml = '<button class="tg-config-btn" disabled title="该批次还有任务未完成">🛡️ 水印字幕</button>';
+                    }
+                    listHtml += '<div class="task-group-title">' + g.taskName + '<span class="tg-badge">' + g.items.length + '条</span>' + wmBtnHtml + '</div>';
                     listHtml += '<table class="task-table"><colgroup><col class="col-thumb"><col class="col-script"><col class="col-duration"><col class="col-status"><col class="col-progress"><col class="col-error"><col class="col-op"></colgroup><thead><tr><th>首帧</th><th>台词</th><th>视频时长</th><th>状态</th><th>进度</th><th>失败原因</th><th>操作</th></tr></thead><tbody>';
 
                     for (var k = 0; k < g.items.length; k++) {
@@ -1502,10 +1713,22 @@
                         var statusHtml, progressHtml, errorHtml, actionHtml;
 
                         if (task.status === 'completed') {
-                            statusHtml = '<span class="ts completed"><span class="ico">✅</span>已完成</span>';
-                            progressHtml = '<div class="tpb"><div class="tpb-fill" style="width:100%"></div></div><span class="tpb-text">100%</span>';
-                            errorHtml = '<span style="font-size:11px;color:#ccc;">-</span>';
-                            actionHtml = '<button class="tg-op-btn retry" onclick="openPreview(' + task.id + ')">预览</button> <button class="tg-op-btn retry" onclick="downloadVideo(' + task.id + ')" style="color:#0066ff;">下载</button>';
+                            if (task.wmStatus === 'processing') {
+                                statusHtml = '<span class="ts wm-processing"><span class="ico">⏳</span>水印字幕合成中</span>';
+                                progressHtml = '<div class="tpb"><div class="tpb-fill" style="width:' + (task.wmProgress || 0) + '%"></div></div><span class="tpb-text">' + (task.wmProgress || 0) + '%</span>';
+                                errorHtml = '<span style="font-size:11px;color:#ccc;">-</span>';
+                                actionHtml = '<span style="font-size:11px;color:#ccc;">-</span>';
+                            } else if (task.wmStatus === 'done') {
+                                statusHtml = '<span class="ts completed"><span class="ico">✅</span>水印字幕合成完成</span>';
+                                progressHtml = '<div class="tpb"><div class="tpb-fill" style="width:100%"></div></div><span class="tpb-text">100%</span>';
+                                errorHtml = '<span style="font-size:11px;color:#ccc;">-</span>';
+                                actionHtml = '<button class="tg-op-btn retry" onclick="openPreview(' + task.id + ')">预览</button> <button class="tg-op-btn retry" onclick="downloadVideo(' + task.id + ')" style="color:#0066ff;">下载</button>';
+                            } else {
+                                statusHtml = '<span class="ts completed"><span class="ico">✅</span>视频已完成</span>';
+                                progressHtml = '<div class="tpb"><div class="tpb-fill" style="width:100%"></div></div><span class="tpb-text">100%</span>';
+                                errorHtml = '<span style="font-size:11px;color:#ccc;">-</span>';
+                                actionHtml = '<button class="tg-op-btn retry" onclick="openPreview(' + task.id + ')">预览</button> <button class="tg-op-btn retry" onclick="downloadVideo(' + task.id + ')" style="color:#0066ff;">下载</button>';
+                            }
                         } else if (task.status === 'generating') {
                             statusHtml = '<span class="ts generating"><span class="ico">🔄</span>生成中</span>';
                             progressHtml = '<div class="tpb"><div class="tpb-fill" style="width:' + task.progress + '%"></div></div><span class="tpb-text">' + task.progress + '%</span>';
@@ -1605,11 +1828,26 @@
             for (var i = 0; i < mockTasks.length; i++) {
                 if (mockTasks[i].id === id) { task = mockTasks[i]; break; }
             }
+            var viewLabel = pvWmView === 'wm' ? '字幕水印版' : '原片';
             if (task) {
-                toast('⬇ 正在下载：' + (task.person ? task.person.name : '') + ' · 视频' + id + '.mp4');
+                toast('⬇ 正在下载' + viewLabel + '：' + (task.person ? task.person.name : '') + ' · 视频' + id + '.mp4');
             } else {
-                toast('⬇ 正在下载视频...');
+                toast('⬇ 正在下载' + viewLabel + '...');
             }
+        }
+        function setPvViewMode(mode) {
+            pvWmView = mode;
+            document.querySelectorAll('#pv-view-toggle button').forEach(function(b){
+                b.classList.toggle('on', b.dataset.mode === mode);
+            });
+            var dlBtn = document.getElementById('pv-download-btn');
+            dlBtn.textContent = mode === 'wm' ? '⬇ 下载字幕水印版' : '⬇ 下载原片';
+            // 水印
+            document.querySelectorAll('#pv-video .pv-wm-el').forEach(function(el){
+                el.style.display = mode === 'wm' ? '' : 'none';
+            });
+            // 字幕
+            document.getElementById('pv-sub-overlay').style.display = mode === 'wm' ? '' : 'none';
         }
 
         // Tooltip 预览函数（参考 simple-mode）
@@ -1673,9 +1911,136 @@
             posTip(tip, e, 'top');
         }
 
+        // ====== 批次水印字幕配置 ======
+        function getDefaultBatchConfig() {
+            return {
+                wmEnabled: false, wmText: '', wmPos: 'lt', wmSize: 28, wmAlign: 'left', wmOpacity: 0.85,
+                subEnabled: true, subText: '字幕示例', subPos: 'bottom', subGap: 20, subSize: 36
+            };
+        }
+        function openBatchWmConfig(taskName) {
+            _batchCfgTaskName = taskName;
+            document.getElementById('batch-wm-task-label').textContent = '批次：' + taskName;
+            var cfg = batchConfigs[taskName] || getDefaultBatchConfig();
+            document.getElementById('batch-wm-toggle').checked = cfg.wmEnabled;
+            document.getElementById('batch-wm-input').value = cfg.wmText;
+            document.getElementById('batch-wm-pos').value = cfg.wmPos || 'lt';
+            document.getElementById('batch-wm-size').value = cfg.wmSize || 28;
+            document.getElementById('batch-wm-opacity').value = cfg.wmOpacity || 0.85;
+            document.getElementById('batch-wm-subtitle').checked = cfg.subEnabled;
+            document.getElementById('batch-wm-subtitle-text').value = cfg.subText || '字幕示例';
+            document.getElementById('batch-wm-subtitle-pos').value = cfg.subPos || 'bottom';
+            document.getElementById('batch-wm-subtitle-gap').value = cfg.subGap || 20;
+            document.getElementById('batch-wm-subtitle-size').value = cfg.subSize || 36;
+            setBatchWmAlign(cfg.wmAlign || 'left', true);
+            syncBatchWmPreview();
+            document.getElementById('batch-wm-ov').classList.add('show');
+        }
+        function closeBatchWmConfig() {
+            document.getElementById('batch-wm-ov').classList.remove('show');
+            _batchCfgTaskName = null;
+        }
+        function setBatchWmAlign(align, silent) {
+            document.querySelectorAll('#batch-wm-align-seg button').forEach(function(btn){
+                btn.classList.toggle('on', btn.dataset.align === align);
+            });
+            document.getElementById('batch-wm-align-seg').dataset.align = align;
+            if (!silent) syncBatchWmPreview();
+        }
+        function getBatchWmAlign() {
+            return document.getElementById('batch-wm-align-seg').dataset.align || 'left';
+        }
+        function applyBatchSubPreset(type) {
+            document.querySelectorAll('#batch-wm-ov .batch-wm-chip-btn').forEach(function(btn){ btn.classList.remove('on'); });
+            if (type === 'large') {
+                document.getElementById('batch-wm-subtitle-size').value = 42;
+                document.getElementById('batch-wm-subtitle-gap').value = 24;
+                document.querySelectorAll('#batch-wm-ov .batch-wm-chip-btn')[1].classList.add('on');
+            } else if (type === 'clean') {
+                document.getElementById('batch-wm-subtitle-size').value = 30;
+                document.getElementById('batch-wm-subtitle-gap').value = 28;
+                document.querySelectorAll('#batch-wm-ov .batch-wm-chip-btn')[2].classList.add('on');
+            } else {
+                document.getElementById('batch-wm-subtitle-size').value = 36;
+                document.getElementById('batch-wm-subtitle-gap').value = 20;
+                document.querySelectorAll('#batch-wm-ov .batch-wm-chip-btn')[0].classList.add('on');
+            }
+            syncBatchWmPreview();
+        }
+        function resetBatchWmConfig() {
+            document.getElementById('batch-wm-toggle').checked = false;
+            document.getElementById('batch-wm-input').value = '';
+            document.getElementById('batch-wm-pos').value = 'lt';
+            document.getElementById('batch-wm-size').value = 28;
+            document.getElementById('batch-wm-opacity').value = 0.85;
+            setBatchWmAlign('left', true);
+            document.getElementById('batch-wm-subtitle').checked = true;
+            document.getElementById('batch-wm-subtitle-text').value = '字幕示例';
+            document.getElementById('batch-wm-subtitle-pos').value = 'bottom';
+            applyBatchSubPreset('default');
+        }
+        function syncBatchWmPreview() {
+            // 水印
+            var wmOn = document.getElementById('batch-wm-toggle').checked;
+            var wmText = document.getElementById('batch-wm-input').value.trim() || '添加水印';
+            var wmPos = document.getElementById('batch-wm-pos').value || 'lt';
+            var wmSize = parseInt(document.getElementById('batch-wm-size').value) || 28;
+            var wmOpacity = parseFloat(document.getElementById('batch-wm-opacity').value) || 0.85;
+            var wm = document.getElementById('batch-wm-preview-watermark');
+            wm.textContent = wmText;
+            wm.className = 'batch-wm-watermark pos-' + wmPos + (wmOn ? '' : ' off');
+            wm.style.fontSize = Math.round(wmSize * 0.72) + 'px';
+            wm.style.opacity = wmOpacity;
+            wm.style.textAlign = getBatchWmAlign();
+            document.getElementById('batch-wm-opacity-val').value = wmOpacity.toFixed(2);
+            // 字幕
+            var subOn = document.getElementById('batch-wm-subtitle').checked;
+            var sub = document.getElementById('batch-wm-preview-subtitle');
+            var subText = document.getElementById('batch-wm-subtitle-text').value.trim() || '字幕示例';
+            var subPos = document.getElementById('batch-wm-subtitle-pos').value || 'bottom';
+            var subGap = parseInt(document.getElementById('batch-wm-subtitle-gap').value) || 20;
+            var subSize = parseInt(document.getElementById('batch-wm-subtitle-size').value) || 36;
+            sub.textContent = subText;
+            sub.classList.toggle('off', !subOn);
+            sub.style.fontSize = Math.round(subSize * 0.36) + 'px';
+            sub.style.top = ''; sub.style.bottom = ''; sub.style.transform = '';
+            if (subPos === 'top') sub.style.top = subGap + 'px';
+            else if (subPos === 'middle') { sub.style.top = '50%'; sub.style.transform = 'translateY(-50%)'; }
+            else sub.style.bottom = subGap + 'px';
+        }
+        function saveBatchWmConfig() {
+            batchConfigs[_batchCfgTaskName] = {
+                wmEnabled: document.getElementById('batch-wm-toggle').checked,
+                wmText: document.getElementById('batch-wm-input').value.trim(),
+                wmPos: document.getElementById('batch-wm-pos').value,
+                wmSize: parseInt(document.getElementById('batch-wm-size').value) || 28,
+                wmAlign: getBatchWmAlign(),
+                wmOpacity: parseFloat(document.getElementById('batch-wm-opacity').value) || 0.85,
+                subEnabled: document.getElementById('batch-wm-subtitle').checked,
+                subText: document.getElementById('batch-wm-subtitle-text').value.trim() || '字幕示例',
+                subPos: document.getElementById('batch-wm-subtitle-pos').value,
+                subGap: parseInt(document.getElementById('batch-wm-subtitle-gap').value) || 20,
+                subSize: parseInt(document.getElementById('batch-wm-subtitle-size').value) || 36
+            };
+            // 触发该批次所有已完成任务的水印合成
+            for (var i = 0; i < mockTasks.length; i++) {
+                if (mockTasks[i].taskName === _batchCfgTaskName && mockTasks[i].status === 'completed' && mockTasks[i].wmStatus !== 'done') {
+                    mockTasks[i].wmStatus = 'processing';
+                    mockTasks[i].wmProgress = 0;
+                }
+            }
+            closeBatchWmConfig();
+            updateTaskStatusBar();
+            if (document.getElementById('task-ov').classList.contains('show')) renderTaskModal();
+            toast('水印字幕配置已保存，开始合成「' + _batchCfgTaskName + '」');
+        }
+        document.getElementById('batch-wm-ov').addEventListener('click', function(e){ if(e.target===this) closeBatchWmConfig(); });
+
         // 视频预览
         var pvTaskId = null;
+        var pvTask = null;
         var pvPlaying = false;
+        var pvWmView = 'original';
         var pvTimer = null;
         var pvCurrent = 0;
         var pvDuration = 0;
@@ -1689,6 +2054,7 @@
             }
             if (!task || task.status !== 'completed') return;
             pvTaskId = id;
+            pvTask = task;
             pvPlaying = false;
             pvCurrent = 0;
             pvDuration = Math.max(3, Math.ceil(task.script.length / 4));
@@ -1712,20 +2078,37 @@
             document.getElementById('cfg-wmsub').classList.remove('active');
             // 重置合成状态
             resetSynthesisUI();
-            // 初始化水印（默认1条）
-            wmList = [{ text: 'AI生成', size: 22, opacity: 30, color: '#ffffff', x: 50, y: 85 }];
+            // 初始化水印与字幕（优先读取批次配置）
+            var batchCfg = batchConfigs[task.taskName];
+            if (batchCfg && batchCfg.wmEnabled && batchCfg.wmText) {
+                wmList = [{ text: batchCfg.wmText, size: batchCfg.wmSize || 22, opacity: Math.round((batchCfg.wmOpacity || 0.85) * 100), color: '#ffffff', x: batchCfg.wmPos === 'rt' || batchCfg.wmPos === 'rb' ? 85 : batchCfg.wmPos === 'center' ? 50 : 15, y: batchCfg.wmPos === 'lt' || batchCfg.wmPos === 'rt' ? 8 : batchCfg.wmPos === 'center' ? 50 : 85 }];
+            } else {
+                wmList = [{ text: 'AI生成', size: 22, opacity: 30, color: '#ffffff', x: 50, y: 85 }];
+            }
             wmActiveIdx = 0;
             renderWmList();
             selectWm(0);
             syncAllWms();
             // 初始化字幕
-            subPosition = 'bottom';
-            subY = 88;
-            document.getElementById('sub-text').value = task.script;
-            document.querySelectorAll('#sub-pos-group .cfg-pos-btn').forEach(function(b){
-                b.classList.toggle('active', b.getAttribute('data-pos') === 'bottom');
-            });
+            if (batchCfg && batchCfg.subEnabled) {
+                subPosition = batchCfg.subPos || 'bottom';
+                subY = subPosition === 'top' ? 8 : subPosition === 'middle' ? 45 : 88;
+                document.getElementById('sub-text').value = batchCfg.subText || task.script;
+                document.querySelectorAll('#sub-pos-group .cfg-pos-btn').forEach(function(b){
+                    b.classList.toggle('active', b.getAttribute('data-pos') === subPosition);
+                });
+            } else {
+                subPosition = 'bottom';
+                subY = 88;
+                document.getElementById('sub-text').value = task.script;
+                document.querySelectorAll('#sub-pos-group .cfg-pos-btn').forEach(function(b){
+                    b.classList.toggle('active', b.getAttribute('data-pos') === 'bottom');
+                });
+            }
             syncSub();
+            // 初始化视图模式：水印已合成完成默认显示水印版，否则显示原片
+            var initViewMode = (task.wmStatus === 'done' && batchCfg) ? 'wm' : 'original';
+            setPvViewMode(initViewMode);
             // 重置封面指针
             document.getElementById('coverPointer').style.left = '50%';
 
@@ -2091,6 +2474,19 @@
                         changed = true;
                         break;
                     }
+                }
+            }
+            // 水印字幕合成进度模拟
+            for (var k = 0; k < mockTasks.length; k++) {
+                var tk = mockTasks[k];
+                if (tk.wmStatus === 'processing') {
+                    tk.wmProgress = (tk.wmProgress || 0) + Math.floor(Math.random() * 10) + 5;
+                    if (tk.wmProgress >= 100) {
+                        tk.wmProgress = 100;
+                        tk.wmStatus = 'done';
+                        delete tk.wmProgress;
+                    }
+                    changed = true;
                 }
             }
             if (changed) {

@@ -562,8 +562,8 @@
                                     <td style="color: var(--text-secondary);">2 小时前</td>
                                     <td><span class="tag tag-success"><span class="dot dot-success"></span> 启用</span></td>
                                     <td class="actions">
-                                        <button class="btn-text" onclick="resetKey(this, '生产环境 - 投顾官网')">重置</button>
                                         <button class="btn-text" onclick="toggleKeyStatus(this)">禁用</button>
+                                        <button class="btn-text" style="color: var(--danger);" onclick="deleteKey(this, '生产环境 - 投顾官网')">删除</button>
                                     </td>
                                 </tr>
                                 <tr>
@@ -576,8 +576,8 @@
                                     <td style="color: var(--text-secondary);">3 天前</td>
                                     <td><span class="tag tag-success"><span class="dot dot-success"></span> 启用</span></td>
                                     <td class="actions">
-                                        <button class="btn-text" onclick="resetKey(this, '测试环境')">重置</button>
                                         <button class="btn-text" onclick="toggleKeyStatus(this)">禁用</button>
+                                        <button class="btn-text" style="color: var(--danger);" onclick="deleteKey(this, '测试环境')">删除</button>
                                     </td>
                                 </tr>
                                 <tr>
@@ -1000,17 +1000,12 @@
             '<td style="color: var(--text-secondary);">从未使用</td>' +
             '<td><span class="tag tag-success"><span class="dot dot-success"></span> 启用</span></td>' +
             '<td class="actions">'+
-                '<button class="btn-text" onclick="resetKey(this, \''+ name +'\')">重置</button>'+
                 '<button class="btn-text" onclick="toggleKeyStatus(this)">禁用</button>'+
+                '<button class="btn-text" style="color: var(--danger);" onclick="deleteKey(this, \''+ name +'\')">删除</button>'+
             '</td>';
         document.getElementById('apikeyTbody').insertBefore(tr, document.getElementById('apikeyTbody').firstChild);
         closeModal('modalCreateKey');
         toast('API Key 创建成功', 'success');
-    }
-    function resetKey(btn, name) {
-        confirmAction('重置 API Key',
-            '重置后旧 Key 立即失效，使用旧 Key 的接入将报错。<br>确认重置 <b>'+ name +'</b> 吗？',
-            function(){ toast('Key 已重置，请到操作日志查看新值', 'success'); });
     }
     function toggleKeyStatus(btn) {
         var tr = btn.closest('tr');

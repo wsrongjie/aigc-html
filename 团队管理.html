@@ -574,7 +574,7 @@
         <div class="anchor-bar">
             <a class="anchor-item active" data-anchor="overview" href="#overview">团队概览</a>
             <a class="anchor-item" data-anchor="members" href="#members">成员管理</a>
-            <a class="anchor-item" data-anchor="roles" href="#roles">角色与积分</a>
+            <a class="anchor-item" data-anchor="roles" href="#roles">角色与权限</a>
         </div>
 
         <div class="page-wrap">
@@ -630,7 +630,7 @@
                 <div class="credit-card allocated">
                     <div class="credit-card-label">已分配</div>
                     <div class="credit-card-value" id="cv-allocated">3,500</div>
-                    <div class="credit-card-sub">已划分至各角色</div>
+                    <div class="credit-card-sub">已划分至各成员</div>
                 </div>
                 <div class="credit-card unallocated">
                     <div class="credit-card-label">待分配</div>
@@ -664,12 +664,12 @@
                         <table class="table">
                             <thead>
                                 <tr>
-                                    <th style="width:22%;">成员</th>
-                                    <th style="width:16%;">角色</th>
-                                    <th style="width:14%;">积分配额</th>
-                                    <th style="width:14%;">已消耗</th>
-                                    <th style="width:16%;">加入时间</th>
-                                    <th style="width:18%;text-align:right;">操作</th>
+                                    <th style="width:18%;">成员</th>
+                                    <th style="width:14%;">角色</th>
+                                    <th style="width:12%;">个人额度</th>
+                                    <th style="width:12%;">已消耗</th>
+                                    <th style="width:14%;">加入时间</th>
+                                    <th style="width:30%;text-align:right;">操作</th>
                                 </tr>
                             </thead>
                             <tbody id="memberTbody"></tbody>
@@ -682,8 +682,8 @@
             <section class="card" id="roles">
                 <div class="card-header">
                     <div>
-                        <div class="card-title"><span class="card-title-icon">🎭</span> 角色与积分</div>
-                        <div class="card-subtitle">定义角色并为每个角色分配积分额度，角色内成员共享额度</div>
+                        <div class="card-title"><span class="card-title-icon">🎭</span> 角色与权限</div>
+                        <div class="card-subtitle">定义角色及页面/操作权限，积分额度在成员管理中按人分配</div>
                     </div>
                     <button class="btn btn-primary btn-sm" onclick="openNewRoleModal()">
                         <span>＋</span> 新建角色
@@ -693,8 +693,8 @@
                     <div class="alert alert-info">
                         <span class="alert-icon">💡</span>
                         <div>
-                            同一角色下的所有成员<b>共享</b>该角色的积分额度。例如：高级投顾额度 1000，该角色下 3 位成员的消耗总和不能超过 1000。<br>
-                            租户管理员可在积分总池中发起充值，充值后手动分配额度到各角色。
+                            角色仅控制<b>权限范围</b>（能访问哪些页面、能执行哪些操作），<b>积分额度在成员管理中按人分配</b>。<br>
+                            同一角色的成员可以拥有不同的积分额度，互不影响。
                         </div>
                     </div>
                     <div class="role-cards" id="roleCards"></div>
@@ -710,7 +710,7 @@
     <div class="modal modal-md" role="dialog" aria-modal="true" aria-labelledby="modalInviteTitle" tabindex="-1">
         <div class="modal-header">
             <div class="modal-title" id="modalInviteTitle">添加成员</div>
-            <div class="modal-sub">填写成员信息，添加后该成员将拥有对应角色的积分额度</div>
+            <div class="modal-sub">填写成员信息并设置初始积分额度</div>
         </div>
         <div class="modal-body">
             <div class="form-group">
@@ -727,9 +727,10 @@
                     <option value="">请选择角色</option>
                 </select>
             </div>
-            <div class="alert alert-info" style="margin-top:12px;margin-bottom:0;">
-                <span class="alert-icon">ℹ️</span>
-                <span>添加后成员即可登录平台，使用所属角色的积分额度生成视频。</span>
+            <div class="form-group">
+                <label class="form-label">初始积分额度</label>
+                <input type="number" class="form-input" id="addMemberQuota" placeholder="请输入初始分配积分" min="0" value="0" oninput="updateAddMemberQuotaNote()">
+                <div class="field-note" style="margin-top:4px;">当前租户待分配积分：<span id="addMemberPoolRemain">—</span></div>
             </div>
         </div>
         <div class="modal-footer">
@@ -826,30 +827,6 @@
                 </div>
                 <div class="permission-summary" id="rolePermSummary">已选择 0 个页面 · 0 项操作</div>
                 <div class="permission-grid" id="rolePermissionList"></div>
-                <div class="permission-review" id="permissionImpact">
-                    <div class="permission-review-title">
-                        <span>权限影响摘要</span>
-                        <span class="tag tag-default" id="permissionRiskTag">未选择权限</span>
-                    </div>
-                    <div class="permission-review-grid">
-                        <div class="permission-review-block">
-                            <div class="permission-review-label">可访问页面</div>
-                            <div class="permission-pill-list" id="permissionAllowedPages"></div>
-                        </div>
-                        <div class="permission-review-block">
-                            <div class="permission-review-label">不可访问页面</div>
-                            <div class="permission-pill-list" id="permissionBlockedPages"></div>
-                        </div>
-                        <div class="permission-review-block">
-                            <div class="permission-review-label">关键操作</div>
-                            <div class="permission-pill-list" id="permissionKeyActions"></div>
-                        </div>
-                        <div class="permission-review-block">
-                            <div class="permission-review-label">保存后影响</div>
-                            <div class="permission-empty" id="permissionImpactNote">选择权限后展示角色进入系统后的菜单和按钮范围。</div>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
         <div class="modal-footer">
@@ -864,12 +841,12 @@
     <div class="modal modal-md" role="dialog" aria-modal="true" aria-labelledby="modalAllocCreditsTitle" tabindex="-1">
         <div class="modal-header">
             <div class="modal-title" id="modalAllocCreditsTitle">调整积分额度</div>
-            <div class="modal-sub">支持追加、回收或直接设置角色总额度</div>
+            <div class="modal-sub">支持追加、回收或直接设置成员个人额度</div>
         </div>
         <div class="modal-body">
             <div class="form-group">
-                <label class="form-label">目标角色</label>
-                <div id="allocRoleName" style="font-weight:500;font-size:14px;"></div>
+                <label class="form-label">目标成员</label>
+                <div id="allocMemberName" style="font-weight:500;font-size:14px;"></div>
             </div>
             <div class="form-group">
                 <label class="form-label">当前额度</label>
@@ -1131,7 +1108,25 @@ document.addEventListener('keydown', function(e){
     }
 });
 
-/* ========== 复制 ========== */
+/* ========== 添加成员积分额度提示 ========== */
+function updateAddMemberQuotaNote() {
+    var rawQuota = (document.getElementById('addMemberQuota').value || '').trim();
+    var quota = rawQuota === '' ? 0 : parseInt(rawQuota, 10);
+    var allocated = M.members.reduce(function(sum, m){ return sum + (m.quota || 0); }, 0);
+    var poolRemain = M.creditPool.total - allocated;
+    var el = document.getElementById('addMemberPoolRemain');
+    if (!el) return;
+    if (isNaN(quota) || quota < 0) {
+        el.textContent = '请输入有效数值';
+        el.style.color = 'var(--danger)';
+    } else if (quota > poolRemain) {
+        el.textContent = poolRemain.toLocaleString() + '（超出可用额度）';
+        el.style.color = 'var(--danger)';
+    } else {
+        el.textContent = poolRemain.toLocaleString();
+        el.style.color = '';
+    }
+}
 function copyText(text) {
     if (navigator.clipboard) {
         navigator.clipboard.writeText(text).then(function(){
@@ -1253,7 +1248,19 @@ var permissionCatalog = [
         ]
     }
 ];
-var highRiskActionIds = ['delete', 'remove', 'recharge', 'invoice', 'role', 'credit', 'audit', 'manage', 'export'];
+function updatePermissionSummary() {
+    var permissions = collectRolePermissions();
+    var summary = getPermissionSummary(permissions);
+    var pageNames = permissionCatalog
+        .filter(function(module){ return permissions.pages.indexOf(module.id) > -1; })
+        .map(function(module){ return module.name; })
+        .slice(0, 3)
+        .join('、');
+    var suffix = summary.pageCount > 3 ? ' 等' : '';
+    document.getElementById('rolePermSummary').textContent =
+        '已选择 ' + summary.pageCount + ' 个页面 · ' + summary.actionCount + ' 项操作' +
+        (pageNames ? '：' + pageNames + suffix : '');
+}
 
 function makePermissions(pageIds, actionMap) {
     var permissions = { pages: [], actions: {} };
@@ -1292,53 +1299,6 @@ function getPermissionActionName(pageId, actionId) {
     return name;
 }
 
-function renderPillList(el, items, emptyText, muted) {
-    if (!el) return;
-    if (!items.length) {
-        el.innerHTML = '<span class="permission-empty">' + emptyText + '</span>';
-        return;
-    }
-    el.innerHTML = items.map(function(item){
-        return '<span class="permission-pill' + (muted ? ' muted' : '') + '" title="' + item + '">' + item + '</span>';
-    }).join('');
-}
-
-function updatePermissionImpact(permissions) {
-    var selected = permissions || collectRolePermissions();
-    var allowedPages = [];
-    var blockedPages = [];
-    var keyActions = [];
-    permissionCatalog.forEach(function(module){
-        var allowed = selected.pages.indexOf(module.id) > -1;
-        if (allowed) {
-            allowedPages.push(module.name);
-            (selected.actions[module.id] || []).forEach(function(actionId){
-                if (highRiskActionIds.indexOf(actionId) > -1) {
-                    keyActions.push(module.name + ' · ' + getPermissionActionName(module.id, actionId));
-                }
-            });
-        } else {
-            blockedPages.push(module.name);
-        }
-    });
-    renderPillList(document.getElementById('permissionAllowedPages'), allowedPages, '暂未开放任何页面', false);
-    renderPillList(document.getElementById('permissionBlockedPages'), blockedPages, '已开放全部页面', true);
-    renderPillList(document.getElementById('permissionKeyActions'), keyActions, '未包含删除、充值、导出等关键操作', false);
-
-    var note = document.getElementById('permissionImpactNote');
-    var riskTag = document.getElementById('permissionRiskTag');
-    if (!note || !riskTag) return;
-    if (!allowedPages.length) {
-        note.textContent = '保存前至少开放一个页面，否则该角色进入系统后没有可用菜单。';
-        riskTag.className = 'tag tag-danger';
-        riskTag.textContent = '无可用页面';
-    } else {
-        note.textContent = '保存后，该角色成员只能看到已开放页面；未勾选的操作按钮将在对应页面隐藏或禁用。';
-        riskTag.className = keyActions.length >= 4 ? 'tag tag-warning' : 'tag tag-info';
-        riskTag.textContent = keyActions.length >= 4 ? '关键权限较多' : '权限范围清晰';
-    }
-}
-
 /* ========== Mock 数据 ========== */
 var M = {
     tenant: {
@@ -1350,12 +1310,11 @@ var M = {
     },
     creditPool: {
         total: 5000,
-        allocated: 3500,
         consumed: 1520
     },
     roles: [
-        { id: 'r1', name: '投顾管理员', color: '#2f6bff', quota: 2000, consumed: 820, memberCount: 2, desc: '租户管理者，可管理团队和积分', permissions: getAllPermissions() },
-        { id: 'r2', name: '高级投顾', color: '#16a34a', quota: 1000, consumed: 600, memberCount: 2, desc: '资深投资顾问，可生成高质量视频', permissions: makePermissions(['assetSubject','assetAudio','assetVideo','director','tools','billing'], {
+        { id: 'r1', name: '投顾管理员', color: '#2f6bff', memberCount: 2, desc: '租户管理者，可管理团队和积分', permissions: getAllPermissions() },
+        { id: 'r2', name: '高级投顾', color: '#16a34a', memberCount: 2, desc: '资深投资顾问，可生成高质量视频', permissions: makePermissions(['assetSubject','assetAudio','assetVideo','director','tools','billing'], {
             assetSubject: ['create','edit','publish'],
             assetAudio: ['upload','clone'],
             assetVideo: ['preview','download'],
@@ -1363,7 +1322,7 @@ var M = {
             tools: ['use','download'],
             billing: ['view']
         }) },
-        { id: 'r3', name: '内容审核员', color: '#f59e0b', quota: 500, consumed: 100, memberCount: 1, desc: '负责视频内容的合规审核', permissions: makePermissions(['assetAudio','assetVideo','director','billing'], {
+        { id: 'r3', name: '内容审核员', color: '#f59e0b', memberCount: 1, desc: '负责视频内容的合规审核', permissions: makePermissions(['assetAudio','assetVideo','director','billing'], {
             assetAudio: ['audit'],
             assetVideo: ['preview'],
             director: ['generate'],
@@ -1371,11 +1330,11 @@ var M = {
         }) }
     ],
     members: [
-        { id: 'm1', name: '王晓明', avatar: '王', avatarBg: 'linear-gradient(135deg, #2f6bff, #6b8eff)', role: '投顾管理员', roleId: 'r1', consumed: 320, joined: '2024-05-12' },
-        { id: 'm2', name: '李建国', avatar: '李', avatarBg: 'linear-gradient(135deg, #16a34a, #4ade80)', role: '投顾管理员', roleId: 'r1', consumed: 500, joined: '2024-06-03' },
-        { id: 'm3', name: '张伟', avatar: '张', avatarBg: 'linear-gradient(135deg, #f59e0b, #fbbf24)', role: '高级投顾', roleId: 'r2', consumed: 400, joined: '2024-07-15' },
-        { id: 'm4', name: '陈静', avatar: '陈', avatarBg: 'linear-gradient(135deg, #ec4899, #f472b6)', role: '高级投顾', roleId: 'r2', consumed: 200, joined: '2024-08-20' },
-        { id: 'm5', name: '赵六', avatar: '赵', avatarBg: 'linear-gradient(135deg, #8b5cf6, #a78bfa)', role: '内容审核员', roleId: 'r3', consumed: 100, joined: '2024-09-01' }
+        { id: 'm1', name: '王晓明', avatar: '王', avatarBg: 'linear-gradient(135deg, #2f6bff, #6b8eff)', role: '投顾管理员', roleId: 'r1', quota: 1500, consumed: 320, joined: '2024-05-12' },
+        { id: 'm2', name: '李建国', avatar: '李', avatarBg: 'linear-gradient(135deg, #16a34a, #4ade80)', role: '投顾管理员', roleId: 'r1', quota: 1000, consumed: 500, joined: '2024-06-03' },
+        { id: 'm3', name: '张伟', avatar: '张', avatarBg: 'linear-gradient(135deg, #f59e0b, #fbbf24)', role: '高级投顾', roleId: 'r2', quota: 800, consumed: 400, joined: '2024-07-15' },
+        { id: 'm4', name: '陈静', avatar: '陈', avatarBg: 'linear-gradient(135deg, #ec4899, #f472b6)', role: '高级投顾', roleId: 'r2', quota: 500, consumed: 200, joined: '2024-08-20' },
+        { id: 'm5', name: '赵六', avatar: '赵', avatarBg: 'linear-gradient(135deg, #8b5cf6, #a78bfa)', role: '内容审核员', roleId: 'r3', quota: 200, consumed: 100, joined: '2024-09-01' }
     ],
     rechargeRecords: [
         { id: 'RC20240112', amount: 300, credits: 3000, time: '2024-05-12 14:30', status: '已完成', method: '微信支付', operator: '王晓明', remark: '初始开通充值' },
@@ -1410,17 +1369,16 @@ function init() {
     updateCreditOverview();
     renderMemberTable();
     renderRoleCards();
-    renderRechargeTable();
-    renderConsumeTable();
     populateRoleSelects();
 }
 
 /* ========== 更新积分概览 ========== */
 function updateCreditOverview() {
     var pool = M.creditPool;
-    var unalloc = pool.total - pool.allocated;
+    var allocated = M.members.reduce(function(sum, m){ return sum + (m.quota || 0); }, 0);
+    var unalloc = pool.total - allocated;
     document.getElementById('cv-total').textContent = pool.total.toLocaleString();
-    document.getElementById('cv-allocated').textContent = pool.allocated.toLocaleString();
+    document.getElementById('cv-allocated').textContent = allocated.toLocaleString();
     document.getElementById('cv-unalloc').textContent = unalloc.toLocaleString();
     document.getElementById('cv-consumed').textContent = pool.consumed.toLocaleString();
 }
@@ -1440,15 +1398,16 @@ function renderMemberTable() {
     var html = '';
     filtered.forEach(function(m){
         var r = roleMap[m.roleId];
-        var quota = r ? r.quota.toLocaleString() : '—';
+        var quota = (m.quota || 0).toLocaleString();
         html += '<tr>' +
             '<td><div class="member-cell"><div class="member-avatar" style="background:' + m.avatarBg + ';">' + m.avatar + '</div><div><div class="member-name">' + m.name + '</div></div></div></td>' +
             '<td><span class="tag" style="background:' + (r ? r.color + '18' : '#f4f4f5') + ';color:' + (r ? r.color : 'var(--text-secondary)') + ';">' + m.role + '</span></td>' +
-            '<td style="color:var(--text-secondary);">' + quota + '</td>' +
+            '<td><span style="color:var(--primary);font-weight:500;">' + quota + '</span></td>' +
             '<td><span style="color:' + (m.consumed > 0 ? 'var(--danger)' : 'var(--text-secondary)') + ';">' + m.consumed.toLocaleString() + '</span></td>' +
             '<td style="color:var(--text-secondary);">' + m.joined + '</td>' +
             '<td class="actions">' +
                 '<button class="btn-text" onclick="changeRole(\'' + m.id + '\')">变更角色</button>' +
+                '<button class="btn-text" onclick="allocMemberCredits(\'' + m.id + '\')">调整额度</button>' +
                 '<button class="btn-text" style="color:var(--danger);" onclick="removeMember(\'' + m.id + '\')">移除</button>' +
             '</td>' +
         '</tr>';
@@ -1460,10 +1419,6 @@ function renderMemberTable() {
 function renderRoleCards() {
     var html = '';
     M.roles.forEach(function(r){
-        var remaining = r.quota - r.consumed;
-        var pct = r.quota > 0 ? Math.round(r.consumed / r.quota * 100) : 0;
-        var barColor = pct > 80 ? 'danger' : (pct > 50 ? 'warning' : 'success');
-        var remainingColor = remaining <= 0 ? 'var(--danger)' : (remaining < r.quota * 0.2 ? 'var(--warning)' : 'var(--success)');
         var permSummary = getPermissionSummary(r.permissions);
         html += '<div class="role-card">' +
             '<div class="role-card-bar" style="background:' + r.color + ';"></div>' +
@@ -1473,17 +1428,11 @@ function renderRoleCards() {
                 '<span class="role-card-members">' + r.memberCount + ' 人</span>' +
             '</div>' +
             '<div class="role-card-stats">' +
-                '<div class="role-card-stat-row"><span class="role-card-stat-label">积分额度</span><span class="role-card-stat-value">' + r.quota.toLocaleString() + '</span></div>' +
-                '<div class="role-card-stat-row"><span class="role-card-stat-label">已消耗</span><span class="role-card-stat-value" style="color:var(--danger);">' + r.consumed.toLocaleString() + '</span></div>' +
-                '<div class="role-card-stat-row"><span class="role-card-stat-label">剩余</span><span class="role-card-stat-value" style="color:' + remainingColor + ';font-weight:600;">' + remaining.toLocaleString() + '</span></div>' +
-                '<div class="progress-bar"><div class="progress-fill ' + barColor + '" style="width:' + pct + '%;"></div></div>' +
-                '<div style="font-size:11px;color:var(--text-muted);text-align:right;">已用 ' + pct + '%</div>' +
                 '<div class="role-card-stat-row"><span class="role-card-stat-label">可见页面</span><span class="role-card-stat-value">' + permSummary.pageCount + ' 个</span></div>' +
                 '<div class="role-card-stat-row"><span class="role-card-stat-label">操作权限</span><span class="role-card-stat-value">' + permSummary.actionCount + ' 项</span></div>' +
             '</div>' +
             '<div class="role-card-actions">' +
-                '<button class="btn btn-sm" style="flex:1;" onclick="editRole(\'' + r.id + '\')">编辑</button>' +
-                '<button class="btn btn-sm" style="flex:1;" onclick="allocCredits(\'' + r.id + '\')">调整额度</button>' +
+                '<button class="btn btn-sm" style="flex:1;" onclick="editRole(\'' + r.id + '\')">权限编辑</button>' +
                 '<button class="btn btn-sm" style="color:var(--danger);" onclick="deleteRole(\'' + r.id + '\')">删除</button>' +
             '</div>' +
         '</div>';
@@ -1555,10 +1504,16 @@ function addMember() {
     var name = (document.getElementById('addMemberName').value || '').trim();
     var phone = (document.getElementById('addMemberPhone').value || '').trim();
     var roleId = document.getElementById('inviteRole').value;
+    var rawQuota = (document.getElementById('addMemberQuota').value || '').trim();
+    var quota = rawQuota === '' ? 0 : parseInt(rawQuota, 10);
     if (!name) { toast('请输入成员姓名', 'error'); return; }
     if (!phone) { toast('请输入手机号', 'error'); return; }
     if (!/^1\d{10}$/.test(phone)) { toast('请输入正确的手机号', 'error'); return; }
     if (!roleId) { toast('请选择归属角色', 'error'); return; }
+    if (isNaN(quota) || quota < 0) { toast('请输入有效的积分额度', 'error'); return; }
+    var allocated = M.members.reduce(function(sum, m){ return sum + (m.quota || 0); }, 0);
+    var poolRemain = M.creditPool.total - allocated;
+    if (quota > poolRemain) { toast('额度超出待分配积分（' + poolRemain.toLocaleString() + '）', 'error'); return; }
     var role = null;
     M.roles.forEach(function(r){ if (r.id === roleId) role = r; });
     if (!role) return;
@@ -1567,7 +1522,7 @@ function addMember() {
     var newMember = {
         id: 'm' + (M.members.length + 1) + '_' + Date.now().toString(36),
         name: name, avatar: name.charAt(0), avatarBg: avatarBg,
-        role: role.name, roleId: roleId, consumed: 0, joined: new Date().toISOString().slice(0, 10)
+        role: role.name, roleId: roleId, quota: quota, consumed: 0, joined: new Date().toISOString().slice(0, 10)
     };
     M.members.push(newMember);
     role.memberCount++;
@@ -1576,9 +1531,12 @@ function addMember() {
     document.getElementById('addMemberName').value = '';
     document.getElementById('addMemberPhone').value = '';
     document.getElementById('inviteRole').value = '';
+    document.getElementById('addMemberQuota').value = '0';
     renderMemberTable();
     renderRoleCards();
-    toast(name + ' 已添加至「' + role.name + '」', 'success');
+    updateCreditOverview();
+    var quotaMsg = quota > 0 ? '，初始额度 ' + quota.toLocaleString() + ' 积分' : '，初始额度为 0';
+    toast(name + ' 已添加至「' + role.name + '」' + quotaMsg, 'success');
 }
 
 /* ========== 变更角色 ========== */
@@ -1654,21 +1612,6 @@ function getPermissionSummary(permissions) {
         actionCount += permissions.actions[pageId].length;
     });
     return { pageCount: pages.length, actionCount: actionCount };
-}
-
-function updatePermissionSummary() {
-    var permissions = collectRolePermissions();
-    var summary = getPermissionSummary(permissions);
-    var pageNames = permissionCatalog
-        .filter(function(module){ return permissions.pages.indexOf(module.id) > -1; })
-        .map(function(module){ return module.name; })
-        .slice(0, 3)
-        .join('、');
-    var suffix = summary.pageCount > 3 ? ' 等' : '';
-    document.getElementById('rolePermSummary').textContent =
-        '已选择 ' + summary.pageCount + ' 个页面 · ' + summary.actionCount + ' 项操作' +
-        (pageNames ? '：' + pageNames + suffix : '');
-    updatePermissionImpact(permissions);
 }
 
 function syncPermissionModule(pageId) {
@@ -1801,6 +1744,7 @@ document.querySelectorAll('#roleColorPicker .role-color-opt').forEach(function(o
 var _origOpenModal = openModal;
 openModal = function(id) {
     if (id === 'modalRoleEdit' && !ctx.editingRoleId) resetRoleEdit();
+    if (id === 'modalInvite') updateAddMemberQuotaNote();
     _origOpenModal(id);
 };
 var _origCloseModal = closeModal;
@@ -1845,7 +1789,7 @@ function saveRole() {
             quota: 0, consumed: 0, memberCount: 0, desc: desc,
             permissions: clonePermissions(permissions)
         });
-        toast('角色「' + name + '」已创建，记得为其分配积分额度', 'success');
+        toast('角色「' + name + '」已创建', 'success');
     }
     closeModal('modalRoleEdit');
     ctx.editingRoleId = null;
@@ -1855,18 +1799,18 @@ function saveRole() {
 }
 
 /* ========== 调整积分额度 ========== */
-var _allocRoleId = null;
-function allocCredits(roleId) {
-    var role = null;
-    M.roles.forEach(function(r){ if (r.id === roleId) role = r; });
-    if (!role) return;
-    _allocRoleId = roleId;
+var _allocMemberId = null;
+function allocMemberCredits(memberId) {
+    var member = null;
+    M.members.forEach(function(m){ if (m.id === memberId) member = m; });
+    if (!member) return;
+    _allocMemberId = memberId;
     ctx.allocMode = 'add';
-    document.getElementById('allocRoleName').textContent = role.name + '（颜色标识）';
-    document.getElementById('allocRoleName').innerHTML = '<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:' + role.color + ';margin-right:6px;"></span>' + role.name;
-    document.getElementById('allocCurrentQuota').textContent = '当前额度：' + role.quota.toLocaleString() + ' 积分（已消耗 ' + role.consumed.toLocaleString() + '）';
-    var poolRemain = M.creditPool.total - M.creditPool.allocated;
-    document.getElementById('allocPoolRemain').textContent = '总池 ' + M.creditPool.total.toLocaleString() + ' · 已分配 ' + M.creditPool.allocated.toLocaleString() + ' · 待分配 ' + poolRemain.toLocaleString();
+    document.getElementById('allocMemberName').innerHTML = '<span class="member-avatar admin-avatar-sm" style="background:' + member.avatarBg + ';margin-right:6px;">' + member.avatar + '</span>' + member.name + ' <span style="font-size:12px;color:var(--text-muted);">(' + member.role + ')</span>';
+    document.getElementById('allocCurrentQuota').textContent = '当前额度：' + (member.quota || 0).toLocaleString() + ' 积分（已消耗 ' + (member.consumed || 0).toLocaleString() + '）';
+    var allocated = M.members.reduce(function(sum, m){ return sum + (m.quota || 0); }, 0);
+    var poolRemain = M.creditPool.total - allocated;
+    document.getElementById('allocPoolRemain').textContent = '总池 ' + M.creditPool.total.toLocaleString() + ' · 已分配 ' + allocated.toLocaleString() + ' · 待分配 ' + poolRemain.toLocaleString();
     document.getElementById('allocAmount').value = '';
     setAllocMode('add');
     openModal('modalAllocCredits');
@@ -1883,38 +1827,41 @@ function setAllocMode(mode) {
     if (mode === 'add') {
         label.textContent = '追加额度';
         input.placeholder = '请输入要追加的积分';
-        note.textContent = '从租户待分配积分中追加到该角色。';
+        note.textContent = '从租户待分配积分中追加到该成员。';
     } else if (mode === 'reclaim') {
         label.textContent = '回收额度';
         input.placeholder = '请输入要回收的积分';
-        note.textContent = '从该角色额度中回收到租户待分配积分，不能回收到低于已消耗。';
+        note.textContent = '从该成员额度中回收到租户待分配积分，不能回收到低于已消耗。';
     } else {
         label.textContent = '目标总额度';
-        input.placeholder = '请输入调整后的角色总额度';
-        note.textContent = '直接设置该角色的总额度，系统会自动计算追加或回收差额。';
+        input.placeholder = '请输入调整后的成员总额度';
+        note.textContent = '直接设置该成员的个人额度，系统会自动计算追加或回收差额。';
     }
     updateAllocPreview();
 }
 
 function calculateCreditAdjustment() {
-    var role = null;
-    M.roles.forEach(function(r){ if (r.id === _allocRoleId) role = r; });
+    var member = null;
+    M.members.forEach(function(m){ if (m.id === _allocMemberId) member = m; });
     var rawAmount = (document.getElementById('allocAmount').value || '').trim();
     var val = parseInt(rawAmount, 10) || 0;
-    var poolRemain = M.creditPool.total - M.creditPool.allocated;
+    var allocated = M.members.reduce(function(sum, m){ return sum + (m.quota || 0); }, 0);
+    var poolRemain = M.creditPool.total - allocated;
     var mode = ctx.allocMode || 'add';
+    var curQuota = member ? (member.quota || 0) : 0;
+    var curConsumed = member ? (member.consumed || 0) : 0;
     var result = {
         valid: false,
-        role: role,
+        member: member,
         amount: val,
         hasInput: rawAmount !== '',
         poolRemain: poolRemain,
         delta: 0,
-        newQuota: role ? role.quota : 0,
+        newQuota: curQuota,
         message: ''
     };
-    if (!role) {
-        result.message = '未找到目标角色。';
+    if (!member) {
+        result.message = '未找到目标成员。';
         return result;
     }
     if (!result.hasInput) {
@@ -1926,23 +1873,23 @@ function calculateCreditAdjustment() {
     }
     if (mode === 'add') {
         result.delta = val;
-        result.newQuota = role.quota + val;
+        result.newQuota = curQuota + val;
         if (val > poolRemain) {
             result.message = '超出待分配积分（' + poolRemain.toLocaleString() + '），无法追加。';
             return result;
         }
     } else if (mode === 'reclaim') {
         result.delta = -val;
-        result.newQuota = role.quota - val;
-        if (result.newQuota < role.consumed) {
-            result.message = '回收后额度不能低于已消耗积分（' + role.consumed.toLocaleString() + '）。';
+        result.newQuota = curQuota - val;
+        if (result.newQuota < curConsumed) {
+            result.message = '回收后额度不能低于已消耗积分（' + curConsumed.toLocaleString() + '）。';
             return result;
         }
     } else {
         result.newQuota = val;
-        result.delta = val - role.quota;
-        if (val < role.consumed) {
-            result.message = '目标总额度不能低于已消耗积分（' + role.consumed.toLocaleString() + '）。';
+        result.delta = val - curQuota;
+        if (val < curConsumed) {
+            result.message = '目标总额度不能低于已消耗积分（' + curConsumed.toLocaleString() + '）。';
             return result;
         }
         if (result.delta > poolRemain) {
@@ -1980,21 +1927,19 @@ function updateAllocPreview() {
     var verb = result.delta > 0 ? '追加' : '回收';
     preview.innerHTML =
         verb + '额度：<strong>' + Math.abs(result.delta).toLocaleString() + '</strong> 积分<br>' +
-        '调整后角色额度：<strong>' + result.newQuota.toLocaleString() + '</strong> 积分，租户待分配剩余：<strong>' + poolAfter.toLocaleString() + '</strong>';
+        '调整后个人额度：<strong>' + result.newQuota.toLocaleString() + '</strong> 积分，租户待分配剩余：<strong>' + poolAfter.toLocaleString() + '</strong>';
 }
 
 function confirmAllocCredits() {
     var result = calculateCreditAdjustment();
     if (!result.hasInput) { toast('请输入有效的调整数量', 'error'); return; }
     if (!result.valid) { toast(result.message || '当前额度调整无效', 'error'); return; }
-    result.role.quota = result.newQuota;
-    M.creditPool.allocated += result.delta;
+    result.member.quota = result.newQuota;
     closeModal('modalAllocCredits');
     updateCreditOverview();
-    renderRoleCards();
     renderMemberTable();
     var actionText = result.delta > 0 ? '追加' : '回收';
-    toast('已为「' + result.role.name + '」' + actionText + ' ' + Math.abs(result.delta).toLocaleString() + ' 积分', 'success');
+    toast('已为「' + result.member.name + '」' + actionText + ' ' + Math.abs(result.delta).toLocaleString() + ' 积分', 'success');
 }
 
 /* ========== 删除角色 ========== */
@@ -2003,7 +1948,7 @@ function deleteRole(roleId) {
     M.roles.forEach(function(r){ if (r.id === roleId) role = r; });
     if (!role) return;
     ctx.currentDeleteRoleId = roleId;
-    var content = '确定要删除角色 <b>' + role.name + '</b> 吗？<br>该角色的积分额度将被收回至租户总池。';
+    var content = '确定要删除角色 <b>' + role.name + '</b> 吗？<br>删除后该角色下成员的个人额度不变，成员需重新分配角色。';
     var warning = document.getElementById('deleteRoleWarning');
     var okBtn = document.getElementById('deleteRoleOkBtn');
     if (role.memberCount > 0) {
@@ -2023,16 +1968,12 @@ function deleteRole(roleId) {
         M.roles.forEach(function(r, i){
             if (r.id === rid) { delRole = r; M.roles.splice(i, 1); }
         });
-        if (delRole) {
-            // 收回积分
-            M.creditPool.allocated -= delRole.quota;
-        }
         closeModal('modalDeleteRole');
         updateCreditOverview();
         renderRoleCards();
         renderMemberTable();
         populateRoleSelects();
-        if (delRole) toast('角色「' + delRole.name + '」已删除，积分已收回', 'success');
+        if (delRole) toast('角色「' + delRole.name + '」已删除，成员的个人额度不变', 'success');
     });
     openModal('modalDeleteRole');
 }

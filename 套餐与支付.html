@@ -203,20 +203,7 @@
     .plan-features li::before { content: "✓"; color: var(--success); font-weight: 700; flex-shrink: 0; }
     .plan-actions { display: flex; flex-direction: column; gap: 8px; }
 
-    .credit-layout { display: grid; grid-template-columns: 1fr 340px; gap: 16px; align-items: start; }
-    .credit-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
-    .credit-pack {
-        background: #fff; border: 1px solid var(--border); border-radius: var(--radius);
-        box-shadow: var(--shadow); padding: 18px; min-height: 162px;
-        display: flex; flex-direction: column; cursor: pointer; transition: all 0.15s;
-    }
-    .credit-pack:hover { border-color: var(--primary); transform: translateY(-1px); box-shadow: 0 8px 22px rgba(0,0,0,0.08); }
-    .credit-pack.selected { border-color: var(--primary); background: var(--primary-light); }
-    .credit-title { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-    .credit-title strong { font-size: 22px; }
-    .credit-price { margin-top: 12px; font-size: 16px; font-weight: 650; }
-    .credit-note { color: var(--text-muted); font-size: 12px; line-height: 1.55; margin-top: 6px; flex: 1; }
-    .custom-box {
+    .credit-box {
         background: #fff; border: 1px solid var(--border); border-radius: var(--radius);
         box-shadow: var(--shadow); padding: 18px;
     }
@@ -396,7 +383,7 @@
     @media (max-width: 1060px) {
         .summary-band { grid-template-columns: repeat(2, 1fr); }
         .plan-grid { grid-template-columns: repeat(2, 1fr); }
-        .credit-layout, .rights-grid, .payment-layout { grid-template-columns: 1fr; }
+        .rights-grid, .payment-layout { grid-template-columns: 1fr; }
     }
     @media (max-width: 720px) {
         body { display: block; overflow: auto; height: auto; }
@@ -404,7 +391,7 @@
         .main { min-height: 100vh; }
         .topbar { height: auto; min-height: 56px; flex-wrap: wrap; padding: 14px 18px; }
         .page-wrap { padding: 18px 16px 60px; }
-        .summary-band, .plan-grid, .credit-grid { grid-template-columns: 1fr; }
+        .summary-band, .plan-grid { grid-template-columns: 1fr; }
         .tabs { overflow-x: auto; }
         .tab-item { flex-shrink: 0; }
         .section-head { align-items: flex-start; flex-direction: column; }
@@ -466,7 +453,7 @@
             <span class="topbar-title">套餐与支付</span>
         </div>
         <div class="topbar-actions">
-            <button class="btn btn-primary" onclick="openCheckout('credit', 'credit-1000')">积分充值</button>
+            <button class="btn btn-primary" onclick="switchTab('credits')">积分充值</button>
         </div>
     </div>
 
@@ -524,27 +511,25 @@
                     </div>
                     <button class="btn btn-outline-primary" onclick="switchTab('payment')">查看充值订单</button>
                 </div>
-                <div class="credit-layout">
-                    <div class="credit-grid" id="creditGrid"></div>
-                    <div class="custom-box">
-                        <div class="section-title" style="font-size:15px;">自定义充值</div>
-                        <div class="section-sub">适合临时追加预算或财务按固定金额打款。</div>
-                        <div class="quick-amounts">
-                            <button class="chip" onclick="setCustomAmount(200)">¥200</button>
-                            <button class="chip" onclick="setCustomAmount(500)">¥500</button>
-                            <button class="chip" onclick="setCustomAmount(1000)">¥1,000</button>
-                            <button class="chip" onclick="setCustomAmount(3000)">¥3,000</button>
-                        </div>
-                        <div class="field">
-                            <label>充值金额（元）</label>
-                            <input class="input" type="number" id="customAmount" min="10" step="10" placeholder="请输入充值金额" oninput="updateCustomPreview()">
-                        </div>
-                        <div class="order-summary">
-                            <div class="order-line"><span>换算规则</span><b>1 元 = 10 积分</b></div>
-                            <div class="order-line"><span>预计到账</span><b id="customCredits">- 积分</b></div>
-                        </div>
-                        <button class="btn btn-primary btn-lg" style="width:100%;" onclick="openCustomCreditCheckout()">提交充值</button>
+                <div class="credit-box">
+                    <div class="section-title" style="font-size:15px;">自定义充值</div>
+                    <div class="section-sub" style="margin-bottom: 16px;">输入充值金额，1 元 = 10 积分。</div>
+                    <div class="quick-amounts">
+                        <button class="chip" onclick="setCustomAmount(100)">¥100</button>
+                        <button class="chip" onclick="setCustomAmount(200)">¥200</button>
+                        <button class="chip" onclick="setCustomAmount(500)">¥500</button>
+                        <button class="chip" onclick="setCustomAmount(1000)">¥1,000</button>
+                        <button class="chip" onclick="setCustomAmount(3000)">¥3,000</button>
                     </div>
+                    <div class="field">
+                        <label>充值金额（元）</label>
+                        <input class="input" type="number" id="customAmount" min="10" step="10" placeholder="请输入充值金额" oninput="updateCustomPreview()">
+                    </div>
+                    <div class="order-summary">
+                        <div class="order-line"><span>换算规则</span><b>1 元 = 10 积分</b></div>
+                        <div class="order-line"><span>预计到账</span><b id="customCredits">- 积分</b></div>
+                    </div>
+                    <button class="btn btn-primary btn-lg" style="width:100%;" onclick="openCustomCreditCheckout()">提交充值</button>
                 </div>
             </section>
 
@@ -677,46 +662,38 @@ var state = {
 var plans = [
     {
         id: 'basic', name: '基础版', desc: '适合单人试用和小规模内容验证。',
-        monthly: 399, yearly: 4069, seats: 2, credits: 1200,
-        features: ['2 个成员席位', '每月赠送 1,200 积分', '最多 5 个数字主体', '基础视频生成与导出', '邮件支持']
+        monthly: 399, yearly: 4069, seats: 2, credits: 120,
+        features: ['2 个成员席位', '每月赠送 120 积分', '5 个数字主体', '语音克隆与基础画质', '图片创作与水印字幕']
     },
     {
         id: 'pro', name: '专业版', desc: '适合稳定生产短视频的投顾团队。',
-        monthly: 1299, yearly: 13249, seats: 8, credits: 5000,
-        features: ['8 个成员席位', '每月赠送 5,000 积分', '最多 30 个数字主体', '声音克隆与高清导出', '工作日客服支持']
+        monthly: 1299, yearly: 13249, seats: 8, credits: 500,
+        features: ['8 个成员席位', '每月赠送 500 积分', '30 个数字主体', '高清画质与批量生成', '模板复用']
     },
     {
         id: 'team', name: '团队版', desc: '适合多人协作、权限分级和批量生产。',
-        monthly: 2999, yearly: 30589, seats: 20, credits: 15000, recommended: true,
-        features: ['20 个成员席位', '每月赠送 15,000 积分', '角色权限与额度组', '批量生成与模板复用', '合规审核流程']
+        monthly: 2999, yearly: 30589, seats: 20, credits: 1500, recommended: true,
+        features: ['20 个成员席位', '每月赠送 1,500 积分', '100 个数字主体', '角色权限与额度组', '批量生成与模板复用']
     },
     {
         id: 'enterprise', name: '企业版', desc: '适合有私有化、安全和专属服务要求的机构。',
         monthly: 0, yearly: 0, seats: '自定义', credits: '自定义',
-        features: ['席位与积分按需配置', 'SSO 与审计日志', '专属模型与私有素材库', '对公合同与定制开票', '专属客户成功经理']
+        features: ['席位与积分按需配置', 'SSO 与审计日志', '专属画质与私有素材库', '对公合同与定制开票', '专属客户服务']
     }
 ];
 
-var creditPacks = [
-    { id: 'credit-500', credits: 500, amount: 50, note: '适合小批量视频生成测试。' },
-    { id: 'credit-1000', credits: 1000, amount: 100, note: '适合日常追加额度。' },
-    { id: 'credit-3300', credits: 3300, amount: 300, note: '加赠 10%，适合周度生产。', tag: '推荐' },
-    { id: 'credit-6000', credits: 6000, amount: 500, note: '加赠 20%，适合批量生成。' },
-    { id: 'credit-13000', credits: 13000, amount: 1000, note: '加赠 30%，适合月度预算。' },
-    { id: 'credit-30000', credits: 30000, amount: 2200, note: '企业采购包，可配合对公转账。' }
-];
-
 var rightsRows = [
-    { key: '成员席位', basic: '2', pro: '8', team: '20', enterprise: '自定义' },
-    { key: '每月赠送积分', basic: '1,200', pro: '5,000', team: '15,000', enterprise: '自定义' },
-    { key: '数字主体数量', basic: '5', pro: '30', team: '100', enterprise: '自定义' },
-    { key: '声音克隆', basic: '基础', pro: '高级', team: '高级', enterprise: '专属' },
-    { key: '批量生成', basic: false, pro: true, team: true, enterprise: true },
-    { key: '角色权限', basic: false, pro: false, team: true, enterprise: true },
-    { key: '额度组管理', basic: false, pro: false, team: true, enterprise: true },
-    { key: '合规审核流程', basic: false, pro: true, team: true, enterprise: true },
-    { key: '审计日志 / SSO', basic: false, pro: false, team: false, enterprise: true },
-    { key: '服务支持', basic: '邮件', pro: '工作日', team: '专属群', enterprise: '客户成功' }
+    { key: '成员席位', basic: '2', pro: '8', team: '20', enterprise: '自定义', desc: '可加入平台的团队成员账号数' },
+    { key: '每月赠送积分', basic: '120', pro: '500', team: '1,500', enterprise: '自定义', desc: '每月自动到账的积分额度' },
+    { key: '数字主体数量', basic: '5', pro: '30', team: '100', enterprise: '自定义', desc: '可创建的数字人物角色上限' },
+    { key: '语音克隆', basic: '✓', pro: '✓', team: '✓', enterprise: '✓', desc: '基于 CosyVoice 的音色克隆' },
+    { key: '视频画质', basic: '基础', pro: '高清', team: '高清', enterprise: '专属', desc: '视频生成支持的最高画质' },
+    { key: '图片创作', basic: '✓', pro: '✓', team: '✓', enterprise: '✓', desc: '基于 wan2.7-image 的文生图' },
+    { key: '水印字幕', basic: '✓', pro: '✓', team: '✓', enterprise: '✓', desc: '视频批量添加水印与字幕' },
+    { key: '批量生成', basic: false, pro: true, team: true, enterprise: true, desc: '多任务批量创建视频' },
+    { key: '模板复用', basic: false, pro: true, team: true, enterprise: true, desc: '复用历史创作配置快速出片' },
+    { key: '角色权限', basic: false, pro: false, team: true, enterprise: true, desc: '管理员/编辑/查看等多级权限' },
+    { key: '额度组管理', basic: false, pro: false, team: true, enterprise: true, desc: '按组分配积分消费上限' }
 ];
 
 function formatMoney(num) {
@@ -769,25 +746,12 @@ function renderPlans() {
             '<div class="plan-meta">' + (plan.id === 'enterprise' ? '定制报价' : plan.seats + ' 席位 · 每月 ' + Number(plan.credits).toLocaleString() + ' 积分') + '</div>' +
             '<ul class="plan-features">' + plan.features.map(function(f){ return '<li>' + f + '</li>'; }).join('') + '</ul>' +
             '<div class="plan-actions">' +
-                '<button class="btn ' + (isCurrent ? '' : 'btn-primary') + '" onclick="' + (plan.id === 'enterprise' ? "toast('商务咨询流程占位', 'info')" : "openCheckout('plan','" + plan.id + "')") + '">' + (isCurrent ? '当前套餐' : (plan.id === 'enterprise' ? '联系商务' : '订购套餐')) + '</button>' +
+                '<button class="btn ' + (isCurrent ? '' : 'btn-primary') + '" onclick="' + (plan.id === 'enterprise' ? "toast('商务咨询流程占位', 'info')" : "openCheckout('" + plan.id + "')") + '">' + (isCurrent ? '当前套餐' : (plan.id === 'enterprise' ? '联系商务' : '订购套餐')) + '</button>' +
                 '<button class="btn btn-text" onclick="showRightsForPlan(\'' + plan.id + '\')">查看权益</button>' +
             '</div>' +
         '</div>';
     });
     document.getElementById('planGrid').innerHTML = html;
-}
-
-function renderCredits() {
-    var html = '';
-    creditPacks.forEach(function(pack){
-        html += '<div class="credit-pack" onclick="openCheckout(\'credit\', \'' + pack.id + '\')">' +
-            '<div class="credit-title"><strong>' + pack.credits.toLocaleString() + '</strong>' + (pack.tag ? '<span class="tag tag-info">' + pack.tag + '</span>' : '') + '</div>' +
-            '<div class="credit-price">' + formatMoney(pack.amount) + '</div>' +
-            '<div class="credit-note">' + pack.note + '</div>' +
-            '<button class="btn btn-primary btn-sm" style="margin-top:12px;">立即充值</button>' +
-        '</div>';
-    });
-    document.getElementById('creditGrid').innerHTML = html;
 }
 
 function showRightsForPlan(planId) {
@@ -809,7 +773,7 @@ function renderRights() {
     rightsRows.forEach(function(row){
         var value = row[plan.id];
         var display = typeof value === 'boolean' ? (value ? '<span class="yes">✓ 支持</span>' : '<span class="no">-</span>') : value;
-        html += '<tr><td>' + row.key + '</td><td>' + display + '</td><td style="color:var(--text-secondary);">用于评估当前套餐能力边界</td></tr>';
+        html += '<tr><td>' + row.key + '</td><td>' + display + '</td><td style="color:var(--text-secondary);">' + (row.desc || '') + '</td></tr>';
     });
     html += '</tbody>';
     document.getElementById('rightsTable').innerHTML = html;
@@ -852,21 +816,15 @@ function openCustomCreditCheckout() {
     document.getElementById('checkoutDrawer').classList.add('show');
 }
 
-function openCheckout(type, id) {
-    if (type === 'plan') {
-        var plan = plans.find(function(p){ return p.id === id; });
-        if (!plan || plan.id === 'enterprise') return;
-        var amount = state.billingCycle === 'monthly' ? plan.monthly : plan.yearly;
-        state.checkoutItem = {
-            type: 'plan', id: plan.id,
-            name: plan.name + ' · ' + (state.billingCycle === 'monthly' ? '月付' : '年付'),
-            amount: amount, plan: plan
-        };
-    } else {
-        var pack = creditPacks.find(function(p){ return p.id === id; });
-        if (!pack) return;
-        state.checkoutItem = { type: 'credit', id: pack.id, name: pack.credits.toLocaleString() + ' 积分包', amount: pack.amount, credits: pack.credits };
-    }
+function openCheckout(planId) {
+    var plan = plans.find(function(p){ return p.id === planId; });
+    if (!plan || plan.id === 'enterprise') return;
+    var amount = state.billingCycle === 'monthly' ? plan.monthly : plan.yearly;
+    state.checkoutItem = {
+        type: 'plan', id: plan.id,
+        name: plan.name + ' · ' + (state.billingCycle === 'monthly' ? '月付' : '年付'),
+        amount: amount, plan: plan
+    };
     renderCheckout();
     document.getElementById('checkoutDrawer').classList.add('show');
 }
@@ -1056,7 +1014,6 @@ function closeDetail() {
 
 function init() {
     renderPlans();
-    renderCredits();
     renderRights();
     renderOrders();
     updateCustomPreview();
