@@ -317,6 +317,8 @@
     .credits-confirm-desc { font-size: 14px; color: #6b7280; line-height: 1.7; margin-bottom: 24px; }
     .credits-confirm-actions { display: flex; gap: 12px; justify-content: center; }
     .credits-confirm-actions .btn { min-width: 120px; height: 42px; font-size: 14px; font-weight: 600; }
+    .credits-confirm-skip { display: block; margin-top: 14px; font-size: 12px; color: #6b7280; cursor: pointer; }
+    .credits-confirm-skip input { margin-right: 4px; vertical-align: middle; }
   </style>
 </head>
 <body>
@@ -565,6 +567,9 @@
         <button class="btn btn-light" type="button" onclick="closeCreditsConfirm()">取消</button>
         <button class="btn btn-primary" type="button" onclick="executeCreditsAction()">确定执行</button>
       </div>
+      <label class="credits-confirm-skip">
+        <input type="checkbox" id="skipCreditsConfirm"> 下次不再提醒
+      </label>
     </div>
   </div>
 
@@ -572,6 +577,10 @@
     /* ── 积分确认弹窗逻辑 ── */
     var pendingCreditsAction = null;
     function openCreditsConfirm(cost, actionFn) {
+      if (localStorage.getItem('aigc_skip_credits_confirm') === 'true') {
+        actionFn();
+        return;
+      }
       pendingCreditsAction = actionFn;
       document.getElementById('creditsConfirmDesc').textContent =
         '此操作会消耗 🪙' + cost + ' 积分，请确定执行操作';
@@ -582,6 +591,9 @@
       document.getElementById('creditsConfirmOverlay').classList.remove('active');
     }
     function executeCreditsAction() {
+      if (document.getElementById('skipCreditsConfirm').checked) {
+        localStorage.setItem('aigc_skip_credits_confirm', 'true');
+      }
       if (pendingCreditsAction) pendingCreditsAction();
       closeCreditsConfirm();
     }

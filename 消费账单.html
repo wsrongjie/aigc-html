@@ -82,6 +82,10 @@
     }
     .user-name { color: #E4E4E7; font-size: 13px; }
     .user-role { color: var(--sidebar-text); font-size: 11px; }
+    .sidebar-credits { display: flex; align-items: center; gap: 8px; margin-top: 12px; padding: 10px 12px; background: rgba(255,255,255,0.04); border-radius: 8px; }
+    .sidebar-credits .sc-icon { font-size: 14px; line-height: 1; }
+    .sidebar-credits .sc-label { color: var(--sidebar-text); font-size: 11px; }
+    .sidebar-credits .sc-value { color: #fff; font-size: 14px; font-weight: 700; margin-left: auto; }
 
     .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
     .topbar {
@@ -334,7 +338,7 @@
             <div class="nav-section-children">
                 <a class="nav-sub-item" href="javascript:void(0)"><span class="nav-icon">👤</span> 个人信息</a>
                 <a class="nav-sub-item" href="javascript:void(0)"><span class="nav-icon">👥</span> 团队管理</a>
-                <a class="nav-sub-item" href="javascript:void(0)"><span class="nav-icon">💳</span> 套餐与支付</a>
+                <a class="nav-sub-item" href="javascript:void(0)"><span class="nav-icon">💳</span> 积分与支付</a>
                 <a class="nav-sub-item active" href="javascript:void(0)"><span class="nav-icon">🧾</span> 消费账单</a>
             </div>
         </div>
@@ -343,6 +347,11 @@
         <div class="user-info">
             <div class="user-avatar">王</div>
             <div><div class="user-name">王晓明</div><div class="user-role">投顾管理员</div></div>
+        </div>
+        <div class="sidebar-credits">
+            <span class="sc-icon">🪙</span>
+            <span class="sc-label">剩余积分</span>
+            <span class="sc-value" id="sidebarCredits">5,000</span>
         </div>
     </div>
 </aside>
@@ -366,7 +375,7 @@
                 <div class="page-head-top">
                     <div>
                         <div class="page-title" id="scopeTitle">团队账单</div>
-                        <div class="page-subtitle" id="scopeDesc">管理员查看团队图片/视频生成消耗、充值记录、套餐订单和积分调整，适合做成本核对和成员消耗追踪。</div>
+                        <div class="page-subtitle" id="scopeDesc">管理员查看团队图片/视频生成消耗、充值记录和积分调整，适合做成本核对和成员消耗追踪。</div>
                     </div>
                     <div class="scope-tabs" role="tablist">
                         <button data-scope="mine" onclick="setScope('mine')">我的账单</button>
@@ -393,7 +402,7 @@
                             <div class="metric-label">筛选范围入账</div>
                             <div class="metric-value positive" id="metricInflow">-</div>
                         </div>
-                        <div class="metric-foot">充值、套餐赠送、失败返还</div>
+                        <div class="metric-foot">充值、积分返还</div>
                     </div>
                 </div>
             </section>
@@ -490,7 +499,7 @@ var state = {
     type: '全部'
 };
 
-var billTypes = ['全部', '图片生成', '视频生成', '积分充值', '套餐订单', '其他'];
+var billTypes = ['全部', '图片生成', '视频生成', '积分充值', '其他'];
 
 var bills = [
     {
@@ -520,13 +529,6 @@ var bills = [
         type: '积分充值', title: '积分充值 30,000', detail: '企业采购包 · 对公转账',
         model: '-', amount: 30000, status: '待确认', balance: 49590,
         invoice: '需开票', payMethod: '对公转账', trace: ['提交充值订单', '添加客服沟通转账', '等待财务确认到账']
-    },
-    {
-        id: 'BILL20260601006', taskId: '-', orderId: 'ORD20260601001',
-        time: '2026-06-01 10:32', member: '王晓明', avatar: '王', role: '管理员',
-        type: '套餐订单', title: '团队版套餐续费', detail: '月付 · 20 席位 · 赠送 15,000 积分',
-        model: '-', amount: 15000, status: '已完成', balance: 19590,
-        invoice: '不开票', payMethod: '微信支付', trace: ['创建套餐订单', '微信扫码支付', '套餐权益已生效']
     },
     {
         id: 'BILL20260531007', taskId: 'TASK-ADJ-1022', orderId: '-',
@@ -596,12 +598,12 @@ function updateScopeCopy() {
     var scopeTag = document.getElementById('activeScopeTag');
     if (state.scope === 'mine') {
         title.textContent = '我的账单';
-        desc.textContent = '只展示当前账号的图片/视频生成消耗、积分充值、套餐订单和积分调整记录。';
+        desc.textContent = '只展示当前账号的图片/视频生成消耗、积分充值和积分调整记录。';
         memberFilter.classList.add('hidden');
         scopeTag.textContent = '个人视角';
     } else {
         title.textContent = '团队账单';
-        desc.textContent = '管理员查看团队图片/视频生成消耗、充值记录、套餐订单和积分调整，适合做成本核对和成员消耗追踪。';
+        desc.textContent = '管理员查看团队图片/视频生成消耗、充值记录和积分调整，适合做成本核对和成员消耗追踪。';
         memberFilter.classList.remove('hidden');
         scopeTag.textContent = '管理员 · 团队';
     }
@@ -715,7 +717,7 @@ function detailLine(label, value) {
 function typeTag(type) {
     var cls = 'tag-info';
     if (type === '视频生成' || type === '图片生成') cls = 'tag-danger';
-    if (type === '积分充值' || type === '套餐订单') cls = 'tag-success';
+    if (type === '积分充值') cls = 'tag-success';
     if (type === '其他') cls = 'tag-warning';
     return '<span class="tag ' + cls + '">' + type + '</span>';
 }

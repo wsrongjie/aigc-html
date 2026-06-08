@@ -103,6 +103,10 @@
     }
     .user-name { color: #E4E4E7; font-size: 13px; }
     .user-role { color: var(--sidebar-text); font-size: 11px; }
+    .sidebar-credits { display: flex; align-items: center; gap: 8px; margin-top: 12px; padding: 10px 12px; background: rgba(255,255,255,0.04); border-radius: 8px; }
+    .sidebar-credits .sc-icon { font-size: 14px; line-height: 1; }
+    .sidebar-credits .sc-label { color: var(--sidebar-text); font-size: 11px; }
+    .sidebar-credits .sc-value { color: #fff; font-size: 14px; font-weight: 700; margin-left: auto; }
 
     /* ========== 主区 ========== */
     .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
@@ -465,17 +469,17 @@
     }
     .invite-link-box .link-text { flex: 1; color: var(--text-primary); }
 
-    /* ========== 套餐卡片 ========== */
-    .package-options { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px; }
-    .package-card {
+    /* ========== 充值档位 ========== */
+    .recharge-options { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px; }
+    .recharge-card {
         border: 2px solid var(--border); border-radius: var(--radius-sm);
         padding: 14px; text-align: center; cursor: pointer; transition: all 0.15s;
     }
-    .package-card:hover { border-color: var(--primary); background: var(--primary-light); }
-    .package-card.selected { border-color: var(--primary); background: var(--primary-light); }
-    .package-card .package-credits { font-size: 22px; font-weight: 700; color: var(--text-primary); }
-    .package-card .package-price { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
-    .package-card .package-tag { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+    .recharge-card:hover { border-color: var(--primary); background: var(--primary-light); }
+    .recharge-card.selected { border-color: var(--primary); background: var(--primary-light); }
+    .recharge-card .recharge-credits { font-size: 22px; font-weight: 700; color: var(--text-primary); }
+    .recharge-card .recharge-price { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
+    .recharge-card .recharge-tag { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
 
     /* ========== 金额快捷输入 ========== */
     .amount-quick { display: flex; gap: 8px; margin-bottom: 14px; }
@@ -507,7 +511,7 @@
     @media (max-width: 860px) {
         .credit-overview { grid-template-columns: repeat(2, 1fr); }
         .role-cards { grid-template-columns: 1fr; }
-        .package-options { grid-template-columns: 1fr; }
+        .recharge-options { grid-template-columns: 1fr; }
         .permission-grid { grid-template-columns: 1fr; }
         .permission-review-grid { grid-template-columns: 1fr; }
         .permission-action-list { grid-template-columns: 1fr; }
@@ -549,7 +553,7 @@
             <div class="nav-section-children">
                 <a class="nav-sub-item" href="个人信息.html"><span class="nav-icon">👤</span> 个人信息</a>
                 <a class="nav-sub-item active" href="团队管理.html"><span class="nav-icon">👥</span> 团队管理</a>
-                <a class="nav-sub-item" href="套餐与支付.html"><span class="nav-icon">💳</span> 套餐与支付</a>
+                <a class="nav-sub-item" href="套餐与支付.html"><span class="nav-icon">💳</span> 积分与支付</a>
                 <a class="nav-sub-item" href="消费账单.html"><span class="nav-icon">🧾</span> 消费账单</a>
             </div>
         </div>
@@ -558,6 +562,11 @@
         <div class="user-info">
             <div class="user-avatar">王</div>
             <div><div class="user-name">王晓明</div><div class="user-role">投顾管理员</div></div>
+        </div>
+        <div class="sidebar-credits">
+            <span class="sc-icon">🪙</span>
+            <span class="sc-label">剩余积分</span>
+            <span class="sc-value" id="sidebarCredits">5,000</span>
         </div>
     </div>
 </aside>
@@ -903,41 +912,41 @@
     <div class="modal modal-md" role="dialog" aria-modal="true" aria-labelledby="modalRechargeTitle" tabindex="-1">
         <div class="modal-header">
             <div class="modal-title" id="modalRechargeTitle">积分充值</div>
-            <div class="modal-sub">1 元 = 10 积分，选择套餐或自定义金额，充值后积分进入租户总池</div>
+            <div class="modal-sub">1 元 = 10 积分，选择充值档位或自定义金额，充值后积分进入租户总池</div>
         </div>
         <div class="modal-body">
             <div class="form-group">
-                <label class="form-label">选择套餐</label>
-                <div class="package-options" id="packageOptions">
-                    <div class="package-card" data-amount="50" data-credits="500" onclick="selectPackage(this)">
-                        <div class="package-credits">500 积分</div>
-                        <div class="package-price">¥50</div>
-                        <div class="package-tag">1 元 = 10 积分</div>
+                <label class="form-label">选择充值档位</label>
+                <div class="recharge-options" id="packageOptions">
+                    <div class="recharge-card" data-amount="50" data-credits="500" onclick="selectRecharge(this)">
+                        <div class="recharge-credits">500 积分</div>
+                        <div class="recharge-price">¥50</div>
+                        <div class="recharge-tag">1 元 = 10 积分</div>
                     </div>
-                    <div class="package-card selected" data-amount="100" data-credits="1000" onclick="selectPackage(this)">
-                        <div class="package-credits">1,000 积分</div>
-                        <div class="package-price">¥100</div>
-                        <div class="package-tag">1 元 = 10 积分</div>
+                    <div class="recharge-card selected" data-amount="100" data-credits="1000" onclick="selectRecharge(this)">
+                        <div class="recharge-credits">1,000 积分</div>
+                        <div class="recharge-price">¥100</div>
+                        <div class="recharge-tag">1 元 = 10 积分</div>
                     </div>
-                    <div class="package-card" data-amount="300" data-credits="3300" onclick="selectPackage(this)">
-                        <div class="package-credits">3,300 积分</div>
-                        <div class="package-price">¥300</div>
-                        <div class="package-tag">加赠 10% · 1 元 ≈ 11 积分</div>
+                    <div class="recharge-card" data-amount="300" data-credits="3300" onclick="selectRecharge(this)">
+                        <div class="recharge-credits">3,300 积分</div>
+                        <div class="recharge-price">¥300</div>
+                        <div class="recharge-tag">加赠 10% · 1 元 ≈ 11 积分</div>
                     </div>
-                    <div class="package-card" data-amount="500" data-credits="6000" onclick="selectPackage(this)">
-                        <div class="package-credits">6,000 积分</div>
-                        <div class="package-price">¥500</div>
-                        <div class="package-tag">加赠 20% · 1 元 ≈ 12 积分</div>
+                    <div class="recharge-card" data-amount="500" data-credits="6000" onclick="selectRecharge(this)">
+                        <div class="recharge-credits">6,000 积分</div>
+                        <div class="recharge-price">¥500</div>
+                        <div class="recharge-tag">加赠 20% · 1 元 ≈ 12 积分</div>
                     </div>
-                    <div class="package-card" data-amount="1000" data-credits="13000" onclick="selectPackage(this)">
-                        <div class="package-credits">13,000 积分</div>
-                        <div class="package-price">¥1,000</div>
-                        <div class="package-tag">加赠 30% · 1 元 ≈ 13 积分</div>
+                    <div class="recharge-card" data-amount="1000" data-credits="13000" onclick="selectRecharge(this)">
+                        <div class="recharge-credits">13,000 积分</div>
+                        <div class="recharge-price">¥1,000</div>
+                        <div class="recharge-tag">加赠 30% · 1 元 ≈ 13 积分</div>
                     </div>
-                    <div class="package-card" data-amount="0" data-credits="0" onclick="selectPackage(this)">
-                        <div class="package-credits" style="font-size:18px;">💬 自定义</div>
-                        <div class="package-price">手动输入</div>
-                        <div class="package-tag">灵活设置金额</div>
+                    <div class="recharge-card" data-amount="0" data-credits="0" onclick="selectRecharge(this)">
+                        <div class="recharge-credits" style="font-size:18px;">💬 自定义</div>
+                        <div class="recharge-price">手动输入</div>
+                        <div class="recharge-tag">灵活设置金额</div>
                     </div>
                 </div>
             </div>
@@ -1979,8 +1988,8 @@ function deleteRole(roleId) {
 }
 
 /* ========== 积分充值 ========== */
-function selectPackage(card) {
-    document.querySelectorAll('.package-card').forEach(function(c){ c.classList.remove('selected'); });
+function selectRecharge(card) {
+    document.querySelectorAll('.recharge-card').forEach(function(c){ c.classList.remove('selected'); });
     card.classList.add('selected');
     var amount = parseInt(card.dataset.amount);
     var credits = parseInt(card.dataset.credits);
@@ -2016,7 +2025,7 @@ function updateCustomPreview() {
 }
 function submitRecharge() {
     var pkg = ctx.selectedPackage;
-    if (!pkg || pkg.amount <= 0) { toast('请选择套餐或输入金额', 'error'); return; }
+    if (!pkg || pkg.amount <= 0) { toast('请选择充值档位或输入金额', 'error'); return; }
     var method = document.getElementById('rechargeMethod').value;
     var recId = 'RC' + new Date().toISOString().slice(0,10).replace(/-/g,'') + Math.random().toString(36).slice(2,6).toUpperCase();
     M.rechargeRecords.unshift({

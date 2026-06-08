@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>套餐与支付 - 个人中心</title>
+<title>积分与支付 - 个人中心</title>
 <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     :root {
@@ -82,6 +82,10 @@
     }
     .user-name { color: #E4E4E7; font-size: 13px; }
     .user-role { color: var(--sidebar-text); font-size: 11px; }
+    .sidebar-credits { display: flex; align-items: center; gap: 8px; margin-top: 12px; padding: 10px 12px; background: rgba(255,255,255,0.04); border-radius: 8px; }
+    .sidebar-credits .sc-icon { font-size: 14px; line-height: 1; }
+    .sidebar-credits .sc-label { color: var(--sidebar-text); font-size: 11px; }
+    .sidebar-credits .sc-value { color: #fff; font-size: 14px; font-weight: 700; margin-left: auto; }
 
     .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
     .topbar {
@@ -125,7 +129,7 @@
     .tag-default { background: #f4f4f5; color: var(--text-secondary); }
 
     .summary-band {
-        display: grid; grid-template-columns: 1.25fr repeat(2, 1fr); gap: 14px;
+        display: grid; grid-template-columns: 1fr; gap: 14px;
         margin-bottom: 18px;
     }
     .summary-panel {
@@ -168,41 +172,6 @@
     .section-title { font-size: 17px; font-weight: 650; }
     .section-sub { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
     .section-tools { display: flex; align-items: center; gap: 10px; }
-    .segmented {
-        display: inline-flex; padding: 3px; border: 1px solid var(--border);
-        background: #fff; border-radius: 999px; gap: 2px;
-    }
-    .segmented button {
-        height: 26px; border: none; background: transparent; border-radius: 999px;
-        padding: 0 12px; font-size: 12px; color: var(--text-secondary);
-        cursor: pointer; font-family: inherit;
-    }
-    .segmented button.active { background: var(--primary); color: #fff; }
-
-    .plan-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
-    .plan-card {
-        background: var(--card-bg); border: 1px solid var(--border);
-        border-radius: var(--radius); box-shadow: var(--shadow);
-        padding: 18px; display: flex; flex-direction: column;
-        min-height: 438px; position: relative; overflow: hidden;
-    }
-    .plan-card.recommended { border-color: var(--primary); box-shadow: 0 8px 24px rgba(47,107,255,0.14); }
-    .plan-ribbon {
-        position: absolute; top: 12px; right: 12px;
-        background: var(--primary); color: #fff; border-radius: 999px;
-        padding: 3px 9px; font-size: 11px; font-weight: 600;
-    }
-    .plan-name { font-size: 16px; font-weight: 650; margin-bottom: 6px; padding-right: 74px; }
-    .plan-desc { color: var(--text-secondary); font-size: 12px; line-height: 1.6; min-height: 38px; }
-    .plan-price { margin-top: 14px; display: flex; align-items: baseline; gap: 3px; }
-    .plan-price strong { font-size: 30px; line-height: 1; }
-    .plan-price span { color: var(--text-muted); font-size: 12px; }
-    .plan-meta { color: var(--text-muted); font-size: 12px; margin-top: 6px; }
-    .plan-features { list-style: none; margin: 16px 0; display: flex; flex-direction: column; gap: 9px; flex: 1; }
-    .plan-features li { display: flex; gap: 8px; color: var(--text-secondary); font-size: 12px; line-height: 1.45; }
-    .plan-features li::before { content: "✓"; color: var(--success); font-weight: 700; flex-shrink: 0; }
-    .plan-actions { display: flex; flex-direction: column; gap: 8px; }
-
     .credit-box {
         background: #fff; border: 1px solid var(--border); border-radius: var(--radius);
         box-shadow: var(--shadow); padding: 18px;
@@ -222,31 +191,6 @@
         cursor: pointer; font-size: 12px; font-family: inherit;
     }
     .chip:hover, .chip.active { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
-
-    .rights-grid { display: grid; grid-template-columns: 280px 1fr; gap: 16px; align-items: start; }
-    .rights-nav {
-        background: #fff; border: 1px solid var(--border); border-radius: var(--radius);
-        box-shadow: var(--shadow); padding: 10px;
-    }
-    .rights-nav button {
-        width: 100%; height: 38px; border: none; border-radius: 8px;
-        background: transparent; display: flex; align-items: center; justify-content: space-between;
-        padding: 0 12px; cursor: pointer; color: var(--text-secondary); font-family: inherit;
-    }
-    .rights-nav button.active { background: var(--primary-light); color: var(--primary); font-weight: 600; }
-    .rights-table {
-        width: 100%; border-collapse: collapse; background: #fff;
-        border: 1px solid var(--border); border-radius: var(--radius);
-        overflow: hidden; box-shadow: var(--shadow);
-    }
-    .rights-table th, .rights-table td {
-        padding: 13px 14px; border-bottom: 1px solid var(--border);
-        text-align: left; font-size: 13px; vertical-align: middle;
-    }
-    .rights-table th { color: var(--text-muted); font-weight: 500; background: #fafafa; }
-    .rights-table tr:last-child td { border-bottom: none; }
-    .rights-table .yes { color: var(--success); font-weight: 700; }
-    .rights-table .no { color: var(--text-muted); }
 
     .payment-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
     .panel-box {
@@ -382,8 +326,7 @@
 
     @media (max-width: 1060px) {
         .summary-band { grid-template-columns: repeat(2, 1fr); }
-        .plan-grid { grid-template-columns: repeat(2, 1fr); }
-        .rights-grid, .payment-layout { grid-template-columns: 1fr; }
+        .payment-layout { grid-template-columns: 1fr; }
     }
     @media (max-width: 720px) {
         body { display: block; overflow: auto; height: auto; }
@@ -391,7 +334,7 @@
         .main { min-height: 100vh; }
         .topbar { height: auto; min-height: 56px; flex-wrap: wrap; padding: 14px 18px; }
         .page-wrap { padding: 18px 16px 60px; }
-        .summary-band, .plan-grid { grid-template-columns: 1fr; }
+        .summary-band { grid-template-columns: 1fr; }
         .tabs { overflow-x: auto; }
         .tab-item { flex-shrink: 0; }
         .section-head { align-items: flex-start; flex-direction: column; }
@@ -432,7 +375,7 @@
             <div class="nav-section-children">
                 <a class="nav-sub-item" href="javascript:void(0)"><span class="nav-icon">👤</span> 个人信息</a>
                 <a class="nav-sub-item" href="javascript:void(0)"><span class="nav-icon">👥</span> 团队管理</a>
-                <a class="nav-sub-item active" href="javascript:void(0)"><span class="nav-icon">💳</span> 套餐与支付</a>
+                <a class="nav-sub-item active" href="javascript:void(0)"><span class="nav-icon">💳</span> 积分与支付</a>
                 <a class="nav-sub-item" href="消费账单.html"><span class="nav-icon">🧾</span> 消费账单</a>
             </div>
         </div>
@@ -442,6 +385,11 @@
             <div class="user-avatar">王</div>
             <div><div class="user-name">王晓明</div><div class="user-role">投顾管理员</div></div>
         </div>
+        <div class="sidebar-credits">
+            <span class="sc-icon">🪙</span>
+            <span class="sc-label">剩余积分</span>
+            <span class="sc-value" id="sidebarCredits">5,000</span>
+        </div>
     </div>
 </aside>
 
@@ -450,10 +398,7 @@
         <div class="topbar-left">
             <span class="crumb">个人中心</span>
             <span class="crumb-sep">/</span>
-            <span class="topbar-title">套餐与支付</span>
-        </div>
-        <div class="topbar-actions">
-            <button class="btn btn-primary" onclick="switchTab('credits')">积分充值</button>
+            <span class="topbar-title">积分与支付</span>
         </div>
     </div>
 
@@ -461,19 +406,6 @@
         <div class="page-wrap">
             <div class="summary-band">
                 <div class="summary-panel summary-main">
-                    <div>
-                        <div class="summary-eyebrow">当前平台套餐</div>
-                        <div class="summary-title">团队版 <span class="tag tag-success">使用中</span></div>
-                        <div class="summary-desc">支持多人协作、角色权限、批量视频生成与团队积分池。</div>
-                    </div>
-                    <div class="summary-progress"><span style="width:72%;"></span></div>
-                </div>
-                <div class="summary-panel">
-                    <div class="summary-eyebrow">套餐有效期</div>
-                    <div class="summary-value">28 天</div>
-                    <div class="summary-foot">2026-07-02 到期</div>
-                </div>
-                <div class="summary-panel">
                     <div class="summary-eyebrow">租户积分总池</div>
                     <div class="summary-value" id="tenantCredits">5,000</div>
                     <div class="summary-foot">已分配 3,500 · 待分配 1,500</div>
@@ -481,29 +413,11 @@
             </div>
 
             <div class="tabs" role="tablist">
-                <button class="tab-item active" data-tab="plans" onclick="switchTab('plans')">套餐订购</button>
-                <button class="tab-item" data-tab="credits" onclick="switchTab('credits')">积分充值</button>
-                <button class="tab-item" data-tab="rights" onclick="switchTab('rights')">套餐权益</button>
+                <button class="tab-item active" data-tab="credits" onclick="switchTab('credits')">积分充值</button>
                 <button class="tab-item" data-tab="payment" onclick="switchTab('payment')">充值记录</button>
             </div>
 
-            <section class="tab-panel active" id="tab-plans">
-                <div class="section-head">
-                    <div>
-                        <div class="section-title">平台套餐订购</div>
-                        <div class="section-sub">套餐决定平台能力、席位与协作上限；积分用于生成、克隆、导出等资源消耗。</div>
-                    </div>
-                    <div class="section-tools">
-                        <div class="segmented">
-                            <button class="active" id="billingMonthly" onclick="setBillingCycle('monthly')">月付</button>
-                            <button id="billingYearly" onclick="setBillingCycle('yearly')">年付省 15%</button>
-                        </div>
-                    </div>
-                </div>
-                <div class="plan-grid" id="planGrid"></div>
-            </section>
-
-            <section class="tab-panel" id="tab-credits">
+            <section class="tab-panel active" id="tab-credits">
                 <div class="section-head">
                     <div>
                         <div class="section-title">积分充值</div>
@@ -530,19 +444,6 @@
                         <div class="order-line"><span>预计到账</span><b id="customCredits">- 积分</b></div>
                     </div>
                     <button class="btn btn-primary btn-lg" style="width:100%;" onclick="openCustomCreditCheckout()">提交充值</button>
-                </div>
-            </section>
-
-            <section class="tab-panel" id="tab-rights">
-                <div class="section-head">
-                    <div>
-                        <div class="section-title">套餐权益展示</div>
-                        <div class="section-sub">按管理者最关心的席位、视频、协作、合规和服务能力对比。</div>
-                    </div>
-                </div>
-                <div class="rights-grid">
-                    <div class="rights-nav" id="rightsNav"></div>
-                    <table class="rights-table" id="rightsTable"></table>
                 </div>
             </section>
 
@@ -586,7 +487,7 @@
     <div class="drawer">
         <div class="drawer-head">
             <div class="drawer-title" id="drawerTitle">确认订单</div>
-            <div class="drawer-sub" id="drawerSub">确认购买内容并选择支付方式</div>
+            <div class="drawer-sub" id="drawerSub">确认充值内容并选择支付方式</div>
         </div>
         <div class="drawer-body">
             <div class="order-summary" id="checkoutSummary"></div>
@@ -618,7 +519,7 @@
             <div style="height:14px;"></div>
             <div class="alert alert-warning">
                 <span>⚠️</span>
-                <div>原型演示中点击“模拟支付成功”会直接更新当前套餐、积分总池和订单记录。</div>
+                <div>原型演示中点击”模拟支付成功”会直接更新积分总池和订单记录。</div>
             </div>
         </div>
         <div class="drawer-footer">
@@ -645,56 +546,15 @@
 
 <script>
 var state = {
-    billingCycle: 'monthly',
-    currentPlan: 'team',
     tenantCredits: 5000,
     checkoutItem: null,
     payMethod: '微信支付',
     needInvoice: false,
-    activeRightsPlan: 'team',
     orders: [
-        { id: 'ORD20260601001', type: '套餐订购', name: '团队版 · 月付', amount: 2999, method: '微信支付', status: '已完成', invoice: '不开票', time: '2026-06-01 10:32', seats: 20, credits: 15000, billingCycle: '月付', planId: 'team' },
         { id: 'ORD20260528003', type: '积分充值', name: '3,300 积分包', amount: 300, method: '支付宝', status: '已完成', invoice: '不开票', time: '2026-05-28 15:18', credits: 3300, pool: '租户总池' },
         { id: 'ORD20260512002', type: '积分充值', name: '自定义充值 · 5,000 积分', amount: 500, method: '对公转账', status: '待确认', invoice: '需开票', time: '2026-05-12 09:45', credits: 5000, pool: '租户总池' }
     ]
 };
-
-var plans = [
-    {
-        id: 'basic', name: '基础版', desc: '适合单人试用和小规模内容验证。',
-        monthly: 399, yearly: 4069, seats: 2, credits: 120,
-        features: ['2 个成员席位', '每月赠送 120 积分', '5 个数字主体', '语音克隆与基础画质', '图片创作与水印字幕']
-    },
-    {
-        id: 'pro', name: '专业版', desc: '适合稳定生产短视频的投顾团队。',
-        monthly: 1299, yearly: 13249, seats: 8, credits: 500,
-        features: ['8 个成员席位', '每月赠送 500 积分', '30 个数字主体', '高清画质与批量生成', '模板复用']
-    },
-    {
-        id: 'team', name: '团队版', desc: '适合多人协作、权限分级和批量生产。',
-        monthly: 2999, yearly: 30589, seats: 20, credits: 1500, recommended: true,
-        features: ['20 个成员席位', '每月赠送 1,500 积分', '100 个数字主体', '角色权限与额度组', '批量生成与模板复用']
-    },
-    {
-        id: 'enterprise', name: '企业版', desc: '适合有私有化、安全和专属服务要求的机构。',
-        monthly: 0, yearly: 0, seats: '自定义', credits: '自定义',
-        features: ['席位与积分按需配置', 'SSO 与审计日志', '专属画质与私有素材库', '对公合同与定制开票', '专属客户服务']
-    }
-];
-
-var rightsRows = [
-    { key: '成员席位', basic: '2', pro: '8', team: '20', enterprise: '自定义', desc: '可加入平台的团队成员账号数' },
-    { key: '每月赠送积分', basic: '120', pro: '500', team: '1,500', enterprise: '自定义', desc: '每月自动到账的积分额度' },
-    { key: '数字主体数量', basic: '5', pro: '30', team: '100', enterprise: '自定义', desc: '可创建的数字人物角色上限' },
-    { key: '语音克隆', basic: '✓', pro: '✓', team: '✓', enterprise: '✓', desc: '基于 CosyVoice 的音色克隆' },
-    { key: '视频画质', basic: '基础', pro: '高清', team: '高清', enterprise: '专属', desc: '视频生成支持的最高画质' },
-    { key: '图片创作', basic: '✓', pro: '✓', team: '✓', enterprise: '✓', desc: '基于 wan2.7-image 的文生图' },
-    { key: '水印字幕', basic: '✓', pro: '✓', team: '✓', enterprise: '✓', desc: '视频批量添加水印与字幕' },
-    { key: '批量生成', basic: false, pro: true, team: true, enterprise: true, desc: '多任务批量创建视频' },
-    { key: '模板复用', basic: false, pro: true, team: true, enterprise: true, desc: '复用历史创作配置快速出片' },
-    { key: '角色权限', basic: false, pro: false, team: true, enterprise: true, desc: '管理员/编辑/查看等多级权限' },
-    { key: '额度组管理', basic: false, pro: false, team: true, enterprise: true, desc: '按组分配积分消费上限' }
-];
 
 function formatMoney(num) {
     return '¥' + Number(num).toLocaleString();
@@ -722,61 +582,6 @@ function switchTab(tab) {
     document.querySelectorAll('.tab-panel').forEach(function(panel){
         panel.classList.toggle('active', panel.id === 'tab-' + tab);
     });
-}
-
-function setBillingCycle(cycle) {
-    state.billingCycle = cycle;
-    document.getElementById('billingMonthly').classList.toggle('active', cycle === 'monthly');
-    document.getElementById('billingYearly').classList.toggle('active', cycle === 'yearly');
-    renderPlans();
-}
-
-function renderPlans() {
-    var html = '';
-    plans.forEach(function(plan){
-        var isCurrent = state.currentPlan === plan.id;
-        var price = state.billingCycle === 'monthly' ? plan.monthly : plan.yearly;
-        var priceText = plan.id === 'enterprise' ? '联系商务' : formatMoney(price);
-        var period = plan.id === 'enterprise' ? '' : (state.billingCycle === 'monthly' ? '/月' : '/年');
-        html += '<div class="plan-card' + (plan.recommended ? ' recommended' : '') + '">' +
-            (plan.recommended ? '<div class="plan-ribbon">推荐</div>' : '') +
-            '<div class="plan-name">' + plan.name + '</div>' +
-            '<div class="plan-desc">' + plan.desc + '</div>' +
-            '<div class="plan-price"><strong>' + priceText + '</strong><span>' + period + '</span></div>' +
-            '<div class="plan-meta">' + (plan.id === 'enterprise' ? '定制报价' : plan.seats + ' 席位 · 每月 ' + Number(plan.credits).toLocaleString() + ' 积分') + '</div>' +
-            '<ul class="plan-features">' + plan.features.map(function(f){ return '<li>' + f + '</li>'; }).join('') + '</ul>' +
-            '<div class="plan-actions">' +
-                '<button class="btn ' + (isCurrent ? '' : 'btn-primary') + '" onclick="' + (plan.id === 'enterprise' ? "toast('商务咨询流程占位', 'info')" : "openCheckout('" + plan.id + "')") + '">' + (isCurrent ? '当前套餐' : (plan.id === 'enterprise' ? '联系商务' : '订购套餐')) + '</button>' +
-                '<button class="btn btn-text" onclick="showRightsForPlan(\'' + plan.id + '\')">查看权益</button>' +
-            '</div>' +
-        '</div>';
-    });
-    document.getElementById('planGrid').innerHTML = html;
-}
-
-function showRightsForPlan(planId) {
-    state.activeRightsPlan = planId;
-    switchTab('rights');
-    renderRights();
-}
-
-function renderRights() {
-    var nav = '';
-    plans.forEach(function(plan){
-        nav += '<button class="' + (state.activeRightsPlan === plan.id ? 'active' : '') + '" onclick="state.activeRightsPlan=\'' + plan.id + '\';renderRights();">' +
-            '<span>' + plan.name + '</span><span>›</span></button>';
-    });
-    document.getElementById('rightsNav').innerHTML = nav;
-
-    var plan = plans.find(function(p){ return p.id === state.activeRightsPlan; }) || plans[2];
-    var html = '<thead><tr><th>权益项</th><th>' + plan.name + '</th><th>说明</th></tr></thead><tbody>';
-    rightsRows.forEach(function(row){
-        var value = row[plan.id];
-        var display = typeof value === 'boolean' ? (value ? '<span class="yes">✓ 支持</span>' : '<span class="no">-</span>') : value;
-        html += '<tr><td>' + row.key + '</td><td>' + display + '</td><td style="color:var(--text-secondary);">' + (row.desc || '') + '</td></tr>';
-    });
-    html += '</tbody>';
-    document.getElementById('rightsTable').innerHTML = html;
 }
 
 function renderOrders() {
@@ -816,34 +621,14 @@ function openCustomCreditCheckout() {
     document.getElementById('checkoutDrawer').classList.add('show');
 }
 
-function openCheckout(planId) {
-    var plan = plans.find(function(p){ return p.id === planId; });
-    if (!plan || plan.id === 'enterprise') return;
-    var amount = state.billingCycle === 'monthly' ? plan.monthly : plan.yearly;
-    state.checkoutItem = {
-        type: 'plan', id: plan.id,
-        name: plan.name + ' · ' + (state.billingCycle === 'monthly' ? '月付' : '年付'),
-        amount: amount, plan: plan
-    };
-    renderCheckout();
-    document.getElementById('checkoutDrawer').classList.add('show');
-}
-
 function renderCheckout() {
     var item = state.checkoutItem;
     if (!item) return;
-    document.getElementById('drawerTitle').textContent = item.type === 'plan' ? '确认套餐订单' : '确认积分充值';
-    document.getElementById('drawerSub').textContent = item.type === 'plan' ? '套餐支付成功后立即生效' : '积分到账后进入租户总池';
-    var detail = '';
-    if (item.type === 'plan') {
-        detail = '<div class="order-line"><span>购买内容</span><b>' + item.name + '</b></div>' +
-            '<div class="order-line"><span>成员席位</span><b>' + item.plan.seats + '</b></div>' +
-            '<div class="order-line"><span>赠送积分</span><b>' + Number(item.plan.credits).toLocaleString() + ' / 月</b></div>';
-    } else {
-        detail = '<div class="order-line"><span>充值内容</span><b>' + item.name + '</b></div>' +
-            '<div class="order-line"><span>到账积分</span><b>' + item.credits.toLocaleString() + '</b></div>' +
-            '<div class="order-line"><span>入账位置</span><b>租户总池</b></div>';
-    }
+    document.getElementById('drawerTitle').textContent = '确认积分充值';
+    document.getElementById('drawerSub').textContent = '积分到账后进入租户总池';
+    var detail = '<div class="order-line"><span>充值内容</span><b>' + item.name + '</b></div>' +
+        '<div class="order-line"><span>到账积分</span><b>' + item.credits.toLocaleString() + '</b></div>' +
+        '<div class="order-line"><span>入账位置</span><b>租户总池</b></div>';
     document.getElementById('checkoutSummary').innerHTML = detail +
         '<div class="order-line"><span>应付金额</span><strong>' + formatMoney(item.amount) + '</strong></div>';
     state.payMethod = '微信支付';
@@ -930,31 +715,19 @@ function completeCheckout() {
     if (!item) return;
     var now = new Date();
     var stamp = now.toISOString().replace('T', ' ').slice(0, 16);
-    var isPlan = item.type === 'plan';
     var order = {
         id: 'ORD' + now.toISOString().slice(0,10).replace(/-/g,'') + Math.random().toString(36).slice(2,5).toUpperCase(),
-        type: isPlan ? '套餐订购' : '积分充值',
+        type: '积分充值',
         name: item.name,
         amount: item.amount,
         method: state.payMethod,
         status: state.payMethod === '对公转账' ? '待确认' : '已完成',
         time: stamp,
-        invoice: state.needInvoice ? '需开票' : '不开票'
+        invoice: state.needInvoice ? '需开票' : '不开票',
+        credits: item.credits,
+        pool: '租户总池'
     };
-    if (isPlan && item.plan) {
-        order.seats = item.plan.seats;
-        order.credits = item.plan.credits;
-        order.billingCycle = state.billingCycle === 'monthly' ? '月付' : '年付';
-        order.planId = item.plan.id;
-    } else if (!isPlan) {
-        order.credits = item.credits;
-        order.pool = '租户总池';
-    }
     state.orders.unshift(order);
-    if (item.type === 'plan' && order.status === '已完成') {
-        state.currentPlan = item.id;
-        toast('套餐已生效：' + item.name, 'success');
-    }
     if (item.type === 'credit' && order.status === '已完成') {
         state.tenantCredits += item.credits;
         document.getElementById('tenantCredits').textContent = state.tenantCredits.toLocaleString();
@@ -962,7 +735,6 @@ function completeCheckout() {
     }
     if (order.status === '待确认') toast('对公订单已生成，请添加客服沟通转账与开票', 'info');
     closeCheckout();
-    renderPlans();
     renderOrders();
 }
 
@@ -977,33 +749,18 @@ document.getElementById('detailDrawer').addEventListener('click', function(e){
 function showOrderDetail(orderId) {
     var order = state.orders.find(function(o){ return o.id === orderId; });
     if (!order) return;
-    var isPlan = order.type === '套餐订购';
     var statusTag = order.status === '已完成' ? '<span class="tag tag-success">已完成</span>' : (order.status === '待确认' ? '<span class="tag tag-warning">待确认</span>' : '<span class="tag tag-default">' + order.status + '</span>');
     document.getElementById('detailTitle').innerHTML = '订单详情';
     document.getElementById('detailSub').innerHTML = '<span class="order-id">' + order.id + '</span> &nbsp;' + statusTag;
-    var html = '';
-    if (isPlan) {
-        html += '<div class="order-summary">' +
-            '<div class="order-line"><span>套餐名称</span><b>' + order.name + '</b></div>' +
-            '<div class="order-line"><span>成员席位</span><b>' + (order.seats || '-') + '</b></div>' +
-            '<div class="order-line"><span>每月赠送积分</span><b>' + (order.credits ? Number(order.credits).toLocaleString() : '-') + '</b></div>' +
-            '<div class="order-line"><span>计费周期</span><b>' + (order.billingCycle || '-') + '</b></div>' +
-            '<div class="order-line"><span>应付金额</span><strong>' + formatMoney(order.amount) + '</strong></div>' +
-            '<div class="order-line"><span>支付方式</span><b>' + order.method + '</b></div>' +
-            '<div class="order-line"><span>发票</span><b>' + (order.invoice || '不开票') + '</b></div>' +
-            '<div class="order-line"><span>下单时间</span><b>' + order.time + '</b></div>' +
-        '</div>';
-    } else {
-        html += '<div class="order-summary">' +
-            '<div class="order-line"><span>充值内容</span><b>' + order.name + '</b></div>' +
-            '<div class="order-line"><span>到账积分</span><b>' + (order.credits ? Number(order.credits).toLocaleString() : '-') + '</b></div>' +
-            '<div class="order-line"><span>入账位置</span><b>' + (order.pool || '租户总池') + '</b></div>' +
-            '<div class="order-line"><span>应付金额</span><strong>' + formatMoney(order.amount) + '</strong></div>' +
-            '<div class="order-line"><span>支付方式</span><b>' + order.method + '</b></div>' +
-            '<div class="order-line"><span>发票</span><b>' + (order.invoice || '不开票') + '</b></div>' +
-            '<div class="order-line"><span>下单时间</span><b>' + order.time + '</b></div>' +
-        '</div>';
-    }
+    var html = '<div class="order-summary">' +
+        '<div class="order-line"><span>充值内容</span><b>' + order.name + '</b></div>' +
+        '<div class="order-line"><span>到账积分</span><b>' + (order.credits ? Number(order.credits).toLocaleString() : '-') + '</b></div>' +
+        '<div class="order-line"><span>入账位置</span><b>' + (order.pool || '租户总池') + '</b></div>' +
+        '<div class="order-line"><span>应付金额</span><strong>' + formatMoney(order.amount) + '</strong></div>' +
+        '<div class="order-line"><span>支付方式</span><b>' + order.method + '</b></div>' +
+        '<div class="order-line"><span>发票</span><b>' + (order.invoice || '不开票') + '</b></div>' +
+        '<div class="order-line"><span>下单时间</span><b>' + order.time + '</b></div>' +
+    '</div>';
     document.getElementById('detailBody').innerHTML = html;
     document.getElementById('detailDrawer').classList.add('show');
 }
@@ -1013,8 +770,6 @@ function closeDetail() {
 }
 
 function init() {
-    renderPlans();
-    renderRights();
     renderOrders();
     updateCustomPreview();
 }

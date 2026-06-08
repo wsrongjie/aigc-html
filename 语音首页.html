@@ -168,6 +168,10 @@
         color: var(--sidebar-text);
         font-size: 11px;
     }
+    .sidebar-credits { display: flex; align-items: center; gap: 8px; margin-top: 12px; padding: 10px 12px; background: rgba(255,255,255,0.04); border-radius: 8px; }
+    .sidebar-credits .sc-icon { font-size: 14px; line-height: 1; }
+    .sidebar-credits .sc-label { color: var(--sidebar-text); font-size: 11px; }
+    .sidebar-credits .sc-value { color: #fff; font-size: 14px; font-weight: 700; margin-left: auto; }
 
     .main {
         flex: 1;
@@ -833,6 +837,11 @@
             <div>
                 <div class="user-name">王小明</div>
                 <div class="user-role">内容运营</div>
+            </div>
+            <div class="sidebar-credits">
+                <span class="sc-icon">🪙</span>
+                <span class="sc-label">剩余积分</span>
+                <span class="sc-value" id="sidebarCredits">5,000</span>
             </div>
         </div>
     </div>

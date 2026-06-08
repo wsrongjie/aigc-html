@@ -88,6 +88,10 @@
     }
     .user-name { color: #E4E4E7; font-size: 13px; }
     .user-role { color: var(--sidebar-text); font-size: 11px; }
+    .sidebar-credits { display: flex; align-items: center; gap: 8px; margin-top: 12px; padding: 10px 12px; background: rgba(255,255,255,0.04); border-radius: 8px; }
+    .sidebar-credits .sc-icon { font-size: 14px; line-height: 1; }
+    .sidebar-credits .sc-label { color: var(--sidebar-text); font-size: 11px; }
+    .sidebar-credits .sc-value { color: #fff; font-size: 14px; font-weight: 700; margin-left: auto; }
 
     /* ========== 主区 ========== */
     .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
@@ -398,7 +402,7 @@
             <div class="nav-section-children">
                 <a class="nav-sub-item active" href="个人信息.html"><span class="nav-icon">👤</span> 个人信息</a>
                 <a class="nav-sub-item" href="团队管理.html"><span class="nav-icon">👥</span> 团队管理</a>
-                <a class="nav-sub-item" href="套餐与支付.html"><span class="nav-icon">💳</span> 套餐与支付</a>
+                <a class="nav-sub-item" href="套餐与支付.html"><span class="nav-icon">💳</span> 积分与支付</a>
                 <a class="nav-sub-item" href="消费账单.html"><span class="nav-icon">🧾</span> 消费账单</a>
             </div>
         </div>
@@ -407,6 +411,11 @@
         <div class="user-info">
             <div class="user-avatar">顾</div>
             <div><div class="user-name">王晓明</div><div class="user-role">投顾管理员</div></div>
+        </div>
+        <div class="sidebar-credits">
+            <span class="sc-icon">🪙</span>
+            <span class="sc-label">剩余积分</span>
+            <span class="sc-value" id="sidebarCredits">5,000</span>
         </div>
     </div>
 </aside>
