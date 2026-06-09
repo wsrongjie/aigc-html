@@ -30,7 +30,7 @@
         color: var(--text);
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", sans-serif;
         -webkit-font-smoothing: antialiased;
-        overflow: hidden;
+        overflow-x: hidden; overflow-y: auto;
     }
     button, input, textarea { font: inherit; }
     button { border: none; cursor: pointer; }
@@ -47,6 +47,40 @@
         padding: 22px 36px 168px;
     }
     .scene-board {
+        display: flex; flex-direction: column; gap: 0;
+    }
+    /* 垂直时间轴分组 */
+    .timeline-group {
+        display: flex; gap: 20px; align-items: stretch;
+        padding-bottom: 0; position: relative;
+    }
+    .timeline-axis {
+        width: 110px; flex-shrink: 0; position: relative;
+        display: flex; flex-direction: column; align-items: flex-end;
+        padding-right: 18px; padding-top: 6px;
+    }
+    .tl-label {
+        font-size: 12px; font-weight: 700; color: var(--text);
+        white-space: nowrap; text-align: right; line-height: 1;
+    }
+    .tl-label .tl-today { font-size: 10px; color: var(--primary); font-weight: 600; }
+    .tl-line-col {
+        position: absolute; right: 0; top: 0; bottom: 0; width: 2px;
+        display: flex; flex-direction: column; align-items: center;
+    }
+    .tl-stem {
+        flex: 1; width: 2px; background: var(--line);
+    }
+    .tl-stem.top { flex: 0 0 22px; }
+    .tl-node {
+        width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0;
+        background: #fff; border: 2.5px solid var(--primary);
+        box-shadow: 0 0 0 3px rgba(0,102,255,0.12);
+        z-index: 1;
+    }
+    .timeline-group:last-child .tl-stem.bottom { background: transparent; }
+    .timeline-images {
+        flex: 1; min-width: 0; padding-bottom: 28px;
         display: grid;
         grid-template-columns: repeat(3, 178px);
         gap: 14px;
@@ -395,12 +429,17 @@
         body { overflow: auto; }
         .page-head { padding: 22px 16px 0; }
         .workspace { padding: 18px 16px 180px; }
-        .scene-board { grid-template-columns: repeat(2, 178px); }
+        .timeline-axis { width: 90px; padding-right: 14px; }
+        .timeline-images { grid-template-columns: repeat(2, 178px); }
         .config-panel { right: 0; width: min(430px, 100%); }
     }
     @media (max-width: 640px) {
         .page-head { display: block; }
-        .scene-board { grid-template-columns: repeat(2, minmax(0, 1fr)); width: 100%; }
+        .workspace { padding: 14px 8px 168px; }
+        .timeline-group { gap: 10px; }
+        .timeline-axis { width: 56px; padding-right: 10px; }
+        .tl-label { font-size: 11px; }
+        .timeline-images { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
         .scene-card { width: 100%; border-radius: 12px; }
         .composer-wrap { width: calc(100vw - 24px); bottom: 12px; }
         .composer { border-radius: 16px; }
@@ -545,32 +584,93 @@ var demos = [
     { id: 'product', title: '高端产品静物，柔光棚拍风格', type: '商品', kind: 'demo' }
 ];
 
+function getToday() {
+    var d = new Date();
+    return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2);
+}
+
+function groupByDate() {
+    var groups = [];
+    var today = getToday();
+    // 将 generated 图片按日期分组
+    var dateMap = {};
+    state.generated.forEach(function(item) {
+        var d = item.date || today;
+        if (!dateMap[d]) { dateMap[d] = []; }
+        dateMap[d].push(item);
+    });
+    // 按日期降序排列
+    var dates = Object.keys(dateMap).sort(function(a, b) { return b.localeCompare(a); });
+    dates.forEach(function(date) {
+        groups.push({ date: date, isToday: date === today, items: dateMap[date] });
+    });
+    return groups;
+}
+
+function renderCard(item) {
+    var isGenerated = item.kind === 'generated';
+    var visual = isGenerated
+        ? '<img class="generated-img" src="' + item.dataUrl + '" alt="' + escapeHtml(item.title) + '">'
+        : '<div class="scene-art ' + item.id + '"></div>';
+    var menu = '<div class="image-menu-wrap" onclick="event.stopPropagation()">' +
+        '<button class="image-menu-btn" title="更多操作" onclick="toggleImageMenu(\'' + item.id + '\')">⋯</button>' +
+        '<div class="image-menu' + (state.menuOpenId === item.id ? ' show' : '') + '" id="menu-' + item.id + '">' +
+            '<button onclick="addToSubject(\'role\', \'' + item.id + '\')"><span>👤</span>添加到角色</button>' +
+            '<button onclick="addToSubject(\'scene\', \'' + item.id + '\')"><span>🏞</span>添加到场景</button>' +
+            '<button onclick="addToReference(\'' + item.id + '\')"><span>🖼</span>添加到参考图</button>' +
+            '<button class="danger" onclick="requestDeleteImage(\'' + item.id + '\')"><span>🗑</span>删除</button>' +
+        '</div>' +
+    '</div>';
+    return '<article class="scene-card" data-id="' + item.id + '" onclick="openPreview(\'' + item.id + '\')">' +
+        visual +
+        '<div class="scene-overlay"></div>' +
+        '<div class="scene-meta">' + item.type + '</div>' +
+        menu +
+        '<div class="scene-caption"><span>▧</span><span>' + escapeHtml(item.title) + '</span></div>' +
+        '<div class="loading-layer"><div class="spinner"></div><div>正在生成图片</div></div>' +
+    '</article>';
+}
+
 function renderScenes() {
+    var h = '';
+    var groups = groupByDate();
+    // 渲染每个日期分组
+    groups.forEach(function(group, gi) {
+        var dateLabel = group.isToday ? '<span class="tl-today">今天</span> ' + group.date : group.date;
+        h += '<div class="timeline-group">';
+        // 左侧轴线
+        h += '<div class="timeline-axis">';
+        h += '<div class="tl-label">' + dateLabel + '</div>';
+        h += '<div class="tl-line-col">';
+        h += '<div class="tl-stem top"></div>';
+        h += '<div class="tl-node"></div>';
+        h += '<div class="tl-stem bottom"></div>';
+        h += '</div>';
+        h += '</div>';
+        // 右侧图片网格
+        h += '<div class="timeline-images">';
+        h += group.items.map(renderCard).join('');
+        h += '</div>';
+        h += '</div>';
+    });
+    // Demo 示例放在最后
     var visibleDemos = demos.filter(function(item) { return hiddenDemoIds.indexOf(item.id) === -1; });
-    var cards = state.generated.concat(visibleDemos);
-    document.getElementById('sceneBoard').innerHTML = cards.map(function(item) {
-        var isGenerated = item.kind === 'generated';
-        var visual = isGenerated
-            ? '<img class="generated-img" src="' + item.dataUrl + '" alt="' + escapeHtml(item.title) + '">'
-            : '<div class="scene-art ' + item.id + '"></div>';
-        var menu = '<div class="image-menu-wrap" onclick="event.stopPropagation()">' +
-            '<button class="image-menu-btn" title="更多操作" onclick="toggleImageMenu(\'' + item.id + '\')">⋯</button>' +
-            '<div class="image-menu' + (state.menuOpenId === item.id ? ' show' : '') + '" id="menu-' + item.id + '">' +
-                '<button onclick="addToSubject(\'role\', \'' + item.id + '\')"><span>👤</span>添加到角色</button>' +
-                '<button onclick="addToSubject(\'scene\', \'' + item.id + '\')"><span>🏞</span>添加到场景</button>' +
-                '<button onclick="addToReference(\'' + item.id + '\')"><span>🖼</span>添加到参考图</button>' +
-                '<button class="danger" onclick="requestDeleteImage(\'' + item.id + '\')"><span>🗑</span>删除</button>' +
-            '</div>' +
-        '</div>';
-        return '<article class="scene-card" data-id="' + item.id + '" onclick="openPreview(\'' + item.id + '\')">' +
-            visual +
-            '<div class="scene-overlay"></div>' +
-            '<div class="scene-meta">' + item.type + '</div>' +
-            menu +
-            '<div class="scene-caption"><span>▧</span><span>' + escapeHtml(item.title) + '</span></div>' +
-            '<div class="loading-layer"><div class="spinner"></div><div>正在生成图片</div></div>' +
-        '</article>';
-    }).join('');
+    if (visibleDemos.length > 0) {
+        h += '<div class="timeline-group">';
+        h += '<div class="timeline-axis">';
+        h += '<div class="tl-label" style="color:var(--text-mute);font-weight:600;">示例模板</div>';
+        h += '<div class="tl-line-col">';
+        h += '<div class="tl-stem top"></div>';
+        h += '<div class="tl-node" style="border-color:var(--text-mute);box-shadow:0 0 0 3px rgba(0,0,0,0.06);"></div>';
+        h += '<div class="tl-stem bottom"></div>';
+        h += '</div>';
+        h += '</div>';
+        h += '<div class="timeline-images">';
+        h += visibleDemos.map(renderCard).join('');
+        h += '</div>';
+        h += '</div>';
+    }
+    document.getElementById('sceneBoard').innerHTML = h;
 }
 
 function renderOptions() {
@@ -719,6 +819,7 @@ function confirmGenerate() {
                 prompt: prompt,
                 model: state.model,
                 ratio: state.ratio,
+                date: getToday(),
                 dataUrl: createGeneratedImageData(i, prompt)
             });
         }
@@ -909,6 +1010,37 @@ document.getElementById('deleteModal').addEventListener('click', function(event)
     if (event.target === this) closeDeleteConfirm();
 });
 
+// 预置演示数据：展示多天时间轴效果
+(function initDemoData() {
+    var today = new Date();
+    var yesterday = new Date(today); yesterday.setDate(today.getDate() - 1);
+    var dayBefore = new Date(today); dayBefore.setDate(today.getDate() - 2);
+    function fmt(d) { return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); }
+    var prompts = [
+        '一位知性女性在办公室里自信陈述理财观点',
+        '未来科技感城市夜景，霓虹光影',
+        '高端咖啡厅内景，柔光氛围',
+        '户外自然风光，阳光透过树叶',
+        '专业演播室场景，主持人对镜播报',
+        '简约书房，书架与阅读角'
+    ];
+    [fmt(dayBefore), fmt(yesterday)].forEach(function(date) {
+        for (var i = 0; i < 3; i++) {
+            var p = prompts[Math.floor(Math.random() * prompts.length)];
+            state.generated.push({
+                id: 'demo-gen-' + date + '-' + i,
+                title: p.slice(0, 18) + (p.length > 18 ? '...' : ''),
+                type: '生成图',
+                kind: 'generated',
+                prompt: p,
+                model: 'Nano Banana Pro',
+                ratio: '9:16',
+                date: date,
+                dataUrl: createGeneratedImageData(i, p)
+            });
+        }
+    });
+})();
 renderScenes();
 renderOptions();
 updateCost();
