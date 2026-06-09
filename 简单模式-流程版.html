@@ -143,6 +143,24 @@
     .ff-preview.gen .ff-loading { display: flex; }
     .ff-spin { width: 22px; height: 22px; border: 2.5px solid #d8e4ff; border-top-color: #0066ff; border-radius: 50%; animation: spin 0.7s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
+    /* 首帧失败状态 */
+    .ff-preview.failed { border: 2px dashed #ef4444; background: #fef2f2 !important; }
+    .ff-preview .ff-failed-overlay { display: none; position: absolute; inset: 0; background: rgba(254,242,242,0.9); align-items: center; justify-content: center; flex-direction: column; gap: 4px; z-index: 5; }
+    .ff-preview.failed .ff-failed-overlay { display: flex; }
+    .ff-preview.failed .ff-corner,
+    .ff-preview.failed .ff-corner-bottom,
+    .ff-preview.failed .ff-emoji { opacity: 0.35; }
+    .ff-failed-icon { font-size: 28px; }
+    .ff-failed-text { font-size: 10px; color: #ef4444; font-weight: 600; }
+    /* TTS 失败状态 */
+    .tts-play-row.failed .tts-progress-bar { background: #fee2e2; }
+    .tts-play-row.failed .tts-progress-fill { background: #ef4444; }
+    .tts-retry-btn { width: 26px; height: 26px; border-radius: 6px; border: 1.5px solid #ef4444; background: #fef2f2; color: #ef4444; font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.15s; padding: 0; }
+    .tts-retry-btn:hover { background: #ef4444; color: #fff; }
+    .tts-status-failed { font-size: 10px; color: #ef4444; font-weight: 600; min-width: 40px; text-align: right; }
+    /* Step2 只读 textarea */
+    textarea.readonly-step2 { background: #f9fafb; color: #555; cursor: default; resize: none; }
+    textarea.readonly-step2:focus { border-color: #e8e8e8; box-shadow: none; }
     /* 角色/场景小角标 */
     .ff-minis { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; }
     .ff-mini { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; color: #555; background: #f3f5f9; border: 1px solid #e8e8e8; border-radius: 12px; padding: 2px 8px; cursor: default; }
@@ -757,7 +775,7 @@
       S.cards.push({ id: S.nextId++, content: content || '', frame: null, tts: defaultTts() });
       renderCards();
     }
-    function defaultTts() { return { ready:false, duration:3, custom:false, speed:10, pitch:0, volume:80, instruction:'' }; }
+    function defaultTts() { return { ready:false, status:'pending', duration:3, custom:false, speed:10, pitch:0, volume:80, instruction:'' }; }
     function delScript(id) { S.cards = S.cards.filter(function(x){return x.id!==id;}); renderCards(); updFooter(); updateSidebar(); }
     function updScript(id, v) {
       var g = S.cards.find(function(x){return x.id===id;});
@@ -793,11 +811,18 @@
         // textarea
         h += '<textarea placeholder="请输入这条台词的内容..." oninput="updScript('+g.id+',this.value)">'+escapeHtml(g.content)+'</textarea>';
         // TTS 播放条
-        h += '<div class="tts-play-row" style="margin-top:6px;">';
+        var ttsFailed = t.status === 'failed';
+        var ttsReady = t.status === 'ready';
+        h += '<div class="tts-play-row'+(ttsFailed?' failed':'')+'" style="margin-top:6px;">';
         h += '<button class="tts-play-btn" id="tts-btn-'+g.id+'" onclick="toggleTtsPlay('+g.id+')" title="试听">▶</button>';
         h += '<div class="tts-progress-wrap" onclick="seekTts(event,'+g.id+')"><div class="tts-progress-bar"><div class="tts-progress-fill" id="tts-fill-'+g.id+'" style="width:0%"></div></div></div>';
-        h += '<span style="font-size:10px;color:#999;min-width:30px;text-align:right;" id="tts-time-'+g.id+'">0:00</span>';
-        h += '<button class="tts-dl-btn'+(t.ready?' done':'')+'" onclick="downloadTts('+g.id+')" title="下载音频" style="width:26px;height:26px;border-radius:6px;border:1.5px solid #e8e8e8;background:#fff;color:#666;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;">⬇</button>';
+        if (ttsFailed) {
+          h += '<span class="tts-status-failed">失败</span>';
+          h += '<button class="tts-retry-btn" onclick="event.stopPropagation();resynthOne('+g.id+')" title="重新合成">🔄</button>';
+        } else {
+          h += '<span style="font-size:10px;color:#999;min-width:30px;text-align:right;" id="tts-time-'+g.id+'">0:00</span>';
+          h += '<button class="tts-dl-btn'+(ttsReady?' done':'')+'" onclick="downloadTts('+g.id+')" title="下载音频">⬇</button>';
+        }
         h += '</div>';
         // 单条语音配置
         h += '<div class="ff-voice-toggle" style="margin-top:4px;" onclick="toggleVoiceCfg('+g.id+')">⚙ 单独调整本条语音 ▾</div>';
@@ -885,16 +910,43 @@
     function hasAllSynth() {
       var cards = validCards();
       if (cards.length === 0) return true;
-      return cards.every(function(c){ return c.tts && c.tts.ready; });
+      // 至少要尝试过合成（非 pending），允许有失败条目后续重试
+      return cards.every(function(c){ return c.tts && c.tts.status !== 'pending'; });
     }
     function nextStep() {
-      if (document.getElementById('btn-next').classList.contains('disabled')) {
-        if (S.step === 1) toast('请先配置：' + getMissing().join('、'));
-        return;
+      if (S.step === 1) {
+        var miss = getMissing();
+        if (miss.length > 0) { toast('请先配置：' + miss.join('、')); return; }
+        if (!hasAllSynth()) { toast('请先进行语音合成操作再进入下一步'); return; }
+        var failedCards = validCards().filter(function(c){return c.tts && c.tts.status==='failed';});
+        if (failedCards.length > 0) {
+          var failedNums = failedCards.map(function(c){
+            var idx = validCards().findIndex(function(vc){return vc.id===c.id;});
+            return '台词'+(idx+1);
+          }).join('、');
+          toast('⚠️ ' + failedNums + ' 语音合成失败，请重试');
+          return;
+        }
       }
-      if (S.step === 1 && !hasAllSynth()) {
-        toast('请先进行语音合成操作再进入下一步');
-        return;
+      if (S.step === 2) {
+        var failedFrames = validCards().filter(function(c){return c.frame && c.frame.status==='failed';});
+        if (failedFrames.length > 0) {
+          var ffNums = failedFrames.map(function(c){
+            var idx = validCards().findIndex(function(vc){return vc.id===c.id;});
+            return '台词'+(idx+1);
+          }).join('、');
+          toast('⚠️ ' + ffNums + ' 对应的首帧图生成失败，请重新生成首帧后再操作');
+          return;
+        }
+        var failedTts = validCards().filter(function(c){return c.tts && c.tts.status==='failed';});
+        if (failedTts.length > 0) {
+          var ftNums = failedTts.map(function(c){
+            var idx = validCards().findIndex(function(vc){return vc.id===c.id;});
+            return '台词'+(idx+1);
+          }).join('、');
+          toast('⚠️ ' + ftNums + ' 语音合成失败，请重试');
+          return;
+        }
       }
       if (S.step === 3) {
         var totalSec = 0;
@@ -916,11 +968,44 @@
         } else if (!hasAllSynth()) {
           next.classList.add('disabled'); info.textContent = '请先合成语音：点击「应用并合成全部」或逐条合成后再进入下一步';
         } else {
-          next.classList.remove('disabled'); info.textContent = validCards().length + ' 条台词 → ' + validCards().length + ' 条视频';
+          var failedCards = validCards().filter(function(c){return c.tts && c.tts.status==='failed';});
+          if (failedCards.length > 0) {
+            next.classList.add('disabled');
+            var failedNums = failedCards.map(function(c){
+              var idx = validCards().findIndex(function(vc){return vc.id===c.id;});
+              return '台词'+(idx+1);
+            }).join('、');
+            info.textContent = '⚠️ ' + failedNums + ' 语音合成失败，请重试后再进入下一步';
+          } else {
+            next.classList.remove('disabled');
+            info.textContent = validCards().length + ' 条台词 → ' + validCards().length + ' 条视频';
+          }
         }
       } else if (S.step === 2) {
-        next.classList.remove('disabled');
-        info.textContent = '已生成 ' + validCards().length + ' 张首帧并合成语音，可逐条调整';
+        var failedFrames = validCards().filter(function(c){return c.frame && c.frame.status==='failed';});
+        var failedTts2 = validCards().filter(function(c){return c.tts && c.tts.status==='failed';});
+        if (failedFrames.length > 0 || failedTts2.length > 0) {
+          next.classList.add('disabled');
+          var parts = [];
+          if (failedFrames.length > 0) {
+            var ffNums = failedFrames.map(function(c){
+              var idx = validCards().findIndex(function(vc){return vc.id===c.id;});
+              return '台词'+(idx+1);
+            }).join('、');
+            parts.push(ffNums + ' 首帧图生成失败，请重新生成');
+          }
+          if (failedTts2.length > 0) {
+            var ftNums = failedTts2.map(function(c){
+              var idx = validCards().findIndex(function(vc){return vc.id===c.id;});
+              return '台词'+(idx+1);
+            }).join('、');
+            parts.push(ftNums + ' 语音合成失败，请重试');
+          }
+          info.textContent = '⚠️ ' + parts.join('；');
+        } else {
+          next.classList.remove('disabled');
+          info.textContent = '已生成 ' + validCards().length + ' 张首帧并合成语音（台词只读，可试听/下载）';
+        }
       } else {
         next.classList.remove('disabled');
         info.textContent = '确认无误后开始批量生成';
@@ -996,8 +1081,11 @@
       S.cards.forEach(function(card) {
         if (!card.content.trim()) { card.frame = null; return; }
         // 首帧
-        if (!card.frame) card.frame = { bg: pick(S.bgMulti), pose: pick(POSES), shot: pick(SHOTS) };
+        if (!card.frame) card.frame = { bg: pick(S.bgMulti), pose: pick(POSES), shot: pick(SHOTS), status: 'ready' };
         else if (S.bgMulti.indexOf(card.frame.bg) === -1) card.frame.bg = pick(S.bgMulti);
+        // 模拟首帧生成：~20% 概率失败
+        if (!card.frame.status) card.frame.status = 'ready';
+        if (Math.random() < 0.2) card.frame.status = 'failed';
         // 语音：默认用全局配置合成初版（未单独覆盖的）
         if (!card.tts) card.tts = defaultTts();
         if (!card.tts.custom) { card.tts.speed=g.speed; card.tts.pitch=g.pitch; card.tts.volume=g.volume; card.tts.instruction=g.instruction; }
@@ -1022,14 +1110,19 @@
         var f = g.frame;
         var t = g.tts;
         var bgGrad = bgM[f.bg] || bgM['办公室'];
+        var frameFailed = f.status === 'failed';
+        var ttsFailed = t.status === 'failed';
+        var ttsReady = t.status === 'ready';
         h += '<div class="ff-card" data-id="'+g.id+'">';
         /* 左：首帧画面 */
         h += '<div class="ff-left">';
-        h += '<div class="ff-preview" id="ff-prev-'+g.id+'" style="background:'+bgGrad+'">';
+        h += '<div class="ff-preview'+(frameFailed?' failed':'')+'" id="ff-prev-'+g.id+'" style="background:'+bgGrad+'">';
         h += '<div class="ff-corner">'+escapeHtml(f.bg)+'</div>';
         h += '<div class="ff-emoji">'+emoji+'</div>';
         h += '<div class="ff-corner-bottom">'+f.pose+' · '+f.shot+'</div>';
         h += '<div class="ff-loading"><div class="ff-spin"></div>生成中…</div>';
+        // 失败遮罩
+        h += '<div class="ff-failed-overlay"><div class="ff-failed-icon">⚠️</div><div class="ff-failed-text">生成失败</div></div>';
         h += '</div>';
         // 角色/场景小角标（hover 大图）
         h += '<div class="ff-minis">';
@@ -1055,13 +1148,19 @@
         if (t.custom) h += '<span class="badge-custom" style="margin-left:8px;">单独配置</span>';
         h += '<span class="ff-cnt" id="ff-cnt-'+g.id+'">'+g.content.length+' 字</span>';
         h += '<span style="font-size:11px;color:#059669;font-weight:500;margin-left:6px;">预估时长 '+(t&&t.duration?t.duration+'s':'--')+'</span></div>';
-        h += '<textarea oninput="updScript('+g.id+',this.value)">'+escapeHtml(g.content)+'</textarea>';
+        // Step2 台词只读
+        h += '<textarea class="readonly-step2" readonly placeholder="台词内容（Step2 不允许修改）">'+escapeHtml(g.content)+'</textarea>';
         // 播放条
-        h += '<div class="tts-play-row">';
+        h += '<div class="tts-play-row'+(ttsFailed?' failed':'')+'">';
         h += '<button class="tts-play-btn" id="tts-btn-'+g.id+'" onclick="toggleTtsPlay('+g.id+')" title="试听">▶</button>';
         h += '<div class="tts-progress-wrap" onclick="seekTts(event,'+g.id+')"><div class="tts-progress-bar"><div class="tts-progress-fill" id="tts-fill-'+g.id+'" style="width:0%"></div></div></div>';
-        h += '<span style="font-size:10px;color:#999;min-width:30px;text-align:right;" id="tts-time-'+g.id+'">0:00</span>';
-        h += '<button class="tts-dl-btn done" onclick="downloadTts('+g.id+')" title="下载音频">⬇</button>';
+        if (ttsFailed) {
+          h += '<span class="tts-status-failed">失败</span>';
+          h += '<button class="tts-retry-btn" onclick="event.stopPropagation();resynthOne('+g.id+')" title="重新合成">🔄</button>';
+        } else {
+          h += '<span style="font-size:10px;color:#999;min-width:30px;text-align:right;" id="tts-time-'+g.id+'">0:00</span>';
+          h += '<button class="tts-dl-btn'+(ttsReady?' done':'')+'" onclick="downloadTts('+g.id+')" title="下载音频">⬇</button>';
+        }
         h += '</div>';
         h += '</div>'; // ff-right
         h += '</div>'; // ff-card
@@ -1084,24 +1183,48 @@
       openCreditsConfirm(cost, regenAllFrames);
     }
     function regenFrame(id) {
+      var g = S.cards.find(function(x){return x.id===id;});
+      if (g && g.frame) g.frame.status = 'ready';
       var prev = document.getElementById('ff-prev-'+id);
-      if (prev) prev.classList.add('gen');
+      if (prev) { prev.classList.add('gen'); prev.classList.remove('failed'); }
       setTimeout(function(){
         var em = prev ? prev.querySelector('.ff-emoji') : null;
-        if (em) em.style.transform = 'scale('+(0.9+Math.random()*0.25).toFixed(2)+') rotate('+(Math.random()*8-4).toFixed(1)+'deg)';
-        if (prev) prev.classList.remove('gen');
-        toast('首帧已重新生成');
+        // 模拟重新生成：仍有 ~10% 概率失败
+        if (Math.random() < 0.1) {
+          if (g && g.frame) g.frame.status = 'failed';
+          if (prev) { prev.classList.remove('gen'); prev.classList.add('failed'); }
+          toast('⚠️ 首帧重新生成失败，请重试');
+        } else {
+          if (em) em.style.transform = 'scale('+(0.9+Math.random()*0.25).toFixed(2)+') rotate('+(Math.random()*8-4).toFixed(1)+'deg)';
+          if (prev) prev.classList.remove('gen');
+          toast('首帧已重新生成');
+        }
+        updFooter();
       }, 800);
     }
     function regenAllFrames() {
       var ids = validCards().map(function(g){return g.id;});
+      var failedCount = 0;
       ids.forEach(function(id){
         var g = S.cards.find(function(x){return x.id===id;});
         if (g && g.frame) { g.frame.pose = pick(POSES); g.frame.shot = pick(SHOTS); g.frame.bg = pick(S.bgMulti); }
+        // 模拟重新生成：~15% 概率失败
+        if (Math.random() < 0.15) {
+          if (g && g.frame) g.frame.status = 'failed';
+          failedCount++;
+        } else {
+          if (g && g.frame) g.frame.status = 'ready';
+        }
       });
       renderFirstFrames();
       ids.forEach(function(id){ var p=document.getElementById('ff-prev-'+id); if(p) p.classList.add('gen'); });
-      setTimeout(function(){ ids.forEach(function(id){ var p=document.getElementById('ff-prev-'+id); if(p) p.classList.remove('gen'); }); toast('已重新生成 '+ids.length+' 张首帧'); }, 900);
+      setTimeout(function(){
+        ids.forEach(function(id){ var p=document.getElementById('ff-prev-'+id); if(p) p.classList.remove('gen'); });
+        var msg = '已重新生成 '+ids.length+' 张首帧';
+        if (failedCount > 0) msg += '，⚠️ ' + failedCount + ' 张失败，请单独重试';
+        toast(msg);
+        updFooter();
+      }, 900);
     }
 
     /* hover 大图 */
@@ -1170,15 +1293,28 @@
       var g = S.cards.find(function(x){return x.id===id;});
       if (!g) return;
       stopTts(id);
-      g.tts.pitch = parseInt(document.getElementById('vc-pitch-'+id).value);
-      g.tts.volume = parseInt(document.getElementById('vc-volume-'+id).value);
-      g.tts.instruction = document.getElementById('vc-instr-'+id).value;
+      // Step1 卡片视图有独立配置控件，Step2 首帧视图直接用已有配置
+      var pitchEl = document.getElementById('vc-pitch-'+id);
+      var volumeEl = document.getElementById('vc-volume-'+id);
+      var instrEl = document.getElementById('vc-instr-'+id);
+      if (pitchEl) g.tts.pitch = parseInt(pitchEl.value);
+      if (volumeEl) g.tts.volume = parseInt(volumeEl.value);
+      if (instrEl) g.tts.instruction = instrEl.value;
       g.tts.custom = true;
       g.tts.duration = durOf(g.content, g.tts.speed);
-      g.tts.ready = true;
-      renderCards();
-      document.getElementById('vcfg-'+id).classList.add('show');
-      toast('已按单独配置重新合成台词 '+id);
+      // 模拟合成：~15% 概率失败
+      if (Math.random() < 0.15) {
+        g.tts.ready = false;
+        g.tts.status = 'failed';
+      } else {
+        g.tts.ready = true;
+        g.tts.status = 'ready';
+      }
+      if (S.step === 2) renderFirstFrames(); else renderCards();
+      updFooter();
+      var vcfg = document.getElementById('vcfg-'+id);
+      if (vcfg) vcfg.classList.add('show');
+      toast(g.tts.status==='failed' ? '⚠️ 台词 '+id+' 语音合成失败，请重试' : '已按单独配置重新合成台词 '+id);
     }
     function resetVoice(id) {
       var g = S.cards.find(function(x){return x.id===id;});
@@ -1187,26 +1323,40 @@
       var gt = getGlobalTts();
       g.tts.custom = false;
       g.tts.speed=gt.speed; g.tts.pitch=gt.pitch; g.tts.volume=gt.volume; g.tts.instruction=gt.instruction;
-      g.tts.duration = durOf(g.content, g.tts.speed); g.tts.ready = true;
+      g.tts.duration = durOf(g.content, g.tts.speed);
+      g.tts.ready = true;
+      g.tts.status = 'ready';
       renderCards();
       toast('台词 '+id+' 已恢复为全局配置');
     }
     function resynthAll() {
       var g = getGlobalTts();
+      var failedCount = 0;
       validCards().forEach(function(card){
         stopTts(card.id);
         if (!card.tts.custom) { card.tts.speed=g.speed; card.tts.pitch=g.pitch; card.tts.volume=g.volume; card.tts.instruction=g.instruction; }
-        card.tts.duration = durOf(card.content, card.tts.speed); card.tts.ready = true;
+        card.tts.duration = durOf(card.content, card.tts.speed);
+        // 模拟合成：~10% 概率失败
+        if (Math.random() < 0.1) {
+          card.tts.ready = false;
+          card.tts.status = 'failed';
+          failedCount++;
+        } else {
+          card.tts.ready = true;
+          card.tts.status = 'ready';
+        }
       });
       renderCards();
       var customCnt = validCards().filter(function(c){return c.tts.custom;}).length;
-      toast('已合成全部语音' + (customCnt? ('（'+customCnt+'条保留单独配置）') : ''));
+      var msg = '已合成全部语音' + (customCnt? ('（'+customCnt+'条保留单独配置）') : '');
+      if (failedCount > 0) msg += '，⚠️ ' + failedCount + ' 条失败，请逐条重试';
+      toast(msg);
     }
 
     function toggleTtsPlay(id) {
       if (S.ttsPlaying[id]) { stopTts(id); return; }
       var g = S.cards.find(function(x){return x.id===id;});
-      if (!g || !g.tts || !g.tts.ready) { toast('请先进行语音合成操作再试听'); return; }
+      if (!g || !g.tts || g.tts.status !== 'ready') { toast('请先进行语音合成操作再试听'); return; }
       S.ttsPlaying[id] = { start: Date.now(), duration: g.tts.duration, timer: null };
       var btn = document.getElementById('tts-btn-'+id); if(btn){ btn.textContent='⏸'; btn.classList.add('playing'); }
       runTtsTick(id, g.tts.duration);
@@ -1238,7 +1388,7 @@
     }
     function downloadTts(id) {
       var g = S.cards.find(function(x){return x.id===id;});
-      if (!g || !g.tts || !g.tts.ready) { toast('请先进行语音合成操作再试听'); return; }
+      if (!g || !g.tts || g.tts.status !== 'ready') { toast('请先进行语音合成操作再试听'); return; }
       toast('已下载音频文件：台词'+id+'.mp3（'+formatTime(g.tts.duration)+'）');
     }
 
