@@ -1,1200 +1,1478 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>内部运营控制台</title>
-  <style>
-    * { box-sizing: border-box; }
-    :root {
-      --bg: #f4f6f9;
-      --surface: #ffffff;
-      --surface-soft: #f8fafc;
-      --line: #dce3ec;
-      --line-strong: #c6d0dd;
-      --text: #172033;
-      --muted: #667085;
-      --faint: #98a2b3;
-      --primary: #245bdb;
-      --primary-soft: #eaf0ff;
-      --green: #0e9f6e;
-      --green-soft: #e8f7f0;
-      --amber: #b7791f;
-      --amber-soft: #fff4db;
-      --red: #d92d20;
-      --red-soft: #fff0ed;
-      --sidebar: #111827;
-      --sidebar-soft: #1f2937;
-      --sidebar-text: #9ca3af;
-      --sidebar-active: #ffffff;
-      --radius: 8px;
-      --shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
-    }
-    body {
-      margin: 0;
-      height: 100vh;
-      overflow: hidden;
-      font-family: "MiSans", "HarmonyOS Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
-      color: var(--text);
-      background: var(--bg);
-      font-size: 14px;
-    }
-    button, input, select, textarea { font: inherit; }
-    button { cursor: pointer; }
-    .app {
-      height: 100vh;
-      display: grid;
-      grid-template-columns: 252px minmax(0, 1fr);
-    }
-    .sidebar {
-      background: var(--sidebar);
-      color: var(--sidebar-text);
-      display: flex;
-      flex-direction: column;
-      min-width: 0;
-    }
-    .brand {
-      height: 76px;
-      padding: 18px 18px 16px;
-      border-bottom: 1px solid rgba(255,255,255,0.07);
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    .brand-mark {
-      width: 38px;
-      height: 38px;
-      border-radius: 8px;
-      background: #ffffff;
-      color: #111827;
-      display: grid;
-      place-items: center;
-      font-weight: 800;
-      letter-spacing: .02em;
-    }
-    .brand-name { color: #fff; font-size: 16px; font-weight: 700; line-height: 1.2; }
-    .brand-sub { margin-top: 3px; font-size: 11px; color: #8b95a5; }
-    .side-block { padding: 14px 12px; }
-    .side-label {
-      padding: 8px 10px;
-      color: #6b7280;
-      font-size: 12px;
-      font-weight: 700;
-      letter-spacing: .06em;
-    }
-    .nav-item {
-      width: 100%;
-      border: 0;
-      background: transparent;
-      color: var(--sidebar-text);
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 11px 10px;
-      border-radius: 8px;
-      text-align: left;
-      transition: background .16s, color .16s;
-    }
-    .nav-item:hover { background: rgba(255,255,255,0.06); color: #e5e7eb; }
-    .nav-item.active { background: #ffffff; color: #111827; }
-    .nav-glyph {
-      width: 26px;
-      height: 26px;
-      border-radius: 7px;
-      background: rgba(255,255,255,0.08);
-      display: grid;
-      place-items: center;
-      font-weight: 800;
-      font-size: 13px;
-      flex: 0 0 auto;
-    }
-    .nav-item.active .nav-glyph { background: var(--primary); color: #fff; }
-    .nav-text { min-width: 0; }
-    .nav-title { font-weight: 700; font-size: 14px; }
-    .nav-desc { margin-top: 2px; font-size: 11px; color: #7f8897; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .nav-item.active .nav-desc { color: #667085; }
-    .sidebar-bottom {
-      margin-top: auto;
-      padding: 14px 16px 18px;
-      border-top: 1px solid rgba(255,255,255,0.07);
-    }
-    .ops-user {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 10px;
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 8px;
-      background: rgba(255,255,255,0.04);
-    }
-    .avatar {
-      width: 30px;
-      height: 30px;
-      border-radius: 50%;
-      background: #2f6bff;
-      color: #fff;
-      display: grid;
-      place-items: center;
-      font-weight: 800;
-      font-size: 12px;
-    }
-    .ops-name { color: #fff; font-size: 13px; font-weight: 700; }
-    .ops-role { color: #7f8897; font-size: 11px; margin-top: 2px; }
-    .main {
-      min-width: 0;
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-    }
-    .topbar {
-      height: 68px;
-      background: rgba(255,255,255,0.92);
-      border-bottom: 1px solid var(--line);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 26px;
-      flex: 0 0 auto;
-    }
-    .crumb { font-size: 12px; color: var(--muted); margin-bottom: 4px; }
-    .top-title { font-size: 20px; font-weight: 800; letter-spacing: 0; }
-    .top-actions { display: flex; align-items: center; gap: 10px; }
-    .search {
-      width: 280px;
-      height: 36px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 0 12px;
-      background: var(--surface-soft);
-      color: var(--text);
-      outline: none;
-    }
-    .search:focus { border-color: var(--primary); background: #fff; box-shadow: 0 0 0 3px rgba(36,91,219,0.12); }
-    .btn {
-      height: 36px;
-      border-radius: 8px;
-      border: 1px solid var(--line-strong);
-      background: #fff;
-      color: var(--text);
-      padding: 0 14px;
-      display: inline-flex;
-      align-items: center;
-      gap: 7px;
-      font-weight: 700;
-      transition: transform .15s, border-color .15s, background .15s;
-    }
-    .btn:hover { border-color: var(--primary); transform: translateY(-1px); }
-    .btn.primary { background: var(--primary); color: #fff; border-color: var(--primary); }
-    .btn.ghost { background: transparent; }
-    .content {
-      flex: 1;
-      min-height: 0;
-      overflow: auto;
-      padding: 22px 26px 30px;
-    }
-    .metrics {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 14px;
-      margin-bottom: 16px;
-    }
-    .metric {
-      background: var(--surface);
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      padding: 16px;
-      min-width: 0;
-    }
-    .metric-label { color: var(--muted); font-size: 12px; font-weight: 700; }
-    .metric-value { margin-top: 8px; font-size: 25px; font-weight: 850; letter-spacing: 0; }
-    .metric-foot { margin-top: 7px; font-size: 12px; color: var(--faint); display: flex; gap: 8px; align-items: center; }
-    .trend { font-weight: 800; }
-    .trend.up { color: var(--green); }
-    .trend.warn { color: var(--amber); }
-    .trend.down { color: var(--red); }
-    .view { display: none; }
-    .view.active { display: block; }
-    .section-head {
-      display: flex;
-      align-items: flex-end;
-      justify-content: space-between;
-      margin: 10px 0 12px;
-      gap: 16px;
-    }
-    .section-title { font-size: 18px; font-weight: 850; }
-    .section-sub { margin-top: 5px; color: var(--muted); font-size: 13px; }
-    .toolbar {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      align-items: center;
-    }
-    .select, .input {
-      height: 34px;
-      border-radius: 8px;
-      border: 1px solid var(--line);
-      background: #fff;
-      padding: 0 10px;
-      color: var(--text);
-      outline: none;
-    }
-    .input { min-width: 220px; }
-    .grid-2 {
-      display: grid;
-      grid-template-columns: minmax(0, 1.4fr) minmax(320px, .8fr);
-      gap: 16px;
-      align-items: start;
-    }
-    .grid-3 {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 16px;
-    }
-    .panel {
-      background: var(--surface);
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      overflow: hidden;
-    }
-    .panel-head {
-      min-height: 48px;
-      padding: 13px 16px;
-      border-bottom: 1px solid var(--line);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-    }
-    .panel-title { font-weight: 850; }
-    .panel-subtitle { color: var(--muted); font-size: 12px; margin-top: 3px; }
-    .panel-body { padding: 16px; }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      table-layout: fixed;
-    }
-    th, td {
-      padding: 12px 14px;
-      border-bottom: 1px solid var(--line);
-      text-align: left;
-      vertical-align: middle;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    th {
-      color: var(--muted);
-      background: var(--surface-soft);
-      font-size: 12px;
-      font-weight: 800;
-    }
-    td { font-size: 13px; }
-    tr:last-child td { border-bottom: 0; }
-    .tenant-name { font-weight: 850; }
-    .muted { color: var(--muted); }
-    .mini { font-size: 12px; }
-    .status {
-      display: inline-flex;
-      align-items: center;
-      height: 24px;
-      padding: 0 9px;
-      border-radius: 999px;
-      font-size: 12px;
-      font-weight: 800;
-    }
-    .status.ok { color: var(--green); background: var(--green-soft); }
-    .status.warn { color: var(--amber); background: var(--amber-soft); }
-    .status.stop { color: var(--red); background: var(--red-soft); }
-    .status.info { color: var(--primary); background: var(--primary-soft); }
-    .chip-row { display: flex; flex-wrap: wrap; gap: 6px; }
-    .chip {
-      height: 24px;
-      padding: 0 8px;
-      border-radius: 7px;
-      border: 1px solid var(--line);
-      background: #fff;
-      display: inline-flex;
-      align-items: center;
-      color: var(--muted);
-      font-size: 12px;
-      font-weight: 700;
-    }
-    .progress {
-      height: 7px;
-      border-radius: 999px;
-      overflow: hidden;
-      background: #eef2f7;
-      margin-top: 7px;
-    }
-    .progress span {
-      display: block;
-      height: 100%;
-      background: var(--primary);
-      border-radius: inherit;
-    }
-    .kv {
-      display: grid;
-      grid-template-columns: 94px minmax(0, 1fr);
-      gap: 10px;
-      padding: 11px 0;
-      border-bottom: 1px solid var(--line);
-    }
-    .kv:last-child { border-bottom: 0; }
-    .kv-label { color: var(--muted); font-size: 12px; font-weight: 700; }
-    .kv-value { font-weight: 750; min-width: 0; }
-    .step-list { display: grid; gap: 10px; }
-    .step {
-      display: grid;
-      grid-template-columns: 28px minmax(0, 1fr);
-      gap: 10px;
-      align-items: start;
-    }
-    .step-no {
-      width: 28px;
-      height: 28px;
-      border-radius: 8px;
-      display: grid;
-      place-items: center;
-      background: var(--primary-soft);
-      color: var(--primary);
-      font-weight: 850;
-      font-size: 12px;
-    }
-    .step-title { font-weight: 850; }
-    .step-desc { color: var(--muted); font-size: 12px; margin-top: 3px; line-height: 1.5; }
-    .bar-list { display: grid; gap: 13px; }
-    .bar-row {
-      display: grid;
-      grid-template-columns: 118px minmax(0,1fr) 82px;
-      align-items: center;
-      gap: 10px;
-      font-size: 13px;
-    }
-    .bar-track {
-      height: 10px;
-      background: #eef2f7;
-      border-radius: 999px;
-      overflow: hidden;
-    }
-    .bar-fill {
-      height: 100%;
-      border-radius: inherit;
-      background: var(--primary);
-    }
-    .bar-fill.green { background: var(--green); }
-    .bar-fill.amber { background: #d98c16; }
-    .bar-fill.red { background: var(--red); }
-    .node-map {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0,1fr));
-      gap: 10px;
-    }
-    .node {
-      border: 1px solid var(--line);
-      background: var(--surface-soft);
-      border-radius: 8px;
-      padding: 12px;
-    }
-    .node-name { font-weight: 850; }
-    .node-meta { margin-top: 7px; color: var(--muted); font-size: 12px; line-height: 1.45; }
-    .release-line {
-      display: grid;
-      grid-template-columns: 92px minmax(0,1fr) 70px;
-      gap: 10px;
-      align-items: start;
-      padding: 12px 0;
-      border-bottom: 1px solid var(--line);
-    }
-    .release-line:last-child { border-bottom: 0; }
-    .release-time { color: var(--muted); font-size: 12px; }
-    .release-title { font-weight: 800; }
-    .release-desc { margin-top: 4px; color: var(--muted); font-size: 12px; line-height: 1.45; }
-    .codebox {
-      min-height: 164px;
-      width: 100%;
-      resize: vertical;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 12px;
-      outline: none;
-      background: #111827;
-      color: #e5e7eb;
-      line-height: 1.55;
-      font-family: "Cascadia Mono", "SFMono-Regular", Consolas, monospace;
-      font-size: 12px;
-    }
-    .codebox:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(36,91,219,0.16); }
-    .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 12px; }
-    .form-field label {
-      display: block;
-      color: var(--muted);
-      font-size: 12px;
-      font-weight: 800;
-      margin-bottom: 6px;
-    }
-    .form-field input, .form-field select, .form-field textarea {
-      width: 100%;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: #fff;
-      padding: 9px 10px;
-      outline: none;
-      color: var(--text);
-    }
-    .form-field textarea { min-height: 76px; resize: vertical; }
-    .form-field input:focus, .form-field select:focus, .form-field textarea:focus {
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(36,91,219,0.12);
-    }
-    .modal-mask {
-      position: fixed;
-      inset: 0;
-      background: rgba(17,24,39,0.48);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 20;
-      padding: 20px;
-    }
-    .modal-mask.show { display: flex; }
-    .modal {
-      width: min(760px, 100%);
-      background: #fff;
-      border-radius: 8px;
-      box-shadow: 0 26px 60px rgba(0,0,0,0.24);
-      overflow: hidden;
-    }
-    .modal-head, .modal-foot {
-      padding: 16px 18px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      border-bottom: 1px solid var(--line);
-    }
-    .modal-foot { border-top: 1px solid var(--line); border-bottom: 0; justify-content: flex-end; gap: 10px; }
-    .modal-title { font-size: 17px; font-weight: 850; }
-    .modal-body { padding: 18px; }
-    .close {
-      width: 32px;
-      height: 32px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: #fff;
-      color: var(--muted);
-      font-size: 18px;
-      line-height: 1;
-    }
-    .toast {
-      position: fixed;
-      right: 24px;
-      bottom: 22px;
-      min-width: 260px;
-      background: #111827;
-      color: #fff;
-      padding: 12px 14px;
-      border-radius: 8px;
-      box-shadow: var(--shadow);
-      display: none;
-      z-index: 30;
-      font-weight: 700;
-    }
-    .toast.show { display: block; animation: rise .22s ease-out; }
-    @keyframes rise {
-      from { transform: translateY(10px); opacity: 0; }
-      to { transform: translateY(0); opacity: 1; }
-    }
-    @media (max-width: 1180px) {
-      .metrics { grid-template-columns: repeat(2, minmax(0,1fr)); }
-      .grid-2 { grid-template-columns: 1fr; }
-      .node-map { grid-template-columns: repeat(2, minmax(0,1fr)); }
-    }
-    @media (max-width: 820px) {
-      body { overflow: auto; }
-      .app { height: auto; min-height: 100vh; grid-template-columns: 1fr; }
-      .sidebar { position: static; }
-      .main { height: auto; }
-      .topbar { height: auto; padding: 16px; align-items: flex-start; gap: 12px; flex-direction: column; }
-      .content { overflow: visible; padding: 16px; }
-      .metrics, .grid-3, .node-map, .form-grid { grid-template-columns: 1fr; }
-      .search { width: 100%; }
-      .top-actions { width: 100%; flex-wrap: wrap; }
-      table { min-width: 820px; }
-      .panel { overflow-x: auto; }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>后台运营控制台 · 投顾视频平台</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #2f6bff;
+            --primary-light: #e8efff;
+            --primary-dark: #1a4fd6;
+            --sidebar-bg: #1C1C1E;
+            --sidebar-text: #A1A1AA;
+            --sidebar-active: #FFFFFF;
+            --card-bg: #FFFFFF;
+            --border: #E4E4E7;
+            --text-primary: #18181B;
+            --text-secondary: #71717A;
+            --text-muted: #A1A1AA;
+            --bg: #F7F7F8;
+            --radius: 12px;
+            --radius-sm: 8px;
+            --shadow: 0 1px 3px rgba(0,0,0,0.08);
+            --shadow-md: 0 4px 16px rgba(0,0,0,0.10);
+            --green: #10b981; --green-bg: #ecfdf5;
+            --red: #ef4444; --red-bg: #fef2f2;
+            --orange: #f59e0b; --orange-bg: #fffbeb;
+            --blue: #3b82f6; --blue-bg: #eff6ff;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Helvetica Neue', sans-serif;
+            background: var(--bg); color: var(--text-primary);
+            display: flex; height: 100vh; overflow: hidden; font-size: 14px;
+        }
+        button, input, select, textarea { font: inherit; }
+        button { cursor: pointer; }
+        a { color: var(--primary); text-decoration: none; }
+
+        /* ===== 侧边栏 ===== */
+        .sidebar {
+            width: 232px; background: var(--sidebar-bg);
+            display: flex; flex-direction: column; flex-shrink: 0;
+        }
+        .sidebar-brand { padding: 22px 18px 16px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+        .sidebar-brand .brand-row { display: flex; align-items: center; gap: 10px; }
+        .brand-icon {
+            width: 34px; height: 34px; background: var(--primary);
+            border-radius: 8px; display: flex; align-items: center;
+            justify-content: center; color: #fff; font-weight: 700; font-size: 15px;
+        }
+        .brand-text { color: #fff; font-weight: 700; font-size: 14px; letter-spacing: 0.02em; }
+        .brand-sub { color: var(--sidebar-text); font-size: 11px; margin-top: 2px; }
+
+        .sidebar-nav { flex: 1; padding: 8px 0; overflow-y: auto; }
+        .nav-item {
+            display: flex; align-items: center; gap: 10px; padding: 10px 18px;
+            cursor: pointer; color: var(--sidebar-text); transition: all 0.15s;
+            border-left: 3px solid transparent; font-size: 13px; font-weight: 500;
+            user-select: none;
+        }
+        .nav-item:hover { color: #E4E4E7; background: rgba(255,255,255,0.04); }
+        .nav-item.active { color: var(--sidebar-active); background: rgba(47,107,255,0.15); border-left-color: var(--primary); }
+        .nav-item .nav-icon { font-size: 15px; width: 20px; text-align: center; }
+
+        .sidebar-bottom { padding: 14px 18px; border-top: 1px solid rgba(255,255,255,0.06); }
+        .sidebar-user { display: flex; align-items: center; gap: 10px; }
+        .sidebar-avatar {
+            width: 30px; height: 30px; border-radius: 50%; background: var(--primary);
+            display: flex; align-items: center; justify-content: center;
+            color: #fff; font-size: 12px; font-weight: 600;
+        }
+        .sidebar-user-info { flex: 1; min-width: 0; }
+        .sidebar-user-name { color: #E4E4E7; font-size: 13px; }
+        .sidebar-user-role { color: var(--sidebar-text); font-size: 11px; }
+        .sidebar-logout {
+            color: var(--sidebar-text); cursor: pointer; font-size: 14px;
+            padding: 4px; border-radius: 4px; transition: all 0.15s;
+        }
+        .sidebar-logout:hover { color: #ef4444; }
+
+        /* ===== 主区域 ===== */
+        .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+        .topbar {
+            height: 56px; background: var(--card-bg); border-bottom: 1px solid var(--border);
+            display: flex; align-items: center; padding: 0 28px; flex-shrink: 0; gap: 12px;
+        }
+        .topbar-breadcrumb { font-size: 12px; color: var(--text-muted); }
+        .topbar-breadcrumb span { color: var(--text-primary); font-weight: 600; }
+        .topbar-actions { margin-left: auto; display: flex; gap: 8px; }
+
+        .btn {
+            height: 34px; padding: 0 16px; border-radius: var(--radius-sm);
+            border: 1px solid var(--border); background: #fff; color: var(--text-primary);
+            font-size: 13px; font-weight: 500; display: inline-flex; align-items: center; gap: 6px;
+            transition: all 0.15s;
+        }
+        .btn:hover { border-color: var(--primary); color: var(--primary); }
+        .btn-primary { background: var(--primary); color: #fff; border-color: var(--primary); }
+        .btn-primary:hover { background: var(--primary-dark); border-color: var(--primary-dark); color: #fff; }
+        .btn-danger { color: var(--red); }
+        .btn-danger:hover { border-color: var(--red); color: var(--red); background: var(--red-bg); }
+        .btn-sm { height: 28px; padding: 0 10px; font-size: 12px; }
+        .btn-xs { height: 24px; padding: 0 8px; font-size: 11px; border-radius: 6px; }
+
+        .content { flex: 1; overflow-y: auto; padding: 24px 28px; }
+
+        /* ===== 指标卡 ===== */
+        .metrics-row {
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px;
+        }
+        .metric-card {
+            background: var(--card-bg); border: 1px solid var(--border);
+            border-radius: var(--radius); padding: 20px 22px;
+        }
+        .metric-label { font-size: 12px; color: var(--text-muted); font-weight: 500; margin-bottom: 6px; letter-spacing: 0.02em; }
+        .metric-value { font-size: 28px; font-weight: 800; color: var(--text-primary); margin-bottom: 2px; }
+        .metric-sub { font-size: 12px; display: flex; align-items: center; gap: 6px; }
+        .metric-up { color: var(--green); font-weight: 600; }
+        .metric-down { color: var(--red); font-weight: 600; }
+        .metric-warn { color: var(--orange); font-weight: 600; }
+
+        /* ===== 面板 ===== */
+        .panel { display: none; }
+        .panel.active { display: block; }
+        .section-title { font-size: 15px; font-weight: 700; margin-bottom: 16px; color: var(--text-primary); }
+
+        /* ===== 表格 ===== */
+        .table-wrap {
+            background: var(--card-bg); border-radius: var(--radius);
+            border: 1px solid var(--border); overflow: hidden;
+        }
+        .table-toolbar {
+            display: flex; align-items: center; gap: 10px; padding: 14px 18px;
+            border-bottom: 1px solid var(--border); flex-wrap: wrap;
+        }
+        .filter-select {
+            height: 32px; padding: 0 10px; border: 1px solid var(--border);
+            border-radius: 6px; font-size: 12px; color: var(--text-primary);
+            background: #fff; outline: none; cursor: pointer;
+        }
+        .filter-input {
+            height: 32px; padding: 0 10px; border: 1px solid var(--border);
+            border-radius: 6px; font-size: 12px; color: var(--text-primary);
+            background: #fff; outline: none; width: 200px;
+        }
+        .filter-input:focus { border-color: var(--primary); }
+        table { width: 100%; border-collapse: collapse; }
+        thead th {
+            text-align: left; padding: 11px 18px; font-size: 12px;
+            color: var(--text-muted); font-weight: 600; background: #FAFAFA;
+            border-bottom: 1px solid var(--border); letter-spacing: 0.02em;
+        }
+        tbody td {
+            padding: 12px 18px; border-bottom: 1px solid var(--border);
+            font-size: 13px; color: var(--text-primary); vertical-align: middle;
+        }
+        tbody tr:hover td { background: #FAFAFA; }
+        tbody tr:last-child td { border-bottom: none; }
+
+        /* ===== 组件 ===== */
+        .status {
+            display: inline-flex; align-items: center; gap: 5px;
+            font-size: 12px; font-weight: 600; padding: 3px 10px;
+            border-radius: 99px;
+        }
+        .status-active { background: var(--green-bg); color: var(--green); }
+        .status-trial { background: var(--blue-bg); color: var(--blue); }
+        .status-stopped { background: #F7F7F8; color: var(--text-muted); }
+        .status-success { background: var(--green-bg); color: var(--green); }
+        .status-failed { background: var(--red-bg); color: var(--red); }
+        .status-warning { background: var(--orange-bg); color: var(--orange); }
+
+        .chip {
+            display: inline-block; padding: 2px 8px; border-radius: 99px;
+            font-size: 11px; font-weight: 500; background: #F0F0F3; color: var(--text-secondary);
+            margin: 1px 3px 1px 0;
+        }
+        .chip-blue { background: var(--primary-light); color: var(--primary); }
+        .chip-green { background: var(--green-bg); color: var(--green); }
+
+        .bar {
+            height: 6px; background: #E4E4E7; border-radius: 3px; overflow: hidden;
+            min-width: 60px;
+        }
+        .bar-fill { height: 100%; border-radius: 3px; background: var(--primary); transition: width 0.4s; }
+        .bar-fill.warn { background: var(--orange); }
+        .bar-fill.danger { background: var(--red); }
+
+        .kv-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .kv-item { display: flex; flex-direction: column; gap: 2px; }
+        .kv-label { font-size: 11px; color: var(--text-muted); font-weight: 500; }
+        .kv-value { font-size: 13px; color: var(--text-primary); font-weight: 500; }
+
+        /* ===== Modal ===== */
+        .modal-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.45);
+            z-index: 1000; display: flex; align-items: center; justify-content: center;
+            opacity: 0; visibility: hidden; transition: all 0.2s;
+        }
+        .modal-overlay.show { opacity: 1; visibility: visible; }
+        .modal {
+            background: var(--card-bg); border-radius: var(--radius);
+            width: 520px; max-width: 92vw; max-height: 85vh; overflow-y: auto;
+            box-shadow: var(--shadow-md); padding: 28px 30px;
+        }
+        .modal.wide { width: 680px; }
+        .modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+        .modal-title { font-size: 17px; font-weight: 700; }
+        .modal-close {
+            width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
+            border-radius: 6px; border: none; background: transparent; color: var(--text-muted);
+            font-size: 18px; cursor: pointer; transition: all 0.15s;
+        }
+        .modal-close:hover { background: #F0F0F3; color: var(--text-primary); }
+        .modal-footer { display: flex; justify-content: flex-end; gap: 8px; margin-top: 28px; }
+
+        /* ===== Drawer ===== */
+        .drawer-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.35);
+            z-index: 1001; opacity: 0; visibility: hidden; transition: all 0.25s;
+        }
+        .drawer-overlay.show { opacity: 1; visibility: visible; }
+        .drawer {
+            position: fixed; right: 0; top: 0; bottom: 0; width: 460px;
+            background: var(--card-bg); z-index: 1002;
+            box-shadow: -4px 0 24px rgba(0,0,0,0.12);
+            transform: translateX(100%); transition: transform 0.3s ease;
+            display: flex; flex-direction: column;
+        }
+        .drawer.show { transform: translateX(0); }
+        .drawer-header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 20px 24px; border-bottom: 1px solid var(--border); flex-shrink: 0;
+        }
+        .drawer-title { font-size: 16px; font-weight: 700; }
+        .drawer-body { flex: 1; overflow-y: auto; padding: 24px; }
+
+        /* ===== Toast ===== */
+        .toast {
+            position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%);
+            background: #18181B; color: #fff; padding: 12px 24px;
+            border-radius: 8px; font-size: 13px; font-weight: 600;
+            z-index: 9999; opacity: 0; transition: opacity 0.25s;
+            pointer-events: none; box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        }
+        .toast.show { opacity: 1; }
+        .toast.success { background: var(--green); }
+        .toast.error { background: var(--red); }
+
+        /* ===== Confirm ===== */
+        .confirm-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.45);
+            z-index: 2000; display: flex; align-items: center; justify-content: center;
+            opacity: 0; visibility: hidden; transition: all 0.2s;
+        }
+        .confirm-overlay.show { opacity: 1; visibility: visible; }
+        .confirm-box {
+            background: var(--card-bg); border-radius: var(--radius);
+            width: 400px; padding: 28px 30px; text-align: center;
+            box-shadow: var(--shadow-md);
+        }
+        .confirm-icon { font-size: 40px; margin-bottom: 12px; }
+        .confirm-title { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+        .confirm-desc { font-size: 13px; color: var(--text-secondary); margin-bottom: 24px; }
+        .confirm-actions { display: flex; gap: 10px; justify-content: center; }
+
+        /* ===== 柱状图 ===== */
+        .bar-chart { display: flex; align-items: flex-end; gap: 14px; height: 160px; padding: 0 8px; }
+        .bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+        .bar-col-bar {
+            width: 100%; background: var(--primary); border-radius: 6px 6px 0 0;
+            min-height: 4px; transition: height 0.5s ease;
+        }
+        .bar-col-bar:hover { opacity: 0.8; }
+        .bar-col-value { font-size: 11px; font-weight: 700; color: var(--text-primary); }
+        .bar-col-label { font-size: 11px; color: var(--text-muted); }
+
+        /* ===== 横向条形图 ===== */
+        .hbar-item { display: flex; align-items: center; gap: 12px; padding: 8px 0; }
+        .hbar-rank { width: 20px; font-size: 12px; font-weight: 700; color: var(--text-muted); text-align: center; }
+        .hbar-rank.top3 { color: var(--primary); }
+        .hbar-name { width: 90px; font-size: 13px; font-weight: 500; text-align: right; flex-shrink: 0; }
+        .hbar-bar-wrap { flex: 1; height: 24px; background: #F0F0F3; border-radius: 4px; overflow: hidden; }
+        .hbar-bar-fill { height: 100%; border-radius: 4px; background: var(--primary); transition: width 0.4s; }
+        .hbar-value { font-size: 12px; font-weight: 600; color: var(--text-secondary); width: 50px; }
+
+        /* ===== 网格卡片 ===== */
+        .card-grid2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+        .card-grid4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+        .info-card {
+            background: var(--card-bg); border: 1px solid var(--border);
+            border-radius: var(--radius); padding: 20px 22px;
+        }
+        .info-card h4 { font-size: 14px; font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+        .info-card .card-tag { font-size: 10px; background: var(--primary-light); color: var(--primary); padding: 2px 8px; border-radius: 99px; font-weight: 600; }
+
+        /* ===== Prompt 对比 ===== */
+        .diff-pane { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .diff-col {
+            background: #FAFAFA; border: 1px solid var(--border);
+            border-radius: var(--radius-sm); padding: 16px;
+        }
+        .diff-col h5 { font-size: 13px; font-weight: 700; margin-bottom: 8px; color: var(--text-secondary); }
+        .diff-col pre {
+            white-space: pre-wrap; font-size: 12px; line-height: 1.6;
+            color: var(--text-primary); font-family: 'SF Mono', 'Menlo', 'Consolas', monospace;
+        }
+
+        /* ===== 时间线 ===== */
+        .timeline { position: relative; padding-left: 20px; }
+        .timeline::before {
+            content: ''; position: absolute; left: 7px; top: 4px; bottom: 4px;
+            width: 2px; background: var(--border);
+        }
+        .timeline-item { position: relative; margin-bottom: 16px; padding-left: 20px; }
+        .timeline-item::before {
+            content: ''; position: absolute; left: -17px; top: 6px;
+            width: 10px; height: 10px; border-radius: 50%; background: var(--primary);
+            border: 2px solid var(--card-bg);
+        }
+        .timeline-time { font-size: 11px; color: var(--text-muted); }
+        .timeline-title { font-size: 13px; font-weight: 600; margin: 2px 0; }
+        .timeline-desc { font-size: 12px; color: var(--text-secondary); }
+
+        /* ===== 节点卡片 ===== */
+        .node-card {
+            background: var(--card-bg); border: 1px solid var(--border);
+            border-radius: var(--radius); padding: 18px 20px;
+        }
+        .node-card h4 { font-size: 14px; font-weight: 700; margin-bottom: 10px; }
+        .node-card .node-info { font-size: 12px; color: var(--text-secondary); line-height: 1.8; }
+
+        /* ===== 定价 ===== */
+        .pricing-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+        .pricing-item {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 14px 18px; background: var(--card-bg); border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+        }
+        .pricing-name { font-size: 13px; font-weight: 600; }
+        .pricing-value { font-size: 14px; font-weight: 700; color: var(--primary); }
+        .pricing-unit { font-size: 12px; color: var(--text-muted); font-weight: 400; }
+
+        /* ===== 响应式 ===== */
+        @media (max-width: 1440px) { .metrics-row,.card-grid4 { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 1024px) { .sidebar { width: 60px; } .sidebar .brand-text,.sidebar .brand-sub,.sidebar .nav-item span:not(.nav-icon),.sidebar-user-info,.sidebar-logout span { display: none; } }
+    </style>
 </head>
 <body>
-  <div class="app">
-    <aside class="sidebar">
-      <div class="brand">
-        <div class="brand-mark">OPS</div>
-        <div>
-          <div class="brand-name">内部运营控制台</div>
-          <div class="brand-sub">租户 · 模型 · Prompt · 成本</div>
-        </div>
-      </div>
-      <div class="side-block">
-        <div class="side-label">主菜单</div>
-        <button class="nav-item active" type="button" data-view="tenants">
-          <span class="nav-glyph">租</span>
-          <span class="nav-text">
-            <span class="nav-title">租户管理</span>
-            <span class="nav-desc">开通账号、额度、权限</span>
-          </span>
-        </button>
-        <button class="nav-item" type="button" data-view="usage">
-          <span class="nav-glyph">费</span>
-          <span class="nav-text">
-            <span class="nav-title">用量成本</span>
-            <span class="nav-desc">日用量、闭源模型成本</span>
-          </span>
-        </button>
-        <button class="nav-item" type="button" data-view="models">
-          <span class="nav-glyph">模</span>
-          <span class="nav-text">
-            <span class="nav-title">模型与音色</span>
-            <span class="nav-desc">模型、音色、可见范围</span>
-          </span>
-        </button>
-        <button class="nav-item" type="button" data-view="prompts">
-          <span class="nav-glyph">词</span>
-          <span class="nav-text">
-            <span class="nav-title">Prompt 与策略</span>
-            <span class="nav-desc">版本、灰度、生成策略</span>
-          </span>
-        </button>
-      </div>
-      <div class="sidebar-bottom">
-        <div class="ops-user">
-          <div class="avatar">运</div>
-          <div>
-            <div class="ops-name">平台运营</div>
-            <div class="ops-role">超级管理员</div>
-          </div>
-        </div>
-      </div>
-    </aside>
 
-    <main class="main">
-      <header class="topbar">
-        <div>
-          <div class="crumb">内部运营控制台 / <span id="crumbName">租户管理</span></div>
-          <div class="top-title" id="pageTitle">租户管理</div>
-        </div>
-        <div class="top-actions">
-          <input class="search" type="search" placeholder="搜索租户、模型、Prompt、任务 ID">
-          <button class="btn" type="button" onclick="showToast('筛选条件已更新')">筛选</button>
-          <button class="btn primary" type="button" onclick="openTenantModal()">+ 新建租户</button>
-        </div>
-      </header>
-
-      <section class="content">
-        <div class="metrics">
-          <div class="metric">
-            <div class="metric-label">今日生成任务</div>
-            <div class="metric-value">1,284</div>
-            <div class="metric-foot"><span class="trend up">+12.6%</span><span>较昨日</span></div>
-          </div>
-          <div class="metric">
-            <div class="metric-label">任务成功率</div>
-            <div class="metric-value">94.8%</div>
-            <div class="metric-foot"><span class="trend warn">-1.4%</span><span>通灵 XZ 超时增加</span></div>
-          </div>
-          <div class="metric">
-            <div class="metric-label">闭源模型成本</div>
-            <div class="metric-value">¥3,482</div>
-            <div class="metric-foot"><span class="trend up">¥2.71</span><span>单任务均摊</span></div>
-          </div>
-          <div class="metric">
-            <div class="metric-label">活跃租户</div>
-            <div class="metric-value">36</div>
-            <div class="metric-foot"><span class="trend down">3</span><span>租户额度接近上限</span></div>
-          </div>
-        </div>
-
-        <div class="view active" id="view-tenants">
-          <div class="section-head">
+<!-- 侧边栏 -->
+<aside class="sidebar">
+    <div class="sidebar-brand">
+        <div class="brand-row">
+            <div class="brand-icon">O</div>
             <div>
-              <div class="section-title">租户列表</div>
-              <div class="section-sub">开通租户账号，并统一维护功能、额度、模型权限和管理员账号。</div>
+                <div class="brand-text">运营控制台</div>
+                <div class="brand-sub">OPS Console v1.0</div>
             </div>
-            <div class="toolbar">
-              <select class="select">
-                <option>全部状态</option>
-                <option>启用中</option>
-                <option>试用中</option>
-                <option>已停用</option>
-              </select>
-              <select class="select">
-                <option>全部行业</option>
-                <option>金融投顾</option>
-                <option>保险</option>
-                <option>教育培训</option>
-              </select>
-              <button class="btn" type="button" onclick="showToast('租户列表已导出')">导出</button>
-            </div>
-          </div>
-
-          <div class="grid-2">
-            <div class="panel">
-              <div class="panel-head">
-                <div>
-                  <div class="panel-title">租户账号</div>
-                  <div class="panel-subtitle">点击租户可在右侧查看配置概览</div>
-                </div>
-                <span class="status info">36 个租户</span>
-              </div>
-              <table>
-                <thead>
-                  <tr>
-                    <th style="width:22%;">租户</th>
-                    <th style="width:11%;">状态</th>
-                    <th style="width:12%;">行业</th>
-                    <th style="width:18%;">管理员</th>
-                    <th style="width:17%;">今日用量</th>
-                    <th style="width:20%;">已开通能力</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td><div class="tenant-name">华东投顾事业部</div><div class="muted mini">tenant_10087</div></td>
-                    <td><span class="status ok">启用中</span></td>
-                    <td>金融投顾</td>
-                    <td>陈经理<div class="muted mini">chen@demo.cn</div></td>
-                    <td>438 / 800<div class="progress"><span style="width:55%;"></span></div></td>
-                    <td><div class="chip-row"><span class="chip">批量生成</span><span class="chip">语音复刻</span><span class="chip">角色水印</span></div></td>
-                  </tr>
-                  <tr>
-                    <td><div class="tenant-name">明诚财富</div><div class="muted mini">tenant_10062</div></td>
-                    <td><span class="status warn">试用中</span></td>
-                    <td>金融投顾</td>
-                    <td>刘运营<div class="muted mini">liu@demo.cn</div></td>
-                    <td>186 / 300<div class="progress"><span style="width:62%;"></span></div></td>
-                    <td><div class="chip-row"><span class="chip">简单模式</span><span class="chip">内置音色</span></div></td>
-                  </tr>
-                  <tr>
-                    <td><div class="tenant-name">睿选保险</div><div class="muted mini">tenant_10051</div></td>
-                    <td><span class="status ok">启用中</span></td>
-                    <td>保险</td>
-                    <td>王主管<div class="muted mini">wang@demo.cn</div></td>
-                    <td>742 / 760<div class="progress"><span style="width:98%;background:var(--red);"></span></div></td>
-                    <td><div class="chip-row"><span class="chip">导演台</span><span class="chip">批量生成</span><span class="chip">高级模型</span></div></td>
-                  </tr>
-                  <tr>
-                    <td><div class="tenant-name">云阶培训</div><div class="muted mini">tenant_10033</div></td>
-                    <td><span class="status stop">已停用</span></td>
-                    <td>教育培训</td>
-                    <td>周老师<div class="muted mini">zhou@demo.cn</div></td>
-                    <td>0 / 200<div class="progress"><span style="width:0%;"></span></div></td>
-                    <td><div class="chip-row"><span class="chip">简单模式</span></div></td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-
-            <div class="panel">
-              <div class="panel-head">
-                <div>
-                  <div class="panel-title">租户配置概览</div>
-                  <div class="panel-subtitle">当前选中：华东投顾事业部</div>
-                </div>
-                <button class="btn" type="button" onclick="showToast('进入租户详情')">详情</button>
-              </div>
-              <div class="panel-body">
-                <div class="kv"><div class="kv-label">开通时间</div><div class="kv-value">2026-05-21 14:32</div></div>
-                <div class="kv"><div class="kv-label">管理员账号</div><div class="kv-value">陈经理 / 138****9021</div></div>
-                <div class="kv"><div class="kv-label">额度配置</div><div class="kv-value">每日 800 条，最大并发 12</div></div>
-                <div class="kv"><div class="kv-label">可用模型</div><div class="kv-value">通灵 XZ、闭源视频 Pro、语音复刻 V2</div></div>
-                <div class="kv"><div class="kv-label">功能开关</div><div class="kv-value"><div class="chip-row"><span class="chip">简单模式</span><span class="chip">导演台</span><span class="chip">角色水印</span><span class="chip">语音复刻</span></div></div></div>
-                <div style="height:14px;"></div>
-                <div class="panel-title" style="margin-bottom:12px;">开通流程</div>
-                <div class="step-list">
-                  <div class="step"><div class="step-no">1</div><div><div class="step-title">创建租户</div><div class="step-desc">录入企业名称、行业、联系人和服务有效期。</div></div></div>
-                  <div class="step"><div class="step-no">2</div><div><div class="step-title">开通管理员</div><div class="step-desc">生成管理员账号，设置初始密码或发送邀请。</div></div></div>
-                  <div class="step"><div class="step-no">3</div><div><div class="step-title">配置能力</div><div class="step-desc">设置额度、模型白名单、音色库和功能开关。</div></div></div>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
-
-        <div class="view" id="view-usage">
-          <div class="section-head">
-            <div>
-              <div class="section-title">用量成本</div>
-              <div class="section-sub">按租户、模型、流程节点核算每日用量和闭源模型生成成本。</div>
-            </div>
-            <div class="toolbar">
-              <input class="input" type="date" value="2026-05-29">
-              <select class="select"><option>全部租户</option><option>华东投顾事业部</option><option>睿选保险</option></select>
-              <button class="btn" type="button" onclick="showToast('成本报表已生成')">生成报表</button>
-            </div>
-          </div>
-
-          <div class="grid-2">
-            <div class="panel">
-              <div class="panel-head">
-                <div>
-                  <div class="panel-title">租户日用量</div>
-                  <div class="panel-subtitle">生成任务、模型调用和成本聚合</div>
-                </div>
-                <span class="status info">今日</span>
-              </div>
-              <table>
-                <thead>
-                  <tr>
-                    <th>租户</th>
-                    <th>任务数</th>
-                    <th>视频模型</th>
-                    <th>LLM 调用</th>
-                    <th>语音合成</th>
-                    <th>成本</th>
-                    <th>异常</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td><div class="tenant-name">华东投顾事业部</div></td>
-                    <td>438</td>
-                    <td>512 次</td>
-                    <td>1,906 次</td>
-                    <td>384 次</td>
-                    <td><strong>¥1,284.60</strong></td>
-                    <td><span class="status warn">9 失败</span></td>
-                  </tr>
-                  <tr>
-                    <td><div class="tenant-name">睿选保险</div></td>
-                    <td>742</td>
-                    <td>805 次</td>
-                    <td>3,210 次</td>
-                    <td>699 次</td>
-                    <td><strong>¥1,772.30</strong></td>
-                    <td><span class="status stop">额度预警</span></td>
-                  </tr>
-                  <tr>
-                    <td><div class="tenant-name">明诚财富</div></td>
-                    <td>186</td>
-                    <td>202 次</td>
-                    <td>802 次</td>
-                    <td>144 次</td>
-                    <td><strong>¥425.10</strong></td>
-                    <td><span class="status ok">正常</span></td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-
-            <div class="panel">
-              <div class="panel-head">
-                <div>
-                  <div class="panel-title">闭源模型成本分布</div>
-                  <div class="panel-subtitle">按供应商和模型口径统计</div>
-                </div>
-                <button class="btn" type="button" onclick="showToast('进入成本单价配置')">单价配置</button>
-              </div>
-              <div class="panel-body">
-                <div class="bar-list">
-                  <div class="bar-row"><strong>视频 Pro</strong><div class="bar-track"><div class="bar-fill" style="width:78%;"></div></div><span>¥2,106</span></div>
-                  <div class="bar-row"><strong>LLM Max</strong><div class="bar-track"><div class="bar-fill green" style="width:46%;"></div></div><span>¥824</span></div>
-                  <div class="bar-row"><strong>语音 V2</strong><div class="bar-track"><div class="bar-fill amber" style="width:31%;"></div></div><span>¥418</span></div>
-                  <div class="bar-row"><strong>图片 Pro</strong><div class="bar-track"><div class="bar-fill red" style="width:15%;"></div></div><span>¥134</span></div>
-                </div>
-                <div style="height:18px;"></div>
-                <div class="kv"><div class="kv-label">计费版本</div><div class="kv-value">2026-05 成本价 v3</div></div>
-                <div class="kv"><div class="kv-label">成本口径</div><div class="kv-value">成功调用计费，失败重试按供应商账单回填</div></div>
-                <div class="kv"><div class="kv-label">异常成本</div><div class="kv-value"><span class="status warn">睿选保险今日超出预估 18%</span></div></div>
-              </div>
-            </div>
-          </div>
-
-          <div class="panel" style="margin-top:16px;">
-            <div class="panel-head">
-              <div>
-                <div class="panel-title">模型调用明细</div>
-                <div class="panel-subtitle">用于追踪成本归因和失败任务排查</div>
-              </div>
-              <button class="btn" type="button" onclick="showToast('明细已导出')">导出明细</button>
-            </div>
-            <table>
-              <thead>
-                <tr>
-                  <th>时间</th>
-                  <th>租户</th>
-                  <th>任务 ID</th>
-                  <th>流程节点</th>
-                  <th>模型</th>
-                  <th>Prompt 版本</th>
-                  <th>耗时</th>
-                  <th>成本</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr><td>14:38:22</td><td>华东投顾事业部</td><td>task_87219</td><td>分镜生成</td><td>LLM Max</td><td>shot_v12</td><td>3.2s</td><td>¥0.21</td></tr>
-                <tr><td>14:39:11</td><td>睿选保险</td><td>task_87233</td><td>视频生成</td><td>视频 Pro</td><td>video_v8</td><td>78.4s</td><td>¥3.60</td></tr>
-                <tr><td>14:42:05</td><td>明诚财富</td><td>task_87251</td><td>语音合成</td><td>语音 V2</td><td>voice_v4</td><td>6.8s</td><td>¥0.38</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <div class="view" id="view-models">
-          <div class="section-head">
-            <div>
-              <div class="section-title">模型与音色</div>
-              <div class="section-sub">维护视频、LLM、图片、语音模型，以及平台内置音色库。</div>
-            </div>
-            <div class="toolbar">
-              <button class="btn" type="button" onclick="showToast('新增模型配置')">+ 新增模型</button>
-              <button class="btn primary" type="button" onclick="showToast('新增内置音色')">+ 新增音色</button>
-            </div>
-          </div>
-
-          <div class="grid-2">
-            <div class="panel">
-              <div class="panel-head">
-                <div>
-                  <div class="panel-title">模型列表</div>
-                  <div class="panel-subtitle">控制模型启停、能力标签和租户可见范围</div>
-                </div>
-                <span class="status ok">8 个启用</span>
-              </div>
-              <table>
-                <thead>
-                  <tr>
-                    <th>模型</th>
-                    <th>类型</th>
-                    <th>供应商</th>
-                    <th>能力标签</th>
-                    <th>可见范围</th>
-                    <th>状态</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td><div class="tenant-name">通灵 XZ</div><div class="muted mini">video_xz_v1</div></td>
-                    <td>视频生成</td>
-                    <td>自研</td>
-                    <td><div class="chip-row"><span class="chip">主体融合</span><span class="chip">低成本</span></div></td>
-                    <td>全部租户</td>
-                    <td><span class="status ok">启用</span></td>
-                  </tr>
-                  <tr>
-                    <td><div class="tenant-name">闭源视频 Pro</div><div class="muted mini">closed_video_pro</div></td>
-                    <td>视频生成</td>
-                    <td>第三方</td>
-                    <td><div class="chip-row"><span class="chip">高清</span><span class="chip">高成本</span></div></td>
-                    <td>高级租户</td>
-                    <td><span class="status ok">启用</span></td>
-                  </tr>
-                  <tr>
-                    <td><div class="tenant-name">LLM Max</div><div class="muted mini">llm_max_2026</div></td>
-                    <td>文本推理</td>
-                    <td>第三方</td>
-                    <td><div class="chip-row"><span class="chip">台词</span><span class="chip">分镜</span><span class="chip">改写</span></div></td>
-                    <td>全部租户</td>
-                    <td><span class="status ok">启用</span></td>
-                  </tr>
-                  <tr>
-                    <td><div class="tenant-name">语音复刻 V2</div><div class="muted mini">voice_clone_v2</div></td>
-                    <td>语音</td>
-                    <td>第三方</td>
-                    <td><div class="chip-row"><span class="chip">复刻</span><span class="chip">试听</span></div></td>
-                    <td>白名单</td>
-                    <td><span class="status warn">灰度</span></td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-
-            <div class="panel">
-              <div class="panel-head">
-                <div>
-                  <div class="panel-title">模型路由策略</div>
-                  <div class="panel-subtitle">默认模型、备用模型和失败重试</div>
-                </div>
-                <button class="btn" type="button" onclick="showToast('路由策略已保存')">保存</button>
-              </div>
-              <div class="panel-body">
-                <div class="kv"><div class="kv-label">台词生成</div><div class="kv-value">LLM Max，失败后切换 LLM Lite</div></div>
-                <div class="kv"><div class="kv-label">分镜生成</div><div class="kv-value">LLM Max，最多重试 2 次</div></div>
-                <div class="kv"><div class="kv-label">视频生成</div><div class="kv-value">默认通灵 XZ，高级租户可使用闭源视频 Pro</div></div>
-                <div class="kv"><div class="kv-label">语音合成</div><div class="kv-value">内置音色走语音 V2，复刻音色走 Clone V2</div></div>
-                <div style="height:14px;"></div>
-                <div class="panel-title" style="margin-bottom:12px;">异常策略</div>
-                <div class="chip-row">
-                  <span class="chip">超时 90s 自动失败</span>
-                  <span class="chip">失败重试 2 次</span>
-                  <span class="chip">成本超限阻断</span>
-                  <span class="chip">灰度租户优先</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="panel" style="margin-top:16px;">
-            <div class="panel-head">
-              <div>
-                <div class="panel-title">内置音色库</div>
-                <div class="panel-subtitle">配置前台可选择的系统音色</div>
-              </div>
-              <div class="toolbar">
-                <select class="select"><option>全部风格</option><option>稳重</option><option>亲和</option><option>专业</option></select>
-                <button class="btn" type="button" onclick="showToast('音色排序已更新')">调整排序</button>
-              </div>
-            </div>
-            <table>
-              <thead>
-                <tr>
-                  <th>音色名称</th>
-                  <th>性别</th>
-                  <th>风格标签</th>
-                  <th>适用行业</th>
-                  <th>可见范围</th>
-                  <th>使用次数</th>
-                  <th>状态</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr><td><strong>沉稳男声</strong></td><td>男</td><td><div class="chip-row"><span class="chip">专业</span><span class="chip">投顾</span></div></td><td>金融、保险</td><td>全部租户</td><td>12,904</td><td><span class="status ok">上架</span></td></tr>
-                <tr><td><strong>知性女声</strong></td><td>女</td><td><div class="chip-row"><span class="chip">亲和</span><span class="chip">讲解</span></div></td><td>金融、教育</td><td>全部租户</td><td>9,812</td><td><span class="status ok">上架</span></td></tr>
-                <tr><td><strong>活力主播</strong></td><td>女</td><td><div class="chip-row"><span class="chip">轻快</span><span class="chip">营销</span></div></td><td>泛行业</td><td>试用租户</td><td>3,108</td><td><span class="status warn">灰度</span></td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <div class="view" id="view-prompts">
-          <div class="section-head">
-            <div>
-              <div class="section-title">Prompt 与策略</div>
-              <div class="section-sub">按流程节点维护 Prompt 版本，并实时控制模型路由、水印、重试和灰度策略。</div>
-            </div>
-            <div class="toolbar">
-              <button class="btn" type="button" onclick="showToast('已创建 Prompt 草稿')">+ 新建 Prompt</button>
-              <button class="btn primary" type="button" onclick="showToast('发布流程已发起')">发布灰度</button>
-            </div>
-          </div>
-
-          <div class="panel" style="margin-bottom:16px;">
-            <div class="panel-head">
-              <div>
-                <div class="panel-title">流程节点配置</div>
-                <div class="panel-subtitle">每个生成节点绑定模型、Prompt 当前版本和策略版本</div>
-              </div>
-              <span class="status info">策略 v18 生效中</span>
-            </div>
-            <div class="panel-body">
-              <div class="node-map">
-                <div class="node"><div class="node-name">台词生成</div><div class="node-meta">LLM Max<br>script_v14<br>策略：合规改写开启</div></div>
-                <div class="node"><div class="node-name">分镜生成</div><div class="node-meta">LLM Max<br>shot_v12<br>策略：最多 6 个分镜</div></div>
-                <div class="node"><div class="node-name">主体分析</div><div class="node-meta">图片 Pro<br>subject_v7<br>策略：角色水印检测</div></div>
-                <div class="node"><div class="node-name">视频生成</div><div class="node-meta">通灵 XZ / 视频 Pro<br>video_v8<br>策略：失败切换模型</div></div>
-              </div>
-            </div>
-          </div>
-
-          <div class="grid-2">
-            <div class="panel">
-              <div class="panel-head">
-                <div>
-                  <div class="panel-title">Prompt 版本管理</div>
-                  <div class="panel-subtitle">线上版本、草稿版本、灰度范围和回滚</div>
-                </div>
-                <button class="btn" type="button" onclick="showToast('已回滚到上一稳定版本')">回滚</button>
-              </div>
-              <table>
-                <thead>
-                  <tr>
-                    <th>Prompt</th>
-                    <th>流程节点</th>
-                    <th>线上版本</th>
-                    <th>草稿</th>
-                    <th>灰度范围</th>
-                    <th>最后发布</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr><td><strong>投顾台词生成</strong></td><td>台词生成</td><td>script_v14</td><td><span class="status warn">v15 草稿</span></td><td>明诚财富 10%</td><td>05-28 18:02</td></tr>
-                  <tr><td><strong>常规分镜生成</strong></td><td>分镜生成</td><td>shot_v12</td><td><span class="status info">无草稿</span></td><td>全量</td><td>05-27 11:34</td></tr>
-                  <tr><td><strong>视频提示词生成</strong></td><td>视频生成</td><td>video_v8</td><td><span class="status warn">v9 草稿</span></td><td>内部租户</td><td>05-26 20:19</td></tr>
-                  <tr><td><strong>角色水印策略</strong></td><td>主体分析</td><td>subject_v7</td><td><span class="status info">无草稿</span></td><td>全量</td><td>05-25 16:40</td></tr>
-                </tbody>
-              </table>
-            </div>
-
-            <div class="panel">
-              <div class="panel-head">
-                <div>
-                  <div class="panel-title">Prompt 测试台</div>
-                  <div class="panel-subtitle">使用样例输入验证草稿版本输出</div>
-                </div>
-                <button class="btn primary" type="button" onclick="runPromptTest()">运行测试</button>
-              </div>
-              <div class="panel-body">
-                <div class="form-field">
-                  <label>测试输入</label>
-                  <textarea class="codebox" id="promptInput">{ "行业": "金融投顾", "目标": "介绍稳健型投顾服务", "角色": "资深顾问", "时长": "45秒" }</textarea>
-                </div>
-                <div style="height:12px;"></div>
-                <div class="kv"><div class="kv-label">测试版本</div><div class="kv-value">script_v15 草稿</div></div>
-                <div class="kv"><div class="kv-label">测试结果</div><div class="kv-value" id="promptResult">等待运行</div></div>
-                <div class="kv"><div class="kv-label">建议动作</div><div class="kv-value">通过样例后进入 10% 租户灰度</div></div>
-              </div>
-            </div>
-          </div>
-
-          <div class="grid-2" style="margin-top:16px;">
-            <div class="panel">
-              <div class="panel-head">
-                <div>
-                  <div class="panel-title">生成策略配置</div>
-                  <div class="panel-subtitle">控制模型、重试、批量、水印等实时策略</div>
-                </div>
-                <button class="btn" type="button" onclick="showToast('生成策略已保存')">保存策略</button>
-              </div>
-              <div class="panel-body">
-                <div class="kv"><div class="kv-label">批量上限</div><div class="kv-value">单次最多 60 个组合，租户可单独覆盖</div></div>
-                <div class="kv"><div class="kv-label">失败重试</div><div class="kv-value">视频节点重试 2 次，LLM 节点重试 1 次</div></div>
-                <div class="kv"><div class="kv-label">角色水印</div><div class="kv-value">租户开启后，预设角色使用主体内配置水印</div></div>
-                <div class="kv"><div class="kv-label">成本保护</div><div class="kv-value">任务预估成本超过租户日限额 90% 时阻断</div></div>
-              </div>
-            </div>
-            <div class="panel">
-              <div class="panel-head">
-                <div>
-                  <div class="panel-title">发布记录</div>
-                  <div class="panel-subtitle">Prompt 和策略变更必须可追溯</div>
-                </div>
-              </div>
-              <div class="panel-body">
-                <div class="release-line">
-                  <div class="release-time">05-29 14:20</div>
-                  <div><div class="release-title">video_v9 进入内部灰度</div><div class="release-desc">仅内部租户可见，验证主体融合和水印稳定性。</div></div>
-                  <span class="status warn">灰度</span>
-                </div>
-                <div class="release-line">
-                  <div class="release-time">05-28 18:02</div>
-                  <div><div class="release-title">script_v14 全量发布</div><div class="release-desc">优化投顾服务口播语气，降低营销夸张表达。</div></div>
-                  <span class="status ok">全量</span>
-                </div>
-                <div class="release-line">
-                  <div class="release-time">05-27 11:34</div>
-                  <div><div class="release-title">shot_v12 回滚完成</div><div class="release-desc">v13 分镜数量不稳定，已回滚至上一稳定版本。</div></div>
-                  <span class="status info">回滚</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-    </main>
-  </div>
-
-  <div class="modal-mask" id="tenantModal">
-    <div class="modal">
-      <div class="modal-head">
-        <div>
-          <div class="modal-title">新建租户</div>
-          <div class="panel-subtitle">创建租户账号，并初始化管理员、额度和能力范围</div>
-        </div>
-        <button class="close" type="button" onclick="closeTenantModal()">×</button>
-      </div>
-      <div class="modal-body">
-        <div class="form-grid">
-          <div class="form-field">
-            <label>租户名称</label>
-            <input type="text" value="华南投顾中心">
-          </div>
-          <div class="form-field">
-            <label>行业</label>
-            <select><option>金融投顾</option><option>保险</option><option>教育培训</option><option>泛行业</option></select>
-          </div>
-          <div class="form-field">
-            <label>管理员姓名</label>
-            <input type="text" value="李经理">
-          </div>
-          <div class="form-field">
-            <label>管理员手机号</label>
-            <input type="text" value="13900008888">
-          </div>
-          <div class="form-field">
-            <label>每日生成额度</label>
-            <input type="number" value="500">
-          </div>
-          <div class="form-field">
-            <label>最大并发</label>
-            <input type="number" value="8">
-          </div>
-          <div class="form-field">
-            <label>模型权限</label>
-            <select><option>标准模型包</option><option>高级模型包</option><option>仅内测模型</option></select>
-          </div>
-          <div class="form-field">
-            <label>服务有效期</label>
-            <input type="date" value="2026-12-31">
-          </div>
-        </div>
-      </div>
-      <div class="modal-foot">
-        <button class="btn" type="button" onclick="closeTenantModal()">取消</button>
-        <button class="btn primary" type="button" onclick="createTenant()">创建并开通</button>
-      </div>
     </div>
-  </div>
+    <nav class="sidebar-nav">
+        <div class="nav-item active" data-view="view-dashboard"><span class="nav-icon">🏠</span> 工作台</div>
+        <div class="nav-item" data-view="view-tenants"><span class="nav-icon">👥</span> 租户管理</div>
+        <div class="nav-item" data-view="view-billing"><span class="nav-icon">💰</span> 积分与账单</div>
+        <div class="nav-item" data-view="view-prompts"><span class="nav-icon">📝</span> Prompt 与策略</div>
+        <div class="nav-item" data-view="view-models"><span class="nav-icon">🤖</span> 模型与音色</div>
+    </nav>
+    <div class="sidebar-bottom">
+        <div class="sidebar-user">
+            <div class="sidebar-avatar" id="sidebarAvatar">管</div>
+            <div class="sidebar-user-info">
+                <div class="sidebar-user-name" id="sidebarUserName">超级管理员</div>
+                <div class="sidebar-user-role" id="sidebarUserRole">admin</div>
+            </div>
+            <div class="sidebar-logout" onclick="handleLogout()" title="退出登录">↩</div>
+        </div>
+    </div>
+</aside>
 
-  <div class="toast" id="toast"></div>
+<!-- 主区域 -->
+<div class="main">
+    <div class="topbar">
+        <span class="topbar-breadcrumb">控制台 / <span id="topbarSection">工作台</span></span>
+        <div class="topbar-actions" id="topbarActions"></div>
+    </div>
+    <div class="content">
+        <!-- 全局指标卡 -->
+        <div class="metrics-row" id="metricsRow">
+            <div class="metric-card">
+                <div class="metric-label">今日生成任务</div>
+                <div class="metric-value" id="metricTasks">1,284</div>
+                <div class="metric-sub"><span class="metric-up">↑ 12%</span> 较昨日</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">任务成功率</div>
+                <div class="metric-value" id="metricSuccess">94.8%</div>
+                <div class="metric-sub"><span class="metric-down">↓ 2%</span> 通灵XZ超时增加</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">活跃租户</div>
+                <div class="metric-value" id="metricTenants">36</div>
+                <div class="metric-sub"><span class="metric-warn">⚠ 3 个租户</span> 额度预警</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">今日成本</div>
+                <div class="metric-value" id="metricCost">¥3,482</div>
+                <div class="metric-sub">单任务均摊 ¥2.71</div>
+            </div>
+        </div>
 
-  <script>
-    const viewNames = {
-      tenants: "租户管理",
-      usage: "用量成本",
-      models: "模型与音色",
-      prompts: "Prompt 与策略"
+        <!-- 视图：工作台 -->
+        <div class="panel active" id="view-dashboard">
+            <div class="section-title">📊 任务量趋势（近 7 天）</div>
+            <div class="info-card" style="margin-bottom:20px">
+                <div class="bar-chart" id="weeklyChart"></div>
+            </div>
+            <div class="card-grid2" style="margin-bottom:20px">
+                <div class="info-card"><h4>🏆 租户用量 TOP5</h4><div id="topTenants"></div></div>
+                <div class="info-card"><h4>📦 模型调用分布</h4><div id="modelDist"></div></div>
+            </div>
+            <div class="info-card">
+                <h4>⚠ 最新异常告警</h4>
+                <div class="table-wrap" style="border:none">
+                    <table>
+                        <thead><tr><th>时间</th><th>租户</th><th>任务 ID</th><th>异常类型</th><th>状态</th></tr></thead>
+                        <tbody id="alertTable"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 视图：租户管理 -->
+        <div class="panel" id="view-tenants">
+            <div class="table-wrap">
+                <div class="table-toolbar">
+                    <select class="filter-select" id="tenantStatusFilter" onchange="renderTenants()">
+                        <option value="">全部状态</option><option value="启用中">启用中</option><option value="试用中">试用中</option><option value="已停用">已停用</option>
+                    </select>
+                    <select class="filter-select" id="tenantIndustryFilter" onchange="renderTenants()">
+                        <option value="">全部行业</option><option value="金融投顾">金融投顾</option><option value="保险">保险</option><option value="教育培训">教育培训</option>
+                    </select>
+                    <input class="filter-input" type="text" id="tenantSearch" placeholder="搜索租户名称或管理员..." oninput="renderTenants()">
+                    <button class="btn btn-primary btn-sm" onclick="openTenantModal()" style="margin-left:auto">+ 新建租户</button>
+                </div>
+                <table>
+                    <thead><tr><th>租户名称</th><th>行业</th><th>状态</th><th>管理员</th><th>今日用量/额度</th><th>积分余额</th><th>开通时间</th><th>操作</th></tr></thead>
+                    <tbody id="tenantTable"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 视图：积分与账单 -->
+        <div class="panel" id="view-billing">
+            <div class="card-grid4" style="margin-bottom:20px">
+                <div class="metric-card">
+                    <div class="metric-label">今日充值总额</div>
+                    <div class="metric-value" style="font-size:22px" id="billTodayCharge">+12,000</div>
+                    <div class="metric-sub">积分</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">今日消费总额</div>
+                    <div class="metric-value" style="font-size:22px;color:var(--red)" id="billTodayConsume">-8,450</div>
+                    <div class="metric-sub">积分</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">今日退款</div>
+                    <div class="metric-value" style="font-size:22px;color:var(--orange)" id="billTodayRefund">+320</div>
+                    <div class="metric-sub">积分</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">平台总积分</div>
+                    <div class="metric-value" style="font-size:22px" id="billTotalPoints">286,400</div>
+                    <div class="metric-sub">在途</div>
+                </div>
+            </div>
+            <div class="table-wrap">
+                <div class="table-toolbar">
+                    <select class="filter-select" id="billTenantFilter" onchange="renderBilling()"><option value="">全部租户</option></select>
+                    <select class="filter-select" id="billTypeFilter" onchange="renderBilling()">
+                        <option value="">全部类型</option><option value="充值">充值</option><option value="消费">消费</option><option value="退款">退款</option>
+                    </select>
+                    <input class="filter-input" type="date" id="billDateFrom" onchange="renderBilling()" style="width:auto">
+                    <span style="font-size:12px;color:var(--text-muted)">至</span>
+                    <input class="filter-input" type="date" id="billDateTo" onchange="renderBilling()" style="width:auto">
+                </div>
+                <table>
+                    <thead><tr><th>时间</th><th>租户</th><th>类型</th><th>积分变动</th><th>余额</th><th>操作人</th><th>关联任务/订单</th><th>备注</th></tr></thead>
+                    <tbody id="billingTable"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 视图：Prompt 与策略 -->
+        <div class="panel" id="view-prompts">
+            <div class="section-title">流程节点配置</div>
+            <div class="card-grid4" style="margin-bottom:24px" id="promptNodes"></div>
+            <div class="section-title">Prompt 版本管理</div>
+            <div class="table-wrap" style="margin-bottom:24px">
+                <div class="table-toolbar">
+                    <span style="font-weight:600;font-size:13px">版本列表</span>
+                    <button class="btn btn-primary btn-sm" onclick="openPromptModal()" style="margin-left:auto">+ 新建 Prompt</button>
+                </div>
+                <table>
+                    <thead><tr><th>Prompt 名称</th><th>流程节点</th><th>线上版本</th><th>草稿版本</th><th>灰度范围</th><th>最后更新</th><th>操作</th></tr></thead>
+                    <tbody id="promptTable"></tbody>
+                </table>
+            </div>
+            <div class="card-grid2" style="margin-bottom:24px">
+                <div class="info-card">
+                    <h4>🧪 Prompt 测试台</h4>
+                    <div style="margin-bottom:10px">
+                        <label style="font-size:12px;font-weight:600;color:var(--text-secondary);display:block;margin-bottom:4px">测试输入 (JSON)</label>
+                        <textarea id="promptTestInput" style="width:100%;height:80px;padding:10px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:monospace;resize:vertical" placeholder='{"industry":"金融投顾","goal":"市场解读","role":"稳健男性投顾","duration":"60秒"}'></textarea>
+                    </div>
+                    <button class="btn btn-primary btn-sm" onclick="runPromptTest()">▶ 运行测试</button>
+                    <div id="promptTestResult" style="margin-top:12px;font-size:12px;color:var(--text-secondary)"></div>
+                </div>
+                <div class="info-card">
+                    <h4>📋 发布记录</h4>
+                    <div class="timeline" id="releaseTimeline"></div>
+                </div>
+            </div>
+            <div class="info-card">
+                <h4>⚙️ 全局生成策略</h4>
+                <div class="kv-grid" style="margin-top:8px">
+                    <div class="kv-item"><span class="kv-label">批量上限</span><span class="kv-value">单次最多 60 个组合</span></div>
+                    <div class="kv-item"><span class="kv-label">视频失败重试</span><span class="kv-value">2 次，间隔 10s</span></div>
+                    <div class="kv-item"><span class="kv-label">LLM 失败重试</span><span class="kv-value">1 次</span></div>
+                    <div class="kv-item"><span class="kv-label">成本保护</span><span class="kv-value">日限额 90% 阻断</span></div>
+                    <div class="kv-item"><span class="kv-label">分镜数量上限</span><span class="kv-value">6 个</span></div>
+                    <div class="kv-item"><span class="kv-label">超时设置</span><span class="kv-value">90s 自动失败</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 视图：模型与音色 -->
+        <div class="panel" id="view-models">
+            <div class="section-title">模型列表</div>
+            <div class="table-wrap" style="margin-bottom:24px">
+                <div class="table-toolbar">
+                    <span style="font-weight:600;font-size:13px">已接入模型</span>
+                    <button class="btn btn-primary btn-sm" onclick="toast('功能开发中')" style="margin-left:auto">+ 新增模型</button>
+                </div>
+                <table>
+                    <thead><tr><th>模型名称</th><th>类型</th><th>供应商</th><th>版本</th><th>状态</th><th>可见范围</th><th>操作</th></tr></thead>
+                    <tbody id="modelTable"></tbody>
+                </table>
+            </div>
+            <div class="card-grid2" style="margin-bottom:24px">
+                <div class="info-card"><h4>🔑 API Key 管理</h4><div id="apiKeyList"></div></div>
+                <div class="info-card"><h4>🔀 路由策略</h4><div id="routeStrategy"></div></div>
+            </div>
+            <div class="section-title">积分定价配置</div>
+            <div class="pricing-grid" id="pricingGrid"></div>
+            <div class="section-title" style="margin-top:24px">音色库</div>
+            <div class="table-wrap">
+                <div class="table-toolbar">
+                    <select class="filter-select" id="timbreStyleFilter" onchange="renderTimbres()">
+                        <option value="">全部风格</option><option value="稳重">稳重</option><option value="亲和">亲和</option><option value="专业">专业</option><option value="活泼">活泼</option>
+                    </select>
+                    <button class="btn btn-primary btn-sm" onclick="toast('功能开发中')" style="margin-left:auto">+ 新增音色</button>
+                </div>
+                <table>
+                    <thead><tr><th>音色名称</th><th>性别</th><th>风格</th><th>适用行业</th><th>使用次数</th><th>可见范围</th><th>状态</th></tr></thead>
+                    <tbody id="timbreTable"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal：租户表单 -->
+<div class="modal-overlay" id="tenantModalOverlay">
+    <div class="modal" id="tenantModal">
+        <div class="modal-header">
+            <span class="modal-title" id="tenantModalTitle">新建租户</span>
+            <button class="modal-close" onclick="closeTenantModal()">×</button>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+            <div class="form-group"><label class="kv-label">租户名称 *</label><input class="filter-input" id="tfName" style="width:100%" placeholder="如：雨虹投资"></div>
+            <div class="form-group"><label class="kv-label">行业 *</label><select class="filter-select" id="tfIndustry" style="width:100%"><option value="">请选择</option><option>金融投顾</option><option>保险</option><option>教育培训</option><option>其他</option></select></div>
+            <div class="form-group"><label class="kv-label">管理员姓名 *</label><input class="filter-input" id="tfAdminName" style="width:100%" placeholder="姓名"></div>
+            <div class="form-group"><label class="kv-label">管理员手机</label><input class="filter-input" id="tfAdminPhone" style="width:100%" placeholder="手机号"></div>
+            <div class="form-group"><label class="kv-label">管理员邮箱</label><input class="filter-input" id="tfAdminEmail" style="width:100%" placeholder="邮箱"></div>
+            <div class="form-group"><label class="kv-label">每日生成额度</label><input class="filter-input" id="tfDailyQuota" style="width:100%" type="number" placeholder="条数" value="500"></div>
+            <div class="form-group"><label class="kv-label">最大并发数</label><input class="filter-input" id="tfConcurrency" style="width:100%" type="number" placeholder="并发数" value="5"></div>
+            <div class="form-group"><label class="kv-label">模型权限</label><select class="filter-select" id="tfModelLevel" style="width:100%"><option value="标准">标准</option><option value="高级">高级</option><option value="仅内测">仅内测</option></select></div>
+            <div class="form-group"><label class="kv-label">服务有效期</label><input class="filter-input" id="tfExpiry" style="width:100%" type="date"></div>
+        </div>
+        <input type="hidden" id="tfEditId">
+        <div class="modal-footer">
+            <button class="btn" onclick="closeTenantModal()">取消</button>
+            <button class="btn btn-primary" onclick="saveTenant()">保存</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal：积分充值 -->
+<div class="modal-overlay" id="rechargeModalOverlay">
+    <div class="modal" id="rechargeModal">
+        <div class="modal-header">
+            <span class="modal-title">积分充值</span>
+            <button class="modal-close" onclick="closeRechargeModal()">×</button>
+        </div>
+        <div class="form-group" style="margin-bottom:14px">
+            <label class="kv-label">租户</label>
+            <input class="filter-input" id="rfTenantName" style="width:100%" readonly>
+        </div>
+        <div class="form-group" style="margin-bottom:14px">
+            <label class="kv-label">充值积分数量 *</label>
+            <input class="filter-input" id="rfPoints" style="width:100%" type="number" placeholder="请输入积分数量" oninput="updateRechargePreview()">
+            <span style="font-size:11px;color:var(--text-muted);margin-top:4px;display:block">对应金额：<strong id="rfAmount">¥0.00</strong>（1 元 = 10 积分）</span>
+        </div>
+        <div class="form-group" style="margin-bottom:14px">
+            <label class="kv-label">备注（选填）</label>
+            <input class="filter-input" id="rfRemark" style="width:100%" placeholder="充值备注">
+        </div>
+        <input type="hidden" id="rfTenantId">
+        <div class="modal-footer">
+            <button class="btn" onclick="closeRechargeModal()">取消</button>
+            <button class="btn btn-primary" onclick="confirmRecharge()">确认充值</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal：Prompt 编辑 -->
+<div class="modal-overlay" id="promptModalOverlay">
+    <div class="modal wide" id="promptModal">
+        <div class="modal-header">
+            <span class="modal-title" id="promptModalTitle">编辑 Prompt</span>
+            <button class="modal-close" onclick="closePromptModal()">×</button>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
+            <div class="form-group"><label class="kv-label">Prompt 名称</label><input class="filter-input" id="pfName" style="width:100%" placeholder="如：script_v15"></div>
+            <div class="form-group"><label class="kv-label">流程节点</label><select class="filter-select" id="pfNode" style="width:100%"><option>台词生成</option><option>分镜生成</option><option>主体分析</option><option>视频生成</option></select></div>
+        </div>
+        <div class="form-group" style="margin-bottom:14px">
+            <label class="kv-label">Prompt 内容</label>
+            <textarea id="pfContent" style="width:100%;height:180px;padding:12px;border:1px solid var(--border);border-radius:6px;font-size:13px;font-family:'SF Mono','Menlo','Consolas',monospace;resize:vertical;line-height:1.6" placeholder="输入 Prompt 内容，支持 {{变量}} 占位符..."></textarea>
+        </div>
+        <div class="form-group" style="margin-bottom:14px">
+            <label class="kv-label">备注</label>
+            <input class="filter-input" id="pfNote" style="width:100%" placeholder="版本更新说明">
+        </div>
+        <input type="hidden" id="pfEditName">
+        <div class="modal-footer">
+            <button class="btn" onclick="closePromptModal()">取消</button>
+            <button class="btn btn-primary" onclick="savePrompt()">保存草稿</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal：灰度发布 -->
+<div class="modal-overlay" id="grayModalOverlay">
+    <div class="modal" id="grayModal">
+        <div class="modal-header">
+            <span class="modal-title">灰度发布</span>
+            <button class="modal-close" onclick="closeGrayModal()">×</button>
+        </div>
+        <div style="margin-bottom:14px">
+            <label class="kv-label" style="margin-bottom:6px;display:block">发布 Prompt：<strong id="gfPromptName"></strong>（<span id="gfVersion"></span>）</label>
+        </div>
+        <div class="form-group" style="margin-bottom:14px">
+            <label class="kv-label">灰度比例</label>
+            <select class="filter-select" id="gfRatio" style="width:100%"><option value="10">10%</option><option value="30">30%</option><option value="50">50%</option><option value="100">100%（全量）</option></select>
+        </div>
+        <div class="form-group" style="margin-bottom:14px">
+            <label class="kv-label">灰度租户（不选则随机）</label>
+            <div id="gfTenantChecks" style="max-height:160px;overflow-y:auto;border:1px solid var(--border);border-radius:6px;padding:8px 12px"></div>
+        </div>
+        <input type="hidden" id="gfPromptKey">
+        <div class="modal-footer">
+            <button class="btn" onclick="closeGrayModal()">取消</button>
+            <button class="btn btn-primary" onclick="confirmGrayRelease()">确认发布</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal：版本对比 -->
+<div class="modal-overlay" id="diffModalOverlay">
+    <div class="modal wide" id="diffModal">
+        <div class="modal-header">
+            <span class="modal-title">版本对比</span>
+            <button class="modal-close" onclick="closeDiffModal()">×</button>
+        </div>
+        <div class="diff-pane" id="diffContent"></div>
+        <div class="modal-footer">
+            <button class="btn" onclick="closeDiffModal()">关闭</button>
+        </div>
+    </div>
+</div>
+
+<!-- Drawer：租户详情 -->
+<div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+<div class="drawer" id="tenantDrawer">
+    <div class="drawer-header">
+        <span class="drawer-title" id="drawerTitle">租户详情</span>
+        <button class="modal-close" onclick="closeDrawer()">×</button>
+    </div>
+    <div class="drawer-body" id="drawerBody"></div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- Confirm -->
+<div class="confirm-overlay" id="confirmOverlay">
+    <div class="confirm-box">
+        <div class="confirm-icon" id="confirmIcon">⚠️</div>
+        <div class="confirm-title" id="confirmTitle">确认操作</div>
+        <div class="confirm-desc" id="confirmDesc">确定要执行此操作吗？</div>
+        <div class="confirm-actions">
+            <button class="btn" onclick="closeConfirm()">取消</button>
+            <button class="btn btn-primary" id="confirmOkBtn">确认</button>
+        </div>
+    </div>
+</div>
+
+<script>
+// ===========================
+// 登录态检查
+// ===========================
+(function() {
+    var session = sessionStorage.getItem('ops_console_session');
+    if (!session) { window.location.href = '后台运营控制台-登录.html'; return; }
+    try {
+        var s = JSON.parse(session);
+        document.getElementById('sidebarAvatar').textContent = s.avatar || '管';
+        document.getElementById('sidebarUserName').textContent = s.role || '管理员';
+        document.getElementById('sidebarUserRole').textContent = s.user || '';
+    } catch(e) { window.location.href = '后台运营控制台-登录.html'; }
+})();
+
+function handleLogout() {
+    sessionStorage.removeItem('ops_console_session');
+    window.location.href = '后台运营控制台-登录.html';
+}
+
+// ===========================
+// Toast / Confirm
+// ===========================
+function toast(msg, type) {
+    var el = document.getElementById('toast');
+    el.textContent = msg;
+    el.className = 'toast ' + (type || '') + ' show';
+    clearTimeout(el._t);
+    el._t = setTimeout(function() { el.classList.remove('show'); }, 2000);
+}
+
+var _confirmCb = null;
+function showConfirm(title, desc, icon, cb) {
+    document.getElementById('confirmTitle').textContent = title;
+    document.getElementById('confirmDesc').textContent = desc;
+    document.getElementById('confirmIcon').textContent = icon || '⚠️';
+    document.getElementById('confirmOverlay').classList.add('show');
+    _confirmCb = cb;
+    document.getElementById('confirmOkBtn').onclick = function() {
+        closeConfirm();
+        if (_confirmCb) _confirmCb();
     };
+}
+function closeConfirm() {
+    document.getElementById('confirmOverlay').classList.remove('show');
+    _confirmCb = null;
+}
 
-    document.querySelectorAll(".nav-item").forEach(function(item) {
-      item.addEventListener("click", function() {
-        const view = item.dataset.view;
-        document.querySelectorAll(".nav-item").forEach(function(nav) { nav.classList.remove("active"); });
-        item.classList.add("active");
-        document.querySelectorAll(".view").forEach(function(panel) { panel.classList.remove("active"); });
-        document.getElementById("view-" + view).classList.add("active");
-        document.getElementById("pageTitle").textContent = viewNames[view];
-        document.getElementById("crumbName").textContent = viewNames[view];
-      });
+// ===========================
+// 视图切换
+// ===========================
+var currentView = 'view-dashboard';
+document.querySelectorAll('.nav-item').forEach(function(item) {
+    item.addEventListener('click', function() {
+        switchView(item.getAttribute('data-view'));
+    });
+});
+
+function switchView(viewId) {
+    currentView = viewId;
+    document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active'); });
+    document.querySelector('.nav-item[data-view="' + viewId + '"]').classList.add('active');
+    document.querySelectorAll('.panel').forEach(function(p) { p.classList.remove('active'); });
+    document.getElementById(viewId).classList.add('active');
+
+    var titles = { 'view-dashboard':'工作台','view-tenants':'租户管理','view-billing':'积分与账单','view-prompts':'Prompt 与策略','view-models':'模型与音色' };
+    document.getElementById('topbarSection').textContent = titles[viewId] || '';
+    updateTopbarActions();
+    refreshView(viewId);
+}
+
+function updateTopbarActions() {
+    var el = document.getElementById('topbarActions');
+    var map = {
+        'view-tenants': '<button class="btn btn-primary btn-sm" onclick="openTenantModal()">+ 新建租户</button>',
+        'view-prompts': '<button class="btn btn-primary btn-sm" onclick="openPromptModal()">+ 新建 Prompt</button><button class="btn btn-sm" onclick="toast(\'功能开发中\')">发布灰度</button>',
+        'view-models': '<button class="btn btn-primary btn-sm" onclick="toast(\'功能开发中\')">+ 新增模型</button>',
+        'view-billing': '<button class="btn btn-sm" onclick="renderBilling()">🔄 刷新</button>'
+    };
+    el.innerHTML = map[viewId] || '<span style="font-size:12px;color:var(--text-muted)">v1.0</span>';
+}
+
+function refreshView(viewId) {
+    if (viewId === 'view-dashboard') renderDashboard();
+    else if (viewId === 'view-tenants') renderTenants();
+    else if (viewId === 'view-billing') renderBilling();
+    else if (viewId === 'view-prompts') renderPrompts();
+    else if (viewId === 'view-models') { renderModels(); renderTimbres(); renderPricing(); }
+}
+
+// ===========================
+// 数据层
+// ===========================
+var STORAGE_KEY = 'ops_console_data';
+
+function loadData() {
+    try { var raw = localStorage.getItem(STORAGE_KEY); return raw ? JSON.parse(raw) : null; }
+    catch(e) { return null; }
+}
+function saveData() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(AppState));
+}
+
+function initData() {
+    var saved = loadData();
+    if (saved) {
+        AppState.tenants = saved.tenants || AppState.tenants;
+        AppState.billingLogs = saved.billingLogs || AppState.billingLogs;
+        AppState.prompts = saved.prompts || AppState.prompts;
+        AppState.releaseLogs = saved.releaseLogs || AppState.releaseLogs;
+        return;
+    }
+    saveData();
+}
+
+var AppState = {
+    tenants: [
+        { id:'t001',name:'雨虹投资',industry:'金融投顾',status:'启用中',adminName:'张明',adminPhone:'13800001001',adminEmail:'zhang@yh-am.com',dailyQuota:1000,dailyUsed:800,concurrency:10,modelLevel:'高级',credits:3200,expiry:'2026-12-31',openedAt:'2025-03-15',features:['视频生成','图片创作','语音合成','分镜管理'] },
+        { id:'t002',name:'鑫源保险',industry:'保险',status:'启用中',adminName:'李芳',adminPhone:'13800001002',adminEmail:'lif@xy-bx.com',dailyQuota:500,dailyUsed:450,concurrency:5,modelLevel:'标准',credits:1800,expiry:'2026-06-30',openedAt:'2025-06-01',features:['视频生成','语音合成'] },
+        { id:'t003',name:'汇丰投顾',industry:'金融投顾',status:'试用中',adminName:'王磊',adminPhone:'13800001003',adminEmail:'wang@hf-ad.com',dailyQuota:300,dailyUsed:120,concurrency:3,modelLevel:'标准',credits:500,expiry:'2026-04-15',openedAt:'2025-12-01',features:['视频生成'] },
+        { id:'t004',name:'中诚教育',industry:'教育培训',status:'启用中',adminName:'陈静',adminPhone:'13800001004',adminEmail:'chenj@zc-edu.com',dailyQuota:800,dailyUsed:680,concurrency:8,modelLevel:'高级',credits:2400,expiry:'2027-01-31',openedAt:'2025-08-20',features:['视频生成','图片创作','语音合成','分镜管理','主体管理'] },
+        { id:'t005',name:'华泰理财',industry:'金融投顾',status:'启用中',adminName:'赵强',adminPhone:'13800001005',adminEmail:'zhaoq@ht-cf.com',dailyQuota:600,dailyUsed:310,concurrency:6,modelLevel:'标准',credits:5600,expiry:'2026-09-30',openedAt:'2025-04-10',features:['视频生成','分镜管理'] },
+        { id:'t006',name:'安联保险经纪',industry:'保险',status:'试用中',adminName:'刘洋',adminPhone:'13800001006',adminEmail:'liuy@al-bx.com',dailyQuota:200,dailyUsed:85,concurrency:2,modelLevel:'仅内测',credits:200,expiry:'2026-05-30',openedAt:'2026-01-05',features:['视频生成'] },
+        { id:'t007',name:'博学在线',industry:'教育培训',status:'启用中',adminName:'孙丽',adminPhone:'13800001007',adminEmail:'sunl@bx-edu.com',dailyQuota:400,dailyUsed:390,concurrency:4,modelLevel:'标准',credits:900,expiry:'2026-08-31',openedAt:'2025-09-12',features:['视频生成','图片创作','语音合成'] },
+        { id:'t008',name:'众盈财富',industry:'金融投顾',status:'已停用',adminName:'周浩',adminPhone:'13800001008',adminEmail:'zh@zy-cf.com',dailyQuota:1000,dailyUsed:0,concurrency:10,modelLevel:'高级',credits:0,expiry:'2026-02-28',openedAt:'2025-01-20',features:['视频生成','图片创作','语音合成','分镜管理','主体管理'] }
+    ],
+    billingLogs: [
+        { id:'b001',time:'2026-01-25 09:15',tenantId:'t001',tenantName:'雨虹投资',type:'充值',amount:5000,balance:8200,operator:'admin',taskId:'-',remark:'年度续费充值' },
+        { id:'b002',time:'2026-01-25 10:30',tenantId:'t002',tenantName:'鑫源保险',type:'消费',amount:-200,balance:1800,operator:'system',taskId:'task_v_042',remark:'视频生成 10s' },
+        { id:'b003',time:'2026-01-25 11:00',tenantId:'t001',tenantName:'雨虹投资',type:'消费',amount:-100,balance:8100,operator:'system',taskId:'task_v_043',remark:'首帧合成' },
+        { id:'b004',time:'2026-01-25 14:20',tenantId:'t004',tenantName:'中诚教育',type:'消费',amount:-400,balance:2000,operator:'system',taskId:'task_v_044',remark:'视频生成 20s' },
+        { id:'b005',time:'2026-01-25 15:45',tenantId:'t003',tenantName:'汇丰投顾',type:'退款',amount:80,balance:580,operator:'system',taskId:'task_v_039',remark:'生成失败自动退款' },
+        { id:'b006',time:'2026-01-25 16:10',tenantId:'t005',tenantName:'华泰理财',type:'充值',amount:3000,balance:8600,operator:'admin',taskId:'-',remark:'手动充值' },
+        { id:'b007',time:'2026-01-24 08:30',tenantId:'t001',tenantName:'雨虹投资',type:'消费',amount:-150,balance:8300,operator:'system',taskId:'task_v_040',remark:'AI 场景图生成' },
+        { id:'b008',time:'2026-01-24 09:20',tenantId:'t007',tenantName:'博学在线',type:'消费',amount:-60,balance:960,operator:'system',taskId:'task_v_041',remark:'一键超分 x12' },
+        { id:'b009',time:'2026-01-24 11:00',tenantId:'t002',tenantName:'鑫源保险',type:'充值',amount:2000,balance:2000,operator:'operator',taskId:'-',remark:'季度充值' },
+        { id:'b010',time:'2026-01-24 13:15',tenantId:'t004',tenantName:'中诚教育',type:'消费',amount:-250,balance:2250,operator:'system',taskId:'task_v_045',remark:'视频批量生成' },
+        { id:'b011',time:'2026-01-24 16:40',tenantId:'t006',tenantName:'安联保险经纪',type:'退款',amount:40,balance:240,operator:'system',taskId:'task_v_038',remark:'超时退款' },
+        { id:'b012',time:'2026-01-23 10:00',tenantId:'t005',tenantName:'华泰理财',type:'消费',amount:-180,balance:5780,operator:'system',taskId:'task_v_037',remark:'视频生成 9s' },
+        { id:'b013',time:'2026-01-23 14:30',tenantId:'t001',tenantName:'雨虹投资',type:'消费',amount:-80,balance:8350,operator:'system',taskId:'task_v_036',remark:'首帧合成 x8' },
+        { id:'b014',time:'2026-01-23 15:00',tenantId:'t008',tenantName:'众盈财富',type:'退款',amount:1200,balance:1200,operator:'system',taskId:'-',remark:'账户余额清零退款' },
+        { id:'b015',time:'2026-01-23 17:20',tenantId:'t004',tenantName:'中诚教育',type:'充值',amount:5000,balance:2500,operator:'admin',taskId:'-',remark:'新年活动充值赠送' }
+    ],
+    prompts: [
+        { key:'script',name:'台词优化 Prompt',node:'台词生成',liveVersion:'script_v14',draftVersion:'script_v15',draftContent:'你是一位专业的金融投顾内容策划。请根据以下信息优化台词：\n行业：{{industry}}\n目标：{{goal}}\n角色：{{role}}\n要求：口语自然、专业可信、时长控制在 {{duration}}\n\n优化后台词：',grayRange:'全量',updatedAt:'2026-01-20' },
+        { key:'shot',name:'分镜生成 Prompt',node:'分镜生成',liveVersion:'shot_v12',draftVersion:'',draftContent:'',grayRange:'内部租户',updatedAt:'2026-01-18' },
+        { key:'subject',name:'主体分析 Prompt',node:'主体分析',liveVersion:'subject_v7',draftVersion:'subject_v8',draftContent:'请分析以下角色特征并生成主体描述：\n角色名：{{role_name}}\n性别：{{gender}}\n描述：{{description}}\n\n输出格式：JSON\n{\n  "appearance": "...",\n  "style": "...",\n  "recommended_pose": "..."\n}',grayRange:'全量',updatedAt:'2026-01-22' },
+        { key:'video',name:'视频生成 Prompt',node:'视频生成',liveVersion:'video_v8',draftVersion:'',draftContent:'',grayRange:'全量',updatedAt:'2026-01-15' }
+    ],
+    releaseLogs: [
+        { time:'2026-01-20 16:30',title:'script_v14 全量发布',desc:'台词优化 Prompt 更新至 v14，优化口语自然度和专业可信度',status:'全量' },
+        { time:'2026-01-19 11:00',title:'subject_v7 灰度发布',desc:'主体分析 v7 对中诚教育、博学在线两个教育行业租户灰度 30%',status:'灰度' },
+        { time:'2026-01-18 14:20',title:'shot_v12 全量发布',desc:'分镜生成 Prompt 更新至 v12，增加运镜类型描述',status:'全量' },
+        { time:'2026-01-16 09:45',title:'shot_v11 回滚',desc:'因分镜数量异常增多，回滚至 shot_v10',status:'回滚' },
+        { time:'2026-01-15 17:00',title:'video_v8 全量发布',desc:'视频生成 Prompt 更新，优化人物一致性描述',status:'全量' }
+    ]
+};
+
+initData();
+
+// ===========================
+// 工作台渲染
+// ===========================
+function renderDashboard() {
+    var days = ['01/03','01/04','01/05','01/06','01/07','01/08','01/09'];
+    var values = [980,1150,1340,1200,1420,1284,1100];
+    var maxVal = Math.max.apply(null, values);
+    var barsHtml = '';
+    for (var i = 0; i < days.length; i++) {
+        var h = Math.max(4, (values[i] / maxVal) * 140);
+        barsHtml += '<div class="bar-col"><div class="bar-col-value">' + values[i] + '</div><div class="bar-col-bar" style="height:' + h + 'px"></div><div class="bar-col-label">' + days[i] + '</div></div>';
+    }
+    document.getElementById('weeklyChart').innerHTML = barsHtml;
+
+    var top5 = AppState.tenants.filter(function(t) { return t.status !== '已停用'; }).sort(function(a,b) { return b.dailyUsed - a.dailyUsed; }).slice(0, 5);
+    var maxUsed = top5[0] ? top5[0].dailyUsed : 1;
+    var hbarHtml = '';
+    for (var j = 0; j < top5.length; j++) {
+        var w = (top5[j].dailyUsed / maxUsed) * 100;
+        var cls = j < 3 ? ' top3' : '';
+        hbarHtml += '<div class="hbar-item"><span class="hbar-rank' + cls + '">' + (j+1) + '</span><span class="hbar-name">' + top5[j].name + '</span><div class="hbar-bar-wrap"><div class="hbar-bar-fill" style="width:' + w + '%"></div></div><span class="hbar-value">' + top5[j].dailyUsed + '</span></div>';
+    }
+    document.getElementById('topTenants').innerHTML = hbarHtml;
+
+    var models = [{ name:'通灵 XZ',pct:42 },{ name:'LLM Max',pct:28 },{ name:'语音 V2',pct:15 },{ name:'视频 Pro',pct:10 },{ name:'图片 Pro',pct:5 }];
+    var mHtml = '';
+    for (var k = 0; k < models.length; k++) {
+        mHtml += '<div class="hbar-item"><span class="hbar-name" style="font-size:12px">' + models[k].name + '</span><div class="hbar-bar-wrap"><div class="hbar-bar-fill" style="width:' + models[k].pct + '%"></div></div><span class="hbar-value">' + models[k].pct + '%</span></div>';
+    }
+    document.getElementById('modelDist').innerHTML = mHtml;
+
+    var alerts = [
+        { time:'09:42',tenant:'雨虹投资',taskId:'task_v_044',type:'超时',status:'已重试' },
+        { time:'10:15',tenant:'中诚教育',taskId:'task_v_045',type:'超时',status:'已失败' },
+        { time:'11:03',tenant:'博学在线',taskId:'task_v_046',type:'额度超限',status:'已阻断' },
+        { time:'13:20',tenant:'鑫源保险',taskId:'task_v_047',type:'模型异常',status:'已重试' },
+        { time:'14:50',tenant:'汇丰投顾',taskId:'task_v_048',type:'超时',status:'处理中' }
+    ];
+    var aHtml = '';
+    for (var a = 0; a < alerts.length; a++) {
+        var st = alerts[a].status;
+        var stCls = st === '已重试' ? 'status-success' : (st === '已失败' || st === '已阻断' ? 'status-failed' : 'status-warning');
+        aHtml += '<tr><td>' + alerts[a].time + '</td><td>' + alerts[a].tenant + '</td><td style="font-family:monospace;font-size:12px">' + alerts[a].taskId + '</td><td>' + alerts[a].type + '</td><td><span class="status ' + stCls + '">' + st + '</span></td></tr>';
+    }
+    document.getElementById('alertTable').innerHTML = aHtml;
+}
+
+// ===========================
+// 租户管理
+// ===========================
+function renderTenants() {
+    var statusFilter = document.getElementById('tenantStatusFilter').value;
+    var industryFilter = document.getElementById('tenantIndustryFilter').value;
+    var search = (document.getElementById('tenantSearch').value || '').toLowerCase();
+
+    var list = AppState.tenants.filter(function(t) {
+        if (statusFilter && t.status !== statusFilter) return false;
+        if (industryFilter && t.industry !== industryFilter) return false;
+        if (search && t.name.toLowerCase().indexOf(search) === -1 && t.adminName.toLowerCase().indexOf(search) === -1) return false;
+        return true;
     });
 
-    function openTenantModal() {
-      document.getElementById("tenantModal").classList.add("show");
+    var html = '';
+    for (var i = 0; i < list.length; i++) {
+        var t = list[i];
+        var stCls = t.status === '启用中' ? 'status-active' : (t.status === '试用中' ? 'status-trial' : 'status-stopped');
+        var pct = Math.round(t.dailyUsed / t.dailyQuota * 100);
+        var barCls = pct > 90 ? ' danger' : (pct > 70 ? ' warn' : '');
+        html += '<tr>' +
+            '<td><strong>' + t.name + '</strong><br><span style="font-size:11px;color:var(--text-muted)">' + t.id + '</span></td>' +
+            '<td>' + t.industry + '</td>' +
+            '<td><span class="status ' + stCls + '">' + t.status + '</span></td>' +
+            '<td>' + t.adminName + '<br><span style="font-size:11px;color:var(--text-muted)">' + t.adminEmail + '</span></td>' +
+            '<td><div style="display:flex;align-items:center;gap:8px"><div class="bar" style="flex:1"><div class="bar-fill' + barCls + '" style="width:' + pct + '%"></div></div><span style="font-size:12px;white-space:nowrap">' + t.dailyUsed + '/' + t.dailyQuota + '</span></div></td>' +
+            '<td><strong>' + t.credits.toLocaleString() + '</strong></td>' +
+            '<td>' + t.openedAt + '</td>' +
+            '<td><button class="btn btn-xs" onclick="openTenantModal(\'' + t.id + '\')">编辑</button> <button class="btn btn-xs" onclick="openRechargeModal(\'' + t.id + '\')">充值</button> <button class="btn btn-xs" onclick="viewTenantDetail(\'' + t.id + '\')">详情</button> <button class="btn btn-xs ' + (t.status === '已停用' ? '' : 'btn-danger') + '" onclick="toggleTenantStatus(\'' + t.id + '\')">' + (t.status === '已停用' ? '启用' : '停用') + '</button></td>' +
+            '</tr>';
     }
+    document.getElementById('tenantTable').innerHTML = html || '<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--text-muted)">暂无匹配的租户</td></tr>';
+    updateBillTenantFilter();
+}
 
-    function closeTenantModal() {
-      document.getElementById("tenantModal").classList.remove("show");
+function updateBillTenantFilter() {
+    var sel = document.getElementById('billTenantFilter');
+    if (!sel) return;
+    var opts = '<option value="">全部租户</option>';
+    for (var i = 0; i < AppState.tenants.length; i++) {
+        opts += '<option value="' + AppState.tenants[i].name + '">' + AppState.tenants[i].name + '</option>';
     }
+    sel.innerHTML = opts;
+}
 
-    function createTenant() {
-      closeTenantModal();
-      showToast("租户已创建，管理员邀请已生成");
+// ===========================
+// 租户 CRUD
+// ===========================
+function openTenantModal(editId) {
+    document.getElementById('tfEditId').value = editId || '';
+    document.getElementById('tenantModalTitle').textContent = editId ? '编辑租户' : '新建租户';
+    if (editId) {
+        var t = AppState.tenants.find(function(x) { return x.id === editId; });
+        if (t) {
+            document.getElementById('tfName').value = t.name;
+            document.getElementById('tfIndustry').value = t.industry;
+            document.getElementById('tfAdminName').value = t.adminName;
+            document.getElementById('tfAdminPhone').value = t.adminPhone;
+            document.getElementById('tfAdminEmail').value = t.adminEmail;
+            document.getElementById('tfDailyQuota').value = t.dailyQuota;
+            document.getElementById('tfConcurrency').value = t.concurrency;
+            document.getElementById('tfModelLevel').value = t.modelLevel;
+            document.getElementById('tfExpiry').value = t.expiry;
+        }
+    } else {
+        ['tfName','tfAdminName','tfAdminPhone','tfAdminEmail'].forEach(function(id) { document.getElementById(id).value = ''; });
+        document.getElementById('tfIndustry').value = '';
+        document.getElementById('tfDailyQuota').value = '500';
+        document.getElementById('tfConcurrency').value = '5';
+        document.getElementById('tfModelLevel').value = '标准';
+        document.getElementById('tfExpiry').value = '';
     }
+    document.getElementById('tenantModalOverlay').classList.add('show');
+}
+function closeTenantModal() { document.getElementById('tenantModalOverlay').classList.remove('show'); }
 
-    function runPromptTest() {
-      const result = document.getElementById("promptResult");
-      result.innerHTML = '<span class="status ok">测试通过</span> 平均耗时 2.8s，输出长度稳定，未触发合规拦截';
-      showToast("Prompt 测试完成");
+function saveTenant() {
+    var editId = document.getElementById('tfEditId').value;
+    var data = {
+        name: document.getElementById('tfName').value.trim(),
+        industry: document.getElementById('tfIndustry').value,
+        adminName: document.getElementById('tfAdminName').value.trim(),
+        adminPhone: document.getElementById('tfAdminPhone').value.trim(),
+        adminEmail: document.getElementById('tfAdminEmail').value.trim(),
+        dailyQuota: parseInt(document.getElementById('tfDailyQuota').value) || 500,
+        concurrency: parseInt(document.getElementById('tfConcurrency').value) || 5,
+        modelLevel: document.getElementById('tfModelLevel').value,
+        expiry: document.getElementById('tfExpiry').value
+    };
+    if (!data.name || !data.industry || !data.adminName) { toast('请填写租户名称、行业和管理员姓名', 'error'); return; }
+
+    if (editId) {
+        var t = AppState.tenants.find(function(x) { return x.id === editId; });
+        if (t) {
+            t.name = data.name; t.industry = data.industry; t.adminName = data.adminName;
+            t.adminPhone = data.adminPhone; t.adminEmail = data.adminEmail;
+            t.dailyQuota = data.dailyQuota; t.concurrency = data.concurrency;
+            t.modelLevel = data.modelLevel; t.expiry = data.expiry;
+        }
+        toast('租户信息已更新', 'success');
+    } else {
+        var newId = 't' + String(AppState.tenants.length + 1).padStart(3, '0');
+        AppState.tenants.push({
+            id: newId, name: data.name, industry: data.industry, status: '试用中',
+            adminName: data.adminName, adminPhone: data.adminPhone, adminEmail: data.adminEmail,
+            dailyQuota: data.dailyQuota, dailyUsed: 0, concurrency: data.concurrency,
+            modelLevel: data.modelLevel, credits: 0, expiry: data.expiry,
+            openedAt: new Date().toISOString().slice(0,10), features: ['视频生成']
+        });
+        toast('租户「' + data.name + '」创建成功', 'success');
     }
+    saveData(); closeTenantModal(); renderTenants();
+}
 
-    function showToast(text) {
-      const toast = document.getElementById("toast");
-      toast.textContent = text;
-      toast.classList.add("show");
-      clearTimeout(window.__toastTimer);
-      window.__toastTimer = setTimeout(function() {
-        toast.classList.remove("show");
-      }, 2200);
-    }
+function toggleTenantStatus(id) {
+    var t = AppState.tenants.find(function(x) { return x.id === id; });
+    if (!t) return;
+    var newStatus = t.status === '已停用' ? '启用中' : '已停用';
+    showConfirm(
+        newStatus === '已停用' ? '停用租户' : '启用租户',
+        '确定要' + newStatus + '租户「' + t.name + '」吗？',
+        newStatus === '已停用' ? '⛔' : '✅',
+        function() { t.status = newStatus; saveData(); renderTenants(); toast('租户「' + t.name + '」已' + newStatus, 'success'); }
+    );
+}
 
-    document.getElementById("tenantModal").addEventListener("click", function(event) {
-      if (event.target.id === "tenantModal") closeTenantModal();
+// ===========================
+// 积分充值
+// ===========================
+function openRechargeModal(tenantId) {
+    var t = AppState.tenants.find(function(x) { return x.id === tenantId; });
+    if (!t) return;
+    document.getElementById('rfTenantId').value = tenantId;
+    document.getElementById('rfTenantName').value = t.name + '（当前余额：' + t.credits.toLocaleString() + ' 积分）';
+    document.getElementById('rfPoints').value = '';
+    document.getElementById('rfRemark').value = '';
+    document.getElementById('rfAmount').textContent = '¥0.00';
+    document.getElementById('rechargeModalOverlay').classList.add('show');
+}
+function closeRechargeModal() { document.getElementById('rechargeModalOverlay').classList.remove('show'); }
+
+function updateRechargePreview() {
+    var pts = parseInt(document.getElementById('rfPoints').value) || 0;
+    document.getElementById('rfAmount').textContent = '¥' + (pts / 10).toFixed(2);
+}
+
+function confirmRecharge() {
+    var tenantId = document.getElementById('rfTenantId').value;
+    var pts = parseInt(document.getElementById('rfPoints').value) || 0;
+    var remark = document.getElementById('rfRemark').value.trim() || '手动充值';
+    if (pts <= 0) { toast('请输入有效的充值积分数量', 'error'); return; }
+
+    var t = AppState.tenants.find(function(x) { return x.id === tenantId; });
+    if (!t) return;
+    t.credits += pts;
+
+    AppState.billingLogs.unshift({
+        id: 'b' + String(Date.now()),
+        time: new Date().toISOString().replace('T',' ').slice(0,16),
+        tenantId: t.id, tenantName: t.name, type: '充值',
+        amount: pts, balance: t.credits,
+        operator: (JSON.parse(sessionStorage.getItem('ops_console_session')||'{}').user||'admin'),
+        taskId: '-', remark: remark
     });
-  </script>
+
+    saveData(); closeRechargeModal(); renderTenants();
+    toast('已为「' + t.name + '」充值 ' + pts.toLocaleString() + ' 积分', 'success');
+}
+
+// ===========================
+// 积分与账单
+// ===========================
+function renderBilling() {
+    updateBillTenantFilter();
+    var tenantFilter = document.getElementById('billTenantFilter').value;
+    var typeFilter = document.getElementById('billTypeFilter').value;
+    var dateFrom = document.getElementById('billDateFrom').value;
+    var dateTo = document.getElementById('billDateTo').value;
+
+    var list = AppState.billingLogs.filter(function(b) {
+        if (tenantFilter && b.tenantName !== tenantFilter) return false;
+        if (typeFilter && b.type !== typeFilter) return false;
+        if (dateFrom && b.time.slice(0,10) < dateFrom) return false;
+        if (dateTo && b.time.slice(0,10) > dateTo) return false;
+        return true;
+    });
+
+    var html = '';
+    for (var i = 0; i < list.length; i++) {
+        var b = list[i];
+        var sign = b.amount > 0 ? '+' : '';
+        var color = b.amount > 0 ? 'color:var(--green)' : (b.type === '退款' ? 'color:var(--orange)' : 'color:var(--red)');
+        var typeCls = b.type === '充值' ? 'status-active' : (b.type === '退款' ? 'status-trial' : 'status-warning');
+        html += '<tr>' +
+            '<td style="font-size:12px">' + b.time + '</td>' +
+            '<td>' + b.tenantName + '</td>' +
+            '<td><span class="status ' + typeCls + '">' + b.type + '</span></td>' +
+            '<td style="font-weight:700;' + color + '">' + sign + b.amount.toLocaleString() + '</td>' +
+            '<td>' + b.balance.toLocaleString() + '</td>' +
+            '<td>' + b.operator + '</td>' +
+            '<td style="font-family:monospace;font-size:12px">' + b.taskId + '</td>' +
+            '<td style="font-size:12px;color:var(--text-secondary)">' + b.remark + '</td>' +
+            '</tr>';
+    }
+    document.getElementById('billingTable').innerHTML = html || '<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--text-muted)">暂无匹配的流水记录</td></tr>';
+
+    var today = new Date().toISOString().slice(0,10);
+    var todayCharge = 0, todayConsume = 0, todayRefund = 0;
+    for (var j = 0; j < AppState.billingLogs.length; j++) {
+        var l = AppState.billingLogs[j];
+        if (l.time.slice(0,10) === today) {
+            if (l.type === '充值') todayCharge += l.amount;
+            else if (l.type === '消费') todayConsume += Math.abs(l.amount);
+            else if (l.type === '退款') todayRefund += l.amount;
+        }
+    }
+    document.getElementById('billTodayCharge').textContent = '+' + todayCharge.toLocaleString();
+    document.getElementById('billTodayConsume').textContent = '-' + todayConsume.toLocaleString();
+    document.getElementById('billTodayRefund').textContent = '+' + todayRefund.toLocaleString();
+    var total = 0;
+    for (var k = 0; k < AppState.tenants.length; k++) { total += AppState.tenants[k].credits; }
+    document.getElementById('billTotalPoints').textContent = total.toLocaleString();
+}
+
+// ===========================
+// 租户详情 Drawer
+// ===========================
+function viewTenantDetail(id) {
+    var t = AppState.tenants.find(function(x) { return x.id === id; });
+    if (!t) return;
+    document.getElementById('drawerTitle').textContent = t.name + ' · 详情';
+    var stCls = t.status === '启用中' ? 'status-active' : (t.status === '试用中' ? 'status-trial' : 'status-stopped');
+    var pct = Math.round(t.dailyUsed / t.dailyQuota * 100);
+    var barCls = pct > 90 ? ' danger' : (pct > 70 ? ' warn' : '');
+    var featChips = '';
+    for (var i = 0; i < t.features.length; i++) { featChips += '<span class="chip chip-blue">' + t.features[i] + '</span> '; }
+
+    var tenantLogs = AppState.billingLogs.filter(function(b) { return b.tenantId === t.id; }).slice(0, 10);
+    var logHtml = '';
+    for (var j = 0; j < tenantLogs.length; j++) {
+        var b = tenantLogs[j];
+        var sign = b.amount > 0 ? '+' : '';
+        logHtml += '<tr><td style="font-size:12px">' + b.time + '</td><td><span class="status ' + (b.type==='充值'?'status-active':'status-warning') + '">' + b.type + '</span></td><td style="font-weight:600">' + sign + b.amount.toLocaleString() + '</td><td style="font-size:12px;color:var(--text-secondary)">' + b.remark + '</td></tr>';
+    }
+
+    document.getElementById('drawerBody').innerHTML =
+        '<div class="section-title">基本信息</div>' +
+        '<div class="kv-grid" style="margin-bottom:20px">' +
+        '<div class="kv-item"><span class="kv-label">租户 ID</span><span class="kv-value">' + t.id + '</span></div>' +
+        '<div class="kv-item"><span class="kv-label">行业</span><span class="kv-value">' + t.industry + '</span></div>' +
+        '<div class="kv-item"><span class="kv-label">状态</span><span class="kv-value"><span class="status ' + stCls + '">' + t.status + '</span></span></div>' +
+        '<div class="kv-item"><span class="kv-label">管理员</span><span class="kv-value">' + t.adminName + '</span></div>' +
+        '<div class="kv-item"><span class="kv-label">手机</span><span class="kv-value">' + t.adminPhone + '</span></div>' +
+        '<div class="kv-item"><span class="kv-label">邮箱</span><span class="kv-value">' + t.adminEmail + '</span></div>' +
+        '<div class="kv-item"><span class="kv-label">开通时间</span><span class="kv-value">' + t.openedAt + '</span></div>' +
+        '<div class="kv-item"><span class="kv-label">服务有效期</span><span class="kv-value">' + t.expiry + '</span></div>' +
+        '</div>' +
+        '<div class="section-title">额度与用量</div>' +
+        '<div style="margin-bottom:20px">' +
+        '<div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span>今日用量</span><span>' + t.dailyUsed + ' / ' + t.dailyQuota + '</span></div>' +
+        '<div class="bar"><div class="bar-fill' + barCls + '" style="width:' + pct + '%"></div></div>' +
+        '<div class="kv-grid" style="margin-top:10px">' +
+        '<div class="kv-item"><span class="kv-label">最大并发</span><span class="kv-value">' + t.concurrency + '</span></div>' +
+        '<div class="kv-item"><span class="kv-label">模型权限</span><span class="kv-value"><span class="chip chip-blue">' + t.modelLevel + '</span></span></div>' +
+        '</div></div>' +
+        '<div class="section-title">积分余额：<strong style="color:var(--primary)">' + t.credits.toLocaleString() + '</strong></div>' +
+        '<div class="section-title">已开通能力</div>' +
+        '<div style="margin-bottom:20px">' + featChips + '</div>' +
+        '<div class="section-title">最近积分流水</div>' +
+        '<table style="font-size:12px"><thead><tr><th>时间</th><th>类型</th><th>变动</th><th>备注</th></tr></thead><tbody>' + (logHtml || '<tr><td colspan="4" style="color:var(--text-muted);text-align:center;padding:20px">暂无流水</td></tr>') + '</tbody></table>';
+
+    document.getElementById('drawerOverlay').classList.add('show');
+    document.getElementById('tenantDrawer').classList.add('show');
+}
+function closeDrawer() {
+    document.getElementById('drawerOverlay').classList.remove('show');
+    document.getElementById('tenantDrawer').classList.remove('show');
+}
+
+// ===========================
+// Prompt 管理
+// ===========================
+function renderPrompts() {
+    var nodeMap = { '台词生成':{model:'LLM Max',ver:'script_v14',desc:'台词优化与合规改写'},'分镜生成':{model:'LLM Max',ver:'shot_v12',desc:'最多 6 个分镜'},'主体分析':{model:'图片 Pro',ver:'subject_v7',desc:'角色水印检测'},'视频生成':{model:'通灵 XZ / 视频 Pro',ver:'video_v8',desc:'失败切换模型'} };
+    var nodeHtml = '';
+    var nodes = Object.keys(nodeMap);
+    for (var i = 0; i < nodes.length; i++) {
+        var n = nodeMap[nodes[i]];
+        nodeHtml += '<div class="node-card"><h4>' + nodes[i] + ' <span class="card-tag">' + n.ver + '</span></h4><div class="node-info">绑定模型：' + n.model + '<br>' + n.desc + '</div></div>';
+    }
+    document.getElementById('promptNodes').innerHTML = nodeHtml;
+
+    var phtml = '';
+    for (var j = 0; j < AppState.prompts.length; j++) {
+        var p = AppState.prompts[j];
+        phtml += '<tr>' +
+            '<td><strong>' + p.name + '</strong></td>' +
+            '<td>' + p.node + '</td>' +
+            '<td><span class="chip chip-green">' + p.liveVersion + '</span></td>' +
+            '<td>' + (p.draftVersion ? '<span class="chip chip-blue">' + p.draftVersion + '</span>' : '<span style="color:var(--text-muted)">无</span>') + '</td>' +
+            '<td>' + p.grayRange + '</td>' +
+            '<td style="font-size:12px">' + p.updatedAt + '</td>' +
+            '<td>' +
+                '<button class="btn btn-xs" onclick="openPromptModal(\'' + p.key + '\')">编辑</button> ' +
+                (p.draftVersion ? '<button class="btn btn-xs" onclick="openGrayModal(\'' + p.key + '\')">灰度发布</button> ' : '') +
+                '<button class="btn btn-xs" onclick="openDiffModal(\'' + p.key + '\')">对比</button> ' +
+                '<button class="btn btn-xs btn-danger" onclick="rollbackPrompt(\'' + p.key + '\')">回滚</button>' +
+            '</td></tr>';
+    }
+    document.getElementById('promptTable').innerHTML = phtml;
+
+    var rhtml = '';
+    for (var k = 0; k < AppState.releaseLogs.length; k++) {
+        var r = AppState.releaseLogs[k];
+        var stCls = r.status === '全量' ? 'status-success' : (r.status === '灰度' ? 'status-trial' : 'status-failed');
+        rhtml += '<div class="timeline-item"><div class="timeline-time">' + r.time + '</div><div class="timeline-title">' + r.title + ' <span class="status ' + stCls + '" style="font-size:10px">' + r.status + '</span></div><div class="timeline-desc">' + r.desc + '</div></div>';
+    }
+    document.getElementById('releaseTimeline').innerHTML = rhtml;
+}
+
+function openPromptModal(key) {
+    document.getElementById('pfEditName').value = key || '';
+    document.getElementById('promptModalTitle').textContent = key ? '编辑 Prompt' : '新建 Prompt';
+    if (key) {
+        var p = AppState.prompts.find(function(x) { return x.key === key; });
+        if (p) {
+            document.getElementById('pfName').value = p.draftVersion || p.name;
+            document.getElementById('pfNode').value = p.node;
+            document.getElementById('pfContent').value = p.draftContent || '';
+            document.getElementById('pfNote').value = '';
+        }
+    } else {
+        document.getElementById('pfName').value = ''; document.getElementById('pfNode').value = '台词生成';
+        document.getElementById('pfContent').value = ''; document.getElementById('pfNote').value = '';
+    }
+    document.getElementById('promptModalOverlay').classList.add('show');
+}
+function closePromptModal() { document.getElementById('promptModalOverlay').classList.remove('show'); }
+
+function savePrompt() {
+    var editKey = document.getElementById('pfEditName').value;
+    var name = document.getElementById('pfName').value.trim();
+    var node = document.getElementById('pfNode').value;
+    var content = document.getElementById('pfContent').value;
+    if (!name || !content) { toast('请填写名称和 Prompt 内容', 'error'); return; }
+
+    if (editKey) {
+        var p = AppState.prompts.find(function(x) { return x.key === editKey; });
+        if (p) { p.draftVersion = name; p.draftContent = content; p.updatedAt = new Date().toISOString().slice(0,10); }
+    } else {
+        AppState.prompts.push({
+            key: 'prompt_' + Date.now(), name: name, node: node,
+            liveVersion: '-', draftVersion: name, draftContent: content,
+            grayRange: '-', updatedAt: new Date().toISOString().slice(0,10)
+        });
+    }
+    saveData(); closePromptModal(); renderPrompts();
+    toast('Prompt 草稿已保存', 'success');
+}
+
+function openGrayModal(key) {
+    var p = AppState.prompts.find(function(x) { return x.key === key; });
+    if (!p || !p.draftVersion) return;
+    document.getElementById('gfPromptKey').value = key;
+    document.getElementById('gfPromptName').textContent = p.name;
+    document.getElementById('gfVersion').textContent = p.draftVersion;
+    document.getElementById('gfRatio').value = '30';
+
+    var checks = '';
+    for (var i = 0; i < AppState.tenants.length; i++) {
+        var t = AppState.tenants[i];
+        if (t.status !== '已停用') {
+            checks += '<label style="display:flex;align-items:center;gap:6px;padding:3px 0;font-size:12px;cursor:pointer"><input type="checkbox" value="' + t.id + '" class="gf-tenant-check"> ' + t.name + '</label>';
+        }
+    }
+    document.getElementById('gfTenantChecks').innerHTML = checks;
+    document.getElementById('grayModalOverlay').classList.add('show');
+}
+function closeGrayModal() { document.getElementById('grayModalOverlay').classList.remove('show'); }
+
+function confirmGrayRelease() {
+    var key = document.getElementById('gfPromptKey').value;
+    var ratio = document.getElementById('gfRatio').value;
+    var p = AppState.prompts.find(function(x) { return x.key === key; });
+    if (!p) return;
+
+    var checks = document.querySelectorAll('.gf-tenant-check:checked');
+    var tenantNames = [];
+    for (var i = 0; i < checks.length; i++) {
+        var t = AppState.tenants.find(function(x) { return x.id === checks[i].value; });
+        if (t) tenantNames.push(t.name);
+    }
+
+    var range = ratio === '100' ? '全量' : (tenantNames.length ? tenantNames.join('、') + '（' + ratio + '%）' : '随机 ' + ratio + '%');
+    p.liveVersion = p.draftVersion; p.draftVersion = ''; p.draftContent = '';
+    p.grayRange = range; p.updatedAt = new Date().toISOString().slice(0,10);
+
+    AppState.releaseLogs.unshift({
+        time: new Date().toISOString().replace('T',' ').slice(0,16),
+        title: p.liveVersion + ' ' + (ratio === '100' ? '全量发布' : '灰度发布'),
+        desc: p.name + ' 发布至 ' + range,
+        status: ratio === '100' ? '全量' : '灰度'
+    });
+
+    saveData(); closeGrayModal(); renderPrompts();
+    toast(p.name + ' · ' + p.liveVersion + ' 已发布', 'success');
+}
+
+function rollbackPrompt(key) {
+    var p = AppState.prompts.find(function(x) { return x.key === key; });
+    if (!p) return;
+    showConfirm('回滚 Prompt', '确定要将「' + p.name + '」回滚到上一线上版本吗？（当前：' + p.liveVersion + '）', '⏪', function() {
+        p.draftVersion = ''; p.draftContent = '';
+        AppState.releaseLogs.unshift({
+            time: new Date().toISOString().replace('T',' ').slice(0,16),
+            title: p.liveVersion + ' 已回滚', desc: p.name + ' 版本回滚', status: '回滚'
+        });
+        saveData(); renderPrompts();
+        toast(p.name + ' 已回滚', 'error');
+    });
+}
+
+function openDiffModal(key) {
+    var p = AppState.prompts.find(function(x) { return x.key === key; });
+    if (!p) return;
+    var defaults = {
+        'script': '你是一位专业的金融投顾内容策划。请根据以下信息优化台词：\n行业：{{industry}}\n目标：{{goal}}\n角色：{{role}}\n要求：口语自然、专业可信、时长控制在 {{duration}}\n\n优化后台词：',
+        'shot': '根据台词内容，规划分镜脚本。每个分镜需包含：\n- 台词片段\n- 画面描述\n- 运镜类型（固定/推拉/摇移）\n- 预估时长(秒)\n\n限制：最多 6 个分镜',
+        'subject': '请分析以下角色特征并生成主体描述：\n角色名：{{role_name}}\n性别：{{gender}}\n描述：{{description}}',
+        'video': '根据分镜描述生成视频画面。要求：\n- 人物保持一致性\n- 背景固定\n- 正面口播，上半身中近景\n- 运镜：{{camera_movement}}'
+    };
+    var liveContent = defaults[p.key] || '（版本内容未保存）';
+    document.getElementById('diffContent').innerHTML =
+        '<div class="diff-col"><h5>🟢 线上版本 ' + p.liveVersion + '</h5><pre>' + escapeHtml(liveContent) + '</pre></div>' +
+        '<div class="diff-col"><h5>' + (p.draftVersion ? '🔵 草稿 ' + p.draftVersion : '⚪ 无草稿') + '</h5><pre>' + (p.draftContent ? escapeHtml(p.draftContent) : '（当前无草稿版本）') + '</pre></div>';
+    document.getElementById('diffModalOverlay').classList.add('show');
+}
+function closeDiffModal() { document.getElementById('diffModalOverlay').classList.remove('show'); }
+
+function runPromptTest() {
+    var input = document.getElementById('promptTestInput').value;
+    document.getElementById('promptTestResult').innerHTML = '<span style="color:var(--primary)">⏳ 模拟测试中...</span>';
+    setTimeout(function() {
+        document.getElementById('promptTestResult').innerHTML = '<div style="background:#ecfdf5;border-radius:8px;padding:12px;margin-top:8px"><strong style="color:var(--green)">✅ 测试通过 (模拟)</strong><pre style="margin-top:6px;font-size:11px;white-space:pre-wrap;color:var(--text-primary)">已根据输入参数「' + (input ? input.slice(0,60) + '...' : '默认配置') + '」生成优化结果。\n预期成功率: 95.2% | 平均耗时: 1.8s</pre></div>';
+    }, 800);
+}
+
+// ===========================
+// 模型管理
+// ===========================
+function renderModels() {
+    var models = [
+        { name:'通灵 XZ',type:'视频生成',vendor:'自研',version:'v2.1',status:'启用',range:'全部租户' },
+        { name:'视频 Pro',type:'视频生成',vendor:'第三方',version:'v1.8',status:'启用',range:'高级租户' },
+        { name:'LTX Video',type:'视频生成',vendor:'第三方',version:'v0.9',status:'灰度',range:'白名单' },
+        { name:'LLM Max',type:'文本推理',vendor:'自研',version:'v3.2',status:'启用',range:'全部租户' },
+        { name:'LLM Lite',type:'文本推理',vendor:'自研',version:'v1.5',status:'启用',range:'全部租户' },
+        { name:'语音 V2',type:'语音合成',vendor:'自研',version:'v2.0',status:'启用',range:'全部租户' },
+        { name:'Clone V2',type:'语音合成',vendor:'第三方',version:'v2.3',status:'启用',range:'高级租户' },
+        { name:'图片 Pro',type:'图片生成',vendor:'第三方',version:'v1.2',status:'启用',range:'全部租户' }
+    ];
+    var html = '';
+    for (var i = 0; i < models.length; i++) {
+        var m = models[i];
+        var stCls = m.status === '启用' ? 'status-active' : 'status-trial';
+        html += '<tr><td><strong>' + m.name + '</strong></td><td>' + m.type + '</td><td>' + m.vendor + '</td><td>' + m.version + '</td><td><span class="status ' + stCls + '">' + m.status + '</span></td><td>' + m.range + '</td><td><button class="btn btn-xs" onclick="toast(\'模型参数面板开发中\')">参数</button></td></tr>';
+    }
+    document.getElementById('modelTable').innerHTML = html;
+
+    document.getElementById('apiKeyList').innerHTML =
+        '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;font-size:13px"><span>阿里云 DashScope</span><span style="font-family:monospace;color:var(--text-muted)">sk-ds****a1b2</span><span style="font-size:11px;color:var(--green)">● 正常</span></div>' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;font-size:13px"><span>OpenAI 兼容</span><span style="font-family:monospace;color:var(--text-muted)">sk-op****c3d4</span><span style="font-size:11px;color:var(--green)">● 正常</span></div>' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;font-size:13px"><span>CosyVoice</span><span style="font-family:monospace;color:var(--text-muted)">cv-****e5f6</span><span style="font-size:11px;color:var(--orange)">● 即将过期</span></div>' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;font-size:13px"><span>通灵 XZ 内测</span><span style="font-family:monospace;color:var(--text-muted)">tl-****g7h8</span><span style="font-size:11px;color:var(--green)">● 正常</span></div>' +
+        '<button class="btn btn-xs" style="margin-top:8px" onclick="toast(\'API Key 轮换功能开发中\')">+ 管理密钥</button>';
+
+    document.getElementById('routeStrategy').innerHTML =
+        '<div class="kv-grid">' +
+        '<div class="kv-item"><span class="kv-label">台词生成</span><span class="kv-value">LLM Max → LLM Lite（备用）</span></div>' +
+        '<div class="kv-item"><span class="kv-label">分镜生成</span><span class="kv-value">LLM Max · 重试 2 次</span></div>' +
+        '<div class="kv-item"><span class="kv-label">视频生成</span><span class="kv-value">通灵 XZ（默认）/ 视频 Pro（高级）</span></div>' +
+        '<div class="kv-item"><span class="kv-label">语音合成</span><span class="kv-value">语音 V2 / Clone V2（复刻）</span></div>' +
+        '<div class="kv-item"><span class="kv-label">图片生成</span><span class="kv-value">图片 Pro · 重试 1 次</span></div>' +
+        '</div>' +
+        '<div style="margin-top:12px;display:flex;flex-wrap:wrap;gap:6px">' +
+        '<span class="chip chip-blue">超时 90s 自动失败</span><span class="chip chip-blue">失败重试 2 次</span><span class="chip chip-blue">成本超限阻断</span></div>';
+}
+
+function renderPricing() {
+    var pricing = [
+        { name:'视频生成',value:'20',unit:'积分/秒' },
+        { name:'首帧合成',value:'10',unit:'积分/次' },
+        { name:'AI 场景图生成',value:'40',unit:'积分/次' },
+        { name:'一键超分',value:'5',unit:'积分/次' }
+    ];
+    var html = '';
+    for (var i = 0; i < pricing.length; i++) {
+        html += '<div class="pricing-item"><span class="pricing-name">' + pricing[i].name + '</span><span class="pricing-value">' + pricing[i].value + ' <span class="pricing-unit">' + pricing[i].unit + '</span></span></div>';
+    }
+    document.getElementById('pricingGrid').innerHTML = html;
+}
+
+function renderTimbres() {
+    var styleFilter = document.getElementById('timbreStyleFilter').value;
+    var timbres = [
+        { name:'沉稳男声 Pro',gender:'男',style:'稳重',industry:'金融投顾',uses:4520,range:'全部租户',status:'上架' },
+        { name:'亲和女声 V2',gender:'女',style:'亲和',industry:'教育培训',uses:3210,range:'全部租户',status:'上架' },
+        { name:'专业解说',gender:'男',style:'专业',industry:'金融投顾',uses:2150,range:'高级租户',status:'上架' },
+        { name:'轻快女声',gender:'女',style:'活泼',industry:'教育培训',uses:1830,range:'全部租户',status:'上架' },
+        { name:'成熟男声',gender:'男',style:'稳重',industry:'保险',uses:1200,range:'灰度',status:'灰度' },
+        { name:'温柔女声',gender:'女',style:'亲和',industry:'金融投顾',uses:890,range:'白名单',status:'灰度' }
+    ];
+    var list = styleFilter ? timbres.filter(function(t) { return t.style === styleFilter; }) : timbres;
+    var html = '';
+    for (var i = 0; i < list.length; i++) {
+        var t = list[i];
+        var stCls = t.status === '上架' ? 'status-active' : 'status-trial';
+        html += '<tr><td><strong>' + t.name + '</strong></td><td>' + t.gender + '</td><td><span class="chip">' + t.style + '</span></td><td>' + t.industry + '</td><td>' + t.uses.toLocaleString() + '</td><td>' + t.range + '</td><td><span class="status ' + stCls + '">' + t.status + '</span></td></tr>';
+    }
+    document.getElementById('timbreTable').innerHTML = html || '<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--text-muted)">暂无匹配的音色</td></tr>';
+}
+
+// ===========================
+// 工具函数
+// ===========================
+function escapeHtml(str) {
+    if (!str) return '';
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ===========================
+// 初始化
+// ===========================
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeTenantModal(); closeRechargeModal(); closePromptModal();
+        closeGrayModal(); closeDiffModal(); closeDrawer(); closeConfirm();
+    }
+});
+
+document.getElementById('tenantModalOverlay').addEventListener('click', function(e) { if (e.target === this) closeTenantModal(); });
+document.getElementById('rechargeModalOverlay').addEventListener('click', function(e) { if (e.target === this) closeRechargeModal(); });
+document.getElementById('promptModalOverlay').addEventListener('click', function(e) { if (e.target === this) closePromptModal(); });
+document.getElementById('grayModalOverlay').addEventListener('click', function(e) { if (e.target === this) closeGrayModal(); });
+document.getElementById('diffModalOverlay').addEventListener('click', function(e) { if (e.target === this) closeDiffModal(); });
+
+switchView('view-dashboard');
+</script>
 </body>
 </html>

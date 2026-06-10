@@ -472,6 +472,23 @@
             padding: 9px 10px; outline: none; color: var(--text-primary); font: inherit;
         }
         .same-field textarea { min-height: 76px; resize: vertical; line-height: 1.6; }
+        .role-config-row { display: grid; grid-template-columns: minmax(0, 1fr) 230px; gap: 10px; align-items: stretch; }
+        .role-voice-preview {
+            min-width: 0; min-height: 40px; border: 1px solid var(--border); border-radius: 10px;
+            background: #fff; display: flex; align-items: center; gap: 8px; padding: 6px 8px 6px 10px;
+        }
+        .role-voice-copy { min-width: 0; flex: 1; }
+        .role-voice-kicker { color: var(--text-muted); font-size: 10px; font-weight: 800; line-height: 1.1; margin-bottom: 2px; }
+        .role-voice-name { color: var(--text-primary); font-size: 13px; font-weight: 800; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .role-voice-meta { color: var(--text-secondary); font-size: 11px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-top: 1px; }
+        .role-voice-btn {
+            width: 32px; height: 32px; border: 1px solid rgba(47,107,255,.24); border-radius: 8px;
+            background: var(--primary-light); color: var(--primary); display: flex; align-items: center;
+            justify-content: center; font-size: 15px; line-height: 1; flex-shrink: 0;
+        }
+        .role-voice-btn:hover { border-color: var(--primary); background: #dbeafe; }
+        .role-voice-btn.playing { background: var(--primary); border-color: var(--primary); color: #fff; }
+        .role-voice-btn:disabled { opacity: .55; cursor: not-allowed; }
         .scene-mode-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-bottom: 10px; }
         .scene-mode-btn {
             height: 34px; border: 1px solid var(--border); border-radius: 10px; background: #fff;
@@ -530,6 +547,7 @@
             .template-wall { grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); }
             .same-modal { grid-template-columns: 1fr; overflow-y: auto; }
             .same-preview { display: none; }
+            .role-config-row { grid-template-columns: 1fr; }
         }
 
         @media (min-width: 901px) and (max-width: 1280px) {
@@ -843,7 +861,17 @@
             <div class="same-form">
                 <div class="same-field">
                     <label>角色 <span class="reuse-status" id="roleStatus">复用模板</span></label>
-                    <select id="sameRole" onchange="updateSameStatus()"></select>
+                    <div class="role-config-row">
+                        <select id="sameRole" onchange="handleSameRoleChange()"></select>
+                        <div class="role-voice-preview" aria-live="polite">
+                            <div class="role-voice-copy">
+                                <div class="role-voice-kicker">关联音色</div>
+                                <div class="role-voice-name" id="sameVoiceName">-</div>
+                                <div class="role-voice-meta" id="sameVoiceMeta">随角色动态更新</div>
+                            </div>
+                            <button class="role-voice-btn" id="sameVoicePlayBtn" type="button" onclick="previewSameVoice()" title="试听当前角色音色" aria-label="试听当前角色音色">🔊</button>
+                        </div>
+                    </div>
                 </div>
                 <div class="same-field">
                     <label>场景 <span class="reuse-status" id="sceneStatus">复用模板</span></label>
@@ -881,7 +909,6 @@
                 </div>
             </div>
             <div class="same-actions">
-                <button class="same-action-secondary" type="button" onclick="resetSameForm()">全部复用模板</button>
                 <button class="same-action-primary" type="button" onclick="confirmSameTemplate()">开始生成同款</button>
             </div>
         </div>
@@ -912,6 +939,7 @@
             duration: '00:58',
             desc: '适合收盘点评、热点波动解释，用稳健口播降低用户焦虑。',
             role: '模板角色 · 资深投顾讲解员',
+            voice: { name: '沉稳财经男声 / 中文', meta: '男声 · 财经 · 专业克制' },
             bg: '蓝色财经演播室',
             script: '市场短期波动并不意味着趋势反转，投资者更需要关注基本面、估值水平和自身风险承受能力。',
             prompt: '正面中近景，投顾讲解员站在蓝色财经演播室中，背景包含克制的数据图表，语气专业稳健，画面干净可信。'
@@ -924,6 +952,7 @@
             duration: '01:12',
             desc: '介绍投顾服务能力、研究团队、标准化流程和适用人群。',
             role: '模板角色 · 服务顾问',
+            voice: { name: '专业女主播 / 中文', meta: '女声 · 服务 · 清晰亲和' },
             bg: '现代投顾办公室',
             script: '我们的投顾服务依托专业研究团队和标准化服务流程，为用户提供市场解读、策略参考和风险管理建议。',
             prompt: '服务顾问在现代办公室正面讲解，背景简洁明亮，整体风格专业、亲和、可信，适合金融服务介绍。'
@@ -936,6 +965,7 @@
             duration: '00:45',
             desc: '适合做合规提示、风险教育和理性投资短视频。',
             role: '模板角色 · 风控讲解员',
+            voice: { name: '新闻播报 C', meta: '中性 · 播报 · 稳定权威' },
             bg: '深色数据看板场景',
             script: '任何投资都伴随风险，过往业绩不代表未来表现。做决策前，请充分了解产品特征和自身风险承受能力。',
             prompt: '深色专业场景，风控讲解员正面对镜，画面强调严谨、克制、清晰，适合风险提示和合规教育。'
@@ -948,6 +978,7 @@
             duration: '01:05',
             desc: '面向新手用户，解释定投逻辑、长期配置和波动中的执行纪律。',
             role: '模板角色 · 理财科普讲解员',
+            voice: { name: '职业女声 B', meta: '女声 · 知识 · 清晰干练' },
             bg: '温和书房财经角',
             script: '基金定投的核心不是预测最低点，而是通过分批投入平滑成本，并用长期纪律对抗短期情绪。',
             prompt: '温和书房场景，理财科普讲解员正面讲解，背景有书架和简洁图表，语气清晰亲和，适合新手教育。'
@@ -960,6 +991,7 @@
             duration: '00:36',
             desc: '快速输出热点市场事件解读，适合日更和社媒分发。',
             role: '模板角色 · 快评主持人',
+            voice: { name: '快讯男声 F', meta: '男声 · 播报 · 节奏明快' },
             bg: '热点新闻演播室',
             script: '今天这个热点背后，真正值得关注的是它对市场预期和风险偏好的影响，而不是单日涨跌本身。',
             prompt: '热点新闻演播室，主持人正面快节奏讲解，背景有实时资讯屏幕，语气清晰但不夸张，画面有速度感。'
@@ -972,6 +1004,7 @@
             duration: '01:20',
             desc: '用步骤化结构讲清楚风险承受能力、期限和组合配置。',
             role: '模板角色 · 资产配置顾问',
+            voice: { name: '经典解说男-青年 / 中文', meta: '男声 · 解读 · 稳健清晰' },
             bg: '白色咨询室',
             script: '做资产配置，不是简单选择单一产品，而是先明确目标期限、风险承受能力，再决定权益、固收和现金类资产的比例。',
             prompt: '资产配置顾问在白色咨询室正面对镜讲解，画面包含简洁的三步法图表，风格理性、清晰、有条理。'
@@ -979,10 +1012,10 @@
     ];
 
     var builtInRoles = [
-        { value: 'female-advisor', label: '内置主体 · 知性女性投顾' },
-        { value: 'male-advisor', label: '内置主体 · 稳健男性投顾' },
-        { value: 'risk-host', label: '内置主体 · 风控讲解员' },
-        { value: 'service-advisor', label: '内置主体 · 服务顾问' }
+        { value: 'female-advisor', label: '内置主体 · 知性女性投顾', voice: { name: '权威女声 E', meta: '女声 · 财经 · 坚定可信' } },
+        { value: 'male-advisor', label: '内置主体 · 稳健男性投顾', voice: { name: '沉稳男声 A', meta: '男声 · 财经 · 专业克制' } },
+        { value: 'risk-host', label: '内置主体 · 风控讲解员', voice: { name: '新闻播报 C', meta: '中性 · 播报 · 稳定权威' } },
+        { value: 'service-advisor', label: '内置主体 · 服务顾问', voice: { name: '专业女主播 / 中文', meta: '女声 · 服务 · 清晰亲和' } }
     ];
 
     function getTemplate(id) {
@@ -1036,11 +1069,15 @@
         clearUploadedScene(false);
         setSceneMode('template', false);
         updateSameStatus();
+        updateRoleVoicePreview();
         document.getElementById('sameModal').classList.add('show');
     }
 
     function getRoleChoices(template) {
-        return [{ value: 'template', label: template.role + '（模板主体）' }].concat(builtInRoles);
+        var createdRoles = readCreatedRoles().map(function(role) {
+            return { value: 'created:' + role.id, label: '我的主体 · ' + role.name };
+        });
+        return [{ value: 'template', label: template.role + '（模板主体）' }].concat(builtInRoles, createdRoles);
     }
 
     function getSceneChoices() {
@@ -1058,6 +1095,7 @@
     }
 
     function closeSameModal() {
+        stopSameVoicePreview();
         document.getElementById('sameModal').classList.remove('show');
     }
 
@@ -1075,6 +1113,49 @@
         setStatus('promptStatus', document.getElementById('samePrompt').value.trim() === t.prompt.trim() ? '复用模板' : '已修改');
     }
 
+    function handleSameRoleChange() {
+        updateRoleVoicePreview();
+        updateSameStatus();
+    }
+
+    function getSelectedRoleVoice() {
+        var roleId = document.getElementById('sameRole').value;
+        var t = getTemplate(activeTemplateId);
+        if (!t) return { name: '', meta: '未选择角色', unavailable: true };
+        if (roleId === 'template') {
+            return Object.assign({ unavailable: false }, t.voice || { name: '未配置音色', meta: '模板主体未关联音色', unavailable: true });
+        }
+        for (var i = 0; i < builtInRoles.length; i++) {
+            if (builtInRoles[i].value === roleId) {
+                return Object.assign({ unavailable: false }, builtInRoles[i].voice || { name: '未配置音色', meta: '内置主体未关联音色', unavailable: true });
+            }
+        }
+        var createdRoleId = roleId.indexOf('created:') === 0 ? roleId.slice(8) : '';
+        var createdRole = readCreatedRoles().find(function(role) { return role.id === createdRoleId; });
+        if (createdRole) {
+            return {
+                name: createdRole.voice || '未配置音色',
+                meta: createdRole.voice ? ('来自主体管理 · ' + createdRole.name) : '该角色尚未关联音色',
+                unavailable: !createdRole.voice
+            };
+        }
+        return { name: '未配置音色', meta: '未找到当前角色的音色信息', unavailable: true };
+    }
+
+    function updateRoleVoicePreview() {
+        var voice = getSelectedRoleVoice();
+        var nameEl = document.getElementById('sameVoiceName');
+        var metaEl = document.getElementById('sameVoiceMeta');
+        var btn = document.getElementById('sameVoicePlayBtn');
+        if (!nameEl || !metaEl || !btn) return;
+        nameEl.textContent = voice.name || '未配置音色';
+        metaEl.textContent = voice.meta || '随角色动态更新';
+        btn.disabled = !!voice.unavailable;
+        btn.classList.remove('playing');
+        btn.title = voice.unavailable ? '当前角色未配置音色' : '试听当前角色音色';
+        btn.setAttribute('aria-label', btn.title);
+    }
+
     function setStatus(id, text) {
         var el = document.getElementById(id);
         el.textContent = text;
@@ -1085,10 +1166,14 @@
     function confirmSameTemplate() {
         var t = getTemplate(activeTemplateId);
         if (!t) return;
+        var selectedVoice = getSelectedRoleVoice();
         var draft = {
             templateId: t.id,
             templateTitle: t.title,
             roleId: document.getElementById('sameRole').value,
+            roleLabel: getSelectedRoleLabel(),
+            roleVoiceName: selectedVoice.name || '',
+            roleVoiceMeta: selectedVoice.meta || '',
             backgroundMode: uploadedSceneDataUrl ? 'upload' : 'template',
             backgroundImageDataUrl: uploadedSceneDataUrl,
             backgroundFileName: uploadedSceneFileName,
@@ -1163,11 +1248,84 @@
         if (name) name.textContent = '';
         if (shouldUpdate !== false) updateSameStatus();
     }
+    function getSelectedRoleLabel() {
+        var select = document.getElementById('sameRole');
+        if (!select || select.selectedIndex < 0) return '';
+        return select.options[select.selectedIndex].text;
+    }
+    function readCreatedRoles() {
+        try {
+            var raw = localStorage.getItem(SUBJECT_LIBRARY_KEY);
+            var list = raw ? JSON.parse(raw) : [];
+            if (!Array.isArray(list)) return [];
+            return list.filter(function(item) {
+                return item && item.type === 'role';
+            }).map(function(item) {
+                return {
+                    id: item.id || item.name,
+                    name: item.name || '未命名角色',
+                    voice: item.voice || ''
+                };
+            });
+        } catch (e) { return []; }
+    }
     function readCreatedScenes() {
         try {
             var raw = localStorage.getItem('aigc_subject_scenes');
             return raw ? JSON.parse(raw) : [];
         } catch (e) { return []; }
+    }
+
+    function stopSameVoicePreview() {
+        var btn = document.getElementById('sameVoicePlayBtn');
+        if (window.speechSynthesis) window.speechSynthesis.cancel();
+        if (btn) btn.classList.remove('playing');
+    }
+
+    function preferredSameSpeechVoice(voiceName) {
+        var voices = window.speechSynthesis ? window.speechSynthesis.getVoices() : [];
+        var isEnglish = voiceName.indexOf('English') >= 0;
+        var localePrefix = isEnglish ? 'en' : 'zh';
+        return voices.find(function(voice) {
+            return voice.lang && voice.lang.toLowerCase().indexOf(localePrefix) === 0;
+        }) || voices[0] || null;
+    }
+
+    function previewSameVoice() {
+        var voice = getSelectedRoleVoice();
+        if (voice.unavailable || !voice.name) {
+            showToast('无法试听', '当前角色尚未关联音色。');
+            return;
+        }
+        if (!('speechSynthesis' in window)) {
+            showToast('无法试听', '当前浏览器不支持语音试听。');
+            return;
+        }
+        var btn = document.getElementById('sameVoicePlayBtn');
+        if (btn && btn.classList.contains('playing')) {
+            stopSameVoicePreview();
+            return;
+        }
+
+        stopSameVoicePreview();
+        var isEnglish = voice.name.indexOf('English') >= 0;
+        var scriptText = document.getElementById('sameScript').value.trim();
+        var previewText = isEnglish
+            ? 'Hello, this is a short preview of the selected voice.'
+            : (scriptText ? scriptText.slice(0, 42) : '您好，这是当前角色音色的试听效果。');
+        var utterance = new SpeechSynthesisUtterance(previewText);
+        var voiceProfile = voice.name + ' ' + (voice.meta || '');
+        utterance.lang = isEnglish ? 'en-US' : 'zh-CN';
+        utterance.rate = voiceProfile.indexOf('快讯') >= 0 || voiceProfile.indexOf('节奏明快') >= 0 ? 1.04 : 0.95;
+        utterance.pitch = voiceProfile.indexOf('女') >= 0 ? 1.08 : 0.94;
+        var matchedVoice = preferredSameSpeechVoice(voice.name);
+        if (matchedVoice) utterance.voice = matchedVoice;
+        utterance.onend = utterance.onerror = function() {
+            if (btn) btn.classList.remove('playing');
+        };
+        if (btn) btn.classList.add('playing');
+        window.speechSynthesis.speak(utterance);
+        showToast('正在试听', voice.name + ' · ' + getSelectedRoleLabel());
     }
 
     function showToast(title, text) {
