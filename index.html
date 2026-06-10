@@ -32,6 +32,7 @@
             overflow: hidden;
             font-size: 14px;
         }
+        button { font: inherit; cursor: pointer; }
 
         /* 侧边栏 */
         .sidebar {
@@ -61,6 +62,7 @@
         .nav-section-title:hover { color: #E4E4E7; }
         .nav-section-title .collapse-icon { font-size: 10px; transition: transform 0.2s; }
         .nav-section-title.collapsed .collapse-icon { transform: rotate(-90deg); }
+        .nav-section-title.active { color: var(--sidebar-active); background: rgba(47,107,255,0.15); border-left: 3px solid var(--primary); }
         .nav-section-children {
             overflow: hidden; transition: max-height 0.25s ease, opacity 0.2s;
             max-height: 300px; opacity: 1;
@@ -141,6 +143,398 @@
         /* 面板切换 */
         .panel { display: none; }
         .panel.active { display: block; }
+
+        /* 平台首页 */
+        .home-shell {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            padding-bottom: 16px;
+        }
+        .home-hero {
+            min-height: 360px;
+            border-radius: 18px;
+            overflow: hidden;
+            position: relative;
+            color: #fff;
+            background:
+                linear-gradient(90deg, rgba(6,10,18,.92) 0%, rgba(6,10,18,.62) 42%, rgba(6,10,18,.12) 100%),
+                url("assets/home-hero-aigc-finance.png") center / cover no-repeat;
+            border: 1px solid rgba(255,255,255,.08);
+            box-shadow: 0 24px 60px rgba(15,23,42,.20);
+        }
+        .home-hero::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(circle at 18% 22%, rgba(47,107,255,.35), transparent 30%),
+                radial-gradient(circle at 72% 18%, rgba(245,158,11,.24), transparent 26%),
+                linear-gradient(180deg, transparent 58%, rgba(6,10,18,.72) 100%);
+            pointer-events: none;
+        }
+        .home-hero::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            opacity: .18;
+            background-image:
+                linear-gradient(rgba(255,255,255,.22) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,.16) 1px, transparent 1px);
+            background-size: 48px 48px;
+            mask-image: linear-gradient(90deg, #000 0%, transparent 72%);
+            pointer-events: none;
+        }
+        .home-hero-content {
+            position: relative;
+            z-index: 1;
+            min-height: 360px;
+            padding: 42px 46px 38px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            max-width: 720px;
+        }
+        .hero-kicker {
+            display: inline-flex;
+            align-items: center;
+            width: fit-content;
+            height: 28px;
+            padding: 0 12px;
+            border-radius: 999px;
+            color: #bae6fd;
+            background: rgba(8,47,73,.52);
+            border: 1px solid rgba(125,211,252,.26);
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: .02em;
+        }
+        .home-hero h2 {
+            margin-top: 18px;
+            font-size: 42px;
+            line-height: 1.12;
+            font-weight: 900;
+            letter-spacing: 0;
+            max-width: 620px;
+        }
+        .home-hero p {
+            margin-top: 14px;
+            max-width: 580px;
+            color: rgba(226,232,240,.82);
+            font-size: 15px;
+            line-height: 1.8;
+        }
+        .hero-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-top: 22px;
+        }
+        .hero-primary,
+        .hero-secondary {
+            height: 40px;
+            padding: 0 16px;
+            border-radius: 10px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 800;
+            border: 1px solid transparent;
+        }
+        .hero-primary {
+            color: #fff;
+            background: var(--primary);
+            box-shadow: 0 14px 30px rgba(47,107,255,.32);
+        }
+        .hero-secondary {
+            color: #e2e8f0;
+            background: rgba(255,255,255,.09);
+            border-color: rgba(255,255,255,.18);
+            backdrop-filter: blur(10px);
+        }
+        .hero-stats {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 12px;
+            width: min(560px, 100%);
+        }
+        .hero-stat {
+            padding: 12px 14px;
+            border-radius: 12px;
+            background: rgba(255,255,255,.08);
+            border: 1px solid rgba(255,255,255,.13);
+            backdrop-filter: blur(12px);
+        }
+        .hero-stat strong {
+            display: block;
+            font-size: 18px;
+            line-height: 1.1;
+            margin-bottom: 5px;
+        }
+        .hero-stat span {
+            color: rgba(226,232,240,.72);
+            font-size: 12px;
+        }
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(5, minmax(150px, 1fr));
+            gap: 12px;
+            margin-top: -58px;
+            position: relative;
+            z-index: 2;
+            padding: 0 18px;
+        }
+        .quick-card {
+            min-height: 86px;
+            border-radius: 12px;
+            padding: 16px;
+            color: #fff;
+            text-decoration: none;
+            background: rgba(10,14,22,.92);
+            border: 1px solid rgba(255,255,255,.12);
+            box-shadow: 0 16px 38px rgba(15,23,42,.22);
+            backdrop-filter: blur(12px);
+            display: grid;
+            grid-template-columns: 34px 1fr auto;
+            align-items: center;
+            gap: 12px;
+            transition: transform .2s ease, border-color .2s ease, background .2s ease;
+        }
+        .quick-card:hover {
+            transform: translateY(-3px);
+            border-color: rgba(125,211,252,.36);
+            background: rgba(12,18,28,.96);
+        }
+        .quick-card.featured {
+            background:
+                linear-gradient(135deg, rgba(20,83,45,.96), rgba(8,20,28,.94)),
+                rgba(10,14,22,.92);
+            border-color: rgba(134,239,172,.32);
+        }
+        .quick-icon {
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255,255,255,.10);
+            color: #e0f2fe;
+            font-size: 16px;
+        }
+        .quick-card.featured .quick-icon {
+            color: #bbf7d0;
+            background: rgba(34,197,94,.18);
+            box-shadow: 0 0 26px rgba(34,197,94,.34);
+        }
+        .quick-title {
+            display: block;
+            font-size: 13px;
+            font-weight: 900;
+            line-height: 1.3;
+        }
+        .quick-sub {
+            display: block;
+            margin-top: 4px;
+            color: #86efac;
+            font-size: 11px;
+            font-weight: 800;
+        }
+        .quick-arrow {
+            color: rgba(255,255,255,.76);
+            font-size: 22px;
+            line-height: 1;
+        }
+        .template-section {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .template-toolbar {
+            display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+        }
+        .template-heading h2 { font-size: 20px; font-weight: 850; margin-bottom: 4px; color: var(--text-primary); }
+        .template-heading p { color: var(--text-secondary); font-size: 13px; }
+        .template-wall {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(224px, 1fr));
+            gap: 18px;
+        }
+        .template-video-card {
+            height: 398px; border-radius: 14px; overflow: hidden; position: relative; background: #fff;
+            color: var(--text-primary); border: 1px solid var(--border); box-shadow: var(--shadow);
+            transform: translateY(0); transition: transform .22s ease, box-shadow .22s ease;
+        }
+        .template-video-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(47,107,255,0.36);
+            box-shadow: 0 12px 28px rgba(47,107,255,0.12);
+        }
+        .video-stage { position: absolute; left: 12px; right: 12px; top: 12px; height: 292px; overflow: hidden; border-radius: 12px; background: #f1f5f9; }
+        .video-bg { position: absolute; inset: 0; background: linear-gradient(145deg,#1d4ed8,#0f172a); }
+        .video-bg.market { background: linear-gradient(145deg,#dbeafe 0%, #93c5fd 52%, #1e40af 100%); }
+        .video-bg.product { background: linear-gradient(145deg,#ccfbf1 0%, #5eead4 48%, #0f766e 100%); }
+        .video-bg.risk { background: linear-gradient(145deg,#fee2e2 0%, #fb7185 52%, #9f1239 100%); }
+        .video-bg.fund { background: linear-gradient(145deg,#ede9fe 0%, #c4b5fd 52%, #6d28d9 100%); }
+        .video-bg.hot { background: linear-gradient(145deg,#ffedd5 0%, #fdba74 50%, #c2410c 100%); }
+        .video-grid-lines {
+            position: absolute; inset: 18px; opacity: .28;
+            background:
+                linear-gradient(rgba(255,255,255,.42) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,.42) 1px, transparent 1px);
+            background-size: 36px 36px;
+            transform: translateY(0);
+        }
+        .template-video-card:hover .video-grid-lines { animation: scanLines 2.2s linear infinite; }
+        @keyframes scanLines { to { transform: translateY(36px); } }
+        .video-person {
+            position: absolute; left: 50%; bottom: 46px; width: 78px; height: 122px;
+            transform: translateX(-50%);
+            border-radius: 44px 44px 14px 14px; background: linear-gradient(180deg,#f8fafc 0%,#bfdbfe 54%,#1e40af 100%);
+            box-shadow: 0 22px 34px rgba(0,0,0,.28);
+        }
+        .template-video-card:hover .video-person { animation: speaking 1.1s ease-in-out infinite; }
+        @keyframes speaking { 50% { transform: translateX(-50%) translateY(-5px); } }
+        .video-data-card {
+            position: absolute; left: 16px; right: 16px; top: 18px; height: 50px;
+            border-radius: 12px; background: rgba(255,255,255,.12); backdrop-filter: blur(8px);
+        }
+        .video-subtitle {
+            position: absolute; left: 16px; right: 16px; bottom: 16px; min-height: 30px;
+            border-radius: 12px; padding: 8px 10px; background: rgba(15,23,42,.76);
+            color: #fff; font-size: 12px; line-height: 1.45; text-align: center;
+        }
+        .video-progress {
+            position: absolute; left: 12px; right: 12px; top: 301px; height: 3px; background: rgba(255,255,255,.35);
+            border-radius: 999px; overflow: hidden; z-index: 3;
+        }
+        .video-progress span { display: block; height: 100%; width: 0; background: #fff; }
+        .template-video-card:hover .video-progress span { animation: previewProgress 4s linear infinite; }
+        @keyframes previewProgress { to { width: 100%; } }
+        .template-info {
+            position: absolute; left: 0; right: 0; bottom: 0; padding: 0 14px 14px;
+            background: #fff;
+            transition: padding-bottom .22s ease;
+        }
+        .template-video-card:hover .template-info { padding-bottom: 62px; }
+        .template-meta-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+        .template-chip {
+            height: 22px; padding: 0 8px; border-radius: 999px; background: var(--primary-light);
+            display: inline-flex; align-items: center; color: var(--primary); font-size: 11px; font-weight: 700;
+        }
+        .template-card-title { font-size: 15px; font-weight: 800; margin-bottom: 5px; color: var(--text-primary); }
+        .template-card-desc { color: var(--text-secondary); font-size: 12px; line-height: 1.5; }
+        .same-bottom {
+            position: absolute; left: 12px; right: 12px; bottom: 12px;
+            transform: translateY(62px); opacity: 0;
+            transition: transform .22s ease, opacity .22s ease;
+        }
+        .template-video-card:hover .same-bottom { transform: translateY(0); opacity: 1; }
+        .same-btn {
+            width: 100%; height: 42px; border: none; border-radius: 10px;
+            background: var(--primary); color: #fff; font-weight: 800; font-size: 14px;
+            box-shadow: 0 10px 22px rgba(47,107,255,.22);
+        }
+        .same-btn:hover { background: #1d4ed8; }
+
+        .same-modal-mask {
+            position: fixed; inset: 0; z-index: 80; background: rgba(15,23,42,.52);
+            display: none; align-items: center; justify-content: center; padding: 24px;
+        }
+        .same-modal-mask.show { display: flex; }
+        .same-modal {
+            width: min(920px, 96vw); max-height: 88vh; overflow: hidden;
+            background: #fff; border-radius: 18px; box-shadow: 0 24px 70px rgba(15,23,42,.26);
+            display: grid; grid-template-columns: 310px minmax(0,1fr);
+        }
+        .same-preview {
+            background: #f8fafc; color: var(--text-primary); padding: 22px; display: flex; flex-direction: column; justify-content: center;
+            border-right: 1px solid var(--border);
+        }
+        .same-preview-phone { width: 210px; aspect-ratio: 9/16; border-radius: 22px; overflow: hidden; margin: 0 auto 16px; position: relative; background: #eef2ff; box-shadow: var(--shadow-md); }
+        .same-panel { padding: 22px; overflow-y: auto; }
+        .same-panel-head { display: flex; justify-content: space-between; gap: 16px; align-items: flex-start; margin-bottom: 16px; }
+        .same-panel-title { font-size: 20px; font-weight: 800; margin-bottom: 6px; }
+        .same-panel-sub { color: var(--text-secondary); font-size: 13px; line-height: 1.6; }
+        .modal-close {
+            width: 32px; height: 32px; border: none; border-radius: 8px; background: #f1f5f9; color: #64748b; font-size: 20px;
+            flex-shrink: 0;
+        }
+        .same-form { display: grid; gap: 12px; }
+        .same-field { border: 1px solid var(--border); border-radius: 12px; padding: 12px; background: #fafafa; }
+        .same-field label { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; font-weight: 800; margin-bottom: 8px; }
+        .reuse-status { color: var(--primary); background: var(--primary-light); border-radius: 999px; padding: 2px 8px; font-size: 11px; white-space: nowrap; }
+        .same-field select, .same-field textarea {
+            width: 100%; border: 1px solid var(--border); border-radius: 10px; background: #fff;
+            padding: 9px 10px; outline: none; color: var(--text-primary); font: inherit;
+        }
+        .same-field textarea { min-height: 76px; resize: vertical; line-height: 1.6; }
+        .scene-mode-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-bottom: 10px; }
+        .scene-mode-btn {
+            height: 34px; border: 1px solid var(--border); border-radius: 10px; background: #fff;
+            color: var(--text-secondary); font-size: 12px; font-weight: 800;
+        }
+        .scene-mode-btn.active { border-color: var(--primary); background: var(--primary-light); color: var(--primary); }
+        .scene-control { display: none; }
+        .scene-control.show { display: block; }
+        .scene-note {
+            min-height: 40px; display: flex; align-items: center; padding: 9px 10px; border-radius: 10px;
+            border: 1px solid var(--border); background: #fff; color: var(--text-secondary); font-size: 13px;
+        }
+        .bg-upload-row { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center; }
+        .upload-btn {
+            height: 40px; border: 1px dashed var(--primary); border-radius: 10px; background: var(--primary-light);
+            color: var(--primary); font-weight: 800; display: flex; align-items: center; justify-content: center;
+        }
+        .upload-btn:hover { background: #dbeafe; }
+        .bg-preview {
+            margin-top: 10px; display: none; align-items: center; gap: 10px; padding: 8px;
+            border-radius: 10px; background: #fff; border: 1px solid var(--border);
+        }
+        .bg-preview.show { display: flex; }
+        .bg-preview img { width: 44px; height: 44px; border-radius: 8px; object-fit: cover; }
+        .bg-preview-name { flex: 1; min-width: 0; font-size: 12px; color: var(--text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .clear-bg-btn { height: 30px; padding: 0 10px; border: 1px solid var(--border); border-radius: 8px; background: #fff; color: var(--text-secondary); font-size: 12px; font-weight: 700; }
+        .same-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--border); }
+        .same-action-secondary, .same-action-primary {
+            height: 40px; padding: 0 18px; border-radius: 10px; font-weight: 800; border: 1px solid var(--border); background: #fff;
+        }
+        .same-action-primary { background: var(--primary); color: #fff; border-color: var(--primary); }
+        .toast {
+            position: fixed; right: 24px; bottom: 24px; z-index: 100; width: 300px;
+            background: #111827; color: #fff; border-radius: 12px; padding: 12px 14px;
+            box-shadow: 0 16px 40px rgba(15,23,42,.24); display: none;
+        }
+        .toast.show { display: block; }
+        .toast strong { display: block; margin-bottom: 4px; }
+        .toast span { color: #cbd5e1; font-size: 12px; line-height: 1.5; }
+
+        @media (max-width: 900px) {
+            body { overflow: auto; height: auto; min-height: 100vh; }
+            .sidebar { display: none; }
+            .main { min-height: 100vh; }
+            .content { padding: 16px; }
+            .home-shell { gap: 18px; }
+            .home-hero { min-height: 420px; border-radius: 16px; }
+            .home-hero-content { min-height: 420px; padding: 28px 22px; }
+            .home-hero h2 { font-size: 30px; max-width: 100%; }
+            .hero-stats { grid-template-columns: 1fr; }
+            .quick-actions {
+                grid-template-columns: 1fr;
+                margin-top: -34px;
+                padding: 0 12px;
+            }
+            .template-wall { grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); }
+            .same-modal { grid-template-columns: 1fr; overflow-y: auto; }
+            .same-preview { display: none; }
+        }
+
+        @media (min-width: 901px) and (max-width: 1280px) {
+            .quick-actions { grid-template-columns: repeat(3, minmax(180px, 1fr)); }
+        }
     </style>
 </head>
 <body>
@@ -158,6 +552,9 @@
 
     <nav class="sidebar-nav">
         <div class="nav-section">
+            <div class="nav-section-title active" data-panel="panel-home"><span class="nav-icon">🏠</span> 首页</div>
+        </div>
+        <div class="nav-section">
             <div class="nav-section-title" onclick="toggleSection(this)">
                 资产 <span class="collapse-icon">▾</span>
             </div>
@@ -168,8 +565,10 @@
             </div>
         </div>
         <div class="nav-section">
-            <a class="nav-sub-item" href="javascript:void(0)" data-panel="panel-studio"><span class="nav-icon">🎬</span> 导演台</a>
-            <a class="nav-sub-item" href="javascript:void(0)" data-panel="panel-tools"><span class="nav-icon">🛠</span> 全部工具</a>
+            <div class="nav-section-title" data-panel="panel-studio"><span class="nav-icon">🎬</span> 导演台</div>
+        </div>
+        <div class="nav-section">
+            <div class="nav-section-title" data-panel="panel-tools"><span class="nav-icon">🛠</span> 全部工具</div>
         </div>
         <div class="nav-section">
             <div class="nav-section-title" onclick="toggleSection(this)">
@@ -198,8 +597,10 @@
 </aside>
 
 <main class="main">
+    <!-- 首页 -->
+    
     <!-- 主体 -->
-    <div class="topbar panel active" id="panel-subject">
+    <div class="topbar panel" id="panel-subject">
         <span class="topbar-title">主体管理</span>
         <span class="topbar-desc">主体列表与创建入口</span>
     </div>
@@ -230,8 +631,84 @@
     </div>
 
     <div class="content">
+        <!-- 平台首页 -->
+        <div class="panel active" id="content-home">
+            <div class="home-shell">
+                <section class="home-hero">
+                    <div class="home-hero-content">
+                        <div>
+                            <span class="hero-kicker">AIGC VIDEO WORKSPACE</span>
+                            <h2>用模板快速生成投顾短视频</h2>
+                            <p>从市场解读、产品介绍到风险提示，把主体、场景、台词和提示词组合成可复用的视频生产链路。</p>
+                            <div class="hero-actions">
+                                <a class="hero-primary" href="简单模式-流程版.html">开始快速创作 →</a>
+                                <a class="hero-secondary" href="导演台首页.html">进入导演台</a>
+                            </div>
+                        </div>
+                        <div class="hero-stats">
+                            <div class="hero-stat">
+                                <strong>6</strong>
+                                <span>精选模板</span>
+                            </div>
+                            <div class="hero-stat">
+                                <strong>4</strong>
+                                <span>内置主体</span>
+                            </div>
+                            <div class="hero-stat">
+                                <strong>1 min</strong>
+                                <span>快速生成</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="quick-actions" aria-label="快捷入口">
+                    <a class="quick-card featured" href="简单模式-流程版.html">
+                        <span class="quick-icon">✦</span>
+                        <span>
+                            <span class="quick-title">Omni 多模态创作工具</span>
+                            <span class="quick-sub">立即体验</span>
+                        </span>
+                        <span class="quick-arrow">→</span>
+                    </a>
+                    <a class="quick-card" href="图片创作.html">
+                        <span class="quick-icon">▧</span>
+                        <span class="quick-title">图片生成</span>
+                        <span class="quick-arrow">→</span>
+                    </a>
+                    <a class="quick-card" href="视频资产.html">
+                        <span class="quick-icon">▣</span>
+                        <span class="quick-title">视频资产</span>
+                        <span class="quick-arrow">→</span>
+                    </a>
+                    <a class="quick-card" href="导演台首页.html">
+                        <span class="quick-icon">⌗</span>
+                        <span class="quick-title">导演台</span>
+                        <span class="quick-arrow">→</span>
+                    </a>
+                    <a class="quick-card" href="主体管理-首页.html">
+                        <span class="quick-icon">◎</span>
+                        <span class="quick-title">数字人 2.0</span>
+                        <span class="quick-arrow">→</span>
+                    </a>
+                </section>
+
+                <section class="template-section">
+                    <div class="template-toolbar">
+                        <div class="template-heading">
+                            <h2>视频模板</h2>
+                            <p>选择适合的内容模板，快速生成同款投顾短视频。</p>
+                        </div>
+
+                    </div>
+
+                    <div class="template-wall" id="templateWall"></div>
+                </section>
+            </div>
+        </div>
+
         <!-- 主体面板 -->
-        <div class="panel active card-grid" id="content-subject">
+        <div class="panel card-grid" id="content-subject">
             <a class="card" href="主体管理-首页.html">
                 <span class="card-tag tag-subject">主体管理</span>
                 <span class="card-title">主体管理 - 首页</span>
@@ -308,6 +785,16 @@
                 <span class="card-title">全部工具首页</span>
                 <span class="card-desc">工具集市入口，包含模板成片等所有工具</span>
             </a>
+            <a class="card" href="简单模式-流程版.html">
+                <span class="card-tag tag-tools">快速创作</span>
+                <span class="card-title">简单模式（流程版）</span>
+                <span class="card-desc">批量台词录入、语音合成、首帧生成，一步到位</span>
+            </a>
+            <a class="card" href="图片创作.html">
+                <span class="card-tag tag-tools">图片创作</span>
+                <span class="card-title">图片创作</span>
+                <span class="card-desc">AI 图片生成，按时间轴管理创作历史</span>
+            </a>
         </div>
 
         <!-- 个人中心面板 -->
@@ -336,27 +823,394 @@
     </div>
 </main>
 
+<div class="same-modal-mask" id="sameModal" onclick="closeSameModal()">
+    <div class="same-modal" onclick="event.stopPropagation()">
+        <div class="same-preview">
+            <div class="same-preview-phone" id="samePreviewPhone"></div>
+            <div>
+                <h3 id="samePreviewTitle"></h3>
+                <p id="samePreviewDesc" style="color:#71717A;font-size:12px;line-height:1.6;margin-top:8px;"></p>
+            </div>
+        </div>
+        <div class="same-panel">
+            <div class="same-panel-head">
+                <div>
+                    <div class="same-panel-title">一键同款</div>
+                    <div class="same-panel-sub">默认复用模板元素；你可以只替换其中一个或多个。</div>
+                </div>
+                <button class="modal-close" type="button" onclick="closeSameModal()">×</button>
+            </div>
+            <div class="same-form">
+                <div class="same-field">
+                    <label>角色 <span class="reuse-status" id="roleStatus">复用模板</span></label>
+                    <select id="sameRole" onchange="updateSameStatus()"></select>
+                </div>
+                <div class="same-field">
+                    <label>场景 <span class="reuse-status" id="sceneStatus">复用模板</span></label>
+                    <div class="scene-mode-row">
+                        <button class="scene-mode-btn active" type="button" data-scene-mode="template" onclick="setSceneMode('template')">复用模板</button>
+                        <button class="scene-mode-btn" type="button" data-scene-mode="existing" onclick="setSceneMode('existing')">内置场景</button>
+                        <button class="scene-mode-btn" type="button" data-scene-mode="upload" onclick="setSceneMode('upload')">本地上传</button>
+                    </div>
+                    <div class="scene-control show" id="sceneTemplateControl">
+                        <div class="scene-note" id="sameTemplateScene">复用模板场景</div>
+                    </div>
+                    <div class="scene-control" id="sceneExistingControl">
+                        <select id="sameScene" onchange="updateSameStatus()"></select>
+                    </div>
+                    <div class="scene-control" id="sceneUploadControl">
+                        <div class="bg-upload-row">
+                            <button class="upload-btn" type="button" onclick="document.getElementById('sameSceneFile').click()">上传本地场景图</button>
+                            <button class="clear-bg-btn" type="button" onclick="clearUploadedScene()">移除</button>
+                        </div>
+                        <input type="file" id="sameSceneFile" accept="image/*" hidden onchange="handleSceneUpload(event)">
+                        <div class="bg-preview" id="scenePreview">
+                            <img id="scenePreviewImg" alt="场景预览">
+                            <div class="bg-preview-name" id="scenePreviewName"></div>
+                            <button class="clear-bg-btn" type="button" onclick="clearUploadedScene()">移除</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="same-field">
+                    <label>台词 <span class="reuse-status" id="scriptStatus">复用模板</span></label>
+                    <textarea id="sameScript" oninput="updateSameStatus()"></textarea>
+                </div>
+                <div class="same-field">
+                    <label>提示词 <span class="reuse-status" id="promptStatus">复用模板</span></label>
+                    <textarea id="samePrompt" oninput="updateSameStatus()"></textarea>
+                </div>
+            </div>
+            <div class="same-actions">
+                <button class="same-action-secondary" type="button" onclick="resetSameForm()">全部复用模板</button>
+                <button class="same-action-primary" type="button" onclick="confirmSameTemplate()">开始生成同款</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="toast" id="toast">
+    <strong id="toastTitle"></strong>
+    <span id="toastText"></span>
+</div>
+
 <script>
-    // 菜单点击切换面板
+    var TEMPLATE_DRAFT_KEY = 'platformSameTemplateDraft';
+    var PENDING_VIDEO_JOBS_KEY = 'platformPendingVideoJobs';
+    var SUBJECT_LIBRARY_KEY = 'subjectLibraryItems';
+    var activeTemplateId = null;
+    var activeSceneMode = 'template';
+    var toastTimer = null;
+    var uploadedSceneDataUrl = '';
+    var uploadedSceneFileName = '';
+
+    var templates = [
+        {
+            id: 'market',
+            title: '一分钟市场波动解读',
+            category: '市场解读',
+            scene: 'market',
+            duration: '00:58',
+            desc: '适合收盘点评、热点波动解释，用稳健口播降低用户焦虑。',
+            role: '模板角色 · 资深投顾讲解员',
+            bg: '蓝色财经演播室',
+            script: '市场短期波动并不意味着趋势反转，投资者更需要关注基本面、估值水平和自身风险承受能力。',
+            prompt: '正面中近景，投顾讲解员站在蓝色财经演播室中，背景包含克制的数据图表，语气专业稳健，画面干净可信。'
+        },
+        {
+            id: 'product',
+            title: '投顾服务介绍',
+            category: '产品介绍',
+            scene: 'product',
+            duration: '01:12',
+            desc: '介绍投顾服务能力、研究团队、标准化流程和适用人群。',
+            role: '模板角色 · 服务顾问',
+            bg: '现代投顾办公室',
+            script: '我们的投顾服务依托专业研究团队和标准化服务流程，为用户提供市场解读、策略参考和风险管理建议。',
+            prompt: '服务顾问在现代办公室正面讲解，背景简洁明亮，整体风格专业、亲和、可信，适合金融服务介绍。'
+        },
+        {
+            id: 'risk',
+            title: '风险提示与投资纪律',
+            category: '风险提示',
+            scene: 'risk',
+            duration: '00:45',
+            desc: '适合做合规提示、风险教育和理性投资短视频。',
+            role: '模板角色 · 风控讲解员',
+            bg: '深色数据看板场景',
+            script: '任何投资都伴随风险，过往业绩不代表未来表现。做决策前，请充分了解产品特征和自身风险承受能力。',
+            prompt: '深色专业场景，风控讲解员正面对镜，画面强调严谨、克制、清晰，适合风险提示和合规教育。'
+        },
+        {
+            id: 'fund',
+            title: '基金定投入门',
+            category: '基金定投',
+            scene: 'fund',
+            duration: '01:05',
+            desc: '面向新手用户，解释定投逻辑、长期配置和波动中的执行纪律。',
+            role: '模板角色 · 理财科普讲解员',
+            bg: '温和书房财经角',
+            script: '基金定投的核心不是预测最低点，而是通过分批投入平滑成本，并用长期纪律对抗短期情绪。',
+            prompt: '温和书房场景，理财科普讲解员正面讲解，背景有书架和简洁图表，语气清晰亲和，适合新手教育。'
+        },
+        {
+            id: 'hot',
+            title: '热点事件快评',
+            category: '热点快评',
+            scene: 'hot',
+            duration: '00:36',
+            desc: '快速输出热点市场事件解读，适合日更和社媒分发。',
+            role: '模板角色 · 快评主持人',
+            bg: '热点新闻演播室',
+            script: '今天这个热点背后，真正值得关注的是它对市场预期和风险偏好的影响，而不是单日涨跌本身。',
+            prompt: '热点新闻演播室，主持人正面快节奏讲解，背景有实时资讯屏幕，语气清晰但不夸张，画面有速度感。'
+        },
+        {
+            id: 'asset',
+            title: '资产配置三步法',
+            category: '资产配置',
+            scene: 'product',
+            duration: '01:20',
+            desc: '用步骤化结构讲清楚风险承受能力、期限和组合配置。',
+            role: '模板角色 · 资产配置顾问',
+            bg: '白色咨询室',
+            script: '做资产配置，不是简单选择单一产品，而是先明确目标期限、风险承受能力，再决定权益、固收和现金类资产的比例。',
+            prompt: '资产配置顾问在白色咨询室正面对镜讲解，画面包含简洁的三步法图表，风格理性、清晰、有条理。'
+        }
+    ];
+
+    var builtInRoles = [
+        { value: 'female-advisor', label: '内置主体 · 知性女性投顾' },
+        { value: 'male-advisor', label: '内置主体 · 稳健男性投顾' },
+        { value: 'risk-host', label: '内置主体 · 风控讲解员' },
+        { value: 'service-advisor', label: '内置主体 · 服务顾问' }
+    ];
+
+    function getTemplate(id) {
+        return templates.find(function(t) { return t.id === id; });
+    }
+
+    function renderVideoVisual(t) {
+        return '<div class="video-bg ' + t.scene + '"></div>' +
+            '<div class="video-grid-lines"></div>' +
+            '<div class="video-data-card"></div>' +
+            '<div class="video-person"></div>' +
+            '<div class="video-subtitle">' + escapeHtml(t.title) + '</div>';
+    }
+
+    function renderTemplates() {
+        var list = templates;
+        document.getElementById('templateWall').innerHTML = list.map(function(t) {
+            return '<article class="template-video-card" onmouseenter="previewTemplate(\'' + t.id + '\')" onclick="previewTemplate(\'' + t.id + '\')">' +
+                '<div class="video-stage">' + renderVideoVisual(t) + '</div>' +
+                '<div class="template-info">' +
+                    '<div class="template-meta-row">' +
+                        '<span class="template-chip">' + t.category + '</span>' +
+                        '<span class="template-chip">' + t.duration + '</span>' +
+                    '</div>' +
+                    '<div class="template-card-title">' + escapeHtml(t.title) + '</div>' +
+                    '<div class="template-card-desc">' + escapeHtml(t.desc) + '</div>' +
+                '</div>' +
+                '<div class="same-bottom"><button class="same-btn" type="button" onclick="event.stopPropagation();openSameModal(\'' + t.id + '\')">一键同款</button></div>' +
+                '<div class="video-progress"><span></span></div>' +
+            '</article>';
+        }).join('');
+    }
+
+    function previewTemplate(templateId) {
+        activeTemplateId = templateId;
+    }
+
+    function openSameModal(templateId) {
+        var t = getTemplate(templateId);
+        if (!t) return;
+        activeTemplateId = templateId;
+        document.getElementById('samePreviewPhone').innerHTML = renderVideoVisual(t);
+        document.getElementById('samePreviewTitle').textContent = t.title;
+        document.getElementById('samePreviewDesc').textContent = t.desc;
+        fillSelect('sameRole', getRoleChoices(t));
+        fillSelect('sameScene', getSceneChoices());
+        document.getElementById('sameRole').value = 'template';
+        document.getElementById('sameTemplateScene').textContent = t.bg;
+        document.getElementById('sameScript').value = t.script;
+        document.getElementById('samePrompt').value = t.prompt;
+        clearUploadedScene(false);
+        setSceneMode('template', false);
+        updateSameStatus();
+        document.getElementById('sameModal').classList.add('show');
+    }
+
+    function getRoleChoices(template) {
+        return [{ value: 'template', label: template.role + '（模板主体）' }].concat(builtInRoles);
+    }
+
+    function getSceneChoices() {
+        var scenes = readCreatedScenes();
+        if (scenes.length === 0) return [{ value: '', label: '暂无可用场景' }];
+        return scenes.map(function(scene) {
+            return { value: scene.id, label: scene.name };
+        });
+    }
+
+    function fillSelect(id, options) {
+        document.getElementById(id).innerHTML = options.map(function(opt) {
+            return '<option value="' + escapeHtml(opt.value) + '">' + escapeHtml(opt.label) + '</option>';
+        }).join('');
+    }
+
+    function closeSameModal() {
+        document.getElementById('sameModal').classList.remove('show');
+    }
+
+    function resetSameForm() {
+        if (!activeTemplateId) return;
+        openSameModal(activeTemplateId);
+    }
+
+    function updateSameStatus() {
+        var t = getTemplate(activeTemplateId);
+        if (!t) return;
+        setStatus('roleStatus', document.getElementById('sameRole').value === 'template' ? '复用模板' : '已替换');
+        setStatus('sceneStatus', uploadedSceneDataUrl ? '已上传' : '复用模板');
+        setStatus('scriptStatus', document.getElementById('sameScript').value.trim() === t.script.trim() ? '复用模板' : '已修改');
+        setStatus('promptStatus', document.getElementById('samePrompt').value.trim() === t.prompt.trim() ? '复用模板' : '已修改');
+    }
+
+    function setStatus(id, text) {
+        var el = document.getElementById(id);
+        el.textContent = text;
+        el.style.color = text === '复用模板' ? 'var(--primary)' : '#059669';
+        el.style.background = text === '复用模板' ? 'var(--primary-light)' : '#ecfdf5';
+    }
+
+    function confirmSameTemplate() {
+        var t = getTemplate(activeTemplateId);
+        if (!t) return;
+        var draft = {
+            templateId: t.id,
+            templateTitle: t.title,
+            roleId: document.getElementById('sameRole').value,
+            backgroundMode: uploadedSceneDataUrl ? 'upload' : 'template',
+            backgroundImageDataUrl: uploadedSceneDataUrl,
+            backgroundFileName: uploadedSceneFileName,
+            script: document.getElementById('sameScript').value,
+            prompt: document.getElementById('samePrompt').value,
+            reuse: {
+                role: document.getElementById('sameRole').value === 'template',
+                background: !uploadedSceneDataUrl,
+                script: document.getElementById('sameScript').value.trim() === t.script.trim(),
+                prompt: document.getElementById('samePrompt').value.trim() === t.prompt.trim()
+            }
+        };
+        try { sessionStorage.setItem(TEMPLATE_DRAFT_KEY, JSON.stringify(draft)); } catch (e) {}
+        // 将生成任务写入待处理队列，视频资产页读取后显示生成中动画
+        var job = {
+            id: 'job-' + Date.now(),
+            templateTitle: t.title,
+            createdAt: new Date().toISOString(),
+            draft: draft
+        };
+        try {
+            var jobs = JSON.parse(sessionStorage.getItem(PENDING_VIDEO_JOBS_KEY) || '[]');
+            jobs.push(job);
+            sessionStorage.setItem(PENDING_VIDEO_JOBS_KEY, JSON.stringify(jobs));
+        } catch (e) {}
+        closeSameModal();
+        showToast('生成任务已提交', '正在跳转至视频资产页，请稍候查看生成结果。');
+        setTimeout(function() { window.location.href = '视频资产.html'; }, 900);
+    }
+
+    function setSceneMode(mode, update) {
+        activeSceneMode = mode;
+        // 更新按钮 active 状态
+        var btns = document.querySelectorAll('.scene-mode-btn');
+        btns.forEach(function(btn) {
+            btn.classList.toggle('active', btn.getAttribute('data-scene-mode') === mode);
+        });
+        // 切换面板显示
+        ['template','existing','upload'].forEach(function(m) {
+            document.getElementById('scene'+m.charAt(0).toUpperCase()+m.slice(1)+'Control').classList.toggle('show', m === mode);
+        });
+        if (update !== false) updateSameStatus();
+    }
+    function handleSceneUpload(event) {
+        var file = event.target.files && event.target.files[0];
+        if (!file) return;
+        if (!file.type || file.type.indexOf('image/') !== 0) {
+            showToast('上传失败', '请上传图片格式文件。');
+            return;
+        }
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            uploadedSceneDataUrl = e.target.result || '';
+            uploadedSceneFileName = file.name;
+            document.getElementById('scenePreviewImg').src = uploadedSceneDataUrl;
+            document.getElementById('scenePreviewName').textContent = uploadedSceneFileName;
+            document.getElementById('scenePreview').classList.add('show');
+            updateSameStatus();
+        };
+        reader.readAsDataURL(file);
+    }
+    function clearUploadedScene(shouldUpdate) {
+        uploadedSceneDataUrl = '';
+        uploadedSceneFileName = '';
+        var fileInput = document.getElementById('sameSceneFile');
+        if (fileInput) fileInput.value = '';
+        var preview = document.getElementById('scenePreview');
+        if (preview) preview.classList.remove('show');
+        var img = document.getElementById('scenePreviewImg');
+        if (img) img.removeAttribute('src');
+        var name = document.getElementById('scenePreviewName');
+        if (name) name.textContent = '';
+        if (shouldUpdate !== false) updateSameStatus();
+    }
+    function readCreatedScenes() {
+        try {
+            var raw = localStorage.getItem('aigc_subject_scenes');
+            return raw ? JSON.parse(raw) : [];
+        } catch (e) { return []; }
+    }
+
+    function showToast(title, text) {
+        document.getElementById('toastTitle').textContent = title;
+        document.getElementById('toastText').textContent = text;
+        document.getElementById('toast').classList.add('show');
+        if (toastTimer) clearTimeout(toastTimer);
+        toastTimer = setTimeout(function() { document.getElementById('toast').classList.remove('show'); }, 2400);
+    }
+
+    function escapeHtml(v) {
+        return String(v || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    // 菜单点击切换面板（统一定义）
+    function switchPanel(panelId, el) {
+        if (!panelId) return;
+
+        // 更新菜单 active（清除所有 nav-sub-item 和 nav-section-title）
+        document.querySelectorAll('.nav-sub-item, .nav-section-title').forEach(function(n) { n.classList.remove('active'); });
+        el.classList.add('active');
+
+        // 切换 topbar
+        document.querySelectorAll('.topbar').forEach(function(t) { t.classList.remove('active'); });
+        var tb = document.getElementById(panelId);
+        if (tb) tb.classList.add('active');
+
+        // 切换内容面板
+        document.querySelectorAll('.content > .panel').forEach(function(p) { p.classList.remove('active'); });
+        var contentId = panelId.replace('panel-', 'content-');
+        var cp = document.getElementById(contentId);
+        if (cp) cp.classList.add('active');
+    }
+
     document.querySelectorAll('.nav-sub-item').forEach(function(item) {
         item.addEventListener('click', function() {
-            var panelId = item.getAttribute('data-panel');
-            if (!panelId) return;
+            switchPanel(item.getAttribute('data-panel'), item);
+        });
+    });
 
-            // 更新菜单 active
-            document.querySelectorAll('.nav-sub-item').forEach(function(n) { n.classList.remove('active'); });
-            item.classList.add('active');
-
-            // 切换 topbar
-            document.querySelectorAll('.topbar').forEach(function(t) { t.classList.remove('active'); });
-            var tb = document.getElementById(panelId);
-            if (tb) tb.classList.add('active');
-
-            // 切换内容面板
-            document.querySelectorAll('.content > .panel').forEach(function(p) { p.classList.remove('active'); });
-            var contentId = panelId.replace('panel-', 'content-');
-            var cp = document.getElementById(contentId);
-            if (cp) cp.classList.add('active');
+    document.querySelectorAll('.nav-section-title[data-panel]').forEach(function(item) {
+        item.addEventListener('click', function() {
+            switchPanel(item.getAttribute('data-panel'), item);
         });
     });
 
@@ -367,9 +1221,11 @@
         if (children) children.classList.toggle('hidden');
     }
 
-    // 默认选中第一个
-    var firstItem = document.querySelector('.nav-sub-item');
-    if (firstItem) firstItem.classList.add('active');
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') closeSameModal();
+    });
+
+    renderTemplates();
 </script>
 
 </body>

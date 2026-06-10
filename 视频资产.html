@@ -113,6 +113,26 @@
 
     .content { flex: 1; overflow-y: auto; padding: 24px 28px; }
 
+    /* 生成中卡片 */
+    .video-card.generating { cursor: default; pointer-events: none; }
+    .video-card.generating:hover { transform: none; box-shadow: var(--shadow); border-color: var(--border); }
+    .gen-card-cover {
+        width: 100%; aspect-ratio: 9 / 16;
+        background: #1a1a2e; display: flex;
+        flex-direction: column; align-items: center; justify-content: center;
+        position: relative; overflow: hidden; border-radius: 7px 7px 0 0;
+    }
+    .gen-card-spinner {
+        width: 36px; height: 36px; border-radius: 50%;
+        border: 3px solid rgba(255,255,255,0.12);
+        border-top-color: var(--primary);
+        animation: genSpin 0.8s linear infinite;
+    }
+    @keyframes genSpin { to { transform: rotate(360deg); } }
+    .gen-card-label {
+        margin-top: 18px; color: rgba(255,255,255,0.5); font-size: 12px;
+    }
+
     /* 统计卡片 - 紧凑 */
     .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
     .stat-card {
@@ -1322,28 +1342,44 @@
 
             var coverURL = generateCoverSVG(v.coverThumb, v.gradient);
 
-            html += '<div class="video-card' + selectedClass + '" data-id="' + v.id + '" onclick="handleCardClick(' + v.id + ', event)">' +
-                '<div class="card-checkbox" onclick="event.stopPropagation();toggleSelect(' + v.id + ')">✓</div>' +
-                '<div class="video-cover" onmouseenter="startPreview(this,' + v.id + ')" onmouseleave="stopPreview(this)" onclick="event.stopPropagation();openDetail(' + v.id + ')">' +
-                    '<img src="' + coverURL + '" style="width:100%;height:100%;object-fit:cover;display:block;" alt="' + v.title + '">' +
-                    '<span class="duration-badge">' + v.duration + '</span>' +
-                    '<div class="play-overlay"><div class="play-circle"></div></div>' +
-                    '<div class="play-indicator"><span></span><span></span><span></span><span></span></div>' +
-                    '<button class="menu-btn" onclick="event.stopPropagation();toggleMenu(' + v.id + ')">⋮</button>' +
-                    '<div class="dropdown-menu" id="menu-' + v.id + '">' +
-                        '<button class="dropdown-item" onclick="event.stopPropagation();doDownload(' + v.id + ')">⬇ 下载视频</button>' +
-                        '<div class="dropdown-divider"></div>' +
-                        '<button class="dropdown-item danger" onclick="event.stopPropagation();requestDelete(' + v.id + ',\'' + v.title.replace(/'/g,"\\'") + '\')">✕ 删除视频</button>' +
+            if (v.generating) {
+                // 生成中占位卡片
+                html += '<div class="video-card generating" data-id="' + v.id + '">' +
+                    '<div class="gen-card-cover">' +
+                        '<div class="gen-card-spinner"></div>' +
+                        '<div class="gen-card-label">生成中…</div>' +
                     '</div>' +
-                '</div>' +
-                '<div class="video-info">' +
-                    '<div class="video-title">' + v.title + '</div>' +
-                    '<div class="video-meta">' +
-                        '<span>' + v.creator + ' · ' + v.date + '</span>' +
-                        scopeTag +
+                    '<div class="video-info">' +
+                        '<div class="video-title">正在生成...</div>' +
+                        '<div class="video-meta">' +
+                            '<span>' + v.creator + ' · ' + v.date + '</span>' +
+                        '</div>' +
                     '</div>' +
-                '</div>' +
-            '</div>';
+                '</div>';
+            } else {
+                html += '<div class="video-card' + selectedClass + '" data-id="' + v.id + '" onclick="handleCardClick(' + v.id + ', event)">' +
+                    '<div class="card-checkbox" onclick="event.stopPropagation();toggleSelect(' + v.id + ')">✓</div>' +
+                    '<div class="video-cover" onmouseenter="startPreview(this,' + v.id + ')" onmouseleave="stopPreview(this)" onclick="event.stopPropagation();openDetail(' + v.id + ')">' +
+                        '<img src="' + coverURL + '" style="width:100%;height:100%;object-fit:cover;display:block;" alt="' + v.title + '">' +
+                        '<span class="duration-badge">' + v.duration + '</span>' +
+                        '<div class="play-overlay"><div class="play-circle"></div></div>' +
+                        '<div class="play-indicator"><span></span><span></span><span></span><span></span></div>' +
+                        '<button class="menu-btn" onclick="event.stopPropagation();toggleMenu(' + v.id + ')">⋮</button>' +
+                        '<div class="dropdown-menu" id="menu-' + v.id + '">' +
+                            '<button class="dropdown-item" onclick="event.stopPropagation();doDownload(' + v.id + ')">⬇ 下载视频</button>' +
+                            '<div class="dropdown-divider"></div>' +
+                            '<button class="dropdown-item danger" onclick="event.stopPropagation();requestDelete(' + v.id + ',\'' + v.title.replace(/'/g,"\\'") + '\')">✕ 删除视频</button>' +
+                        '</div>' +
+                    '</div>' +
+                    '<div class="video-info">' +
+                        '<div class="video-title">' + v.title + '</div>' +
+                        '<div class="video-meta">' +
+                            '<span>' + v.creator + ' · ' + v.date + '</span>' +
+                            scopeTag +
+                        '</div>' +
+                    '</div>' +
+                '</div>';
+            }
         }
         grid.innerHTML = html;
     }
@@ -2010,7 +2046,65 @@
         t._timer = setTimeout(function() { t.classList.remove('show'); }, 2000);
     }
 
+    var PENDING_KEY = 'platformPendingVideoJobs';
+    function checkPendingJobs() {
+        try {
+            var jobs = JSON.parse(sessionStorage.getItem(PENDING_KEY) || '[]');
+        } catch (e) { return; }
+        if (jobs.length === 0) return;
+        var job = jobs[0];
+
+        // 创建"生成中"占位卡片，直接插入视频列表
+        var placeholderId = Date.now();
+        var placeholder = {
+            id: placeholderId,
+            title: '正在生成...',
+            desc: '',
+            script: '',
+            duration: '--:--',
+            scope: 'private',
+            gradient: '',
+            coverThumb: '',
+            creator: '当前用户',
+            date: new Date().toISOString().slice(0, 10),
+            character: '',
+            scene: '',
+            hasWatermark: false,
+            hasSubtitle: false,
+            generating: true,
+            _job: job
+        };
+        videoData.unshift(placeholder);
+        renderVideos();
+
+        // 模拟生成完成：3~5 秒后自动完成
+        var delay = 3000 + Math.random() * 2000;
+        setTimeout(function() {
+            // 更新占位卡片为生成完成的视频
+            placeholder.title = job.templateTitle || '同款生成视频';
+            placeholder.desc = '通过一键同款生成';
+            placeholder.script = job.draft ? job.draft.script : '';
+            placeholder.duration = '00:42';
+            placeholder.gradient = 'linear-gradient(135deg,#667eea,#764ba2)';
+            placeholder.coverThumb = 'finance-chart';
+            placeholder.character = job.draft ? job.draft.roleId : '模板角色';
+            placeholder.scene = '模板场景';
+            placeholder.hasWatermark = true;
+            placeholder.hasSubtitle = false;
+            placeholder.generating = false;
+
+            // 移除已完成的任务
+            jobs.shift();
+            try { sessionStorage.setItem(PENDING_KEY, JSON.stringify(jobs)); } catch (e) {}
+
+            // 重新渲染
+            renderVideos();
+            showToast('✅ 视频生成完成：' + placeholder.title);
+        }, delay);
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
+        checkPendingJobs();
         bindFilters(); renderVideos();
         // 日期输入变更时同步到 advFilter（实时生效）
         var df = document.getElementById('adv-date-from');
