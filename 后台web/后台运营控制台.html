@@ -567,7 +567,6 @@
             <div class="table-wrap">
                 <div class="table-toolbar">
                     <span style="font-weight:600;font-size:13px">业务内置视频模板</span>
-                    <button class="btn btn-primary btn-sm" onclick="toast('模板配置已保存', 'success')" style="margin-left:auto">保存配置</button>
                 </div>
                 <table>
                     <thead><tr><th>模板名称</th><th>业务场景</th><th>适用行业</th><th>默认角色</th><th>默认音色</th><th>状态</th><th>操作</th></tr></thead>
@@ -609,7 +608,7 @@
             <div class="form-group"><label class="kv-label">管理员姓名 *</label><input class="filter-input" id="tfAdminName" style="width:100%" placeholder="姓名"></div>
             <div class="form-group"><label class="kv-label">管理员手机</label><input class="filter-input" id="tfAdminPhone" style="width:100%" placeholder="手机号"></div>
             <div class="form-group"><label class="kv-label">管理员邮箱</label><input class="filter-input" id="tfAdminEmail" style="width:100%" placeholder="邮箱"></div>
-            <div class="form-group"><label class="kv-label">最大并发数</label><input class="filter-input" id="tfConcurrency" style="width:100%" type="number" placeholder="并发数" value="5"></div>
+            <div class="form-group"><label class="kv-label">视频最大并发数</label><input class="filter-input" id="tfConcurrency" style="width:100%" type="number" placeholder="并发数" value="5"></div>
             <div class="form-group"><label class="kv-label">服务有效期</label><input class="filter-input" id="tfExpiry" style="width:100%" type="date"></div>
             <div class="form-group"><label class="kv-label">状态</label><select class="filter-select" id="tfStatus" style="width:100%"><option value="启用中">启用中</option><option value="已停用">已停用</option></select></div>
         </div>
@@ -868,7 +867,7 @@ function updateTopbarActions() {
         'view-voice-config': '',
         'view-credit-config': '',
         'view-prompt-config': '<button class="btn btn-primary btn-sm" onclick="openPromptModal()">+ 新建提示词</button><button class="btn btn-sm" onclick="toast(\'提示词配置已保存为草稿\', \'success\')">保存配置</button>',
-        'view-template-config': '<button class="btn btn-sm" onclick="toast(\'模板配置已保存\', \'success\')">保存配置</button>',
+        'view-template-config': '',
         'view-audit': '<button class="btn btn-sm" onclick="renderAudit()">刷新</button>',
         'view-billing': '<button class="btn btn-sm" onclick="renderBilling()">🔄 刷新</button>'
     };
