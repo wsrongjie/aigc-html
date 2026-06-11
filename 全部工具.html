@@ -70,6 +70,8 @@
             margin-left: 56px;
             flex: 1;
             min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
 
         /* 顶栏 */
@@ -293,66 +295,56 @@
         }
         .task-detail-btn:hover { background: #448aff22; border-color: #448aff; }
 
-        /* 任务进度抽屉 - 从右侧滑出 */
-        .task-ov {
+        /* 二级页面：任务详情 */
+        .task-detail-page {
             display: none;
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.5);
-            z-index: 1000;
-            backdrop-filter: blur(2px);
-        }
-        .task-ov.show { display: block; }
-        .task-modal {
-            position: fixed;
-            top: 0; right: 0;
-            height: 100vh;
-            width: 960px;
-            max-width: 94vw;
-            background: #fff;
-            border-radius: 14px 0 0 14px;
-            overflow: hidden;
-            box-shadow: -8px 0 40px rgba(0,0,0,0.2);
-            display: flex;
             flex-direction: column;
-            transform: translateX(100%);
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            flex: 1;
+            background: #0a0a0a;
+            padding: 0 32px 24px;
+            overflow: hidden;
         }
-        .task-ov.show .task-modal { transform: translateX(0); }
-        .task-modal-hd {
-            padding: 20px 24px 12px;
-            border-bottom: 1px solid #f0f0f0;
-            position: relative;
-        }
-        .task-modal-hd h3 {
-            font-size: 17px;
-            font-weight: 700;
-            color: #1a1a2e;
-            margin-bottom: 4px;
-        }
-        .task-modal-hd p { font-size: 12px; color: #999; }
-        .task-modal-hd .close-btn {
-            position: absolute;
-            top: 18px; right: 20px;
-            width: 28px; height: 28px;
-            border-radius: 50%;
-            background: #f5f5f5;
-            border: none;
-            color: #999;
-            font-size: 14px;
-            cursor: pointer;
+        .task-detail-page.show { display: flex; }
+        .task-detail-topbar {
             display: flex;
             align-items: center;
-            justify-content: center;
+            gap: 12px;
+            padding: 16px 0 8px;
+            border-bottom: 1px solid #222;
         }
-        .task-modal-hd .close-btn:hover { background: #eee; color: #333; }
+        .task-detail-topbar .back-btn {
+            background: none;
+            border: 1px solid #333;
+            color: #999;
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .task-detail-topbar .back-btn:hover { border-color: #666; color: #fff; }
+        .task-detail-topbar h2 { font-size: 18px; font-weight: 700; color: #fff; }
+        .task-detail-body {
+            flex: 1;
+            overflow-y: auto;
+            padding-top: 12px;
+        }
+        .task-detail-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-top: 1px solid #222;
+            font-size: 12px;
+            color: #666;
+        }
+        .task-detail-footer strong { color: #fff; }
 
         /* 状态筛选 - chip 风格 */
         .task-filters {
             display: flex;
             gap: 8px;
-            padding: 12px 24px;
-            border-bottom: 1px solid #f0f0f0;
+            padding: 12px 0;
             flex-wrap: wrap;
         }
         .task-filter {
@@ -360,22 +352,22 @@
             border-radius: 14px;
             font-size: 12px;
             cursor: pointer;
-            border: 1.5px solid #e8e8e8;
-            background: #fafafa;
-            color: #666;
+            border: 1.5px solid #333;
+            background: transparent;
+            color: #999;
             font-weight: 500;
             transition: all 0.15s;
             user-select: none;
         }
-        .task-filter:hover { border-color: #0066ff66; color: #0066ff; }
-        .task-filter.active { background: #eef4ff; border-color: #0066ff; color: #0066ff; font-weight: 600; }
+        .task-filter:hover { border-color: #0066ff66; color: #448aff; }
+        .task-filter.active { background: rgba(68,138,255,0.15); border-color: #448aff; color: #448aff; font-weight: 600; }
 
         /* 摘要栏 */
         .task-summary {
             display: flex;
             align-items: center;
             gap: 16px;
-            margin: 12px 24px;
+            margin: 12px 0;
             padding: 12px 16px;
             background: #eef4ff;
             border-radius: 10px;
@@ -388,8 +380,7 @@
         /* 任务列表 */
         .task-list {
             flex: 1;
-            overflow-y: auto;
-            padding: 0 24px;
+            overflow: visible;
         }
 
         /* 分组样式 */
@@ -398,10 +389,10 @@
         .task-group-title {
             font-size: 13px;
             font-weight: 600;
-            color: #1a1a2e;
+            color: #fff;
             padding: 8px 0;
             margin-bottom: 4px;
-            border-bottom: 1px solid #f0f0f0;
+            border-bottom: 1px solid #222;
             display: flex;
             align-items: center;
             gap: 6px;
@@ -443,20 +434,20 @@
             font-weight: 500;
             text-align: left;
             padding: 8px 10px;
-            border-bottom: 1px solid #f0f0f0;
+            border-bottom: 1px solid #222;
         }
-        .task-table tbody tr { transition: background 0.1s; border-bottom: 1px solid #f5f5f5; }
-        .task-table tbody tr:hover { background: #f9fafb; }
+        .task-table tbody tr { transition: background 0.1s; border-bottom: 1px solid #222; }
+        .task-table tbody tr:hover { background: #141414; }
         .task-table tbody tr.off { opacity: 0.35; }
         .task-table td {
             font-size: 12px;
-            color: #333;
+            color: #ccc;
             padding: 8px 10px;
             vertical-align: middle;
         }
         .task-table td.td-name {
             font-weight: 500;
-            color: #1a1a2e;
+            color: #fff;
             cursor: pointer;
             white-space: nowrap;
             overflow: hidden;
@@ -467,7 +458,7 @@
             overflow: hidden;
             text-overflow: ellipsis;
             cursor: pointer;
-            color: #555;
+            color: #999;
         }
         .task-table td.td-status { width: 80px; text-align: center; }
         .task-table td.td-progress { width: 100px; }
@@ -608,29 +599,7 @@
         }
         .tg-tip-txt.show { display: block; }
 
-        /* 弹窗底部 */
-        .task-modal-ft {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 12px 24px;
-            border-top: 1px solid #f0f0f0;
-            font-size: 12px;
-            color: #666;
-        }
-        .task-modal-ft strong { color: #1a1a2e; }
-        .task-modal-ft .btn {
-            padding: 8px 20px;
-            border-radius: 8px;
-            font-size: 13px;
-            cursor: pointer;
-            border: none;
-            font-weight: 500;
-            background: #f5f5f5;
-            color: #666;
-            transition: all 0.15s;
-        }
-        .task-modal-ft .btn:hover { background: #eee; }
+        /* 弹窗底部（淘汰，保留过渡） */
 
         /* 空状态 */
         .task-empty {
@@ -1213,6 +1182,32 @@
                 </a>
             </div>
         </div>
+
+        <!-- 二级页面：批量成片任务详情 -->
+        <div class="task-detail-page" id="taskDetailPage">
+            <div class="task-detail-topbar">
+                <button class="back-btn" onclick="closeTaskModal()">← 返回</button>
+                <h2>批量成片 · 任务详情</h2>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;padding:12px 0 6px;flex-wrap:wrap;">
+                <select id="task-item-select" aria-label="选择任务项" style="width:210px;max-width:100%;height:32px;border:1.5px solid #333;border-radius:8px;padding:0 10px;font-size:12px;color:#ccc;background:#141414;outline:none;transition:all 0.15s;" onchange="onTaskSearchChange()">
+                    <option value="">全部任务项</option>
+                </select>
+                <input type="text" id="task-search" placeholder="🔍 搜索台词关键词..." style="flex:1;min-width:180px;max-width:280px;height:32px;border:1.5px solid #333;border-radius:8px;padding:0 10px;font-size:12px;color:#ccc;background:#141414;outline:none;transition:all 0.15s;" oninput="onTaskSearchChange()">
+                <span style="font-size:11px;color:#666;white-space:nowrap;">创建时间</span>
+                <input type="date" id="task-date-from" style="height:30px;border:1.5px solid #333;border-radius:6px;padding:0 6px;font-size:11px;color:#ccc;background:#141414;outline:none;" onchange="onTaskSearchChange()">
+                <span style="font-size:11px;color:#666;">至</span>
+                <input type="date" id="task-date-to" style="height:30px;border:1.5px solid #333;border-radius:6px;padding:0 6px;font-size:11px;color:#ccc;background:#141414;outline:none;" onchange="onTaskSearchChange()">
+            </div>
+            <div class="task-detail-body">
+                <div class="task-filters" id="task-filters"></div>
+                <div class="task-summary" id="task-summary" style="display:none;"></div>
+                <div class="task-list" id="task-list"></div>
+                <div class="task-detail-footer">
+                    <span>共 <strong id="task-total-count">0</strong> 条任务 · 预计 <strong id="task-total-time">0</strong> 分钟</span>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- 模板预览弹窗 -->
@@ -1234,34 +1229,6 @@
             <div class="tpl-preview-footer">
                 <button class="btn btn-secondary" onclick="closeTplPreview()">关闭</button>
                 <button class="btn btn-primary" onclick="closeTplPreview();window.location.href='simple-mode.html'">使用此模板</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- 任务进度弹窗 -->
-    <div class="task-ov" id="task-ov" onclick="if(event.target===this)closeTaskModal()">
-        <div class="task-modal">
-            <div class="task-modal-hd">
-                <h3>批量任务进度</h3>
-                <p>按人物×背景分组，查看生成状态</p>
-                <button class="close-btn" onclick="closeTaskModal()">✕</button>
-            </div>
-            <div style="display:flex;align-items:center;gap:10px;padding:10px 24px 6px;flex-wrap:wrap;">
-                <select id="task-item-select" aria-label="选择任务项" style="width:210px;max-width:100%;height:32px;border:1.5px solid #e8e8e8;border-radius:8px;padding:0 10px;font-size:12px;color:#333;background:#fafafa;outline:none;transition:all 0.15s;" onchange="onTaskSearchChange()">
-                    <option value="">全部任务项</option>
-                </select>
-                <input type="text" id="task-search" placeholder="🔍 搜索台词关键词..." style="flex:1;min-width:180px;max-width:280px;height:32px;border:1.5px solid #e8e8e8;border-radius:8px;padding:0 10px;font-size:12px;color:#333;background:#fafafa;outline:none;transition:all 0.15s;" oninput="onTaskSearchChange()">
-                <span style="font-size:11px;color:#999;white-space:nowrap;">创建时间</span>
-                <input type="date" id="task-date-from" style="height:30px;border:1.5px solid #e8e8e8;border-radius:6px;padding:0 6px;font-size:11px;color:#333;background:#fafafa;outline:none;" onchange="onTaskSearchChange()">
-                <span style="font-size:11px;color:#999;">至</span>
-                <input type="date" id="task-date-to" style="height:30px;border:1.5px solid #e8e8e8;border-radius:6px;padding:0 6px;font-size:11px;color:#333;background:#fafafa;outline:none;" onchange="onTaskSearchChange()">
-            </div>
-            <div class="task-filters" id="task-filters"></div>
-            <div class="task-summary" id="task-summary" style="display:none;"></div>
-            <div class="task-list" id="task-list"></div>
-            <div class="task-modal-ft">
-                <span>共 <strong id="task-total-count">0</strong> 条任务 · 预计 <strong id="task-total-time">0</strong> 分钟</span>
-                <button class="btn" onclick="closeTaskModal()">关闭</button>
             </div>
         </div>
     </div>
@@ -1643,11 +1610,13 @@
         function openTaskModal() {
             cancelConfirmId = null;
             renderTaskModal();
-            document.getElementById('task-ov').classList.add('show');
+            document.querySelector('.content').style.display = 'none';
+            document.getElementById('taskDetailPage').classList.add('show');
         }
 
         function closeTaskModal() {
-            document.getElementById('task-ov').classList.remove('show');
+            document.querySelector('.content').style.display = 'block';
+            document.getElementById('taskDetailPage').classList.remove('show');
         }
 
         function setTaskFilter(status) {
@@ -2072,7 +2041,7 @@
             }
             closeBatchWmConfig();
             updateTaskStatusBar();
-            if (document.getElementById('task-ov').classList.contains('show')) renderTaskModal();
+            if (document.getElementById('taskDetailPage').classList.contains('show')) renderTaskModal();
             toast('水印字幕配置已保存，开始合成「' + _batchCfgTaskName + '」');
         }
         document.getElementById('batch-wm-ov').addEventListener('click', function(e){ if(e.target===this) closeBatchWmConfig(); });
@@ -2532,7 +2501,7 @@
             }
             if (changed) {
                 updateTaskStatusBar();
-                if (document.getElementById('task-ov').classList.contains('show')) {
+                if (document.getElementById('taskDetailPage').classList.contains('show')) {
                     renderTaskModal();
                 }
             }
