@@ -306,7 +306,12 @@
         .info-card .card-tag { font-size: 10px; background: var(--primary-light); color: var(--primary); padding: 2px 8px; border-radius: 99px; font-weight: 600; }
 
         /* ===== 提示词对比 ===== */
-        .diff-pane { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .diff-meta {
+            display: flex; gap: 24px; padding: 12px 16px; margin-bottom: 16px;
+            background: #FAFAFA; border: 1px solid var(--border); border-radius: var(--radius-sm);
+            font-size: 12px; color: var(--text-secondary); flex-wrap: wrap;
+        }
+        .diff-pane-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
         .diff-col {
             background: #FAFAFA; border: 1px solid var(--border);
             border-radius: var(--radius-sm); padding: 16px;
@@ -905,17 +910,17 @@ var AppState = {
         { id:'b015',time:'2026-01-23 17:20',tenantId:'t004',tenantName:'中诚教育',type:'充值',amount:5000,balance:2500,operator:'admin',taskId:'-',remark:'新年活动充值赠送' }
     ],
     prompts: [
-        { key:'script',name:'台词生成提示词',node:'台词生成',modelType:'大语言模型',liveVersion:'script_create_v6',draftVersion:'script_create_v7',liveContent:'你是金融投顾短视频文案策划。根据 {{topic}}、{{audience}}、{{duration}} 生成专业、克制、口语化的台词，必须包含风险提示。',draftContent:'你是金融投顾短视频文案策划。请根据以下变量生成台词：\n主题：{{topic}}\n受众：{{audience}}\n角色：{{role}}\n时长：{{duration}}\n要求：专业可信、表达自然、结尾包含风险提示。',grayRange:'全量',lastEditor:'admin',updatedAt:'2026-01-20' },
-        { key:'script_optimize',name:'台词优化提示词',node:'台词优化',modelType:'大语言模型',liveVersion:'script_optimize_v4',draftVersion:'',liveContent:'优化已有台词，使表达更适合金融投顾视频口播，减少绝对化收益承诺，保留关键观点。',draftContent:'',grayRange:'全量',lastEditor:'admin',updatedAt:'2026-01-19' },
-        { key:'script_compliance',name:'合规审核/改写提示词',node:'合规审核/改写',modelType:'大语言模型',liveVersion:'compliance_v5',draftVersion:'compliance_v6',liveContent:'检查金融投顾台词中的收益承诺、夸大表述、投资建议边界，并输出风险等级和可替换文案。',draftContent:'请审核以下台词是否存在金融合规风险：\n{{script}}\n输出：风险等级、命中原因、建议改写、是否允许发布。',grayRange:'内部租户',lastEditor:'operator',updatedAt:'2026-01-22' },
-        { key:'shot',name:'分镜生成提示词',node:'分镜生成',modelType:'大语言模型',liveVersion:'shot_v12',draftVersion:'',liveContent:'根据台词内容规划分镜脚本，每个分镜包含台词片段、画面描述、运镜类型、预估时长，最多 6 个分镜。',draftContent:'',grayRange:'内部租户',lastEditor:'admin',updatedAt:'2026-01-18' },
-        { key:'title_cover',name:'标题/封面文案提示词',node:'标题/封面文案',modelType:'大语言模型',liveVersion:'title_cover_v3',draftVersion:'',liveContent:'基于台词和目标客群生成 3 个短视频标题与封面文案，避免夸大收益和绝对化表述。',draftContent:'',grayRange:'全量',lastEditor:'admin',updatedAt:'2026-01-17' },
-        { key:'subject',name:'主体分析提示词',node:'主体分析',modelType:'多模态大模型',liveVersion:'subject_v7',draftVersion:'subject_v8',liveContent:'分析角色图片或角色描述，输出外观、服饰、气质、适合姿态和一致性约束。',draftContent:'请分析以下角色特征并生成主体描述：\n角色名：{{role_name}}\n性别：{{gender}}\n描述：{{description}}\n\n输出格式：JSON\n{\n  "appearance": "...",\n  "style": "...",\n  "recommended_pose": "..."\n}',grayRange:'全量',lastEditor:'admin',updatedAt:'2026-01-22' },
-        { key:'scene',name:'场景生成提示词',node:'场景生成',modelType:'多模态大模型',liveVersion:'scene_v5',draftVersion:'',liveContent:'根据行业、视频主题和角色气质生成背景场景描述，强调真实投顾办公、路演或演播室环境。',draftContent:'',grayRange:'全量',lastEditor:'admin',updatedAt:'2026-01-16' },
-        { key:'first_frame',name:'首帧生成提示词',node:'首帧生成',modelType:'多模态大模型',liveVersion:'first_frame_v4',draftVersion:'first_frame_v5',liveContent:'将主体描述、场景描述和封面文案合成为首帧画面提示词，要求人物清晰、构图稳定、金融场景可信。',draftContent:'请根据主体、场景、标题生成首帧提示词：\n主体：{{subject}}\n场景：{{scene}}\n标题：{{title}}\n输出中文和英文双语提示词。',grayRange:'内部租户',lastEditor:'operator',updatedAt:'2026-01-21' },
-        { key:'image',name:'图片创作提示词',node:'图片创作',modelType:'多模态大模型',liveVersion:'image_v6',draftVersion:'',liveContent:'生成金融知识图、场景图或封面图的图片提示词，控制画面元素、风格和合规表达。',draftContent:'',grayRange:'全量',lastEditor:'admin',updatedAt:'2026-01-15' },
-        { key:'video',name:'视频生成提示词',node:'视频生成',modelType:'视频/多模态模型',liveVersion:'video_v8',draftVersion:'',liveContent:'根据分镜描述生成视频画面提示词，要求人物一致、口型稳定、背景固定，适合正面口播。',draftContent:'',grayRange:'全量',lastEditor:'admin',updatedAt:'2026-01-15' },
-        { key:'voice_instruction',name:'语音合成指令',node:'语音合成',modelType:'音频模型',liveVersion:'voice_tts_v3',draftVersion:'',liveContent:'根据角色设定、语速、情绪和停顿规则生成语音合成指令，默认使用已绑定内置音色。',draftContent:'',grayRange:'全量',lastEditor:'admin',updatedAt:'2026-01-14' }
+        { key:'script',name:'台词生成提示词',node:'台词生成',modelType:'大语言模型',liveVersion:'script_create_v6',draftVersion:'script_create_v7',liveContent:'你是金融投顾短视频文案策划。根据 {{topic}}、{{audience}}、{{duration}} 生成专业、克制、口语化的台词，必须包含风险提示。',draftContent:'你是金融投顾短视频文案策划。请根据以下变量生成台词：\n主题：{{topic}}\n受众：{{audience}}\n角色：{{role}}\n时长：{{duration}}\n要求：专业可信、表达自然、结尾包含风险提示。',grayRange:'全量',lastEditor:'admin',remark:'优化口语自然度和专业可信度',updatedAt:'2026-01-20' },
+        { key:'script_optimize',name:'台词优化提示词',node:'台词优化',modelType:'大语言模型',liveVersion:'script_optimize_v4',draftVersion:'',liveContent:'优化已有台词，使表达更适合金融投顾视频口播，减少绝对化收益承诺，保留关键观点。',draftContent:'',grayRange:'全量',lastEditor:'admin',remark:'',updatedAt:'2026-01-19' },
+        { key:'script_compliance',name:'合规审核/改写提示词',node:'合规审核/改写',modelType:'大语言模型',liveVersion:'compliance_v5',draftVersion:'compliance_v6',liveContent:'检查金融投顾台词中的收益承诺、夸大表述、投资建议边界，并输出风险等级和可替换文案。',draftContent:'请审核以下台词是否存在金融合规风险：\n{{script}}\n输出：风险等级、命中原因、建议改写、是否允许发布。',grayRange:'内部租户',lastEditor:'operator',remark:'增加合规条款检查',updatedAt:'2026-01-22' },
+        { key:'shot',name:'分镜生成提示词',node:'分镜生成',modelType:'大语言模型',liveVersion:'shot_v12',draftVersion:'',liveContent:'根据台词内容规划分镜脚本，每个分镜包含台词片段、画面描述、运镜类型、预估时长，最多 6 个分镜。',draftContent:'',grayRange:'内部租户',lastEditor:'admin',remark:'',updatedAt:'2026-01-18' },
+        { key:'title_cover',name:'标题/封面文案提示词',node:'标题/封面文案',modelType:'大语言模型',liveVersion:'title_cover_v3',draftVersion:'',liveContent:'基于台词和目标客群生成 3 个短视频标题与封面文案，避免夸大收益和绝对化表述。',draftContent:'',grayRange:'全量',lastEditor:'admin',remark:'',updatedAt:'2026-01-17' },
+        { key:'subject',name:'主体分析提示词',node:'主体分析',modelType:'多模态大模型',liveVersion:'subject_v7',draftVersion:'subject_v8',liveContent:'分析角色图片或角色描述，输出外观、服饰、气质、适合姿态和一致性约束。',draftContent:'请分析以下角色特征并生成主体描述：\n角色名：{{role_name}}\n性别：{{gender}}\n描述：{{description}}\n\n输出格式：JSON\n{\n  "appearance": "...",\n  "style": "...",\n  "recommended_pose": "..."\n}',grayRange:'全量',lastEditor:'admin',remark:'改为 JSON 结构化输出',updatedAt:'2026-01-22' },
+        { key:'scene',name:'场景生成提示词',node:'场景生成',modelType:'多模态大模型',liveVersion:'scene_v5',draftVersion:'',liveContent:'根据行业、视频主题和角色气质生成背景场景描述，强调真实投顾办公、路演或演播室环境。',draftContent:'',grayRange:'全量',lastEditor:'admin',remark:'',updatedAt:'2026-01-16' },
+        { key:'first_frame',name:'首帧生成提示词',node:'首帧生成',modelType:'多模态大模型',liveVersion:'first_frame_v4',draftVersion:'first_frame_v5',liveContent:'将主体描述、场景描述和封面文案合成为首帧画面提示词，要求人物清晰、构图稳定、金融场景可信。',draftContent:'请根据主体、场景、标题生成首帧提示词：\n主体：{{subject}}\n场景：{{scene}}\n标题：{{title}}\n输出中文和英文双语提示词。',grayRange:'内部租户',lastEditor:'operator',remark:'增加双语输出要求',updatedAt:'2026-01-21' },
+        { key:'image',name:'图片创作提示词',node:'图片创作',modelType:'多模态大模型',liveVersion:'image_v6',draftVersion:'',liveContent:'生成金融知识图、场景图或封面图的图片提示词，控制画面元素、风格和合规表达。',draftContent:'',grayRange:'全量',lastEditor:'admin',remark:'',updatedAt:'2026-01-15' },
+        { key:'video',name:'视频生成提示词',node:'视频生成',modelType:'视频/多模态模型',liveVersion:'video_v8',draftVersion:'',liveContent:'根据分镜描述生成视频画面提示词，要求人物一致、口型稳定、背景固定，适合正面口播。',draftContent:'',grayRange:'全量',lastEditor:'admin',remark:'优化人物一致性描述',updatedAt:'2026-01-15' },
+        { key:'voice_instruction',name:'语音合成指令',node:'语音合成',modelType:'音频模型',liveVersion:'voice_tts_v3',draftVersion:'',liveContent:'根据角色设定、语速、情绪和停顿规则生成语音合成指令，默认使用已绑定内置音色。',draftContent:'',grayRange:'全量',lastEditor:'admin',remark:'',updatedAt:'2026-01-14' }
     ],
     releaseLogs: [
         { time:'2026-01-20 16:30',title:'script_create_v6 全量发布',desc:'台词生成提示词更新，优化口语自然度和专业可信度',status:'全量' },
@@ -1318,6 +1323,7 @@ function mergePromptDefaults(savedPrompts) {
             draftContent: hasOwn(saved, 'draftContent') ? saved.draftContent : base.draftContent,
             grayRange: hasOwn(saved, 'grayRange') ? saved.grayRange : base.grayRange,
             lastEditor: hasOwn(saved, 'lastEditor') ? saved.lastEditor : (saved.validateStatus ? (saved.validateStatus === '已验证' ? '系统迁移' : '未知') : base.lastEditor),
+            remark: hasOwn(saved, 'remark') ? saved.remark : (base.remark || ''),
             updatedAt: saved.updatedAt || base.updatedAt
         }));
         delete savedByKey[base.key];
@@ -1327,6 +1333,7 @@ function mergePromptDefaults(savedPrompts) {
         var p = savedByKey[key];
         p.modelType = p.modelType || inferModelTypeByNode(p.node);
         p.lastEditor = p.lastEditor || (p.validateStatus ? (p.validateStatus === '已验证' ? '系统迁移' : '未知') : '-');
+        p.remark = p.remark || '';
         p.liveContent = p.liveContent || '（历史提示词内容未保存）';
         merged.push(p);
     });
@@ -1642,7 +1649,7 @@ function openPromptModal(key) {
             document.getElementById('pfNode').value = p.node;
             document.getElementById('pfModelType').value = p.modelType || inferModelTypeByNode(p.node);
             document.getElementById('pfContent').value = p.draftContent || p.liveContent || '';
-            document.getElementById('pfNote').value = '';
+            document.getElementById('pfNote').value = p.remark || '';
         }
     } else {
         document.getElementById('pfName').value = '';
@@ -1661,6 +1668,7 @@ function savePrompt() {
     var node = document.getElementById('pfNode').value;
     var modelType = document.getElementById('pfModelType').value;
     var content = document.getElementById('pfContent').value;
+    var note = document.getElementById('pfNote').value.trim();
     if (!name || !content) { toast('请填写名称和提示词内容', 'error'); return; }
 
     if (editKey) {
@@ -1672,6 +1680,7 @@ function savePrompt() {
             p.modelType = modelType;
             p.draftVersion = name;
             p.draftContent = content;
+            p.remark = note;
             p.lastEditor = currentOperator();
             p.updatedAt = new Date().toISOString().slice(0,10);
             addAuditLog('提示词', p.name, before, name, '保存提示词草稿');
@@ -1680,7 +1689,7 @@ function savePrompt() {
         AppState.prompts.push({
             key: 'prompt_' + Date.now(), name: name, node: node, modelType: modelType,
             liveVersion: '-', draftVersion: name, liveContent: '', draftContent: content,
-            grayRange: '-', lastEditor: currentOperator(), updatedAt: new Date().toISOString().slice(0,10)
+            grayRange: '-', lastEditor: currentOperator(), remark: note, updatedAt: new Date().toISOString().slice(0,10)
         });
         addAuditLog('提示词', name, '-', name, '新建提示词草稿');
     }
@@ -1740,9 +1749,19 @@ function openDiffModal(key) {
     var p = AppState.prompts.find(function(x) { return x.key === key; });
     if (!p) return;
     var liveContent = p.liveContent || '（版本内容未保存）';
+    var createdAt = p.updatedAt || '-';
+    var operator = p.lastEditor || '-';
+    var remark = p.remark && p.remark.trim() ? escapeHtml(p.remark.trim()) : '无';
     document.getElementById('diffContent').innerHTML =
-        '<div class="diff-col"><h5>🟢 线上版本 ' + p.liveVersion + '</h5><pre>' + escapeHtml(liveContent) + '</pre></div>' +
-        '<div class="diff-col"><h5>' + (p.draftVersion ? '🔵 草稿 ' + p.draftVersion : '⚪ 无草稿') + '</h5><pre>' + (p.draftContent ? escapeHtml(p.draftContent) : '（当前无草稿版本）') + '</pre></div>';
+        '<div class="diff-meta">' +
+            '<span>📅 最后更新：' + createdAt + '</span>' +
+            '<span>👤 操作人：' + operator + '</span>' +
+            '<span>📝 备注：' + remark + '</span>' +
+        '</div>' +
+        '<div class="diff-pane-inner">' +
+            '<div class="diff-col"><h5>🟢 线上版本 ' + p.liveVersion + '</h5><pre>' + escapeHtml(liveContent) + '</pre></div>' +
+            '<div class="diff-col"><h5>' + (p.draftVersion ? '🔵 草稿 ' + p.draftVersion : '⚪ 无草稿') + '</h5><pre>' + (p.draftContent ? escapeHtml(p.draftContent) : '（当前无草稿版本）') + '</pre></div>' +
+        '</div>';
     document.getElementById('diffModalOverlay').classList.add('show');
 }
 function closeDiffModal() { document.getElementById('diffModalOverlay').classList.remove('show'); }
