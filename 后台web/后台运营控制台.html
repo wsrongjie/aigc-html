@@ -520,37 +520,14 @@
             <div class="table-wrap" style="margin-bottom:24px">
                 <div class="table-toolbar">
                     <span style="font-weight:600;font-size:13px">覆盖所有使用提示词的功能节点</span>
-                    <button class="btn btn-primary btn-sm" onclick="openPromptModal()" style="margin-left:auto">+ 新建提示词</button>
                 </div>
                 <table>
-                    <thead><tr><th>功能节点</th><th>模型类型</th><th>提示词名称</th><th>线上版本</th><th>草稿版本</th><th>验证状态</th><th>最后更新</th><th>操作</th></tr></thead>
+                    <thead><tr><th>功能节点</th><th>模型类型</th><th>提示词名称</th><th>线上版本</th><th>草稿版本</th><th>最后更新人</th><th>最后更新</th><th>操作</th></tr></thead>
                     <tbody id="promptTable"></tbody>
                 </table>
             </div>
 
-            <div class="section-title">提示词效果验证</div>
-            <div class="card-grid2" style="margin-bottom:24px">
-                <div class="info-card">
-                    <h4>测试输入</h4>
-                    <div style="margin-bottom:10px">
-                        <label style="font-size:12px;font-weight:600;color:var(--text-secondary);display:block;margin-bottom:4px">选择功能节点</label>
-                        <select class="filter-select" id="promptTestNode" style="width:100%;margin-bottom:8px"></select>
-                        <label style="font-size:12px;font-weight:600;color:var(--text-secondary);display:block;margin-bottom:4px">输入参数 (JSON)</label>
-                        <textarea id="promptTestInput" style="width:100%;height:106px;padding:10px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:monospace;resize:vertical" placeholder='{"industry":"金融投顾","goal":"市场解读","role":"稳健男性投顾","duration":"60秒"}'></textarea>
-                    </div>
-                    <button class="btn btn-primary btn-sm" onclick="runPromptTest()">运行效果验证</button>
-                    <div id="promptTestResult" style="margin-top:12px;font-size:12px;color:var(--text-secondary)"></div>
-                </div>
-                <div class="info-card">
-                    <h4>验证范围</h4>
-                    <div class="kv-grid" style="margin-top:10px">
-                        <div class="kv-item"><span class="kv-label">文本大模型</span><span class="kv-value">台词、分镜、标题、合规</span></div>
-                        <div class="kv-item"><span class="kv-label">多模态大模型</span><span class="kv-value">主体、场景、封面、首帧</span></div>
-                        <div class="kv-item"><span class="kv-label">视频模型</span><span class="kv-value">视频画面提示词</span></div>
-                        <div class="kv-item"><span class="kv-label">音频模型</span><span class="kv-value">语音合成指令</span></div>
-                    </div>
-                </div>
-            </div>
+
 
             <div class="section-title">提示词发布记录</div>
             <div class="table-wrap">
@@ -691,32 +668,6 @@
         <div class="modal-footer">
             <button class="btn" onclick="closePromptModal()">取消</button>
             <button class="btn btn-primary" onclick="savePrompt()">保存草稿</button>
-        </div>
-    </div>
-</div>
-
-<!-- Modal：灰度发布 -->
-<div class="modal-overlay" id="grayModalOverlay">
-    <div class="modal" id="grayModal">
-        <div class="modal-header">
-            <span class="modal-title">灰度发布</span>
-            <button class="modal-close" onclick="closeGrayModal()">×</button>
-        </div>
-        <div style="margin-bottom:14px">
-            <label class="kv-label" style="margin-bottom:6px;display:block">发布提示词：<strong id="gfPromptName"></strong>（<span id="gfVersion"></span>）</label>
-        </div>
-        <div class="form-group" style="margin-bottom:14px">
-            <label class="kv-label">灰度比例</label>
-            <select class="filter-select" id="gfRatio" style="width:100%"><option value="10">10%</option><option value="30">30%</option><option value="50">50%</option><option value="100">100%（全量）</option></select>
-        </div>
-        <div class="form-group" style="margin-bottom:14px">
-            <label class="kv-label">灰度租户（不选则随机）</label>
-            <div id="gfTenantChecks" style="max-height:160px;overflow-y:auto;border:1px solid var(--border);border-radius:6px;padding:8px 12px"></div>
-        </div>
-        <input type="hidden" id="gfPromptKey">
-        <div class="modal-footer">
-            <button class="btn" onclick="closeGrayModal()">取消</button>
-            <button class="btn btn-primary" onclick="confirmGrayRelease()">确认发布</button>
         </div>
     </div>
 </div>
@@ -866,7 +817,7 @@ function updateTopbarActions() {
         'view-tenants': '',
         'view-voice-config': '',
         'view-credit-config': '',
-        'view-prompt-config': '<button class="btn btn-primary btn-sm" onclick="openPromptModal()">+ 新建提示词</button><button class="btn btn-sm" onclick="toast(\'提示词配置已保存为草稿\', \'success\')">保存配置</button>',
+        'view-prompt-config': '',
         'view-template-config': '',
         'view-audit': '<button class="btn btn-sm" onclick="renderAudit()">刷新</button>',
         'view-billing': '<button class="btn btn-sm" onclick="renderBilling()">🔄 刷新</button>'
@@ -954,17 +905,17 @@ var AppState = {
         { id:'b015',time:'2026-01-23 17:20',tenantId:'t004',tenantName:'中诚教育',type:'充值',amount:5000,balance:2500,operator:'admin',taskId:'-',remark:'新年活动充值赠送' }
     ],
     prompts: [
-        { key:'script',name:'台词生成提示词',node:'台词生成',modelType:'大语言模型',liveVersion:'script_create_v6',draftVersion:'script_create_v7',liveContent:'你是金融投顾短视频文案策划。根据 {{topic}}、{{audience}}、{{duration}} 生成专业、克制、口语化的台词，必须包含风险提示。',draftContent:'你是金融投顾短视频文案策划。请根据以下变量生成台词：\n主题：{{topic}}\n受众：{{audience}}\n角色：{{role}}\n时长：{{duration}}\n要求：专业可信、表达自然、结尾包含风险提示。',grayRange:'全量',validateStatus:'已验证',updatedAt:'2026-01-20' },
-        { key:'script_optimize',name:'台词优化提示词',node:'台词优化',modelType:'大语言模型',liveVersion:'script_optimize_v4',draftVersion:'',liveContent:'优化已有台词，使表达更适合金融投顾视频口播，减少绝对化收益承诺，保留关键观点。',draftContent:'',grayRange:'全量',validateStatus:'已验证',updatedAt:'2026-01-19' },
-        { key:'script_compliance',name:'合规审核/改写提示词',node:'合规审核/改写',modelType:'大语言模型',liveVersion:'compliance_v5',draftVersion:'compliance_v6',liveContent:'检查金融投顾台词中的收益承诺、夸大表述、投资建议边界，并输出风险等级和可替换文案。',draftContent:'请审核以下台词是否存在金融合规风险：\n{{script}}\n输出：风险等级、命中原因、建议改写、是否允许发布。',grayRange:'内部租户',validateStatus:'待验证',updatedAt:'2026-01-22' },
-        { key:'shot',name:'分镜生成提示词',node:'分镜生成',modelType:'大语言模型',liveVersion:'shot_v12',draftVersion:'',liveContent:'根据台词内容规划分镜脚本，每个分镜包含台词片段、画面描述、运镜类型、预估时长，最多 6 个分镜。',draftContent:'',grayRange:'内部租户',validateStatus:'已验证',updatedAt:'2026-01-18' },
-        { key:'title_cover',name:'标题/封面文案提示词',node:'标题/封面文案',modelType:'大语言模型',liveVersion:'title_cover_v3',draftVersion:'',liveContent:'基于台词和目标客群生成 3 个短视频标题与封面文案，避免夸大收益和绝对化表述。',draftContent:'',grayRange:'全量',validateStatus:'已验证',updatedAt:'2026-01-17' },
-        { key:'subject',name:'主体分析提示词',node:'主体分析',modelType:'多模态大模型',liveVersion:'subject_v7',draftVersion:'subject_v8',liveContent:'分析角色图片或角色描述，输出外观、服饰、气质、适合姿态和一致性约束。',draftContent:'请分析以下角色特征并生成主体描述：\n角色名：{{role_name}}\n性别：{{gender}}\n描述：{{description}}\n\n输出格式：JSON\n{\n  "appearance": "...",\n  "style": "...",\n  "recommended_pose": "..."\n}',grayRange:'全量',validateStatus:'已验证',updatedAt:'2026-01-22' },
-        { key:'scene',name:'场景生成提示词',node:'场景生成',modelType:'多模态大模型',liveVersion:'scene_v5',draftVersion:'',liveContent:'根据行业、视频主题和角色气质生成背景场景描述，强调真实投顾办公、路演或演播室环境。',draftContent:'',grayRange:'全量',validateStatus:'已验证',updatedAt:'2026-01-16' },
-        { key:'first_frame',name:'首帧生成提示词',node:'首帧生成',modelType:'多模态大模型',liveVersion:'first_frame_v4',draftVersion:'first_frame_v5',liveContent:'将主体描述、场景描述和封面文案合成为首帧画面提示词，要求人物清晰、构图稳定、金融场景可信。',draftContent:'请根据主体、场景、标题生成首帧提示词：\n主体：{{subject}}\n场景：{{scene}}\n标题：{{title}}\n输出中文和英文双语提示词。',grayRange:'内部租户',validateStatus:'待验证',updatedAt:'2026-01-21' },
-        { key:'image',name:'图片创作提示词',node:'图片创作',modelType:'多模态大模型',liveVersion:'image_v6',draftVersion:'',liveContent:'生成金融知识图、场景图或封面图的图片提示词，控制画面元素、风格和合规表达。',draftContent:'',grayRange:'全量',validateStatus:'已验证',updatedAt:'2026-01-15' },
-        { key:'video',name:'视频生成提示词',node:'视频生成',modelType:'视频/多模态模型',liveVersion:'video_v8',draftVersion:'',liveContent:'根据分镜描述生成视频画面提示词，要求人物一致、口型稳定、背景固定，适合正面口播。',draftContent:'',grayRange:'全量',validateStatus:'已验证',updatedAt:'2026-01-15' },
-        { key:'voice_instruction',name:'语音合成指令',node:'语音合成',modelType:'音频模型',liveVersion:'voice_tts_v3',draftVersion:'',liveContent:'根据角色设定、语速、情绪和停顿规则生成语音合成指令，默认使用已绑定内置音色。',draftContent:'',grayRange:'全量',validateStatus:'已验证',updatedAt:'2026-01-14' }
+        { key:'script',name:'台词生成提示词',node:'台词生成',modelType:'大语言模型',liveVersion:'script_create_v6',draftVersion:'script_create_v7',liveContent:'你是金融投顾短视频文案策划。根据 {{topic}}、{{audience}}、{{duration}} 生成专业、克制、口语化的台词，必须包含风险提示。',draftContent:'你是金融投顾短视频文案策划。请根据以下变量生成台词：\n主题：{{topic}}\n受众：{{audience}}\n角色：{{role}}\n时长：{{duration}}\n要求：专业可信、表达自然、结尾包含风险提示。',grayRange:'全量',lastEditor:'admin',updatedAt:'2026-01-20' },
+        { key:'script_optimize',name:'台词优化提示词',node:'台词优化',modelType:'大语言模型',liveVersion:'script_optimize_v4',draftVersion:'',liveContent:'优化已有台词，使表达更适合金融投顾视频口播，减少绝对化收益承诺，保留关键观点。',draftContent:'',grayRange:'全量',lastEditor:'admin',updatedAt:'2026-01-19' },
+        { key:'script_compliance',name:'合规审核/改写提示词',node:'合规审核/改写',modelType:'大语言模型',liveVersion:'compliance_v5',draftVersion:'compliance_v6',liveContent:'检查金融投顾台词中的收益承诺、夸大表述、投资建议边界，并输出风险等级和可替换文案。',draftContent:'请审核以下台词是否存在金融合规风险：\n{{script}}\n输出：风险等级、命中原因、建议改写、是否允许发布。',grayRange:'内部租户',lastEditor:'operator',updatedAt:'2026-01-22' },
+        { key:'shot',name:'分镜生成提示词',node:'分镜生成',modelType:'大语言模型',liveVersion:'shot_v12',draftVersion:'',liveContent:'根据台词内容规划分镜脚本，每个分镜包含台词片段、画面描述、运镜类型、预估时长，最多 6 个分镜。',draftContent:'',grayRange:'内部租户',lastEditor:'admin',updatedAt:'2026-01-18' },
+        { key:'title_cover',name:'标题/封面文案提示词',node:'标题/封面文案',modelType:'大语言模型',liveVersion:'title_cover_v3',draftVersion:'',liveContent:'基于台词和目标客群生成 3 个短视频标题与封面文案，避免夸大收益和绝对化表述。',draftContent:'',grayRange:'全量',lastEditor:'admin',updatedAt:'2026-01-17' },
+        { key:'subject',name:'主体分析提示词',node:'主体分析',modelType:'多模态大模型',liveVersion:'subject_v7',draftVersion:'subject_v8',liveContent:'分析角色图片或角色描述，输出外观、服饰、气质、适合姿态和一致性约束。',draftContent:'请分析以下角色特征并生成主体描述：\n角色名：{{role_name}}\n性别：{{gender}}\n描述：{{description}}\n\n输出格式：JSON\n{\n  "appearance": "...",\n  "style": "...",\n  "recommended_pose": "..."\n}',grayRange:'全量',lastEditor:'admin',updatedAt:'2026-01-22' },
+        { key:'scene',name:'场景生成提示词',node:'场景生成',modelType:'多模态大模型',liveVersion:'scene_v5',draftVersion:'',liveContent:'根据行业、视频主题和角色气质生成背景场景描述，强调真实投顾办公、路演或演播室环境。',draftContent:'',grayRange:'全量',lastEditor:'admin',updatedAt:'2026-01-16' },
+        { key:'first_frame',name:'首帧生成提示词',node:'首帧生成',modelType:'多模态大模型',liveVersion:'first_frame_v4',draftVersion:'first_frame_v5',liveContent:'将主体描述、场景描述和封面文案合成为首帧画面提示词，要求人物清晰、构图稳定、金融场景可信。',draftContent:'请根据主体、场景、标题生成首帧提示词：\n主体：{{subject}}\n场景：{{scene}}\n标题：{{title}}\n输出中文和英文双语提示词。',grayRange:'内部租户',lastEditor:'operator',updatedAt:'2026-01-21' },
+        { key:'image',name:'图片创作提示词',node:'图片创作',modelType:'多模态大模型',liveVersion:'image_v6',draftVersion:'',liveContent:'生成金融知识图、场景图或封面图的图片提示词，控制画面元素、风格和合规表达。',draftContent:'',grayRange:'全量',lastEditor:'admin',updatedAt:'2026-01-15' },
+        { key:'video',name:'视频生成提示词',node:'视频生成',modelType:'视频/多模态模型',liveVersion:'video_v8',draftVersion:'',liveContent:'根据分镜描述生成视频画面提示词，要求人物一致、口型稳定、背景固定，适合正面口播。',draftContent:'',grayRange:'全量',lastEditor:'admin',updatedAt:'2026-01-15' },
+        { key:'voice_instruction',name:'语音合成指令',node:'语音合成',modelType:'音频模型',liveVersion:'voice_tts_v3',draftVersion:'',liveContent:'根据角色设定、语速、情绪和停顿规则生成语音合成指令，默认使用已绑定内置音色。',draftContent:'',grayRange:'全量',lastEditor:'admin',updatedAt:'2026-01-14' }
     ],
     releaseLogs: [
         { time:'2026-01-20 16:30',title:'script_create_v6 全量发布',desc:'台词生成提示词更新，优化口语自然度和专业可信度',status:'全量' },
@@ -1366,7 +1317,7 @@ function mergePromptDefaults(savedPrompts) {
             draftVersion: hasOwn(saved, 'draftVersion') ? saved.draftVersion : base.draftVersion,
             draftContent: hasOwn(saved, 'draftContent') ? saved.draftContent : base.draftContent,
             grayRange: hasOwn(saved, 'grayRange') ? saved.grayRange : base.grayRange,
-            validateStatus: saved.validateStatus || base.validateStatus,
+            lastEditor: hasOwn(saved, 'lastEditor') ? saved.lastEditor : (saved.validateStatus ? (saved.validateStatus === '已验证' ? '系统迁移' : '未知') : base.lastEditor),
             updatedAt: saved.updatedAt || base.updatedAt
         }));
         delete savedByKey[base.key];
@@ -1375,7 +1326,7 @@ function mergePromptDefaults(savedPrompts) {
     Object.keys(savedByKey).forEach(function(key) {
         var p = savedByKey[key];
         p.modelType = p.modelType || inferModelTypeByNode(p.node);
-        p.validateStatus = p.validateStatus || '待验证';
+        p.lastEditor = p.lastEditor || (p.validateStatus ? (p.validateStatus === '已验证' ? '系统迁移' : '未知') : '-');
         p.liveContent = p.liveContent || '（历史提示词内容未保存）';
         merged.push(p);
     });
@@ -1615,52 +1566,30 @@ function renderPrompts() {
     var phtml = '';
     for (var j = 0; j < AppState.prompts.length; j++) {
         var p = AppState.prompts[j];
-        var validateCls = p.validateStatus === '已验证' ? 'status-success' : (p.validateStatus === '验证失败' ? 'status-failed' : 'status-warning');
         phtml += '<tr>' +
             '<td><strong>' + p.node + '</strong></td>' +
             '<td><span class="chip chip-blue">' + p.modelType + '</span></td>' +
             '<td>' + p.name + '</td>' +
             '<td><span class="chip chip-green">' + p.liveVersion + '</span></td>' +
             '<td>' + (p.draftVersion ? '<span class="chip chip-blue">' + p.draftVersion + '</span>' : '<span style="color:var(--text-muted)">无</span>') + '</td>' +
-            '<td><span class="status ' + validateCls + '">' + p.validateStatus + '</span></td>' +
+            '<td style="font-size:12px">' + (p.lastEditor || '-') + '</td>' +
             '<td style="font-size:12px">' + p.updatedAt + '</td>' +
             '<td>' +
                 '<button class="btn btn-xs" onclick="openPromptModal(\'' + p.key + '\')">编辑</button> ' +
-                (p.draftVersion ? '<button class="btn btn-xs" onclick="openGrayModal(\'' + p.key + '\')">灰度发布</button> ' : '') +
+                (p.draftVersion ? '<button class="btn btn-xs btn-primary" onclick="publishPrompt(\'' + p.key + '\')">发布</button> ' : '') +
                 '<button class="btn btn-xs" onclick="openDiffModal(\'' + p.key + '\')">对比</button> ' +
-                '<button class="btn btn-xs" onclick="selectPromptForTest(\'' + p.key + '\')">验证</button> ' +
                 '<button class="btn btn-xs btn-danger" onclick="rollbackPrompt(\'' + p.key + '\')">回滚</button>' +
             '</td></tr>';
     }
     document.getElementById('promptTable').innerHTML = phtml;
-    renderPromptTestNodeOptions();
 
     var rhtml = '';
     for (var k = 0; k < AppState.releaseLogs.length; k++) {
         var r = AppState.releaseLogs[k];
-        var stCls = r.status === '全量' ? 'status-success' : (r.status === '灰度' ? 'status-trial' : 'status-failed');
+        var stCls = r.status === '全量' ? 'status-success' : 'status-failed';
         rhtml += '<div class="timeline-item"><div class="timeline-time">' + r.time + '</div><div class="timeline-title">' + r.title + ' <span class="status ' + stCls + '" style="font-size:10px">' + r.status + '</span></div><div class="timeline-desc">' + r.desc + '</div></div>';
     }
     document.getElementById('releaseTimeline').innerHTML = rhtml;
-}
-
-function renderPromptTestNodeOptions() {
-    var sel = document.getElementById('promptTestNode');
-    if (!sel) return;
-    var current = sel.value;
-    var html = '';
-    for (var i = 0; i < AppState.prompts.length; i++) {
-        var p = AppState.prompts[i];
-        html += '<option value="' + p.key + '">' + p.node + ' · ' + p.modelType + '</option>';
-    }
-    sel.innerHTML = html;
-    if (current) sel.value = current;
-}
-
-function selectPromptForTest(key) {
-    document.getElementById('promptTestNode').value = key;
-    document.getElementById('promptTestResult').innerHTML = '';
-    toast('已选择该功能节点，可运行效果验证');
 }
 
 function addAuditLog(type, target, before, after, remark) {
@@ -1743,7 +1672,7 @@ function savePrompt() {
             p.modelType = modelType;
             p.draftVersion = name;
             p.draftContent = content;
-            p.validateStatus = '待验证';
+            p.lastEditor = currentOperator();
             p.updatedAt = new Date().toISOString().slice(0,10);
             addAuditLog('提示词', p.name, before, name, '保存提示词草稿');
         }
@@ -1751,7 +1680,7 @@ function savePrompt() {
         AppState.prompts.push({
             key: 'prompt_' + Date.now(), name: name, node: node, modelType: modelType,
             liveVersion: '-', draftVersion: name, liveContent: '', draftContent: content,
-            grayRange: '-', validateStatus: '待验证', updatedAt: new Date().toISOString().slice(0,10)
+            grayRange: '-', lastEditor: currentOperator(), updatedAt: new Date().toISOString().slice(0,10)
         });
         addAuditLog('提示词', name, '-', name, '新建提示词草稿');
     }
@@ -1759,59 +1688,34 @@ function savePrompt() {
     toast('提示词草稿已保存', 'success');
 }
 
-function openGrayModal(key) {
+function publishPrompt(key) {
     var p = AppState.prompts.find(function(x) { return x.key === key; });
     if (!p || !p.draftVersion) return;
-    document.getElementById('gfPromptKey').value = key;
-    document.getElementById('gfPromptName').textContent = p.name;
-    document.getElementById('gfVersion').textContent = p.draftVersion;
-    document.getElementById('gfRatio').value = '30';
+    showConfirm(
+        '发布提示词',
+        '确定将「' + p.name + '」的草稿版本 <strong>' + p.draftVersion + '</strong> 发布为线上版本吗？',
+        '🚀',
+        function() {
+            var beforeVersion = p.liveVersion;
+            p.liveVersion = p.draftVersion;
+            p.liveContent = p.draftContent || p.liveContent;
+            p.draftVersion = '';
+            p.draftContent = '';
+            p.lastEditor = currentOperator();
+            p.updatedAt = new Date().toISOString().slice(0,10);
+            addAuditLog('提示词', p.name, beforeVersion, p.liveVersion, '发布上线');
 
-    var checks = '';
-    for (var i = 0; i < AppState.tenants.length; i++) {
-        var t = AppState.tenants[i];
-        if (t.status !== '已停用') {
-            checks += '<label style="display:flex;align-items:center;gap:6px;padding:3px 0;font-size:12px;cursor:pointer"><input type="checkbox" value="' + t.id + '" class="gf-tenant-check"> ' + t.name + '</label>';
+            AppState.releaseLogs.unshift({
+                time: new Date().toISOString().replace('T',' ').slice(0,16),
+                title: p.liveVersion + ' 全量发布',
+                desc: p.name + ' 发布上线',
+                status: '全量'
+            });
+
+            saveData(); renderPrompts();
+            toast(p.name + ' · ' + p.liveVersion + ' 已发布', 'success');
         }
-    }
-    document.getElementById('gfTenantChecks').innerHTML = checks;
-    document.getElementById('grayModalOverlay').classList.add('show');
-}
-function closeGrayModal() { document.getElementById('grayModalOverlay').classList.remove('show'); }
-
-function confirmGrayRelease() {
-    var key = document.getElementById('gfPromptKey').value;
-    var ratio = document.getElementById('gfRatio').value;
-    var p = AppState.prompts.find(function(x) { return x.key === key; });
-    if (!p) return;
-
-    var checks = document.querySelectorAll('.gf-tenant-check:checked');
-    var tenantNames = [];
-    for (var i = 0; i < checks.length; i++) {
-        var t = AppState.tenants.find(function(x) { return x.id === checks[i].value; });
-        if (t) tenantNames.push(t.name);
-    }
-
-    var range = ratio === '100' ? '全量' : (tenantNames.length ? tenantNames.join('、') + '（' + ratio + '%）' : '随机 ' + ratio + '%');
-    var beforeVersion = p.liveVersion;
-    p.liveVersion = p.draftVersion;
-    p.liveContent = p.draftContent || p.liveContent;
-    p.draftVersion = '';
-    p.draftContent = '';
-    p.grayRange = range;
-    p.validateStatus = '已验证';
-    p.updatedAt = new Date().toISOString().slice(0,10);
-    addAuditLog('提示词', p.name, beforeVersion, p.liveVersion, '发布范围：' + range);
-
-    AppState.releaseLogs.unshift({
-        time: new Date().toISOString().replace('T',' ').slice(0,16),
-        title: p.liveVersion + ' ' + (ratio === '100' ? '全量发布' : '灰度发布'),
-        desc: p.name + ' 发布至 ' + range,
-        status: ratio === '100' ? '全量' : '灰度'
-    });
-
-    saveData(); closeGrayModal(); renderPrompts();
-    toast(p.name + ' · ' + p.liveVersion + ' 已发布', 'success');
+    );
 }
 
 function rollbackPrompt(key) {
@@ -1821,7 +1725,7 @@ function rollbackPrompt(key) {
         var beforeVersion = p.liveVersion;
         p.draftVersion = '';
         p.draftContent = '';
-        p.validateStatus = '待验证';
+        p.lastEditor = currentOperator();
         addAuditLog('提示词', p.name, beforeVersion, '上一线上版本', '回滚提示词版本');
         AppState.releaseLogs.unshift({
             time: new Date().toISOString().replace('T',' ').slice(0,16),
@@ -1843,22 +1747,6 @@ function openDiffModal(key) {
 }
 function closeDiffModal() { document.getElementById('diffModalOverlay').classList.remove('show'); }
 
-function runPromptTest() {
-    var key = document.getElementById('promptTestNode').value;
-    var input = document.getElementById('promptTestInput').value;
-    var p = AppState.prompts.find(function(x) { return x.key === key; });
-    if (!p) { toast('请选择需要验证的功能节点', 'error'); return; }
-    document.getElementById('promptTestResult').innerHTML = '<span style="color:var(--primary)">⏳ 模拟验证中...</span>';
-    setTimeout(function() {
-        p.validateStatus = '已验证';
-        p.updatedAt = new Date().toISOString().slice(0,10);
-        saveData();
-        renderPrompts();
-        document.getElementById('promptTestNode').value = key;
-        document.getElementById('promptTestResult').innerHTML = '<div style="background:#ecfdf5;border-radius:8px;padding:12px;margin-top:8px"><strong style="color:var(--green)">✅ 验证通过 (模拟)</strong><pre style="margin-top:6px;font-size:11px;white-space:pre-wrap;color:var(--text-primary)">功能节点：' + p.node + '\n模型类型：' + p.modelType + '\n验证版本：' + (p.draftVersion || p.liveVersion) + '\n输入摘要：' + (input ? escapeHtml(input.slice(0,80)) : '默认参数') + '\n输出质量：合规风险低，语义完整度 96%，平均耗时 1.8s</pre></div>';
-    }, 800);
-}
-
 // ===========================
 // 工具函数
 // ===========================
@@ -1873,7 +1761,7 @@ function escapeHtml(str) {
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
         closeTenantModal(); closeRechargeModal(); closeVoiceModal(); closePromptModal();
-        closeGrayModal(); closeDiffModal(); closeDrawer(); closeConfirm();
+        closeDiffModal(); closeDrawer(); closeConfirm();
     }
 });
 
@@ -1881,7 +1769,6 @@ document.getElementById('tenantModalOverlay').addEventListener('click', function
 document.getElementById('rechargeModalOverlay').addEventListener('click', function(e) { if (e.target === this) closeRechargeModal(); });
 document.getElementById('voiceModalOverlay').addEventListener('click', function(e) { if (e.target === this) closeVoiceModal(); });
 document.getElementById('promptModalOverlay').addEventListener('click', function(e) { if (e.target === this) closePromptModal(); });
-document.getElementById('grayModalOverlay').addEventListener('click', function(e) { if (e.target === this) closeGrayModal(); });
 document.getElementById('diffModalOverlay').addEventListener('click', function(e) { if (e.target === this) closeDiffModal(); });
 
 switchView('view-dashboard');
