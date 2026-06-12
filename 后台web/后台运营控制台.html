@@ -1594,7 +1594,7 @@ function renderPrompts() {
     for (var k = 0; k < AppState.releaseLogs.length; k++) {
         var r = AppState.releaseLogs[k];
         var stCls = r.status === '发布' ? 'status-success' : 'status-failed';
-        rhtml += '<div class="timeline-item"><div class="timeline-time">' + r.time + '</div><div class="timeline-title">' + r.title + ' <span class="status ' + stCls + '" style="font-size:10px">' + r.status + '</span></div><div class="timeline-desc">' + r.desc + ' · ' + (r.operator || '-') + '</div></div>';
+        rhtml += '<div class="timeline-item"><div class="timeline-time">' + r.time + ' <span class="chip chip-blue" style="font-size:10px">' + (r.operator || '-') + '</span></div><div class="timeline-title">' + r.title + ' <span class="status ' + stCls + '" style="font-size:10px">' + r.status + '</span></div><div class="timeline-desc">' + r.desc + '</div></div>';
     }
     document.getElementById('releaseTimeline').innerHTML = rhtml;
 }
