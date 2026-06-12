@@ -282,19 +282,6 @@
         }
         @keyframes spin { to { transform: rotate(360deg); } }
         .task-status-text { flex: 1; }
-        .task-detail-btn {
-            background: none;
-            border: 1px solid #448aff44;
-            color: #448aff;
-            padding: 3px 10px;
-            border-radius: 6px;
-            font-size: 11px;
-            cursor: pointer;
-            white-space: nowrap;
-            transition: all 0.15s;
-        }
-        .task-detail-btn:hover { background: #448aff22; border-color: #448aff; }
-
         /* 二级页面：任务详情 */
         .task-detail-page {
             display: none;
@@ -324,6 +311,23 @@
         }
         .task-detail-topbar .back-btn:hover { border-color: #666; color: #fff; }
         .task-detail-topbar h2 { font-size: 18px; font-weight: 700; color: #fff; }
+        .task-detail-topbar .btn-create {
+            background: linear-gradient(135deg,#2f6bff,#5856d6);
+            color: #fff;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-left: auto;
+            white-space: nowrap;
+        }
+        .task-detail-topbar .btn-create:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 16px rgba(47,107,255,0.35);
+        }
         .task-detail-body {
             flex: 1;
             overflow-y: auto;
@@ -1149,7 +1153,7 @@
                 </a>
 
                 <!-- 模板成片 -->
-                <a class="tool-card" href="简单模式-流程版.html">
+                <div class="tool-card" onclick="openTaskModal()" style="cursor:pointer">
                     <div class="thumb" style="background:linear-gradient(135deg,#1a0a2a 0%,#0a1a2a 60%,#2a1a0a 100%);">
                         <div style="position:absolute;bottom:0;left:0;right:0;height:80px;background:linear-gradient(transparent,rgba(68,138,255,0.1));"></div>
                         <div class="play-btn"><svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg></div>
@@ -1158,13 +1162,12 @@
                         <div class="name">批量成片</div>
                         <div class="desc">选择模板，上传素材和台词，一键生成口播短视频</div>
                         <span class="badge blue">新手推荐</span>
-                        <div class="task-status-bar show" id="task-status-bar" onclick="event.preventDefault();event.stopPropagation();">
+                        <div class="task-status-bar show" id="task-status-bar">
                             <div class="task-spinner" id="task-spinner-el"></div>
                             <span class="task-status-text" id="task-status-text">3个任务正在生成...</span>
-                            <button class="task-detail-btn" onclick="event.preventDefault();event.stopPropagation();openTaskModal()">查看详情</button>
                         </div>
                     </div>
-                </a>
+                </div>
 
                 <!-- 图片创作 -->
                 <a class="tool-card" href="图片创作.html">
@@ -1188,6 +1191,7 @@
             <div class="task-detail-topbar">
                 <button class="back-btn" onclick="closeTaskModal()">← 返回</button>
                 <h2>批量成片 · 任务详情</h2>
+                <button class="btn-create" onclick="goToCreateFlow()">＋ 批量创建</button>
             </div>
             <div style="display:flex;align-items:center;gap:10px;padding:12px 0 6px;flex-wrap:wrap;">
                 <select id="task-item-select" aria-label="选择任务项" style="width:210px;max-width:100%;height:32px;border:1.5px solid #333;border-radius:8px;padding:0 10px;font-size:12px;color:#ccc;background:#141414;outline:none;transition:all 0.15s;" onchange="onTaskSearchChange()">
@@ -1617,6 +1621,10 @@
         function closeTaskModal() {
             document.querySelector('.content').style.display = 'block';
             document.getElementById('taskDetailPage').classList.remove('show');
+        }
+
+        function goToCreateFlow() {
+            window.location.href = '简单模式-流程版.html?returnTo=taskDetail';
         }
 
         function setTaskFilter(status) {
@@ -2459,6 +2467,40 @@
             var b = parseInt(hex.slice(5,7), 16);
             return 'rgba(' + r + ',' + g + ',' + b + ',' + alpha + ')';
         }
+
+        // 接收从简单模式返回的新任务
+        (function() {
+            var params = new URLSearchParams(window.location.search);
+            if (params.get('openTaskDetail') === '1') {
+                var raw = localStorage.getItem('newTaskFromFlow');
+                if (raw) {
+                    try {
+                        var data = JSON.parse(raw);
+                        if (data.rows && data.rows.length > 0) {
+                            data.rows.forEach(function(row, idx) {
+                                mockTasks.push({
+                                    id: Date.now() + idx,
+                                    taskName: data.taskName || '未命名任务',
+                                    script: row.script,
+                                    person: row.person,
+                                    bg: row.bg,
+                                    status: 'queued',
+                                    progress: 0,
+                                    duration: row.duration || 30,
+                                    createdAt: new Date().toISOString(),
+                                    wmStatus: null
+                                });
+                            });
+                        }
+                    } catch(e) {}
+                    localStorage.removeItem('newTaskFromFlow');
+                }
+                setTimeout(function() {
+                    openTaskModal();
+                    toast('新任务已创建', 'success');
+                }, 100);
+            }
+        })();
 
         // 模拟任务进度变化（演示用）
         var taskSimInterval = setInterval(function() {

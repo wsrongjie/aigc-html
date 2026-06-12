@@ -15,6 +15,8 @@
     .top-right { display: flex; align-items: center; gap: 14px; }
     .ratio-pill { font-size: 11px; color: #666; background: #f0f2f5; border: 1px solid #e8e8e8; padding: 4px 10px; border-radius: 20px; font-weight: 500; }
     .user-avatar { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 13px; font-weight: 600; cursor: pointer; box-shadow: 0 2px 8px rgba(102,126,234,0.3); }
+    .back-to-task-detail { background: none; border: 1px solid #d0d0d0; color: #555; padding: 5px 12px; border-radius: 8px; font-size: 12px; cursor: pointer; margin-right: 12px; transition: all 0.15s; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; }
+    .back-to-task-detail:hover { border-color: #0066ff; color: #0066ff; }
 
     /* 步骤指示器 */
     .stepper { background: #fff; border-bottom: 1px solid #e8e8e8; padding: 16px 32px; display: flex; align-items: center; justify-content: center; }
@@ -346,6 +348,9 @@
       <span class="ratio-pill">竖屏 9:16 · 720p</span>
       <div class="user-avatar">U</div>
     </div>
+  </div>
+  <div id="backFromFlow" style="display:none;border-bottom:1px solid #e8e8e8;padding:8px 32px;background:#fafcff;">
+    <a class="back-to-task-detail" href="全部工具.html">← 返回任务详情</a>
   </div>
 
   <!-- 步骤指示器 -->
@@ -1455,8 +1460,20 @@
     function confirmGen() {
       var total = document.querySelectorAll('#cf-tbody tr').length - document.querySelectorAll('#cf-tbody tr.off').length;
       if (total === 0) { toast('请至少保留一条视频'); return; }
-      // 跳转到全部工具首页，底部显示生成进度
-      window.location.href = '全部工具.html?from=flow';
+      // 构建新任务数据并返回任务详情页
+      var rows = validCards().map(function(card) {
+        var dur = durOf(card.content, card.tts ? card.tts.speed : 10);
+        var avatarMeta = S.avatar ? getAvatarMeta(S.avatar) : null;
+        var bgName = card.frame ? card.frame.bg : (S.bgMulti.length > 0 ? S.bgMulti[0] : '办公室');
+        return {
+          script: card.content,
+          person: avatarMeta ? { name: avatarMeta.name, emoji: (avI[S.avatar] || '👤'), gradient: '#667eea,#764ba2' } : null,
+          bg: { name: bgName, gradient: bgM[bgName] || '#667eea,#764ba2' },
+          duration: dur
+        };
+      });
+      localStorage.setItem('newTaskFromFlow', JSON.stringify({ taskName: getTaskName(), rows: rows }));
+      window.location.href = '全部工具.html?openTaskDetail=1';
     }
     function simProgress() {
       var steps=[{id:'ps-1',d:1200},{id:'ps-2',d:2600},{id:'ps-3',d:4000},{id:'ps-4',d:5600},{id:'ps-5',d:7000}];
@@ -1485,6 +1502,10 @@
     function viewResults() { closeProgress(); toast('跳转到视频资产...'); }
 
     /* ========== 初始化 ========== */
+    // 检测是否从任务详情页返回
+    if (new URLSearchParams(window.location.search).get('returnTo') === 'taskDetail') {
+      document.getElementById('backFromFlow').style.display = 'block';
+    }
     renderAvatarList();
     renderBgList();
     addScriptCard();
