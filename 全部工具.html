@@ -841,33 +841,7 @@
         .tg-op-btn.warn:hover:not(:disabled) { background: rgba(245,158,11,0.08); }
         .tg-op-btn:disabled { opacity: 0.28; cursor: not-allowed; }
 
-        /* 行内取消确认 */
-        .tg-cancel-cfm {
-            display: none;
-            align-items: center;
-            gap: 4px;
-            font-size: 11px;
-            color: #ef4444;
-        }
-        .tg-cancel-cfm.show { display: inline-flex; }
-        .tg-cancel-cfm .cfm-ok {
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-size: 10px;
-            cursor: pointer;
-            border: 1px solid #ef4444;
-            background: #ef4444;
-            color: #fff;
-        }
-        .tg-cancel-cfm .cfm-no {
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-size: 10px;
-            cursor: pointer;
-            border: 1px solid #ccc;
-            background: none;
-            color: #999;
-        }
+
 
         /* hover 预览 tooltip */
         .tg-tip {
@@ -1907,7 +1881,7 @@
             { id: 14, taskName: '已取消_存款技巧', visibility: '仅自己', script: '大额存单的起存金额为20万元，利率通常高于普通定期存款...', status: 'cancelled', progress: 0, duration: 0, cost: 0, createdAt: '2026-06-07T16:00:00', startedAt: null, completedAt: null, wmStatus: null, person: { name: '角色 A · 知性女性', emoji: '👩', gradient: 'linear-gradient(135deg,#ff9a9e,#fad0c4)' }, bg: { name: '居家', gradient: 'linear-gradient(135deg,#a8edea,#fed6e3)' } },
         ];
         var currentFilter = 'all';
-        var cancelConfirmId = null;
+
         var selectedTaskNames = new Set();     // 批量勾选的任务名（任务级）
         var selectedTaskIds = new Set();       // 批量勾选的子任务 ID（子任务级）
         var pendingBatchCancelIds = [];        // 待批量取消的子任务 ID
@@ -1998,7 +1972,6 @@
         }
 
         function openTaskModal() {
-            cancelConfirmId = null;
             selectedTaskNames = new Set();
             selectedTaskIds = new Set();
             renderTaskModal();
@@ -2019,7 +1992,6 @@
 
         function setTaskFilter(status) {
             currentFilter = status;
-            cancelConfirmId = null;
             renderTaskModal();
         }
 
@@ -2191,7 +2163,7 @@
                     // ── 子任务明细行 ──
                     listHtml += '<tr class="task-detail-row" id="' + detailId + '"><td colspan="9"><div class="task-detail-cell">';
                     listHtml += '<table class="task-sub-table"><colgroup><col style="width:5%"><col style="width:23%"><col style="width:6%"><col style="width:6%"><col style="width:8%"><col style="width:9%"><col style="width:11%"><col style="width:11%"><col style="width:7%"><col style="width:14%"></colgroup>';
-                    listHtml += '<thead><tr><th>首帧</th><th>台词</th><th>消耗积分</th><th>视频时长</th><th>视频状态</th><th>生成进度</th><th>开始生成时间</th><th>生成完成时间</th><th>生成耗时</th><th>操作</th></tr></thead><tbody>';
+                    listHtml += '<thead><tr><th>首帧</th><th>台词</th><th>视频时长</th><th>消耗积分</th><th>视频状态</th><th>生成进度</th><th>开始生成时间</th><th>生成完成时间</th><th>生成耗时</th><th>操作</th></tr></thead><tbody>';
 
                     for (var k = 0; k < g.items.length; k++) {
                         var task = g.items[k];
@@ -2232,14 +2204,12 @@
                             progressHtml = '<span class="tpb-text">-</span>';
                         }
                         if (task.status === 'cancelled') {
-                            actionHtml = '<div class="subtask-actions"><button class="tg-op-btn" disabled>取消</button><button class="tg-op-btn retry" disabled>预览</button><button class="tg-op-btn download" disabled>下载</button></div>';
+                            actionHtml = '<div class="subtask-actions"><button class="tg-op-btn" disabled>取消</button><button class="tg-op-btn warn" onclick="retryTask(' + task.id + ')">重试</button><button class="tg-op-btn retry" disabled>预览</button><button class="tg-op-btn download" disabled>下载</button></div>';
                         } else if (task.status === 'failed') {
                             actionHtml = '<div class="subtask-actions"><button class="tg-op-btn warn" onclick="retryTask(' + task.id + ')">重试</button><button class="tg-op-btn retry" disabled>预览</button><button class="tg-op-btn download" disabled>下载</button></div>';
-                        } else if (cancelConfirmId === task.id) {
-                            actionHtml = '<div class="subtask-actions"><div class="tg-cancel-cfm show"><button class="cfm-ok" onclick="confirmCancel(' + task.id + ')">确认</button><button class="cfm-no" onclick="abortCancel()">取消</button></div><button class="tg-op-btn retry" disabled>预览</button><button class="tg-op-btn download" disabled>下载</button></div>';
                         } else {
                             actionHtml = '<div class="subtask-actions">';
-                            actionHtml += '<button class="tg-op-btn" ' + (canCancel ? 'onclick="requestCancel(' + task.id + ')"' : 'disabled') + '>取消</button>';
+                            actionHtml += '<button class="tg-op-btn" ' + (canCancel ? 'onclick="subtaskCancel(' + task.id + ')"' : 'disabled') + '>取消</button>';
                             actionHtml += '<button class="tg-op-btn retry" ' + (canPreview ? 'onclick="openPreview(' + task.id + ')"' : 'disabled') + '>预览</button>';
                             actionHtml += '<button class="tg-op-btn download" ' + (canDownload ? 'onclick="downloadVideo(' + task.id + ')"' : 'disabled') + '>下载</button>';
                             actionHtml += '</div>';
@@ -2254,8 +2224,8 @@
                         listHtml += '<tr data-id="' + task.id + '">';
                         listHtml += '<td><div class="cf-thumb-sm" style="background:' + bgGradEsc + '" onmouseenter="showTgTip(event,\'gradient\',\'' + pGradEsc + '\',\'' + task.person.emoji + '\',\'' + task.person.name.replace(/'/g,"\\'") + '\')" onmouseleave="hideTgTip()" title="' + task.person.name.replace(/'/g,"\\'") + ' · ' + task.bg.name.replace(/'/g,"\\'") + '">' + task.person.emoji + '</div></td>';
                         listHtml += '<td class="td-script" onmouseenter="showTgTxtTip(event,\'' + txtEscaped + '\')" onmouseleave="hideTgTip()">' + shortScript + '</td>';
-                        listHtml += '<td class="td-cost">' + (task.cost || 0) + '🪙</td>';
                         listHtml += '<td style="color:#059669;font-weight:500;white-space:nowrap;">' + (task.duration ? task.duration + 's' : '--') + '</td>';
+                        listHtml += '<td class="td-cost">' + (task.cost || 0) + '🪙</td>';
                         listHtml += '<td class="td-status">' + statusHtml + '</td>';
                         listHtml += '<td class="td-progress">' + progressHtml + '</td>';
                         listHtml += '<td class="td-elapsed">' + (task.startedAt ? fmtTime(task.startedAt) : '—') + '</td>';
@@ -2337,22 +2307,17 @@
             toast('已批量下载 ' + toDl.length + ' 条视频文件');
         }
         function cancelGroupTask(taskName) {
-            var toCancel = [];
+            var ids = [];
             for (var i = 0; i < mockTasks.length; i++) {
                 if (mockTasks[i].taskName === taskName && (mockTasks[i].status === 'queued' || mockTasks[i].status === 'generating')) {
-                    toCancel.push(mockTasks[i]);
+                    ids.push(mockTasks[i].id);
                 }
             }
-            if (toCancel.length === 0) { toast('该任务没有正在排队或生成中的视频'); return; }
-            if (!confirm('确认取消「' + taskName + '」中 ' + toCancel.length + ' 条视频的生成？已完成和已失败的视频不受影响。')) return;
-            for (var j = 0; j < toCancel.length; j++) {
-                toCancel[j].status = 'cancelled';
-                toCancel[j].progress = 0;
-                delete toCancel[j].error;
-            }
-            updateTaskStatusBar();
-            renderTaskModal();
-            toast('已取消 ' + toCancel.length + ' 条视频');
+            if (ids.length === 0) { toast('该任务没有正在排队或生成中的视频'); return; }
+            pendingBatchCancelIds = ids;
+            document.getElementById('taskBatchConfirmDesc').textContent =
+                '确认取消「' + taskName + '」中 ' + ids.length + ' 条视频的生成？已完成的视频不受影响。';
+            document.getElementById('taskBatchConfirmOverlay').classList.add('active');
         }
         function deleteTask(taskName) {
             if (!confirm('确认删除任务「' + taskName + '」及其所有子任务？此操作不可恢复。')) return;
@@ -2459,7 +2424,12 @@
             var ids = pendingBatchCancelIds;
             for (var j = 0; j < ids.length; j++) {
                 for (var i = mockTasks.length - 1; i >= 0; i--) {
-                    if (mockTasks[i].id === ids[j]) { mockTasks.splice(i, 1); break; }
+                    if (mockTasks[i].id === ids[j]) {
+                        mockTasks[i].status = 'cancelled';
+                        mockTasks[i].progress = 0;
+                        delete mockTasks[i].error;
+                        break;
+                    }
                 }
                 selectedTaskIds.delete(ids[j]);
             }
@@ -2467,30 +2437,14 @@
             document.getElementById('taskBatchConfirmOverlay').classList.remove('active');
             updateTaskStatusBar();
             renderTaskModal();
-            toast('已取消 ' + ids.length + ' 条任务');
+            toast('已取消 ' + ids.length + ' 条视频');
         }
 
-        function requestCancel(id) {
-            cancelConfirmId = id;
-            renderTaskModal();
-        }
-
-        function abortCancel() {
-            cancelConfirmId = null;
-            renderTaskModal();
-        }
-
-        function confirmCancel(id) {
-            cancelConfirmId = null;
-            for (var i = 0; i < mockTasks.length; i++) {
-                if (mockTasks[i].id === id) {
-                    mockTasks.splice(i, 1);
-                    break;
-                }
-            }
-            updateTaskStatusBar();
-            renderTaskModal();
-            toast('已取消任务');
+        function subtaskCancel(id) {
+            pendingBatchCancelIds = [id];
+            document.getElementById('taskBatchConfirmDesc').textContent =
+                '确认取消该条视频的生成？';
+            document.getElementById('taskBatchConfirmOverlay').classList.add('active');
         }
 
         function retryTask(id) {
