@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8" />
@@ -809,35 +809,61 @@
             color: #94a3b8;
         }
 
-        .composite-prompt-tags {
+        .composite-config {
+            display: grid;
+            gap: 8px;
+            margin-top: 12px;
+            padding: 10px 11px;
+            border: 1px solid #edf2f7;
+            border-radius: 14px;
+            background: #fbfdff;
+        }
+
+        .composite-config-row {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        .composite-config-label {
+            width: 32px;
+            flex-shrink: 0;
+            color: #64748b;
+            font-size: 12px;
+            font-weight: 700;
+            text-align: right;
+        }
+
+        .composite-config-options {
             display: flex;
             flex-wrap: wrap;
             gap: 6px;
-            margin-top: 8px;
         }
 
-        .prompt-tag {
-            height: 28px;
+        .composite-config-option {
+            height: 26px;
+            min-width: 48px;
             padding: 0 12px;
             border: 1px solid #e5e7eb;
             border-radius: 999px;
             background: #ffffff;
             color: #374151;
             font-size: 12px;
-            font-weight: 600;
+            font-weight: 700;
             cursor: pointer;
-            transition: all 0.15s;
+            transition: border-color 0.15s, color 0.15s, background 0.15s, box-shadow 0.15s;
         }
 
-        .prompt-tag:hover {
-            border-color: #a5b4fc;
-            color: #4f46e5;
+        .composite-config-option:hover {
+            border-color: #93c5fd;
+            color: #2563eb;
         }
 
-        .prompt-tag.active {
-            border-color: #4f46e5;
-            background: #eef2ff;
-            color: #4f46e5;
+        .composite-config-option.active {
+            border-color: #2563eb;
+            background: #eff6ff;
+            color: #2563eb;
+            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.08);
         }
 
         .composite-actions {
@@ -2463,15 +2489,25 @@
                                 <ul class="composite-steps" id="compositeSteps"></ul>
                             </div>
                         </div>
-                        <div class="composite-prompt">
-                            <textarea id="compositePromptText" placeholder="输入提示词描述首帧构图，例如：人物居中站立，双手自然下垂，表情自信"></textarea>
-                            <div class="composite-prompt-tags" id="compositePromptTags">
-                                <button class="prompt-tag" type="button" data-tag="站立">站立</button>
-                                <button class="prompt-tag" type="button" data-tag="全身">全身</button>
-                                <button class="prompt-tag" type="button" data-tag="半身">半身</button>
-                                <button class="prompt-tag" type="button" data-tag="坐姿">坐姿</button>
-                                <button class="prompt-tag" type="button" data-tag="侧身">侧身</button>
+                        <div class="composite-config" id="compositeConfig">
+                            <div class="composite-config-row">
+                                <span class="composite-config-label">姿态</span>
+                                <div class="composite-config-options" role="group" aria-label="姿态配置">
+                                    <button class="composite-config-option active" type="button" data-config="pose" data-value="站立" aria-pressed="true">站立</button>
+                                    <button class="composite-config-option" type="button" data-config="pose" data-value="坐姿" aria-pressed="false">坐姿</button>
+                                    <button class="composite-config-option" type="button" data-config="pose" data-value="侧身" aria-pressed="false">侧身</button>
+                                </div>
                             </div>
+                            <div class="composite-config-row">
+                                <span class="composite-config-label">景别</span>
+                                <div class="composite-config-options" role="group" aria-label="景别配置">
+                                    <button class="composite-config-option active" type="button" data-config="shot" data-value="中景" aria-pressed="true">中景</button>
+                                    <button class="composite-config-option" type="button" data-config="shot" data-value="近景" aria-pressed="false">近景</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="composite-prompt">
+                            <textarea id="compositePromptText" placeholder="可补充表情、手势或构图细节，默认使用站立、中景"></textarea>
                         </div>
                         <div class="composite-actions">
                             <button class="btn btn-primary" type="button" id="compositePrimaryBtn" disabled>🪙10 · 合成首帧</button>
@@ -3232,6 +3268,10 @@
         let compositeStepIndex = 0;
         let compositeSourceKey = "";
         let compositeRequestId = 0;
+        const compositeConfig = {
+            pose: "站立",
+            shot: "中景",
+        };
         let editingRoleCard = null;
         let editingSceneCard = null;
         let editRoleImageData = "";
@@ -3269,6 +3309,8 @@
                 selectedScene.name || "",
                 selectedScene.desc || "",
                 selectedScene.img || "",
+                compositeConfig.pose || "站立",
+                compositeConfig.shot || "中景",
             ].join("||");
         }
 
@@ -3515,7 +3557,7 @@
         function openFirstFrameViewModal() {
             if (!compositeImageData) return;
             firstFrameLargeImg.src = compositeImageData;
-            firstFrameViewDesc.textContent = (selectedRole ? selectedRole.name : "角色") + " × " + (selectedScene ? selectedScene.name : "场景");
+            firstFrameViewDesc.textContent = (selectedRole ? selectedRole.name : "角色") + " × " + (selectedScene ? selectedScene.name : "场景") + " · " + compositeConfig.pose + " · " + compositeConfig.shot;
             document.getElementById("firstFrameViewModal").classList.add("active");
         }
 
@@ -3801,32 +3843,37 @@
                     img: compositeImageData,
                     version: compositeVersion,
                     sourceKey: compositeSourceKey,
+                    pose: compositeConfig.pose,
+                    shot: compositeConfig.shot,
                 },
             }));
             alert("主体配置已完成，即将进入分镜管理。");
             window.location.href = "step3-分镜管理.html";
         });
 
-        // 提示词快捷标签（单选切换）
-        let activePromptTag = "";
-        document.querySelectorAll("#compositePromptTags .prompt-tag").forEach((tag) => {
-            tag.addEventListener("click", () => {
-                if (tag.classList.contains("active")) {
-                    tag.classList.remove("active");
-                    activePromptTag = "";
-                } else {
-                    document.querySelectorAll("#compositePromptTags .prompt-tag").forEach((t) => t.classList.remove("active"));
-                    tag.classList.add("active");
-                    activePromptTag = tag.dataset.tag;
-                }
+        // 首帧配置：姿态和景别影响合成结果，配置变更后需要重新合成
+        document.querySelectorAll("#compositeConfig .composite-config-option").forEach((option) => {
+            option.addEventListener("click", () => {
+                const configName = option.dataset.config;
+                const configValue = option.dataset.value;
+                if (!configName || !configValue || compositeConfig[configName] === configValue) return;
+
+                compositeConfig[configName] = configValue;
+                document.querySelectorAll('#compositeConfig .composite-config-option[data-config="' + configName + '"]').forEach((item) => {
+                    const isActive = item === option;
+                    item.classList.toggle("active", isActive);
+                    item.setAttribute("aria-pressed", isActive ? "true" : "false");
+                });
+
+                handleCompositeInputsChanged();
+                updateStatus();
             });
         });
 
         function getCompositePrompt() {
             const text = document.getElementById("compositePromptText").value.trim();
-            const parts = [];
+            const parts = ["姿态：" + compositeConfig.pose, "景别：" + compositeConfig.shot];
             if (text) parts.push(text);
-            if (activePromptTag) parts.push(activePromptTag);
             return parts.join("，");
         }
 

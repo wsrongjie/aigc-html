@@ -364,8 +364,26 @@
         .pricing-value { font-size: 14px; font-weight: 700; color: var(--primary); }
         .pricing-unit { font-size: 12px; color: var(--text-muted); font-weight: 400; }
 
+        /* ===== 可展开行 ===== */
+        .expand-row { cursor: pointer; }
+        .expand-row:hover td { background: #FAFAFA; }
+        .expand-icon { display:inline-block; width:16px; text-align:center; font-size:10px; color:var(--text-muted); transition:transform 0.15s; }
+        .expand-icon.open { transform: rotate(90deg); }
+        .subtask-wrap { background:#F9FAFB; }
+        .subtask-wrap td { padding:6px 18px; }
+        .subtask-table { width:100%; border-collapse:collapse; font-size:12px; }
+        .subtask-table th { text-align:left; padding:5px 8px; font-weight:600; color:var(--text-muted); font-size:11px; border-bottom:1px solid var(--border); background:transparent; }
+        .subtask-table td { padding:6px 8px; border-bottom:1px solid #eee; vertical-align:middle; }
+        .subtask-table tr:last-child td { border-bottom:none; }
+
+        /* ===== 任务统计小卡片 ===== */
+        .task-metrics { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:20px; }
+        .task-metric { background:var(--card-bg); border:1px solid var(--border); border-radius:var(--radius); padding:14px 18px; text-align:center; }
+        .task-metric-value { font-size:22px; font-weight:800; }
+        .task-metric-label { font-size:11px; color:var(--text-muted); margin-top:2px; }
+
         /* ===== 响应式 ===== */
-        @media (max-width: 1440px) { .metrics-row,.card-grid4 { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 1440px) { .metrics-row,.card-grid4,.task-metrics { grid-template-columns: repeat(2, 1fr); } }
         @media (max-width: 1024px) { .sidebar { width: 60px; } .sidebar .brand-text,.sidebar .brand-sub,.sidebar .nav-item span:not(.nav-icon),.sidebar-user-info,.sidebar-logout span,.nav-caret { display: none; } .nav-item.sub { padding-left: 18px; } }
     </style>
 </head>
@@ -385,6 +403,7 @@
     <nav class="sidebar-nav">
         <div class="nav-item active" data-view="view-dashboard"><span class="nav-icon">🏠</span> 工作台</div>
         <div class="nav-item" data-view="view-tenants"><span class="nav-icon">👥</span> 租户管理</div>
+        <div class="nav-item" data-view="view-tasks"><span class="nav-icon">📋</span> 任务管理</div>
         <div class="nav-item" data-view="view-billing"><span class="nav-icon">💰</span> 积分与账单</div>
         <div class="nav-item nav-parent" data-toggle="business-config"><span class="nav-icon">⚙️</span> 业务配置 <span class="nav-caret">▾</span></div>
         <div class="nav-submenu" id="businessConfigSubmenu">
@@ -440,6 +459,8 @@
 
         <!-- 视图：工作台 -->
         <div class="panel active" id="view-dashboard">
+            <div class="section-title">📋 今日任务概览</div>
+            <div class="task-metrics" id="dashTaskMetrics" style="margin-bottom:20px"></div>
             <div class="info-card" style="margin-bottom:20px;border-color:#f59e0b;background:#fffaf0">
                 <h4>⚠ 高优先级额度预警租户</h4>
                 <div class="table-wrap" style="border:none">
@@ -494,6 +515,27 @@
                 <table>
                     <thead><tr><th>时间</th><th>租户</th><th>类型</th><th>积分变动</th><th>余额</th><th>操作人</th><th>关联任务/订单</th><th>备注</th></tr></thead>
                     <tbody id="billingTable"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 视图：任务管理 -->
+        <div class="panel" id="view-tasks">
+            <div class="task-metrics" id="taskMetricsRow"></div>
+            <div class="table-wrap">
+                <div class="table-toolbar">
+                    <select class="filter-select" id="taskTenantFilter" onchange="renderTasks()"><option value="">全部租户</option></select>
+                    <select class="filter-select" id="taskStatusFilter" onchange="renderTasks()">
+                        <option value="">全部状态</option><option value="queued">排队中</option><option value="generating">生成中</option><option value="completed">已完成</option><option value="failed">已失败</option><option value="partial">部分完成</option>
+                    </select>
+                    <input class="filter-input" type="date" id="taskDateFrom" onchange="renderTasks()" style="width:auto">
+                    <span style="font-size:12px;color:var(--text-muted)">至</span>
+                    <input class="filter-input" type="date" id="taskDateTo" onchange="renderTasks()" style="width:auto">
+                    <input class="filter-input" type="text" id="taskSearch" placeholder="搜索任务名称..." oninput="renderTasks()">
+                </div>
+                <table>
+                    <thead><tr><th style="width:24px"></th><th>任务名称</th><th>所属租户</th><th>视频数量</th><th>消耗积分</th><th>状态</th><th>进度</th><th>创建时间</th><th>操作</th></tr></thead>
+                    <tbody id="taskTable"></tbody>
                 </table>
             </div>
         </div>
@@ -563,7 +605,7 @@
             <div class="table-wrap">
                 <div class="table-toolbar">
                     <select class="filter-select" id="auditTypeFilter" onchange="renderAudit()">
-                        <option value="">全部类型</option><option value="租户">租户</option><option value="积分">积分</option><option value="配置">配置</option><option value="提示词">提示词</option>
+                        <option value="">全部类型</option><option value="租户">租户</option><option value="积分">积分</option><option value="任务">任务</option><option value="配置">配置</option><option value="提示词">提示词</option>
                     </select>
                     <input class="filter-input" type="text" id="auditSearch" placeholder="搜索操作人 / 对象 / 备注" oninput="renderAudit()">
                     <button class="btn btn-sm" onclick="renderAudit()" style="margin-left:auto">刷新</button>
@@ -701,6 +743,16 @@
     <div class="drawer-body" id="drawerBody"></div>
 </div>
 
+<!-- Drawer：任务详情 -->
+<div class="drawer-overlay" id="taskDrawerOverlay" onclick="closeTaskDrawer()"></div>
+<div class="drawer" id="taskDrawer">
+    <div class="drawer-header">
+        <span class="drawer-title" id="taskDrawerTitle">任务详情</span>
+        <button class="modal-close" onclick="closeTaskDrawer()">×</button>
+    </div>
+    <div class="drawer-body" id="taskDrawerBody"></div>
+</div>
+
 <!-- Toast -->
 <div class="toast" id="toast"></div>
 
@@ -804,6 +856,7 @@ function switchView(viewId) {
     var titles = {
         'view-dashboard':'工作台',
         'view-tenants':'租户管理',
+        'view-tasks':'任务管理',
         'view-billing':'积分与账单',
         'view-voice-config':'业务配置 / 音色配置',
         'view-credit-config':'业务配置 / 积分配置',
@@ -820,6 +873,7 @@ function updateTopbarActions() {
     var el = document.getElementById('topbarActions');
     var map = {
         'view-tenants': '',
+        'view-tasks': '<button class="btn btn-sm" onclick="renderTasks()">🔄 刷新</button>',
         'view-voice-config': '',
         'view-credit-config': '',
         'view-prompt-config': '',
@@ -833,6 +887,7 @@ function updateTopbarActions() {
 function refreshView(viewId) {
     if (viewId === 'view-dashboard') renderDashboard();
     else if (viewId === 'view-tenants') renderTenants();
+    else if (viewId === 'view-tasks') renderTasks();
     else if (viewId === 'view-billing') renderBilling();
     else if (viewId === 'view-voice-config') renderVoiceConfigs();
     else if (viewId === 'view-credit-config') renderPricing();
@@ -864,6 +919,7 @@ function initData() {
         AppState.pricingRules = saved.pricingRules || AppState.pricingRules;
         AppState.templateConfigs = saved.templateConfigs || AppState.templateConfigs;
         AppState.prompts = mergePromptDefaults(saved.prompts || []);
+        AppState.opsTasks = saved.opsTasks || AppState.opsTasks;
         AppState.auditLogs = normalizeAuditLogs(saved.auditLogs || AppState.auditLogs);
         return;
     }
@@ -955,6 +1011,73 @@ var AppState = {
         { name:'热点快评模板', scene:'热点事件 / 快讯点评', industry:'金融投顾', role:'快评主持人', voice:'快讯男声 F', status:'启用' },
         { name:'服务引导模板', scene:'客户服务 / 操作引导', industry:'通用', role:'客服讲解员', voice:'亲和女声 E', status:'停用' }
     ],
+    opsTasks: [
+        { taskId:'vt_001',tenantId:'t001',tenantName:'雨虹投资',taskName:'市场收评_0602',videoCount:3,totalCost:360,status:'completed',progress:100,createdAt:'2026-06-02 09:15',startedAt:'2026-06-02 09:16',completedAt:'2026-06-02 09:20',subTasks:[
+            { id:1,script:'今天A股市场整体呈现震荡走势，上证指数收报3150点...',status:'completed',progress:100,duration:15,cost:150,error:null },
+            { id:2,script:'从板块来看，半导体、新能源表现强势，金融板块略有回调...',status:'completed',progress:100,duration:12,cost:120,error:null },
+            { id:3,script:'最后提醒投资者注意控制仓位，分散风险...',status:'completed',progress:100,duration:9,cost:90,error:null }
+        ]},
+        { taskId:'vt_002',tenantId:'t001',tenantName:'雨虹投资',taskName:'资产配置_0602',videoCount:2,totalCost:200,status:'completed',progress:100,createdAt:'2026-06-02 10:30',startedAt:'2026-06-02 10:32',completedAt:'2026-06-02 10:38',subTasks:[
+            { id:1,script:'三季度资产配置策略建议关注权益类资产的配置比例...',status:'completed',progress:100,duration:10,cost:100,error:null },
+            { id:2,script:'债券方面建议适当拉长久期，增配中长期利率债...',status:'completed',progress:100,duration:10,cost:100,error:null }
+        ]},
+        { taskId:'vt_003',tenantId:'t002',tenantName:'鑫源保险',taskName:'保险科普_0601',videoCount:4,totalCost:480,status:'partial',progress:75,createdAt:'2026-06-01 14:00',startedAt:'2026-06-01 14:05',completedAt:'2026-06-01 14:18',subTasks:[
+            { id:1,script:'重疾险和医疗险有什么区别？今天一次讲清楚...',status:'completed',progress:100,duration:15,cost:150,error:null },
+            { id:2,script:'重疾险是一次性赔付，确诊即赔付保额...',status:'completed',progress:100,duration:12,cost:120,error:null },
+            { id:3,script:'医疗险是报销型，住院花多少报多少...',status:'failed',progress:45,duration:0,cost:90,error:'人物检测失败，请更换主体图片后重试' },
+            { id:4,script:'两者搭配购买才能构建完整的保障体系...',status:'completed',progress:100,duration:12,cost:120,error:null }
+        ]},
+        { taskId:'vt_004',tenantId:'t002',tenantName:'鑫源保险',taskName:'理赔指南_0602',videoCount:2,totalCost:0,status:'generating',progress:45,createdAt:'2026-06-02 11:20',startedAt:'2026-06-02 11:22',completedAt:null,subTasks:[
+            { id:1,script:'出险后第一步：及时报案，拨打保险公司客服电话...',status:'generating',progress:60,duration:15,cost:0,error:null },
+            { id:2,script:'第二步：整理理赔材料，包括病历、发票、身份证明...',status:'queued',progress:0,duration:12,cost:0,error:null }
+        ]},
+        { taskId:'vt_005',tenantId:'t003',tenantName:'汇丰投顾',taskName:'早盘速递_0602',videoCount:1,totalCost:100,status:'completed',progress:100,createdAt:'2026-06-02 08:00',startedAt:'2026-06-02 08:02',completedAt:'2026-06-02 08:05',subTasks:[
+            { id:1,script:'各位投资者早上好，今天是6月2日，为您带来早盘速递...',status:'completed',progress:100,duration:10,cost:100,error:null }
+        ]},
+        { taskId:'vt_006',tenantId:'t004',tenantName:'中诚教育',taskName:'基金定投_0601',videoCount:3,totalCost:360,status:'completed',progress:100,createdAt:'2026-06-01 16:00',startedAt:'2026-06-01 16:03',completedAt:'2026-06-01 16:12',subTasks:[
+            { id:1,script:'基金定投是最适合普通投资者的理财方式之一...',status:'completed',progress:100,duration:12,cost:120,error:null },
+            { id:2,script:'定投的核心逻辑是摊平成本、分散风险...',status:'completed',progress:100,duration:12,cost:120,error:null },
+            { id:3,script:'每周定投还每月定投？数据告诉你答案...',status:'completed',progress:100,duration:12,cost:120,error:null }
+        ]},
+        { taskId:'vt_007',tenantId:'t004',tenantName:'中诚教育',taskName:'ETF科普_0602',videoCount:3,totalCost:200,status:'failed',progress:30,createdAt:'2026-06-02 13:00',startedAt:'2026-06-02 13:05',completedAt:null,subTasks:[
+            { id:1,script:'ETF是什么？为什么越来越多人选择ETF投资？...',status:'failed',progress:30,duration:0,cost:80,error:'语音合成接口超时，请稍后重试' },
+            { id:2,script:'ETF与普通基金最大的区别在于可以在交易所买卖...',status:'queued',progress:0,duration:0,cost:0,error:null },
+            { id:3,script:'市面上常见的ETF类型包括宽基、行业、跨境等...',status:'queued',progress:0,duration:0,cost:0,error:null }
+        ]},
+        { taskId:'vt_008',tenantId:'t005',tenantName:'华泰理财',taskName:'热点快评_0601',videoCount:2,totalCost:240,status:'completed',progress:100,createdAt:'2026-06-01 19:00',startedAt:'2026-06-01 19:02',completedAt:'2026-06-01 19:07',subTasks:[
+            { id:1,script:'今天市场最大的新闻是央行宣布降准0.25个百分点...',status:'completed',progress:100,duration:12,cost:120,error:null },
+            { id:2,script:'降准对A股意味着什么？短期利好银行和地产板块...',status:'completed',progress:100,duration:12,cost:120,error:null }
+        ]},
+        { taskId:'vt_009',tenantId:'t005',tenantName:'华泰理财',taskName:'基金组合_0602',videoCount:2,totalCost:0,status:'queued',progress:0,createdAt:'2026-06-02 14:30',startedAt:null,completedAt:null,subTasks:[
+            { id:1,script:'构建一个均衡的基金组合，建议从核心+卫星策略开始...',status:'queued',progress:0,duration:0,cost:0,error:null },
+            { id:2,script:'核心部分配置宽基指数基金，卫星部分配置行业主题...',status:'queued',progress:0,duration:0,cost:0,error:null }
+        ]},
+        { taskId:'vt_010',tenantId:'t007',tenantName:'博学在线',taskName:'理财入门_0601',videoCount:5,totalCost:600,status:'completed',progress:100,createdAt:'2026-06-01 10:00',startedAt:'2026-06-01 10:05',completedAt:'2026-06-01 10:20',subTasks:[
+            { id:1,script:'理财第一步：先搞清楚你的资产和负债...',status:'completed',progress:100,duration:12,cost:120,error:null },
+            { id:2,script:'第二步：设定理财目标，短期、中期、长期...',status:'completed',progress:100,duration:12,cost:120,error:null },
+            { id:3,script:'第三步：选择适合自己的理财产品...',status:'completed',progress:100,duration:12,cost:120,error:null },
+            { id:4,script:'第四步：分散投资，不要把所有鸡蛋放一个篮子里...',status:'completed',progress:100,duration:12,cost:120,error:null },
+            { id:5,script:'第五步：定期复盘，动态调整投资组合...',status:'completed',progress:100,duration:12,cost:120,error:null }
+        ]},
+        { taskId:'vt_011',tenantId:'t007',tenantName:'博学在线',taskName:'理财入门_0602',videoCount:3,totalCost:0,status:'generating',progress:35,createdAt:'2026-06-02 09:45',startedAt:'2026-06-02 09:50',completedAt:null,subTasks:[
+            { id:1,script:'如何挑选一只好的基金？看这五个指标就够了...',status:'completed',progress:100,duration:12,cost:120,error:null },
+            { id:2,script:'第一个指标：基金的历史业绩，重点关注长期表现...',status:'generating',progress:55,duration:12,cost:0,error:null },
+            { id:3,script:'第二个指标：基金经理的经验和稳定性...',status:'queued',progress:0,duration:0,cost:0,error:null }
+        ]},
+        { taskId:'vt_012',tenantId:'t006',tenantName:'安联保险经纪',taskName:'车险指南_0601',videoCount:2,totalCost:200,status:'completed',progress:100,createdAt:'2026-06-01 15:00',startedAt:'2026-06-01 15:02',completedAt:'2026-06-01 15:08',subTasks:[
+            { id:1,script:'车险怎么买最划算？交强险、三者险、车损险...',status:'completed',progress:100,duration:10,cost:100,error:null },
+            { id:2,script:'三者险建议至少买200万保额，保费差不了多少...',status:'completed',progress:100,duration:10,cost:100,error:null }
+        ]},
+        { taskId:'vt_013',tenantId:'t004',tenantName:'中诚教育',taskName:'养老规划_0602',videoCount:1,totalCost:0,status:'queued',progress:0,createdAt:'2026-06-02 15:10',startedAt:null,completedAt:null,subTasks:[
+            { id:1,script:'养老要趁早，30岁开始和40岁开始差别有多大？...',status:'queued',progress:0,duration:0,cost:0,error:null }
+        ]},
+        { taskId:'vt_014',tenantId:'t001',tenantName:'雨虹投资',taskName:'行业分析_0531',videoCount:4,totalCost:500,status:'completed',progress:100,createdAt:'2026-05-31 20:00',startedAt:'2026-05-31 20:05',completedAt:'2026-05-31 20:20',subTasks:[
+            { id:1,script:'半导体行业：国产替代加速，设备材料环节受益明显...',status:'completed',progress:100,duration:12,cost:120,error:null },
+            { id:2,script:'新能源行业：光伏组件价格企稳，终端装机需求持续释放...',status:'completed',progress:100,duration:14,cost:140,error:null },
+            { id:3,script:'消费电子：AI赋能终端创新，换机周期有望启动...',status:'completed',progress:100,duration:12,cost:120,error:null },
+            { id:4,script:'医药生物：创新药出海提速，关注临床数据兑现...',status:'completed',progress:100,duration:12,cost:120,error:null }
+        ]}
+    ],
     auditLogs: [
         { time:'2026-01-25 16:10', operator:'admin', type:'积分', target:'华泰理财', before:'5,600', after:'8,600', remark:'手动充值 3,000 积分' },
         { time:'2026-01-25 15:30', operator:'operator', type:'租户', target:'安联保险经纪', before:'已停用', after:'启用中', remark:'重新启用' },
@@ -987,6 +1110,19 @@ function renderDashboard() {
     document.getElementById('metricSuccess').textContent = latestCharge.toLocaleString();
     document.getElementById('metricTenants').textContent = latestConsume.toLocaleString();
     document.getElementById('metricCost').textContent = lowBalanceTenants;
+
+    var allTasks = AppState.opsTasks || [];
+    var today = '2026-06-02';
+    var todayTasks = allTasks.filter(function(t) { return t.createdAt.indexOf(today) === 0; });
+    var todayTotal = todayTasks.length;
+    var todayDone = todayTasks.filter(function(t) { return t.status === 'completed'; }).length;
+    var todayGoing = todayTasks.filter(function(t) { return t.status === 'generating' || t.status === 'queued'; }).length;
+    var todayFailed = todayTasks.filter(function(t) { return t.status === 'failed' || t.status === 'partial'; }).length;
+    document.getElementById('dashTaskMetrics').innerHTML =
+        '<div class="task-metric"><div class="task-metric-value" style="color:var(--primary)">' + todayTotal + '</div><div class="task-metric-label">今日任务</div></div>' +
+        '<div class="task-metric"><div class="task-metric-value" style="color:var(--green)">' + todayDone + '</div><div class="task-metric-label">已完成</div></div>' +
+        '<div class="task-metric"><div class="task-metric-value" style="color:var(--blue)">' + todayGoing + '</div><div class="task-metric-label">进行中</div></div>' +
+        '<div class="task-metric"><div class="task-metric-value" style="color:' + (todayFailed > 0 ? 'var(--red)' : 'var(--text-muted)') + '">' + todayFailed + '</div><div class="task-metric-label">异常</div></div>';
 
     var days = ['01/03','01/04','01/05','01/06','01/07','01/08','01/09'];
     var values = [6200,7800,8450,6900,9300,8450,7300];
@@ -1290,7 +1426,9 @@ var stCls = t.status === '启用中' ? 'status-active' : 'status-stopped';
         '<div class="section-title">已开通能力</div>' +
         '<div style="margin-bottom:20px">' + featChips + '</div>' +
         '<div class="section-title">最近积分流水</div>' +
-        '<table style="font-size:12px"><thead><tr><th>时间</th><th>类型</th><th>变动</th><th>备注</th></tr></thead><tbody>' + (logHtml || '<tr><td colspan="4" style="color:var(--text-muted);text-align:center;padding:20px">暂无流水</td></tr>') + '</tbody></table>';
+        '<table style="font-size:12px"><thead><tr><th>时间</th><th>类型</th><th>变动</th><th>备注</th></tr></thead><tbody>' + (logHtml || '<tr><td colspan="4" style="color:var(--text-muted);text-align:center;padding:20px">暂无流水</td></tr>') + '</tbody></table>' +
+        '<div class="section-title" style="margin-top:20px">最近任务</div>' +
+        '<div style="font-size:12px" id="drawerTaskList">' + renderTenantTasksDrawer(t.id) + '</div>';
 
     document.getElementById('drawerOverlay').classList.add('show');
     document.getElementById('tenantDrawer').classList.add('show');
@@ -1366,6 +1504,274 @@ function inferModelTypeByNode(node) {
     if (node === '视频生成') return '视频/多模态模型';
     if (node === '语音合成') return '音频模型';
     return '大语言模型';
+}
+
+// ===========================
+// 任务管理
+// ===========================
+function getTaskStatusLabel(status) {
+    var map = { queued:'排队中',generating:'生成中',completed:'已完成',failed:'已失败',partial:'部分完成' };
+    return map[status] || status;
+}
+function getTaskStatusClass(status) {
+    var map = { queued:'status-warning',generating:'status-trial',completed:'status-active',failed:'status-failed',partial:'status-warning' };
+    return map[status] || 'status-stopped';
+}
+function getTaskStatusIcon(status) {
+    var map = { queued:'⏳',generating:'🔄',completed:'✅',failed:'❌',partial:'⚠️' };
+    return map[status] || '❓';
+}
+
+function updateTaskTenantFilter() {
+    var sel = document.getElementById('taskTenantFilter');
+    if (!sel) return;
+    var opts = '<option value="">全部租户</option>';
+    var seen = {};
+    for (var i = 0; i < AppState.opsTasks.length; i++) {
+        var name = AppState.opsTasks[i].tenantName;
+        if (!seen[name]) { seen[name] = true; opts += '<option value="' + name + '">' + name + '</option>'; }
+    }
+    sel.innerHTML = opts;
+}
+
+function renderTaskMetrics(tasks) {
+    var total = tasks.length;
+    var done = 0, going = 0, failed = 0;
+    for (var i = 0; i < tasks.length; i++) {
+        var s = tasks[i].status;
+        if (s === 'completed') done++;
+        else if (s === 'generating' || s === 'queued') going++;
+        else failed++;
+    }
+    document.getElementById('taskMetricsRow').innerHTML =
+        '<div class="task-metric"><div class="task-metric-value" style="color:var(--primary)">' + total + '</div><div class="task-metric-label">任务总数</div></div>' +
+        '<div class="task-metric"><div class="task-metric-value" style="color:var(--green)">' + done + '</div><div class="task-metric-label">已完成</div></div>' +
+        '<div class="task-metric"><div class="task-metric-value" style="color:var(--blue)">' + going + '</div><div class="task-metric-label">进行中</div></div>' +
+        '<div class="task-metric"><div class="task-metric-value" style="color:' + (failed > 0 ? 'var(--red)' : 'var(--text-muted)') + '">' + failed + '</div><div class="task-metric-label">异常</div></div>';
+}
+
+function renderTasks() {
+    updateTaskTenantFilter();
+    var tenantFilter = document.getElementById('taskTenantFilter').value;
+    var statusFilter = document.getElementById('taskStatusFilter').value;
+    var dateFrom = document.getElementById('taskDateFrom').value;
+    var dateTo = document.getElementById('taskDateTo').value;
+    var search = (document.getElementById('taskSearch').value || '').toLowerCase();
+
+    var list = AppState.opsTasks.filter(function(t) {
+        if (tenantFilter && t.tenantName !== tenantFilter) return false;
+        if (statusFilter && t.status !== statusFilter) return false;
+        if (dateFrom && t.createdAt.slice(0,10) < dateFrom) return false;
+        if (dateTo && t.createdAt.slice(0,10) > dateTo) return false;
+        if (search && t.taskName.toLowerCase().indexOf(search) === -1) return false;
+        return true;
+    });
+
+    renderTaskMetrics(list);
+
+    var expandMap = window._taskExpandMap || {};
+    var html = '';
+    for (var i = 0; i < list.length; i++) {
+        var t = list[i];
+        var stCls = getTaskStatusClass(t.status);
+        var stIcon = getTaskStatusIcon(t.status);
+        var stLabel = getTaskStatusLabel(t.status);
+        var pct = t.progress || 0;
+        var barCls = pct === 100 ? '' : (pct > 0 ? ' warn' : '');
+        var expanded = expandMap[t.taskId] || false;
+
+        // Status summary for parent tasks with sub-tasks
+        var subSummary = '';
+        if (t.subTasks && t.subTasks.length > 0) {
+            var sc = 0, sq = 0, sg = 0, sf = 0;
+            for (var s = 0; s < t.subTasks.length; s++) {
+                var ss = t.subTasks[s].status;
+                if (ss === 'completed') sc++;
+                else if (ss === 'queued') sq++;
+                else if (ss === 'generating') sg++;
+                else if (ss === 'failed') sf++;
+            }
+            var parts = [];
+            if (sc > 0) parts.push(sc + '完成');
+            if (sg > 0) parts.push(sg + '生成中');
+            if (sq > 0) parts.push(sq + '排队中');
+            if (sf > 0) parts.push(sf + '失败');
+            subSummary = parts.join(', ');
+        }
+
+        html += '<tr class="expand-row" onclick="toggleTaskExpand(\'' + t.taskId + '\')" data-task-id="' + t.taskId + '">' +
+            '<td><span class="expand-icon' + (expanded ? ' open' : '') + '">▶</span></td>' +
+            '<td><strong>' + t.taskName + '</strong><br><span style="font-size:11px;font-family:monospace;color:var(--text-muted)">' + t.taskId + '</span></td>' +
+            '<td><span class="chip chip-blue">' + t.tenantName + '</span></td>' +
+            '<td>' + (t.subTasks ? t.subTasks.length : t.videoCount) + '</td>' +
+            '<td><strong>' + t.totalCost.toLocaleString() + '</strong></td>' +
+            '<td><span class="status ' + stCls + '">' + stIcon + ' ' + stLabel + '</span>' +
+                (subSummary ? '<br><span style="font-size:11px;color:var(--text-muted)">' + subSummary + '</span>' : '') +
+            '</td>' +
+            '<td><div class="bar" style="min-width:50px"><div class="bar-fill' + barCls + '" style="width:' + pct + '%"></div></div><span style="font-size:11px;color:var(--text-muted);margin-left:4px">' + pct + '%</span></td>' +
+            '<td style="font-size:12px">' + t.createdAt + '</td>' +
+            '<td style="white-space:nowrap">' +
+                '<button class="btn btn-xs" onclick="event.stopPropagation();openTaskDetail(\'' + t.taskId + '\')">详情</button> ' +
+                ((t.status === 'generating' || t.status === 'queued') ? '<button class="btn btn-xs btn-danger" onclick="event.stopPropagation();cancelTask(\'' + t.taskId + '\')">取消</button> ' : '') +
+                (t.status === 'failed' || t.status === 'partial' ? '<button class="btn btn-xs" onclick="event.stopPropagation();retryTask(\'' + t.taskId + '\')">重试</button>' : '') +
+            '</td></tr>';
+
+        // Expanded sub-task rows
+        if (expanded && t.subTasks) {
+            var subHtml = '';
+            for (var s = 0; s < t.subTasks.length; s++) {
+                var st = t.subTasks[s];
+                var sstCls = getTaskStatusClass(st.status);
+                var sstIcon = getTaskStatusIcon(st.status);
+                var sstLabel = getTaskStatusLabel(st.status);
+                var spct = st.progress || 0;
+                var sbarCls = spct === 100 ? '' : (spct > 0 ? ' warn' : '');
+                subHtml += '<tr class="subtask-row"><td style="padding:6px 18px 6px 42px" colspan="9">' +
+                    '<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">' +
+                    '<span style="font-size:11px;font-weight:600;color:var(--text-muted);min-width:24px">#' + st.id + '</span>' +
+                    '<span class="status ' + sstCls + '" style="font-size:11px">' + sstIcon + ' ' + sstLabel + '</span>' +
+                    '<span class="bar" style="min-width:40px"><div class="bar-fill' + sbarCls + '" style="width:' + spct + '%"></div></span>' +
+                    '<span style="font-size:11px;color:var(--text-muted)">' + spct + '%</span>' +
+                    (st.duration > 0 ? '<span style="font-size:11px;color:var(--text-muted)">' + st.duration + 's</span>' : '') +
+                    (st.cost > 0 ? '<span style="font-size:11px;color:var(--text-secondary)">' + st.cost + '积分</span>' : '') +
+                    (st.error ? '<span style="font-size:11px;color:var(--red)">❗ ' + st.error + '</span>' : '') +
+                    '<span style="font-size:11px;color:var(--text-secondary);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="' + escapeHtml(st.script) + '">' + escapeHtml(st.script) + '</span>' +
+                    '</div></td></tr>';
+            }
+            if (subHtml) html += subHtml;
+        }
+    }
+
+    document.getElementById('taskTable').innerHTML = html || '<tr><td colspan="9" style="text-align:center;padding:40px;color:var(--text-muted)">暂无匹配的任务</td></tr>';
+}
+
+function toggleTaskExpand(taskId) {
+    var map = window._taskExpandMap || {};
+    map[taskId] = !map[taskId];
+    window._taskExpandMap = map;
+    renderTasks();
+}
+
+function cancelTask(taskId) {
+    var t = AppState.opsTasks.find(function(x) { return x.taskId === taskId; });
+    if (!t) return;
+    showConfirm('取消任务', '确定要取消任务「' + t.taskName + '」吗？（属于 ' + t.tenantName + '）', '⛔', function() {
+        t.status = 'failed';
+        t.completedAt = new Date().toISOString().replace('T',' ').slice(0,16);
+        if (t.subTasks) {
+            for (var i = 0; i < t.subTasks.length; i++) {
+                if (t.subTasks[i].status === 'queued' || t.subTasks[i].status === 'generating') {
+                    t.subTasks[i].status = 'failed';
+                    t.subTasks[i].error = '已被运营管理员取消';
+                }
+            }
+        }
+        addAuditLog('任务', t.taskName, '生成中/排队中', '已取消', '运营管理员手动取消任务（' + t.tenantName + '）');
+        saveData(); renderTasks(); toast('任务「' + t.taskName + '」已取消', 'error');
+    });
+}
+
+function retryTask(taskId) {
+    var t = AppState.opsTasks.find(function(x) { return x.taskId === taskId; });
+    if (!t) return;
+    var hasFailed = false;
+    if (t.subTasks) {
+        for (var i = 0; i < t.subTasks.length; i++) {
+            if (t.subTasks[i].status === 'failed') {
+                t.subTasks[i].status = 'queued';
+                t.subTasks[i].error = null;
+                t.subTasks[i].progress = 0;
+                hasFailed = true;
+            }
+        }
+    }
+    if (!hasFailed) { toast('没有可重试的子任务', 'error'); return; }
+    t.status = 'queued';
+    t.progress = 0;
+    t.completedAt = null;
+    addAuditLog('任务', t.taskName, '已失败', '重新排队', '运营管理员手动重试任务（' + t.tenantName + '）');
+    saveData(); renderTasks(); toast('任务「' + t.taskName + '」已重新加入队列', 'success');
+}
+
+function renderTenantTasksDrawer(tenantId) {
+    var tasks = AppState.opsTasks.filter(function(t) { return t.tenantId === tenantId; }).slice(0, 5);
+    if (tasks.length === 0) return '<span style="color:var(--text-muted)">暂无任务记录</span>';
+    var html = '';
+    for (var i = 0; i < tasks.length; i++) {
+        var t = tasks[i];
+        var stCls = getTaskStatusClass(t.status);
+        var stIcon = getTaskStatusIcon(t.status);
+        var stLabel = getTaskStatusLabel(t.status);
+        html += '<div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border)">' +
+            '<span style="flex:1;font-weight:500">' + t.taskName + '</span>' +
+            '<span class="status ' + stCls + '" style="font-size:10px">' + stIcon + ' ' + stLabel + '</span>' +
+            '<span style="font-size:11px;color:var(--text-muted)">' + (t.subTasks ? t.subTasks.length : 0) + '条视频</span>' +
+            '<span style="font-size:11px;color:var(--text-muted)">' + t.createdAt + '</span>' +
+            '</div>';
+    }
+    return html;
+}
+
+function openTaskDetail(taskId) {
+    var t = AppState.opsTasks.find(function(x) { return x.taskId === taskId; });
+    if (!t) return;
+    document.getElementById('taskDrawerTitle').textContent = t.taskName + ' · 任务详情';
+
+    var stCls = getTaskStatusClass(t.status);
+    var stIcon = getTaskStatusIcon(t.status);
+    var stLabel = getTaskStatusLabel(t.status);
+
+    var subHtml = '';
+    if (t.subTasks) {
+        for (var i = 0; i < t.subTasks.length; i++) {
+            var st = t.subTasks[i];
+            var sstCls = getTaskStatusClass(st.status);
+            var sstIcon = getTaskStatusIcon(st.status);
+            var sstLabel = getTaskStatusLabel(st.status);
+            subHtml += '<tr>' +
+                '<td style="font-size:12px">#' + st.id + '</td>' +
+                '<td style="font-size:12px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="' + escapeHtml(st.script) + '">' + escapeHtml(st.script) + '</td>' +
+                '<td><span class="status ' + sstCls + '" style="font-size:10px">' + sstIcon + ' ' + sstLabel + '</span></td>' +
+                '<td style="font-size:12px">' + (st.duration > 0 ? st.duration + 's' : '-') + '</td>' +
+                '<td style="font-size:12px">' + (st.cost > 0 ? st.cost : '-') + '</td>' +
+                '<td style="font-size:11px;color:var(--red)">' + (st.error || '-') + '</td>' +
+                '</tr>';
+        }
+    }
+
+    var taskLogs = AppState.auditLogs.filter(function(a) { return a.type === '任务' && a.target === t.taskName; }).slice(0, 5);
+    var logHtml = '';
+    for (var j = 0; j < taskLogs.length; j++) {
+        var al = taskLogs[j];
+        logHtml += '<div class="timeline-item"><div class="timeline-time">' + al.time + ' <span class="chip" style="font-size:10px">' + al.operator + '</span></div><div class="timeline-title" style="font-size:12px">' + al.remark + '</div><div class="timeline-desc" style="font-size:11px">' + al.before + ' → ' + al.after + '</div></div>';
+    }
+
+    document.getElementById('taskDrawerBody').innerHTML =
+        '<div class="section-title">基本信息</div>' +
+        '<div class="kv-grid" style="margin-bottom:20px">' +
+        '<div class="kv-item"><span class="kv-label">任务 ID</span><span class="kv-value">' + t.taskId + '</span></div>' +
+        '<div class="kv-item"><span class="kv-label">所属租户</span><span class="kv-value"><span class="chip chip-blue">' + t.tenantName + '</span></span></div>' +
+        '<div class="kv-item"><span class="kv-label">状态</span><span class="kv-value"><span class="status ' + stCls + '">' + stIcon + ' ' + stLabel + '</span></span></div>' +
+        '<div class="kv-item"><span class="kv-label">进度</span><span class="kv-value">' + t.progress + '%</span></div>' +
+        '<div class="kv-item"><span class="kv-label">创建时间</span><span class="kv-value">' + t.createdAt + '</span></div>' +
+        '<div class="kv-item"><span class="kv-label">开始时间</span><span class="kv-value">' + (t.startedAt || '-') + '</span></div>' +
+        '<div class="kv-item"><span class="kv-label">完成时间</span><span class="kv-value">' + (t.completedAt || '-') + '</span></div>' +
+        '<div class="kv-item"><span class="kv-label">消耗积分</span><span class="kv-value"><strong>' + t.totalCost.toLocaleString() + '</strong></span></div>' +
+        '</div>' +
+        '<div class="section-title">子任务列表</div>' +
+        '<div style="margin-bottom:20px;overflow-x:auto">' +
+        '<table class="subtask-table" style="font-size:12px"><thead><tr><th>#</th><th>台词</th><th>状态</th><th>时长</th><th>积分</th><th>错误信息</th></tr></thead><tbody>' + (subHtml || '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:20px">无子任务</td></tr>') + '</tbody></table>' +
+        '</div>' +
+        '<div class="section-title">操作日志</div>' +
+        '<div class="timeline" id="taskTimeline">' + (logHtml || '<div style="font-size:12px;color:var(--text-muted)">暂无操作记录</div>') + '</div>';
+
+    document.getElementById('taskDrawerOverlay').classList.add('show');
+    document.getElementById('taskDrawer').classList.add('show');
+}
+
+function closeTaskDrawer() {
+    document.getElementById('taskDrawerOverlay').classList.remove('show');
+    document.getElementById('taskDrawer').classList.remove('show');
 }
 
 function renderConfig() {
@@ -1625,7 +2031,7 @@ function renderAudit() {
     var html = '';
     for (var i = 0; i < list.length; i++) {
         var a = list[i];
-        var cls = a.type === '积分' ? 'status-active' : (a.type === '提示词' ? 'status-trial' : (a.type === '租户' ? 'status-warning' : 'status-success'));
+        var cls = a.type === '积分' ? 'status-active' : (a.type === '提示词' ? 'status-trial' : (a.type === '租户' ? 'status-warning' : (a.type === '任务' ? 'status-success' : 'status-success')));
         html += '<tr>' +
             '<td style="font-size:12px">' + a.time + '</td>' +
             '<td>' + a.operator + '</td>' +
@@ -1794,7 +2200,7 @@ function escapeHtml(str) {
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
         closeTenantModal(); closeRechargeModal(); closeVoiceModal(); closePromptModal();
-        closeDiffModal(); closeDrawer(); closeConfirm();
+        closeDiffModal(); closeDrawer(); closeTaskDrawer(); closeConfirm();
     }
 });
 
@@ -1803,6 +2209,7 @@ document.getElementById('rechargeModalOverlay').addEventListener('click', functi
 document.getElementById('voiceModalOverlay').addEventListener('click', function(e) { if (e.target === this) closeVoiceModal(); });
 document.getElementById('promptModalOverlay').addEventListener('click', function(e) { if (e.target === this) closePromptModal(); });
 document.getElementById('diffModalOverlay').addEventListener('click', function(e) { if (e.target === this) closeDiffModal(); });
+document.getElementById('taskDrawerOverlay').addEventListener('click', function(e) { if (e.target === this) closeTaskDrawer(); });
 
 switchView('view-dashboard');
 </script>

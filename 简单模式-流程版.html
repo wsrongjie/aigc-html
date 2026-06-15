@@ -634,7 +634,7 @@
     };
 
     var POSES = ['站立', '坐姿', '侧身'];
-    var SHOTS = ['远景', '中景', '近景'];
+    var SHOTS = ['中景', '近景'];
 
     var bgM = {'办公室':'linear-gradient(135deg,#667eea,#764ba2)','居家':'linear-gradient(135deg,#f093fb,#f5576c)','咖啡厅':'linear-gradient(135deg,#4facfe,#00f2fe)','户外':'linear-gradient(135deg,#43e97b,#38f9d7)','演播室':'linear-gradient(135deg,#fa709a,#fee140)','书架':'linear-gradient(135deg,#a8edea,#fed6e3)','教室':'linear-gradient(135deg,#ffecd2,#fcb69f)','会议室':'linear-gradient(135deg,#a1c4fd,#c2e9fb)','公园':'linear-gradient(135deg,#d4fc79,#96e6a1)','海边':'linear-gradient(135deg,#89f7fe,#66a6ff)','天台':'linear-gradient(135deg,#f6d365,#fda085)','展厅':'linear-gradient(135deg,#fbc2eb,#a6c1ee)','厨房':'linear-gradient(135deg,#ff9a9e,#fecfef)','健身房':'linear-gradient(135deg,#fddb92,#d1fdff)','图书馆':'linear-gradient(135deg,#c1dfc4,#deecdd)','花园':'linear-gradient(135deg,#f5f7fa,#c3cfe2)','餐厅':'linear-gradient(135deg,#e0c3fc,#8ec5fc)','地铁站':'linear-gradient(135deg,#434343,#000000)','机场':'linear-gradient(135deg,#c9d6ff,#e2e2e2)','雪山':'linear-gradient(135deg,#e6e9f0,#eef1f5)','森林':'linear-gradient(135deg,#134e5e,#71b280)','沙漠':'linear-gradient(135deg,#f4a460,#deb887)','草原':'linear-gradient(135deg,#96e6a1,#d4fc79)','城市夜景':'linear-gradient(135deg,#0f2027,#203a43,#2c5364)','工作室':'linear-gradient(135deg,#c9c6ff,#8b87af)'};
 
@@ -660,6 +660,49 @@
 
     function toast(m) { var t = document.getElementById('toast-el'); t.textContent = m; t.classList.add('show'); setTimeout(function(){t.classList.remove('show');}, 2000); }
 
+    /* ── 草稿存取 ── */
+    function saveDraft() {
+      var hasData = S.taskName.trim() || S.avatar || S.bgMulti.length > 0 || validCards().length > 0;
+      if (!hasData) return;
+      var draft = {
+        taskName: S.taskName,
+        avatar: S.avatar,
+        bgMulti: S.bgMulti,
+        bgBatch: S.bgBatch,
+        visibility: S.visibility,
+        cards: S.cards.map(function(c) {
+          return { id: c.id, content: c.content, tts: { custom: c.tts.custom, speed: c.tts.speed, pitch: c.tts.pitch, volume: c.tts.volume, instruction: c.tts.instruction } };
+        })
+      };
+      localStorage.setItem('aigc_draft_task', JSON.stringify(draft));
+    }
+    function restoreDraft() {
+      if (new URLSearchParams(window.location.search).get('editDraft') !== '1') return;
+      try {
+        var raw = localStorage.getItem('aigc_draft_task');
+        if (!raw) return;
+        var d = JSON.parse(raw);
+        if (!d.taskName && !d.avatar && (!d.cards || d.cards.length === 0)) return;
+        if (d.taskName) S.taskName = d.taskName;
+        if (d.avatar) S.avatar = d.avatar;
+        if (d.bgMulti) S.bgMulti = d.bgMulti;
+        if (d.bgBatch !== undefined) S.bgBatch = d.bgBatch;
+        if (d.visibility) S.visibility = d.visibility;
+        if (d.cards && d.cards.length > 0) {
+          S.cards = [];
+          d.cards.forEach(function(c) {
+            S.cards.push({ id: c.id, content: c.content, frame: null, tts: Object.assign({}, defaultTts(), c.tts, { ready: false, status: 'pending' }) });
+          });
+          S.nextId = Math.max.apply(null, S.cards.map(function(c){return c.id;})) + 1;
+        }
+        document.getElementById('task-name-input').value = S.taskName || '';
+        document.getElementById('task-visibility').value = S.visibility || 'private';
+        document.getElementById('bg-batch').checked = S.bgBatch;
+        updGlobalLabel();
+        toast('已恢复草稿「' + getTaskName() + '」');
+      } catch(e) {}
+    }
+
     function getTaskName() {
       if (S.taskName.trim()) return S.taskName.trim();
       var avatarName = S.avatar ? getAvatarMeta(S.avatar).name : '未选角色';
@@ -672,10 +715,12 @@
     function onTaskNameChange() {
       S.taskName = document.getElementById('task-name-input').value;
       updateSidebar();
+      saveDraft();
     }
     function onVisibilityChange() {
       S.visibility = document.getElementById('task-visibility').value;
       updateSidebar();
+      saveDraft();
     }
     function escapeHtml(v) { return String(v || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
     function getAvatarMeta(key) { for (var i=0;i<avList.length;i++){ if(avList[i].key===key) return avList[i]; } return { key:key, name:key, tag:'' }; }
@@ -727,6 +772,7 @@
       renderAvatarList(getAvatarSearchValue());
       updFooter();
       updateSidebar();
+      saveDraft();
     }
 
     /* ========== 背景（单选/多选开关） ========== */
@@ -758,6 +804,7 @@
       renderBgList(getBgSearchValue());
       updFooter();
       updateSidebar();
+      saveDraft();
     }
 
     function selBg(key) {
@@ -773,6 +820,7 @@
       renderBgList(getBgSearchValue());
       updFooter();
       updateSidebar();
+      saveDraft();
     }
 
     /* ========== 台词（Step1 录入，含字数） ========== */
@@ -789,6 +837,7 @@
       var c2 = document.getElementById('ff-cnt-'+id); if (c2) c2.textContent = (v||'').length + ' 字';
       updFooter();
       updateSidebar();
+      saveDraft();
     }
 
     function renderCards() {
@@ -845,6 +894,7 @@
       c.innerHTML = h;
       updFooter();
       updateSidebar();
+      saveDraft();
     }
 
     /* ========== 批量导入 ========== */
@@ -1473,6 +1523,7 @@
         };
       });
       localStorage.setItem('newTaskFromFlow', JSON.stringify({ taskName: getTaskName(), rows: rows }));
+      localStorage.removeItem('aigc_draft_task');
       window.location.href = '全部工具.html?openTaskDetail=1';
     }
     function simProgress() {
@@ -1506,9 +1557,17 @@
     if (new URLSearchParams(window.location.search).get('returnTo') === 'taskDetail') {
       document.getElementById('backFromFlow').style.display = 'block';
     }
-    renderAvatarList();
-    renderBgList();
-    addScriptCard();
+    // 检测是否恢复草稿
+    var isDraft = new URLSearchParams(window.location.search).get('editDraft') === '1';
+    if (isDraft) {
+      restoreDraft();
+      renderAvatarList();
+      renderBgList();
+    } else {
+      renderAvatarList();
+      renderBgList();
+      addScriptCard();
+    }
     updGlobalLabel();
     updFooter();
   </script>
