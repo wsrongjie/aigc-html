@@ -8,8 +8,8 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
-            background: #0a0a0a;
-            color: #fff;
+            background: #f0f2f5;
+            color: #1a1a2e;
             min-height: 100vh;
             display: flex;
         }
@@ -17,8 +17,8 @@
         /* 侧边栏 */
         .sidebar {
             width: 56px;
-            background: #111;
-            border-right: 1px solid #222;
+            background: #fff;
+            border-right: 1px solid #e8e8e8;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -51,17 +51,17 @@
             cursor: pointer;
             transition: all 0.2s;
             text-decoration: none;
-            color: #666;
+            color: #999;
             gap: 2px;
         }
-        .sidebar-item:hover { background: #1a1a1a; color: #999; }
-        .sidebar-item.active { background: #1a1a1a; color: #00e676; }
+        .sidebar-item:hover { background: #f5f5f5; color: #0066ff; }
+        .sidebar-item.active { background: #eef4ff; color: #0066ff; }
         .sidebar-item .icon { font-size: 16px; line-height: 1; }
         .sidebar-item .label { font-size: 9px; line-height: 1; }
         .sidebar-divider {
             width: 24px;
             height: 1px;
-            background: #222;
+            background: #e8e8e8;
             margin: 8px 0;
         }
 
@@ -81,9 +81,10 @@
             align-items: center;
             justify-content: space-between;
             padding: 0 32px;
-            border-bottom: 1px solid #1a1a1a;
+            background: #fff;
+            border-bottom: 1px solid #e8e8e8;
         }
-        .topbar-brand { font-size: 13px; font-weight: 600; color: #fff; letter-spacing: 1px; }
+        .topbar-brand { font-size: 13px; font-weight: 600; color: #1a1a2e; letter-spacing: 1px; }
         .topbar-right { display: flex; align-items: center; gap: 16px; }
         .topbar-right .avatar {
             width: 28px; height: 28px; border-radius: 50%;
@@ -96,8 +97,8 @@
         .content {
             padding: 24px 32px;
         }
-        .page-title { font-size: 20px; font-weight: 700; color: #fff; margin-bottom: 4px; }
-        .page-subtitle { font-size: 13px; color: #666; margin-bottom: 24px; }
+        .page-title { font-size: 20px; font-weight: 700; color: #1a1a2e; margin-bottom: 4px; }
+        .page-subtitle { font-size: 13px; color: #999; margin-bottom: 24px; }
 
         .tool-grid {
             display: grid;
@@ -112,13 +113,13 @@
             cursor: pointer;
             transition: all 0.25s;
             text-decoration: none;
-            background: #141414;
-            border: 1px solid #222;
+            background: #fff;
+            border: 1px solid #e8e8e8;
         }
         .tool-card:hover {
-            border-color: #333;
+            border-color: #0066ff33;
             transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.08);
         }
         .tool-card .thumb {
             height: 160px;
@@ -145,8 +146,8 @@
         .tool-card:hover .thumb .play-btn { opacity: 1; }
         .tool-card .thumb .play-btn svg { width: 16px; height: 16px; fill: #fff; }
         .tool-card .info { padding: 14px 16px; }
-        .tool-card .info .name { font-size: 14px; font-weight: 600; color: #fff; margin-bottom: 4px; }
-        .tool-card .info .desc { font-size: 12px; color: #666; line-height: 1.4; }
+        .tool-card .info .name { font-size: 14px; font-weight: 600; color: #1a1a2e; margin-bottom: 4px; }
+        .tool-card .info .desc { font-size: 12px; color: #999; line-height: 1.4; }
         .tool-card .info .badge {
             display: inline-block;
             font-size: 10px;
@@ -163,48 +164,48 @@
             display: none;
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.85);
+            background: rgba(0,0,0,0.5);
             z-index: 1000;
             align-items: center;
             justify-content: center;
         }
         .tpl-preview-overlay.show { display: flex; }
         .tpl-preview-modal {
-            background: #141414;
+            background: #fff;
             border-radius: 16px;
             width: 560px;
             max-width: 90vw;
             overflow: hidden;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-            border: 1px solid #222;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            border: 1px solid #e8e8e8;
         }
         .tpl-preview-hd {
             display: flex;
             align-items: center;
             justify-content: space-between;
             padding: 16px 20px;
-            border-bottom: 1px solid #222;
+            border-bottom: 1px solid #e8e8e8;
         }
-        .tpl-preview-hd h3 { font-size: 16px; font-weight: 600; }
+        .tpl-preview-hd h3 { font-size: 16px; font-weight: 600; color: #1a1a2e; }
         .tpl-preview-hd .close-btn {
             width: 28px; height: 28px;
             border-radius: 50%;
-            background: #222;
+            background: #f0f0f0;
             border: none;
-            color: #999;
+            color: #666;
             font-size: 14px;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
         }
-        .tpl-preview-hd .close-btn:hover { background: #333; color: #fff; }
+        .tpl-preview-hd .close-btn:hover { background: #e0e0e0; color: #333; }
         .tpl-preview-bd { padding: 20px; }
         .tpl-preview-video {
             width: 100%;
             aspect-ratio: 9/16;
             max-height: 360px;
-            background: #0a0a0a;
+            background: #f5f5f5;
             border-radius: 10px;
             display: flex;
             align-items: center;
@@ -216,25 +217,25 @@
         .tpl-preview-video .play-big {
             width: 56px; height: 56px;
             border-radius: 50%;
-            background: rgba(255,255,255,0.1);
+            background: rgba(0,0,0,0.1);
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
             transition: background 0.2s;
         }
-        .tpl-preview-video .play-big:hover { background: rgba(255,255,255,0.2); }
-        .tpl-preview-video .play-big svg { width: 24px; height: 24px; fill: #fff; }
-        .tpl-preview-video .hint { font-size: 12px; color: #666; }
+        .tpl-preview-video .play-big:hover { background: rgba(0,0,0,0.2); }
+        .tpl-preview-video .play-big svg { width: 24px; height: 24px; fill: #333; }
+        .tpl-preview-video .hint { font-size: 12px; color: #999; }
         .tpl-preview-desc {
             font-size: 13px;
-            color: #999;
+            color: #666;
             line-height: 1.6;
         }
-        .tpl-preview-desc strong { color: #fff; font-weight: 600; }
+        .tpl-preview-desc strong { color: #1a1a2e; font-weight: 600; }
         .tpl-preview-footer {
             padding: 12px 20px;
-            border-top: 1px solid #222;
+            border-top: 1px solid #e8e8e8;
             display: flex;
             justify-content: flex-end;
             gap: 8px;
@@ -249,10 +250,10 @@
             transition: all 0.15s;
         }
         .tpl-preview-footer .btn-secondary {
-            background: #222;
-            color: #999;
+            background: #f5f5f5;
+            color: #666;
         }
-        .tpl-preview-footer .btn-secondary:hover { background: #333; color: #fff; }
+        .tpl-preview-footer .btn-secondary:hover { background: #e8e8e8; color: #333; }
         .tpl-preview-footer .btn-primary {
             background: #00e676;
             color: #0a0a0a;
@@ -266,16 +267,16 @@
             gap: 8px;
             margin-top: 12px;
             padding: 8px 12px;
-            background: #1a1a1a;
+            background: #eef4ff;
             border-radius: 8px;
             font-size: 12px;
-            color: #448aff;
+            color: #0066ff;
         }
         .task-spinner {
             width: 14px;
             height: 14px;
-            border: 2px solid #448aff33;
-            border-top-color: #448aff;
+            border: 2px solid #0066ff33;
+            border-top-color: #0066ff;
             border-radius: 50%;
             animation: spin 0.8s linear infinite;
             flex-shrink: 0;
@@ -287,7 +288,7 @@
             display: none;
             flex-direction: column;
             flex: 1;
-            background: #0a0a0a;
+            background: transparent;
             padding: 0 32px 24px;
             overflow: hidden;
         }
@@ -297,20 +298,20 @@
             align-items: center;
             gap: 12px;
             padding: 16px 0 8px;
-            border-bottom: 1px solid #222;
+            border-bottom: 1px solid #e8e8e8;
         }
         .task-detail-topbar .back-btn {
             background: none;
-            border: 1px solid #333;
-            color: #999;
+            border: 1px solid #e8e8e8;
+            color: #666;
             padding: 6px 14px;
             border-radius: 8px;
             font-size: 13px;
             cursor: pointer;
             transition: all 0.15s;
         }
-        .task-detail-topbar .back-btn:hover { border-color: #666; color: #fff; }
-        .task-detail-topbar h2 { font-size: 18px; font-weight: 700; color: #fff; }
+        .task-detail-topbar .back-btn:hover { border-color: #0066ff; color: #0066ff; }
+        .task-detail-topbar h2 { font-size: 18px; font-weight: 700; color: #1a1a2e; }
         .task-detail-topbar .btn-create {
             background: linear-gradient(135deg,#2f6bff,#5856d6);
             color: #fff;
@@ -338,11 +339,11 @@
             align-items: center;
             justify-content: space-between;
             padding: 12px 0;
-            border-top: 1px solid #222;
+            border-top: 1px solid #e8e8e8;
             font-size: 12px;
-            color: #666;
+            color: #999;
         }
-        .task-detail-footer strong { color: #fff; }
+        .task-detail-footer strong { color: #1a1a2e; }
 
         /* 状态筛选 - chip 风格 */
         .task-filters {
@@ -356,15 +357,15 @@
             border-radius: 14px;
             font-size: 12px;
             cursor: pointer;
-            border: 1.5px solid #333;
+            border: 1.5px solid #e8e8e8;
             background: transparent;
-            color: #999;
+            color: #666;
             font-weight: 500;
             transition: all 0.15s;
             user-select: none;
         }
-        .task-filter:hover { border-color: #0066ff66; color: #448aff; }
-        .task-filter.active { background: rgba(68,138,255,0.15); border-color: #448aff; color: #448aff; font-weight: 600; }
+        .task-filter:hover { border-color: #0066ff66; color: #0066ff; }
+        .task-filter.active { background: #eef4ff; border-color: #0066ff; color: #0066ff; font-weight: 600; }
 
         /* 摘要栏 */
         .task-summary {
@@ -381,77 +382,366 @@
         }
         .task-summary strong { color: #0066ff; }
 
+        /* 批量操作栏 */
+        .task-batch-bar { display: flex; align-items: center; gap: 10px; font-size: 12px; white-space: nowrap; }
+        .task-batch-bar .batch-count { color: #999; font-weight: 500; }
+        .task-batch-bar .batch-count strong { color: #448aff; }
+        .task-batch-bar .batch-btn { padding: 5px 14px; border-radius: 7px; font-size: 12px; cursor: pointer; border: 1.5px solid #e8e8e8; background: #fff; color: #666; font-weight: 500; transition: all 0.15s; white-space: nowrap; }
+        .task-batch-bar .batch-btn:hover:not(:disabled) { border-color: #0066ff; color: #0066ff; background: #eef4ff; }
+        .task-batch-bar .batch-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+        .task-batch-bar .batch-btn.danger:hover:not(:disabled) { border-color: #ef4444; color: #ef4444; background: rgba(239,68,68,0.08); }
+        /* 表格行选中 */
+        .task-table tbody tr.selected { background: #eef4ff; }
+        .task-table .task-cb { width: 16px; height: 16px; accent-color: #0066ff; cursor: pointer; }
+        .task-table thead .task-cb { margin: 0; vertical-align: middle; }
+        /* 批量操作二次确认弹窗 */
+        .task-batch-confirm-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 3000; align-items: center; justify-content: center; }
+        .task-batch-confirm-overlay.active { display: flex; }
+        .task-batch-confirm-modal { background: #fff; border-radius: 14px; padding: 28px 32px; max-width: 420px; width: 90%; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.15); border: 1px solid #e8e8e8; }
+        .task-batch-confirm-icon { font-size: 36px; margin-bottom: 10px; }
+        .task-batch-confirm-title { font-size: 16px; font-weight: 700; color: #1a1a2e; margin-bottom: 8px; }
+        .task-batch-confirm-desc { font-size: 13px; color: #666; line-height: 1.7; margin-bottom: 20px; }
+        .task-batch-confirm-actions { display: flex; gap: 10px; justify-content: center; }
+        .task-batch-confirm-actions .btn { min-width: 100px; height: 38px; font-size: 13px; font-weight: 600; border-radius: 8px; cursor: pointer; border: none; transition: all 0.15s; }
+        .task-batch-confirm-actions .btn-cancel { background: #f5f5f5; color: #666; }
+        .task-batch-confirm-actions .btn-cancel:hover { background: #e8e8e8; color: #333; }
+        .task-batch-confirm-actions .btn-danger { background: #ef4444; color: #fff; }
+        .task-batch-confirm-actions .btn-danger:hover { background: #dc2626; }
+
         /* 任务列表 */
         .task-list {
             flex: 1;
-            overflow: visible;
+            overflow-x: auto;
+            overflow-y: visible;
+            border: 1px solid #e8e8e8;
+            border-radius: 10px;
+            background: #fff;
         }
 
-        /* 分组样式 */
-        .task-group { margin-bottom: 16px; }
-        .task-group:last-child { margin-bottom: 8px; }
-        .task-group-title {
+        /* 父子任务报表 */
+        .task-report-table {
+            width: 100%;
+            min-width: 1440px;
+            border-collapse: collapse;
+            table-layout: fixed;
+        }
+        .task-report-table th,
+        .task-report-table td {
+            border-bottom: 1px solid #f0f0f0;
+            border-right: 1px solid #f0f0f0;
+            vertical-align: middle;
+        }
+        .task-report-table th:last-child,
+        .task-report-table td:last-child { border-right: 0; }
+        .task-report-table thead th {
+            height: 44px;
+            padding: 0 12px;
+            background: #eef4ff;
+            color: #2f6bff;
+            font-size: 12px;
+            font-weight: 700;
+            text-align: center;
+            white-space: nowrap;
+        }
+        .task-report-row td {
+            height: 46px;
+            padding: 0 12px;
+            color: #333;
+            font-size: 12px;
+            background: #fff;
+            white-space: nowrap;
+            text-align: center;
+        }
+        .task-report-row:hover td { background: #f9fafb; }
+        .task-report-toggle {
+            width: 18px;
+            height: 18px;
+            border: 1px solid #d0d0d0;
+            border-radius: 50%;
+            background: #fff;
+            color: #0066ff;
+            cursor: pointer;
             font-size: 13px;
+            line-height: 16px;
+            text-align: center;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+        .task-report-name {
+            display: inline-block;
+            max-width: calc(100% - 34px);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            color: #1a1a2e;
             font-weight: 600;
-            color: #fff;
-            padding: 8px 0;
-            margin-bottom: 4px;
-            border-bottom: 1px solid #222;
+            vertical-align: middle;
+        }
+        .task-report-time { color: #666; }
+        .task-report-count { color: #333; font-weight: 600; }
+        .task-report-cost { color: #f59e0b; font-weight: 600; }
+        .task-report-progress { color: #0066ff; font-weight: 700; }
+        .task-report-actions,
+        .subtask-actions {
             display: flex;
             align-items: center;
-            gap: 6px;
+            justify-content: center;
+            gap: 5px;
+            white-space: nowrap;
         }
-        .task-group-title .tg-badge {
-            background: #eef4ff;
+        .task-report-action,
+        .task-action-btn {
+            padding: 3px 7px;
+            border: none;
+            border-radius: 5px;
+            background: transparent;
             color: #0066ff;
-            padding: 2px 10px;
-            border-radius: 10px;
+            font-size: 11px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.15s;
+        }
+        .task-report-action:hover:not(:disabled),
+        .task-action-btn:hover:not(:disabled) { background: #eef4ff; color: #0066ff; }
+        .task-report-action.wm { color: #059669; }
+        .task-report-action.wm:hover:not(:disabled) { background: rgba(5,150,105,0.08); color: #059669; }
+        .task-report-action.danger,
+        .task-action-btn.danger { color: #ef4444; }
+        .task-report-action.danger:hover:not(:disabled),
+        .task-action-btn.danger:hover:not(:disabled) { background: rgba(239,68,68,0.08); color: #ef4444; }
+        .task-report-action:disabled,
+        .task-action-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+        .task-detail-row td {
+            padding: 0;
+            background: #fafafa;
+            border-right: 0;
+        }
+        .task-detail-row.is-hidden { display: none; }
+        .task-detail-cell {
+            padding: 0 0 14px 32px;
+            background: #fafafa;
+            position: relative;
+        }
+        .task-detail-cell::before {
+            content: '';
+            position: absolute;
+            left: 24px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #e0e7ff;
+            border-radius: 1px;
+        }
+        .task-sub-table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+            background: #fff;
+            border: 0;
+            border-top: 1px solid #e8e8e8;
+            border-bottom: 1px solid #e8e8e8;
+        }
+        .task-sub-table th,
+        .task-sub-table td {
+            border-right: 1px solid #f0f0f0;
+            border-bottom: 1px solid #f0f0f0;
+            text-align: left;
+        }
+        .task-sub-table th:last-child,
+        .task-sub-table td:last-child { border-right: 0; }
+        .task-sub-table thead th {
+            height: 44px;
+            padding: 0 12px;
+            background: #f5f8ff;
+            color: #2f6bff;
+            font-size: 12px;
+            font-weight: 700;
+            text-align: center;
+            white-space: nowrap;
+        }
+        .task-sub-table tbody td {
+            height: 38px;
+            padding: 7px 12px;
+            color: #333;
+            font-size: 12px;
+            white-space: nowrap;
+            text-align: center;
+        }
+        .task-sub-table tbody tr:hover td { background: #f9fafb; }
+        .task-sub-table .td-script {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: #666;
+            cursor: pointer;
+        }
+        .task-sub-table .td-cost {
+            color: #f59e0b;
+            font-weight: 600;
+        }
+        .task-sub-table .td-elapsed {
+            color: #666;
+            font-size: 11px;
+            white-space: nowrap;
+        }
+
+        /* 任务卡 */
+        .task-card { margin-bottom: 16px; background: #fff; border: 1px solid #e8e8e8; border-radius: 12px; overflow-x: auto; overflow-y: hidden; }
+        .task-card:last-child { margin-bottom: 8px; }
+        .task-card-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 16px;
+            user-select: none;
+            transition: background 0.15s;
+        }
+        .task-card-header:hover { background: #f9fafb; }
+        .task-group-head,
+        .task-group-row {
+            display: grid;
+            grid-template-columns: minmax(220px, 2.1fr) 150px 92px 82px 150px minmax(190px, 1.4fr);
+            align-items: center;
+            column-gap: 14px;
+            min-width: 920px;
+        }
+        .task-group-head {
+            padding: 9px 16px;
+            background: #fafafa;
+            border-bottom: 1px solid #e8e8e8;
+            color: #999;
             font-size: 11px;
             font-weight: 500;
         }
-        .tg-config-btn {
-            margin-left: auto;
+        .task-card-header.task-group-row {
+            padding: 13px 16px;
+            cursor: default;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .task-group-row .task-name-cell {
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            color: #1a1a2e;
+            font-size: 13px;
+            font-weight: 700;
+        }
+        .task-group-row .task-time-cell,
+        .task-group-row .task-progress-cell {
+            color: #666;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+        .task-group-row .task-progress-cell {
+            color: #0066ff;
+            font-weight: 700;
+        }
+        .task-state-chip {
+            display: inline-flex;
+            align-items: center;
+            min-width: 52px;
+            color: #333;
+            font-size: 12px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .task-row-actions,
+        .subtask-actions {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            white-space: nowrap;
+        }
+        .task-action-btn {
             padding: 3px 10px;
-            border: 1px solid #e0e0e0;
+            border: 1px solid #e8e8e8;
             border-radius: 6px;
-            background: #fafafa;
+            background: transparent;
             color: #666;
             font-size: 11px;
             cursor: pointer;
             white-space: nowrap;
             transition: all 0.15s;
         }
-        .tg-config-btn:hover { border-color: #0066ff; color: #0066ff; background: #eef4ff; }
-        .tg-config-btn:disabled { color: #bbb; border-color: #e8e8e8; background: #f5f5f5; cursor: not-allowed; }
-        .tg-config-btn:disabled:hover { border-color: #e8e8e8; color: #bbb; background: #f5f5f5; }
+        .task-action-btn:hover:not(:disabled) { border-color: #0066ff; color: #0066ff; background: #eef4ff; }
+        .task-action-btn.danger:hover:not(:disabled) { border-color: #ef4444; color: #ef4444; background: rgba(239,68,68,0.06); }
+        .task-action-btn:disabled { opacity: 0.32; cursor: not-allowed; }
+        .task-card-arrow { width: 18px; font-size: 10px; color: #999; flex-shrink: 0; text-align: center; transition: transform 0.2s; }
+        .task-card.collapsed .task-card-arrow { transform: rotate(-90deg); }
+        .task-card .card-cb { width: 16px; height: 16px; accent-color: #0066ff; cursor: pointer; flex-shrink: 0; }
+        .task-card-name { font-size: 13px; font-weight: 600; color: #1a1a2e; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .task-card .card-badge {
+            background: #eef4ff;
+            color: #0066ff;
+            padding: 2px 10px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+        .task-card-meta { display: flex; align-items: center; gap: 14px; flex: 1; min-width: 0; font-size: 11px; color: #999; }
+        .task-card-meta span { white-space: nowrap; }
+        .task-card-acts { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+        .task-card-acts .card-btn {
+            padding: 3px 10px;
+            border: 1px solid #e8e8e8;
+            border-radius: 6px;
+            background: transparent;
+            color: #666;
+            font-size: 11px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.15s;
+        }
+        .task-card-acts .card-btn:hover { border-color: #0066ff; color: #0066ff; background: #eef4ff; }
+        .task-card-acts .card-btn.danger:hover { border-color: #ef4444; color: #ef4444; background: rgba(239,68,68,0.06); }
+        .task-card-acts .card-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+        .task-card-body { border-top: 0; }
+        .task-card.collapsed .task-card-body { display: none; }
+        /* 卡片内子任务批量栏 */
+        .card-batch-bar { display: flex; align-items: center; gap: 8px; padding: 8px 16px; font-size: 11px; color: #999; border-bottom: 1px solid #f0f0f0; }
+        .card-batch-bar .card-batch-count strong { color: #0066ff; }
+        .card-batch-bar .card-batch-btn {
+            padding: 2px 10px;
+            border-radius: 5px;
+            font-size: 11px;
+            cursor: pointer;
+            border: 1px solid #e8e8e8;
+            background: transparent;
+            color: #666;
+            transition: all 0.15s;
+        }
+        .card-batch-bar .card-batch-btn:hover:not(:disabled) { border-color: #0066ff; color: #0066ff; }
+        .card-batch-bar .card-batch-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+        .card-batch-bar .card-batch-btn.danger:hover:not(:disabled) { border-color: #ef4444; color: #ef4444; }
         /* 预览版本切换 */
-        .pv-view-toggle { display: flex; background: #1a1a1a; border: 1px solid #333; border-radius: 7px; padding: 2px; gap: 2px; }
-        .pv-view-toggle button { height: 26px; padding: 0 10px; border: none; border-radius: 6px; background: transparent; color: #888; font-size: 11px; cursor: pointer; white-space: nowrap; transition: all 0.15s; }
+        .pv-view-toggle { display: flex; background: #f5f5f5; border: 1px solid #e8e8e8; border-radius: 7px; padding: 2px; gap: 2px; }
+        .pv-view-toggle button { height: 26px; padding: 0 10px; border: none; border-radius: 6px; background: transparent; color: #666; font-size: 11px; cursor: pointer; white-space: nowrap; transition: all 0.15s; }
         .pv-view-toggle button.on { background: #0066ff; color: #fff; font-weight: 600; }
         /* 水印合成中状态 */
         .ts.wm-processing { color: #f59e0b; }
 
-        .task-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+        .task-table { width: 100%; min-width: 920px; border-collapse: collapse; table-layout: fixed; }
         .task-table thead th {
             font-size: 11px;
             color: #999;
             font-weight: 500;
-            text-align: left;
+            text-align: center;
             padding: 8px 10px;
-            border-bottom: 1px solid #222;
+            border-bottom: 1px solid #f0f0f0;
         }
-        .task-table tbody tr { transition: background 0.1s; border-bottom: 1px solid #222; }
-        .task-table tbody tr:hover { background: #141414; }
+        .task-table tbody tr { transition: background 0.1s; border-bottom: 1px solid #f0f0f0; }
+        .task-table tbody tr:hover { background: #f9fafb; }
         .task-table tbody tr.off { opacity: 0.35; }
         .task-table td {
             font-size: 12px;
-            color: #ccc;
+            color: #333;
             padding: 8px 10px;
             vertical-align: middle;
         }
         .task-table td.td-name {
             font-weight: 500;
-            color: #fff;
+            color: #1a1a2e;
             cursor: pointer;
             white-space: nowrap;
             overflow: hidden;
@@ -462,24 +752,22 @@
             overflow: hidden;
             text-overflow: ellipsis;
             cursor: pointer;
-            color: #999;
+            color: #666;
         }
-        .task-table td.td-status { width: 80px; text-align: center; }
+        .task-table td.td-status { width: 80px; text-align: left; }
         .task-table td.td-progress { width: 100px; }
         .task-table td.td-error { width: 110px; }
-        .task-table td.td-op { width: 50px; text-align: center; }
+        .task-table td.td-op { width: 170px; text-align: left; }
 
         /* 列宽分配 */
-        .task-table col.col-thumb { width: 5%; }
-        .task-table col.col-script { width: 18%; }
-        .task-table col.col-duration { width: 5%; }
-        .task-table col.col-createdAt { width: 7%; }
-        .task-table col.col-startedAt { width: 7%; }
-        .task-table col.col-completedAt { width: 7%; }
-        .task-table col.col-status { width: 7%; }
-        .task-table col.col-progress { width: 7%; }
-        .task-table col.col-error { width: 10%; }
-        .task-table col.col-op { width: 7%; }
+        .task-table col.col-thumb { width: 7%; }
+        .task-table col.col-script { width: 26%; }
+        .task-table col.col-duration { width: 7%; }
+        .task-table col.col-startedAt { width: 14%; }
+        .task-table col.col-progress { width: 9%; }
+        .task-table col.col-completedAt { width: 14%; }
+        .task-table col.col-status { width: 9%; }
+        .task-table col.col-op { width: 14%; }
 
         /* 首帧缩略图 */
         .cf-thumb-sm {
@@ -513,9 +801,23 @@
         .ts.queued { color: #f59e0b; }
         .ts.completed { color: #059669; }
         .ts.failed { color: #ef4444; }
+        .err-alert {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 3px;
+            cursor: pointer;
+            font-size: 13px;
+            line-height: 1;
+            transition: transform 0.15s;
+            vertical-align: middle;
+        }
+        .err-alert:hover { transform: scale(1.25); }
+        .ts.draft { color: #888; }
+        .ts.partial { color: #f59e0b; }
 
         /* 进度条 */
-        .tpb { width: 72px; height: 5px; background: #e8e8e8; border-radius: 3px; overflow: hidden; display: inline-block; vertical-align: middle; margin-right: 4px; }
+        .tpb { width: 72px; height: 5px; background: #f0f0f0; border-radius: 3px; overflow: hidden; display: inline-block; vertical-align: middle; margin-right: 4px; }
         .tpb-fill { height: 100%; background: linear-gradient(90deg, #0066ff, #5856d6); border-radius: 3px; transition: width 0.3s; }
         .tpb-text { font-size: 11px; color: #999; }
 
@@ -530,9 +832,14 @@
             border-radius: 4px;
             font-weight: 500;
         }
-        .tg-op-btn:hover { background: #fef2f2; }
+        .tg-op-btn:hover:not(:disabled) { background: rgba(239,68,68,0.08); }
         .tg-op-btn.retry { color: #059669; }
-        .tg-op-btn.retry:hover { background: #f0fdf4; }
+        .tg-op-btn.retry:hover:not(:disabled) { background: rgba(5,150,105,0.08); }
+        .tg-op-btn.download { color: #448aff; }
+        .tg-op-btn.download:hover:not(:disabled) { background: rgba(68,138,255,0.08); }
+        .tg-op-btn.warn { color: #f59e0b; }
+        .tg-op-btn.warn:hover:not(:disabled) { background: rgba(245,158,11,0.08); }
+        .tg-op-btn:disabled { opacity: 0.28; cursor: not-allowed; }
 
         /* 行内取消确认 */
         .tg-cancel-cfm {
@@ -568,7 +875,7 @@
             position: fixed;
             border-radius: 8px;
             padding: 4px;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.12);
             z-index: 2000;
             pointer-events: none;
             background: #fff;
@@ -589,7 +896,7 @@
             justify-content: center;
             font-size: 28px;
         }
-        .tg-tip-lbl { font-size: 10px; color: #999; text-align: center; margin-top: 2px; }
+        .tg-tip-lbl { font-size: 10px; color: #666; text-align: center; margin-top: 2px; }
         .tg-tip-txt {
             display: none;
             position: fixed;
@@ -614,6 +921,7 @@
             padding: 40px 20px;
             color: #999;
             font-size: 13px;
+            background: #fff;
         }
 
         /* 批次水印字幕配置弹窗 */
@@ -623,7 +931,7 @@
         .batch-wm-hd { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid #f0f0f0; }
         .batch-wm-hd h3 { font-size: 18px; font-weight: 700; color: #1a1a2e; }
         .batch-wm-hd .close-btn { width: 26px; height: 26px; border-radius: 50%; background: #f0f0f0; border: none; color: #666; font-size: 13px; cursor: pointer; }
-        .batch-wm-hd .close-btn:hover { background: #e0e0e0; }
+        .batch-wm-hd .close-btn:hover { background: #e0e0e0; color: #333; }
         .batch-wm-shell { display: grid; grid-template-columns: minmax(320px, 420px) 1fr; gap: 22px; padding: 20px; overflow: auto; background: #f7f9fc; }
         .batch-wm-preview-card, .batch-wm-config-card { background: #fff; border: 1px solid #e8e8e8; border-radius: 14px; box-shadow: 0 6px 18px rgba(15,23,42,0.04); }
         .batch-wm-preview-card { padding: 18px; }
@@ -688,7 +996,7 @@
             display: none;
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.8);
+            background: rgba(0,0,0,0.5);
             z-index: 2000;
             align-items: center;
             justify-content: center;
@@ -696,13 +1004,13 @@
         }
         .preview-overlay.show { display: flex; }
         .preview-modal {
-            background: #141414;
+            background: #fff;
             border-radius: 16px;
             width: 420px;
             max-width: 95vw;
             overflow: hidden;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-            border: 1px solid #222;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            border: 1px solid #e8e8e8;
             transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .preview-modal.expanded { width: 840px; }
@@ -711,15 +1019,15 @@
             align-items: center;
             justify-content: space-between;
             padding: 14px 18px;
-            border-bottom: 1px solid #222;
+            border-bottom: 1px solid #e8e8e8;
         }
-        .preview-hd h3 { font-size: 14px; font-weight: 600; color: #fff; }
+        .preview-hd h3 { font-size: 14px; font-weight: 600; color: #1a1a2e; }
         .preview-hd .close-btn {
             width: 28px; height: 28px;
             border-radius: 50%;
-            background: #222;
+            background: #f0f0f0;
             border: none;
-            color: #999;
+            color: #666;
             font-size: 14px;
             cursor: pointer;
             display: flex;
@@ -727,7 +1035,7 @@
             justify-content: center;
             transition: all 0.15s;
         }
-        .preview-hd .close-btn:hover { background: #333; color: #fff; }
+        .preview-hd .close-btn:hover { background: #e0e0e0; color: #333; }
 
         /* 左右双栏 */
         .preview-body { display: flex; min-height: 0; }
@@ -735,12 +1043,12 @@
             flex: 1; min-width: 0;
             display: flex; flex-direction: column;
         }
-        .preview-modal.expanded .preview-left { border-right: 1px solid #222; }
+        .preview-modal.expanded .preview-left { border-right: 1px solid #e8e8e8; }
         .preview-right {
             display: none;
             width: 340px; flex-shrink: 0;
             flex-direction: column;
-            background: #111;
+            background: #fafafa;
             overflow: hidden;
         }
         .preview-modal.expanded .preview-right { display: flex; }
@@ -752,25 +1060,25 @@
         }
         .cfg-bar-btn {
             height: 28px; border-radius: 7px;
-            border: 1px solid #333;
-            background: #1a1a1a;
-            color: #999; font-size: 11px;
+            border: 1px solid #e8e8e8;
+            background: #fff;
+            color: #666; font-size: 11px;
             font-weight: 500; cursor: pointer;
             padding: 0 10px;
             display: inline-flex; align-items: center;
             gap: 4px; transition: all 0.15s;
         }
-        .cfg-bar-btn:hover { border-color: #555; color: #ccc; }
+        .cfg-bar-btn:hover { border-color: #0066ff; color: #0066ff; }
         .cfg-bar-btn.active { border-color: #00e67655; background: #00e67611; color: #00e676; }
 
         .cfg-panel { display: none; padding: 14px; overflow-y: auto; flex: 1; }
         .cfg-panel.active { display: block; }
-        .cfg-panel-title { font-size: 12px; font-weight: 600; color: #999; margin-bottom: 10px; }
+        .cfg-panel-title { font-size: 12px; font-weight: 600; color: #666; margin-bottom: 10px; }
 
         /* 封面 - 截帧时间轴 */
         .cover-timeline-bar {
             width: 100%; height: 32px;
-            background: #1a1a1a;
+            background: #f5f5f5;
             border-radius: 6px;
             position: relative;
             cursor: pointer;
@@ -783,10 +1091,10 @@
         }
         .cover-timeline-frame {
             flex: 1; height: 20px;
-            background: #333; border-radius: 3px;
+            background: #e0e0e0; border-radius: 3px;
             cursor: pointer; transition: background 0.12s;
         }
-        .cover-timeline-frame:hover { background: #555; }
+        .cover-timeline-frame:hover { background: #ccc; }
         .cover-timeline-pointer {
             position: absolute; top: 0; bottom: 0;
             width: 3px; background: #00e676;
@@ -799,19 +1107,19 @@
             width: 11px; height: 6px;
             background: #00e676; border-radius: 3px 3px 0 0;
         }
-        .cfg-hint { font-size: 11px; color: #555; text-align: center; margin-bottom: 10px; }
+        .cfg-hint { font-size: 11px; color: #999; text-align: center; margin-bottom: 10px; }
 
         /* 封面上传区 */
         .cfg-upload-zone {
-            border: 1.5px dashed #333;
+            border: 1.5px dashed #d0d0d0;
             border-radius: 8px;
             padding: 20px; text-align: center;
             cursor: pointer; transition: all 0.15s;
         }
         .cfg-upload-zone:hover { border-color: #00e676; background: rgba(0,230,118,0.04); }
         .cfg-upload-zone .ico { font-size: 24px; margin-bottom: 4px; }
-        .cfg-upload-zone .txt { font-size: 12px; color: #999; font-weight: 500; }
-        .cfg-upload-zone .hint { font-size: 10px; color: #555; margin-top: 2px; }
+        .cfg-upload-zone .txt { font-size: 12px; color: #666; font-weight: 500; }
+        .cfg-upload-zone .hint { font-size: 10px; color: #999; margin-top: 2px; }
 
         /* 配置表单行 */
         .cfg-row {
@@ -820,14 +1128,14 @@
         }
         .cfg-row .cfg-lbl {
             font-size: 11px; font-weight: 600;
-            color: #999; min-width: 48px; flex-shrink: 0;
+            color: #666; min-width: 48px; flex-shrink: 0;
         }
         .cfg-row input[type="text"],
         .cfg-row textarea {
             flex: 1; min-width: 0;
-            height: 30px; border: 1px solid #333;
+            height: 30px; border: 1px solid #e8e8e8;
             border-radius: 6px; padding: 0 8px;
-            font-size: 11px; color: #ccc; background: #1a1a1a;
+            font-size: 11px; color: #333; background: #fff;
             outline: none; font-family: inherit;
         }
         .cfg-row textarea {
@@ -836,7 +1144,7 @@
         }
         .cfg-row input:focus,
         .cfg-row textarea:focus {
-            border-color: #00e67655;
+            border-color: #0066ff;
         }
         .cfg-row input[type="range"] {
             flex: 1; accent-color: #00e676; height: 20px;
@@ -847,24 +1155,24 @@
         }
         .cfg-row input[type="color"] {
             width: 28px; height: 28px;
-            border: 1px solid #333; border-radius: 5px;
-            padding: 2px; cursor: pointer; background: none;
+            border: 1px solid #e8e8e8; border-radius: 5px;
+            padding: 2px; cursor: pointer; background: #fff;
         }
 
         /* 位置选择 */
         .cfg-pos-group {
             display: flex; gap: 3px;
-            border: 1px solid #333; border-radius: 6px;
+            border: 1px solid #e8e8e8; border-radius: 6px;
             overflow: hidden;
         }
         .cfg-pos-btn {
             flex: 1; height: 26px; border: none;
-            background: #1a1a1a; color: #666;
+            background: #f5f5f5; color: #666;
             font-size: 10px; font-weight: 600;
             cursor: pointer; transition: all 0.12s;
         }
-        .cfg-pos-btn:hover { background: #222; color: #999; }
-        .cfg-pos-btn.active { background: #00e67622; color: #00e676; }
+        .cfg-pos-btn:hover { background: #e8e8e8; color: #333; }
+        .cfg-pos-btn.active { background: #00e67622; color: #059669; }
 
         /* 水印两栏布局 */
         .wm-two-col {
@@ -898,26 +1206,26 @@
         .wm-add-btn:hover { background: #00e67622; }
         .wm-list-items { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; }
         .wm-list-item {
-            padding: 6px 8px; border: 1px solid #333;
+            padding: 6px 8px; border: 1px solid #e8e8e8;
             border-radius: 6px; cursor: pointer;
-            font-size: 11px; color: #999; line-height: 1.5;
-            background: #1a1a1a; transition: all 0.12s;
+            font-size: 11px; color: #666; line-height: 1.5;
+            background: #fff; transition: all 0.12s;
             word-break: break-all;
             position: relative;
             min-height: 32px;
         }
-        .wm-list-item:hover { border-color: #555; }
-        .wm-list-item.active { border-color: #00e67666; background: #00e6760d; color: #00e676; font-weight: 600; }
+        .wm-list-item:hover { border-color: #ccc; }
+        .wm-list-item.active { border-color: #00e67666; background: #00e6760d; color: #059669; font-weight: 600; }
         .wm-list-item .wm-item-del {
             position: absolute; top: 4px; right: 4px;
             width: 16px; height: 16px;
-            border-radius: 50%; background: #333; color: #999;
+            border-radius: 50%; background: #e0e0e0; color: #666;
             border: none; font-size: 9px; cursor: pointer;
             display: flex; align-items: center; justify-content: center;
             transition: all 0.12s;
         }
         .wm-list-item .wm-item-del:hover { background: #ef4444; color: #fff; }
-        .wm-empty-list { text-align: center; color: #555; font-size: 11px; padding: 12px 0; }
+        .wm-empty-list { text-align: center; color: #999; font-size: 11px; padding: 12px 0; }
         .wm-editor-section { display: none; margin-bottom: 10px; }
         .wm-editor-section.show { display: block; }
 
@@ -1016,7 +1324,7 @@
             left: 0; top: 50%;
             transform: translateY(-50%);
             width: 100%; height: 4px;
-            background: #333;
+            background: #e8e8e8;
             border-radius: 2px;
             overflow: hidden;
         }
@@ -1028,7 +1336,7 @@
             transition: width 0.15s linear;
         }
         .preview-controls .pc-time {
-            font-size: 10px; color: #666;
+            font-size: 10px; color: #999;
             min-width: 54px; text-align: right;
             font-variant-numeric: tabular-nums;
         }
@@ -1064,7 +1372,7 @@
         .cfg-synth-bar {
             display: flex; align-items: center;
             gap: 8px; padding-top: 14px;
-            border-top: 1px solid #222;
+            border-top: 1px solid #e8e8e8;
             margin-top: 14px;
         }
         .cfg-synth-btn {
@@ -1076,7 +1384,7 @@
         }
         .cfg-synth-btn:hover { background: #00c853; }
         .cfg-synth-btn:disabled {
-            background: #333; color: #555; cursor: not-allowed;
+            background: #e8e8e8; color: #999; cursor: not-allowed;
             pointer-events: none;
         }
         .cfg-cancel-synth-btn {
@@ -1107,7 +1415,7 @@
     <!-- 侧边栏 -->
     <div class="sidebar">
         <div class="logo">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#1a1a2e" stroke-width="1.5">
                 <circle cx="12" cy="12" r="10"/>
                 <path d="M8 14s1.5 2 4 2 4-2 4-2"/>
                 <line x1="9" y1="9" x2="9.01" y2="9"/>
@@ -1198,22 +1506,42 @@
                 <button class="btn-create" onclick="goToCreateFlow()">＋ 批量创建</button>
             </div>
             <div style="display:flex;align-items:center;gap:10px;padding:12px 0 6px;flex-wrap:wrap;">
-                <select id="task-item-select" aria-label="选择任务项" style="width:210px;max-width:100%;height:32px;border:1.5px solid #333;border-radius:8px;padding:0 10px;font-size:12px;color:#ccc;background:#141414;outline:none;transition:all 0.15s;" onchange="onTaskSearchChange()">
+                <select id="task-item-select" aria-label="选择任务项" style="width:210px;max-width:100%;height:32px;border:1.5px solid #e8e8e8;border-radius:8px;padding:0 10px;font-size:12px;color:#333;background:#fff;outline:none;transition:all 0.15s;" onchange="onTaskSearchChange()">
                     <option value="">全部任务项</option>
                 </select>
-                <input type="text" id="task-search" placeholder="🔍 搜索台词关键词..." style="flex:1;min-width:180px;max-width:280px;height:32px;border:1.5px solid #333;border-radius:8px;padding:0 10px;font-size:12px;color:#ccc;background:#141414;outline:none;transition:all 0.15s;" oninput="onTaskSearchChange()">
+                <input type="text" id="task-search" placeholder="🔍 搜索台词关键词..." style="flex:1;min-width:180px;max-width:280px;height:32px;border:1.5px solid #e8e8e8;border-radius:8px;padding:0 10px;font-size:12px;color:#333;background:#fff;outline:none;transition:all 0.15s;" oninput="onTaskSearchChange()">
                 <span style="font-size:11px;color:#666;white-space:nowrap;">创建时间</span>
-                <input type="date" id="task-date-from" style="height:30px;border:1.5px solid #333;border-radius:6px;padding:0 6px;font-size:11px;color:#ccc;background:#141414;outline:none;" onchange="onTaskSearchChange()">
-                <span style="font-size:11px;color:#666;">至</span>
-                <input type="date" id="task-date-to" style="height:30px;border:1.5px solid #333;border-radius:6px;padding:0 6px;font-size:11px;color:#ccc;background:#141414;outline:none;" onchange="onTaskSearchChange()">
+                <input type="date" id="task-date-from" style="height:30px;border:1.5px solid #e8e8e8;border-radius:6px;padding:0 6px;font-size:11px;color:#333;background:#fff;outline:none;" onchange="onTaskSearchChange()">
+                <span style="font-size:11px;color:#999;">至</span>
+                <input type="date" id="task-date-to" style="height:30px;border:1.5px solid #e8e8e8;border-radius:6px;padding:0 6px;font-size:11px;color:#333;background:#fff;outline:none;" onchange="onTaskSearchChange()">
             </div>
             <div class="task-detail-body">
                 <div class="task-filters" id="task-filters"></div>
-                <div class="task-summary" id="task-summary" style="display:none;"></div>
+                <div style="display:flex;align-items:center;gap:12px;margin:12px 0;" id="task-summary-row">
+                    <div class="task-summary" id="task-summary" style="display:none;margin:0;"></div>
+                    <div class="task-batch-bar" id="task-global-batch-bar" style="display:none;margin-left:auto;">
+                        <span class="batch-count">已选 <strong id="task-global-batch-count">0</strong> 个任务</span>
+                        <button class="batch-btn danger" id="task-global-delete-btn" disabled onclick="batchDeleteTasks()">批量删除</button>
+                        <button class="batch-btn" id="task-global-download-btn" disabled onclick="batchDownloadAllTasks()">批量下载全部</button>
+                    </div>
+                </div>
                 <div class="task-list" id="task-list"></div>
                 <div class="task-detail-footer">
                     <span>共 <strong id="task-total-count">0</strong> 条任务 · 预计 <strong id="task-total-time">0</strong> 分钟</span>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 批量操作二次确认弹窗 -->
+    <div class="task-batch-confirm-overlay" id="taskBatchConfirmOverlay">
+        <div class="task-batch-confirm-modal">
+            <div class="task-batch-confirm-icon">⚠️</div>
+            <div class="task-batch-confirm-title">确认取消</div>
+            <div class="task-batch-confirm-desc" id="taskBatchConfirmDesc">确认取消这 N 条视频的生成？此操作不可恢复。</div>
+            <div class="task-batch-confirm-actions">
+                <button class="btn btn-cancel" onclick="closeTaskBatchConfirm()">再想想</button>
+                <button class="btn btn-danger" onclick="executeTaskBatchCancel()">确认取消</button>
             </div>
         </div>
     </div>
@@ -1516,34 +1844,73 @@
             t.textContent = m;
             Object.assign(t.style, {
                 position:'fixed', bottom:'100px', left:'50%', transform:'translateX(-50%)',
-                background:'#222', color:'#fff', padding:'10px 20px', borderRadius:'8px',
+                background:'#1a1a2e', color:'#fff', padding:'10px 20px', borderRadius:'8px',
                 fontSize:'12px', zIndex:'9999', fontWeight:'500'
             });
             document.body.appendChild(t);
             setTimeout(function(){ t.remove(); }, 2000);
         }
 
+        function parseTaskTime(value) {
+            if (!value) return null;
+            var d = new Date(String(value).replace(' ', 'T'));
+            return isNaN(d.getTime()) ? null : d;
+        }
+
         function fmtTime(iso) {
-            if (!iso) return '<span style="color:#555">-</span>';
-            var d = new Date(iso);
+            var d = parseTaskTime(iso);
+            if (!d) return '<span style="color:#555">-</span>';
+            var yyyy = d.getFullYear();
             var mm = ('0'+(d.getMonth()+1)).slice(-2);
             var dd = ('0'+d.getDate()).slice(-2);
             var hh = ('0'+d.getHours()).slice(-2);
             var mi = ('0'+d.getMinutes()).slice(-2);
-            return mm+'-'+dd+' '+hh+':'+mi;
+            var ss = ('0'+d.getSeconds()).slice(-2);
+            return yyyy+'-'+mm+'-'+dd+' '+hh+':'+mi+':'+ss;
+        }
+
+        function fmtTaskElapsed(startedAt, completedAt, status) {
+            var start = parseTaskTime(startedAt);
+            var end = parseTaskTime(completedAt);
+            if (!start) return status === 'queued' || status === 'draft' ? '等待中' : '<span style="color:#555">-</span>';
+            if (!end) return status === 'generating' ? '生成中' : '<span style="color:#555">-</span>';
+            var total = Math.max(0, Math.round((end.getTime() - start.getTime()) / 1000));
+            var minutes = Math.floor(total / 60);
+            var seconds = total % 60;
+            if (minutes > 0) return minutes + '分' + (seconds ? seconds + '秒' : '');
+            return seconds + '秒';
         }
 
         // ====== 任务进度弹窗 ======
         // 模拟任务数据（增加人物和背景信息）
         var mockTasks = [
-            { id: 1, taskName: '角色A_0602_2条视频', script: '大家好，今天我要分享的是如何高效学习AI技术，让你在30天内掌握核心知识点。', status: 'completed', progress: 100, duration: 8, createdAt: '2026-06-02T09:15:00', startedAt: '2026-06-02T09:16:00', completedAt: '2026-06-02T09:18:30', wmStatus: null, person: { name: '角色 A · 知性女性', emoji: '👩', gradient: 'linear-gradient(135deg,#ff9a9e,#fad0c4)' }, bg: { name: '办公室', gradient: 'linear-gradient(135deg,#667eea,#764ba2)' } },
-            { id: 2, taskName: '角色A_0602_2条视频', script: '各位好，本期我们探讨的是AI在视频生成领域的最新进展和应用。', status: 'generating', progress: 60, duration: 7, createdAt: '2026-06-02T10:30:00', startedAt: '2026-06-02T10:32:00', completedAt: null, wmStatus: null, person: { name: '角色 A · 知性女性', emoji: '👩', gradient: 'linear-gradient(135deg,#ff9a9e,#fad0c4)' }, bg: { name: '办公室', gradient: 'linear-gradient(135deg,#667eea,#764ba2)' } },
-            { id: 3, taskName: '角色A_0601_2条视频', script: '嗨喽朋友们，本期带来的是超实用的AI工具测评，赶紧一起来看看吧！', status: 'generating', progress: 35, duration: 7, createdAt: '2026-06-01T14:20:00', startedAt: '2026-06-01T14:22:00', completedAt: null, wmStatus: null, person: { name: '角色 A · 知性女性', emoji: '👩', gradient: 'linear-gradient(135deg,#ff9a9e,#fad0c4)' }, bg: { name: '居家', gradient: 'linear-gradient(135deg,#a8edea,#fed6e3)' } },
-            { id: 4, taskName: '角色A_0601_2条视频', script: '本期我们探讨一下如何用AI提升工作效率，这个话题很多粉丝都在问我。', status: 'queued', progress: 0, duration: 7, createdAt: '2026-06-02T08:00:00', startedAt: null, completedAt: null, wmStatus: null, person: { name: '角色 A · 知性女性', emoji: '👩', gradient: 'linear-gradient(135deg,#ff9a9e,#fad0c4)' }, bg: { name: '居家', gradient: 'linear-gradient(135deg,#a8edea,#fed6e3)' } },
-            { id: 5, taskName: '角色B_0530_1条视频', script: '今天来分享一下AI视频制作的完整流程，从台词到成片一步到位。', status: 'failed', progress: 0, duration: 7, createdAt: '2026-05-30T16:45:00', startedAt: '2026-05-30T16:46:00', completedAt: null, wmStatus: null, person: { name: '角色 B · 商务男性', emoji: '👨', gradient: 'linear-gradient(135deg,#a18cd1,#fbc2eb)' }, bg: { name: '咖啡厅', gradient: 'linear-gradient(135deg,#fbc2eb,#a6c1ee)' }, error: '素材分辨率不足，请上传720p以上图片' },
+            // 1. 草稿
+            { id: 1, taskName: '草稿_投资入门指南', visibility: '仅自己', script: '（草稿，暂未填写台词）', status: 'draft', progress: 0, duration: 0, cost: 0, createdAt: '2026-06-10T08:00:00', startedAt: null, completedAt: null, wmStatus: null, person: { name: '角色 A · 知性女性', emoji: '👩', gradient: 'linear-gradient(135deg,#ff9a9e,#fad0c4)' }, bg: { name: '办公室', gradient: 'linear-gradient(135deg,#667eea,#764ba2)' } },
+            // 2. 排队中
+            { id: 2, taskName: '排队中_基金定投解读', visibility: '团队可见', script: '基金定投是一种适合普通投资者的长期理财方式，每月固定金额投入...', status: 'queued', progress: 0, duration: 7, cost: 14, createdAt: '2026-06-11T09:00:00', startedAt: null, completedAt: null, wmStatus: null, person: { name: '角色 B · 商务男性', emoji: '👨', gradient: 'linear-gradient(135deg,#a18cd1,#fbc2eb)' }, bg: { name: '办公室', gradient: 'linear-gradient(135deg,#667eea,#764ba2)' } },
+            { id: 3, taskName: '排队中_基金定投解读', visibility: '团队可见', script: '选择定投基金时，建议优先考虑指数型基金，费率低且长期收益稳定...', status: 'queued', progress: 0, duration: 6, cost: 12, createdAt: '2026-06-11T09:00:00', startedAt: null, completedAt: null, wmStatus: null, person: { name: '角色 B · 商务男性', emoji: '👨', gradient: 'linear-gradient(135deg,#a18cd1,#fbc2eb)' }, bg: { name: '办公室', gradient: 'linear-gradient(135deg,#667eea,#764ba2)' } },
+            // 3. 生成中
+            { id: 4, taskName: '生成中_保险配置攻略', visibility: '团队可见', script: '家庭保险配置应该遵循先大人后小孩、先保障后理财的原则...', status: 'generating', progress: 55, duration: 8, cost: 16, createdAt: '2026-06-11T10:00:00', startedAt: '2026-06-11T10:01:00', completedAt: null, wmStatus: null, person: { name: '角色 C · 可靠中年', emoji: '🧑', gradient: 'linear-gradient(135deg,#ffecd2,#fcb69f)' }, bg: { name: '居家', gradient: 'linear-gradient(135deg,#a8edea,#fed6e3)' } },
+            { id: 5, taskName: '生成中_保险配置攻略', visibility: '团队可见', script: '重大疾病保险的保额建议设置为年收入的3-5倍，才能有效覆盖风险...', status: 'completed', progress: 100, duration: 9, cost: 18, createdAt: '2026-06-11T10:00:00', startedAt: '2026-06-11T10:01:00', completedAt: '2026-06-11T10:07:30', wmStatus: null, person: { name: '角色 C · 可靠中年', emoji: '🧑', gradient: 'linear-gradient(135deg,#ffecd2,#fcb69f)' }, bg: { name: '居家', gradient: 'linear-gradient(135deg,#a8edea,#fed6e3)' } },
+            // 4. 已完成
+            { id: 6, taskName: '已完成_养老金规划', visibility: '团队可见', script: '养老金规划越早开始越好，复利效应是长期积累的核心动力...', status: 'completed', progress: 100, duration: 7, cost: 14, createdAt: '2026-06-10T14:00:00', startedAt: '2026-06-10T14:02:00', completedAt: '2026-06-10T14:08:00', wmStatus: 'done', person: { name: '角色 A · 知性女性', emoji: '👩', gradient: 'linear-gradient(135deg,#ff9a9e,#fad0c4)' }, bg: { name: '办公室', gradient: 'linear-gradient(135deg,#667eea,#764ba2)' } },
+            { id: 7, taskName: '已完成_养老金规划', visibility: '团队可见', script: '目前国家推行的个人养老金制度每年可享受最高12000元的税收优惠...', status: 'completed', progress: 100, duration: 6, cost: 12, createdAt: '2026-06-10T14:00:00', startedAt: '2026-06-10T14:02:00', completedAt: '2026-06-10T14:07:00', wmStatus: 'done', person: { name: '角色 A · 知性女性', emoji: '👩', gradient: 'linear-gradient(135deg,#ff9a9e,#fad0c4)' }, bg: { name: '办公室', gradient: 'linear-gradient(135deg,#667eea,#764ba2)' } },
+            // 5. 部分成功
+            { id: 8, taskName: '部分成功_税务筹划', visibility: '仅自己', script: '个人所得税专项附加扣除包括子女教育、大病医疗、住房贷款利息等...', status: 'completed', progress: 100, duration: 8, cost: 16, createdAt: '2026-06-09T11:00:00', startedAt: '2026-06-09T11:02:00', completedAt: '2026-06-09T11:09:00', wmStatus: 'done', person: { name: '角色 D · 专业顾问', emoji: '👨‍💼', gradient: 'linear-gradient(135deg,#a6c1ee,#fbc2eb)' }, bg: { name: '办公室', gradient: 'linear-gradient(135deg,#667eea,#764ba2)' } },
+            { id: 9, taskName: '部分成功_税务筹划', visibility: '仅自己', script: '年终奖的计税方式可以选择单独计税或并入综合所得，哪种更划算？...', status: 'failed', progress: 0, duration: 0, cost: 14, createdAt: '2026-06-09T11:00:00', startedAt: '2026-06-09T11:02:00', completedAt: null, wmStatus: null, person: { name: '角色 D · 专业顾问', emoji: '👨‍💼', gradient: 'linear-gradient(135deg,#a6c1ee,#fbc2eb)' }, bg: { name: '办公室', gradient: 'linear-gradient(135deg,#667eea,#764ba2)' }, error: '人物表情生成失败，请检查参考图质量' },
+            { id: 10, taskName: '部分成功_税务筹划', visibility: '仅自己', script: '稿酬所得的收入额按70%计算，这是一个很实用的税收优惠政策...', status: 'completed', progress: 100, duration: 7, cost: 14, createdAt: '2026-06-09T11:00:00', startedAt: '2026-06-09T11:02:00', completedAt: '2026-06-09T11:08:30', wmStatus: 'done', person: { name: '角色 D · 专业顾问', emoji: '👨‍💼', gradient: 'linear-gradient(135deg,#a6c1ee,#fbc2eb)' }, bg: { name: '办公室', gradient: 'linear-gradient(135deg,#667eea,#764ba2)' } },
+            // 6. 已失败
+            { id: 11, taskName: '已失败_海外配置', visibility: '团队可见', script: '通过QDII基金进行海外资产配置，可以有效分散单一市场风险...', status: 'failed', progress: 0, duration: 0, cost: 14, createdAt: '2026-06-08T15:00:00', startedAt: '2026-06-08T15:01:00', completedAt: null, wmStatus: null, person: { name: '角色 E · 资深投资师', emoji: '👴', gradient: 'linear-gradient(135deg,#cfd9df,#e2ebf0)' }, bg: { name: '咖啡厅', gradient: 'linear-gradient(135deg,#fbc2eb,#a6c1ee)' }, error: '素材分辨率不足，请上传720p以上图片' },
+            { id: 12, taskName: '已失败_海外配置', visibility: '团队可见', script: '港股通和美股通是个人投资者参与海外市场的主要渠道...', status: 'failed', progress: 0, duration: 0, cost: 12, createdAt: '2026-06-08T15:00:00', startedAt: '2026-06-08T15:01:00', completedAt: null, wmStatus: null, person: { name: '角色 E · 资深投资师', emoji: '👴', gradient: 'linear-gradient(135deg,#cfd9df,#e2ebf0)' }, bg: { name: '咖啡厅', gradient: 'linear-gradient(135deg,#fbc2eb,#a6c1ee)' }, error: '语音合成超时，请重试' },
+            // 7. 已取消
+            { id: 13, taskName: '已取消_存款技巧', visibility: '仅自己', script: '通知存款的利率介于活期和定期之间，适合资金闲置期不确定的情况...', status: 'cancelled', progress: 0, duration: 0, cost: 0, createdAt: '2026-06-07T16:00:00', startedAt: null, completedAt: null, wmStatus: null, person: { name: '角色 A · 知性女性', emoji: '👩', gradient: 'linear-gradient(135deg,#ff9a9e,#fad0c4)' }, bg: { name: '居家', gradient: 'linear-gradient(135deg,#a8edea,#fed6e3)' } },
+            { id: 14, taskName: '已取消_存款技巧', visibility: '仅自己', script: '大额存单的起存金额为20万元，利率通常高于普通定期存款...', status: 'cancelled', progress: 0, duration: 0, cost: 0, createdAt: '2026-06-07T16:00:00', startedAt: null, completedAt: null, wmStatus: null, person: { name: '角色 A · 知性女性', emoji: '👩', gradient: 'linear-gradient(135deg,#ff9a9e,#fad0c4)' }, bg: { name: '居家', gradient: 'linear-gradient(135deg,#a8edea,#fed6e3)' } },
         ];
         var currentFilter = 'all';
         var cancelConfirmId = null;
+        var selectedTaskNames = new Set();     // 批量勾选的任务名（任务级）
+        var selectedTaskIds = new Set();       // 批量勾选的子任务 ID（子任务级）
+        var pendingBatchCancelIds = [];        // 待批量取消的子任务 ID
         // 批次水印字幕配置
         var batchConfigs = {};
         var _batchCfgTaskName = null;
@@ -1585,9 +1952,10 @@
         }
 
         function getTaskCounts() {
-            var counts = { all: mockTasks.length, generating: 0, queued: 0, completed: 0, failed: 0 };
+            var counts = { all: mockTasks.length, generating: 0, queued: 0, completed: 0, failed: 0, draft: 0, cancelled: 0 };
             for (var i = 0; i < mockTasks.length; i++) {
-                counts[mockTasks[i].status]++;
+                var st = mockTasks[i].status;
+                if (counts.hasOwnProperty(st)) counts[st]++;
             }
             return counts;
         }
@@ -1617,6 +1985,10 @@
                 if (spinner) spinner.style.display = 'none';
                 text.textContent = counts.failed + '个任务失败';
                 text.style.color = '#ef4444';
+            } else if (counts.cancelled > 0 && counts.completed === 0 && counts.generating === 0 && counts.queued === 0 && counts.failed === 0) {
+                if (spinner) spinner.style.display = 'none';
+                text.textContent = counts.cancelled + '个任务已取消';
+                text.style.color = '#999';
             } else {
                 if (spinner) spinner.style.display = 'none';
                 text.textContent = '暂无任务';
@@ -1627,12 +1999,16 @@
 
         function openTaskModal() {
             cancelConfirmId = null;
+            selectedTaskNames = new Set();
+            selectedTaskIds = new Set();
             renderTaskModal();
             document.querySelector('.content').style.display = 'none';
             document.getElementById('taskDetailPage').classList.add('show');
         }
 
         function closeTaskModal() {
+            selectedTaskNames = new Set();
+            selectedTaskIds = new Set();
             document.querySelector('.content').style.display = 'block';
             document.getElementById('taskDetailPage').classList.remove('show');
         }
@@ -1659,6 +2035,7 @@
                 { key: 'queued', label: '排队中', count: counts.queued },
                 { key: 'completed', label: '已完成', count: counts.completed },
                 { key: 'failed', label: '已失败', count: counts.failed },
+                { key: 'cancelled', label: '已取消', count: counts.cancelled },
             ];
 
             var filtersHtml = '';
@@ -1695,11 +2072,14 @@
             }
             var etaText2 = (genCount + queuedCount) > 0 ? Math.ceil((genCount + queuedCount) * 1.5) + '-' + Math.ceil((genCount + queuedCount) * 3) : '0';
 
-            // 摘要栏
-            var summaryHtml = '<div>共 <strong>' + filtered.length + '</strong> 条 · 预计 <strong>' + etaText2 + '</strong> 分钟</div>';
+                        // 摘要栏
+            var summaryHtml = '<div>共 <strong>' + filtered.length + '</strong> 条子任务 · 预计 <strong>' + etaText2 + '</strong> 分钟</div>';
             var summaryEl = document.getElementById('task-summary');
             summaryEl.innerHTML = summaryHtml;
             summaryEl.style.display = filtered.length > 0 ? 'flex' : 'none';
+            // 重置两级勾选
+            selectedTaskNames = new Set();
+            selectedTaskIds = new Set();
 
             // 分组
             var groups = {};
@@ -1711,106 +2091,183 @@
             }
 
             var listHtml = '';
-            var totalCount = 0;
-
             if (filtered.length === 0) {
                 listHtml = '<div class="task-empty">暂无任务</div>';
             } else {
+                listHtml += '<table class="task-report-table">';
+                listHtml += '<colgroup><col style="width:19%"><col style="width:8%"><col style="width:7%"><col style="width:8%"><col style="width:11%"><col style="width:10%"><col style="width:9%"><col style="width:11%"><col style="width:17%"></colgroup>';
+                listHtml += '<thead><tr><th>任务名</th><th>可见范围</th><th>视频数量</th><th>总消耗积分</th><th>任务创建时间</th><th>任务状态</th><th>任务进度</th><th>任务完成时间</th><th>操作</th></tr></thead><tbody>';
+                var groupIndex = 0;
                 for (var gk in groups) {
                     var g = groups[gk];
-                    listHtml += '<div class="task-group">';
-                    var allCompleted = true, anyWmProc = false, anyWmDone = false;
+                    // ── 任务级派生 ──
+                    var cardCreatedAt = '', cardCompletedAt = '', cardStatusText = '', cardProgress = 0;
+                    var stCounts = { completed:0, generating:0, queued:0, failed:0, draft:0, cancelled:0 };
+                    var latestCompleted = null, earliestCreated = null;
+                    var latestCompletedTime = null, earliestCreatedTime = null;
+                    var isDraft = false, anyWmProc = false, anyWmDone = false;
+                    var totalCost = 0;
                     for (var gi = 0; gi < g.items.length; gi++) {
-                        if (g.items[gi].status !== 'completed') allCompleted = false;
-                        if (g.items[gi].wmStatus === 'processing') anyWmProc = true;
-                        if (g.items[gi].wmStatus === 'done') anyWmDone = true;
+                        var it = g.items[gi];
+                        stCounts[it.status] = (stCounts[it.status] || 0) + 1;
+                        if (it.status === 'draft') isDraft = true;
+                        if (it.wmStatus === 'processing') anyWmProc = true;
+                        if (it.wmStatus === 'done') anyWmDone = true;
+                        totalCost += (it.cost || 0);
+                        var createdTime = parseTaskTime(it.createdAt);
+                        if (createdTime && (!earliestCreatedTime || createdTime < earliestCreatedTime)) {
+                            earliestCreatedTime = createdTime;
+                            earliestCreated = it.createdAt;
+                        }
+                        var completedTime = parseTaskTime(it.completedAt);
+                        if (completedTime && (!latestCompletedTime || completedTime > latestCompletedTime)) {
+                            latestCompletedTime = completedTime;
+                            latestCompleted = it.completedAt;
+                        }
                     }
-                    var wmBtnHtml = '';
-                    var tnEsc = g.taskName.replace(/'/g, "\\'");
-                    if (anyWmProc) {
-                        wmBtnHtml = '<button class="tg-config-btn" disabled>⏳ 水印字幕合成中...</button>';
-                    } else if (anyWmDone && !anyWmProc) {
-                        wmBtnHtml = '<button class="tg-config-btn" onclick="event.stopPropagation();openBatchWmConfig(\'' + tnEsc + '\')">🛡️ 水印字幕（已完成）</button>';
-                    } else if (allCompleted) {
-                        wmBtnHtml = '<button class="tg-config-btn" onclick="event.stopPropagation();openBatchWmConfig(\'' + tnEsc + '\')">🛡️ 水印字幕</button>';
+                    cardCreatedAt = earliestCreated || '—';
+                    cardCompletedAt = latestCompleted || null;
+                    // 父级状态聚合（优先级从高到低）
+                    var taskRowStatus = '未知';
+                    var statusColor = '#888';
+                    if (isDraft) {
+                        taskRowStatus = '草稿'; statusColor = '#888';
+                    } else if (stCounts.generating > 0 || anyWmProc) {
+                        taskRowStatus = '生成中'; statusColor = '#0066ff';
+                    } else if (stCounts.queued > 0 && stCounts.generating === 0 && stCounts.completed === 0 && stCounts.failed === 0 && stCounts.cancelled === 0) {
+                        taskRowStatus = '排队中'; statusColor = '#f59e0b';
+                    } else if (stCounts.failed > 0 && stCounts.completed === 0 && stCounts.generating === 0 && stCounts.queued === 0 && stCounts.cancelled === 0) {
+                        taskRowStatus = '已失败'; statusColor = '#ef4444';
+                    } else if (stCounts.cancelled > 0 && stCounts.completed === 0 && stCounts.failed === 0 && stCounts.generating === 0 && stCounts.queued === 0) {
+                        taskRowStatus = '已取消'; statusColor = '#999';
+                    } else if (stCounts.completed > 0 && stCounts.failed === 0 && stCounts.generating === 0 && stCounts.queued === 0 && stCounts.cancelled === 0) {
+                        taskRowStatus = '已完成'; statusColor = '#059669';
+                    } else if (stCounts.completed > 0 && (stCounts.failed > 0 || stCounts.cancelled > 0) && stCounts.generating === 0 && stCounts.queued === 0) {
+                        taskRowStatus = '部分成功'; statusColor = '#f59e0b';
                     } else {
-                        wmBtnHtml = '<button class="tg-config-btn" disabled title="该批次还有任务未完成">🛡️ 水印字幕</button>';
+                        // 末尾兜底：组合文本
+                        var parts = [];
+                        if (stCounts.completed) parts.push(stCounts.completed + '完成');
+                        if (stCounts.generating) parts.push(stCounts.generating + '生成中');
+                        if (stCounts.queued) parts.push(stCounts.queued + '排队中');
+                        if (stCounts.failed) parts.push(stCounts.failed + '失败');
+                        if (stCounts.cancelled) parts.push(stCounts.cancelled + '已取消');
+                        taskRowStatus = parts.join(', ') || '未知'; statusColor = '#333';
                     }
-                    listHtml += '<div class="task-group-title">' + g.taskName + '<span class="tg-badge">' + g.items.length + '条</span>' + wmBtnHtml + '</div>';
-                    listHtml += '<table class="task-table"><colgroup><col class="col-thumb"><col class="col-script"><col class="col-duration"><col class="col-createdAt"><col class="col-startedAt"><col class="col-completedAt"><col class="col-status"><col class="col-progress"><col class="col-error"><col class="col-op"></colgroup><thead><tr><th>首帧</th><th>台词</th><th>时长</th><th>创建时间</th><th>开始时间</th><th>完成时间</th><th>状态</th><th>进度</th><th>失败原因</th><th>操作</th></tr></thead><tbody>';
+                    // 进度
+                    var nonDraftTotal = g.items.length - stCounts.draft;
+                    cardProgress = nonDraftTotal > 0 ? Math.round(stCounts.completed / nonDraftTotal * 100) : 0;
+                    var hasCompleted = stCounts.completed > 0;
+                    var allCompleted = g.items.length > 0 && stCounts.completed === g.items.length;
+                    var editDisabled = isDraft ? '' : ' disabled';
+                    var wmDisabled = (!allCompleted || anyWmProc) ? ' disabled' : '';
+                    var wmLabel = anyWmProc ? '合成中' : '水印字幕';
+                    var downloadDisabled = hasCompleted ? '' : ' disabled';
+                    var cancelDisabled = (stCounts.queued === 0 && stCounts.generating === 0) ? ' disabled' : '';
+
+                    // ── 任务父级行 ──
+                    var tnq = g.taskName.replace(/"/g,'&quot;');
+                    var tnEsc = g.taskName.replace(/'/g,"\\'");
+                    var detailId = 'task-detail-sub-' + groupIndex++;
+                    var groupVisibility = g.items[0] && g.items[0].visibility ? g.items[0].visibility : '仅自己';
+                    listHtml += '<tr class="task-report-row" data-task="' + tnq + '">';
+                    listHtml += '<td><button class="task-report-toggle" type="button" onclick="toggleTaskReportRow(\'' + detailId + '\',this)">−</button><span class="task-report-name" title="' + tnq + '">' + escapeTaskText(g.taskName) + '</span></td>';
+                    listHtml += '<td style="font-size:11px;color:#666;">' + groupVisibility + '</td>';
+                    listHtml += '<td class="task-report-count">' + g.items.length + '</td>';
+                    listHtml += '<td class="task-report-cost">' + totalCost + '🪙</td>';
+                    listHtml += '<td class="task-report-time">' + fmtTime(cardCreatedAt) + '</td>';
+                    listHtml += '<td><span class="task-state-chip" style="color:' + statusColor + ';">' + taskRowStatus + '</span></td>';
+                    listHtml += '<td class="task-report-progress">' + cardProgress + '%</td>';
+                    listHtml += '<td class="task-report-time">' + (cardCompletedAt ? fmtTime(cardCompletedAt) : '—') + '</td>';
+                    listHtml += '<td><div class="task-report-actions">';
+                    listHtml += '<button class="task-report-action"' + editDisabled + ' onclick="window.location.href=\'简单模式-流程版.html?editDraft=1\'">编辑</button>';
+                    listHtml += '<button class="task-report-action wm"' + wmDisabled + ' onclick="openBatchWmConfig(\'' + tnEsc + '\')">' + wmLabel + '</button>';
+                    listHtml += '<button class="task-report-action"' + downloadDisabled + ' onclick="downloadTaskVideos(\'' + tnEsc + '\')">下载</button>';
+                    listHtml += '<button class="task-report-action danger"' + cancelDisabled + ' onclick="cancelGroupTask(\'' + tnEsc + '\')">取消</button>';
+                    listHtml += '<button class="task-report-action danger" onclick="deleteTask(\'' + tnEsc + '\')">删除</button>';
+                    listHtml += '</div></td>';
+                    listHtml += '</tr>';
+
+                    // ── 子任务明细行 ──
+                    listHtml += '<tr class="task-detail-row" id="' + detailId + '"><td colspan="9"><div class="task-detail-cell">';
+                    listHtml += '<table class="task-sub-table"><colgroup><col style="width:5%"><col style="width:23%"><col style="width:6%"><col style="width:6%"><col style="width:8%"><col style="width:9%"><col style="width:11%"><col style="width:11%"><col style="width:7%"><col style="width:14%"></colgroup>';
+                    listHtml += '<thead><tr><th>首帧</th><th>台词</th><th>消耗积分</th><th>视频时长</th><th>视频状态</th><th>生成进度</th><th>开始生成时间</th><th>生成完成时间</th><th>生成耗时</th><th>操作</th></tr></thead><tbody>';
 
                     for (var k = 0; k < g.items.length; k++) {
                         var task = g.items[k];
-                        totalCount++;
-                        var statusHtml, progressHtml, errorHtml, actionHtml;
+                        var statusHtml, progressHtml, actionHtml, canCancel, canPreview, canDownload;
+                        canCancel = task.status === 'queued' || task.status === 'generating';
+                        canPreview = task.status === 'completed';
+                        canDownload = task.status === 'completed';
 
-                        if (task.status === 'completed') {
+                        if (task.status === 'draft') {
+                            statusHtml = '<span class="ts draft"><span class="ico">📝</span>草稿</span>';
+                            progressHtml = '<span class="tpb-text">-</span>';
+                        } else if (task.status === 'completed') {
                             if (task.wmStatus === 'processing') {
-                                statusHtml = '<span class="ts wm-processing"><span class="ico">⏳</span>水印字幕合成中</span>';
+                                statusHtml = '<span class="ts wm-processing"><span class="ico">⏳</span>字幕合成中</span>';
                                 progressHtml = '<div class="tpb"><div class="tpb-fill" style="width:' + (task.wmProgress || 0) + '%"></div></div><span class="tpb-text">' + (task.wmProgress || 0) + '%</span>';
-                                errorHtml = '<span style="font-size:11px;color:#ccc;">-</span>';
-                                actionHtml = '<span style="font-size:11px;color:#ccc;">-</span>';
+                                canPreview = false;
+                                canDownload = false;
                             } else if (task.wmStatus === 'done') {
-                                statusHtml = '<span class="ts completed"><span class="ico">✅</span>水印字幕合成完成</span>';
+                                statusHtml = '<span class="ts completed"><span class="ico">✅</span>已完成</span>';
                                 progressHtml = '<div class="tpb"><div class="tpb-fill" style="width:100%"></div></div><span class="tpb-text">100%</span>';
-                                errorHtml = '<span style="font-size:11px;color:#ccc;">-</span>';
-                                actionHtml = '<button class="tg-op-btn retry" onclick="openPreview(' + task.id + ')">预览</button> <button class="tg-op-btn retry" onclick="downloadVideo(' + task.id + ')" style="color:#0066ff;">下载</button>';
                             } else {
-                                statusHtml = '<span class="ts completed"><span class="ico">✅</span>视频已完成</span>';
+                                statusHtml = '<span class="ts completed"><span class="ico">✅</span>已完成</span>';
                                 progressHtml = '<div class="tpb"><div class="tpb-fill" style="width:100%"></div></div><span class="tpb-text">100%</span>';
-                                errorHtml = '<span style="font-size:11px;color:#ccc;">-</span>';
-                                actionHtml = '<button class="tg-op-btn retry" onclick="openPreview(' + task.id + ')">预览</button> <button class="tg-op-btn retry" onclick="downloadVideo(' + task.id + ')" style="color:#0066ff;">下载</button>';
                             }
                         } else if (task.status === 'generating') {
                             statusHtml = '<span class="ts generating"><span class="ico">🔄</span>生成中</span>';
                             progressHtml = '<div class="tpb"><div class="tpb-fill" style="width:' + task.progress + '%"></div></div><span class="tpb-text">' + task.progress + '%</span>';
-                            errorHtml = '<span style="font-size:11px;color:#ccc;">-</span>';
-                            actionHtml = '<span style="font-size:11px;color:#ccc;">-</span>';
                         } else if (task.status === 'queued') {
                             statusHtml = '<span class="ts queued"><span class="ico">⏳</span>排队中</span>';
                             progressHtml = '<span class="tpb-text">等待中</span>';
-                            errorHtml = '<span style="font-size:11px;color:#ccc;">-</span>';
-                            if (cancelConfirmId === task.id) {
-                                actionHtml = '<div class="tg-cancel-cfm show"><button class="cfm-ok" onclick="confirmCancel(' + task.id + ')">确认</button><button class="cfm-no" onclick="abortCancel()">取消</button></div>';
-                            } else {
-                                actionHtml = '<button class="tg-op-btn" onclick="requestCancel(' + task.id + ')">取消</button>';
-                            }
-                        } else if (task.status === 'failed') {
-                            statusHtml = '<span class="ts failed"><span class="ico">❌</span>已失败</span>';
+                        } else if (task.status === 'cancelled') {
+                            statusHtml = '<span class="ts failed"><span class="ico">🚫</span>已取消</span>';
                             progressHtml = '<span class="tpb-text">-</span>';
-                            errorHtml = '<span style="font-size:11px;color:#ccc;">-</span>';
-                            actionHtml = '<button class="tg-op-btn retry" onclick="retryTask(' + task.id + ')">重试</button>';
+                        } else if (task.status === 'failed') {
+                            var errAlive = task.error || '未知错误';
+                            var errEsc = errAlive.replace(/'/g,"\\'").replace(/"/g,'&quot;');
+                            statusHtml = '<span class="ts failed"><span class="ico">❌</span>已失败<span class="err-alert" onmouseenter="showTgErrTip(event,\'' + errEsc + '\')" onmouseleave="hideTgTip()" onclick="copyErrorText(\'' + errEsc + '\')" title="点击复制错误信息">❗️</span></span>';
+                            progressHtml = '<span class="tpb-text">-</span>';
+                        }
+                        if (task.status === 'cancelled') {
+                            actionHtml = '<div class="subtask-actions"><button class="tg-op-btn" disabled>取消</button><button class="tg-op-btn retry" disabled>预览</button><button class="tg-op-btn download" disabled>下载</button></div>';
+                        } else if (task.status === 'failed') {
+                            actionHtml = '<div class="subtask-actions"><button class="tg-op-btn warn" onclick="retryTask(' + task.id + ')">重试</button><button class="tg-op-btn retry" disabled>预览</button><button class="tg-op-btn download" disabled>下载</button></div>';
+                        } else if (cancelConfirmId === task.id) {
+                            actionHtml = '<div class="subtask-actions"><div class="tg-cancel-cfm show"><button class="cfm-ok" onclick="confirmCancel(' + task.id + ')">确认</button><button class="cfm-no" onclick="abortCancel()">取消</button></div><button class="tg-op-btn retry" disabled>预览</button><button class="tg-op-btn download" disabled>下载</button></div>';
+                        } else {
+                            actionHtml = '<div class="subtask-actions">';
+                            actionHtml += '<button class="tg-op-btn" ' + (canCancel ? 'onclick="requestCancel(' + task.id + ')"' : 'disabled') + '>取消</button>';
+                            actionHtml += '<button class="tg-op-btn retry" ' + (canPreview ? 'onclick="openPreview(' + task.id + ')"' : 'disabled') + '>预览</button>';
+                            actionHtml += '<button class="tg-op-btn download" ' + (canDownload ? 'onclick="downloadVideo(' + task.id + ')"' : 'disabled') + '>下载</button>';
+                            actionHtml += '</div>';
                         }
 
                         var shortScript = task.script.length > 25 ? task.script.substring(0, 25) + '...' : task.script;
-                        var txtEscaped = task.script.replace(/'/g, "\\'").replace(/"/g, '&quot;');
-                        var pGradEsc = task.person.gradient.replace(/'/g, "\\'");
-                        var bgGradEsc = task.bg.gradient.replace(/'/g, "\\'");
+                        var txtEscaped = task.script.replace(/'/g,"\\'").replace(/"/g,'&quot;');
+                        var pGradEsc = task.person.gradient.replace(/'/g,"\\'");
+                        var bgGradEsc = task.bg.gradient.replace(/'/g,"\\'");
+                        var elapsedHtml = fmtTaskElapsed(task.startedAt, task.completedAt, task.status);
 
-                        listHtml += '<tr>';
-                        listHtml += '<td><div class="cf-thumb-sm" style="background:' + bgGradEsc + '" onmouseenter="showTgTip(event,\'gradient\',\'' + pGradEsc + '\',\'' + task.person.emoji + '\',\'' + task.person.name.replace(/'/g, "\\'") + '\')" onmouseleave="hideTgTip()" title="' + task.person.name.replace(/'/g, "\\'") + ' · ' + task.bg.name.replace(/'/g, "\\'") + '">' + task.person.emoji + '</div></td>';
+                        listHtml += '<tr data-id="' + task.id + '">';
+                        listHtml += '<td><div class="cf-thumb-sm" style="background:' + bgGradEsc + '" onmouseenter="showTgTip(event,\'gradient\',\'' + pGradEsc + '\',\'' + task.person.emoji + '\',\'' + task.person.name.replace(/'/g,"\\'") + '\')" onmouseleave="hideTgTip()" title="' + task.person.name.replace(/'/g,"\\'") + ' · ' + task.bg.name.replace(/'/g,"\\'") + '">' + task.person.emoji + '</div></td>';
                         listHtml += '<td class="td-script" onmouseenter="showTgTxtTip(event,\'' + txtEscaped + '\')" onmouseleave="hideTgTip()">' + shortScript + '</td>';
+                        listHtml += '<td class="td-cost">' + (task.cost || 0) + '🪙</td>';
                         listHtml += '<td style="color:#059669;font-weight:500;white-space:nowrap;">' + (task.duration ? task.duration + 's' : '--') + '</td>';
-                        listHtml += '<td style="font-size:11px;color:#999;white-space:nowrap;">' + fmtTime(task.createdAt) + '</td>';
-                        listHtml += '<td style="font-size:11px;color:#999;white-space:nowrap;">' + fmtTime(task.startedAt) + '</td>';
-                        listHtml += '<td style="font-size:11px;color:#999;white-space:nowrap;">' + fmtTime(task.completedAt) + '</td>';
                         listHtml += '<td class="td-status">' + statusHtml + '</td>';
                         listHtml += '<td class="td-progress">' + progressHtml + '</td>';
-                        // 失败原因列
-                        if (task.status === 'failed' && task.error) {
-                            var errShort = task.error.length > 12 ? task.error.substring(0, 12) + '...' : task.error;
-                            var errEscaped = task.error.replace(/'/g, "\\'").replace(/"/g, '&quot;');
-                            errorHtml = '<span class="err-short" onmouseenter="showTgErrTip(event,\'' + errEscaped + '\')" onmouseleave="hideTgTip()">' + errShort + '</span>';
-                        } else {
-                            errorHtml = '<span style="font-size:11px;color:#ccc;">-</span>';
-                        }
-                        listHtml += '<td class="td-error">' + errorHtml + '</td>';
+                        listHtml += '<td class="td-elapsed">' + (task.startedAt ? fmtTime(task.startedAt) : '—') + '</td>';
+                        listHtml += '<td class="td-elapsed">' + (task.completedAt ? fmtTime(task.completedAt) : '—') + '</td>';
+                        listHtml += '<td class="td-elapsed">' + elapsedHtml + '</td>';
                         listHtml += '<td class="td-op">' + actionHtml + '</td>';
                         listHtml += '</tr>';
                     }
-
-                    listHtml += '</tbody></table></div>';
+                    listHtml += '</tbody></table>';
+                    listHtml += '</div></td></tr>';
                 }
+                listHtml += '</tbody></table>';
             }
             document.getElementById('task-list').innerHTML = listHtml;
 
@@ -1819,6 +2276,198 @@
             var etaText3 = totalRemaining2 > 0 ? Math.ceil(totalRemaining2 * 1.5) + '-' + Math.ceil(totalRemaining2 * 3) : '0';
             document.getElementById('task-total-count').textContent = filtered.length;
             document.getElementById('task-total-time').textContent = etaText3;
+            updateGlobalBatchBar();
+        }
+
+        /* ── 任务卡折叠 ── */
+        function toggleCard(headerEl) {
+            var card = headerEl.closest('.task-card');
+            card.classList.toggle('collapsed');
+        }
+        function toggleTaskReportRow(detailId, btn) {
+            var row = document.getElementById(detailId);
+            if (!row) return;
+            var hidden = row.classList.toggle('is-hidden');
+            if (btn) btn.textContent = hidden ? '+' : '−';
+        }
+
+        /* ── 任务级勾选（全局批量栏） ── */
+        function toggleCardSelect(taskName, checked) {
+            if (checked) selectedTaskNames.add(taskName); else selectedTaskNames.delete(taskName);
+            updateGlobalBatchBar();
+        }
+        function updateGlobalBatchBar() {
+            var count = selectedTaskNames.size;
+            var numEl = document.getElementById('task-global-batch-count');
+            if (numEl) numEl.textContent = count;
+            var globalBar = document.getElementById('task-global-batch-bar');
+            if (globalBar) globalBar.style.display = 'none';
+            var deleteBtn = document.getElementById('task-global-delete-btn');
+            var dlBtn = document.getElementById('task-global-download-btn');
+            if (!deleteBtn || !dlBtn) return;
+            if (count === 0) { deleteBtn.disabled = true; dlBtn.disabled = true; return; }
+            deleteBtn.disabled = false;
+            var hasCompleted = false;
+            for (var i = 0; i < mockTasks.length; i++) {
+                if (selectedTaskNames.has(mockTasks[i].taskName) && mockTasks[i].status === 'completed') { hasCompleted = true; break; }
+            }
+            dlBtn.disabled = !hasCompleted;
+        }
+        function batchDeleteTasks() {
+            if (selectedTaskNames.size === 0) return;
+            var count = selectedTaskNames.size;
+            if (!confirm('确认删除 ' + count + ' 个任务及其所有子任务？此操作不可恢复。')) return;
+            var names = Array.from(selectedTaskNames);
+            for (var j = 0; j < names.length; j++) {
+                for (var i = mockTasks.length - 1; i >= 0; i--) {
+                    if (mockTasks[i].taskName === names[j]) mockTasks.splice(i, 1);
+                }
+            }
+            selectedTaskNames = new Set();
+            updateTaskStatusBar();
+            renderTaskModal();
+            toast('已删除 ' + count + ' 个任务');
+        }
+        function batchDownloadAllTasks() {
+            var toDl = [];
+            for (var i = 0; i < mockTasks.length; i++) {
+                if (selectedTaskNames.has(mockTasks[i].taskName) && mockTasks[i].status === 'completed') toDl.push(mockTasks[i]);
+            }
+            if (toDl.length === 0) { toast('选中的任务中没有可下载的视频'); return; }
+            toast('已批量下载 ' + toDl.length + ' 条视频文件');
+        }
+        function cancelGroupTask(taskName) {
+            var toCancel = [];
+            for (var i = 0; i < mockTasks.length; i++) {
+                if (mockTasks[i].taskName === taskName && (mockTasks[i].status === 'queued' || mockTasks[i].status === 'generating')) {
+                    toCancel.push(mockTasks[i]);
+                }
+            }
+            if (toCancel.length === 0) { toast('该任务没有正在排队或生成中的视频'); return; }
+            if (!confirm('确认取消「' + taskName + '」中 ' + toCancel.length + ' 条视频的生成？已完成和已失败的视频不受影响。')) return;
+            for (var j = 0; j < toCancel.length; j++) {
+                toCancel[j].status = 'cancelled';
+                toCancel[j].progress = 0;
+                delete toCancel[j].error;
+            }
+            updateTaskStatusBar();
+            renderTaskModal();
+            toast('已取消 ' + toCancel.length + ' 条视频');
+        }
+        function deleteTask(taskName) {
+            if (!confirm('确认删除任务「' + taskName + '」及其所有子任务？此操作不可恢复。')) return;
+            for (var i = mockTasks.length - 1; i >= 0; i--) {
+                if (mockTasks[i].taskName === taskName) mockTasks.splice(i, 1);
+            }
+            selectedTaskNames.delete(taskName);
+            updateTaskStatusBar();
+            renderTaskModal();
+            toast('已删除任务「' + taskName + '」');
+        }
+        function downloadTaskVideos(taskName) {
+            var dl = [];
+            for (var i = 0; i < mockTasks.length; i++) {
+                if (mockTasks[i].taskName === taskName && mockTasks[i].status === 'completed') dl.push(mockTasks[i]);
+            }
+            if (dl.length === 0) { toast('该任务没有已完成的视频'); return; }
+            toast('已下载「' + taskName + '」的 ' + dl.length + ' 条视频');
+        }
+
+        /* ── 子任务级勾选（卡片内批量栏） ── */
+        function toggleSubTaskSelect(id, checked, taskName) {
+            if (checked) selectedTaskIds.add(id); else selectedTaskIds.delete(id);
+            var row = document.querySelector('#task-list tr[data-id="' + id + '"]');
+            if (row) row.classList.toggle('selected', checked);
+            updateCardBatchBar(taskName);
+            syncCardSelectAll(taskName);
+        }
+        function cardToggleSelectAll(cb, taskName) {
+            var card = cb.closest('.task-card');
+            if (!card) return;
+            var cbs = card.querySelectorAll('.task-cb:not(:disabled)');
+            for (var i = 0; i < cbs.length; i++) {
+                cbs[i].checked = cb.checked;
+                var row = cbs[i].closest('tr');
+                var id = parseInt(row.getAttribute('data-id'));
+                if (!isNaN(id)) {
+                    if (cb.checked) selectedTaskIds.add(id); else selectedTaskIds.delete(id);
+                    if (row) row.classList.toggle('selected', cb.checked);
+                }
+            }
+            updateCardBatchBar(taskName);
+        }
+        function syncCardSelectAll(taskName) {
+            var card = document.querySelector('.task-card[data-task="' + taskName.replace(/"/g,'&quot;') + '"]');
+            if (!card) return;
+            var sa = card.querySelector('.card-select-all');
+            if (!sa) return;
+            var cbs = card.querySelectorAll('.task-cb:not(:disabled)');
+            var checked = card.querySelectorAll('.task-cb:checked:not(:disabled)');
+            if (cbs.length === 0) { sa.checked = false; sa.indeterminate = false; }
+            else if (checked.length === 0) { sa.checked = false; sa.indeterminate = false; }
+            else if (checked.length === cbs.length) { sa.checked = true; sa.indeterminate = false; }
+            else { sa.checked = false; sa.indeterminate = true; }
+        }
+        function updateCardBatchBar(taskName) {
+            var card = document.querySelector('.task-card[data-task="' + taskName.replace(/"/g,'&quot;') + '"]');
+            if (!card) return;
+            var canCancel = 0, canDl = 0, count = 0;
+            for (var i = 0; i < mockTasks.length; i++) {
+                var t = mockTasks[i];
+                if (t.taskName !== taskName || !selectedTaskIds.has(t.id)) continue;
+                count++;
+                if (t.status === 'queued' || t.status === 'generating') canCancel++;
+                if (t.status === 'completed') canDl++;
+            }
+            var numEl = card.querySelector('.card-batch-num');
+            if (numEl) numEl.textContent = count;
+            var cancelBtn = card.querySelector('.card-cancel-btn');
+            var dlBtn = card.querySelector('.card-download-btn');
+            if (cancelBtn) cancelBtn.disabled = canCancel === 0;
+            if (dlBtn) dlBtn.disabled = canDl === 0;
+        }
+        function cardBatchCancel(taskName) {
+            var toCancel = [];
+            for (var i = 0; i < mockTasks.length; i++) {
+                var t = mockTasks[i];
+                if (t.taskName === taskName && selectedTaskIds.has(t.id) && (t.status === 'queued' || t.status === 'generating')) {
+                    toCancel.push(t.id);
+                }
+            }
+            if (toCancel.length === 0) { toast('未选中可取消的条目'); return; }
+            pendingBatchCancelIds = toCancel;
+            document.getElementById('taskBatchConfirmDesc').textContent =
+                '确认取消这 ' + toCancel.length + ' 条视频的生成？此操作不可恢复。';
+            document.getElementById('taskBatchConfirmOverlay').classList.add('active');
+        }
+        function cardBatchDownload(taskName) {
+            var toDl = [];
+            for (var i = 0; i < mockTasks.length; i++) {
+                var t = mockTasks[i];
+                if (t.taskName === taskName && selectedTaskIds.has(t.id) && t.status === 'completed') {
+                    toDl.push(t);
+                }
+            }
+            if (toDl.length === 0) { toast('未选中可下载的条目（仅已完成的可以下载）'); return; }
+            toast('已批量下载 ' + toDl.length + ' 条视频文件');
+        }
+        function closeTaskBatchConfirm() {
+            pendingBatchCancelIds = [];
+            document.getElementById('taskBatchConfirmOverlay').classList.remove('active');
+        }
+        function executeTaskBatchCancel() {
+            var ids = pendingBatchCancelIds;
+            for (var j = 0; j < ids.length; j++) {
+                for (var i = mockTasks.length - 1; i >= 0; i--) {
+                    if (mockTasks[i].id === ids[j]) { mockTasks.splice(i, 1); break; }
+                }
+                selectedTaskIds.delete(ids[j]);
+            }
+            pendingBatchCancelIds = [];
+            document.getElementById('taskBatchConfirmOverlay').classList.remove('active');
+            updateTaskStatusBar();
+            renderTaskModal();
+            toast('已取消 ' + ids.length + ' 条任务');
         }
 
         function requestCancel(id) {
@@ -1938,6 +2587,28 @@
             txtTip.classList.remove('show');
         }
 
+        function copyErrorText(txt) {
+            var decoded = txt.replace(/\\'/g, "'").replace(/&quot;/g, '"');
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(decoded).then(function() {
+                    toast('已复制错误信息');
+                }).catch(function() {
+                    fallbackCopy(decoded);
+                });
+            } else {
+                fallbackCopy(decoded);
+            }
+        }
+        function fallbackCopy(txt) {
+            var ta = document.createElement('textarea');
+            ta.value = txt;
+            ta.style.position = 'fixed'; ta.style.left = '-9999px';
+            document.body.appendChild(ta);
+            ta.select();
+            try { document.execCommand('copy'); toast('已复制错误信息'); } catch(e) { toast('复制失败，请手动复制'); }
+            document.body.removeChild(ta);
+        }
+
         function showTgErrTip(e, txt) {
             var tip = document.getElementById('tg-tip-txt');
             tip.innerHTML = '<span style="color:#ef4444;font-weight:600;">失败原因：</span>' + txt.replace(/\\'/g, "'").replace(/&quot;/g, '"');
@@ -2044,7 +2715,8 @@
             else sub.style.bottom = subGap + 'px';
         }
         function saveBatchWmConfig() {
-            batchConfigs[_batchCfgTaskName] = {
+            var taskName = _batchCfgTaskName;
+            batchConfigs[taskName] = {
                 wmEnabled: document.getElementById('batch-wm-toggle').checked,
                 wmText: document.getElementById('batch-wm-input').value.trim(),
                 wmPos: document.getElementById('batch-wm-pos').value,
@@ -2059,7 +2731,7 @@
             };
             // 触发该批次所有已完成任务的水印合成
             for (var i = 0; i < mockTasks.length; i++) {
-                if (mockTasks[i].taskName === _batchCfgTaskName && mockTasks[i].status === 'completed' && mockTasks[i].wmStatus !== 'done') {
+                if (mockTasks[i].taskName === taskName && mockTasks[i].status === 'completed' && mockTasks[i].wmStatus !== 'done') {
                     mockTasks[i].wmStatus = 'processing';
                     mockTasks[i].wmProgress = 0;
                 }
@@ -2067,7 +2739,7 @@
             closeBatchWmConfig();
             updateTaskStatusBar();
             if (document.getElementById('taskDetailPage').classList.contains('show')) renderTaskModal();
-            toast('水印字幕配置已保存，开始合成「' + _batchCfgTaskName + '」');
+            toast('水印字幕配置已保存，开始合成「' + taskName + '」');
         }
         document.getElementById('batch-wm-ov').addEventListener('click', function(e){ if(e.target===this) closeBatchWmConfig(); });
 
@@ -2498,6 +3170,7 @@
                                 mockTasks.push({
                                     id: Date.now() + idx,
                                     taskName: data.taskName || '未命名任务',
+                                    visibility: '仅自己',
                                     script: row.script,
                                     person: row.person,
                                     bg: row.bg,
@@ -2506,6 +3179,7 @@
                                     startedAt: null,
                                     completedAt: null,
                                     duration: row.duration || 30,
+                                    cost: (row.duration || 30) * 2,
                                     createdAt: new Date().toISOString(),
                                     wmStatus: null
                                 });
@@ -2521,6 +3195,52 @@
             }
         })();
 
+        // 加载草稿任务
+        (function() {
+          try {
+            var raw = localStorage.getItem('aigc_draft_task');
+            if (!raw) return;
+            var d = JSON.parse(raw);
+            if (!d.taskName && !d.avatar && (!d.cards || d.cards.length === 0)) return;
+            var taskName = d.taskName || '未命名草稿';
+            // 去重：检查是否已有同名任务（非 draft 状态）
+            var hasExisting = false;
+            for (var i = 0; i < mockTasks.length; i++) {
+              if (mockTasks[i].taskName === taskName && mockTasks[i].status !== 'draft') {
+                hasExisting = true;
+                break;
+              }
+            }
+            if (!hasExisting) {
+              // 如果已有同名 draft，先移除旧的
+              for (var i = mockTasks.length - 1; i >= 0; i--) {
+                if (mockTasks[i].taskName === taskName && mockTasks[i].status === 'draft') {
+                  mockTasks.splice(i, 1);
+                }
+              }
+              var cardCount = d.cards ? d.cards.length : 0;
+              var avName = d.avatar || '未选角色';
+              var bgName = (d.bgMulti && d.bgMulti.length > 0) ? d.bgMulti[0] : '办公室';
+              mockTasks.push({
+                id: Date.now(),
+                taskName: taskName,
+                visibility: '仅自己',
+                script: cardCount > 0 ? ('（草稿，共 ' + cardCount + ' 条台词）') : '（草稿，暂未填写台词）',
+                status: 'draft',
+                progress: 0,
+                duration: 0,
+                cost: 0,
+                createdAt: new Date().toISOString(),
+                startedAt: null,
+                completedAt: null,
+                wmStatus: null,
+                person: { name: avName, emoji: '👤', gradient: 'linear-gradient(135deg,#667eea,#764ba2)' },
+                bg: { name: bgName, gradient: 'linear-gradient(135deg,#667eea,#764ba2)' }
+              });
+            }
+          } catch(e) {}
+        })();
+
         // 模拟任务进度变化（演示用）
         var taskSimInterval = setInterval(function() {
             var changed = false;
@@ -2531,7 +3251,7 @@
                     if (t.progress >= 100) {
                         t.progress = 100;
                         t.status = 'completed';
-                        t.completedAt = new Date().toISOString().replace('T',' ').slice(0,16);
+                        t.completedAt = new Date().toISOString().replace('T',' ').slice(0,19);
                     }
                     changed = true;
                 }
@@ -2543,7 +3263,7 @@
                     if (mockTasks[j].status === 'queued') {
                         mockTasks[j].status = 'generating';
                         mockTasks[j].progress = 5;
-                        mockTasks[j].startedAt = new Date().toISOString().replace('T',' ').slice(0,16);
+                        mockTasks[j].startedAt = new Date().toISOString().replace('T',' ').slice(0,19);
                         changed = true;
                         break;
                     }
