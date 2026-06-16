@@ -294,6 +294,7 @@
         .hbar-bar-wrap { flex: 1; height: 24px; background: #F0F0F3; border-radius: 4px; overflow: hidden; }
         .hbar-bar-fill { height: 100%; border-radius: 4px; background: var(--primary); transition: width 0.4s; }
         .hbar-value { font-size: 12px; font-weight: 600; color: var(--text-secondary); width: 50px; }
+        .hbar-meta { font-size: 11px; color: var(--text-muted); min-width: 72px; text-align: right; }
 
         /* ===== 网格卡片 ===== */
         .card-grid2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
@@ -381,9 +382,36 @@
         .task-metric { background:var(--card-bg); border:1px solid var(--border); border-radius:var(--radius); padding:14px 18px; text-align:center; }
         .task-metric-value { font-size:22px; font-weight:800; }
         .task-metric-label { font-size:11px; color:var(--text-muted); margin-top:2px; }
+        .task-stat-metrics { grid-template-columns:repeat(6,1fr); }
+        .tenant-rank-item {
+            display:grid; grid-template-columns: 28px minmax(120px,1fr) 78px 78px 78px 86px;
+            align-items:center; gap:10px; padding:10px 0; border-bottom:1px solid var(--border);
+            cursor:pointer;
+        }
+        .tenant-rank-item:last-child { border-bottom:none; }
+        .tenant-rank-item:hover { background:#FAFAFA; margin:0 -8px; padding-left:8px; padding-right:8px; border-radius:var(--radius-sm); }
+        .tenant-rank-item.active { background:var(--primary-light); margin:0 -8px; padding-left:8px; padding-right:8px; border-radius:var(--radius-sm); }
+        .rank-index { width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; background:#F0F0F3; color:var(--text-muted); font-size:11px; font-weight:700; }
+        .tenant-rank-item.active .rank-index { background:var(--primary); color:#fff; }
+        .rank-name { font-weight:700; font-size:13px; }
+        .rank-sub { font-size:11px; color:var(--text-muted); margin-top:2px; }
+        .rank-num { font-size:13px; font-weight:700; text-align:right; }
+        .rank-label { display:block; font-size:10px; color:var(--text-muted); font-weight:500; margin-top:2px; }
+        .reason-row { display:flex; align-items:center; gap:10px; padding:9px 0; border-bottom:1px solid var(--border); }
+        .reason-row:last-child { border-bottom:none; }
+        .reason-name { width:150px; font-size:12px; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+        .reason-count { width:52px; text-align:right; font-size:12px; font-weight:700; color:var(--red); }
+        .tenant-detail-head { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom:16px; }
+        .tenant-detail-title { font-size:16px; font-weight:800; }
+        .tenant-detail-sub { font-size:12px; color:var(--text-muted); margin-top:4px; }
+        .mini-metrics { display:grid; grid-template-columns:repeat(5,1fr); gap:10px; margin-bottom:16px; }
+        .mini-metric { background:#FAFAFA; border:1px solid var(--border); border-radius:var(--radius-sm); padding:10px 12px; }
+        .mini-metric-value { font-size:18px; font-weight:800; }
+        .mini-metric-label { font-size:11px; color:var(--text-muted); margin-top:2px; }
 
         /* ===== 响应式 ===== */
-        @media (max-width: 1440px) { .metrics-row,.card-grid4,.task-metrics { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 1440px) { .metrics-row,.card-grid4,.task-metrics,.task-stat-metrics,.mini-metrics { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 1200px) { .card-grid2 { grid-template-columns: 1fr; } }
         @media (max-width: 1024px) { .sidebar { width: 60px; } .sidebar .brand-text,.sidebar .brand-sub,.sidebar .nav-item span:not(.nav-icon),.sidebar-user-info,.sidebar-logout span,.nav-caret { display: none; } .nav-item.sub { padding-left: 18px; } }
     </style>
 </head>
@@ -403,7 +431,7 @@
     <nav class="sidebar-nav">
         <div class="nav-item active" data-view="view-dashboard"><span class="nav-icon">🏠</span> 工作台</div>
         <div class="nav-item" data-view="view-tenants"><span class="nav-icon">👥</span> 租户管理</div>
-        <div class="nav-item" data-view="view-tasks"><span class="nav-icon">📋</span> 任务管理</div>
+        <div class="nav-item" data-view="view-tasks"><span class="nav-icon">📋</span> 任务统计</div>
         <div class="nav-item" data-view="view-billing"><span class="nav-icon">💰</span> 积分与账单</div>
         <div class="nav-item nav-parent" data-toggle="business-config"><span class="nav-icon">⚙️</span> 业务配置 <span class="nav-caret">▾</span></div>
         <div class="nav-submenu" id="businessConfigSubmenu">
@@ -436,46 +464,51 @@
         <!-- 全局指标卡 -->
         <div class="metrics-row" id="metricsRow">
             <div class="metric-card">
-                <div class="metric-label">活跃租户</div>
+                <div class="metric-label">今日任务数</div>
                 <div class="metric-value" id="metricTasks">36</div>
-                <div class="metric-sub"><span class="metric-up">↑ 3</span> 较上周</div>
+                <div class="metric-sub" id="metricTaskSub">最新任务日</div>
             </div>
             <div class="metric-card">
-                <div class="metric-label">今日充值积分</div>
+                <div class="metric-label">今日生成视频</div>
                 <div class="metric-value" id="metricSuccess">12,000</div>
-                <div class="metric-sub">内部运营手动入账</div>
+                <div class="metric-sub" id="metricSuccessSub">已完成 / 总视频</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">今日成功率</div>
+                <div class="metric-value" id="metricTenants">8,450</div>
+                <div class="metric-sub" id="metricTenantsSub">按子任务口径</div>
             </div>
             <div class="metric-card">
                 <div class="metric-label">今日消耗积分</div>
-                <div class="metric-value" id="metricTenants">8,450</div>
-                <div class="metric-sub">视频 / 图片 / 音色消耗</div>
-            </div>
-            <div class="metric-card">
-                <div class="metric-label">额度预警租户</div>
                 <div class="metric-value" id="metricCost">3</div>
-                <div class="metric-sub"><span class="metric-warn">低于 1,000 积分</span></div>
+                <div class="metric-sub" id="metricCostSub">视频生成任务消耗</div>
             </div>
         </div>
 
         <!-- 视图：工作台 -->
         <div class="panel active" id="view-dashboard">
-            <div class="section-title">📋 今日任务概览</div>
-            <div class="task-metrics" id="dashTaskMetrics" style="margin-bottom:20px"></div>
-            <div class="info-card" style="margin-bottom:20px;border-color:#f59e0b;background:#fffaf0">
-                <h4>⚠ 高优先级额度预警租户</h4>
-                <div class="table-wrap" style="border:none">
-                    <table>
-                        <thead><tr><th>重要程度</th><th>租户</th><th>管理员</th><th>管理员手机号</th><th>当前余额</th><th>当前用量/额度</th></tr></thead>
-                        <tbody id="alertTable"></tbody>
-                    </table>
+            <div class="section-title">📋 今日视频生成表现</div>
+            <div class="card-grid2" style="margin-bottom:20px">
+                <div class="info-card" style="border-color:#f59e0b;background:#fffaf0">
+                    <h4>⚠ 高优先级额度预警租户</h4>
+                    <div class="table-wrap" style="border:none">
+                        <table>
+                            <thead><tr><th>重要程度</th><th>租户</th><th>管理员</th><th>管理员手机号</th><th>当前余额</th><th>当前用量/额度</th></tr></thead>
+                            <tbody id="alertTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="info-card">
+                    <h4>失败原因 TOP <span class="card-tag">按子任务统计</span></h4>
+                    <div id="failureReasonTop"></div>
                 </div>
             </div>
-            <div class="section-title">📊 租户消耗趋势（近 7 天）</div>
+            <div class="section-title">📊 视频生成量趋势（近 7 天）</div>
             <div class="info-card" style="margin-bottom:20px">
                 <div class="bar-chart" id="weeklyChart"></div>
             </div>
             <div class="info-card">
-                <h4>🏆 租户消耗 TOP5</h4>
+                <h4>🏆 租户视频生成 TOP5</h4>
                 <div id="topTenants"></div>
             </div>
         </div>
@@ -519,10 +552,10 @@
             </div>
         </div>
 
-        <!-- 视图：任务管理 -->
+        <!-- 视图：任务统计 -->
         <div class="panel" id="view-tasks">
-            <div class="task-metrics" id="taskMetricsRow"></div>
-            <div class="table-wrap">
+            <div class="section-title">租户维度任务统计</div>
+            <div class="table-wrap" style="margin-bottom:20px">
                 <div class="table-toolbar">
                     <select class="filter-select" id="taskTenantFilter" onchange="renderTasks()"><option value="">全部租户</option></select>
                     <select class="filter-select" id="taskStatusFilter" onchange="renderTasks()">
@@ -531,12 +564,23 @@
                     <input class="filter-input" type="date" id="taskDateFrom" onchange="renderTasks()" style="width:auto">
                     <span style="font-size:12px;color:var(--text-muted)">至</span>
                     <input class="filter-input" type="date" id="taskDateTo" onchange="renderTasks()" style="width:auto">
-                    <input class="filter-input" type="text" id="taskSearch" placeholder="搜索任务名称..." oninput="renderTasks()">
+                    <input class="filter-input" type="text" id="taskSearch" placeholder="搜索租户或任务名称..." oninput="renderTasks()">
                 </div>
-                <table>
-                    <thead><tr><th style="width:24px"></th><th>任务名称</th><th>所属租户</th><th>视频数量</th><th>消耗积分</th><th>状态</th><th>进度</th><th>创建时间</th><th>操作</th></tr></thead>
-                    <tbody id="taskTable"></tbody>
-                </table>
+            </div>
+            <div class="task-metrics task-stat-metrics" id="taskMetricsRow"></div>
+            <div class="card-grid2" style="margin-bottom:20px">
+                <div class="info-card">
+                    <h4>租户任务表现排行 <span class="card-tag">点击查看明细</span></h4>
+                    <div id="tenantTaskRank"></div>
+                </div>
+                <div class="info-card">
+                    <h4>失败原因分析 <span class="card-tag">当前筛选范围</span></h4>
+                    <div id="taskFailureReasons"></div>
+                </div>
+            </div>
+            <div class="info-card" id="tenantTaskDetail">
+                <h4>租户任务明细</h4>
+                <div style="font-size:12px;color:var(--text-muted)">请选择一个租户查看账号下任务情况</div>
             </div>
         </div>
 
@@ -558,6 +602,8 @@
         <!-- 视图：积分配置 -->
         <div class="panel" id="view-credit-config">
             <div class="section-title">积分配置</div>
+            <div class="pricing-grid" id="creditRateGrid" style="margin-bottom:24px;max-width:800px"></div>
+            <div class="section-title">功能计费规则</div>
             <div class="pricing-grid" id="pricingGrid" style="margin-bottom:24px"></div>
         </div>
 
@@ -658,7 +704,7 @@
         <div class="form-group" style="margin-bottom:14px">
             <label class="kv-label">充值积分数量 *</label>
             <input class="filter-input" id="rfPoints" style="width:100%" type="number" placeholder="请输入积分数量" oninput="updateRechargePreview()">
-            <span style="font-size:11px;color:var(--text-muted);margin-top:4px;display:block">对应金额：<strong id="rfAmount">¥0.00</strong>（1 元 = 10 积分）</span>
+            <span style="font-size:11px;color:var(--text-muted);margin-top:4px;display:block">对应金额：<strong id="rfAmount">¥0.00</strong>（1 元 = <span id="rfCreditRateDisplay">10</span> 积分）</span>
         </div>
         <div class="form-group" style="margin-bottom:14px">
             <label class="kv-label">备注 *</label>
@@ -856,7 +902,7 @@ function switchView(viewId) {
     var titles = {
         'view-dashboard':'工作台',
         'view-tenants':'租户管理',
-        'view-tasks':'任务管理',
+        'view-tasks':'任务统计',
         'view-billing':'积分与账单',
         'view-voice-config':'业务配置 / 音色配置',
         'view-credit-config':'业务配置 / 积分配置',
@@ -873,7 +919,7 @@ function updateTopbarActions() {
     var el = document.getElementById('topbarActions');
     var map = {
         'view-tenants': '',
-        'view-tasks': '<button class="btn btn-sm" onclick="renderTasks()">🔄 刷新</button>',
+        'view-tasks': '<button class="btn btn-sm" onclick="renderTasks()">🔄 刷新统计</button>',
         'view-voice-config': '',
         'view-credit-config': '',
         'view-prompt-config': '',
@@ -992,6 +1038,7 @@ var AppState = {
         { name:'快讯男声 F', voiceId:'cosyvoice-v3.5-fast-male-001', type:'男声', scene:'热点快评 / 早盘速递', binding:'快评主持人', status:'启用' },
         { name:'亲和女声 E', voiceId:'cosyvoice-v3.5-warm-female-001', type:'女声', scene:'账户服务 / 新手引导', binding:'客服讲解员', status:'停用' }
     ],
+    creditRate: 10,
     pricingRules: [
         { name:'图片生成', value:20, unit:'积分/张', scope:'按生成图片张数计费', status:'生效中' },
         { name:'一键超分', value:5, unit:'积分/张', scope:'按图片张数计费', status:'生效中' },
@@ -1093,56 +1140,62 @@ initData();
 // 工作台渲染
 // ===========================
 function renderDashboard() {
-    var activeTenants = AppState.tenants.filter(function(t) { return t.status !== '已停用'; }).length;
     var lowBalanceTenants = AppState.tenants.filter(function(t) { return t.status !== '已停用' && t.credits < 1000; }).length;
-    var latestDate = AppState.billingLogs.reduce(function(max, item) {
-        var date = item.time.slice(0, 10);
+    var allTasks = AppState.opsTasks || [];
+    var latestTaskDate = allTasks.reduce(function(max, item) {
+        var date = item.createdAt.slice(0, 10);
         return date > max ? date : max;
     }, '');
-    var latestCharge = 0, latestConsume = 0;
-    for (var d = 0; d < AppState.billingLogs.length; d++) {
-        var log = AppState.billingLogs[d];
-        if (log.time.slice(0, 10) !== latestDate) continue;
-        if (log.type === '充值') latestCharge += log.amount;
-        if (log.type === '消费') latestConsume += Math.abs(log.amount);
+    var todayTasks = latestTaskDate ? allTasks.filter(function(t) { return t.createdAt.indexOf(latestTaskDate) === 0; }) : [];
+    var todayStats = buildTaskStats(todayTasks);
+    var activeTenantCount = AppState.tenants.filter(function(t) { return t.status !== '已停用'; }).length;
+
+    document.getElementById('metricTasks').textContent = todayStats.taskCount;
+    document.getElementById('metricSuccess').textContent = todayStats.videoCount;
+    document.getElementById('metricTenants').textContent = todayStats.successRate + '%';
+    document.getElementById('metricCost').textContent = todayStats.totalCost.toLocaleString();
+    document.getElementById('metricTaskSub').innerHTML = '<span class="metric-up">' + (latestTaskDate || '-') + '</span> 最新任务日';
+    document.getElementById('metricSuccessSub').textContent = todayStats.completedVideos + ' 已完成 / ' + todayStats.videoCount + ' 总视频';
+    document.getElementById('metricTenantsSub').textContent = todayStats.failedVideos + ' 条失败视频';
+    document.getElementById('metricCostSub').textContent = activeTenantCount + ' 个活跃租户，' + lowBalanceTenants + ' 个低余额';
+
+    var trendMap = {};
+    for (var td = 0; td < allTasks.length; td++) {
+        var day = allTasks[td].createdAt.slice(0, 10);
+        trendMap[day] = (trendMap[day] || 0) + getTaskSubTaskCount(allTasks[td]);
     }
-    document.getElementById('metricTasks').textContent = activeTenants;
-    document.getElementById('metricSuccess').textContent = latestCharge.toLocaleString();
-    document.getElementById('metricTenants').textContent = latestConsume.toLocaleString();
-    document.getElementById('metricCost').textContent = lowBalanceTenants;
-
-    var allTasks = AppState.opsTasks || [];
-    var today = '2026-06-02';
-    var todayTasks = allTasks.filter(function(t) { return t.createdAt.indexOf(today) === 0; });
-    var todayTotal = todayTasks.length;
-    var todayDone = todayTasks.filter(function(t) { return t.status === 'completed'; }).length;
-    var todayGoing = todayTasks.filter(function(t) { return t.status === 'generating' || t.status === 'queued'; }).length;
-    var todayFailed = todayTasks.filter(function(t) { return t.status === 'failed' || t.status === 'partial'; }).length;
-    document.getElementById('dashTaskMetrics').innerHTML =
-        '<div class="task-metric"><div class="task-metric-value" style="color:var(--primary)">' + todayTotal + '</div><div class="task-metric-label">今日任务</div></div>' +
-        '<div class="task-metric"><div class="task-metric-value" style="color:var(--green)">' + todayDone + '</div><div class="task-metric-label">已完成</div></div>' +
-        '<div class="task-metric"><div class="task-metric-value" style="color:var(--blue)">' + todayGoing + '</div><div class="task-metric-label">进行中</div></div>' +
-        '<div class="task-metric"><div class="task-metric-value" style="color:' + (todayFailed > 0 ? 'var(--red)' : 'var(--text-muted)') + '">' + todayFailed + '</div><div class="task-metric-label">异常</div></div>';
-
-    var days = ['01/03','01/04','01/05','01/06','01/07','01/08','01/09'];
-    var values = [6200,7800,8450,6900,9300,8450,7300];
+    var days = Object.keys(trendMap).sort().slice(-7);
+    var values = days.map(function(day) { return trendMap[day]; });
     var maxVal = Math.max.apply(null, values);
     var barsHtml = '';
     for (var i = 0; i < days.length; i++) {
-        var h = Math.max(4, (values[i] / maxVal) * 140);
-        barsHtml += '<div class="bar-col"><div class="bar-col-value">' + values[i] + '</div><div class="bar-col-bar" style="height:' + h + 'px"></div><div class="bar-col-label">' + days[i] + '</div></div>';
+        var h = Math.max(4, (values[i] / (maxVal || 1)) * 140);
+        barsHtml += '<div class="bar-col"><div class="bar-col-value">' + values[i] + '</div><div class="bar-col-bar" style="height:' + h + 'px"></div><div class="bar-col-label">' + days[i].slice(5).replace('-', '/') + '</div></div>';
     }
-    document.getElementById('weeklyChart').innerHTML = barsHtml;
+    document.getElementById('weeklyChart').innerHTML = barsHtml || '<div style="font-size:12px;color:var(--text-muted);padding:20px">暂无趋势数据</div>';
 
-    var top5 = AppState.tenants.filter(function(t) { return t.status !== '已停用'; }).sort(function(a,b) { return b.dailyUsed - a.dailyUsed; }).slice(0, 5);
-    var maxUsed = top5[0] ? top5[0].dailyUsed : 1;
+    var top5 = getTenantTaskStatsList(allTasks).slice(0, 5);
+    var maxUsed = top5[0] ? top5[0].videoCount : 1;
     var hbarHtml = '';
     for (var j = 0; j < top5.length; j++) {
-        var w = (top5[j].dailyUsed / maxUsed) * 100;
+        var w = (top5[j].videoCount / maxUsed) * 100;
         var cls = j < 3 ? ' top3' : '';
-        hbarHtml += '<div class="hbar-item"><span class="hbar-rank' + cls + '">' + (j+1) + '</span><span class="hbar-name">' + top5[j].name + '</span><div class="hbar-bar-wrap"><div class="hbar-bar-fill" style="width:' + w + '%"></div></div><span class="hbar-value">' + top5[j].dailyUsed + '</span></div>';
+        hbarHtml += '<div class="hbar-item"><span class="hbar-rank' + cls + '">' + (j+1) + '</span><span class="hbar-name">' + top5[j].tenantName + '</span><div class="hbar-bar-wrap"><div class="hbar-bar-fill" style="width:' + w + '%"></div></div><span class="hbar-value">' + top5[j].videoCount + '</span><span class="hbar-meta">' + top5[j].successRate + '% 成功</span></div>';
     }
-    document.getElementById('topTenants').innerHTML = hbarHtml;
+    document.getElementById('topTenants').innerHTML = hbarHtml || '<div style="font-size:12px;color:var(--text-muted);padding:20px">暂无租户任务数据</div>';
+
+    var failureReasons = getFailureReasonList(buildTaskStats(allTasks).failureReasons).slice(0, 5);
+    var maxReason = failureReasons[0] ? failureReasons[0].count : 1;
+    var reasonHtml = '';
+    for (var fr = 0; fr < failureReasons.length; fr++) {
+        var reason = failureReasons[fr];
+        reasonHtml += '<div class="reason-row">' +
+            '<div class="reason-name" title="' + escapeHtml(reason.name) + '">' + escapeHtml(reason.name) + '</div>' +
+            '<div class="bar" style="flex:1"><div class="bar-fill danger" style="width:' + Math.max(8, reason.count / maxReason * 100) + '%"></div></div>' +
+            '<div class="reason-count">' + reason.count + ' 条</div>' +
+            '</div>';
+    }
+    document.getElementById('failureReasonTop').innerHTML = reasonHtml || '<div style="font-size:12px;color:var(--text-muted);padding:20px;text-align:center">暂无失败原因</div>';
 
     var alerts = AppState.tenants.filter(function(t) {
         return t.status !== '已停用' && t.credits < 1000;
@@ -1203,11 +1256,13 @@ function renderTenants() {
 function updateBillTenantFilter() {
     var sel = document.getElementById('billTenantFilter');
     if (!sel) return;
+    var current = sel.value;
     var opts = '<option value="">全部租户</option>';
     for (var i = 0; i < AppState.tenants.length; i++) {
         opts += '<option value="' + AppState.tenants[i].name + '">' + AppState.tenants[i].name + '</option>';
     }
     sel.innerHTML = opts;
+    if (current) sel.value = current;
 }
 
 // ===========================
@@ -1308,13 +1363,14 @@ function openRechargeModal(tenantId) {
     document.getElementById('rfPoints').value = '';
     document.getElementById('rfRemark').value = '';
     document.getElementById('rfAmount').textContent = '¥0.00';
+    document.getElementById('rfCreditRateDisplay').textContent = AppState.creditRate;
     document.getElementById('rechargeModalOverlay').classList.add('show');
 }
 function closeRechargeModal() { document.getElementById('rechargeModalOverlay').classList.remove('show'); }
 
 function updateRechargePreview() {
     var pts = parseInt(document.getElementById('rfPoints').value) || 0;
-    document.getElementById('rfAmount').textContent = '¥' + (pts / 10).toFixed(2);
+    document.getElementById('rfAmount').textContent = '¥' + (pts / AppState.creditRate).toFixed(2);
 }
 
 function confirmRecharge() {
@@ -1507,7 +1563,7 @@ function inferModelTypeByNode(node) {
 }
 
 // ===========================
-// 任务管理
+// 任务统计
 // ===========================
 function getTaskStatusLabel(status) {
     var map = { queued:'排队中',generating:'生成中',completed:'已完成',failed:'已失败',partial:'部分完成' };
@@ -1525,6 +1581,7 @@ function getTaskStatusIcon(status) {
 function updateTaskTenantFilter() {
     var sel = document.getElementById('taskTenantFilter');
     if (!sel) return;
+    var current = sel.value;
     var opts = '<option value="">全部租户</option>';
     var seen = {};
     for (var i = 0; i < AppState.opsTasks.length; i++) {
@@ -1532,124 +1589,256 @@ function updateTaskTenantFilter() {
         if (!seen[name]) { seen[name] = true; opts += '<option value="' + name + '">' + name + '</option>'; }
     }
     sel.innerHTML = opts;
+    if (current) sel.value = current;
+}
+
+function getTaskSubTaskCount(task, status) {
+    var list = task.subTasks || [];
+    if (!list.length) return status ? (task.status === status ? (task.videoCount || 1) : 0) : (task.videoCount || 1);
+    var count = 0;
+    for (var i = 0; i < list.length; i++) {
+        if (!status || list[i].status === status) count++;
+    }
+    return count;
+}
+
+function getTaskDurationSum(task) {
+    var list = task.subTasks || [];
+    var total = 0, count = 0;
+    for (var i = 0; i < list.length; i++) {
+        if (list[i].duration > 0) { total += list[i].duration; count++; }
+    }
+    return { total: total, count: count };
+}
+
+function buildTaskStats(tasks) {
+    var stats = {
+        taskCount: tasks.length,
+        videoCount: 0,
+        completedVideos: 0,
+        failedVideos: 0,
+        goingTasks: 0,
+        failedTasks: 0,
+        partialTasks: 0,
+        totalCost: 0,
+        durationTotal: 0,
+        durationCount: 0,
+        tenantMap: {},
+        failureReasons: {}
+    };
+    for (var i = 0; i < tasks.length; i++) {
+        var t = tasks[i];
+        var videoCount = getTaskSubTaskCount(t);
+        var completed = getTaskSubTaskCount(t, 'completed');
+        var failed = getTaskSubTaskCount(t, 'failed');
+        var duration = getTaskDurationSum(t);
+        stats.videoCount += videoCount;
+        stats.completedVideos += completed;
+        stats.failedVideos += failed;
+        stats.totalCost += t.totalCost || 0;
+        stats.durationTotal += duration.total;
+        stats.durationCount += duration.count;
+        if (t.status === 'generating' || t.status === 'queued') stats.goingTasks++;
+        if (t.status === 'failed') stats.failedTasks++;
+        if (t.status === 'partial') stats.partialTasks++;
+
+        if (!stats.tenantMap[t.tenantId]) {
+            stats.tenantMap[t.tenantId] = {
+                tenantId: t.tenantId,
+                tenantName: t.tenantName,
+                taskCount: 0,
+                videoCount: 0,
+                completedVideos: 0,
+                failedVideos: 0,
+                goingTasks: 0,
+                failedTasks: 0,
+                partialTasks: 0,
+                totalCost: 0,
+                durationTotal: 0,
+                durationCount: 0,
+                latestAt: '',
+                tasks: []
+            };
+        }
+        var tenant = stats.tenantMap[t.tenantId];
+        tenant.taskCount++;
+        tenant.videoCount += videoCount;
+        tenant.completedVideos += completed;
+        tenant.failedVideos += failed;
+        tenant.totalCost += t.totalCost || 0;
+        tenant.durationTotal += duration.total;
+        tenant.durationCount += duration.count;
+        tenant.tasks.push(t);
+        if (t.status === 'generating' || t.status === 'queued') tenant.goingTasks++;
+        if (t.status === 'failed') tenant.failedTasks++;
+        if (t.status === 'partial') tenant.partialTasks++;
+        if (!tenant.latestAt || t.createdAt > tenant.latestAt) tenant.latestAt = t.createdAt;
+
+        var subTasks = t.subTasks || [];
+        for (var s = 0; s < subTasks.length; s++) {
+            if (subTasks[s].status === 'failed') {
+                var reason = subTasks[s].error || '未知失败原因';
+                stats.failureReasons[reason] = (stats.failureReasons[reason] || 0) + 1;
+            }
+        }
+    }
+    stats.successRate = stats.videoCount ? Math.round(stats.completedVideos / stats.videoCount * 100) : 0;
+    stats.failRate = stats.videoCount ? Math.round(stats.failedVideos / stats.videoCount * 100) : 0;
+    stats.avgDuration = stats.durationCount ? Math.round(stats.durationTotal / stats.durationCount) : 0;
+    return stats;
+}
+
+function getTenantTaskStatsList(tasks) {
+    var stats = buildTaskStats(tasks);
+    return Object.keys(stats.tenantMap).map(function(key) {
+        var item = stats.tenantMap[key];
+        item.successRate = item.videoCount ? Math.round(item.completedVideos / item.videoCount * 100) : 0;
+        item.failRate = item.videoCount ? Math.round(item.failedVideos / item.videoCount * 100) : 0;
+        item.avgDuration = item.durationCount ? Math.round(item.durationTotal / item.durationCount) : 0;
+        return item;
+    }).sort(function(a, b) {
+        if (b.videoCount !== a.videoCount) return b.videoCount - a.videoCount;
+        return b.taskCount - a.taskCount;
+    });
+}
+
+function getFailureReasonList(reasonMap) {
+    return Object.keys(reasonMap).map(function(name) {
+        return { name: name, count: reasonMap[name] };
+    }).sort(function(a, b) { return b.count - a.count; });
 }
 
 function renderTaskMetrics(tasks) {
-    var total = tasks.length;
-    var done = 0, going = 0, failed = 0;
-    for (var i = 0; i < tasks.length; i++) {
-        var s = tasks[i].status;
-        if (s === 'completed') done++;
-        else if (s === 'generating' || s === 'queued') going++;
-        else failed++;
-    }
+    var stats = buildTaskStats(tasks);
     document.getElementById('taskMetricsRow').innerHTML =
-        '<div class="task-metric"><div class="task-metric-value" style="color:var(--primary)">' + total + '</div><div class="task-metric-label">任务总数</div></div>' +
-        '<div class="task-metric"><div class="task-metric-value" style="color:var(--green)">' + done + '</div><div class="task-metric-label">已完成</div></div>' +
-        '<div class="task-metric"><div class="task-metric-value" style="color:var(--blue)">' + going + '</div><div class="task-metric-label">进行中</div></div>' +
-        '<div class="task-metric"><div class="task-metric-value" style="color:' + (failed > 0 ? 'var(--red)' : 'var(--text-muted)') + '">' + failed + '</div><div class="task-metric-label">异常</div></div>';
+        '<div class="task-metric"><div class="task-metric-value" style="color:var(--primary)">' + stats.taskCount + '</div><div class="task-metric-label">任务数</div></div>' +
+        '<div class="task-metric"><div class="task-metric-value" style="color:var(--blue)">' + stats.videoCount + '</div><div class="task-metric-label">视频数</div></div>' +
+        '<div class="task-metric"><div class="task-metric-value" style="color:var(--green)">' + stats.successRate + '%</div><div class="task-metric-label">成功率</div></div>' +
+        '<div class="task-metric"><div class="task-metric-value" style="color:' + (stats.failRate > 0 ? 'var(--red)' : 'var(--text-muted)') + '">' + stats.failRate + '%</div><div class="task-metric-label">失败率</div></div>' +
+        '<div class="task-metric"><div class="task-metric-value">' + stats.avgDuration + 's</div><div class="task-metric-label">平均成片时长</div></div>' +
+        '<div class="task-metric"><div class="task-metric-value" style="color:var(--orange)">' + stats.totalCost.toLocaleString() + '</div><div class="task-metric-label">消耗积分</div></div>';
 }
 
-function renderTasks() {
-    updateTaskTenantFilter();
+function getFilteredTasks() {
     var tenantFilter = document.getElementById('taskTenantFilter').value;
     var statusFilter = document.getElementById('taskStatusFilter').value;
     var dateFrom = document.getElementById('taskDateFrom').value;
     var dateTo = document.getElementById('taskDateTo').value;
     var search = (document.getElementById('taskSearch').value || '').toLowerCase();
 
-    var list = AppState.opsTasks.filter(function(t) {
+    return AppState.opsTasks.filter(function(t) {
         if (tenantFilter && t.tenantName !== tenantFilter) return false;
         if (statusFilter && t.status !== statusFilter) return false;
         if (dateFrom && t.createdAt.slice(0,10) < dateFrom) return false;
         if (dateTo && t.createdAt.slice(0,10) > dateTo) return false;
-        if (search && t.taskName.toLowerCase().indexOf(search) === -1) return false;
+        if (search && t.taskName.toLowerCase().indexOf(search) === -1 && t.tenantName.toLowerCase().indexOf(search) === -1) return false;
         return true;
     });
+}
+
+function renderTasks() {
+    updateTaskTenantFilter();
+    var list = getFilteredTasks();
+    var selectedTenantId = window._selectedTaskTenantId;
+    var tenantList = getTenantTaskStatsList(list);
+    if (!selectedTenantId && tenantList.length) selectedTenantId = tenantList[0].tenantId;
+    if (selectedTenantId && !tenantList.some(function(t) { return t.tenantId === selectedTenantId; })) {
+        selectedTenantId = tenantList.length ? tenantList[0].tenantId : '';
+    }
+    window._selectedTaskTenantId = selectedTenantId;
 
     renderTaskMetrics(list);
+    renderTenantTaskRank(list);
+    renderTaskFailureReasons(list);
+    renderTenantTaskDetail(selectedTenantId, list);
+}
 
-    var expandMap = window._taskExpandMap || {};
+function renderTenantTaskRank(tasks) {
+    var list = getTenantTaskStatsList(tasks);
     var html = '';
     for (var i = 0; i < list.length; i++) {
         var t = list[i];
+        var active = window._selectedTaskTenantId === t.tenantId ? ' active' : '';
+        html += '<div class="tenant-rank-item' + active + '" onclick="selectTaskTenant(\'' + t.tenantId + '\')">' +
+            '<div class="rank-index">' + (i + 1) + '</div>' +
+            '<div><div class="rank-name">' + t.tenantName + '</div><div class="rank-sub">最近任务：' + t.latestAt + '</div></div>' +
+            '<div class="rank-num">' + t.taskCount + '<span class="rank-label">任务</span></div>' +
+            '<div class="rank-num">' + t.videoCount + '<span class="rank-label">视频</span></div>' +
+            '<div class="rank-num" style="color:var(--green)">' + t.successRate + '%<span class="rank-label">成功率</span></div>' +
+            '<div class="rank-num" style="color:' + (t.failedVideos ? 'var(--red)' : 'var(--text-primary)') + '">' + t.failedVideos + '<span class="rank-label">失败视频</span></div>' +
+            '</div>';
+    }
+    document.getElementById('tenantTaskRank').innerHTML = html || '<div style="font-size:12px;color:var(--text-muted);padding:20px;text-align:center">暂无匹配任务</div>';
+}
+
+function selectTaskTenant(tenantId) {
+    window._selectedTaskTenantId = tenantId;
+    renderTasks();
+}
+
+function renderTaskFailureReasons(tasks) {
+    var reasons = getFailureReasonList(buildTaskStats(tasks).failureReasons);
+    var max = reasons[0] ? reasons[0].count : 1;
+    var html = '';
+    for (var i = 0; i < Math.min(reasons.length, 6); i++) {
+        var r = reasons[i];
+        html += '<div class="reason-row">' +
+            '<div class="reason-name" title="' + escapeHtml(r.name) + '">' + escapeHtml(r.name) + '</div>' +
+            '<div class="bar" style="flex:1"><div class="bar-fill danger" style="width:' + Math.max(8, r.count / max * 100) + '%"></div></div>' +
+            '<div class="reason-count">' + r.count + ' 条</div>' +
+            '</div>';
+    }
+    document.getElementById('taskFailureReasons').innerHTML = html || '<div style="font-size:12px;color:var(--text-muted);padding:20px;text-align:center">当前筛选范围内暂无失败原因</div>';
+}
+
+function renderTenantTaskDetail(tenantId, tasks) {
+    var el = document.getElementById('tenantTaskDetail');
+    if (!tenantId) {
+        el.innerHTML = '<h4>租户任务明细</h4><div style="font-size:12px;color:var(--text-muted)">请选择一个租户查看账号下任务情况</div>';
+        return;
+    }
+    var tenantTasks = tasks.filter(function(t) { return t.tenantId === tenantId; }).sort(function(a, b) { return b.createdAt.localeCompare(a.createdAt); });
+    var tenantStats = getTenantTaskStatsList(tenantTasks)[0];
+    if (!tenantStats) {
+        el.innerHTML = '<h4>租户任务明细</h4><div style="font-size:12px;color:var(--text-muted)">暂无匹配任务</div>';
+        return;
+    }
+    var rows = '';
+    for (var i = 0; i < tenantTasks.length; i++) {
+        var t = tenantTasks[i];
         var stCls = getTaskStatusClass(t.status);
         var stIcon = getTaskStatusIcon(t.status);
         var stLabel = getTaskStatusLabel(t.status);
         var pct = t.progress || 0;
-        var barCls = pct === 100 ? '' : (pct > 0 ? ' warn' : '');
-        var expanded = expandMap[t.taskId] || false;
-
-        // Status summary for parent tasks with sub-tasks
-        var subSummary = '';
-        if (t.subTasks && t.subTasks.length > 0) {
-            var sc = 0, sq = 0, sg = 0, sf = 0;
-            for (var s = 0; s < t.subTasks.length; s++) {
-                var ss = t.subTasks[s].status;
-                if (ss === 'completed') sc++;
-                else if (ss === 'queued') sq++;
-                else if (ss === 'generating') sg++;
-                else if (ss === 'failed') sf++;
-            }
-            var parts = [];
-            if (sc > 0) parts.push(sc + '完成');
-            if (sg > 0) parts.push(sg + '生成中');
-            if (sq > 0) parts.push(sq + '排队中');
-            if (sf > 0) parts.push(sf + '失败');
-            subSummary = parts.join(', ');
-        }
-
-        html += '<tr class="expand-row" onclick="toggleTaskExpand(\'' + t.taskId + '\')" data-task-id="' + t.taskId + '">' +
-            '<td><span class="expand-icon' + (expanded ? ' open' : '') + '">▶</span></td>' +
+        rows += '<tr>' +
             '<td><strong>' + t.taskName + '</strong><br><span style="font-size:11px;font-family:monospace;color:var(--text-muted)">' + t.taskId + '</span></td>' +
-            '<td><span class="chip chip-blue">' + t.tenantName + '</span></td>' +
-            '<td>' + (t.subTasks ? t.subTasks.length : t.videoCount) + '</td>' +
-            '<td><strong>' + t.totalCost.toLocaleString() + '</strong></td>' +
-            '<td><span class="status ' + stCls + '">' + stIcon + ' ' + stLabel + '</span>' +
-                (subSummary ? '<br><span style="font-size:11px;color:var(--text-muted)">' + subSummary + '</span>' : '') +
-            '</td>' +
-            '<td><div class="bar" style="min-width:50px"><div class="bar-fill' + barCls + '" style="width:' + pct + '%"></div></div><span style="font-size:11px;color:var(--text-muted);margin-left:4px">' + pct + '%</span></td>' +
+            '<td>' + getTaskSubTaskCount(t) + '</td>' +
+            '<td><span class="status ' + stCls + '">' + stIcon + ' ' + stLabel + '</span></td>' +
+            '<td><div class="bar" style="min-width:70px"><div class="bar-fill' + (pct === 100 ? '' : ' warn') + '" style="width:' + pct + '%"></div></div><span style="font-size:11px;color:var(--text-muted);margin-left:4px">' + pct + '%</span></td>' +
+            '<td><strong>' + (t.totalCost || 0).toLocaleString() + '</strong></td>' +
             '<td style="font-size:12px">' + t.createdAt + '</td>' +
             '<td style="white-space:nowrap">' +
-                '<button class="btn btn-xs" onclick="event.stopPropagation();openTaskDetail(\'' + t.taskId + '\')">详情</button> ' +
-                ((t.status === 'generating' || t.status === 'queued') ? '<button class="btn btn-xs btn-danger" onclick="event.stopPropagation();cancelTask(\'' + t.taskId + '\')">取消</button> ' : '') +
-                (t.status === 'failed' || t.status === 'partial' ? '<button class="btn btn-xs" onclick="event.stopPropagation();retryTask(\'' + t.taskId + '\')">重试</button>' : '') +
+                '<button class="btn btn-xs" onclick="openTaskDetail(\'' + t.taskId + '\')">详情</button> ' +
+                ((t.status === 'generating' || t.status === 'queued') ? '<button class="btn btn-xs btn-danger" onclick="cancelTask(\'' + t.taskId + '\')">取消</button> ' : '') +
+                (t.status === 'failed' || t.status === 'partial' ? '<button class="btn btn-xs" onclick="retryTask(\'' + t.taskId + '\')">重试</button>' : '') +
             '</td></tr>';
-
-        // Expanded sub-task rows
-        if (expanded && t.subTasks) {
-            var subHtml = '';
-            for (var s = 0; s < t.subTasks.length; s++) {
-                var st = t.subTasks[s];
-                var sstCls = getTaskStatusClass(st.status);
-                var sstIcon = getTaskStatusIcon(st.status);
-                var sstLabel = getTaskStatusLabel(st.status);
-                var spct = st.progress || 0;
-                var sbarCls = spct === 100 ? '' : (spct > 0 ? ' warn' : '');
-                subHtml += '<tr class="subtask-row"><td style="padding:6px 18px 6px 42px" colspan="9">' +
-                    '<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">' +
-                    '<span style="font-size:11px;font-weight:600;color:var(--text-muted);min-width:24px">#' + st.id + '</span>' +
-                    '<span class="status ' + sstCls + '" style="font-size:11px">' + sstIcon + ' ' + sstLabel + '</span>' +
-                    '<span class="bar" style="min-width:40px"><div class="bar-fill' + sbarCls + '" style="width:' + spct + '%"></div></span>' +
-                    '<span style="font-size:11px;color:var(--text-muted)">' + spct + '%</span>' +
-                    (st.duration > 0 ? '<span style="font-size:11px;color:var(--text-muted)">' + st.duration + 's</span>' : '') +
-                    (st.cost > 0 ? '<span style="font-size:11px;color:var(--text-secondary)">' + st.cost + '积分</span>' : '') +
-                    (st.error ? '<span style="font-size:11px;color:var(--red)">❗ ' + st.error + '</span>' : '') +
-                    '<span style="font-size:11px;color:var(--text-secondary);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="' + escapeHtml(st.script) + '">' + escapeHtml(st.script) + '</span>' +
-                    '</div></td></tr>';
-            }
-            if (subHtml) html += subHtml;
-        }
     }
-
-    document.getElementById('taskTable').innerHTML = html || '<tr><td colspan="9" style="text-align:center;padding:40px;color:var(--text-muted)">暂无匹配的任务</td></tr>';
-}
-
-function toggleTaskExpand(taskId) {
-    var map = window._taskExpandMap || {};
-    map[taskId] = !map[taskId];
-    window._taskExpandMap = map;
-    renderTasks();
+    el.innerHTML =
+        '<div class="tenant-detail-head">' +
+            '<div><div class="tenant-detail-title">' + tenantStats.tenantName + '</div><div class="tenant-detail-sub">按当前筛选条件统计该租户账号下任务表现</div></div>' +
+            '<button class="btn btn-sm" onclick="viewTenantDetail(\'' + tenantId + '\')">查看租户详情</button>' +
+        '</div>' +
+        '<div class="mini-metrics">' +
+            '<div class="mini-metric"><div class="mini-metric-value">' + tenantStats.taskCount + '</div><div class="mini-metric-label">任务数</div></div>' +
+            '<div class="mini-metric"><div class="mini-metric-value">' + tenantStats.videoCount + '</div><div class="mini-metric-label">视频数</div></div>' +
+            '<div class="mini-metric"><div class="mini-metric-value" style="color:var(--green)">' + tenantStats.successRate + '%</div><div class="mini-metric-label">成功率</div></div>' +
+            '<div class="mini-metric"><div class="mini-metric-value" style="color:' + (tenantStats.failedVideos ? 'var(--red)' : 'var(--text-primary)') + '">' + tenantStats.failedVideos + '</div><div class="mini-metric-label">失败视频</div></div>' +
+            '<div class="mini-metric"><div class="mini-metric-value" style="color:var(--orange)">' + tenantStats.totalCost.toLocaleString() + '</div><div class="mini-metric-label">消耗积分</div></div>' +
+        '</div>' +
+        '<div class="table-wrap" style="border-radius:var(--radius-sm)"><table>' +
+            '<thead><tr><th>任务名称</th><th>视频数</th><th>状态</th><th>进度</th><th>积分</th><th>创建时间</th><th>操作</th></tr></thead>' +
+            '<tbody>' + rows + '</tbody>' +
+        '</table></div>';
 }
 
 function cancelTask(taskId) {
@@ -1865,7 +2054,56 @@ function toggleVoiceStatus(index) {
 
 var pricingEditingKey = -1;
 
+var creditRateEditing = false;
+
+function renderCreditRate() {
+    var html = '';
+    if (creditRateEditing) {
+        html += '<div class="pricing-item">' +
+            '<span><span class="pricing-name">1元人民币兑换积分</span><br><span style="font-size:11px;color:var(--text-muted)">充值时的人民币与积分换算比例，充值页面、账单统计均按此汇率计算</span></span>' +
+            '<span style="display:flex;align-items:center;gap:8px">' +
+            '<input class="filter-input" id="creditRateInput" type="number" value="' + AppState.creditRate + '" style="width:80px;text-align:center">' +
+            '<span class="pricing-unit">积分/元</span>' +
+            '<button class="btn btn-xs btn-primary" onclick="saveCreditRate()" style="padding:0 14px">保存</button>' +
+            '<button class="btn btn-xs" onclick="cancelCreditRate()" style="padding:0 14px">取消</button>' +
+            '</span>' +
+            '</div>';
+    } else {
+        html += '<div class="pricing-item">' +
+            '<span><span class="pricing-name">1元人民币兑换积分</span><br><span style="font-size:11px;color:var(--text-muted)">充值时的人民币与积分换算比例，充值页面、账单统计均按此汇率计算</span></span>' +
+            '<span style="display:flex;align-items:center;gap:8px">' +
+            '<span class="pricing-value">' + AppState.creditRate + ' <span class="pricing-unit">积分/元</span></span>' +
+            '<button class="btn btn-xs" onclick="editCreditRate()">调整</button>' +
+            '</span>' +
+            '</div>';
+    }
+    document.getElementById('creditRateGrid').innerHTML = html;
+}
+
+function editCreditRate() {
+    creditRateEditing = true;
+    renderCreditRate();
+}
+
+function saveCreditRate() {
+    var val = parseInt(document.getElementById('creditRateInput').value);
+    if (!val || val <= 0) { toast('请输入有效的兑换比例', 'error'); return; }
+    var old = AppState.creditRate + ' 积分/元';
+    AppState.creditRate = val;
+    creditRateEditing = false;
+    saveData();
+    renderCreditRate();
+    addAuditLog('配置', '积分汇率', old, val + ' 积分/元', '调整人民币兑积分比例');
+    toast('积分汇率已调整为 1元 = ' + val + ' 积分', 'success');
+}
+
+function cancelCreditRate() {
+    creditRateEditing = false;
+    renderCreditRate();
+}
+
 function renderPricing() {
+    renderCreditRate();
     var html = '';
     for (var i = 0; i < AppState.pricingRules.length; i++) {
         var r = AppState.pricingRules[i];
@@ -2108,7 +2346,7 @@ function publishPrompt(key) {
     if (!p || !p.draftVersion) return;
     showConfirm(
         '发布提示词',
-        '确定将「' + p.name + '」的草稿版本 <strong>' + p.draftVersion + '</strong> 发布为线上版本吗？',
+        '确定将「' + p.name + '」的草稿版本「' + p.draftVersion + '」发布为线上版本吗？',
         '🚀',
         function() {
             var beforeVersion = p.liveVersion;
