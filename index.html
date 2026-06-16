@@ -910,10 +910,6 @@
                     <label>台词 <span class="reuse-status" id="scriptStatus">复用模板</span></label>
                     <textarea id="sameScript" oninput="updateSameStatus()"></textarea>
                 </div>
-                <div class="same-field">
-                    <label>提示词 <span class="reuse-status" id="promptStatus">复用模板</span></label>
-                    <textarea id="samePrompt" oninput="updateSameStatus()"></textarea>
-                </div>
             </div>
             <div class="same-actions">
                 <button class="same-action-primary" type="button" onclick="confirmSameTemplate()">开始生成同款</button>
@@ -1072,7 +1068,6 @@
         document.getElementById('sameRole').value = 'template';
         document.getElementById('sameTemplateScene').textContent = t.bg;
         document.getElementById('sameScript').value = t.script;
-        document.getElementById('samePrompt').value = t.prompt;
         clearUploadedScene(false);
         setSceneMode('template', false);
         updateSameStatus();
@@ -1117,7 +1112,7 @@
         setStatus('roleStatus', document.getElementById('sameRole').value === 'template' ? '复用模板' : '已替换');
         setStatus('sceneStatus', uploadedSceneDataUrl ? '已上传' : '复用模板');
         setStatus('scriptStatus', document.getElementById('sameScript').value.trim() === t.script.trim() ? '复用模板' : '已修改');
-        setStatus('promptStatus', document.getElementById('samePrompt').value.trim() === t.prompt.trim() ? '复用模板' : '已修改');
+
     }
 
     function handleSameRoleChange() {
@@ -1185,12 +1180,10 @@
             backgroundImageDataUrl: uploadedSceneDataUrl,
             backgroundFileName: uploadedSceneFileName,
             script: document.getElementById('sameScript').value,
-            prompt: document.getElementById('samePrompt').value,
             reuse: {
                 role: document.getElementById('sameRole').value === 'template',
                 background: !uploadedSceneDataUrl,
-                script: document.getElementById('sameScript').value.trim() === t.script.trim(),
-                prompt: document.getElementById('samePrompt').value.trim() === t.prompt.trim()
+                script: document.getElementById('sameScript').value.trim() === t.script.trim()
             }
         };
         try { sessionStorage.setItem(TEMPLATE_DRAFT_KEY, JSON.stringify(draft)); } catch (e) {}
