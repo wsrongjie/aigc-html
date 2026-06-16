@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>账号绑定 - 个人中心</title>
+<style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+        --primary: #2f6bff;
+        --primary-light: #e8efff;
+        --primary-dark: #1f4fd9;
+        --success: #16a34a;
+        --success-light: #dcfce7;
+        --warning: #f59e0b;
+        --warning-light: #fef3c7;
+        --danger: #dc2626;
+        --danger-light: #fee2e2;
+        --sidebar-bg: #1C1C1E;
+        --sidebar-text: #A1A1AA;
+        --sidebar-active: #FFFFFF;
+        --card-bg: #FFFFFF;
+        --border: #E4E4E7;
+        --border-strong: #D4D4D8;
+        --text-primary: #18181B;
+        --text-secondary: #71717A;
+        --text-muted: #A1A1AA;
+        --bg: #F7F7F8;
+        --radius: 12px;
+        --radius-sm: 8px;
+        --shadow: 0 1px 3px rgba(0,0,0,0.06);
+        --shadow-md: 0 4px 16px rgba(0,0,0,0.10);
+    }
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Helvetica Neue', sans-serif;
+        background: var(--bg);
+        color: var(--text-primary);
+        display: flex;
+        height: 100vh;
+        overflow: hidden;
+        font-size: 14px;
+    }
+    button { font: inherit; cursor: pointer; }
+    a { text-decoration: none; color: inherit; }
+
+    /* 侧边栏 */
+    .sidebar {
+        width: 220px; background: var(--sidebar-bg);
+        display: flex; flex-direction: column; flex-shrink: 0;
+    }
+    .sidebar-logo { padding: 24px 20px 20px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .logo-mark { display: flex; align-items: center; gap: 10px; }
+    .logo-icon {
+        width: 32px; height: 32px; background: var(--primary);
+        border-radius: 8px; display: flex; align-items: center;
+        justify-content: center; color: #fff; font-weight: 700; font-size: 14px;
+    }
+    .logo-text { color: #fff; font-weight: 600; font-size: 15px; }
+    .logo-sub { color: var(--sidebar-text); font-size: 11px; margin-top: 2px; }
+    .sidebar-nav { flex: 1; padding: 12px 0; overflow-y: auto; }
+    .nav-section { padding: 8px 0; }
+    .nav-section-title {
+        padding: 6px 20px; font-size: 14px; color: #A1A1AA; letter-spacing: 0.04em;
+        font-weight: 600; cursor: pointer; display: flex; align-items: center;
+        justify-content: space-between; user-select: none; transition: color 0.15s;
+    }
+    .nav-section-title:hover { color: #E4E4E7; }
+    .nav-section-title .collapse-icon { font-size: 10px; transition: transform 0.2s; }
+    .nav-section-title.collapsed .collapse-icon { transform: rotate(-90deg); }
+    .nav-section-children {
+        overflow: hidden; transition: max-height 0.25s ease, opacity 0.2s;
+        max-height: 400px; opacity: 1;
+    }
+    .nav-section-children.hidden { max-height: 0; opacity: 0; }
+    .nav-sub-item {
+        display: flex; align-items: center; gap: 10px; padding: 9px 20px 9px 36px;
+        cursor: pointer; color: var(--sidebar-text); transition: all 0.15s;
+        border-left: 3px solid transparent; font-size: 13px; text-decoration: none;
+    }
+    .nav-sub-item:hover { color: #E4E4E7; background: rgba(255,255,255,0.04); }
+    .nav-sub-item.active { color: var(--sidebar-active); background: rgba(47,107,255,0.15); border-left-color: var(--primary); }
+    .nav-icon { width: 18px; text-align: center; font-size: 15px; }
+    .sidebar-bottom { padding: 16px 20px; border-top: 1px solid rgba(255,255,255,0.06); }
+    .user-info { display: flex; align-items: center; gap: 10px; }
+    .user-avatar {
+        width: 32px; height: 32px; border-radius: 50%; background: var(--primary);
+        display: flex; align-items: center; justify-content: center;
+        color: #fff; font-size: 13px; font-weight: 600;
+    }
+    .user-name { color: #E4E4E7; font-size: 13px; }
+    .user-role { color: var(--sidebar-text); font-size: 11px; }
+
+    /* 主内容 */
+    .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+    .topbar {
+        height: 56px; background: var(--card-bg); border-bottom: 1px solid var(--border);
+        display: flex; align-items: center; padding: 0 28px; flex-shrink: 0; gap: 12px;
+    }
+    .topbar-title { font-size: 16px; font-weight: 600; }
+    .topbar-desc { font-size: 12px; color: var(--text-muted); }
+    .content { flex: 1; overflow-y: auto; padding: 24px 28px; }
+
+    /* 页面头部 */
+    .page-header { margin-bottom: 24px; }
+    .page-header h1 { font-size: 20px; font-weight: 700; }
+    .page-header p { font-size: 13px; color: var(--text-secondary); margin-top: 4px; line-height: 1.6; }
+
+    /* 平台卡片网格 */
+    .platform-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+        gap: 16px;
+    }
+    .platform-card {
+        background: var(--card-bg);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 20px;
+        box-shadow: var(--shadow);
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        transition: box-shadow 0.2s;
+    }
+    .platform-card:hover { box-shadow: var(--shadow-md); }
+
+    .platform-icon {
+        width: 48px; height: 48px; border-radius: 12px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 22px; flex-shrink: 0;
+    }
+    .platform-icon {
+        width: 48px; height: 48px; border-radius: 12px;
+        display: flex; align-items: center; justify-content: center;
+        flex-shrink: 0; overflow: hidden;
+    }
+    .platform-icon svg { width: 28px; height: 28px; display: block; }
+    .platform-icon.bg-douyin { background: #161823; }
+    .platform-icon.bg-kuaishou { background: linear-gradient(135deg, #FF6A00, #EE2D2D); }
+    .platform-icon.bg-xiaohongshu { background: #fff; border: 1px solid #eee; }
+    .platform-icon.bg-wechat { background: #07C160; }
+
+    .platform-body { flex: 1; min-width: 0; }
+    .platform-name { font-size: 15px; font-weight: 700; margin-bottom: 2px; }
+    .platform-status { font-size: 12px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .status-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; }
+    .status-dot.bound { background: var(--success); }
+    .status-dot.unbound { background: var(--text-muted); }
+    .status-dot.expired { background: var(--warning); }
+    .status-dot.soon { background: var(--text-muted); }
+    .status-text.bound { color: var(--success); font-weight: 600; }
+    .status-text.unbound { color: var(--text-muted); }
+    .status-text.expired { color: var(--warning); font-weight: 600; }
+    .status-text.soon { color: var(--text-muted); }
+
+    .platform-user { display: flex; align-items: center; gap: 8px; margin-top: 4px; }
+    .platform-user-avatar {
+        width: 24px; height: 24px; border-radius: 50%;
+        background: var(--primary-light); color: var(--primary);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 11px; font-weight: 700;
+    }
+    .platform-user-name { font-size: 13px; color: var(--text-primary); font-weight: 600; }
+    .platform-expire { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
+    .mode-badge {
+        display: inline-flex; align-items: center; gap: 3px;
+        font-size: 11px; font-weight: 600; padding: 2px 8px;
+        border-radius: 4px; margin-left: 8px;
+    }
+    .mode-badge.redirect { background: #fef3c7; color: #92400e; }
+    .mode-badge.auto { background: #dcfce7; color: #166534; }
+
+    .platform-actions { flex-shrink: 0; }
+    .btn {
+        height: 34px; padding: 0 16px; border-radius: var(--radius-sm);
+        font-size: 13px; font-weight: 600; border: 1px solid var(--border);
+        background: var(--card-bg); color: var(--text-secondary);
+        display: inline-flex; align-items: center; gap: 6px;
+        transition: all 0.15s;
+    }
+    .btn:hover { border-color: var(--primary); color: var(--primary); }
+    .btn-primary {
+        background: var(--primary); color: #fff; border-color: var(--primary);
+    }
+    .btn-primary:hover { background: var(--primary-dark); border-color: var(--primary-dark); }
+    .btn-success {
+        background: var(--success); color: #fff; border-color: var(--success);
+    }
+    .btn-success:hover { background: #15803d; }
+    .btn-warning {
+        background: var(--warning); color: #fff; border-color: var(--warning);
+    }
+    .btn-warning:hover { background: #d97706; }
+    .btn-danger {
+        background: transparent; color: var(--danger); border-color: var(--danger);
+    }
+    .btn-danger:hover { background: var(--danger-light); }
+    .btn-ghost { border: none; background: transparent; color: var(--text-muted); padding: 0 8px; }
+    .btn-ghost:hover { color: var(--danger); }
+    .btn-disabled {
+        background: #f5f5f5; color: #ccc; border-color: #e8e8e8; cursor: not-allowed;
+    }
+    .btn-disabled:hover { background: #f5f5f5; color: #ccc; border-color: #e8e8e8; }
+
+    /* 弹窗遮罩 */
+    .modal-mask {
+        position: fixed; inset: 0; z-index: 80;
+        background: rgba(15,23,42,0.52);
+        display: none; align-items: center; justify-content: center; padding: 24px;
+    }
+    .modal-mask.show { display: flex; }
+    .modal {
+        width: min(440px, 92vw); background: #fff; border-radius: 18px;
+        box-shadow: 0 24px 70px rgba(15,23,42,0.26); padding: 28px;
+    }
+    .modal-icon { text-align: center; margin-bottom: 12px; display: flex; justify-content: center; }
+    .modal-icon svg { width: 26px; height: 26px; display: block; }
+    .modal-title { text-align: center; font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+    .modal-desc { text-align: center; font-size: 13px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 16px; }
+    .modal-scope {
+        background: var(--bg); border-radius: 10px; padding: 14px 16px; margin-bottom: 20px;
+    }
+    .modal-scope-title { font-size: 12px; font-weight: 700; color: var(--text-secondary); margin-bottom: 8px; }
+    .modal-scope-item { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-primary); padding: 4px 0; }
+    .modal-scope-item .check { color: var(--success); font-weight: 700; }
+    .modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
+    .modal-actions .btn { height: 40px; padding: 0 20px; border-radius: 10px; }
+
+    /* Toast */
+    .toast {
+        position: fixed; right: 24px; bottom: 24px; z-index: 100; width: 300px;
+        background: #111827; color: #fff; border-radius: 12px; padding: 12px 14px;
+        box-shadow: 0 16px 40px rgba(15,23,42,0.24); display: none;
+    }
+    .toast.show { display: block; }
+    .toast strong { display: block; margin-bottom: 4px; }
+    .toast span { color: #cbd5e1; font-size: 12px; line-height: 1.5; }
+
+    @media (max-width: 768px) {
+        .platform-grid { grid-template-columns: 1fr; }
+    }
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+    <div class="sidebar-logo">
+        <div class="logo-mark">
+            <div class="logo-icon">AI</div>
+            <div>
+                <div class="logo-text">投顾视频平台</div>
+                <div class="logo-sub">AIGC · 短视频制作</div>
+            </div>
+        </div>
+    </div>
+    <nav class="sidebar-nav">
+        <div class="nav-section">
+            <div class="nav-section-title" onclick="location.href='index.html'"><span class="nav-icon">🏠</span> 首页</div>
+        </div>
+        <div class="nav-section">
+            <div class="nav-section-title collapsed" onclick="toggleSection(this)">
+                资产 <span class="collapse-icon">▾</span>
+            </div>
+            <div class="nav-section-children hidden">
+                <a class="nav-sub-item" href="主体管理-首页.html"><span class="nav-icon">👤</span> 主体</a>
+                <a class="nav-sub-item" href="语音首页.html"><span class="nav-icon">🎙</span> 音频</a>
+                <a class="nav-sub-item" href="视频资产.html"><span class="nav-icon">🎬</span> 视频</a>
+            </div>
+        </div>
+        <div class="nav-section">
+            <div class="nav-section-title" onclick="location.href='导演台首页.html'"><span class="nav-icon">🎬</span> 导演台</div>
+        </div>
+        <div class="nav-section">
+            <div class="nav-section-title" onclick="location.href='全部工具.html'"><span class="nav-icon">🛠</span> 全部工具</div>
+        </div>
+        <div class="nav-section">
+            <div class="nav-section-title active" onclick="toggleSection(this)">
+                个人中心 <span class="collapse-icon">▾</span>
+            </div>
+            <div class="nav-section-children">
+                <a class="nav-sub-item" href="个人信息.html"><span class="nav-icon">👤</span> 个人信息</a>
+                <a class="nav-sub-item active" href="账号绑定.html"><span class="nav-icon">🔗</span> 账号绑定</a>
+                <a class="nav-sub-item" href="团队管理.html"><span class="nav-icon">👥</span> 团队管理</a>
+                <a class="nav-sub-item" href="套餐与支付.html"><span class="nav-icon">💳</span> 积分与支付</a>
+                <a class="nav-sub-item" href="消费账单.html"><span class="nav-icon">🧾</span> 消费账单</a>
+            </div>
+        </div>
+    </nav>
+    <div class="sidebar-bottom">
+        <div class="user-info">
+            <div class="user-avatar">顾</div>
+            <div><div class="user-name">管理员</div><div class="user-role">内容运营</div></div>
+        </div>
+    </div>
+</aside>
+
+<main class="main">
+    <div class="topbar">
+        <span class="topbar-title">账号绑定</span>
+        <span class="topbar-desc">绑定外部平台账号，分发视频到各平台</span>
+    </div>
+
+    <div class="content">
+        <div class="platform-grid" id="platformGrid"></div>
+    </div>
+</main>
+
+<!-- 授权确认弹窗 -->
+<div class="modal-mask" id="authModal" onclick="closeModal('authModal')">
+    <div class="modal" onclick="event.stopPropagation()">
+        <div class="modal-icon" id="authModalIcon">🎵</div>
+        <div class="modal-title" id="authModalTitle">授权绑定抖音</div>
+            <div class="modal-desc" id="authModalDesc">即将跳转到平台进行授权认证。</div>
+        <div class="modal-scope">
+            <div class="modal-scope-title">授权后将允许：</div>
+            <div class="modal-scope-item"><span class="check">✓</span> 发布视频到你的 <span id="authModalScopePlatform">抖音</span> 账号</div>
+            <div class="modal-scope-item"><span class="check">✓</span> 获取你的公开用户信息</div>
+            <div class="modal-scope-item"><span class="check">✓</span> 查看视频发布状态</div>
+        </div>
+        <div class="modal-actions">
+            <button class="btn" onclick="closeModal('authModal')">取消</button>
+            <button class="btn btn-primary" id="authModalConfirm" onclick="confirmAuth()">前往授权 →</button>
+        </div>
+    </div>
+</div>
+
+<!-- 解绑确认弹窗 -->
+<div class="modal-mask" id="unbindModal" onclick="closeModal('unbindModal')">
+    <div class="modal" onclick="event.stopPropagation()">
+        <div class="modal-icon">⚠️</div>
+        <div class="modal-title">确认解绑</div>
+        <div class="modal-desc" id="unbindModalDesc">确认解除与「抖音」的绑定？解除后需要重新授权才能分发视频。</div>
+        <div class="modal-actions">
+            <button class="btn" onclick="closeModal('unbindModal')">再想想</button>
+            <button class="btn btn-danger" id="unbindModalConfirm" onclick="confirmUnbind()">确认解绑</button>
+        </div>
+    </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast">
+    <strong id="toastTitle"></strong>
+    <span id="toastText"></span>
+</div>
+
+<script>
+    var LOGOS = {
+        douyin: '<svg viewBox="0 0 24 24" fill="none"><path d="M15.6 2.4h-3.2v12.8a3.2 3.2 0 1 1-2.8-3.17v-3.26a6.4 6.4 0 1 0 6 6.43V7.37a8.8 8.8 0 0 0 5.2 1.7V5.88a5.6 5.6 0 0 1-5.2-3.48Z" fill="#fff"/></svg>',
+        kuaishou: '<svg viewBox="0 0 24 24" fill="none"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2Zm4.2 11.2-5.6 3.2a.8.8 0 0 1-1.2-.68V8.28a.8.8 0 0 1 1.2-.68l5.6 3.2a.8.8 0 0 1 0 1.37l.08.03Z" fill="#fff"/></svg>',
+        xiaohongshu: '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path fill="#FF2442" d="M22.405 9.879c.002.016.01.02.07.019h.725a.797.797 0 0 0 .78-.972.794.794 0 0 0-.884-.618.795.795 0 0 0-.692.794c0 .101-.002.666.001.777zm-11.509 4.808c-.203.001-1.353.004-1.685.003a2.528 2.528 0 0 1-.766-.126.025.025 0 0 0-.03.014L7.7 16.127a.025.025 0 0 0 .01.032c.111.06.336.124.495.124.66.01 1.32.002 1.981 0 .01 0 .02-.006.023-.015l.712-1.545a.025.025 0 0 0-.024-.036zM.477 9.91c-.071 0-.076.002-.076.01a.834.834 0 0 0-.01.08c-.027.397-.038.495-.234 3.06-.012.24-.034.389-.135.607-.026.057-.033.042.003.112.046.092.681 1.523.787 1.74.008.015.011.02.017.02.008 0 .033-.026.047-.044.147-.187.268-.391.371-.606.306-.635.44-1.325.486-1.706.014-.11.021-.22.03-.33l.204-2.616.022-.293c.003-.029 0-.033-.03-.034zm7.203 3.757a1.427 1.427 0 0 1-.135-.607c-.004-.084-.031-.39-.235-3.06a.443.443 0 0 0-.01-.082c-.004-.011-.052-.008-.076-.008h-1.48c-.03.001-.034.005-.03.034l.021.293c.076.982.153 1.964.233 2.946.05.4.186 1.085.487 1.706.103.215.223.419.37.606.015.018.037.051.048.049.02-.003.742-1.642.804-1.765.036-.07.03-.055.003-.112zm3.861-.913h-.872a.126.126 0 0 1-.116-.178l1.178-2.625a.025.025 0 0 0-.023-.035l-1.318-.003a.148.148 0 0 1-.135-.21l.876-1.954a.025.025 0 0 0-.023-.035h-1.56c-.01 0-.02.006-.024.015l-.926 2.068c-.085.169-.314.634-.399.938a.534.534 0 0 0-.02.191.46.46 0 0 0 .23.378.981.981 0 0 0 .46.119h.59c.041 0-.688 1.482-.834 1.972a.53.53 0 0 0-.023.172.465.465 0 0 0 .23.398c.15.092.342.12.475.12l1.66-.001c.01 0 .02-.006.023-.015l.575-1.28a.025.025 0 0 0-.024-.035zm-6.93-4.937H3.1a.032.032 0 0 0-.034.033c0 1.048-.01 2.795-.01 6.829 0 .288-.269.262-.28.262h-.74c-.04.001-.044.004-.04.047.001.037.465 1.064.555 1.263.01.02.03.033.051.033.157.003.767.009.938-.014.153-.02.3-.06.438-.132.3-.156.49-.419.595-.765.052-.172.075-.353.075-.533.002-2.33 0-4.66-.007-6.991a.032.032 0 0 0-.032-.032zm11.784 6.896c0-.014-.01-.021-.024-.022h-1.465c-.048-.001-.049-.002-.05-.049v-4.66c0-.072-.005-.07.07-.07h.863c.08 0 .075.004.075-.074V8.393c0-.082.006-.076-.08-.076h-3.5c-.064 0-.075-.006-.075.073v1.445c0 .083-.006.077.08.077h.854c.075 0 .07-.004.07.07v4.624c0 .095.008.084-.085.084-.37 0-1.11-.002-1.304 0-.048.001-.06.03-.06.03l-.697 1.519s-.014.025-.008.036c.006.01.013.008.058.008 1.748.003 3.495.002 5.243.002.03-.001.034-.006.035-.033v-1.539zm4.177-3.43c0 .013-.007.023-.02.024-.346.006-.692.004-1.037.004-.014-.002-.022-.01-.022-.024-.005-.434-.007-.869-.01-1.303 0-.072-.006-.071.07-.07l.733-.003c.041 0 .081.002.12.015.093.025.16.107.165.204.006.431.002 1.153.001 1.153zm2.67.244a1.953 1.953 0 0 0-.883-.222h-.18c-.04-.001-.04-.003-.042-.04V10.21c0-.132-.007-.263-.025-.394a1.823 1.823 0 0 0-.153-.53 1.533 1.533 0 0 0-.677-.71 2.167 2.167 0 0 0-1-.258c-.153-.003-.567 0-.72 0-.07 0-.068.004-.068-.065V7.76c0-.031-.01-.041-.046-.039H17.93s-.016 0-.023.007c-.006.006-.008.012-.008.023v.546c-.008.036-.057.015-.082.022h-.95c-.022.002-.028.008-.03.032v1.481c0 .09-.004.082.082.082h.913c.082 0 .072.128.072.128V11.19s.003.117-.06.117h-1.482c-.068 0-.06.082-.06.082v1.445s-.01.068.064.068h1.457c.082 0 .076-.006.076.079v3.225c0 .088-.007.081.082.081h1.43c.09 0 .082.007.082-.08v-3.27c0-.029.006-.035.033-.035l2.323-.003c.098 0 .191.02.28.061a.46.46 0 0 1 .274.407c.008.395.003.79.003 1.185 0 .259-.107.367-.33.367h-1.218c-.023.002-.029.008-.028.033.184.437.374.871.57 1.303a.045.045 0 0 0 .04.026c.17.005.34.002.51.003.15-.002.517.004.666-.01a2.03 2.03 0 0 0 .408-.075c.59-.18.975-.698.976-1.313v-1.981c0-.128-.01-.254-.034-.38 0 .078-.029-.641-.724-.998z"/></svg>',
+        wechat: '<svg viewBox="0 0 24 24" fill="none"><path d="M8.5 3C4.92 3 2 5.69 2 9c0 1.77.83 3.36 2.15 4.47L3.5 16l3.09-1.55c.6.2 1.24.34 1.91.4l.12-.16C9 14.23 9 13.62 9 13c0-2.76 2.69-5 6-5 .34 0 .67.03 1 .08C15.36 5.11 12.17 3 8.5 3Z" fill="#fff"/><path d="M16.5 9C13.46 9 11 11.24 11 14s2.46 5 5.5 5c.64 0 1.25-.1 1.82-.27L22 20.5l-.78-2.06A4.87 4.87 0 0 0 22 14c0-2.76-2.46-5-5.5-5Z" fill="#fff"/></svg>'
+    };
+
+    var platforms = [
+        { id: 'douyin', name: '抖音', logo: LOGOS.douyin, iconCls: 'bg-douyin', desc: '发布视频到抖音', publishMode: 'redirect' },
+        { id: 'kuaishou', name: '快手', logo: LOGOS.kuaishou, iconCls: 'bg-kuaishou', desc: '发布视频到快手', publishMode: 'auto' },
+        { id: 'xiaohongshu', name: '小红书', logo: LOGOS.xiaohongshu, iconCls: 'bg-xiaohongshu', desc: '发布笔记到小红书', comingSoon: true },
+        { id: 'wechat', name: '微信视频号', logo: LOGOS.wechat, iconCls: 'bg-wechat', desc: '发布视频到视频号', comingSoon: true }
+    ];
+
+    var BINDING_KEY = 'platformBindingState';
+
+    var defaultState = {
+        douyin: { status: 'unbound', userName: '', expireDate: '' },
+        kuaishou: { status: 'unbound', userName: '', expireDate: '' },
+        xiaohongshu: { status: 'soon' },
+        wechat: { status: 'soon' }
+    };
+
+    var pendingPlatform = null;
+
+    function getState() {
+        try {
+            var raw = localStorage.getItem(BINDING_KEY);
+            if (raw) {
+                var parsed = JSON.parse(raw);
+                for (var k in defaultState) { if (!(k in parsed)) parsed[k] = defaultState[k]; }
+                return parsed;
+            }
+        } catch (e) {}
+        return JSON.parse(JSON.stringify(defaultState));
+    }
+
+    function saveState(state) {
+        localStorage.setItem(BINDING_KEY, JSON.stringify(state));
+    }
+
+    function renderPlatforms() {
+        var state = getState();
+        var grid = document.getElementById('platformGrid');
+        grid.innerHTML = '';
+        platforms.forEach(function(p) {
+            var s = state[p.id] || { status: 'unbound' };
+            var card = document.createElement('div');
+            card.className = 'platform-card';
+
+            var icon = document.createElement('div');
+            icon.className = 'platform-icon ' + p.iconCls;
+            icon.innerHTML = p.logo;
+
+            var body = document.createElement('div');
+            body.className = 'platform-body';
+
+            var nameRow = document.createElement('div');
+            nameRow.className = 'platform-name';
+            nameRow.textContent = p.name;
+
+            var statusRow = document.createElement('div');
+            statusRow.className = 'platform-status';
+
+            var actions = document.createElement('div');
+            actions.className = 'platform-actions';
+
+            if (s.status === 'soon') {
+                var dot = document.createElement('span');
+                dot.className = 'status-dot soon';
+                var stxt = document.createElement('span');
+                stxt.className = 'status-text soon';
+                stxt.textContent = '即将开放';
+                statusRow.appendChild(dot);
+                statusRow.appendChild(stxt);
+
+                var btn = document.createElement('button');
+                btn.className = 'btn btn-disabled';
+                btn.textContent = '敬请期待';
+                btn.disabled = true;
+                actions.appendChild(btn);
+
+            } else if (s.status === 'bound') {
+                var dot = document.createElement('span');
+                dot.className = 'status-dot bound';
+                var stxt = document.createElement('span');
+                stxt.className = 'status-text bound';
+                stxt.textContent = '已授权';
+                statusRow.appendChild(dot);
+                statusRow.appendChild(stxt);
+
+                if (s.expireDate) {
+                    var expire = document.createElement('span');
+                    expire.style.cssText = 'font-size:11px;color:var(--text-muted);margin-left:4px;';
+                    expire.textContent = '有效期至 ' + s.expireDate;
+                    statusRow.appendChild(expire);
+                }
+
+                var badge = document.createElement('span');
+                badge.className = 'mode-badge ' + p.publishMode;
+                badge.textContent = p.publishMode === 'redirect' ? '跳转确认' : '自动发布';
+                statusRow.appendChild(badge);
+
+                var userRow = document.createElement('div');
+                userRow.className = 'platform-user';
+                var ua = document.createElement('div');
+                ua.className = 'platform-user-avatar';
+                ua.textContent = s.userName.charAt(0);
+                var un = document.createElement('span');
+                un.className = 'platform-user-name';
+                un.textContent = s.userName;
+                userRow.appendChild(ua);
+                userRow.appendChild(un);
+                body.appendChild(nameRow);
+                body.appendChild(statusRow);
+                body.appendChild(userRow);
+
+                var syncBtn = document.createElement('button');
+                syncBtn.className = 'btn btn-success';
+                syncBtn.textContent = '已授权 ✓';
+                syncBtn.onclick = function() { showToast('提示', '账号状态正常'); };
+                actions.appendChild(syncBtn);
+
+                var unbindBtn = document.createElement('button');
+                unbindBtn.className = 'btn btn-ghost';
+                unbindBtn.textContent = '解绑';
+                unbindBtn.style.marginLeft = '4px';
+                unbindBtn.onclick = function() { showUnbindModal(p); };
+                actions.appendChild(unbindBtn);
+
+            } else if (s.status === 'expired') {
+                var dot = document.createElement('span');
+                dot.className = 'status-dot expired';
+                var stxt = document.createElement('span');
+                stxt.className = 'status-text expired';
+                stxt.textContent = '授权已过期';
+                statusRow.appendChild(dot);
+                statusRow.appendChild(stxt);
+
+                if (s.expireDate) {
+                    var expire = document.createElement('span');
+                    expire.style.cssText = 'font-size:11px;color:var(--text-muted);margin-left:4px;';
+                    expire.textContent = '过期于 ' + s.expireDate;
+                    statusRow.appendChild(expire);
+                }
+
+                body.appendChild(nameRow);
+                body.appendChild(statusRow);
+
+                var authBtn = document.createElement('button');
+                authBtn.className = 'btn btn-warning';
+                authBtn.textContent = '重新授权';
+                authBtn.onclick = function() { showAuthModal(p); };
+                actions.appendChild(authBtn);
+
+            } else {
+                var dot = document.createElement('span');
+                dot.className = 'status-dot unbound';
+                var stxt = document.createElement('span');
+                stxt.className = 'status-text unbound';
+                stxt.textContent = '未绑定';
+                statusRow.appendChild(dot);
+                statusRow.appendChild(stxt);
+
+                body.appendChild(nameRow);
+                body.appendChild(statusRow);
+
+                var authBtn = document.createElement('button');
+                authBtn.className = 'btn btn-primary';
+                authBtn.textContent = '去授权';
+                authBtn.onclick = function() { showAuthModal(p); };
+                actions.appendChild(authBtn);
+            }
+
+            card.appendChild(icon);
+            card.appendChild(body);
+            card.appendChild(actions);
+            grid.appendChild(card);
+        });
+    }
+
+    function showAuthModal(platform) {
+        pendingPlatform = platform;
+        document.getElementById('authModalIcon').innerHTML = platform.logo;
+        document.getElementById('authModalIcon').style.background = platform.iconCls === 'bg-douyin' ? '#161823' : platform.iconCls === 'bg-kuaishou' ? 'linear-gradient(135deg,#FF6A00,#EE2D2D)' : platform.iconCls === 'bg-xiaohongshu' ? '#fff' : '#07C160';
+        document.getElementById('authModalIcon').style.width = '48px';
+        document.getElementById('authModalIcon').style.height = '48px';
+        document.getElementById('authModalIcon').style.borderRadius = '12px';
+        document.getElementById('authModalIcon').style.display = 'inline-flex';
+        document.getElementById('authModalIcon').style.alignItems = 'center';
+        document.getElementById('authModalIcon').style.justifyContent = 'center';
+        document.getElementById('authModalIcon').style.margin = '0 auto 12px';
+        document.getElementById('authModalIcon').style.border = platform.iconCls === 'bg-xiaohongshu' ? '1px solid #eee' : 'none';
+        document.getElementById('authModalTitle').textContent = '授权绑定' + platform.name;
+        document.getElementById('authModalScopePlatform').textContent = platform.name;
+
+        var descEl = document.getElementById('authModalDesc');
+        if (platform.publishMode === 'redirect') {
+            descEl.innerHTML = '即将跳转至抖音开放平台授权。<br>发布时需跳转抖音 APP <strong>手动确认发布</strong>，你的平台无法替用户点击发布。';
+        } else if (platform.publishMode === 'auto') {
+            descEl.innerHTML = '即将跳转至快手开放平台授权。<br>授权后支持 <strong>静默直发</strong>，选择视频后由后台自动完成发布。';
+        } else {
+            descEl.textContent = '即将跳转到' + platform.name + '开放平台进行授权认证。';
+        }
+
+        document.getElementById('authModal').classList.add('show');
+    }
+
+    function closeModal(id) {
+        document.getElementById(id).classList.remove('show');
+        pendingPlatform = null;
+    }
+
+    function confirmAuth() {
+        if (!pendingPlatform) return;
+        var platform = pendingPlatform;
+        closeModal('authModal');
+
+        showToast('跳转中', '正在跳转到' + platform.name + '授权页面...');
+
+        setTimeout(function() {
+            var state = getState();
+            var now = new Date();
+            var days = platform.id === 'douyin' ? 15 : 30;
+            now.setDate(now.getDate() + days);
+            var expireStr = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
+            state[platform.id] = {
+                status: 'bound',
+                userName: platform.id === 'douyin' ? '抖音用户_顾霖' : '快手用户_顾霖',
+                expireDate: expireStr
+            };
+            saveState(state);
+            renderPlatforms();
+            showToast('绑定成功', '已成功绑定' + platform.name + '账号。发布时将默认携带 #AI生成 话题。');
+        }, 1500);
+    }
+
+    function showUnbindModal(platform) {
+        pendingPlatform = platform;
+        document.getElementById('unbindModalDesc').textContent = '确认解除与「' + platform.name + '」的绑定？解除后需要重新授权才能分发视频。';
+        document.getElementById('unbindModal').classList.add('show');
+    }
+
+    function confirmUnbind() {
+        if (!pendingPlatform) return;
+        var platform = pendingPlatform;
+        closeModal('unbindModal');
+
+        var state = getState();
+        state[platform.id] = { status: 'unbound', userName: '', expireDate: '' };
+        saveState(state);
+        renderPlatforms();
+        showToast('已解绑', '已解除与' + platform.name + '的绑定');
+    }
+
+    var toastTimer = null;
+    function showToast(title, text) {
+        var t = document.getElementById('toast');
+        document.getElementById('toastTitle').textContent = title;
+        document.getElementById('toastText').textContent = text;
+        t.classList.add('show');
+        if (toastTimer) clearTimeout(toastTimer);
+        toastTimer = setTimeout(function() { t.classList.remove('show'); }, 3000);
+    }
+
+    function toggleSection(el) {
+        var parent = el.parentElement;
+        var children = parent.querySelector('.nav-section-children');
+        if (children) {
+            el.classList.toggle('collapsed');
+            children.classList.toggle('hidden');
+        } else {
+            var panelId = el.getAttribute('data-panel');
+            if (panelId) {
+                document.querySelectorAll('.panel').forEach(function(p) { p.classList.remove('active'); });
+                document.getElementById(panelId).classList.add('active');
+                document.querySelectorAll('.nav-section-title.active').forEach(function(t) { t.classList.remove('active'); });
+                el.classList.add('active');
+            }
+        }
+    }
+
+    renderPlatforms();
+</script>
+</body>
+</html>

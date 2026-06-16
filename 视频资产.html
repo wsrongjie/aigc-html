@@ -868,8 +868,182 @@
     }
     .detail-modal-ft .btn-sec { background: var(--bg); color: var(--text-secondary); }
     .detail-modal-ft .btn-sec:hover { background: #eee; }
-    .detail-modal-ft .btn-pri { background: var(--primary); color: #fff; }
-    .detail-modal-ft .btn-pri:hover { background: var(--primary-dark); }
+.detail-modal-ft .btn-pri { background: var(--primary); color: #fff; }
+.detail-modal-ft .btn-pri:hover { background: var(--primary-dark); }
+
+/* ====== 平台角标 ====== */
+.platform-badges {
+    position: absolute; bottom: 4px; right: 4px;
+    display: flex; flex-direction: column; gap: 2px; z-index: 2;
+}
+.platform-badge {
+    width: 18px; height: 18px; border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+}
+.platform-badge svg { width: 12px; height: 12px; display: block; color: #fff; }
+.platform-badge.douyin { background: #161823; }
+.platform-badge.kuaishou { background: linear-gradient(135deg,#FF6A00,#EE2D2D); }
+.platform-badge.pending { opacity: 0.5; }
+.platform-badge.failed { background: var(--danger); }
+
+/* ====== 分发弹窗 ====== */
+.dist-ov {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.55); z-index: 1600;
+    align-items: center; justify-content: center;
+    backdrop-filter: blur(2px);
+}
+.dist-ov.show { display: flex; }
+.dist-modal {
+    background: var(--card-bg); border-radius: 16px;
+    width: 560px; max-width: 92vw; max-height: 90vh;
+    overflow: hidden; display: flex; flex-direction: column;
+    box-shadow: 0 24px 80px rgba(0,0,0,0.2);
+}
+.dist-hd {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 24px; border-bottom: 1px solid var(--border);
+}
+.dist-title { font-size: 16px; font-weight: 700; }
+.dist-close {
+    width: 30px; height: 30px; border-radius: 50%;
+    background: var(--bg); border: none; color: var(--text-secondary);
+    font-size: 16px; cursor: pointer; display: flex;
+    align-items: center; justify-content: center;
+}
+.dist-close:hover { background: #eee; color: var(--text-primary); }
+.dist-body { flex: 1; overflow-y: auto; padding: 20px 24px; display: flex; flex-direction: column; gap: 18px; }
+.dist-info { font-size: 13px; color: var(--text-secondary); }
+.dist-section-title { font-size: 13px; font-weight: 600; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+.dist-section-title::before { content: ''; width: 3px; height: 14px; background: var(--primary); border-radius: 2px; }
+
+/* 平台选择卡片 */
+.dist-platforms { display: flex; gap: 10px; }
+.dist-plat-card {
+    flex: 1; border: 2px solid var(--border); border-radius: 10px;
+    padding: 14px 12px; cursor: pointer; text-align: center;
+    transition: all 0.15s; position: relative; user-select: none;
+}
+.dist-plat-card:hover { border-color: var(--primary); }
+.dist-plat-card.selected { border-color: var(--primary); background: var(--primary-light); }
+.dist-plat-card.disabled { opacity: 0.45; cursor: not-allowed; }
+.dist-plat-card.disabled:hover { border-color: var(--border); }
+.dist-plat-card .plat-icon {
+    width: 36px; height: 36px; border-radius: 8px;
+    display: inline-flex; align-items: center; justify-content: center;
+    margin-bottom: 6px;
+}
+.dist-plat-card .plat-icon svg { width: 22px; height: 22px; display: block; color: #fff; }
+.dist-plat-card .plat-name { font-size: 13px; font-weight: 600; }
+.dist-plat-card .plat-mode { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+.dist-plat-card .plat-check {
+    position: absolute; top: 6px; right: 6px;
+    width: 18px; height: 18px; border-radius: 50%;
+    border: 2px solid var(--border); display: flex;
+    align-items: center; justify-content: center;
+    font-size: 10px; color: transparent;
+}
+.dist-plat-card.selected .plat-check {
+    background: var(--primary); border-color: var(--primary); color: #fff;
+}
+.dist-plat-card .plat-unbind {
+    font-size: 11px; color: var(--text-muted); margin-top: 4px; cursor: pointer;
+}
+.dist-plat-card .plat-unbind:hover { color: var(--primary); }
+
+/* 编辑模式切换 */
+.dist-mode-switch {
+    display: flex; background: #eee; border-radius: 8px; padding: 2px;
+    margin-bottom: 12px; width: fit-content;
+}
+.dist-mode-btn {
+    padding: 6px 16px; border: none; border-radius: 6px;
+    background: transparent; font-size: 12px; cursor: pointer;
+    color: var(--text-secondary); font-weight: 500; transition: all 0.12s;
+}
+.dist-mode-btn.active { background: #fff; color: var(--text-primary); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+
+/* 编辑字段 */
+.dist-fields { display: flex; flex-direction: column; gap: 10px; }
+.dist-field label { font-size: 12px; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 4px; }
+.dist-input {
+    width: 100%; height: 36px; padding: 0 12px; border: 1.5px solid var(--border);
+    border-radius: 8px; font-size: 13px; color: var(--text-primary);
+    background: #fff; outline: none; transition: border-color 0.15s;
+    font-family: inherit;
+}
+.dist-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-light); }
+.dist-textarea {
+    width: 100%; padding: 8px 12px; border: 1.5px solid var(--border);
+    border-radius: 8px; font-size: 13px; color: var(--text-primary);
+    background: #fff; outline: none; resize: vertical; min-height: 52px;
+    font-family: inherit; line-height: 1.5;
+}
+.dist-textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-light); }
+
+/* 独立编辑 - 平台标签 */
+.dist-ind-tabs { display: flex; gap: 4px; margin-bottom: 12px; }
+.dist-ind-tab {
+    padding: 5px 14px; border-radius: 6px; font-size: 12px;
+    cursor: pointer; border: 1px solid var(--border); background: transparent;
+    color: var(--text-secondary); transition: all 0.12s;
+}
+.dist-ind-tab.active { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
+.dist-ind-panel { display: none; }
+.dist-ind-panel.show { display: flex; flex-direction: column; gap: 10px; }
+
+/* AI标注行 */
+.dist-ai-row { display: flex; align-items: center; }
+.dist-ai-check {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 13px; color: var(--text-secondary); cursor: pointer;
+}
+.dist-ai-check input[type="checkbox"] { accent-color: var(--primary); width: 16px; height: 16px; }
+.dist-ai-check strong { color: var(--text-primary); }
+
+/* 引导文案 */
+.dist-guide {
+    background: var(--primary-light); border-radius: 8px;
+    padding: 10px 14px; font-size: 12px; color: var(--primary); line-height: 1.5; display: none;
+}
+.dist-guide.show { display: block; }
+
+.dist-ft {
+    display: flex; justify-content: flex-end; gap: 10px;
+    padding: 14px 24px; border-top: 1px solid var(--border);
+}
+.dist-ft .btn {
+    padding: 8px 20px; border-radius: 8px; font-size: 13px;
+    cursor: pointer; border: none; font-weight: 500; font-family: inherit;
+}
+.dist-ft .btn-cancel { background: var(--bg); color: var(--text-secondary); }
+.dist-ft .btn-cancel:hover { background: #eee; }
+.dist-ft .btn-primary { background: var(--primary); color: #fff; }
+.dist-ft .btn-primary:hover { background: var(--primary-dark); }
+.dist-ft .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* ====== 分发记录区块 ====== */
+.dist-records { display: flex; flex-direction: column; gap: 6px; }
+.dist-record-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 10px; background: var(--bg); border-radius: 8px;
+}
+.dist-record-icon {
+    width: 24px; height: 24px; border-radius: 6px;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.dist-record-icon svg { width: 16px; height: 16px; display: block; color: #fff; }
+.dist-record-info { flex: 1; min-width: 0; }
+.dist-record-name { font-size: 12px; font-weight: 600; color: var(--text-primary); }
+.dist-record-status { font-size: 11px; color: var(--text-muted); display: flex; align-items: center; gap: 4px; }
+.dist-record-status .rec-dot {
+    width: 5px; height: 5px; border-radius: 50%; display: inline-block;
+}
+.dist-record-status .rec-dot.success { background: var(--success); }
+.dist-record-status .rec-dot.pending { background: var(--warning); }
+.dist-record-status .rec-dot.failed { background: var(--danger); }
+.dist-empty-record { font-size: 12px; color: var(--text-muted); padding: 4px 0; }
 </style>
 </head>
 <body>
@@ -1032,6 +1206,7 @@
             <button class="select-all-btn" id="select-all-btn" onclick="toggleSelectAll()">全选</button>
             <span class="spacer"></span>
             <button class="batch-action-btn batch-download" onclick="batchDownload()">⬇ 批量下载</button>
+            <button class="batch-action-btn batch-download" onclick="openBatchDistModal()">📤 批量分发</button>
             <button class="batch-action-btn batch-delete" onclick="batchDelete()">✕ 批量删除</button>
             <button class="batch-exit" onclick="exitBatchMode()">取消</button>
         </div>
@@ -1126,6 +1301,12 @@
                         </div>
                     </div>
                 </div>
+                <div class="info-section" id="info-dist-section">
+                    <h4>分发记录</h4>
+                    <div class="dist-records" id="dist-records">
+                        <div class="dist-empty-record">暂未分发</div>
+                    </div>
+                </div>
                 <!-- 水印字幕编辑面板 -->
                 <div class="wm-edit-panel" id="wm-edit-panel">
                     <div class="wm-edit-card">
@@ -1194,6 +1375,60 @@
         <div class="detail-modal-ft">
             <button class="btn btn-sec" onclick="closeDetail()">关闭</button>
             <button class="btn btn-pri" onclick="showToast('⬇ 开始下载视频');closeDetail()">⬇ 下载视频</button>
+        </div>
+    </div>
+</div>
+
+<!-- 分发弹窗 -->
+<div class="dist-ov" id="dist-ov" onclick="if(event.target===this)closeDistModal()">
+    <div class="dist-modal">
+        <div class="dist-hd">
+            <span class="dist-title">分发到外部平台</span>
+            <button class="dist-close" onclick="closeDistModal()">✕</button>
+        </div>
+        <div class="dist-body">
+            <div class="dist-info" id="dist-info">已选 1 条视频</div>
+
+            <div class="dist-section">
+                <div class="dist-section-title">选择平台</div>
+                <div class="dist-platforms" id="dist-platforms"></div>
+            </div>
+
+            <div class="dist-section">
+                <div class="dist-section-title">发布设置</div>
+                <div class="dist-mode-switch">
+                    <button class="dist-mode-btn active" data-mode="unified" onclick="setDistMode('unified')">统一编辑</button>
+                    <button class="dist-mode-btn" data-mode="independent" onclick="setDistMode('independent')">独立编辑</button>
+                </div>
+                <div class="dist-fields" id="dist-fields-unified">
+                    <div class="dist-field">
+                        <label>视频标题</label>
+                        <input class="dist-input" id="dist-title" placeholder="视频标题" maxlength="50">
+                    </div>
+                    <div class="dist-field">
+                        <label>话题标签</label>
+                        <input class="dist-input" id="dist-tags" placeholder="多个标签用空格分隔，如 #AI生成 #理财">
+                    </div>
+                    <div class="dist-field">
+                        <label>视频简介</label>
+                        <textarea class="dist-textarea" id="dist-desc" placeholder="视频简介..." rows="2"></textarea>
+                    </div>
+                </div>
+                <div class="dist-fields" id="dist-fields-independent" style="display:none;"></div>
+            </div>
+
+            <div class="dist-ai-row">
+                <label class="dist-ai-check">
+                    <input type="checkbox" id="dist-ai-tag" checked>
+                    <span>自动携带 <strong>#AI生成</strong> 标签</span>
+                </label>
+            </div>
+
+            <div class="dist-guide" id="dist-guide"></div>
+        </div>
+        <div class="dist-ft">
+            <button class="btn btn-cancel" onclick="closeDistModal()">取消</button>
+            <button class="btn btn-primary" id="dist-confirm-btn" onclick="confirmDist()">确认分发</button>
         </div>
     </div>
 </div>
@@ -1366,10 +1601,13 @@
                         '<div class="play-indicator"><span></span><span></span><span></span><span></span></div>' +
                         '<button class="menu-btn" onclick="event.stopPropagation();toggleMenu(' + v.id + ')">⋮</button>' +
                         '<div class="dropdown-menu" id="menu-' + v.id + '">' +
+                            '<button class="dropdown-item" onclick="event.stopPropagation();openDistModal(' + v.id + ')">📤 分发视频</button>' +
+                            '<div class="dropdown-divider"></div>' +
                             '<button class="dropdown-item" onclick="event.stopPropagation();doDownload(' + v.id + ')">⬇ 下载视频</button>' +
                             '<div class="dropdown-divider"></div>' +
                             '<button class="dropdown-item danger" onclick="event.stopPropagation();requestDelete(' + v.id + ',\'' + v.title.replace(/'/g,"\\'") + '\')">✕ 删除视频</button>' +
                         '</div>' +
+                        '<div class="platform-badges" id="badges-' + v.id + '"></div>' +
                     '</div>' +
                     '<div class="video-info">' +
                         '<div class="video-title">' + v.title + '</div>' +
@@ -1382,6 +1620,7 @@
             }
         }
         grid.innerHTML = html;
+        renderBadges();
     }
 
     // ====== hover 自动预览 ======
@@ -1437,6 +1676,8 @@
 
         // 确保信息区显示、水印编辑面板隐藏
         closeWmEditor(true);
+
+        renderDistRecords(v.id);
 
         document.getElementById('detail-ov').classList.add('show');
     }
@@ -2101,6 +2342,319 @@
             renderVideos();
             showToast('✅ 视频生成完成：' + placeholder.title);
         }, delay);
+    }
+
+    // ====== 分发功能 ======
+    var PLATFORM_LOGOS = {
+        douyin: '<svg viewBox="0 0 24 24" fill="none"><path d="M15.6 2.4h-3.2v12.8a3.2 3.2 0 1 1-2.8-3.17v-3.26a6.4 6.4 0 1 0 6 6.43V7.37a8.8 8.8 0 0 0 5.2 1.7V5.88a5.6 5.6 0 0 1-5.2-3.48Z" fill="currentColor"/></svg>',
+        kuaishou: '<svg viewBox="0 0 24 24" fill="none"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2Zm4.2 11.2-5.6 3.2a.8.8 0 0 1-1.2-.68V8.28a.8.8 0 0 1 1.2-.68l5.6 3.2a.8.8 0 0 1 0 1.37l.08.03Z" fill="currentColor"/></svg>'
+    };
+    var PLATFORM_CONFIG = {
+        douyin: { name: '抖音', cls: 'douyin', mode: '跳转确认', modeDesc: '需跳转抖音APP手动发布' },
+        kuaishou: { name: '快手', cls: 'kuaishou', mode: '自动发布', modeDesc: '提交后由后台自动发布' }
+    };
+
+    var DIST_KEY = 'videoDistState';
+    var distMode = 'unified';
+    var distVideoIds = [];
+    var distSelectedPlatforms = {};
+    var distCurrentTab = null;
+
+    function getDistState() {
+        try {
+            var raw = localStorage.getItem(DIST_KEY);
+            return raw ? JSON.parse(raw) : {};
+        } catch (e) { return {}; }
+    }
+    function saveDistState(state) {
+        localStorage.setItem(DIST_KEY, JSON.stringify(state));
+    }
+    function getBindingState() {
+        try {
+            var raw = localStorage.getItem('platformBindingState');
+            return raw ? JSON.parse(raw) : {};
+        } catch (e) { return {}; }
+    }
+
+    function openDistModal(videoId) {
+        distVideoIds = [videoId];
+        distSelectedPlatforms = {};
+        distMode = 'unified';
+        openDistModalCommon();
+    }
+    function openBatchDistModal() {
+        if (selectedIds.length === 0) { showToast('请先选择视频'); return; }
+        distVideoIds = selectedIds.slice();
+        distSelectedPlatforms = {};
+        distMode = 'unified';
+        openDistModalCommon();
+    }
+    function openDistModalCommon() {
+        var info = document.getElementById('dist-info');
+        info.textContent = '🎬 已选 ' + distVideoIds.length + ' 条视频';
+
+        // 填充标题
+        var v = findVideo(distVideoIds[0]);
+        var title = document.getElementById('dist-title');
+        title.value = v ? v.title : '';
+
+        // 重置独立编辑tab
+        distCurrentTab = null;
+
+        renderDistPlatforms();
+        setDistMode('unified');
+        updateDistGuide();
+        updateDistBtn();
+        document.getElementById('dist-ov').classList.add('show');
+    }
+    function findVideo(id) {
+        for (var i = 0; i < videoData.length; i++) {
+            if (videoData[i].id === id) return videoData[i];
+        }
+        return null;
+    }
+
+    function renderDistPlatforms() {
+        var container = document.getElementById('dist-platforms');
+        var binding = getBindingState();
+        var html = '';
+        for (var key in PLATFORM_CONFIG) {
+            var cfg = PLATFORM_CONFIG[key];
+            var b = binding[key] || { status: 'unbound' };
+            var disabled = b.status !== 'bound' ? ' disabled' : '';
+            var selected = distSelectedPlatforms[key] ? ' selected' : '';
+            html += '<div class="dist-plat-card' + selected + disabled + '" data-platform="' + key + '" onclick="toggleDistPlatform(\'' + key + '\')">' +
+                '<div class="plat-check">✓</div>' +
+                '<div class="plat-icon ' + cfg.cls + '" style="background:' + (key === 'douyin' ? '#161823' : 'linear-gradient(135deg,#FF6A00,#EE2D2D)') + '">' +
+                    PLATFORM_LOGOS[key] +
+                '</div>' +
+                '<div class="plat-name">' + cfg.name + '</div>' +
+                '<div class="plat-mode">' + cfg.mode + '</div>' +
+                (b.status !== 'bound' ? '<div class="plat-unbind">未绑定，去绑定 →</div>' : '') +
+                '</div>';
+        }
+        container.innerHTML = html;
+    }
+
+    function toggleDistPlatform(platformId) {
+        var binding = getBindingState();
+        var b = binding[platformId] || { status: 'unbound' };
+        if (b.status !== 'bound') {
+            showToast('请先在个人中心绑定' + PLATFORM_CONFIG[platformId].name + '账号');
+            return;
+        }
+        if (distSelectedPlatforms[platformId]) {
+            delete distSelectedPlatforms[platformId];
+        } else {
+            distSelectedPlatforms[platformId] = true;
+        }
+        renderDistPlatforms();
+        updateDistGuide();
+        updateDistBtn();
+    }
+
+    function updateDistGuide() {
+        var guide = document.getElementById('dist-guide');
+        var texts = [];
+        if (distSelectedPlatforms['kuaishou']) {
+            texts.push('⚡ 快手：提交后自动后台发布，可在任务列表中查看进度。');
+        }
+        if (distSelectedPlatforms['douyin']) {
+            texts.push('🔄 抖音：需跳转至抖音APP手动确认发布，请确保已安装抖音客户端。');
+        }
+        if (texts.length > 0) {
+            guide.innerHTML = '📌 ' + texts.join('<br>📌 ');
+            guide.classList.add('show');
+        } else {
+            guide.classList.remove('show');
+        }
+    }
+
+    function updateDistBtn() {
+        var btn = document.getElementById('dist-confirm-btn');
+        var count = Object.keys(distSelectedPlatforms).length;
+        btn.textContent = count > 0 ? '确认分发（' + count + ' 个平台）' : '确认分发';
+    }
+
+    function setDistMode(mode) {
+        distMode = mode;
+        document.querySelectorAll('.dist-mode-btn').forEach(function(b) {
+            b.classList.toggle('active', b.dataset.mode === mode);
+        });
+        document.getElementById('dist-fields-unified').style.display = mode === 'unified' ? '' : 'none';
+        document.getElementById('dist-fields-independent').style.display = mode === 'independent' ? '' : 'none';
+        if (mode === 'independent') renderDistIndependent();
+    }
+
+    function renderDistIndependent() {
+        var container = document.getElementById('dist-fields-independent');
+        var html = '';
+        // 生成平台 tab
+        var tabsHtml = '<div class="dist-ind-tabs">';
+        var first = true;
+        for (var key in PLATFORM_CONFIG) {
+            if (distSelectedPlatforms[key]) {
+                var active = first ? ' active' : '';
+                tabsHtml += '<button class="dist-ind-tab' + active + '" data-platform="' + key + '" onclick="switchDistTab(\'' + key + '\')">' + PLATFORM_CONFIG[key].name + '</button>';
+                if (first) first = false;
+            }
+        }
+        tabsHtml += '</div>';
+
+        // 为每个选中的平台生成表单
+        var panelsHtml = '';
+        var firstPanel = true;
+        for (var key in PLATFORM_CONFIG) {
+            if (distSelectedPlatforms[key]) {
+                var show = firstPanel ? ' show' : '';
+                var cfg = PLATFORM_CONFIG[key];
+                var v = findVideo(distVideoIds[0]);
+                panelsHtml += '<div class="dist-ind-panel' + show + '" id="dist-ind-panel-' + key + '">' +
+                    '<div class="dist-field"><label>' + cfg.name + '标题</label><input class="dist-input dist-ind-title" data-platform="' + key + '" placeholder="' + cfg.name + '标题" maxlength="50" value="' + (v ? v.title : '') + '"></div>' +
+                    '<div class="dist-field"><label>' + cfg.name + '话题</label><input class="dist-input dist-ind-tags" data-platform="' + key + '" placeholder="多个标签用空格分隔"></div>' +
+                    '<div class="dist-field"><label>' + cfg.name + '简介</label><textarea class="dist-textarea dist-ind-desc" data-platform="' + key + '" placeholder="' + cfg.name + '简介..." rows="2"></textarea></div>' +
+                    '</div>';
+                if (firstPanel) {
+                    distCurrentTab = key;
+                    firstPanel = false;
+                }
+            }
+        }
+        html = tabsHtml + panelsHtml;
+        container.innerHTML = html;
+    }
+
+    function switchDistTab(key) {
+        distCurrentTab = key;
+        document.querySelectorAll('.dist-ind-tab').forEach(function(b) {
+            b.classList.toggle('active', b.dataset.platform === key);
+        });
+        document.querySelectorAll('.dist-ind-panel').forEach(function(p) {
+            p.classList.toggle('show', p.id === 'dist-ind-panel-' + key);
+        });
+    }
+
+    function closeDistModal() {
+        distVideoIds = [];
+        distSelectedPlatforms = {};
+        distMode = 'unified';
+        document.getElementById('dist-ov').classList.remove('show');
+    }
+
+    function confirmDist() {
+        var platforms = Object.keys(distSelectedPlatforms);
+        if (platforms.length === 0) { showToast('请至少选择一个平台'); return; }
+
+        var state = getDistState();
+        var now = new Date();
+        var dateStr = now.toISOString().slice(0, 10) + ' ' + now.toTimeString().slice(0, 5);
+
+        distVideoIds.forEach(function(videoId) {
+            if (!state[videoId]) state[videoId] = {};
+            platforms.forEach(function(pkey) {
+                var title;
+                if (distMode === 'unified') {
+                    title = document.getElementById('dist-title').value.trim() || ('视频 #' + videoId);
+                } else {
+                    var inp = document.querySelector('.dist-ind-title[data-platform="' + pkey + '"]');
+                    title = inp ? inp.value.trim() || ('视频 #' + videoId) : ('视频 #' + videoId);
+                }
+                state[videoId][pkey] = { status: 'pending', date: dateStr, title: title };
+            });
+        });
+        saveDistState(state);
+        closeDistModal();
+
+        // 触发异步发布模拟
+        platforms.forEach(function(pkey) {
+            if (pkey === 'kuaishou') {
+                simulateKuaishouPublish(distVideoIds);
+            } else if (pkey === 'douyin') {
+                simulateDouyinPublish(distVideoIds);
+            }
+        });
+        renderVideos();
+        showToast('已提交分发任务');
+    }
+
+    function simulateKuaishouPublish(ids) {
+        var delay = 2000 + Math.random() * 2000;
+        setTimeout(function() {
+            var state = getDistState();
+            ids.forEach(function(videoId) {
+                if (state[videoId] && state[videoId]['kuaishou']) {
+                    state[videoId]['kuaishou'].status = Math.random() > 0.15 ? 'success' : 'failed';
+                }
+            });
+            saveDistState(state);
+            renderVideos();
+            showToast('✅ 快手分发完成');
+        }, delay);
+    }
+
+    function simulateDouyinPublish(ids) {
+        // 展示跳转引导提示
+        var msg = '即将跳转至抖音APP，请在端内确认发布。\n\n发布完成后点击下方「已完成」按钮。';
+        if (confirm(msg + '\n\n是否已确认发布？')) {
+            var state = getDistState();
+            ids.forEach(function(videoId) {
+                if (state[videoId] && state[videoId]['douyin']) {
+                    state[videoId]['douyin'].status = 'success';
+                }
+            });
+            saveDistState(state);
+            renderVideos();
+            showToast('✅ 抖音分发完成');
+        }
+    }
+
+    function renderBadges() {
+        var state = getDistState();
+        for (var videoId in state) {
+            var badges = document.getElementById('badges-' + videoId);
+            if (!badges) continue;
+            var platforms = state[videoId];
+            var html = '';
+            for (var pkey in platforms) {
+                var info = platforms[pkey];
+                if (info.status === 'success') {
+                    html += '<div class="platform-badge ' + pkey + '" title="已分发到' + PLATFORM_CONFIG[pkey].name + '">' + PLATFORM_LOGOS[pkey] + '</div>';
+                } else if (info.status === 'pending') {
+                    html += '<div class="platform-badge ' + pkey + ' pending" title="分发中…">' + PLATFORM_LOGOS[pkey] + '</div>';
+                } else if (info.status === 'failed') {
+                    html += '<div class="platform-badge ' + pkey + ' failed" title="分发失败">' + PLATFORM_LOGOS[pkey] + '</div>';
+                }
+            }
+            badges.innerHTML = html;
+        }
+    }
+
+    function renderDistRecords(videoId) {
+        var container = document.getElementById('dist-records');
+        if (!container) return;
+        var state = getDistState();
+        var records = state[videoId];
+        if (!records || Object.keys(records).length === 0) {
+            container.innerHTML = '<div class="dist-empty-record">暂未分发</div>';
+            return;
+        }
+        var html = '';
+        for (var pkey in records) {
+            var r = records[pkey];
+            var cfg = PLATFORM_CONFIG[pkey];
+            if (!cfg) continue;
+            var statusText = r.status === 'success' ? '已发布' : r.status === 'pending' ? '分发中…' : '分发失败';
+            html += '<div class="dist-record-item">' +
+                '<div class="dist-record-icon ' + pkey + '" style="background:' + (pkey === 'douyin' ? '#161823' : 'linear-gradient(135deg,#FF6A00,#EE2D2D)') + '">' +
+                    PLATFORM_LOGOS[pkey] +
+                '</div>' +
+                '<div class="dist-record-info">' +
+                    '<div class="dist-record-name">' + (r.title || cfg.name) + '</div>' +
+                    '<div class="dist-record-status"><span class="rec-dot ' + r.status + '"></span> ' + statusText + ' · ' + r.date + '</div>' +
+                '</div>' +
+                '</div>';
+        }
+        container.innerHTML = html;
     }
 
     document.addEventListener('DOMContentLoaded', function() {
