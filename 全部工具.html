@@ -1511,11 +1511,11 @@
     <div class="task-batch-confirm-overlay" id="taskBatchConfirmOverlay">
         <div class="task-batch-confirm-modal">
             <div class="task-batch-confirm-icon">⚠️</div>
-            <div class="task-batch-confirm-title">确认取消</div>
-            <div class="task-batch-confirm-desc" id="taskBatchConfirmDesc">确认取消这 N 条视频的生成？此操作不可恢复。</div>
+            <div class="task-batch-confirm-title">确认关闭</div>
+            <div class="task-batch-confirm-desc" id="taskBatchConfirmDesc">确认关闭这 N 条视频的生成？此操作不可恢复。</div>
             <div class="task-batch-confirm-actions">
                 <button class="btn btn-cancel" onclick="closeTaskBatchConfirm()">再想想</button>
-                <button class="btn btn-danger" onclick="executeTaskBatchCancel()">确认取消</button>
+                <button class="btn btn-danger" onclick="executeTaskBatchCancel()">确认关闭</button>
             </div>
         </div>
     </div>
@@ -2155,7 +2155,7 @@
                     listHtml += '<button class="task-report-action"' + editDisabled + ' onclick="window.location.href=\'简单模式-流程版.html?editDraft=1\'">编辑</button>';
                     listHtml += '<button class="task-report-action wm"' + wmDisabled + ' onclick="openBatchWmConfig(\'' + tnEsc + '\')">' + wmLabel + '</button>';
                     listHtml += '<button class="task-report-action"' + downloadDisabled + ' onclick="downloadTaskVideos(\'' + tnEsc + '\')">下载</button>';
-                    listHtml += '<button class="task-report-action danger"' + cancelDisabled + ' onclick="cancelGroupTask(\'' + tnEsc + '\')">取消</button>';
+                    listHtml += '<button class="task-report-action danger"' + cancelDisabled + ' onclick="cancelGroupTask(\'' + tnEsc + '\')">关闭</button>';
                     listHtml += '<button class="task-report-action danger" onclick="deleteTask(\'' + tnEsc + '\')">删除</button>';
                     listHtml += '</div></td>';
                     listHtml += '</tr>';
@@ -2204,12 +2204,12 @@
                             progressHtml = '<span class="tpb-text">-</span>';
                         }
                         if (task.status === 'cancelled') {
-                            actionHtml = '<div class="subtask-actions"><button class="tg-op-btn" disabled>取消</button><button class="tg-op-btn warn" onclick="retryTask(' + task.id + ')">重试</button><button class="tg-op-btn retry" disabled>预览</button><button class="tg-op-btn download" disabled>下载</button></div>';
+                            actionHtml = '<div class="subtask-actions"><button class="tg-op-btn" disabled>关闭</button><button class="tg-op-btn warn" onclick="retryTask(' + task.id + ')">重试</button><button class="tg-op-btn retry" disabled>预览</button><button class="tg-op-btn download" disabled>下载</button></div>';
                         } else if (task.status === 'failed') {
                             actionHtml = '<div class="subtask-actions"><button class="tg-op-btn warn" onclick="retryTask(' + task.id + ')">重试</button><button class="tg-op-btn retry" disabled>预览</button><button class="tg-op-btn download" disabled>下载</button></div>';
                         } else {
                             actionHtml = '<div class="subtask-actions">';
-                            actionHtml += '<button class="tg-op-btn" ' + (canCancel ? 'onclick="subtaskCancel(' + task.id + ')"' : 'disabled') + '>取消</button>';
+                            actionHtml += '<button class="tg-op-btn" ' + (canCancel ? 'onclick="subtaskCancel(' + task.id + ')"' : 'disabled') + '>关闭</button>';
                             actionHtml += '<button class="tg-op-btn retry" ' + (canPreview ? 'onclick="openPreview(' + task.id + ')"' : 'disabled') + '>预览</button>';
                             actionHtml += '<button class="tg-op-btn download" ' + (canDownload ? 'onclick="downloadVideo(' + task.id + ')"' : 'disabled') + '>下载</button>';
                             actionHtml += '</div>';
@@ -2316,7 +2316,7 @@
             if (ids.length === 0) { toast('该任务没有正在排队或生成中的视频'); return; }
             pendingBatchCancelIds = ids;
             document.getElementById('taskBatchConfirmDesc').textContent =
-                '确认取消「' + taskName + '」中 ' + ids.length + ' 条视频的生成？已完成的视频不受影响。';
+                '确认关闭「' + taskName + '」中 ' + ids.length + ' 条视频的生成？已完成的视频不受影响。';
             document.getElementById('taskBatchConfirmOverlay').classList.add('active');
         }
         function deleteTask(taskName) {
@@ -2399,10 +2399,10 @@
                     toCancel.push(t.id);
                 }
             }
-            if (toCancel.length === 0) { toast('未选中可取消的条目'); return; }
+            if (toCancel.length === 0) { toast('未选中可关闭的条目'); return; }
             pendingBatchCancelIds = toCancel;
             document.getElementById('taskBatchConfirmDesc').textContent =
-                '确认取消这 ' + toCancel.length + ' 条视频的生成？此操作不可恢复。';
+                '确认关闭这 ' + toCancel.length + ' 条视频的生成？此操作不可恢复。';
             document.getElementById('taskBatchConfirmOverlay').classList.add('active');
         }
         function cardBatchDownload(taskName) {
@@ -2437,13 +2437,13 @@
             document.getElementById('taskBatchConfirmOverlay').classList.remove('active');
             updateTaskStatusBar();
             renderTaskModal();
-            toast('已取消 ' + ids.length + ' 条视频');
+            toast('已关闭 ' + ids.length + ' 条视频');
         }
 
         function subtaskCancel(id) {
             pendingBatchCancelIds = [id];
             document.getElementById('taskBatchConfirmDesc').textContent =
-                '确认取消该条视频的生成？';
+                '确认关闭该条视频的生成？';
             document.getElementById('taskBatchConfirmOverlay').classList.add('active');
         }
 
