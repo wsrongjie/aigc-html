@@ -409,6 +409,36 @@
         .mini-metric-value { font-size:18px; font-weight:800; }
         .mini-metric-label { font-size:11px; color:var(--text-muted); margin-top:2px; }
 
+        /* ===== 提示词分组面板 ===== */
+        .prompt-groups { display: flex; flex-direction: column; gap: 12px; }
+        .prompt-group { background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+        .prompt-group-header {
+            display: flex; align-items: center; gap: 8px; padding: 14px 18px;
+            cursor: pointer; user-select: none; font-size: 14px; font-weight: 700;
+            color: var(--text-primary); background: #FAFAFA; border-bottom: 1px solid var(--border);
+            transition: background 0.15s;
+        }
+        .prompt-group-header:hover { background: #F0F0F3; }
+        .prompt-group-header .caret { font-size: 10px; color: var(--text-muted); transition: transform 0.18s; width: 16px; text-align: center; }
+        .prompt-group-header.collapsed .caret { transform: rotate(-90deg); }
+        .prompt-group-count { font-size: 11px; font-weight: 500; color: var(--text-muted); margin-left: 4px; }
+        .prompt-group-body.collapsed { display: none; }
+        .prompt-group-body table { width: 100%; border-collapse: collapse; }
+        .prompt-group-body thead th { background: #fff; }
+        .prompt-template-block { margin: 0; }
+        .prompt-template-block + .prompt-template-block { border-top: 1px solid var(--border); }
+        .prompt-template-header {
+            display: flex; align-items: center; gap: 8px; padding: 10px 18px;
+            cursor: pointer; user-select: none; font-size: 13px; font-weight: 600;
+            color: var(--text-secondary); background: #FDFDFD;
+            transition: background 0.15s;
+        }
+        .prompt-template-header:hover { background: #F0F0F3; }
+        .prompt-template-header .caret { font-size: 10px; color: var(--text-muted); transition: transform 0.18s; width: 14px; text-align: center; }
+        .prompt-template-header.collapsed .caret { transform: rotate(-90deg); }
+        .prompt-template-table.collapsed { display: none; }
+        .prompt-template-table tr:first-child td { border-top: none; }
+
         /* ===== 响应式 ===== */
         @media (max-width: 1440px) { .metrics-row,.card-grid4,.task-metrics,.task-stat-metrics,.mini-metrics { grid-template-columns: repeat(2, 1fr); } }
         @media (max-width: 1200px) { .card-grid2 { grid-template-columns: 1fr; } }
@@ -612,12 +642,9 @@
             <div class="section-title">提示词配置</div>
             <div class="table-wrap" style="margin-bottom:24px">
                 <div class="table-toolbar">
-                    <span style="font-weight:600;font-size:13px">覆盖所有使用提示词的功能节点</span>
+                    <span style="font-weight:600;font-size:13px">按业务场景管理提示词</span>
                 </div>
-                <table>
-                    <thead><tr><th>功能节点</th><th>模型类型</th><th>提示词名称</th><th>线上版本</th><th>草稿版本</th><th>最后更新人</th><th>最后更新</th><th>操作</th></tr></thead>
-                    <tbody id="promptTable"></tbody>
-                </table>
+                <div class="prompt-groups" id="promptGroups" style="padding:0"></div>
             </div>
 
 
@@ -746,8 +773,12 @@
         </div>
         <div style="display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:14px;margin-bottom:14px">
             <div class="form-group"><label class="kv-label">提示词名称</label><input class="filter-input" id="pfName" style="width:100%" placeholder="如：script_create_v7"></div>
-            <div class="form-group"><label class="kv-label">功能节点</label><select class="filter-select" id="pfNode" style="width:100%"><option>台词生成</option><option>台词优化</option><option>合规审核/改写</option><option>分镜生成</option><option>标题/封面文案</option><option>主体分析</option><option>场景生成</option><option>首帧生成</option><option>图片创作</option><option>视频生成</option><option>语音合成</option></select></div>
+            <div class="form-group"><label class="kv-label">功能节点</label><select class="filter-select" id="pfNode" style="width:100%"><option>台词AI优化</option><option>拆分镜</option><option>首帧图片合成</option><option>首帧合成</option><option>语音合成指令</option><option>语音合成</option><option>分镜短视频生成</option><option>视频生成</option></select></div>
             <div class="form-group"><label class="kv-label">模型类型</label><select class="filter-select" id="pfModelType" style="width:100%"><option>大语言模型</option><option>多模态大模型</option><option>视频/多模态模型</option><option>音频模型</option></select></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
+            <div class="form-group"><label class="kv-label">业务场景</label><select class="filter-select" id="pfScene" style="width:100%" onchange="onPromptSceneChange()"><option value="director">导演台</option><option value="batch">批量成片</option><option value="template">模板成片</option></select></div>
+            <div class="form-group" id="pfTemplateGroup" style="display:none"><label class="kv-label">所属模板</label><select class="filter-select" id="pfTemplate" style="width:100%"><option value="市场收评模板">市场收评模板</option><option value="基金投教模板">基金投教模板</option><option value="热点快评模板">热点快评模板</option></select></div>
         </div>
         <div class="form-group" style="margin-bottom:14px">
             <label class="kv-label">提示词内容</label>
@@ -1012,24 +1043,39 @@ var AppState = {
         { id:'b015',time:'2026-01-23 17:20',tenantId:'t004',tenantName:'中诚教育',type:'充值',amount:5000,balance:2500,operator:'admin',taskId:'-',remark:'新年活动充值赠送' }
     ],
     prompts: [
-        { key:'script',name:'台词生成提示词',node:'台词生成',modelType:'大语言模型',liveVersion:'script_create_v6',draftVersion:'script_create_v7',liveContent:'你是金融投顾短视频文案策划。根据 {{topic}}、{{audience}}、{{duration}} 生成专业、克制、口语化的台词，必须包含风险提示。',draftContent:'你是金融投顾短视频文案策划。请根据以下变量生成台词：\n主题：{{topic}}\n受众：{{audience}}\n角色：{{role}}\n时长：{{duration}}\n要求：专业可信、表达自然、结尾包含风险提示。',grayRange:'全量',lastEditor:'admin',remark:'优化口语自然度和专业可信度',updatedAt:'2026-01-20' },
-        { key:'script_optimize',name:'台词优化提示词',node:'台词优化',modelType:'大语言模型',liveVersion:'script_optimize_v4',draftVersion:'',liveContent:'优化已有台词，使表达更适合金融投顾视频口播，减少绝对化收益承诺，保留关键观点。',draftContent:'',grayRange:'全量',lastEditor:'admin',remark:'',updatedAt:'2026-01-19' },
-        { key:'script_compliance',name:'合规审核/改写提示词',node:'合规审核/改写',modelType:'大语言模型',liveVersion:'compliance_v5',draftVersion:'compliance_v6',liveContent:'检查金融投顾台词中的收益承诺、夸大表述、投资建议边界，并输出风险等级和可替换文案。',draftContent:'请审核以下台词是否存在金融合规风险：\n{{script}}\n输出：风险等级、命中原因、建议改写、是否允许发布。',grayRange:'内部租户',lastEditor:'operator',remark:'增加合规条款检查',updatedAt:'2026-01-22' },
-        { key:'shot',name:'分镜生成提示词',node:'分镜生成',modelType:'大语言模型',liveVersion:'shot_v12',draftVersion:'',liveContent:'根据台词内容规划分镜脚本，每个分镜包含台词片段、画面描述、运镜类型、预估时长，最多 6 个分镜。',draftContent:'',grayRange:'内部租户',lastEditor:'admin',remark:'',updatedAt:'2026-01-18' },
-        { key:'title_cover',name:'标题/封面文案提示词',node:'标题/封面文案',modelType:'大语言模型',liveVersion:'title_cover_v3',draftVersion:'',liveContent:'基于台词和目标客群生成 3 个短视频标题与封面文案，避免夸大收益和绝对化表述。',draftContent:'',grayRange:'全量',lastEditor:'admin',remark:'',updatedAt:'2026-01-17' },
-        { key:'subject',name:'主体分析提示词',node:'主体分析',modelType:'多模态大模型',liveVersion:'subject_v7',draftVersion:'subject_v8',liveContent:'分析角色图片或角色描述，输出外观、服饰、气质、适合姿态和一致性约束。',draftContent:'请分析以下角色特征并生成主体描述：\n角色名：{{role_name}}\n性别：{{gender}}\n描述：{{description}}\n\n输出格式：JSON\n{\n  "appearance": "...",\n  "style": "...",\n  "recommended_pose": "..."\n}',grayRange:'全量',lastEditor:'admin',remark:'改为 JSON 结构化输出',updatedAt:'2026-01-22' },
-        { key:'scene',name:'场景生成提示词',node:'场景生成',modelType:'多模态大模型',liveVersion:'scene_v5',draftVersion:'',liveContent:'根据行业、视频主题和角色气质生成背景场景描述，强调真实投顾办公、路演或演播室环境。',draftContent:'',grayRange:'全量',lastEditor:'admin',remark:'',updatedAt:'2026-01-16' },
-        { key:'first_frame',name:'首帧生成提示词',node:'首帧生成',modelType:'多模态大模型',liveVersion:'first_frame_v4',draftVersion:'first_frame_v5',liveContent:'将主体描述、场景描述和封面文案合成为首帧画面提示词，要求人物清晰、构图稳定、金融场景可信。',draftContent:'请根据主体、场景、标题生成首帧提示词：\n主体：{{subject}}\n场景：{{scene}}\n标题：{{title}}\n输出中文和英文双语提示词。',grayRange:'内部租户',lastEditor:'operator',remark:'增加双语输出要求',updatedAt:'2026-01-21' },
-        { key:'image',name:'图片创作提示词',node:'图片创作',modelType:'多模态大模型',liveVersion:'image_v6',draftVersion:'',liveContent:'生成金融知识图、场景图或封面图的图片提示词，控制画面元素、风格和合规表达。',draftContent:'',grayRange:'全量',lastEditor:'admin',remark:'',updatedAt:'2026-01-15' },
-        { key:'video',name:'视频生成提示词',node:'视频生成',modelType:'视频/多模态模型',liveVersion:'video_v8',draftVersion:'',liveContent:'根据分镜描述生成视频画面提示词，要求人物一致、口型稳定、背景固定，适合正面口播。',draftContent:'',grayRange:'全量',lastEditor:'admin',remark:'优化人物一致性描述',updatedAt:'2026-01-15' },
-        { key:'voice_instruction',name:'语音合成指令',node:'语音合成',modelType:'音频模型',liveVersion:'voice_tts_v3',draftVersion:'',liveContent:'根据角色设定、语速、情绪和停顿规则生成语音合成指令，默认使用已绑定内置音色。',draftContent:'',grayRange:'全量',lastEditor:'admin',remark:'',updatedAt:'2026-01-14' }
+        // ===== 导演台 =====
+        { key:'director_script_optimize', name:'台词AI优化提示词', node:'台词AI优化', scene:'director', sceneName:'导演台', parentTemplate:'', modelType:'大语言模型', liveVersion:'dir_script_opt_v3', draftVersion:'', liveContent:'你是金融投顾视频台词优化助手。优化已有台词，使表达更自然流畅、适合正面口播，减少绝对化收益承诺，保留关键观点和风险提示。', draftContent:'', grayRange:'全量', lastEditor:'admin', remark:'', updatedAt:'2026-01-20' },
+        { key:'director_shot_split', name:'拆分镜提示词', node:'拆分镜', scene:'director', sceneName:'导演台', parentTemplate:'', modelType:'大语言模型', liveVersion:'dir_shot_v5', draftVersion:'', liveContent:'根据台词内容规划分镜脚本，每个分镜包含台词片段、画面描述、运镜类型、预估时长，最多 6 个分镜，确保人物一致、背景固定。', draftContent:'', grayRange:'内部租户', lastEditor:'admin', remark:'', updatedAt:'2026-01-18' },
+        { key:'director_first_frame', name:'首帧图片合成提示词', node:'首帧图片合成', scene:'director', sceneName:'导演台', parentTemplate:'', modelType:'多模态大模型', liveVersion:'dir_first_frame_v4', draftVersion:'', liveContent:'将主体描述、场景描述和封面文案合成为首帧画面提示词，要求人物清晰、构图稳定、金融场景可信，输出中文和英文双语提示词。', draftContent:'', grayRange:'内部租户', lastEditor:'operator', remark:'', updatedAt:'2026-01-21' },
+        { key:'director_voice', name:'语音合成指令', node:'语音合成指令', scene:'director', sceneName:'导演台', parentTemplate:'', modelType:'音频模型', liveVersion:'dir_voice_v3', draftVersion:'', liveContent:'根据角色设定、语速、情绪和停顿规则生成语音合成指令，默认使用已绑定内置音色。', draftContent:'', grayRange:'全量', lastEditor:'admin', remark:'', updatedAt:'2026-01-14' },
+        { key:'director_video', name:'分镜短视频生成提示词', node:'分镜短视频生成', scene:'director', sceneName:'导演台', parentTemplate:'', modelType:'视频/多模态模型', liveVersion:'dir_video_v8', draftVersion:'', liveContent:'根据分镜描述生成视频画面提示词，要求人物一致、口型稳定、背景固定，适合正面口播，控制动作幅度。', draftContent:'', grayRange:'全量', lastEditor:'admin', remark:'优化人物一致性描述', updatedAt:'2026-01-15' },
+
+        // ===== 批量成片 =====
+        { key:'batch_voice', name:'语音合成指令', node:'语音合成指令', scene:'batch', sceneName:'批量成片', parentTemplate:'', modelType:'音频模型', liveVersion:'batch_voice_v2', draftVersion:'', liveContent:'批量模式下根据角色设定、语速、情绪和停顿规则生成语音合成指令，支持批量处理，默认使用已绑定音色。', draftContent:'', grayRange:'全量', lastEditor:'admin', remark:'', updatedAt:'2026-01-14' },
+        { key:'batch_first_frame', name:'首帧图片合成提示词', node:'首帧图片合成', scene:'batch', sceneName:'批量成片', parentTemplate:'', modelType:'多模态大模型', liveVersion:'batch_first_frame_v3', draftVersion:'', liveContent:'批量模式下将主体描述、场景描述和封面文案合成为首帧画面提示词，要求批量输出风格统一、人物清晰。', draftContent:'', grayRange:'全量', lastEditor:'admin', remark:'', updatedAt:'2026-01-21' },
+        { key:'batch_video', name:'视频生成提示词', node:'视频生成', scene:'batch', sceneName:'批量成片', parentTemplate:'', modelType:'视频/多模态模型', liveVersion:'batch_video_v6', draftVersion:'', liveContent:'批量模式下根据分镜描述生成视频画面提示词，要求人物一致、口型稳定、背景固定，支持批量并行生成。', draftContent:'', grayRange:'全量', lastEditor:'admin', remark:'', updatedAt:'2026-01-15' },
+
+        // ===== 模板成片 - 市场收评模板 =====
+        { key:'tpl_market_first_frame', name:'首帧合成提示词', node:'首帧合成', scene:'template', sceneName:'模板成片', parentTemplate:'市场收评模板', modelType:'多模态大模型', liveVersion:'tpl_market_ff_v2', draftVersion:'', liveContent:'市场收评模板：将收盘数据、主体形象和模板背景合成为首帧画面，要求突出关键指数、构图稳重、适合投顾场景。', draftContent:'', grayRange:'全量', lastEditor:'admin', remark:'', updatedAt:'2026-01-20' },
+        { key:'tpl_market_voice', name:'语音合成提示词', node:'语音合成', scene:'template', sceneName:'模板成片', parentTemplate:'市场收评模板', modelType:'音频模型', liveVersion:'tpl_market_voice_v2', draftVersion:'', liveContent:'市场收评模板：使用沉稳男声，语速适中，重点数据处停顿 0.5s，整体情绪稳重专业。', draftContent:'', grayRange:'全量', lastEditor:'admin', remark:'', updatedAt:'2026-01-19' },
+        { key:'tpl_market_video', name:'视频生成提示词', node:'视频生成', scene:'template', sceneName:'模板成片', parentTemplate:'市场收评模板', modelType:'视频/多模态模型', liveVersion:'tpl_market_video_v3', draftVersion:'', liveContent:'市场收评模板：根据市场数据和台词生成视频画面，要求数据可视化清晰、人物口型同步、背景为演播室风格。', draftContent:'', grayRange:'全量', lastEditor:'admin', remark:'', updatedAt:'2026-01-18' },
+
+        // ===== 模板成片 - 基金投教模板 =====
+        { key:'tpl_fund_first_frame', name:'首帧合成提示词', node:'首帧合成', scene:'template', sceneName:'模板成片', parentTemplate:'基金投教模板', modelType:'多模态大模型', liveVersion:'tpl_fund_ff_v2', draftVersion:'', liveContent:'基金投教模板：将基金知识要点、主体形象和模板背景合成为首帧画面，要求亲和力强、图文并茂、适合科普场景。', draftContent:'', grayRange:'全量', lastEditor:'admin', remark:'', updatedAt:'2026-01-20' },
+        { key:'tpl_fund_voice', name:'语音合成提示词', node:'语音合成', scene:'template', sceneName:'模板成片', parentTemplate:'基金投教模板', modelType:'音频模型', liveVersion:'tpl_fund_voice_v2', draftVersion:'', liveContent:'基金投教模板：使用知性女声，语速稍慢、娓娓道来，关键概念处加重语气，整体情绪亲切专业。', draftContent:'', grayRange:'全量', lastEditor:'admin', remark:'', updatedAt:'2026-01-19' },
+        { key:'tpl_fund_video', name:'视频生成提示词', node:'视频生成', scene:'template', sceneName:'模板成片', parentTemplate:'基金投教模板', modelType:'视频/多模态模型', liveVersion:'tpl_fund_video_v3', draftVersion:'', liveContent:'基金投教模板：根据投教内容和台词生成视频画面，要求图文动画丰富、人物自然、背景为书吧/客厅风格。', draftContent:'', grayRange:'全量', lastEditor:'admin', remark:'', updatedAt:'2026-01-18' },
+
+        // ===== 模板成片 - 热点快评模板 =====
+        { key:'tpl_hotspot_first_frame', name:'首帧合成提示词', node:'首帧合成', scene:'template', sceneName:'模板成片', parentTemplate:'热点快评模板', modelType:'多模态大模型', liveVersion:'tpl_hotspot_ff_v2', draftVersion:'', liveContent:'热点快评模板：将热点事件标题、主体形象和模板背景合成为首帧画面，要求冲击力强、信息突出、适合快节奏场景。', draftContent:'', grayRange:'全量', lastEditor:'admin', remark:'', updatedAt:'2026-01-20' },
+        { key:'tpl_hotspot_voice', name:'语音合成提示词', node:'语音合成', scene:'template', sceneName:'模板成片', parentTemplate:'热点快评模板', modelType:'音频模型', liveVersion:'tpl_hotspot_voice_v2', draftVersion:'', liveContent:'热点快评模板：使用快讯男声，语速较快、节奏紧凑，关键信息处停顿 0.3s，整体情绪干练果断。', draftContent:'', grayRange:'全量', lastEditor:'admin', remark:'', updatedAt:'2026-01-19' },
+        { key:'tpl_hotspot_video', name:'视频生成提示词', node:'视频生成', scene:'template', sceneName:'模板成片', parentTemplate:'热点快评模板', modelType:'视频/多模态模型', liveVersion:'tpl_hotspot_video_v3', draftVersion:'', liveContent:'热点快评模板：根据热点事件和台词生成视频画面，要求动感强、转场快、字幕突出，背景为新闻风格。', draftContent:'', grayRange:'全量', lastEditor:'admin', remark:'', updatedAt:'2026-01-18' }
     ],
     releaseLogs: [
-        { time:'2026-01-20 16:30',title:'script_create_v6 发布',desc:'台词生成提示词更新，优化口语自然度和专业可信度',status:'发布',operator:'admin' },
-        { time:'2026-01-19 11:00',title:'subject_v7 发布',desc:'主体分析 v7 发布上线，改为 JSON 结构化输出',status:'发布',operator:'admin' },
-        { time:'2026-01-18 14:20',title:'shot_v12 发布',desc:'分镜生成提示词更新至 v12，增加运镜类型描述',status:'发布',operator:'admin' },
-        { time:'2026-01-16 09:45',title:'shot_v11 回滚',desc:'因分镜数量异常增多，回滚至 shot_v10',status:'回滚',operator:'admin' },
-        { time:'2026-01-15 17:00',title:'video_v8 发布',desc:'视频生成提示词更新，优化人物一致性描述',status:'发布',operator:'admin' }
+        { time:'2026-01-20 16:30',title:'dir_script_opt_v3 发布',desc:'导演台·台词AI优化提示词更新，优化口语自然度和专业可信度',status:'发布',operator:'admin' },
+        { time:'2026-01-19 11:00',title:'dir_first_frame_v4 发布',desc:'导演台·首帧图片合成提示词 v4 发布上线',status:'发布',operator:'admin' },
+        { time:'2026-01-18 14:20',title:'dir_shot_v5 发布',desc:'导演台·拆分镜提示词更新至 v5，增加运镜类型描述',status:'发布',operator:'admin' },
+        { time:'2026-01-16 09:45',title:'dir_shot_v4 回滚',desc:'因分镜数量异常增多，回滚至 dir_shot_v3',status:'回滚',operator:'admin' },
+        { time:'2026-01-15 17:00',title:'dir_video_v8 发布',desc:'导演台·分镜短视频生成提示词更新，优化人物一致性描述',status:'发布',operator:'admin' }
     ],
     voiceConfigs: [
         { name:'沉稳男声 A', voiceId:'cosyvoice-v3.5-finance-male-001', type:'男声', scene:'市场解读 / 资产配置', binding:'稳健男性投顾', status:'启用' },
@@ -1129,7 +1175,7 @@ var AppState = {
         { time:'2026-01-25 16:10', operator:'admin', type:'积分', target:'华泰理财', before:'5,600', after:'8,600', remark:'手动充值 3,000 积分' },
         { time:'2026-01-25 15:30', operator:'operator', type:'租户', target:'安联保险经纪', before:'已停用', after:'启用中', remark:'重新启用' },
         { time:'2026-01-24 18:05', operator:'admin', type:'配置', target:'视频生成计费', before:'18 积分/秒', after:'20 积分/秒', remark:'同步新价格策略' },
-        { time:'2026-01-24 14:20', operator:'admin', type:'提示词', target:'台词生成提示词', before:'script_create_v5', after:'script_create_v6', remark:'全量发布' },
+        { time:'2026-01-24 14:20', operator:'admin', type:'提示词', target:'台词AI优化提示词', before:'dir_script_opt_v2', after:'dir_script_opt_v3', remark:'全量发布' },
         { time:'2026-01-23 11:40', operator:'operator', type:'积分', target:'汇丰投顾', before:'500', after:'580', remark:'失败任务返还 80 积分' }
     ]
 };
@@ -1498,6 +1544,11 @@ function closeDrawer() {
 // 业务配置
 // ===========================
 function mergePromptDefaults(savedPrompts) {
+    // 检查是否为旧版数据结构（无 scene 字段），旧数据直接丢弃使用默认值
+    if (savedPrompts.length && !savedPrompts[0].hasOwnProperty('scene')) {
+        return AppState.prompts;
+    }
+
     var savedByKey = {};
     for (var i = 0; i < savedPrompts.length; i++) {
         if (savedPrompts[i] && savedPrompts[i].key) savedByKey[savedPrompts[i].key] = savedPrompts[i];
@@ -1511,6 +1562,9 @@ function mergePromptDefaults(savedPrompts) {
             name: saved.name || base.name,
             node: saved.node || base.node,
             modelType: saved.modelType || base.modelType,
+            scene: saved.scene || base.scene,
+            sceneName: saved.sceneName || base.sceneName,
+            parentTemplate: hasOwn(saved, 'parentTemplate') ? saved.parentTemplate : base.parentTemplate,
             liveVersion: hasOwn(saved, 'liveVersion') ? saved.liveVersion : base.liveVersion,
             liveContent: hasOwn(saved, 'liveContent') ? saved.liveContent : base.liveContent,
             draftVersion: hasOwn(saved, 'draftVersion') ? saved.draftVersion : base.draftVersion,
@@ -1525,7 +1579,10 @@ function mergePromptDefaults(savedPrompts) {
 
     Object.keys(savedByKey).forEach(function(key) {
         var p = savedByKey[key];
+        if (!p.scene) return; // 跳过没有 scene 字段的旧数据
         p.modelType = p.modelType || inferModelTypeByNode(p.node);
+        p.sceneName = p.sceneName || '';
+        p.parentTemplate = p.parentTemplate || '';
         p.lastEditor = p.lastEditor || (p.validateStatus ? (p.validateStatus === '已验证' ? '系统迁移' : '未知') : '-');
         p.remark = p.remark || '';
         p.liveContent = p.liveContent || '（历史提示词内容未保存）';
@@ -1556,9 +1613,9 @@ function normalizeReleaseLogs(logs) {
 }
 
 function inferModelTypeByNode(node) {
-    if (['主体分析','场景生成','首帧生成','图片创作'].indexOf(node) !== -1) return '多模态大模型';
-    if (node === '视频生成') return '视频/多模态模型';
-    if (node === '语音合成') return '音频模型';
+    if (['首帧图片合成','首帧合成'].indexOf(node) !== -1) return '多模态大模型';
+    if (['分镜短视频生成','视频生成'].indexOf(node) !== -1) return '视频/多模态模型';
+    if (['语音合成指令','语音合成'].indexOf(node) !== -1) return '音频模型';
     return '大语言模型';
 }
 
@@ -2213,11 +2270,11 @@ function toggleTemplateStatus(index) {
     toast('模板「' + t.name + '」已' + t.status, 'success');
 }
 
-function renderPrompts() {
-    var phtml = '';
-    for (var j = 0; j < AppState.prompts.length; j++) {
-        var p = AppState.prompts[j];
-        phtml += '<tr>' +
+function buildPromptTableRows(prompts) {
+    var rows = '';
+    for (var i = 0; i < prompts.length; i++) {
+        var p = prompts[i];
+        rows += '<tr>' +
             '<td><strong>' + p.node + '</strong></td>' +
             '<td><span class="chip chip-blue">' + p.modelType + '</span></td>' +
             '<td>' + p.name + '</td>' +
@@ -2232,7 +2289,58 @@ function renderPrompts() {
                 '<button class="btn btn-xs btn-danger" onclick="rollbackPrompt(\'' + p.key + '\')">回滚</button>' +
             '</td></tr>';
     }
-    document.getElementById('promptTable').innerHTML = phtml;
+    return rows;
+}
+
+function renderPrompts() {
+    var scenes = [
+        { key: 'director', name: '导演台', icon: '🎬' },
+        { key: 'batch', name: '批量成片', icon: '📦' },
+        { key: 'template', name: '模板成片', icon: '📋' }
+    ];
+
+    var html = '';
+    for (var s = 0; s < scenes.length; s++) {
+        var scene = scenes[s];
+        var prompts = AppState.prompts.filter(function(p) { return p.scene === scene.key; });
+        html += '<div class="prompt-group">';
+        html += '<div class="prompt-group-header" onclick="togglePromptGroup(this)">';
+        html += '<span class="caret">▾</span>';
+        html += '<span>' + scene.icon + ' ' + scene.name + '</span>';
+        html += '<span class="prompt-group-count">' + prompts.length + ' 条</span>';
+        html += '</div>';
+        html += '<div class="prompt-group-body">';
+
+        if (scene.key === 'template') {
+            var templates = {};
+            for (var t = 0; t < prompts.length; t++) {
+                var tmpl = prompts[t].parentTemplate;
+                if (!templates[tmpl]) templates[tmpl] = [];
+                templates[tmpl].push(prompts[t]);
+            }
+            var templateNames = Object.keys(templates);
+            for (var tn = 0; tn < templateNames.length; tn++) {
+                var tmplName = templateNames[tn];
+                var tmplPrompts = templates[tmplName];
+                html += '<div class="prompt-template-block">';
+                html += '<div class="prompt-template-header" onclick="togglePromptTemplate(this)">';
+                html += '<span class="caret">▾</span>';
+                html += '<span>📄 ' + escapeHtml(tmplName) + '</span>';
+                html += '<span class="prompt-group-count">' + tmplPrompts.length + ' 条</span>';
+                html += '</div>';
+                html += '<div class="prompt-template-table">';
+                html += '<table><thead><tr><th>功能节点</th><th>模型类型</th><th>提示词名称</th><th>线上版本</th><th>草稿版本</th><th>最后更新人</th><th>最后更新</th><th>操作</th></tr></thead>';
+                html += '<tbody>' + buildPromptTableRows(tmplPrompts) + '</tbody></table>';
+                html += '</div></div>';
+            }
+        } else {
+            html += '<table><thead><tr><th>功能节点</th><th>模型类型</th><th>提示词名称</th><th>线上版本</th><th>草稿版本</th><th>最后更新人</th><th>最后更新</th><th>操作</th></tr></thead>';
+            html += '<tbody>' + buildPromptTableRows(prompts) + '</tbody></table>';
+        }
+
+        html += '</div></div>';
+    }
+    document.getElementById('promptGroups').innerHTML = html;
 
     var rhtml = '';
     for (var k = 0; k < AppState.releaseLogs.length; k++) {
@@ -2241,6 +2349,18 @@ function renderPrompts() {
         rhtml += '<div class="timeline-item"><div class="timeline-time">' + r.time + ' <span class="chip chip-blue" style="font-size:10px">' + (r.operator || '-') + '</span></div><div class="timeline-title">' + r.title + ' <span class="status ' + stCls + '" style="font-size:10px">' + r.status + '</span></div><div class="timeline-desc">' + r.desc + '</div></div>';
     }
     document.getElementById('releaseTimeline').innerHTML = rhtml;
+}
+
+function togglePromptGroup(header) {
+    var body = header.nextElementSibling;
+    header.classList.toggle('collapsed');
+    body.classList.toggle('collapsed');
+}
+
+function togglePromptTemplate(header) {
+    var table = header.nextElementSibling;
+    header.classList.toggle('collapsed');
+    table.classList.toggle('collapsed');
 }
 
 function addAuditLog(type, target, before, after, remark) {
@@ -2294,13 +2414,19 @@ function openPromptModal(key) {
             document.getElementById('pfModelType').value = p.modelType || inferModelTypeByNode(p.node);
             document.getElementById('pfContent').value = p.draftContent || p.liveContent || '';
             document.getElementById('pfNote').value = p.remark || '';
+            document.getElementById('pfScene').value = p.scene || 'director';
+            document.getElementById('pfTemplate').value = p.parentTemplate || '市场收评模板';
+            onPromptSceneChange();
         }
     } else {
         document.getElementById('pfName').value = '';
-        document.getElementById('pfNode').value = '台词生成';
+        document.getElementById('pfNode').value = '台词AI优化';
         document.getElementById('pfModelType').value = '大语言模型';
         document.getElementById('pfContent').value = '';
         document.getElementById('pfNote').value = '';
+        document.getElementById('pfScene').value = 'director';
+        document.getElementById('pfTemplate').value = '市场收评模板';
+        onPromptSceneChange();
     }
     document.getElementById('promptModalOverlay').classList.add('show');
 }
@@ -2313,6 +2439,9 @@ function savePrompt() {
     var modelType = document.getElementById('pfModelType').value;
     var content = document.getElementById('pfContent').value;
     var note = document.getElementById('pfNote').value.trim();
+    var scene = document.getElementById('pfScene').value;
+    var parentTemplate = scene === 'template' ? document.getElementById('pfTemplate').value : '';
+    var sceneNameMap = { director: '导演台', batch: '批量成片', template: '模板成片' };
     if (!name || !content) { toast('请填写名称和提示词内容', 'error'); return; }
 
     if (editKey) {
@@ -2322,6 +2451,9 @@ function savePrompt() {
             p.name = p.name || name;
             p.node = node;
             p.modelType = modelType;
+            p.scene = scene;
+            p.sceneName = sceneNameMap[scene] || '';
+            p.parentTemplate = parentTemplate;
             p.draftVersion = name;
             p.draftContent = content;
             p.remark = note;
@@ -2332,6 +2464,7 @@ function savePrompt() {
     } else {
         AppState.prompts.push({
             key: 'prompt_' + Date.now(), name: name, node: node, modelType: modelType,
+            scene: scene, sceneName: sceneNameMap[scene] || '', parentTemplate: parentTemplate,
             liveVersion: '-', draftVersion: name, liveContent: '', draftContent: content,
             grayRange: '-', lastEditor: currentOperator(), remark: note, updatedAt: new Date().toISOString().slice(0,10)
         });
@@ -2339,6 +2472,12 @@ function savePrompt() {
     }
     saveData(); closePromptModal(); renderPrompts();
     toast('提示词草稿已保存', 'success');
+}
+
+function onPromptSceneChange() {
+    var scene = document.getElementById('pfScene').value;
+    var templateGroup = document.getElementById('pfTemplateGroup');
+    templateGroup.style.display = scene === 'template' ? 'block' : 'none';
 }
 
 function publishPrompt(key) {
