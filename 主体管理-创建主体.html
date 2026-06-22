@@ -308,18 +308,23 @@
             padding: 10px;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
             font-size: 13px;
             overflow: hidden;
         }
 
         .upload-preview img {
-            width: 44px;
-            height: 44px;
+            width: 48px;
+            height: 48px;
             border-radius: 10px;
             object-fit: cover;
             flex-shrink: 0;
         }
+
+        .preview-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+        .preview-info .pi-name { color: #111827; font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .preview-info .pi-meta { color: #9ca3af; font-size: 11px; display: flex; gap: 4px; align-items: center; }
+        .preview-info .pi-meta .dot { width: 2px; height: 2px; border-radius: 50%; background: #d1d5db; }
 
         /* AI 生图 */
         .image-source-bar { margin-bottom: 14px; }
@@ -1021,7 +1026,14 @@
             return "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(svg);
         }
 
-        function setPreview(src, fileName, srcType) {
+        function formatFileSize(bytes) {
+            if (!bytes) return '';
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+            return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+        }
+
+        function setPreview(src, fileName, srcType, fileSize, dimensions) {
             imageData = src || "";
             if (srcType) imageSource = srcType;
             viewsReady = false;
@@ -1036,7 +1048,19 @@
             }
 
             const label = fileName || (imageSource === "ai" ? "AI生成场景图" : "已上传主图");
-            uploadPreview.innerHTML = '<img src="' + imageData + '" alt="预览" /><span>' + escapeHtml(label) + '</span>';
+            const sizeStr = formatFileSize(fileSize);
+            const dimStr = dimensions || '';
+            const metaParts = [];
+            if (sizeStr) metaParts.push('大小：' + sizeStr);
+            if (dimStr) metaParts.push('分辨率：' + dimStr);
+            const metaHtml = metaParts.length > 0
+                ? '<div class="pi-meta">' + metaParts.join('<span class="dot"></span>') + '</div>'
+                : '';
+            uploadPreview.innerHTML = '<img src="' + imageData + '" alt="预览" />'
+                + '<div class="preview-info">'
+                + '<div class="pi-name">' + escapeHtml(label) + '</div>'
+                + metaHtml
+                + '</div>';
             previewFrame.innerHTML = '<img src="' + imageData + '" alt="预览" />';
         }
 
@@ -1437,7 +1461,12 @@
             if (!file) return;
             const reader = new FileReader();
             reader.onload = (loadEvent) => {
-                setPreview(loadEvent.target.result, file.name);
+                const img = new Image();
+                img.onload = () => {
+                    const dims = img.naturalWidth + ' × ' + img.naturalHeight;
+                    setPreview(loadEvent.target.result, file.name, 'upload', file.size, dims);
+                };
+                img.src = loadEvent.target.result;
             };
             reader.readAsDataURL(file);
         });
