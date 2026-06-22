@@ -1043,7 +1043,79 @@
 .dist-record-status .rec-dot.success { background: var(--success); }
 .dist-record-status .rec-dot.pending { background: var(--warning); }
 .dist-record-status .rec-dot.failed { background: var(--danger); }
-.dist-empty-record { font-size: 12px; color: var(--text-muted); padding: 4px 0; }
+    .dist-empty-record { font-size: 12px; color: var(--text-muted); padding: 4px 0; }
+
+    /* ====== 封面配置内嵌面板 ====== */
+    .cover-edit-panel { display: none; flex-direction: column; gap: 14px; }
+    .cover-edit-panel.show { display: flex; }
+    .cover-edit-card {
+        background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 14px;
+    }
+    .cover-tabs {
+        display: flex; background: #eee; border-radius: 8px; padding: 2px; margin-bottom: 14px; width: fit-content;
+    }
+    .cover-tab {
+        padding: 6px 16px; border: none; border-radius: 6px;
+        background: transparent; font-size: 12px; cursor: pointer;
+        color: var(--text-secondary); font-weight: 500; transition: all 0.12s;
+    }
+    .cover-tab.active { background: #fff; color: var(--text-primary); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    .cover-preview-thumb {
+        width: 100%; aspect-ratio: 9 / 16; max-height: 200px;
+        border-radius: 8px; overflow: hidden; position: relative;
+        margin-bottom: 12px; background: #1a1a2e;
+    }
+    .cover-preview-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .cover-preview-thumb .cover-label {
+        position: absolute; top: 8px; left: 8px;
+        background: rgba(91,91,214,0.9); color: #fff;
+        font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 4px;
+    }
+    .cover-timeline-bar {
+        width: 100%; height: 32px; background: #eee;
+        border-radius: 6px; position: relative; cursor: pointer;
+        overflow: hidden; margin-bottom: 6px;
+    }
+    .cover-timeline-track {
+        height: 100%; display: flex; align-items: center; padding: 0 6px; gap: 2px;
+    }
+    .cover-timeline-frame {
+        flex: 1; height: 24px; background: #d9dee8;
+        border-radius: 3px; cursor: pointer; transition: background 0.15s;
+    }
+    .cover-timeline-frame:hover { background: #b0b8c8; }
+    .cover-timeline-pointer {
+        position: absolute; top: 0; bottom: 0; width: 3px;
+        background: var(--primary); border-radius: 2px;
+        left: 35%; transition: left 0.08s; cursor: ew-resize; z-index: 2;
+    }
+    .cover-timeline-pointer::before {
+        content: ''; position: absolute; top: -3px; left: -5px;
+        width: 13px; height: 7px; background: var(--primary); border-radius: 3px 3px 0 0;
+    }
+    .cover-frame-hint { font-size: 11px; color: var(--text-muted); margin-bottom: 12px; }
+    .cover-upload-area {
+        border: 2px dashed var(--border); border-radius: 8px;
+        padding: 30px; text-align: center; cursor: pointer;
+        transition: all 0.15s; background: var(--bg);
+    }
+    .cover-upload-area:hover { border-color: var(--primary); background: var(--primary-light); }
+    .cover-upload-icon { font-size: 28px; color: var(--text-muted); margin-bottom: 6px; }
+    .cover-upload-text { font-size: 13px; color: var(--text-secondary); }
+    .cover-upload-hint { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+    .cover-panel { display: none; }
+    .cover-panel.show { display: block; }
+    .cover-actions { display: flex; justify-content: flex-end; gap: 8px; padding-top: 4px; }
+    .cover-actions .btn {
+        padding: 7px 16px; border-radius: var(--radius-sm); font-size: 12.5px;
+        cursor: pointer; border: none; font-weight: 500; transition: all 0.15s; font-family: inherit;
+    }
+    .cover-actions .btn-reset { background: var(--bg); color: var(--text-secondary); }
+    .cover-actions .btn-reset:hover { background: #eee; }
+    .cover-actions .btn-cancel { background: var(--bg); color: var(--text-secondary); }
+    .cover-actions .btn-cancel:hover { background: #eee; }
+    .cover-actions .btn-apply { background: var(--primary); color: #fff; }
+    .cover-actions .btn-apply:hover { background: var(--primary-dark); }
 </style>
 </head>
 <body>
@@ -1294,6 +1366,11 @@
                 <div class="info-section" id="info-tools-section">
                     <h4>后期处理工具</h4>
                     <div class="tool-list">
+                        <div class="tool-item" onclick="openCoverEditor()">
+                            <div class="tool-icon" style="background:#EFF6FF;">🖼</div>
+                            <div class="tool-info"><div class="tool-name">封面配置</div><div class="tool-desc">视频截帧或上传自定义封面</div></div>
+                            <span class="tool-arrow">›</span>
+                        </div>
                         <div class="tool-item" onclick="openWmEditor()">
                             <div class="tool-icon" style="background:#EDE9FE;">🎬</div>
                             <div class="tool-info"><div class="tool-name">水印字幕编辑</div><div class="tool-desc">添加水印、编辑或替换字幕</div></div>
@@ -1368,6 +1445,50 @@
                         <button class="btn btn-reset" onclick="resetDetailWm()">重置</button>
                         <button class="btn btn-cancel" onclick="closeWmEditor()">取消</button>
                         <button class="btn btn-apply" onclick="applyDetailWm()">应用水印字幕</button>
+                    </div>
+                </div>
+
+                <!-- 封面配置编辑面板 -->
+                <div class="cover-edit-panel" id="cover-edit-panel">
+                    <div class="cover-edit-card" style="border:none;background:transparent;padding:0;">
+                        <div class="cover-preview-thumb" id="cover-preview-thumb">
+                            <img id="cover-preview-img" src="" alt="封面预览">
+                            <span class="cover-label">当前封面</span>
+                        </div>
+                        <div class="cover-tabs">
+                            <button class="cover-tab active" onclick="switchCoverTab('frame', this)">视频截帧</button>
+                            <button class="cover-tab" onclick="switchCoverTab('upload', this)">本地上传</button>
+                        </div>
+                        <div class="cover-panel show" id="cover-frame-panel">
+                            <div class="cover-timeline-bar" id="cover-timeline" onclick="moveCoverPointer(event)" onmousedown="startCoverDrag(event)">
+                                <div class="cover-timeline-track">
+                                    <div class="cover-timeline-frame"></div>
+                                    <div class="cover-timeline-frame"></div>
+                                    <div class="cover-timeline-frame"></div>
+                                    <div class="cover-timeline-frame"></div>
+                                    <div class="cover-timeline-frame"></div>
+                                    <div class="cover-timeline-frame"></div>
+                                    <div class="cover-timeline-frame"></div>
+                                    <div class="cover-timeline-frame"></div>
+                                    <div class="cover-timeline-frame"></div>
+                                    <div class="cover-timeline-frame"></div>
+                                </div>
+                                <div class="cover-timeline-pointer" id="cover-pointer"></div>
+                            </div>
+                            <div class="cover-frame-hint">拖拽指针或点击时间轴选择当前帧作为封面</div>
+                        </div>
+                        <div class="cover-panel" id="cover-upload-panel">
+                            <div class="cover-upload-area" onclick="simulateUploadCover()">
+                                <div class="cover-upload-icon">📁</div>
+                                <div class="cover-upload-text">点击上传封面图片</div>
+                                <div class="cover-upload-hint">支持 JPG / PNG，建议尺寸 1080x1920</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="cover-actions">
+                        <button class="btn btn-reset" onclick="resetCoverConfig()">重置</button>
+                        <button class="btn btn-cancel" onclick="closeCoverEditor()">取消</button>
+                        <button class="btn btn-apply" onclick="applyCoverConfig()">应用封面</button>
                     </div>
                 </div>
             </div>
@@ -1661,7 +1782,7 @@
         document.getElementById('progress-fill').style.width = '0%';
 
         document.getElementById('detail-title').textContent = v.title;
-        var coverURL = generateCoverSVG(v.coverThumb, v.gradient);
+        var coverURL = v.customCover || generateCoverSVG(v.coverThumb, v.gradient);
         document.getElementById('player-screen').innerHTML = '<div class="screen-content" id="screen-content-layer"><img src="' + coverURL + '" style="width:100%;height:100%;object-fit:cover;display:block;" alt="' + v.title + '"></div><div class="player-wm-el" id="player-wm-el" style="display:none;"></div><div class="player-sub-el" id="player-sub-el" style="display:none;"></div><div class="player-synthesis-ov" id="player-synthesis-ov"><div class="synthesis-ring-wrap"><div class="synthesis-ring outer"></div><div class="synthesis-ring inner"></div></div><div class="synthesis-label" id="synthesis-label">合成中...</div><div class="synthesis-sub" id="synthesis-sub"></div></div>';
         document.getElementById('player-time').textContent = '00:00 / ' + v.duration;
         document.getElementById('d-title').textContent = v.title;
@@ -1674,7 +1795,8 @@
         document.getElementById('d-script').textContent = v.script || '-';
         document.getElementById('d-desc').textContent = v.desc;
 
-        // 确保信息区显示、水印编辑面板隐藏
+        // 确保信息区显示、编辑面板隐藏
+        closeCoverEditor(true);
         closeWmEditor(true);
 
         renderDistRecords(v.id);
@@ -1876,6 +1998,99 @@
             syncDetailWm();
             showToast('✅ 水印字幕配置已应用');
         }, 2500);
+    }
+
+    // ====== 封面配置编辑 ======
+    var coverDragging = false;
+
+    function openCoverEditor() {
+        if (!detailVideo) return;
+
+        // 隐藏信息区
+        document.getElementById('info-basic-section').style.display = 'none';
+        document.getElementById('info-script-section').style.display = 'none';
+        document.getElementById('info-desc-section').style.display = 'none';
+        document.getElementById('info-tools-section').style.display = 'none';
+        document.getElementById('info-dist-section').style.display = 'none';
+
+        // 显示封面编辑面板
+        document.getElementById('cover-edit-panel').classList.add('show');
+
+        // 初始化封面预览
+        updateCoverPreview();
+    }
+
+    function closeCoverEditor(silent) {
+        // 恢复信息区
+        document.getElementById('info-basic-section').style.display = '';
+        document.getElementById('info-script-section').style.display = '';
+        document.getElementById('info-desc-section').style.display = '';
+        document.getElementById('info-tools-section').style.display = '';
+        document.getElementById('info-dist-section').style.display = '';
+
+        // 隐藏封面编辑面板
+        document.getElementById('cover-edit-panel').classList.remove('show');
+    }
+
+    function switchCoverTab(tab, btn) {
+        document.querySelectorAll('#cover-edit-panel .cover-tab').forEach(function(t) { t.classList.remove('active'); });
+        btn.classList.add('active');
+        document.getElementById('cover-frame-panel').classList.toggle('show', tab === 'frame');
+        document.getElementById('cover-upload-panel').classList.toggle('show', tab === 'upload');
+    }
+
+    function updateCoverPreview() {
+        var img = document.getElementById('cover-preview-img');
+        if (!detailVideo || !img) return;
+        img.src = detailVideo.customCover || generateCoverSVG(detailVideo.coverThumb, detailVideo.gradient);
+    }
+
+    function moveCoverPointer(e) {
+        if (coverDragging) return;
+        var bar = document.getElementById('cover-timeline');
+        var rect = bar.getBoundingClientRect();
+        var pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+        document.getElementById('cover-pointer').style.left = (pct * 100) + '%';
+    }
+
+    function startCoverDrag(e) {
+        coverDragging = true;
+        moveCoverPointer(e);
+        function onMove(ev) { moveCoverPointer(ev); }
+        function onUp() {
+            coverDragging = false;
+            document.removeEventListener('mousemove', onMove);
+            document.removeEventListener('mouseup', onUp);
+        }
+        document.addEventListener('mousemove', onMove);
+        document.addEventListener('mouseup', onUp);
+    }
+
+    function simulateUploadCover() {
+        // 模拟上传：随机生成一个渐变色 SVG 作为自定义封面
+        if (!detailVideo) return;
+        var colors = ['#667eea,#764ba2', '#a8edea,#fed6e3', '#fbc2eb,#a6c1ee', '#ffecd2,#fcb69f', '#a1c4fd,#c2e9fb'];
+        var c = colors[Math.floor(Math.random() * colors.length)];
+        var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="400" height="712"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="' + c.split(',')[0] + '"/><stop offset="100%" stop-color="' + c.split(',')[1] + '"/></linearGradient></defs><rect width="400" height="712" fill="url(#g)"/><text x="200" y="356" text-anchor="middle" fill="rgba(255,255,255,0.5)" font-size="18" font-weight="600">自定义封面</text></svg>';
+        detailVideo.customCover = 'data:image/svg+xml,' + encodeURIComponent(svg);
+        updateCoverPreview();
+        showToast('✅ 自定义封面已上传');
+    }
+
+    function resetCoverConfig() {
+        if (!detailVideo) return;
+        delete detailVideo.customCover;
+        updateCoverPreview();
+    }
+
+    function applyCoverConfig() {
+        if (!detailVideo) return;
+        showToast('✅ 封面配置已应用');
+        closeCoverEditor();
+        // 刷新播放器封面
+        var screen = document.getElementById('player-screen');
+        var imgSrc = detailVideo.customCover || generateCoverSVG(detailVideo.coverThumb, detailVideo.gradient);
+        screen.innerHTML = '<div class="screen-content" id="screen-content-layer"><img src="' + imgSrc + '" style="width:100%;height:100%;object-fit:cover;display:block;" alt="' + detailVideo.title + '"></div><div class="player-wm-el" id="player-wm-el" style="display:none;"></div><div class="player-sub-el" id="player-sub-el" style="display:none;"></div><div class="player-synthesis-ov" id="player-synthesis-ov"><div class="synthesis-ring-wrap"><div class="synthesis-ring outer"></div><div class="synthesis-ring inner"></div></div><div class="synthesis-label" id="synthesis-label">合成中...</div><div class="synthesis-sub" id="synthesis-sub"></div></div>';
     }
 
     // ====== 菜单 ======
