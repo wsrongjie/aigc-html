@@ -126,6 +126,7 @@
     .tag-success { background: var(--success-light); color: var(--success); }
     .tag-warning { background: var(--warning-light); color: #92400e; }
     .tag-info { background: var(--primary-light); color: var(--primary); }
+    .tag-danger { background: var(--danger-light); color: var(--danger); }
     .tag-default { background: #f4f4f5; color: var(--text-secondary); }
 
     .summary-band {
@@ -536,7 +537,7 @@
             <div class="drawer-sub" id="detailSub"></div>
         </div>
         <div class="drawer-body" id="detailBody"></div>
-        <div class="drawer-footer">
+        <div class="drawer-footer" id="detailFooter">
             <button class="btn" onclick="closeDetail()">关闭</button>
         </div>
     </div>
@@ -551,8 +552,10 @@ var state = {
     payMethod: '微信支付',
     needInvoice: false,
     orders: [
-        { id: 'ORD20260528003', type: '积分充值', name: '3,300 积分包', amount: 300, method: '支付宝', status: '已完成', invoice: '不开票', time: '2026-05-28 15:18', credits: 3300, pool: '租户总池' },
-        { id: 'ORD20260512002', type: '积分充值', name: '自定义充值 · 5,000 积分', amount: 500, method: '对公转账', status: '待确认', invoice: '需开票', time: '2026-05-12 09:45', credits: 5000, pool: '租户总池' }
+        { id: 'ORD20260528003', type: '积分充值', name: '3,300 积分包', amount: 330, method: '支付宝', status: '已完成', invoice: '不开票', time: '2026-05-28 15:18', credits: 3300, pool: '租户总池' },
+        { id: 'ORD20260601001', type: '积分充值', name: '自定义充值 · 5,000 积分', amount: 500, method: '微信支付', status: '待支付', invoice: '不开票', time: '2026-06-01 10:32', credits: 5000, pool: '租户总池' },
+        { id: 'ORD20260523004', type: '积分充值', name: '1,000 积分包', amount: 100, method: '微信支付', status: '已过期', invoice: '不开票', time: '2026-05-23 08:15', credits: 1000, pool: '租户总池' },
+        { id: 'ORD20260512002', type: '积分充值', name: '自定义充值 · 2,000 积分', amount: 200, method: '支付宝', status: '待支付', invoice: '不开票', time: '2026-05-12 09:45', credits: 2000, pool: '租户总池' }
     ]
 };
 
@@ -587,7 +590,7 @@ function switchTab(tab) {
 function renderOrders() {
     var html = '';
     state.orders.forEach(function(order){
-        var tagClass = order.status === '已完成' ? 'tag-success' : (order.status === '待确认' ? 'tag-warning' : 'tag-default');
+        var tagClass = order.status === '已完成' ? 'tag-success' : (order.status === '待支付' ? 'tag-warning' : 'tag-danger');
         html += '<tr>' +
             '<td class="order-id">' + order.id + '</td>' +
             '<td>' + order.type + '</td>' +
@@ -597,7 +600,9 @@ function renderOrders() {
             '<td><span class="tag ' + tagClass + '">' + order.status + '</span></td>' +
             '<td>' + (order.invoice || '不开票') + '</td>' +
             '<td style="color:var(--text-secondary);">' + order.time + '</td>' +
-            '<td style="text-align:right;"><button class="btn-text" onclick="showOrderDetail(\'' + order.id + '\')">详情</button></td>' +
+            '<td style="text-align:right;">' + (order.status === '待支付'
+                ? '<button class="btn-primary btn-sm" onclick="showOrderDetail(\'' + order.id + '\')">立即支付</button>'
+                : '<button class="btn-text" onclick="showOrderDetail(\'' + order.id + '\')">详情</button>') + '</td>' +
         '</tr>';
     });
     document.getElementById('orderTbody').innerHTML = html;
@@ -721,7 +726,7 @@ function completeCheckout() {
         name: item.name,
         amount: item.amount,
         method: state.payMethod,
-        status: state.payMethod === '对公转账' ? '待确认' : '已完成',
+        status: state.payMethod === '对公转账' ? '待支付' : '已完成',
         time: stamp,
         invoice: state.needInvoice ? '需开票' : '不开票',
         credits: item.credits,
@@ -733,7 +738,7 @@ function completeCheckout() {
         document.getElementById('tenantCredits').textContent = state.tenantCredits.toLocaleString();
         toast('积分已到账：' + item.credits.toLocaleString(), 'success');
     }
-    if (order.status === '待确认') toast('对公订单已生成，请添加客服沟通转账与开票', 'info');
+    if (order.status === '待支付') toast('对公转账订单已生成，请转账后联系客服确认到账', 'info');
     closeCheckout();
     renderOrders();
 }
@@ -749,7 +754,7 @@ document.getElementById('detailDrawer').addEventListener('click', function(e){
 function showOrderDetail(orderId) {
     var order = state.orders.find(function(o){ return o.id === orderId; });
     if (!order) return;
-    var statusTag = order.status === '已完成' ? '<span class="tag tag-success">已完成</span>' : (order.status === '待确认' ? '<span class="tag tag-warning">待确认</span>' : '<span class="tag tag-default">' + order.status + '</span>');
+    var statusTag = order.status === '已完成' ? '<span class="tag tag-success">已完成</span>' : (order.status === '待支付' ? '<span class="tag tag-warning">待支付</span>' : '<span class="tag tag-danger">已过期</span>');
     document.getElementById('detailTitle').innerHTML = '订单详情';
     document.getElementById('detailSub').innerHTML = '<span class="order-id">' + order.id + '</span> &nbsp;' + statusTag;
     var html = '<div class="order-summary">' +
@@ -761,8 +766,34 @@ function showOrderDetail(orderId) {
         '<div class="order-line"><span>发票</span><b>' + (order.invoice || '不开票') + '</b></div>' +
         '<div class="order-line"><span>下单时间</span><b>' + order.time + '</b></div>' +
     '</div>';
-    document.getElementById('detailBody').innerHTML = html;
+    if (order.status === '待支付') {
+        html += '<div class="section-title" style="margin-top:20px;">扫码支付</div>' +
+            '<div class="qr-box">' +
+                '<div class="qr-placeholder"></div>' +
+                '<div style="font-weight:600;">' + order.method + '二维码</div>' +
+                '<div style="color:var(--text-muted);font-size:12px;margin-top:4px;">请使用' + order.method + '扫描二维码完成支付</div>' +
+            '</div>';
+        document.getElementById('detailBody').innerHTML = html;
+        document.getElementById('detailFooter').innerHTML =
+            '<button class="btn" onclick="closeDetail()">取消支付</button>' +
+            '<button class="btn btn-primary btn-lg" onclick="payExistingOrder(\'' + order.id + '\')">模拟支付成功</button>';
+    } else {
+        document.getElementById('detailBody').innerHTML = html;
+        document.getElementById('detailFooter').innerHTML =
+            '<button class="btn" onclick="closeDetail()">关闭</button>';
+    }
     document.getElementById('detailDrawer').classList.add('show');
+}
+
+function payExistingOrder(orderId) {
+    var order = state.orders.find(function(o){ return o.id === orderId; });
+    if (!order) return;
+    order.status = '已完成';
+    state.tenantCredits += Number(order.credits) || 0;
+    document.getElementById('tenantCredits').textContent = state.tenantCredits.toLocaleString();
+    renderOrders();
+    closeDetail();
+    toast('支付成功，' + (Number(order.credits).toLocaleString()) + ' 积分已到账', 'success');
 }
 
 function closeDetail() {
