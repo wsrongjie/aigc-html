@@ -1,0 +1,2415 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>导演台 · 批量成片工作台</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --bg: #f4f6fa;
+      --panel: #ffffff;
+      --panel-soft: #f8fafc;
+      --line: #e5e7eb;
+      --line-strong: #d7dce5;
+      --text: #151a28;
+      --muted: #6b7280;
+      --faint: #9ca3af;
+      --blue: #2f6bff;
+      --blue-soft: #eef4ff;
+      --green: #10b981;
+      --green-soft: #e9f9f2;
+      --amber: #f59e0b;
+      --amber-soft: #fff7e6;
+      --red: #ef4444;
+      --red-soft: #fff1f1;
+      --ink: #1c1c1e;
+      --radius: 12px;
+      --shadow: 0 12px 34px rgba(22, 31, 50, 0.08);
+    }
+
+    body {
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    button, input, select, textarea { font: inherit; }
+    button { cursor: pointer; border: none; }
+    a { color: inherit; text-decoration: none; }
+
+    .app-shell { min-height: 100vh; display: flex; }
+
+    .sidebar {
+      width: 64px;
+      background: #fff;
+      border-right: 1px solid var(--line);
+      position: fixed;
+      inset: 0 auto 0 0;
+      z-index: 20;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 14px 0;
+      gap: 8px;
+    }
+    .logo {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: var(--ink);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      letter-spacing: 0;
+      margin-bottom: 10px;
+    }
+    .nav-item {
+      width: 44px;
+      min-height: 44px;
+      border-radius: 10px;
+      color: var(--faint);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      transition: 0.18s ease;
+    }
+    .nav-item:hover { background: #f4f6fb; color: var(--blue); }
+    .nav-item.active { background: var(--blue-soft); color: var(--blue); }
+    .nav-ico { font-size: 16px; line-height: 1; }
+    .nav-label { font-size: 9px; line-height: 1; white-space: nowrap; }
+    .nav-divider { width: 28px; height: 1px; background: var(--line); margin: 6px 0; }
+    .sidebar-spacer { flex: 1; }
+    .sidebar-account {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      padding-bottom: 2px;
+    }
+    .side-avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: #dbeafe;
+      color: #1d4ed8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 14px;
+      box-shadow: 0 0 0 1px rgba(47,107,255,0.12);
+    }
+    .side-credit {
+      min-width: 46px;
+      height: 24px;
+      padding: 0 6px;
+      border-radius: 12px;
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      color: #475569;
+      font-size: 10px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      white-space: nowrap;
+    }
+
+    .main {
+      margin-left: 64px;
+      min-width: 0;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .topbar {
+      height: 58px;
+      background: rgba(255, 255, 255, 0.94);
+      border-bottom: 1px solid var(--line);
+      position: sticky;
+      top: 0;
+      z-index: 15;
+      backdrop-filter: blur(10px);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 28px;
+    }
+    .topbar-title { font-size: 14px; font-weight: 800; letter-spacing: 0; }
+    .topbar-right { display: flex; align-items: center; gap: 14px; color: var(--muted); }
+
+    .content { padding: 24px 28px 40px; max-width: 1480px; width: 100%; margin: 0 auto; }
+
+    .page-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 24px;
+      margin-bottom: 18px;
+    }
+    .eyebrow { font-size: 12px; color: var(--blue); font-weight: 800; margin-bottom: 4px; }
+    .page-title { font-size: 24px; line-height: 1.25; font-weight: 900; letter-spacing: 0; }
+    .page-subtitle { margin-top: 6px; color: var(--muted); font-size: 13px; }
+    .head-actions { display: flex; gap: 10px; flex-shrink: 0; align-items: center; }
+    .btn {
+      min-height: 34px;
+      padding: 0 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 750;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: 0.16s ease;
+      white-space: nowrap;
+    }
+    .btn-primary { background: var(--blue); color: #fff; box-shadow: 0 8px 18px rgba(47, 107, 255, 0.22); }
+    .btn-primary:hover { background: #245cff; transform: translateY(-1px); }
+    .btn-secondary { background: #fff; color: #374151; border: 1px solid var(--line-strong); }
+    .btn-secondary:hover { border-color: var(--blue); color: var(--blue); background: #fbfdff; }
+    .btn-danger { background: var(--red-soft); color: var(--red); border: 1px solid #fecaca; }
+    .btn-danger:hover { background: #fee2e2; }
+    .btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; box-shadow: none; }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(104px, 1fr));
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .stat-card {
+      background: rgba(255,255,255,0.86);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 10px 12px;
+      min-height: 62px;
+      cursor: pointer;
+      transition: 0.15s ease;
+    }
+    .stat-card:hover {
+      border-color: #bcd0ff;
+      background: #fbfdff;
+      transform: translateY(-1px);
+    }
+    .stat-card.active {
+      border-color: var(--blue);
+      background: var(--blue-soft);
+      box-shadow: 0 0 0 3px rgba(47, 107, 255, 0.08);
+    }
+    .stat-name {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .stat-num { margin-top: 5px; font-size: 22px; line-height: 1; font-weight: 900; }
+    .stat-foot { margin-top: 4px; font-size: 10px; color: var(--faint); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    .workbench {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(22, 31, 50, 0.06);
+      overflow: hidden;
+    }
+    .workbench-head {
+      padding: 14px 16px 12px;
+      border-bottom: 1px solid var(--line);
+      background: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .workbench-title {
+      font-size: 15px;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .workbench-sub {
+      margin-top: 2px;
+      font-size: 12px;
+      color: var(--faint);
+    }
+    .view-toggle {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      padding: 2px;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      background: #f8fafc;
+      flex-shrink: 0;
+    }
+    .view-toggle button {
+      height: 30px;
+      padding: 0 12px;
+      border-radius: 7px;
+      background: transparent;
+      color: #64748b;
+      font-size: 12px;
+      font-weight: 800;
+      transition: 0.15s ease;
+    }
+    .view-toggle button:hover { color: var(--blue); background: #fff; }
+    .view-toggle button.active {
+      color: var(--blue);
+      background: #fff;
+      box-shadow: 0 1px 4px rgba(15, 23, 42, 0.08);
+    }
+    .toolbar {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+      background: #fbfcff;
+    }
+    .search, .select, .date {
+      height: 34px;
+      border: 1px solid var(--line-strong);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--text);
+      outline: none;
+      transition: 0.15s ease;
+    }
+    .search { width: 260px; padding: 0 12px; }
+    .select { min-width: 180px; padding: 0 10px; }
+    .date { width: 136px; padding: 0 8px; }
+    .search:focus, .select:focus, .date:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(47, 107, 255, 0.08);
+    }
+    .toolbar-spacer { flex: 1; min-width: 10px; }
+    .batch-bar {
+      display: none;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 8px;
+      border-radius: 8px;
+      background: #f1f6ff;
+      border: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .batch-bar.show { display: flex; }
+    .batch-bar strong { color: var(--blue); }
+
+    .task-list { padding: 12px; display: flex; flex-direction: column; gap: 10px; background: #f8fafc; }
+    .empty {
+      padding: 56px 20px;
+      text-align: center;
+      color: var(--faint);
+      background: #fbfcff;
+      border: 1px dashed var(--line-strong);
+      border-radius: 12px;
+    }
+    .empty-title { font-size: 15px; color: #64748b; font-weight: 800; margin-bottom: 6px; }
+
+    .group-card {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      overflow: hidden;
+      background: #fff;
+    }
+    .group-card.selected { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(47, 107, 255, 0.06); }
+    .group-head {
+      padding: 12px 14px;
+      display: grid;
+      grid-template-columns: 24px 26px minmax(260px, 1fr) 118px 148px 190px;
+      gap: 10px;
+      align-items: center;
+      background: #fff;
+    }
+    .group-check { width: 16px; height: 16px; accent-color: var(--blue); }
+    .group-title { min-width: 0; }
+    .expand-btn {
+      width: 24px;
+      height: 24px;
+      border-radius: 7px;
+      background: #f6f8fb;
+      color: #64748b;
+      font-size: 12px;
+      border: 1px solid var(--line);
+      transition: 0.15s ease;
+    }
+    .expand-btn:hover { color: var(--blue); border-color: #bcd0ff; background: #f7faff; }
+    .group-card.open .expand-btn { transform: rotate(90deg); color: var(--blue); }
+    .task-name { font-size: 14px; font-weight: 900; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .task-meta { margin-top: 4px; display: flex; flex-wrap: wrap; gap: 6px; color: var(--faint); font-size: 11px; }
+    .meta-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      height: 20px;
+      padding: 0 7px;
+      border-radius: 10px;
+      background: #f7f8fb;
+      border: 1px solid #edf0f5;
+      color: #64748b;
+    }
+    .group-counts {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      color: var(--muted);
+      font-size: 11px;
+    }
+    .count-pill {
+      height: 22px;
+      padding: 0 7px;
+      border-radius: 11px;
+      background: #f8fafc;
+      border: 1px solid #edf0f5;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      white-space: nowrap;
+    }
+    .progress-wrap { min-width: 0; }
+    .progress-line {
+      height: 6px;
+      background: #eef2f7;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .progress-fill { height: 100%; background: var(--blue); border-radius: inherit; transition: width 0.25s; }
+    .progress-text { margin-top: 5px; color: var(--muted); font-size: 11px; font-weight: 750; }
+    .status-pill {
+      width: fit-content;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 800;
+    }
+    .st-generating { background: var(--blue-soft); color: var(--blue); }
+    .st-queued { background: var(--amber-soft); color: var(--amber); }
+    .st-completed { background: var(--green-soft); color: var(--green); }
+    .st-failed { background: var(--red-soft); color: var(--red); }
+    .st-draft { background: #f1f5f9; color: #64748b; }
+    .st-cancelled { background: #f3f4f6; color: #8b949e; }
+    .group-actions { display: flex; gap: 5px; justify-content: flex-end; flex-wrap: wrap; }
+    .mini-btn {
+      min-height: 26px;
+      padding: 0 8px;
+      border-radius: 7px;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: #475569;
+      font-size: 11px;
+      font-weight: 750;
+    }
+    .mini-btn:hover { border-color: var(--blue); color: var(--blue); background: #fbfdff; }
+    .mini-btn.warn { border-color: #fed7aa; color: #d97706; background: #fff7ed; }
+    .mini-btn.danger { border-color: #fecaca; color: var(--red); background: #fff7f7; }
+    .mini-btn:disabled { opacity: 0.42; cursor: not-allowed; }
+    .toggle-btn { font-size: 12px; color: var(--blue); font-weight: 800; background: transparent; }
+
+    .subtable-wrap { display: none; border-top: 1px solid var(--line); background: #fff; }
+    .group-card.open .subtable-wrap { display: block; }
+    table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+    th {
+      text-align: left;
+      color: var(--faint);
+      font-size: 11px;
+      font-weight: 800;
+      padding: 9px 12px;
+      border-bottom: 1px solid var(--line);
+      background: #fbfcff;
+    }
+    td {
+      padding: 9px 12px;
+      border-bottom: 1px solid #edf0f5;
+      vertical-align: middle;
+      color: #374151;
+      font-size: 12px;
+    }
+    tr:last-child td { border-bottom: none; }
+    .script-cell {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      color: #1f2937;
+      max-width: 100%;
+    }
+    .thumb {
+      width: 30px;
+      height: 42px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 18px;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.24);
+    }
+    .row-progress {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .row-progress .progress-line { width: 58px; flex-shrink: 0; }
+    .row-progress span { min-width: 34px; color: var(--muted); font-size: 11px; font-weight: 750; }
+    .row-actions { display: flex; gap: 4px; flex-wrap: wrap; justify-content: flex-end; }
+    .row-btn {
+      min-height: 24px;
+      padding: 0 7px;
+      border-radius: 6px;
+      background: #fff;
+      color: #475569;
+      border: 1px solid var(--line);
+      font-size: 11px;
+      font-weight: 750;
+    }
+    .row-btn:hover { color: var(--blue); border-color: var(--blue); }
+    .row-btn.warn { color: #d97706; border-color: #fed7aa; background: #fff7ed; }
+    .row-btn.danger { color: var(--red); border-color: #fecaca; background: #fff7f7; }
+    .row-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .err-link {
+      color: var(--red);
+      border-bottom: 1px dashed rgba(239, 68, 68, 0.45);
+      cursor: pointer;
+    }
+
+    .task-summary {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 10px 14px;
+      background: #eef4ff;
+      border-radius: 10px;
+      font-size: 13px;
+      color: #1a1a2e;
+      flex-wrap: wrap;
+    }
+    .task-summary strong { color: var(--blue); }
+    .task-batch-bar { display: flex; align-items: center; gap: 10px; font-size: 12px; white-space: nowrap; }
+    .task-batch-bar .batch-count { color: #999; font-weight: 500; }
+    .task-batch-bar .batch-count strong { color: #448aff; }
+    .task-batch-bar .batch-btn {
+      padding: 5px 14px;
+      border-radius: 7px;
+      font-size: 12px;
+      cursor: pointer;
+      border: 1.5px solid #e8e8e8;
+      background: #fff;
+      color: #666;
+      font-weight: 500;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+    .task-batch-bar .batch-btn:hover:not(:disabled) { border-color: var(--blue); color: var(--blue); background: #eef4ff; }
+    .task-batch-bar .batch-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+    .task-batch-bar .batch-btn.danger:hover:not(:disabled) { border-color: var(--red); color: var(--red); background: rgba(239,68,68,0.08); }
+    .task-detail-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      border-top: 1px solid var(--line);
+      font-size: 12px;
+      color: #999;
+      background: #fff;
+    }
+    .task-detail-footer strong { color: #1a1a2e; }
+    .task-empty {
+      padding: 48px 20px;
+      text-align: center;
+      color: #999;
+      background: #fff;
+    }
+    .task-list {
+      flex: 1;
+      overflow-x: auto;
+      overflow-y: visible;
+      border: 1px solid #e8e8e8;
+      border-radius: 10px;
+      background: #fff;
+      padding: 0;
+      display: block;
+    }
+    .task-report-table {
+      width: 100%;
+      min-width: 1440px;
+      border-collapse: collapse;
+      table-layout: fixed;
+    }
+    .task-report-table th,
+    .task-report-table td {
+      border-bottom: 1px solid #f0f0f0;
+      border-right: 1px solid #f0f0f0;
+      vertical-align: middle;
+    }
+    .task-report-table th:last-child,
+    .task-report-table td:last-child { border-right: 0; }
+    .task-report-table thead th {
+      height: 44px;
+      padding: 0 12px;
+      background: #eef4ff;
+      color: var(--blue);
+      font-size: 12px;
+      font-weight: 700;
+      text-align: center;
+      white-space: nowrap;
+    }
+    .task-report-row td {
+      height: 46px;
+      padding: 0 12px;
+      color: #333;
+      font-size: 12px;
+      background: #fff;
+      white-space: nowrap;
+      text-align: center;
+    }
+    .task-report-row:hover td { background: #f9fafb; }
+    .task-report-toggle {
+      width: 18px;
+      height: 18px;
+      border: 1px solid #d0d0d0;
+      border-radius: 50%;
+      background: #fff;
+      color: var(--blue);
+      cursor: pointer;
+      font-size: 13px;
+      line-height: 16px;
+      text-align: center;
+      margin-right: 10px;
+      vertical-align: middle;
+    }
+    .task-report-name {
+      display: inline-block;
+      max-width: calc(100% - 34px);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      color: #1a1a2e;
+      font-weight: 600;
+      vertical-align: middle;
+    }
+    .task-report-time { color: #666; }
+    .task-report-count { color: #333; font-weight: 600; }
+    .task-report-cost { color: #f59e0b; font-weight: 600; }
+    .task-report-progress { color: var(--blue); font-weight: 700; }
+    .task-report-actions,
+    .subtask-actions {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      white-space: nowrap;
+    }
+    .task-report-action,
+    .task-action-btn {
+      padding: 3px 7px;
+      border: none;
+      border-radius: 5px;
+      background: transparent;
+      color: var(--blue);
+      font-size: 11px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s;
+    }
+    .task-report-action:hover:not(:disabled),
+    .task-action-btn:hover:not(:disabled) { background: #eef4ff; color: var(--blue); }
+    .task-report-action.wm { color: #059669; }
+    .task-report-action.wm:hover:not(:disabled) { background: rgba(5,150,105,0.08); color: #059669; }
+    .task-report-action.danger,
+    .task-action-btn.danger { color: var(--red); }
+    .task-report-action.danger:hover:not(:disabled),
+    .task-action-btn.danger:hover:not(:disabled) { background: rgba(239,68,68,0.08); color: var(--red); }
+    .task-report-action:disabled,
+    .task-action-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+    .task-detail-row td {
+      padding: 0;
+      background: #fafafa;
+      border-right: 0;
+    }
+    .task-detail-row.is-hidden { display: none; }
+    .task-detail-cell {
+      padding: 0 0 14px 32px;
+      background: #fafafa;
+      position: relative;
+    }
+    .task-detail-cell::before {
+      content: '';
+      position: absolute;
+      left: 24px;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: #e0e7ff;
+      border-radius: 1px;
+    }
+    .task-sub-table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+      background: #fff;
+      border: 0;
+      border-top: 1px solid #e8e8e8;
+      border-bottom: 1px solid #e8e8e8;
+    }
+    .task-sub-table th,
+    .task-sub-table td {
+      border-right: 1px solid #f0f0f0;
+      border-bottom: 1px solid #f0f0f0;
+      text-align: left;
+    }
+    .task-sub-table th:last-child,
+    .task-sub-table td:last-child { border-right: 0; }
+    .task-sub-table thead th {
+      height: 44px;
+      padding: 0 12px;
+      background: #f5f8ff;
+      color: var(--blue);
+      font-size: 12px;
+      font-weight: 700;
+      text-align: center;
+      white-space: nowrap;
+    }
+    .task-sub-table tbody td {
+      height: 38px;
+      padding: 7px 12px;
+      color: #333;
+      font-size: 12px;
+      white-space: nowrap;
+      text-align: center;
+    }
+    .task-sub-table tbody tr:hover td { background: #f9fafb; }
+    .task-sub-table .td-script {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: #666;
+      cursor: pointer;
+    }
+    .task-sub-table .td-cost {
+      color: #f59e0b;
+      font-weight: 600;
+    }
+    .task-sub-table .td-elapsed {
+      color: #666;
+      font-size: 11px;
+      white-space: nowrap;
+    }
+    .cf-thumb-sm {
+      width: 30px;
+      height: 53px;
+      border-radius: 5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      cursor: pointer;
+      transition: transform 0.15s;
+      margin: 0 auto;
+    }
+    .cf-thumb-sm:hover { transform: scale(1.08); }
+    .task-state-chip {
+      display: inline-flex;
+      align-items: center;
+      min-width: 52px;
+      color: #333;
+      font-size: 12px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .ts { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 500; }
+    .ts .ico { font-size: 12px; }
+    .ts.generating { color: var(--blue); }
+    .ts.queued { color: #f59e0b; }
+    .ts.completed { color: #059669; }
+    .ts.failed { color: var(--red); }
+    .ts.draft { color: #888; }
+    .ts.wm-processing { color: #f59e0b; }
+    .err-alert {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-left: 3px;
+      cursor: pointer;
+      font-size: 13px;
+      line-height: 1;
+      transition: transform 0.15s;
+      vertical-align: middle;
+    }
+    .err-alert:hover { transform: scale(1.25); }
+    .tpb {
+      width: 72px;
+      height: 5px;
+      background: #f0f0f0;
+      border-radius: 3px;
+      overflow: hidden;
+      display: inline-block;
+      vertical-align: middle;
+      margin-right: 4px;
+    }
+    .tpb-fill { height: 100%; background: linear-gradient(90deg, var(--blue), #5856d6); border-radius: 3px; transition: width 0.3s; }
+    .tpb-text { font-size: 11px; color: #999; }
+    .tg-op-btn {
+      font-size: 11px;
+      color: var(--red);
+      cursor: pointer;
+      background: none;
+      border: none;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-weight: 500;
+    }
+    .tg-op-btn:hover:not(:disabled) { background: rgba(239,68,68,0.08); }
+    .tg-op-btn.retry { color: #059669; }
+    .tg-op-btn.retry:hover:not(:disabled) { background: rgba(5,150,105,0.08); }
+    .tg-op-btn.download { color: #448aff; }
+    .tg-op-btn.download:hover:not(:disabled) { background: rgba(68,138,255,0.08); }
+    .tg-op-btn.warn { color: #f59e0b; }
+    .tg-op-btn.warn:hover:not(:disabled) { background: rgba(245,158,11,0.08); }
+    .tg-op-btn:disabled { opacity: 0.28; cursor: not-allowed; }
+
+    .video-card-view {
+      padding: 14px;
+      background: #f8fafc;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .video-task-group {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fff;
+      overflow: hidden;
+    }
+    .video-group-head {
+      min-height: 54px;
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      background: #fff;
+    }
+    .video-group-title { min-width: 0; }
+    .video-group-name {
+      font-size: 14px;
+      font-weight: 900;
+      color: #111827;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .video-group-meta {
+      margin-top: 4px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      color: var(--faint);
+      font-size: 11px;
+    }
+    .video-group-actions {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      flex-shrink: 0;
+    }
+    .video-grid {
+      padding: 14px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(176px, 1fr));
+      gap: 12px;
+    }
+    .video-card {
+      border: 1px solid #e8edf5;
+      border-radius: 10px;
+      background: #fff;
+      overflow: hidden;
+      transition: 0.15s ease;
+      min-width: 0;
+    }
+    .video-card:hover {
+      border-color: #cbd5e1;
+      box-shadow: 0 8px 22px rgba(15, 23, 42, 0.08);
+      transform: translateY(-1px);
+    }
+    .video-cover {
+      position: relative;
+      aspect-ratio: 9 / 16;
+      min-height: 190px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      cursor: pointer;
+      color: #fff;
+    }
+    .video-cover-emoji {
+      font-size: 54px;
+      filter: drop-shadow(0 8px 18px rgba(0,0,0,0.26));
+    }
+    .video-status-badge {
+      position: absolute;
+      left: 8px;
+      top: 8px;
+      height: 22px;
+      padding: 0 8px;
+      border-radius: 11px;
+      background: rgba(15,23,42,0.58);
+      color: #fff;
+      display: inline-flex;
+      align-items: center;
+      font-size: 11px;
+      font-weight: 800;
+      backdrop-filter: blur(6px);
+    }
+    .video-cost-badge {
+      position: absolute;
+      right: 8px;
+      top: 8px;
+      height: 22px;
+      padding: 0 7px;
+      border-radius: 11px;
+      background: rgba(255,255,255,0.86);
+      color: #92400e;
+      display: inline-flex;
+      align-items: center;
+      font-size: 11px;
+      font-weight: 900;
+    }
+    .video-play-btn {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: rgba(15,23,42,0.58);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      backdrop-filter: blur(6px);
+      transition: 0.15s ease;
+    }
+    .video-play-btn:hover { background: rgba(47,107,255,0.9); transform: translate(-50%, -50%) scale(1.05); }
+    .video-playing .video-play-btn { background: rgba(47,107,255,0.92); }
+    .video-overlay {
+      position: absolute;
+      inset: auto 8px 8px;
+      min-height: 28px;
+      padding: 6px 8px;
+      border-radius: 8px;
+      background: rgba(15,23,42,0.5);
+      color: #fff;
+      font-size: 11px;
+      line-height: 1.35;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      backdrop-filter: blur(6px);
+    }
+    .video-progress {
+      position: absolute;
+      left: 10px;
+      right: 10px;
+      bottom: 44px;
+      height: 4px;
+      border-radius: 2px;
+      background: rgba(255,255,255,0.34);
+      overflow: hidden;
+    }
+    .video-progress-fill { height: 100%; background: #fff; border-radius: inherit; transition: width 0.16s linear; }
+    .video-generating-indicator {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      background: rgba(15,23,42,0.5);
+      backdrop-filter: blur(7px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 900;
+      box-shadow: 0 10px 26px rgba(0,0,0,0.22);
+    }
+    .video-generating-indicator::before {
+      content: "";
+      position: absolute;
+      inset: 5px;
+      border-radius: 50%;
+      border: 3px solid rgba(255,255,255,0.28);
+      border-top-color: #fff;
+      animation: cardSpin 0.9s linear infinite;
+    }
+    .video-generating-indicator span {
+      position: relative;
+      z-index: 1;
+    }
+    @keyframes cardSpin { to { transform: rotate(360deg); } }
+    .video-card-body { padding: 10px 11px 11px; }
+    .video-script {
+      height: 38px;
+      color: #1f2937;
+      font-size: 12px;
+      line-height: 1.55;
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+    }
+    .video-card-meta {
+      margin-top: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      color: var(--faint);
+      font-size: 11px;
+    }
+    .video-card-actions {
+      margin-top: 9px;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      align-items: center;
+      gap: 4px;
+    }
+    .video-card-actions .tg-op-btn {
+      width: 100%;
+      min-width: 0;
+      padding: 4px 0;
+      text-align: center;
+    }
+
+    .overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.42);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .overlay.show { display: flex; }
+    .modal {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 24px 80px rgba(15, 23, 42, 0.22);
+      border: 1px solid rgba(255,255,255,0.4);
+      max-width: 92vw;
+      max-height: 90vh;
+      overflow: hidden;
+    }
+    .modal-hd {
+      height: 54px;
+      padding: 0 18px 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--line);
+    }
+    .modal-title { font-size: 16px; font-weight: 900; }
+    .close-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: #f3f4f6;
+      color: #64748b;
+      font-size: 16px;
+    }
+    .close-btn:hover { background: #e5e7eb; color: #111827; }
+
+    .preview-modal { width: 980px; }
+    .preview-body { display: grid; grid-template-columns: 360px 1fr; min-height: 560px; }
+    .preview-left {
+      padding: 18px;
+      background: #0f172a;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+    }
+    .phone {
+      width: 236px;
+      aspect-ratio: 9 / 16;
+      border-radius: 24px;
+      background: linear-gradient(135deg, #1d4ed8, #0f172a);
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 22px 60px rgba(0,0,0,0.4), inset 0 0 0 8px rgba(255,255,255,0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .phone-person { font-size: 78px; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.35)); }
+    .phone-tag {
+      position: absolute;
+      left: 14px;
+      top: 16px;
+      right: 14px;
+      padding: 6px 9px;
+      border-radius: 9px;
+      background: rgba(0,0,0,0.35);
+      color: #fff;
+      font-size: 11px;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+    .phone-subtitle {
+      position: absolute;
+      left: 18px;
+      right: 18px;
+      bottom: 34px;
+      padding: 7px 9px;
+      border-radius: 10px;
+      background: rgba(0,0,0,0.48);
+      color: #fff;
+      text-align: center;
+      font-size: 12px;
+      line-height: 1.45;
+    }
+    .play-large {
+      position: absolute;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.22);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      backdrop-filter: blur(6px);
+    }
+    .play-large.playing { opacity: 0; }
+    .preview-controls { width: 100%; display: flex; align-items: center; gap: 10px; }
+    .preview-bar { flex: 1; height: 5px; background: rgba(255,255,255,0.18); border-radius: 999px; overflow: hidden; cursor: pointer; }
+    .preview-fill { height: 100%; width: 0%; background: #60a5fa; }
+    .preview-time { width: 74px; font-size: 11px; color: #cbd5e1; text-align: right; }
+    .preview-right { padding: 18px; overflow: auto; }
+    .panel-title { font-size: 13px; font-weight: 900; margin-bottom: 10px; color: #111827; }
+    .config-panel {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 14px;
+      background: #fff;
+    }
+    .cfg-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+    .cfg-row:last-child { margin-bottom: 0; }
+    .cfg-label { width: 64px; color: var(--muted); font-size: 12px; font-weight: 750; flex-shrink: 0; }
+    .cfg-input, .cfg-select, .cfg-textarea {
+      flex: 1;
+      min-width: 0;
+      border: 1px solid var(--line-strong);
+      border-radius: 8px;
+      outline: none;
+      background: #fff;
+      padding: 0 10px;
+      color: var(--text);
+    }
+    .cfg-input, .cfg-select { height: 34px; }
+    .cfg-textarea { min-height: 72px; padding: 8px 10px; resize: vertical; line-height: 1.6; }
+    .cfg-input:focus, .cfg-select:focus, .cfg-textarea:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(47,107,255,0.08); }
+
+    .wm-modal { width: 860px; }
+    .wm-body { display: grid; grid-template-columns: 300px 1fr; gap: 0; min-height: 460px; }
+    .wm-preview {
+      padding: 18px;
+      background: #111827;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+    }
+    .wm-stage {
+      width: 220px;
+      aspect-ratio: 9 / 16;
+      border-radius: 18px;
+      background: linear-gradient(135deg,#475569,#111827);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 68px;
+    }
+    .wm-text {
+      position: absolute;
+      top: 18px;
+      left: 14px;
+      max-width: calc(100% - 28px);
+      padding: 5px 8px;
+      border-radius: 7px;
+      background: rgba(0,0,0,0.32);
+      font-size: 13px;
+    }
+    .wm-sub {
+      position: absolute;
+      left: 16px;
+      right: 16px;
+      bottom: 30px;
+      padding: 7px 9px;
+      border-radius: 9px;
+      background: rgba(0,0,0,0.45);
+      font-size: 12px;
+      text-align: center;
+    }
+    .wm-config { padding: 18px; overflow: auto; }
+    .switch-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+    .switch-row strong { font-size: 13px; }
+    .switch { width: 42px; height: 24px; position: relative; }
+    .switch input { display: none; }
+    .switch i {
+      position: absolute;
+      inset: 0;
+      background: #cbd5e1;
+      border-radius: 999px;
+      transition: 0.16s;
+    }
+    .switch i::after {
+      content: "";
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      left: 3px;
+      top: 3px;
+      background: #fff;
+      border-radius: 50%;
+      transition: 0.16s;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.18);
+    }
+    .switch input:checked + i { background: var(--blue); }
+    .switch input:checked + i::after { transform: translateX(18px); }
+    .modal-actions {
+      border-top: 1px solid var(--line);
+      padding: 12px 18px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      background: #fbfcff;
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 32px;
+      transform: translate(-50%, 18px);
+      opacity: 0;
+      pointer-events: none;
+      background: #111827;
+      color: #fff;
+      padding: 10px 16px;
+      border-radius: 9px;
+      font-weight: 750;
+      z-index: 200;
+      transition: 0.2s ease;
+      box-shadow: 0 12px 34px rgba(15, 23, 42, 0.2);
+    }
+    .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+    @media (max-width: 1180px) {
+      .stats-grid { grid-template-columns: repeat(3, 1fr); }
+      .workbench-head { align-items: flex-start; flex-direction: column; }
+      .group-head { grid-template-columns: 24px 26px minmax(220px, 1fr) 118px 148px; }
+      .group-head .hide-md { display: none; }
+      .group-actions { grid-column: 3 / -1; justify-content: flex-start; }
+      .preview-body, .wm-body { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 760px) {
+      .sidebar { display: none; }
+      .main { margin-left: 0; }
+      .content { padding: 18px 14px 32px; }
+      .page-head { flex-direction: column; }
+      .head-actions { width: 100%; }
+      .head-actions .btn { flex: 1; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .toolbar { align-items: stretch; }
+      .search, .select, .date { width: 100%; }
+      .group-head { grid-template-columns: 24px 26px 1fr; }
+      .group-head > .hide-sm { display: none; }
+      .group-actions { grid-column: 1 / -1; }
+      th:nth-child(5), td:nth-child(5), th:nth-child(6), td:nth-child(6), th:nth-child(7), td:nth-child(7) { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="logo">AI</div>
+      <a class="nav-item" href="index.html" title="资源">
+        <span class="nav-ico">📦</span>
+        <span class="nav-label">资源</span>
+      </a>
+      <a class="nav-item active" href="导演台-批量成片工作台.html" title="导演台">
+        <span class="nav-ico">🎬</span>
+        <span class="nav-label">导演台</span>
+      </a>
+      <div class="nav-divider"></div>
+      <a class="nav-item" href="全部工具.html" title="全部工具">
+        <span class="nav-ico">🧰</span>
+        <span class="nav-label">工具</span>
+      </a>
+      <div class="sidebar-spacer"></div>
+      <div class="sidebar-account">
+        <div class="side-avatar" title="顾问">顾</div>
+        <div class="side-credit" title="积分 12,680">🪙 12.7k</div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="topbar-title">投顾视频平台</div>
+        <div class="topbar-right"></div>
+      </header>
+
+      <div class="content">
+        <section class="page-head">
+          <div>
+            <div class="eyebrow">DIRECTOR CONSOLE</div>
+            <h1 class="page-title">导演台</h1>
+            <p class="page-subtitle">集中管理批量成片任务，处理排队、生成、失败重试、下载和水印字幕配置。</p>
+          </div>
+          <div class="head-actions">
+            <button class="btn btn-secondary" type="button" onclick="refreshMock()">刷新状态</button>
+            <button class="btn btn-primary" type="button" onclick="goCreate()">＋ 批量创建</button>
+          </div>
+        </section>
+
+        <section class="stats-grid" id="statsGrid"></section>
+
+        <section class="workbench">
+          <div class="workbench-head">
+            <div>
+              <div class="workbench-title">视频生成任务</div>
+              <div class="workbench-sub">按批次管理生成任务，展开后可处理单条视频</div>
+            </div>
+            <div class="view-toggle" aria-label="切换任务视图">
+              <button type="button" id="view-list-btn" class="active" onclick="setTaskView('list')">列表视图</button>
+              <button type="button" id="view-card-btn" onclick="setTaskView('card')">卡片视图</button>
+            </div>
+          </div>
+          <div class="toolbar">
+            <select class="select" id="task-item-select" aria-label="选择任务项" onchange="render()">
+              <option value="">全部任务项</option>
+            </select>
+            <input class="search" id="task-search" type="text" placeholder="搜索台词关键词..." oninput="render()">
+            <span style="font-size:11px;color:#666;white-space:nowrap;">创建时间</span>
+            <input class="date" id="task-date-from" type="date" onchange="render()">
+            <span style="color:var(--faint);font-size:12px;">至</span>
+            <input class="date" id="task-date-to" type="date" onchange="render()">
+            <div class="toolbar-spacer"></div>
+            <div class="task-batch-bar" id="task-global-batch-bar" style="display:none;">
+              <span class="batch-count">已选 <strong id="task-global-batch-count">0</strong> 个任务</span>
+              <button class="batch-btn danger" id="task-global-delete-btn" disabled onclick="batchDeleteTasks()">批量删除</button>
+              <button class="batch-btn" id="task-global-download-btn" disabled onclick="batchDownloadAllTasks()">批量下载全部</button>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;margin:12px 16px;" id="task-summary-row">
+            <div class="task-summary" id="task-summary" style="display:none;margin:0;"></div>
+          </div>
+          <div class="task-list" id="taskList"></div>
+          <div class="task-detail-footer">
+            <span>共 <strong id="task-total-count">0</strong> 条任务 · 预计 <strong id="task-total-time">0</strong> 分钟</span>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <div class="overlay" id="previewOverlay" onclick="if(event.target===this)closePreview()">
+    <div class="modal preview-modal">
+      <div class="modal-hd">
+        <div class="modal-title" id="previewTitle">视频预览</div>
+        <button class="close-btn" type="button" onclick="closePreview()">×</button>
+      </div>
+      <div class="preview-body">
+        <div class="preview-left">
+          <div class="phone" id="phoneStage">
+            <div class="phone-tag" id="phoneTag">办公室 · 角色 A</div>
+            <div class="phone-person" id="phonePerson">👩</div>
+            <div class="phone-subtitle" id="phoneSubtitle">养老金规划越早开始越好，复利效应是长期积累的核心动力。</div>
+            <button class="play-large" id="playLarge" type="button" onclick="togglePlay()">▶</button>
+          </div>
+          <div class="preview-controls">
+            <button class="mini-btn" type="button" id="playBtn" onclick="togglePlay()">播放</button>
+            <div class="preview-bar" onclick="seekPreview(event)"><div class="preview-fill" id="previewFill"></div></div>
+            <div class="preview-time" id="previewTime">0:00 / 0:12</div>
+          </div>
+        </div>
+        <div class="preview-right">
+          <div class="config-panel">
+            <div class="panel-title">封面</div>
+            <div class="cfg-row">
+              <span class="cfg-label">截帧</span>
+              <input class="cfg-input" type="range" min="0" max="100" value="28" oninput="toast('已切换封面截帧')">
+            </div>
+            <div class="cfg-row">
+              <span class="cfg-label">本地上传</span>
+              <button class="btn btn-secondary" type="button" onclick="toast('此处可接入封面上传')">选择图片</button>
+            </div>
+          </div>
+          <div class="config-panel">
+            <div class="panel-title">水印</div>
+            <div class="cfg-row">
+              <span class="cfg-label">文字</span>
+              <input class="cfg-input" id="previewWmText" type="text" value="投顾观点仅供参考" oninput="syncPreviewText()">
+            </div>
+            <div class="cfg-row">
+              <span class="cfg-label">位置</span>
+              <select class="cfg-select" onchange="toast('水印位置已更新')">
+                <option>左上</option>
+                <option>右上</option>
+                <option>左下</option>
+                <option>右下</option>
+              </select>
+            </div>
+          </div>
+          <div class="config-panel">
+            <div class="panel-title">字幕</div>
+            <div class="cfg-row">
+              <span class="cfg-label">内容</span>
+              <textarea class="cfg-textarea" id="previewSubText" oninput="syncPreviewText()">养老金规划越早开始越好，复利效应是长期积累的核心动力。</textarea>
+            </div>
+            <div class="cfg-row">
+              <span class="cfg-label">字号</span>
+              <input class="cfg-input" type="range" min="12" max="28" value="16" oninput="toast('字幕字号已更新')">
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;justify-content:flex-end;">
+            <button class="btn btn-secondary" type="button" onclick="toast('字幕水印版合成中')">合成字幕水印版</button>
+            <button class="btn btn-primary" type="button" onclick="toast('开始下载原片')">下载原片</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay" id="wmOverlay" onclick="if(event.target===this)closeWmConfig()">
+    <div class="modal wm-modal">
+      <div class="modal-hd">
+        <div class="modal-title">水印与字幕配置</div>
+        <button class="close-btn" type="button" onclick="closeWmConfig()">×</button>
+      </div>
+      <div class="wm-body">
+        <div class="wm-preview">
+          <div class="wm-stage">
+            <div id="wmPreviewPerson">👩</div>
+            <div class="wm-text" id="wmPreviewText">投顾观点仅供参考</div>
+            <div class="wm-sub" id="wmPreviewSub">字幕示例</div>
+          </div>
+          <div style="font-size:12px;color:#cbd5e1;" id="wmTaskName">应用到当前批次</div>
+        </div>
+        <div class="wm-config">
+          <div class="config-panel">
+            <div class="switch-row">
+              <div><strong>水印配置</strong><div style="color:var(--faint);font-size:12px;">应用到该批次全部视频</div></div>
+              <label class="switch"><input id="wmEnabled" type="checkbox" checked onchange="syncWmPreview()"><i></i></label>
+            </div>
+            <div class="cfg-row">
+              <span class="cfg-label">内容</span>
+              <input class="cfg-input" id="wmInput" type="text" value="投顾观点仅供参考" maxlength="24" oninput="syncWmPreview()">
+            </div>
+            <div class="cfg-row">
+              <span class="cfg-label">位置</span>
+              <select class="cfg-select" id="wmPos" onchange="syncWmPreview()">
+                <option value="lt">左上</option>
+                <option value="rt">右上</option>
+                <option value="lb">左下</option>
+                <option value="rb">右下</option>
+              </select>
+            </div>
+            <div class="cfg-row">
+              <span class="cfg-label">透明度</span>
+              <input class="cfg-input" id="wmOpacity" type="range" min="0.2" max="1" value="0.85" step="0.05" oninput="syncWmPreview()">
+            </div>
+          </div>
+          <div class="config-panel">
+            <div class="switch-row">
+              <div><strong>字幕配置</strong><div style="color:var(--faint);font-size:12px;">默认跟随每条台词生成</div></div>
+              <label class="switch"><input id="subEnabled" type="checkbox" checked onchange="syncWmPreview()"><i></i></label>
+            </div>
+            <div class="cfg-row">
+              <span class="cfg-label">示例</span>
+              <input class="cfg-input" id="subInput" type="text" value="字幕示例" maxlength="36" oninput="syncWmPreview()">
+            </div>
+            <div class="cfg-row">
+              <span class="cfg-label">位置</span>
+              <select class="cfg-select" id="subPos" onchange="syncWmPreview()">
+                <option value="bottom">中下</option>
+                <option value="middle">居中</option>
+                <option value="top">中上</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" type="button" onclick="resetWmConfig()">重置</button>
+        <button class="btn btn-secondary" type="button" onclick="closeWmConfig()">取消</button>
+        <button class="btn btn-primary" type="button" onclick="saveWmConfig()">应用至该批次</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    var STORAGE_KEY = 'director_batch_workbench_tasks_v2';
+    var selectedGroups = new Set();
+    var currentFilter = 'all';
+    var currentTaskView = 'list';
+    var openGroups = new Set();
+    var previewTimer = null;
+    var previewProgress = 0;
+    var previewPlaying = false;
+    var cardPlaybackTimer = null;
+    var cardPlayingId = null;
+    var cardPlaybackProgress = 0;
+    var currentWmTask = null;
+
+    var seedTasks = [
+      { id: 1, taskName: '草稿_投资入门指南', visibility: '仅自己', script: '（草稿，暂未填写台词）', status: 'draft', progress: 0, duration: 0, cost: 0, createdAt: '2026-06-10T08:00:00', startedAt: null, completedAt: null, wmStatus: null, person: { name: '角色 A · 知性女性', emoji: '👩', gradient: 'linear-gradient(135deg,#ff9a9e,#fad0c4)' }, bg: { name: '办公室', gradient: 'linear-gradient(135deg,#667eea,#764ba2)' } },
+      { id: 2, taskName: '排队中_基金定投解读', visibility: '团队共享', script: '基金定投是一种适合普通投资者的长期理财方式，每月固定金额投入。', status: 'queued', progress: 0, duration: 7, cost: 14, createdAt: '2026-06-11T09:00:00', startedAt: null, completedAt: null, wmStatus: null, person: { name: '角色 B · 商务男性', emoji: '👨', gradient: 'linear-gradient(135deg,#a18cd1,#fbc2eb)' }, bg: { name: '办公室', gradient: 'linear-gradient(135deg,#667eea,#764ba2)' } },
+      { id: 3, taskName: '排队中_基金定投解读', visibility: '团队共享', script: '选择定投基金时，建议优先考虑指数型基金，费率低且长期收益稳定。', status: 'queued', progress: 0, duration: 6, cost: 12, createdAt: '2026-06-11T09:00:00', startedAt: null, completedAt: null, wmStatus: null, person: { name: '角色 B · 商务男性', emoji: '👨', gradient: 'linear-gradient(135deg,#a18cd1,#fbc2eb)' }, bg: { name: '办公室', gradient: 'linear-gradient(135deg,#667eea,#764ba2)' } },
+      { id: 4, taskName: '生成中_保险配置攻略', visibility: '团队共享', script: '家庭保险配置应该遵循先大人后小孩、先保障后理财的原则。', status: 'generating', progress: 55, duration: 8, cost: 16, createdAt: '2026-06-11T10:00:00', startedAt: '2026-06-11T10:01:00', completedAt: null, wmStatus: null, person: { name: '角色 C · 可靠中年', emoji: '🧑', gradient: 'linear-gradient(135deg,#ffecd2,#fcb69f)' }, bg: { name: '居家', gradient: 'linear-gradient(135deg,#a8edea,#fed6e3)' } },
+      { id: 5, taskName: '生成中_保险配置攻略', visibility: '团队共享', script: '重大疾病保险的保额建议设置为年收入的3-5倍，才能有效覆盖风险。', status: 'completed', progress: 100, duration: 9, cost: 18, createdAt: '2026-06-11T10:00:00', startedAt: '2026-06-11T10:01:00', completedAt: '2026-06-11T10:07:30', wmStatus: null, person: { name: '角色 C · 可靠中年', emoji: '🧑', gradient: 'linear-gradient(135deg,#ffecd2,#fcb69f)' }, bg: { name: '居家', gradient: 'linear-gradient(135deg,#a8edea,#fed6e3)' } },
+      { id: 12, taskName: '生成中_保险配置攻略', visibility: '团队共享', script: '医疗险主要解决住院报销问题，适合作为重疾险之外的基础补充保障。', status: 'completed', progress: 100, duration: 7, cost: 14, createdAt: '2026-06-11T10:00:00', startedAt: '2026-06-11T10:01:30', completedAt: '2026-06-11T10:06:40', wmStatus: null, person: { name: '角色 C · 可靠中年', emoji: '🧑', gradient: 'linear-gradient(135deg,#ffecd2,#fcb69f)' }, bg: { name: '会议室', gradient: 'linear-gradient(135deg,#a1c4fd,#c2e9fb)' } },
+      { id: 13, taskName: '生成中_保险配置攻略', visibility: '团队共享', script: '寿险的核心作用是覆盖家庭经济责任，尤其适合有房贷和子女教育压力的人群。', status: 'generating', progress: 32, duration: 10, cost: 20, createdAt: '2026-06-11T10:00:00', startedAt: '2026-06-11T10:03:00', completedAt: null, wmStatus: null, person: { name: '角色 C · 可靠中年', emoji: '🧑', gradient: 'linear-gradient(135deg,#ffecd2,#fcb69f)' }, bg: { name: '办公室', gradient: 'linear-gradient(135deg,#667eea,#764ba2)' } },
+      { id: 14, taskName: '生成中_保险配置攻略', visibility: '团队共享', script: '意外险保费低、杠杆高，可以优先覆盖意外身故、伤残和意外医疗责任。', status: 'queued', progress: 0, duration: 6, cost: 12, createdAt: '2026-06-11T10:00:00', startedAt: null, completedAt: null, wmStatus: null, person: { name: '角色 C · 可靠中年', emoji: '🧑', gradient: 'linear-gradient(135deg,#ffecd2,#fcb69f)' }, bg: { name: '演播室', gradient: 'linear-gradient(135deg,#fa709a,#fee140)' } },
+      { id: 15, taskName: '生成中_保险配置攻略', visibility: '团队共享', script: '给父母配置保险时，要重点关注健康告知、续保条件和既往症限制。', status: 'failed', progress: 0, duration: 8, cost: 16, createdAt: '2026-06-11T10:00:00', startedAt: '2026-06-11T10:02:10', completedAt: null, wmStatus: null, person: { name: '角色 C · 可靠中年', emoji: '🧑', gradient: 'linear-gradient(135deg,#ffecd2,#fcb69f)' }, bg: { name: '书架', gradient: 'linear-gradient(135deg,#a8edea,#fed6e3)' }, error: '口型驱动失败，请重试生成该条视频' },
+      { id: 6, taskName: '已完成_养老金规划', visibility: '团队共享', script: '养老金规划越早开始越好，复利效应是长期积累的核心动力。', status: 'completed', progress: 100, duration: 7, cost: 14, createdAt: '2026-06-10T14:00:00', startedAt: '2026-06-10T14:02:00', completedAt: '2026-06-10T14:08:00', wmStatus: 'done', person: { name: '角色 A · 知性女性', emoji: '👩', gradient: 'linear-gradient(135deg,#ff9a9e,#fad0c4)' }, bg: { name: '办公室', gradient: 'linear-gradient(135deg,#667eea,#764ba2)' } },
+      { id: 7, taskName: '已完成_养老金规划', visibility: '团队共享', script: '目前国家推行的个人养老金制度每年可享受最高12000元的税收优惠。', status: 'completed', progress: 100, duration: 6, cost: 12, createdAt: '2026-06-10T14:00:00', startedAt: '2026-06-10T14:02:00', completedAt: '2026-06-10T14:07:00', wmStatus: 'done', person: { name: '角色 A · 知性女性', emoji: '👩', gradient: 'linear-gradient(135deg,#ff9a9e,#fad0c4)' }, bg: { name: '办公室', gradient: 'linear-gradient(135deg,#667eea,#764ba2)' } },
+      { id: 8, taskName: '部分成功_税务筹划', visibility: '仅自己', script: '个人所得税专项附加扣除包括子女教育、大病医疗、住房贷款利息等。', status: 'completed', progress: 100, duration: 8, cost: 16, createdAt: '2026-06-09T11:00:00', startedAt: '2026-06-09T11:02:00', completedAt: '2026-06-09T11:09:00', wmStatus: 'done', person: { name: '角色 D · 专业顾问', emoji: '👨‍💼', gradient: 'linear-gradient(135deg,#a6c1ee,#fbc2eb)' }, bg: { name: '办公室', gradient: 'linear-gradient(135deg,#667eea,#764ba2)' } },
+      { id: 9, taskName: '部分成功_税务筹划', visibility: '仅自己', script: '年终奖的计税方式可以选择单独计税或并入综合所得，哪种更划算？', status: 'failed', progress: 0, duration: 0, cost: 14, createdAt: '2026-06-09T11:00:00', startedAt: '2026-06-09T11:02:00', completedAt: null, wmStatus: null, person: { name: '角色 D · 专业顾问', emoji: '👨‍💼', gradient: 'linear-gradient(135deg,#a6c1ee,#fbc2eb)' }, bg: { name: '办公室', gradient: 'linear-gradient(135deg,#667eea,#764ba2)' }, error: '人物表情生成失败，请检查参考图质量' },
+      { id: 10, taskName: '已失败_海外配置', visibility: '团队共享', script: '通过QDII基金进行海外资产配置，可以有效分散单一市场风险。', status: 'failed', progress: 0, duration: 0, cost: 14, createdAt: '2026-06-08T15:00:00', startedAt: '2026-06-08T15:01:00', completedAt: null, wmStatus: null, person: { name: '角色 E · 资深投资师', emoji: '👴', gradient: 'linear-gradient(135deg,#cfd9df,#e2ebf0)' }, bg: { name: '咖啡厅', gradient: 'linear-gradient(135deg,#fbc2eb,#a6c1ee)' }, error: '素材分辨率不足，请上传720p以上图片' },
+      { id: 11, taskName: '已取消_存款技巧', visibility: '仅自己', script: '通知存款的利率介于活期和定期之间，适合资金闲置期不确定的情况。', status: 'cancelled', progress: 0, duration: 0, cost: 0, createdAt: '2026-06-07T16:00:00', startedAt: null, completedAt: null, wmStatus: null, person: { name: '角色 A · 知性女性', emoji: '👩', gradient: 'linear-gradient(135deg,#ff9a9e,#fad0c4)' }, bg: { name: '居家', gradient: 'linear-gradient(135deg,#a8edea,#fed6e3)' } }
+    ];
+
+    function loadTasks() {
+      try {
+        var raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) return JSON.parse(raw);
+      } catch (e) {}
+      saveTasks(seedTasks);
+      return seedTasks.slice();
+    }
+
+    function saveTasks(tasks) {
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks)); } catch (e) {}
+    }
+
+    function receiveCreatedTasks() {
+      try {
+        var raw = localStorage.getItem('newTaskFromFlow');
+        if (!raw) return;
+        var data = JSON.parse(raw);
+        if (!data.rows || !data.rows.length) return;
+        var tasks = loadTasks();
+        data.rows.forEach(function(row, idx) {
+          tasks.push({
+            id: Date.now() + idx,
+            taskName: data.taskName || '未命名任务',
+            visibility: '仅自己',
+            script: row.script || '',
+            person: row.person || { name: '角色 A', emoji: '👩', gradient: 'linear-gradient(135deg,#ff9a9e,#fad0c4)' },
+            bg: row.bg || { name: '办公室', gradient: 'linear-gradient(135deg,#667eea,#764ba2)' },
+            status: 'queued',
+            progress: 0,
+            duration: row.duration || 8,
+            cost: (row.duration || 8) * 2,
+            createdAt: new Date().toISOString(),
+            startedAt: null,
+            completedAt: null,
+            wmStatus: null
+          });
+        });
+        saveTasks(tasks);
+        localStorage.removeItem('newTaskFromFlow');
+        toast('新任务已进入导演台');
+      } catch(e) {}
+    }
+
+    function goCreate() {
+      window.location.href = '简单模式-流程版.html?returnTo=directorWorkbench';
+    }
+
+    function fmtDate(v) {
+      if (!v) return '-';
+      var d = new Date(v);
+      if (isNaN(d.getTime())) return '-';
+      return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+    }
+
+    function fmtTime(v) {
+      return fmtDate(v);
+    }
+
+    function fmtTaskElapsed(startedAt, completedAt, status) {
+      var start = startedAt ? new Date(startedAt) : null;
+      var end = completedAt ? new Date(completedAt) : null;
+      if (!start || isNaN(start.getTime())) return status === 'queued' || status === 'draft' ? '等待中' : '-';
+      if (!end || isNaN(end.getTime())) return status === 'generating' ? '生成中' : '-';
+      var total = Math.max(0, Math.round((end.getTime() - start.getTime()) / 1000));
+      var minutes = Math.floor(total / 60);
+      var seconds = total % 60;
+      if (minutes > 0) return minutes + '分' + (seconds ? seconds + '秒' : '');
+      return seconds + '秒';
+    }
+
+    function pad(n) { return String(n).padStart(2, '0'); }
+
+    function escapeHtml(v) {
+      return String(v || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+    }
+
+    function jsString(v) {
+      return String(v || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/\r?\n/g, ' ');
+    }
+
+    function groupTasks(tasks) {
+      var map = {};
+      tasks.forEach(function(t) {
+        if (!map[t.taskName]) map[t.taskName] = [];
+        map[t.taskName].push(t);
+      });
+      return Object.keys(map).map(function(name) {
+        var rows = map[name].sort(function(a, b) { return new Date(a.createdAt) - new Date(b.createdAt); });
+        return { name: name, rows: rows };
+      }).sort(function(a, b) {
+        return new Date(b.rows[0].createdAt) - new Date(a.rows[0].createdAt);
+      });
+    }
+
+    function getGroupStatus(rows) {
+      var count = countStatuses(rows);
+      if (count.generating > 0) return 'generating';
+      if (count.queued > 0) return 'queued';
+      if (count.failed > 0 && count.completed > 0) return 'failed';
+      if (count.failed > 0) return 'failed';
+      if (count.draft > 0) return 'draft';
+      if (count.cancelled === rows.length) return 'cancelled';
+      return 'completed';
+    }
+
+    function countStatuses(tasks) {
+      var count = { all: tasks.length, generating: 0, queued: 0, completed: 0, failed: 0, draft: 0, cancelled: 0 };
+      tasks.forEach(function(t) {
+        if (count.hasOwnProperty(t.status)) count[t.status]++;
+      });
+      return count;
+    }
+
+    function getProgress(rows) {
+      if (!rows.length) return 0;
+      var sum = rows.reduce(function(total, row) { return total + (Number(row.progress) || 0); }, 0);
+      return Math.round(sum / rows.length);
+    }
+
+    function statusText(status) {
+      return {
+        generating: '生成中',
+        queued: '排队中',
+        completed: '已完成',
+        failed: '有失败',
+        draft: '草稿',
+        cancelled: '已取消'
+      }[status] || '未知';
+    }
+
+    function statusClass(status) {
+      return 'st-' + status;
+    }
+
+    function filterTasks(tasks) {
+      var keyword = (document.getElementById('task-search').value || '').trim().toLowerCase();
+      var selectedName = document.getElementById('task-item-select').value;
+      var from = document.getElementById('task-date-from').value;
+      var to = document.getElementById('task-date-to').value;
+
+      return tasks.filter(function(t) {
+        var textHit = !keyword ||
+          String(t.taskName).toLowerCase().indexOf(keyword) > -1 ||
+          String(t.script).toLowerCase().indexOf(keyword) > -1;
+        var nameHit = !selectedName || t.taskName === selectedName;
+        var d = new Date(t.createdAt);
+        var fromHit = !from || d >= new Date(from + 'T00:00:00');
+        var toHit = !to || d <= new Date(to + 'T23:59:59');
+        var statusHit = currentFilter === 'all' || t.status === currentFilter;
+        return textHit && nameHit && fromHit && toHit && statusHit;
+      });
+    }
+
+    function renderStats(tasks) {
+      var count = countStatuses(tasks);
+      var stats = [
+        { key: 'all', name: '全部', num: count.all, foot: '任务视频总数' },
+        { key: 'generating', name: '生成中', num: count.generating, foot: '需要关注进度' },
+        { key: 'queued', name: '排队中', num: count.queued, foot: '等待资源调度' },
+        { key: 'completed', name: '已完成', num: count.completed, foot: '可预览和下载' },
+        { key: 'failed', name: '失败', num: count.failed, foot: '建议优先处理' },
+        { key: 'draft', name: '草稿', num: count.draft, foot: '可继续编辑' },
+        { key: 'cancelled', name: '已取消', num: count.cancelled, foot: '已关闭任务' }
+      ];
+      document.getElementById('statsGrid').innerHTML = stats.map(function(s) {
+        return '<div class="stat-card' + (currentFilter === s.key ? ' active' : '') + '" onclick="setFilter(\'' + s.key + '\')">' +
+          '<div class="stat-name"><span>' + s.name + '</span><span>' + (s.key === currentFilter ? '当前' : '') + '</span></div>' +
+          '<div class="stat-num">' + s.num + '</div>' +
+          '<div class="stat-foot">' + s.foot + '</div>' +
+        '</div>';
+      }).join('');
+    }
+
+    function renderTaskSelect(tasks) {
+      var select = document.getElementById('task-item-select');
+      var current = select.value;
+      var seen = {};
+      var names = [];
+      tasks.forEach(function(t) {
+        if (!seen[t.taskName]) {
+          seen[t.taskName] = true;
+          names.push(t.taskName);
+        }
+      });
+      var html = '<option value="">全部任务项</option>';
+      names.forEach(function(name) {
+        html += '<option value="' + escapeHtml(name) + '">' + escapeHtml(name) + '</option>';
+      });
+      select.innerHTML = html;
+      select.value = names.indexOf(current) > -1 ? current : '';
+    }
+
+    function renderBatchBar() {
+      var count = selectedGroups.size;
+      var numEl = document.getElementById('task-global-batch-count');
+      if (numEl) numEl.textContent = count;
+      var globalBar = document.getElementById('task-global-batch-bar');
+      if (globalBar) globalBar.style.display = 'none';
+      var deleteBtn = document.getElementById('task-global-delete-btn');
+      var dlBtn = document.getElementById('task-global-download-btn');
+      if (!deleteBtn || !dlBtn) return;
+      deleteBtn.disabled = count === 0;
+      dlBtn.disabled = count === 0;
+    }
+
+    function renderList(tasks) {
+      var filtered = filterTasks(tasks);
+      var groups = groupTasks(filtered);
+      var box = document.getElementById('taskList');
+      if (!groups.length) {
+        box.innerHTML = '<div class="empty"><div class="empty-title">没有匹配的任务</div><div>调整筛选条件后再试</div></div>';
+        updateTaskSummary(filtered);
+        return;
+      }
+      updateTaskSummary(filtered);
+      if (currentTaskView === 'card') {
+        box.innerHTML = renderVideoCardView(groups);
+        return;
+      }
+      var html = '<table class="task-report-table">';
+      html += '<colgroup><col style="width:19%"><col style="width:8%"><col style="width:7%"><col style="width:8%"><col style="width:11%"><col style="width:10%"><col style="width:9%"><col style="width:11%"><col style="width:17%"></colgroup>';
+      html += '<thead><tr><th>任务名</th><th>可见范围</th><th>视频数量</th><th>总消耗积分</th><th>任务创建时间</th><th>任务状态</th><th>任务进度</th><th>任务完成时间</th><th>操作</th></tr></thead><tbody>';
+      for (var i = 0; i < groups.length; i++) {
+        html += renderTaskReportGroup(groups[i], i);
+      }
+      html += '</tbody></table>';
+      box.innerHTML = html;
+    }
+
+    function renderTaskReportGroup(group, index) {
+      var rows = group.rows;
+      var stCounts = { completed: 0, generating: 0, queued: 0, failed: 0, draft: 0, cancelled: 0 };
+      var totalCost = 0;
+      var earliestCreated = null;
+      var latestCompleted = null;
+      var anyWmProc = false;
+      var isDraft = false;
+      for (var i = 0; i < rows.length; i++) {
+        var row = rows[i];
+        stCounts[row.status] = (stCounts[row.status] || 0) + 1;
+        if (row.status === 'draft') isDraft = true;
+        if (row.wmStatus === 'processing') anyWmProc = true;
+        totalCost += row.cost || 0;
+        if (row.createdAt && (!earliestCreated || new Date(row.createdAt) < new Date(earliestCreated))) earliestCreated = row.createdAt;
+        if (row.completedAt && (!latestCompleted || new Date(row.completedAt) > new Date(latestCompleted))) latestCompleted = row.completedAt;
+      }
+      var statusInfo = getTaskReportStatus(stCounts, rows.length, anyWmProc, isDraft);
+      var nonDraftTotal = rows.length - stCounts.draft;
+      var progress = nonDraftTotal > 0 ? Math.round(stCounts.completed / nonDraftTotal * 100) : 0;
+      var hasCompleted = stCounts.completed > 0;
+      var allCompleted = rows.length > 0 && stCounts.completed === rows.length;
+      var editDisabled = isDraft ? '' : ' disabled';
+      var wmDisabled = (!allCompleted || anyWmProc) ? ' disabled' : '';
+      var wmLabel = anyWmProc ? '合成中' : '水印字幕';
+      var downloadDisabled = hasCompleted ? '' : ' disabled';
+      var cancelDisabled = (stCounts.queued === 0 && stCounts.generating === 0) ? ' disabled' : '';
+      var tn = group.name;
+      var tnq = escapeHtml(tn);
+      var tnEsc = jsString(tn);
+      var detailId = 'task-detail-sub-' + index;
+      var visibility = rows[0] && rows[0].visibility ? rows[0].visibility : '仅自己';
+      var html = '';
+      html += '<tr class="task-report-row" data-task="' + tnq + '">';
+      html += '<td><button class="task-report-toggle" type="button" onclick="toggleTaskReportRow(\'' + detailId + '\',this)">−</button><span class="task-report-name" title="' + tnq + '">' + tnq + '</span></td>';
+      html += '<td style="font-size:11px;color:#666;">' + escapeHtml(visibility) + '</td>';
+      html += '<td class="task-report-count">' + rows.length + '</td>';
+      html += '<td class="task-report-cost">' + totalCost + '🪙</td>';
+      html += '<td class="task-report-time">' + fmtTime(earliestCreated) + '</td>';
+      html += '<td><span class="task-state-chip" style="color:' + statusInfo.color + ';">' + statusInfo.text + '</span></td>';
+      html += '<td class="task-report-progress">' + progress + '%</td>';
+      html += '<td class="task-report-time">' + (latestCompleted ? fmtTime(latestCompleted) : '—') + '</td>';
+      html += '<td><div class="task-report-actions">';
+      html += '<button class="task-report-action"' + editDisabled + ' onclick="window.location.href=\'简单模式-流程版.html?editDraft=1\'">编辑</button>';
+      html += '<button class="task-report-action wm"' + wmDisabled + ' onclick="openBatchWmConfig(\'' + tnEsc + '\')">' + wmLabel + '</button>';
+      html += '<button class="task-report-action"' + downloadDisabled + ' onclick="downloadTaskVideos(\'' + tnEsc + '\')">下载</button>';
+      html += '<button class="task-report-action danger"' + cancelDisabled + ' onclick="cancelGroupTask(\'' + tnEsc + '\')">关闭</button>';
+      html += '<button class="task-report-action danger" onclick="deleteTask(\'' + tnEsc + '\')">删除</button>';
+      html += '</div></td></tr>';
+      html += '<tr class="task-detail-row" id="' + detailId + '"><td colspan="9"><div class="task-detail-cell">';
+      html += '<table class="task-sub-table"><colgroup><col style="width:5%"><col style="width:23%"><col style="width:6%"><col style="width:6%"><col style="width:8%"><col style="width:9%"><col style="width:11%"><col style="width:11%"><col style="width:7%"><col style="width:14%"></colgroup>';
+      html += '<thead><tr><th>首帧</th><th>台词</th><th>视频时长</th><th>消耗积分</th><th>视频状态</th><th>生成进度</th><th>开始生成时间</th><th>生成完成时间</th><th>生成耗时</th><th>操作</th></tr></thead><tbody>';
+      for (var j = 0; j < rows.length; j++) html += renderTaskReportSubRow(rows[j]);
+      html += '</tbody></table></div></td></tr>';
+      return html;
+    }
+
+    function renderTaskReportSubRow(task) {
+      var canCancel = task.status === 'queued' || task.status === 'generating';
+      var canPreview = task.status === 'completed';
+      var canDownload = task.status === 'completed';
+      var statusHtml = '';
+      var progressHtml = '';
+      if (task.status === 'draft') {
+        statusHtml = '<span class="ts draft"><span class="ico">📝</span>草稿</span>';
+        progressHtml = '<span class="tpb-text">-</span>';
+      } else if (task.status === 'completed') {
+        if (task.wmStatus === 'processing') {
+          statusHtml = '<span class="ts wm-processing"><span class="ico">⏳</span>字幕合成中</span>';
+          progressHtml = '<div class="tpb"><div class="tpb-fill" style="width:' + (task.wmProgress || 0) + '%"></div></div><span class="tpb-text">' + (task.wmProgress || 0) + '%</span>';
+          canPreview = false;
+          canDownload = false;
+        } else {
+          statusHtml = '<span class="ts completed"><span class="ico">✅</span>已完成</span>';
+          progressHtml = '<div class="tpb"><div class="tpb-fill" style="width:100%"></div></div><span class="tpb-text">100%</span>';
+        }
+      } else if (task.status === 'generating') {
+        statusHtml = '<span class="ts generating"><span class="ico">🔄</span>生成中</span>';
+        progressHtml = '<div class="tpb"><div class="tpb-fill" style="width:' + task.progress + '%"></div></div><span class="tpb-text">' + task.progress + '%</span>';
+      } else if (task.status === 'queued') {
+        statusHtml = '<span class="ts queued"><span class="ico">⏳</span>排队中</span>';
+        progressHtml = '<span class="tpb-text">等待中</span>';
+      } else if (task.status === 'cancelled') {
+        statusHtml = '<span class="ts failed"><span class="ico">🚫</span>已取消</span>';
+        progressHtml = '<span class="tpb-text">-</span>';
+      } else if (task.status === 'failed') {
+        var err = task.error || '未知错误';
+        statusHtml = '<span class="ts failed"><span class="ico">❌</span>已失败<span class="err-alert" onclick="copyErrorText(\'' + jsString(err) + '\')" title="' + escapeHtml(err) + '">❗️</span></span>';
+        progressHtml = '<span class="tpb-text">-</span>';
+      }
+
+      var actionHtml = '';
+      if (task.status === 'cancelled') {
+        actionHtml = '<div class="subtask-actions"><button class="tg-op-btn" disabled>关闭</button><button class="tg-op-btn warn" onclick="retryTask(' + task.id + ')">重试</button><button class="tg-op-btn retry" disabled>预览</button><button class="tg-op-btn download" disabled>下载</button></div>';
+      } else if (task.status === 'failed') {
+        actionHtml = '<div class="subtask-actions"><button class="tg-op-btn warn" onclick="retryTask(' + task.id + ')">重试</button><button class="tg-op-btn retry" disabled>预览</button><button class="tg-op-btn download" disabled>下载</button></div>';
+      } else {
+        actionHtml = '<div class="subtask-actions">';
+        actionHtml += '<button class="tg-op-btn" ' + (canCancel ? 'onclick="subtaskCancel(' + task.id + ')"' : 'disabled') + '>关闭</button>';
+        actionHtml += '<button class="tg-op-btn retry" ' + (canPreview ? 'onclick="openPreview(' + task.id + ')"' : 'disabled') + '>预览</button>';
+        actionHtml += '<button class="tg-op-btn download" ' + (canDownload ? 'onclick="downloadVideo(' + task.id + ')"' : 'disabled') + '>下载</button>';
+        actionHtml += '</div>';
+      }
+      var shortScript = task.script && task.script.length > 25 ? task.script.substring(0, 25) + '...' : (task.script || '');
+      var gradient = task.bg && task.bg.gradient ? task.bg.gradient : 'linear-gradient(135deg,#667eea,#764ba2)';
+      var person = task.person || { name: '角色', emoji: '👤' };
+      var bgName = task.bg && task.bg.name ? task.bg.name : '场景';
+      var html = '<tr data-id="' + task.id + '">';
+      html += '<td><div class="cf-thumb-sm" style="background:' + escapeHtml(gradient) + '" title="' + escapeHtml(person.name + ' · ' + bgName) + '">' + escapeHtml(person.emoji) + '</div></td>';
+      html += '<td class="td-script" title="' + escapeHtml(task.script) + '">' + escapeHtml(shortScript) + '</td>';
+      html += '<td style="color:#059669;font-weight:500;white-space:nowrap;">' + (task.duration ? task.duration + 's' : '--') + '</td>';
+      html += '<td class="td-cost">' + (task.cost || 0) + '🪙</td>';
+      html += '<td class="td-status">' + statusHtml + '</td>';
+      html += '<td class="td-progress">' + progressHtml + '</td>';
+      html += '<td class="td-elapsed">' + (task.startedAt ? fmtTime(task.startedAt) : '—') + '</td>';
+      html += '<td class="td-elapsed">' + (task.completedAt ? fmtTime(task.completedAt) : '—') + '</td>';
+      html += '<td class="td-elapsed">' + fmtTaskElapsed(task.startedAt, task.completedAt, task.status) + '</td>';
+      html += '<td class="td-op">' + actionHtml + '</td>';
+      html += '</tr>';
+      return html;
+    }
+
+    function renderVideoCardView(groups) {
+      var html = '<div class="video-card-view">';
+      for (var i = 0; i < groups.length; i++) {
+        html += renderVideoTaskGroup(groups[i]);
+      }
+      html += '</div>';
+      return html;
+    }
+
+    function renderVideoTaskGroup(group) {
+      var rows = group.rows;
+      var stCounts = countStatuses(rows);
+      var totalCost = rows.reduce(function(sum, row) { return sum + (row.cost || 0); }, 0);
+      var anyWmProc = rows.some(function(row) { return row.wmStatus === 'processing'; });
+      var isDraft = rows.some(function(row) { return row.status === 'draft'; });
+      var statusInfo = getTaskReportStatus(stCounts, rows.length, anyWmProc, isDraft);
+      var hasCompleted = stCounts.completed > 0;
+      var allCompleted = rows.length > 0 && stCounts.completed === rows.length;
+      var canClose = stCounts.queued > 0 || stCounts.generating > 0;
+      var tn = group.name;
+      var tnEsc = jsString(tn);
+      var wmDisabled = (!allCompleted || anyWmProc) ? ' disabled' : '';
+      var wmLabel = anyWmProc ? '合成中' : '水印字幕';
+      var html = '<section class="video-task-group">';
+      html += '<div class="video-group-head">';
+      html += '<div class="video-group-title"><div class="video-group-name" title="' + escapeHtml(tn) + '">' + escapeHtml(tn) + '</div>';
+      html += '<div class="video-group-meta"><span>' + rows.length + ' 条视频</span><span style="color:' + statusInfo.color + '">' + statusInfo.text + '</span><span>总消耗 ' + totalCost + '🪙</span></div></div>';
+      html += '<div class="video-group-actions">';
+      html += '<button class="task-report-action wm"' + wmDisabled + ' onclick="openBatchWmConfig(\'' + tnEsc + '\')">' + wmLabel + '</button>';
+      html += '<button class="task-report-action"' + (hasCompleted ? '' : ' disabled') + ' onclick="downloadTaskVideos(\'' + tnEsc + '\')">批量下载</button>';
+      html += '<button class="task-report-action danger"' + (canClose ? '' : ' disabled') + ' onclick="cancelGroupTask(\'' + tnEsc + '\')">关闭任务</button>';
+      html += '<button class="task-report-action danger" onclick="deleteTask(\'' + tnEsc + '\')">删除任务</button>';
+      html += '</div></div>';
+      html += '<div class="video-grid">';
+      for (var i = 0; i < rows.length; i++) {
+        html += renderVideoCard(rows[i]);
+      }
+      html += '</div></section>';
+      return html;
+    }
+
+    function renderVideoCard(task) {
+      var gradient = task.bg && task.bg.gradient ? task.bg.gradient : 'linear-gradient(135deg,#667eea,#764ba2)';
+      var person = task.person || { name: '角色', emoji: '👤' };
+      var canCancel = task.status === 'queued' || task.status === 'generating';
+      var canPreview = task.status === 'completed';
+      var canDownload = task.status === 'completed';
+      var canRetry = task.status === 'failed' || task.status === 'cancelled';
+      var status = getVideoCardStatus(task);
+      var overlay = getVideoCardOverlay(task);
+      var playBtn = canPreview ? '<button class="video-play-btn" type="button" id="card-play-btn-' + task.id + '" onclick="event.stopPropagation();toggleCardPlayback(' + task.id + ')">▶</button>' : '';
+      var playProgress = canPreview ? '<div class="video-progress"><div class="video-progress-fill" id="card-play-progress-' + task.id + '" style="width:0%"></div></div>' : '';
+      var coverAction = canPreview ? 'openPreview(' + task.id + ')' : "toast('" + jsString(status.text) + "')";
+      var generatingIndicator = task.status === 'generating' || task.wmStatus === 'processing'
+        ? '<div class="video-generating-indicator"><span>' + (task.wmStatus === 'processing' ? (task.wmProgress || 0) : (task.progress || 0)) + '%</span></div>'
+        : '';
+      var shortScript = task.script || '';
+      var html = '<article class="video-card" id="video-card-' + task.id + '">';
+      html += '<div class="video-cover" style="background:' + escapeHtml(gradient) + '" onclick="' + coverAction + '">';
+      html += '<div class="video-status-badge" style="background:' + status.bg + '">' + status.text + '</div>';
+      html += '<div class="video-cost-badge">' + (task.cost || 0) + '🪙</div>';
+      html += '<div class="video-cover-emoji">' + escapeHtml(person.emoji) + '</div>';
+      html += playBtn + playProgress + generatingIndicator;
+      html += '<div class="video-overlay">' + overlay + '</div>';
+      html += '</div>';
+      html += '<div class="video-card-body">';
+      html += '<div class="video-script" title="' + escapeHtml(shortScript) + '">' + escapeHtml(shortScript) + '</div>';
+      html += '<div class="video-card-meta"><span>时长 ' + (task.duration ? task.duration + 's' : '--') + '</span><span>' + fmtTaskElapsed(task.startedAt, task.completedAt, task.status) + '</span></div>';
+      html += '<div class="video-card-actions">';
+      html += '<button class="tg-op-btn" ' + (canCancel ? 'onclick="subtaskCancel(' + task.id + ')"' : 'disabled') + '>关闭</button>';
+      html += '<button class="tg-op-btn warn" ' + (canRetry ? 'onclick="retryTask(' + task.id + ')"' : 'disabled') + '>重试</button>';
+      html += '<button class="tg-op-btn retry" ' + (canPreview ? 'onclick="openPreview(' + task.id + ')"' : 'disabled') + '>预览</button>';
+      html += '<button class="tg-op-btn download" ' + (canDownload ? 'onclick="downloadVideo(' + task.id + ')"' : 'disabled') + '>下载</button>';
+      html += '</div></div></article>';
+      return html;
+    }
+
+    function getVideoCardStatus(task) {
+      if (task.status === 'completed' && task.wmStatus === 'processing') return { text: '字幕合成中', bg: 'rgba(245,158,11,0.88)' };
+      if (task.status === 'completed') return { text: '已完成', bg: 'rgba(5,150,105,0.88)' };
+      if (task.status === 'generating') return { text: '生成中', bg: 'rgba(47,107,255,0.88)' };
+      if (task.status === 'queued') return { text: '排队中', bg: 'rgba(245,158,11,0.88)' };
+      if (task.status === 'failed') return { text: '已失败', bg: 'rgba(239,68,68,0.88)' };
+      if (task.status === 'cancelled') return { text: '已取消', bg: 'rgba(100,116,139,0.88)' };
+      if (task.status === 'draft') return { text: '草稿', bg: 'rgba(100,116,139,0.88)' };
+      return { text: '未知', bg: 'rgba(15,23,42,0.66)' };
+    }
+
+    function getVideoCardOverlay(task) {
+      if (task.status === 'completed') return '点击预览，或直接播放';
+      if (task.status === 'generating') return '正在生成视频';
+      if (task.status === 'queued') return '等待资源调度';
+      if (task.status === 'failed') return task.error || '生成失败';
+      if (task.status === 'cancelled') return '任务已关闭';
+      if (task.status === 'draft') return '草稿待编辑';
+      return '待处理';
+    }
+
+    function updateTaskSummary(filtered) {
+      var genCount = 0;
+      var queuedCount = 0;
+      for (var i = 0; i < filtered.length; i++) {
+        if (filtered[i].status === 'generating') genCount++;
+        else if (filtered[i].status === 'queued') queuedCount++;
+      }
+      var eta = (genCount + queuedCount) > 0 ? Math.ceil((genCount + queuedCount) * 1.5) + '-' + Math.ceil((genCount + queuedCount) * 3) : '0';
+      var summaryEl = document.getElementById('task-summary');
+      summaryEl.innerHTML = '<div>共 <strong>' + filtered.length + '</strong> 条子任务 · 预计 <strong>' + eta + '</strong> 分钟</div>';
+      summaryEl.style.display = filtered.length > 0 ? 'flex' : 'none';
+      document.getElementById('task-total-count').textContent = filtered.length;
+      document.getElementById('task-total-time').textContent = eta;
+    }
+
+    function getTaskReportStatus(stCounts, total, anyWmProc, isDraft) {
+      if (isDraft) return { text: '草稿', color: '#888' };
+      if (stCounts.generating > 0 || anyWmProc) return { text: '生成中', color: '#0066ff' };
+      if (stCounts.queued > 0 && stCounts.generating === 0 && stCounts.completed === 0 && stCounts.failed === 0 && stCounts.cancelled === 0) return { text: '排队中', color: '#f59e0b' };
+      if (stCounts.failed > 0 && stCounts.completed === 0 && stCounts.generating === 0 && stCounts.queued === 0 && stCounts.cancelled === 0) return { text: '已失败', color: '#ef4444' };
+      if (stCounts.cancelled > 0 && stCounts.completed === 0 && stCounts.failed === 0 && stCounts.generating === 0 && stCounts.queued === 0) return { text: '已取消', color: '#999' };
+      if (stCounts.completed > 0 && stCounts.failed === 0 && stCounts.generating === 0 && stCounts.queued === 0 && stCounts.cancelled === 0) return { text: '已完成', color: '#059669' };
+      if (stCounts.completed > 0 && (stCounts.failed > 0 || stCounts.cancelled > 0) && stCounts.generating === 0 && stCounts.queued === 0) return { text: '部分成功', color: '#f59e0b' };
+      var parts = [];
+      if (stCounts.completed) parts.push(stCounts.completed + '完成');
+      if (stCounts.generating) parts.push(stCounts.generating + '生成中');
+      if (stCounts.queued) parts.push(stCounts.queued + '排队中');
+      if (stCounts.failed) parts.push(stCounts.failed + '失败');
+      if (stCounts.cancelled) parts.push(stCounts.cancelled + '已取消');
+      return { text: parts.join(', ') || '未知', color: '#333' };
+    }
+
+    function statusSummary(count) {
+      var parts = [];
+      if (count.generating) parts.push('<span class="count-pill">生成中 ' + count.generating + '</span>');
+      if (count.queued) parts.push('<span class="count-pill">排队 ' + count.queued + '</span>');
+      if (count.completed) parts.push('<span class="count-pill">完成 ' + count.completed + '</span>');
+      if (count.failed) parts.push('<span class="count-pill">失败 ' + count.failed + '</span>');
+      if (count.draft) parts.push('<span class="count-pill">草稿 ' + count.draft + '</span>');
+      if (count.cancelled) parts.push('<span class="count-pill">取消 ' + count.cancelled + '</span>');
+      return parts.join('') || '<span class="count-pill">-</span>';
+    }
+
+    function setFilter(key) {
+      currentFilter = key;
+      render();
+    }
+
+    function setTaskView(view) {
+      currentTaskView = view === 'card' ? 'card' : 'list';
+      stopCardPlayback();
+      render();
+    }
+
+    function updateViewToggle() {
+      var listBtn = document.getElementById('view-list-btn');
+      var cardBtn = document.getElementById('view-card-btn');
+      if (!listBtn || !cardBtn) return;
+      listBtn.classList.toggle('active', currentTaskView === 'list');
+      cardBtn.classList.toggle('active', currentTaskView === 'card');
+    }
+
+    function toggleTaskReportRow(detailId, btn) {
+      var row = document.getElementById(detailId);
+      if (!row) return;
+      var hidden = row.classList.toggle('is-hidden');
+      if (btn) btn.textContent = hidden ? '+' : '−';
+    }
+
+    function toggleGroupOpen(name) {
+      if (openGroups.has(name)) openGroups.delete(name);
+      else openGroups.add(name);
+      render();
+    }
+
+    function toggleGroupSelect(name, checked) {
+      if (checked) selectedGroups.add(name);
+      else selectedGroups.delete(name);
+      render();
+    }
+
+    function getTaskById(id) {
+      return loadTasks().find(function(t) { return t.id === id; });
+    }
+
+    function updateTask(id, updater) {
+      var tasks = loadTasks();
+      tasks = tasks.map(function(t) {
+        if (t.id === id) updater(t);
+        return t;
+      });
+      saveTasks(tasks);
+      render();
+    }
+
+    function editGroup(name) {
+      toast('打开「' + name + '」的编辑流程');
+      window.location.href = '简单模式-流程版.html?editDraft=1';
+    }
+
+    function retryGroup(name) {
+      var tasks = loadTasks();
+      tasks.forEach(function(t) {
+        if (t.taskName === name && t.status === 'failed') {
+          t.status = 'queued';
+          t.progress = 0;
+          t.error = null;
+          t.completedAt = null;
+        }
+      });
+      saveTasks(tasks);
+      toast('失败视频已重新排队');
+      render();
+    }
+
+    function retryRow(id) {
+      updateTask(id, function(t) {
+        t.status = 'queued';
+        t.progress = 0;
+        t.error = null;
+        t.completedAt = null;
+      });
+      toast('已重新排队');
+    }
+
+    function cancelRow(id) {
+      updateTask(id, function(t) {
+        t.status = 'cancelled';
+        t.progress = 0;
+        t.completedAt = new Date().toISOString();
+      });
+      toast('任务已关闭');
+    }
+
+    function downloadRow(id) {
+      var row = getTaskById(id);
+      toast(row ? '开始下载：' + row.taskName : '开始下载');
+    }
+
+    function downloadVideo(id) {
+      downloadRow(id);
+    }
+
+    function downloadGroup(name) {
+      toast('开始打包下载：' + name);
+    }
+
+    function downloadTaskVideos(taskName) {
+      var rows = loadTasks().filter(function(t) { return t.taskName === taskName && t.status === 'completed'; });
+      if (!rows.length) {
+        toast('该任务没有已完成的视频');
+        return;
+      }
+      toast('已下载「' + taskName + '」的 ' + rows.length + ' 条视频');
+    }
+
+    function batchDownload() {
+      toast('开始批量下载 ' + selectedGroups.size + ' 个批次');
+    }
+
+    function batchDownloadAllTasks() {
+      batchDownload();
+    }
+
+    function batchDelete() {
+      if (!selectedGroups.size) return;
+      if (!confirm('确认删除已选批次？此操作仅影响当前原型数据。')) return;
+      var tasks = loadTasks().filter(function(t) { return !selectedGroups.has(t.taskName); });
+      selectedGroups.clear();
+      saveTasks(tasks);
+      render();
+      toast('已删除选中批次');
+    }
+
+    function batchDeleteTasks() {
+      batchDelete();
+    }
+
+    function openBatchWmConfig(taskName) {
+      openWmConfig(taskName);
+    }
+
+    function cancelGroupTask(taskName) {
+      var tasks = loadTasks();
+      var count = 0;
+      tasks.forEach(function(t) {
+        if (t.taskName === taskName && (t.status === 'queued' || t.status === 'generating')) count++;
+      });
+      if (!count) {
+        toast('该任务没有正在排队或生成中的视频');
+        return;
+      }
+      if (!confirm('确认关闭「' + taskName + '」中 ' + count + ' 条视频的生成？已完成的视频不受影响。')) return;
+      tasks.forEach(function(t) {
+        if (t.taskName === taskName && (t.status === 'queued' || t.status === 'generating')) {
+          t.status = 'cancelled';
+          t.progress = 0;
+          t.completedAt = new Date().toISOString();
+        }
+      });
+      saveTasks(tasks);
+      render();
+      toast('已关闭任务「' + taskName + '」');
+    }
+
+    function deleteTask(taskName) {
+      if (!confirm('确认删除任务「' + taskName + '」及其所有子任务？此操作不可恢复。')) return;
+      var tasks = loadTasks().filter(function(t) { return t.taskName !== taskName; });
+      selectedGroups.delete(taskName);
+      saveTasks(tasks);
+      render();
+      toast('已删除任务「' + taskName + '」');
+    }
+
+    function retryTask(id) {
+      retryRow(id);
+    }
+
+    function subtaskCancel(id) {
+      cancelRow(id);
+    }
+
+    function openPreview(id) {
+      var row = getTaskById(id);
+      if (!row) return;
+      document.getElementById('previewTitle').textContent = row.taskName + ' · 视频预览';
+      document.getElementById('phonePerson').textContent = row.person.emoji || '👤';
+      document.getElementById('phoneStage').style.background = row.bg.gradient || 'linear-gradient(135deg,#1d4ed8,#0f172a)';
+      document.getElementById('phoneTag').textContent = row.bg.name + ' · ' + row.person.name;
+      document.getElementById('phoneSubtitle').textContent = row.script;
+      document.getElementById('previewSubText').value = row.script;
+      document.getElementById('previewOverlay').classList.add('show');
+      previewProgress = 0;
+      previewPlaying = false;
+      syncPreviewProgress();
+    }
+
+    function closePreview() {
+      document.getElementById('previewOverlay').classList.remove('show');
+      stopPreview();
+    }
+
+    function togglePlay() {
+      previewPlaying = !previewPlaying;
+      document.getElementById('playLarge').classList.toggle('playing', previewPlaying);
+      document.getElementById('playBtn').textContent = previewPlaying ? '暂停' : '播放';
+      if (previewPlaying) {
+        previewTimer = setInterval(function() {
+          previewProgress += 2;
+          if (previewProgress >= 100) {
+            previewProgress = 100;
+            stopPreview();
+          }
+          syncPreviewProgress();
+        }, 180);
+      } else {
+        stopPreview(false);
+      }
+    }
+
+    function stopPreview(resetLarge) {
+      if (previewTimer) clearInterval(previewTimer);
+      previewTimer = null;
+      previewPlaying = false;
+      document.getElementById('playBtn').textContent = '播放';
+      if (resetLarge !== false) document.getElementById('playLarge').classList.remove('playing');
+    }
+
+    function seekPreview(e) {
+      var rect = e.currentTarget.getBoundingClientRect();
+      previewProgress = Math.max(0, Math.min(100, Math.round((e.clientX - rect.left) / rect.width * 100)));
+      syncPreviewProgress();
+    }
+
+    function syncPreviewProgress() {
+      document.getElementById('previewFill').style.width = previewProgress + '%';
+      var sec = Math.round(previewProgress / 100 * 12);
+      document.getElementById('previewTime').textContent = '0:' + pad(sec) + ' / 0:12';
+    }
+
+    function syncPreviewText() {
+      var sub = document.getElementById('previewSubText').value || '字幕示例';
+      document.getElementById('phoneSubtitle').textContent = sub;
+    }
+
+    function toggleCardPlayback(id) {
+      if (cardPlayingId === id) {
+        stopCardPlayback();
+        return;
+      }
+      stopCardPlayback();
+      cardPlayingId = id;
+      cardPlaybackProgress = 0;
+      var card = document.getElementById('video-card-' + id);
+      var btn = document.getElementById('card-play-btn-' + id);
+      if (card) card.classList.add('video-playing');
+      if (btn) btn.textContent = 'Ⅱ';
+      syncCardPlaybackProgress();
+      cardPlaybackTimer = setInterval(function() {
+        cardPlaybackProgress = Math.min(100, cardPlaybackProgress + 2);
+        syncCardPlaybackProgress();
+        if (cardPlaybackProgress >= 100) {
+          stopCardPlayback();
+        }
+      }, 160);
+    }
+
+    function syncCardPlaybackProgress() {
+      if (!cardPlayingId) return;
+      var fill = document.getElementById('card-play-progress-' + cardPlayingId);
+      if (fill) fill.style.width = cardPlaybackProgress + '%';
+    }
+
+    function stopCardPlayback() {
+      if (cardPlaybackTimer) clearInterval(cardPlaybackTimer);
+      if (cardPlayingId) {
+        var card = document.getElementById('video-card-' + cardPlayingId);
+        var btn = document.getElementById('card-play-btn-' + cardPlayingId);
+        var fill = document.getElementById('card-play-progress-' + cardPlayingId);
+        if (card) card.classList.remove('video-playing');
+        if (btn) btn.textContent = '▶';
+        if (fill) fill.style.width = '0%';
+      }
+      cardPlaybackTimer = null;
+      cardPlayingId = null;
+      cardPlaybackProgress = 0;
+    }
+
+    function openWmConfig(name) {
+      currentWmTask = name;
+      document.getElementById('wmTaskName').textContent = name;
+      document.getElementById('wmOverlay').classList.add('show');
+      syncWmPreview();
+    }
+
+    function closeWmConfig() {
+      document.getElementById('wmOverlay').classList.remove('show');
+      currentWmTask = null;
+    }
+
+    function syncWmPreview() {
+      var wmOn = document.getElementById('wmEnabled').checked;
+      var subOn = document.getElementById('subEnabled').checked;
+      var wm = document.getElementById('wmPreviewText');
+      var sub = document.getElementById('wmPreviewSub');
+      wm.textContent = document.getElementById('wmInput').value || '添加水印';
+      sub.textContent = document.getElementById('subInput').value || '字幕示例';
+      wm.style.display = wmOn ? 'block' : 'none';
+      sub.style.display = subOn ? 'block' : 'none';
+      wm.style.opacity = document.getElementById('wmOpacity').value;
+      var pos = document.getElementById('wmPos').value;
+      wm.style.top = pos.indexOf('t') > -1 ? '18px' : 'auto';
+      wm.style.bottom = pos.indexOf('b') > -1 ? '76px' : 'auto';
+      wm.style.left = pos.indexOf('l') > -1 ? '14px' : 'auto';
+      wm.style.right = pos.indexOf('r') > -1 ? '14px' : 'auto';
+      var subPos = document.getElementById('subPos').value;
+      sub.style.top = subPos === 'top' ? '58px' : (subPos === 'middle' ? '50%' : 'auto');
+      sub.style.bottom = subPos === 'bottom' ? '30px' : 'auto';
+      sub.style.transform = subPos === 'middle' ? 'translateY(-50%)' : 'none';
+    }
+
+    function resetWmConfig() {
+      document.getElementById('wmEnabled').checked = true;
+      document.getElementById('subEnabled').checked = true;
+      document.getElementById('wmInput').value = '投顾观点仅供参考';
+      document.getElementById('subInput').value = '字幕示例';
+      document.getElementById('wmOpacity').value = 0.85;
+      document.getElementById('wmPos').value = 'lt';
+      document.getElementById('subPos').value = 'bottom';
+      syncWmPreview();
+    }
+
+    function saveWmConfig() {
+      var name = currentWmTask || '当前批次';
+      closeWmConfig();
+      toast('已应用至批次：' + name);
+    }
+
+    function copyError(text) {
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(text).then(function() { toast('错误信息已复制'); });
+      } else {
+        toast(text);
+      }
+    }
+
+    function copyErrorText(text) {
+      copyError(text);
+    }
+
+    function refreshMock() {
+      var tasks = loadTasks();
+      var changed = false;
+      tasks.forEach(function(t) {
+        if (t.status === 'generating') {
+          t.progress = Math.min(100, t.progress + Math.floor(Math.random() * 18) + 8);
+          if (t.progress >= 100) {
+            t.status = 'completed';
+            t.completedAt = new Date().toISOString();
+          }
+          changed = true;
+        }
+        if (t.status === 'queued' && Math.random() > 0.65) {
+          t.status = 'generating';
+          t.progress = 8;
+          t.startedAt = new Date().toISOString();
+          changed = true;
+        }
+      });
+      saveTasks(tasks);
+      render();
+      toast(changed ? '任务状态已刷新' : '暂无可刷新的任务');
+    }
+
+    function resetSeed() {
+      selectedGroups.clear();
+      openGroups.clear();
+      saveTasks(seedTasks);
+      render();
+      toast('已重置演示数据');
+    }
+
+    function render() {
+      var tasks = loadTasks();
+      renderStats(tasks);
+      renderTaskSelect(tasks);
+      updateViewToggle();
+      renderList(tasks);
+      renderBatchBar();
+    }
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        closePreview();
+        closeWmConfig();
+      }
+    });
+
+    receiveCreatedTasks();
+    render();
+  </script>
+</body>
+</html>
