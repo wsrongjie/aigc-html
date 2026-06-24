@@ -1541,29 +1541,36 @@
             }
         }
 
-        const hiddenTagCount = Math.max(0, tagOptions.length - visibleTagOptions.length);
-        rows.push(renderFilterLine("行业", industryOptions.map(item => buildChip(item, state.industry === item && !state.onlyAdded, "setIndustry", item))));
-        rows.push(renderFilterLine("标签", visibleTagOptions.map(item => buildChip(item, state.tag === item && !state.onlyAdded, "setTag", item)).concat(
-            tagOptions.length > tagLimit + 1
-                ? ['<button class="chip" onclick="toggleAllTags()">' + (state.tagsExpanded ? "收起标签" : "更多标签" + (hiddenTagCount ? " +" + hiddenTagCount : "")) + '</button>']
-                : []
-        )));
+        var hiddenTagCount = Math.max(0, tagOptions.length - visibleTagOptions.length);
+        if (state.type !== 'voice') {
+            rows.push(renderFilterLine("行业", industryOptions.map(function(item) { return buildChip(item, state.industry === item && !state.onlyAdded, "setIndustry", item); })));
+            rows.push(renderFilterLine("标签", visibleTagOptions.map(function(item) { return buildChip(item, state.tag === item && !state.onlyAdded, "setTag", item); }).concat(
+                tagOptions.length > tagLimit + 1
+                    ? ['<button class="chip" onclick="toggleAllTags()">' + (state.tagsExpanded ? "收起标签" : "更多标签" + (hiddenTagCount ? " +" + hiddenTagCount : "")) + '</button>']
+                    : []
+            )));
+        }
 
-        attrSchemas[state.type].forEach(schema => {
-            const options = ["全部"].concat(uniqueValues(typeResources.map(item => item[schema.key])));
-            advancedRows.push(renderFilterLine(schema.label, options.map(item => buildChip(item, (state.attrs[schema.key] || "全部") === item && !state.onlyAdded, "setAttr", item, schema.key))));
+        attrSchemas[state.type].forEach(function(schema) {
+            var options = ["全部"].concat(uniqueValues(typeResources.map(function(item) { return item[schema.key]; })));
+            var line = renderFilterLine(schema.label, options.map(function(item) { return buildChip(item, (state.attrs[schema.key] || "全部") === item && !state.onlyAdded, "setAttr", item, schema.key); }));
+            if (state.type === 'voice') {
+                rows.push(line);
+            } else {
+                advancedRows.push(line);
+            }
         });
 
-        const activeAttrCount = Object.keys(state.attrs).length;
-        const head = '<div class="filter-panel-head">' +
-            '<div><div class="filter-panel-title">筛选官方' + typeLabels[state.type] + '</div><div class="filter-panel-sub">行业和标签常用，属性筛选可展开后组合使用</div></div>' +
+        var activeAttrCount = Object.keys(state.attrs).length;
+        var head = '<div class="filter-panel-head">' +
+            '<div class="filter-panel-title">' + typeLabels[state.type] + '</div>' +
             '<div class="filter-actions">' +
                 '<button class="filter-action' + (state.onlyAdded ? ' active' : '') + '" onclick="setOnlyAdded()">已加入资产库</button>' +
-                '<button class="filter-action" onclick="toggleAdvancedFilters()">' + (state.filtersExpanded ? "收起筛选" : "更多筛选" + (activeAttrCount ? " · " + activeAttrCount : "")) + '</button>' +
+                (state.type !== 'voice' ? '<button class="filter-action" onclick="toggleAdvancedFilters()">' + (state.filtersExpanded ? "收起筛选" : "更多筛选" + (activeAttrCount ? " · " + activeAttrCount : "")) + '</button>' : '') +
             '</div>' +
         '</div>';
         panel.innerHTML = head + rows.join("") +
-            '<div class="advanced-filters' + (state.filtersExpanded ? ' show' : '') + '">' + advancedRows.join("") + '</div>' +
+            (state.type !== 'voice' ? '<div class="advanced-filters' + (state.filtersExpanded ? ' show' : '') + '">' + advancedRows.join("") + '</div>' : '') +
             renderSelectedFilters();
     }
 
