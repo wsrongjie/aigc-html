@@ -420,7 +420,19 @@
         }
         .voice-preview-title { font-size: 18px; font-weight: 900; }
         .voice-preview-meta { color: var(--text-secondary); line-height: 1.7; font-size: 13px; }
-        .scene-visual { height: auto; aspect-ratio: 9 / 16; max-height: 300px; }
+        .scene-card {
+            aspect-ratio: 9 / 16;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .scene-card .resource-visual {
+            flex: 1;
+            height: auto;
+            aspect-ratio: unset;
+            max-height: none;
+        }
+        .scene-card .resource-body { flex-shrink: 0; }
         .scene-visual.finance { background: linear-gradient(135deg,#dbeafe 0%,#93c5fd 44%,#1e3a8a 100%); }
         .scene-visual.studio { background: linear-gradient(135deg,#f8fafc 0%,#cbd5e1 46%,#334155 100%); }
         .scene-visual.office { background: linear-gradient(135deg,#ecfeff 0%,#99f6e4 44%,#0f766e 100%); }
@@ -1644,7 +1656,7 @@
         const secondaryAction = item.type === "template"
             ? '<button class="btn btn-primary" onclick="openSameModal(\'' + item.id + '\')">一键同款</button>'
             : '<button class="btn ' + (added ? 'btn-added' : 'btn-primary') + '" onclick="toggleAsset(\'' + item.id + '\')">' + (added ? "移出资产库" : "加入资产库") + '</button>';
-        return '<article class="resource-card' + (item.type === "voice" ? ' voice-card' : '') + '">' +
+        return '<article class="resource-card' + (item.type === "voice" ? ' voice-card' : '') + (item.type === "scene" ? ' scene-card' : '') + '">' +
             visual +
             '<div class="resource-body">' +
                 badge +
