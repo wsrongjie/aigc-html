@@ -232,7 +232,14 @@
             font-weight: 800;
         }
         .filter-toggle:hover { color: var(--primary); background: var(--primary-soft); }
-        .filter-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+        .filter-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; align-items: center; }
+        .sort-select {
+            height: 30px; border: 1px solid var(--border); border-radius: 8px;
+            padding: 0 8px; font-size: 12px; font-family: inherit;
+            background: #fff; color: var(--text-secondary); outline: none;
+            cursor: pointer;
+        }
+        .sort-select:focus { border-color: var(--primary); }
         .filter-action {
             height: 30px;
             padding: 0 10px;
@@ -365,7 +372,23 @@
             backdrop-filter: blur(10px);
             z-index: 2;
         }
-        .voice-card .resource-body { padding-top: 18px; }
+        .used-badge {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            height: 24px;
+            padding: 0 9px;
+            border-radius: 999px;
+            background: rgba(0,0,0,.55);
+            color: #fff;
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            font-size: 11px;
+            backdrop-filter: blur(10px);
+            z-index: 2;
+        }
+        .voice-card .resource-body { padding-top: 18px; position: relative; }
         .resource-badge-row {
             display: flex;
             align-items: center;
@@ -1128,7 +1151,8 @@
             score: 96,
             favs: 128,
             createdAt: "2026-06-20",
-            sample: "市场短期波动并不意味着趋势反转，投资者更需要关注基本面和风险承受能力。"
+            sample: "市场短期波动并不意味着趋势反转，投资者更需要关注基本面和风险承受能力。",
+            used: 1856
         },
         {
             id: "voice-finance-female-b",
@@ -1145,7 +1169,8 @@
             score: 94,
             favs: 96,
             createdAt: "2026-06-18",
-            sample: "定投并不是保证收益的工具，而是一种帮助普通投资者平滑入场节奏的方法。"
+            sample: "定投并不是保证收益的工具，而是一种帮助普通投资者平滑入场节奏的方法。",
+            used: 1432
         },
         {
             id: "voice-news-c",
@@ -1162,7 +1187,8 @@
             score: 91,
             favs: 74,
             createdAt: "2026-06-12",
-            sample: "投资有风险，过往业绩不代表未来表现，请结合自身风险承受能力审慎决策。"
+            sample: "投资有风险，过往业绩不代表未来表现，请结合自身风险承受能力审慎决策。",
+            used: 987
         },
         {
             id: "voice-fast-f",
@@ -1179,7 +1205,8 @@
             score: 89,
             favs: 61,
             createdAt: "2026-06-14",
-            sample: "今天这个热点背后，真正值得关注的是它对市场预期和风险偏好的影响。"
+            sample: "今天这个热点背后，真正值得关注的是它对市场预期和风险偏好的影响。",
+            used: 756
         },
 
         {
@@ -1196,7 +1223,8 @@
             desc: "背景包含行情图表与蓝色数据屏，适合市场收评和产品解读。",
             score: 98,
             favs: 142,
-            createdAt: "2026-06-21"
+            createdAt: "2026-06-21",
+            used: 2134
         },
         {
             id: "scene-risk-dark",
@@ -1212,7 +1240,8 @@
             desc: "深色背景配合风险指标和合规提示，适合风险教育内容。",
             score: 92,
             favs: 77,
-            createdAt: "2026-06-16"
+            createdAt: "2026-06-16",
+            used: 1267
         },
         {
             id: "scene-service-office",
@@ -1228,7 +1257,8 @@
             desc: "明亮办公环境，适合投顾服务介绍、客户流程说明。",
             score: 90,
             favs: 68,
-            createdAt: "2026-06-11"
+            createdAt: "2026-06-11",
+            used: 892
         },
         {
             id: "scene-warm-library",
@@ -1244,7 +1274,8 @@
             desc: "书架与暖色灯光组合，适合理财科普和新手教育。",
             score: 93,
             favs: 83,
-            createdAt: "2026-06-19"
+            createdAt: "2026-06-19",
+            used: 1589
         },
 
         {
@@ -1266,7 +1297,8 @@
             role: "模板角色 · 资深投顾讲解员",
             voice: { name: "沉稳男声 A", meta: "男声 · 财经 · 专业克制" },
             bg: "现代财经演播室",
-            script: "市场短期波动并不意味着趋势反转，投资者更需要关注基本面、估值水平和自身风险承受能力。"
+            script: "市场短期波动并不意味着趋势反转，投资者更需要关注基本面、估值水平和自身风险承受能力。",
+            used: 2456
         },
         {
             id: "tpl-fund-edu",
@@ -1287,7 +1319,8 @@
             role: "模板角色 · 理财科普讲解员",
             voice: { name: "知性女声 B", meta: "女声 · 知识 · 清晰亲和" },
             bg: "温和书房口播场景",
-            script: "基金定投的核心不是预测最低点，而是通过分批投入平滑成本，并用长期纪律对抗短期情绪。"
+            script: "基金定投的核心不是预测最低点，而是通过分批投入平滑成本，并用长期纪律对抗短期情绪。",
+            used: 1876
         },
         {
             id: "tpl-risk-alert",
@@ -1308,7 +1341,8 @@
             role: "模板角色 · 风控讲解员",
             voice: { name: "新闻播报 C", meta: "中性 · 播报 · 稳定权威" },
             bg: "深色风控看板",
-            script: "任何投资都伴随风险，过往业绩不代表未来表现。做决策前，请充分了解产品特征和自身风险承受能力。"
+            script: "任何投资都伴随风险，过往业绩不代表未来表现。做决策前，请充分了解产品特征和自身风险承受能力。",
+            used: 1123
         },
         {
             id: "tpl-hotspot",
@@ -1329,7 +1363,8 @@
             role: "模板角色 · 快评主持人",
             voice: { name: "快讯男声 F", meta: "男声 · 播报 · 节奏明快" },
             bg: "现代财经演播室",
-            script: "今天这个热点背后，真正值得关注的是它对市场预期和风险偏好的影响，而不是单日涨跌本身。"
+            script: "今天这个热点背后，真正值得关注的是它对市场预期和风险偏好的影响，而不是单日涨跌本身。",
+            used: 678
         }
     ];
 
@@ -1362,7 +1397,7 @@
         industry: "全部行业",
         tag: "全部标签",
         attrs: {},
-        sort: "default",
+        sort: "used",
         onlyAdded: false,
         filtersExpanded: false,
         tagsExpanded: false
@@ -1433,6 +1468,11 @@
             state.attrs[key] = value;
         }
         state.onlyAdded = false;
+        render();
+    }
+
+    function setSort(value) {
+        state.sort = value;
         render();
     }
 
@@ -1508,8 +1548,8 @@
         const added = getAdded();
         return resources
             .filter(item => item.type === state.type)
-            .filter(item => state.industry === "全部行业" || item.industry === state.industry)
-            .filter(item => state.tag === "全部标签" || item.tags.indexOf(state.tag) >= 0)
+            .filter(item => state.type === 'voice' || state.industry === "全部行业" || item.industry === state.industry)
+            .filter(item => state.type === 'voice' || state.tag === "全部标签" || item.tags.indexOf(state.tag) >= 0)
             .filter(item => Object.keys(state.attrs).every(key => item[key] === state.attrs[key]))
             .filter(item => {
                 if (!state.query) return true;
@@ -1519,6 +1559,7 @@
             })
             .filter(item => !state.onlyAdded || added.indexOf(item.id) >= 0)
             .sort((a, b) => {
+                if (state.sort === "used") return b.used - a.used;
                 if (state.sort === "newest") return b.createdAt.localeCompare(a.createdAt);
                 return resources.indexOf(a) - resources.indexOf(b);
             });
@@ -1565,6 +1606,10 @@
         var head = '<div class="filter-panel-head">' +
             '<div class="filter-panel-title">' + typeLabels[state.type] + '</div>' +
             '<div class="filter-actions">' +
+                '<select class="sort-select" onchange="setSort(this.value)">' +
+                    '<option value="used"' + (state.sort === 'used' ? ' selected' : '') + '>引用次数</option>' +
+                    '<option value="newest"' + (state.sort === 'newest' ? ' selected' : '') + '>最新添加</option>' +
+                '</select>' +
                 '<button class="filter-action' + (state.onlyAdded ? ' active' : '') + '" onclick="setOnlyAdded()">已加入资产库</button>' +
                 (state.type !== 'voice' ? '<button class="filter-action" onclick="toggleAdvancedFilters()">' + (state.filtersExpanded ? "收起筛选" : "更多筛选" + (activeAttrCount ? " · " + activeAttrCount : "")) + '</button>' : '') +
             '</div>' +
@@ -1585,12 +1630,14 @@
 
     function renderCard(item) {
         const added = isAdded(item.id);
+        const usedHtml = '<span class="used-badge">📋 ' + item.used.toLocaleString('zh-CN') + '</span>';
         const visual = item.type === "voice" ? "" :
             '<div class="resource-visual ' + (item.type === "scene" ? 'scene-visual ' + item.visual : 'template-visual') + '">' +
                 '<span class="official-badge">官方资源</span>' +
+                usedHtml +
                 buildVisual(item) +
             '</div>';
-        const badge = item.type === "voice" ? '<div class="resource-badge-row"><span class="resource-badge">官方资源</span></div>' : "";
+        const badge = item.type === "voice" ? '<div class="resource-badge-row"><span class="resource-badge">官方资源</span>' + usedHtml + '</div>' : "";
         const secondaryAction = item.type === "template"
             ? '<button class="btn btn-primary" onclick="openSameModal(\'' + item.id + '\')">一键同款</button>'
             : '<button class="btn ' + (added ? 'btn-added' : 'btn-primary') + '" onclick="toggleAsset(\'' + item.id + '\')">' + (added ? "移出资产库" : "加入资产库") + '</button>';
