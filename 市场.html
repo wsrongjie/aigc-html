@@ -1606,6 +1606,7 @@
         var head = '<div class="filter-panel-head">' +
             '<div class="filter-panel-title">' + typeLabels[state.type] + '</div>' +
             '<div class="filter-actions">' +
+                '<span style="font-size:12px;color:var(--text-muted);white-space:nowrap;">排序：</span>' +
                 '<select class="sort-select" onchange="setSort(this.value)">' +
                     '<option value="used"' + (state.sort === 'used' ? ' selected' : '') + '>引用次数</option>' +
                     '<option value="newest"' + (state.sort === 'newest' ? ' selected' : '') + '>最新添加</option>' +
