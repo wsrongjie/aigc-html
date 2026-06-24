@@ -1,0 +1,2081 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>市场 - 官方元素库</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --primary: #2f6bff;
+            --primary-soft: #e8efff;
+            --sidebar-bg: #1C1C1E;
+            --sidebar-text: #A1A1AA;
+            --border: #E4E4E7;
+            --text-primary: #18181B;
+            --text-secondary: #71717A;
+            --text-muted: #A1A1AA;
+            --bg: #F7F7F8;
+            --card: #FFFFFF;
+            --success: #059669;
+            --warning: #d97706;
+            --danger: #dc2626;
+            --radius: 12px;
+            --shadow: 0 1px 3px rgba(0,0,0,0.08);
+            --shadow-md: 0 14px 32px rgba(15,23,42,0.10);
+        }
+        body {
+            min-height: 100vh;
+            display: flex;
+            background: var(--bg);
+            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+            font-size: 14px;
+        }
+        button, input, select { font: inherit; }
+        button { cursor: pointer; border: 0; }
+        a { color: inherit; text-decoration: none; }
+
+        .sidebar {
+            width: 220px;
+            min-height: 100vh;
+            background: var(--sidebar-bg);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+        .sidebar-logo { padding: 24px 20px 20px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+        .logo-mark { display: flex; align-items: center; gap: 10px; }
+        .logo-icon {
+            width: 32px; height: 32px; border-radius: 8px; background: var(--primary);
+            display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 800;
+        }
+        .logo-text { color: #fff; font-weight: 700; font-size: 15px; }
+        .logo-sub { color: var(--sidebar-text); font-size: 11px; margin-top: 2px; }
+        .sidebar-nav { flex: 1; padding: 12px 0; overflow-y: auto; }
+        .nav-section { padding: 8px 0; }
+        .nav-section-title {
+            padding: 6px 20px;
+            color: var(--sidebar-text);
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            transition: all .15s;
+        }
+        .nav-section-title:hover { color: #E4E4E7; background: rgba(255,255,255,0.04); }
+        .nav-section-title.active {
+            color: #fff;
+            background: rgba(47,107,255,0.15);
+            border-left: 3px solid var(--primary);
+        }
+        .nav-section-children { display: flex; flex-direction: column; }
+        .nav-sub-item {
+            display: flex; align-items: center; gap: 10px; padding: 9px 20px 9px 36px;
+            color: var(--sidebar-text); border-left: 3px solid transparent; font-size: 13px;
+        }
+        .nav-sub-item:hover { color: #E4E4E7; background: rgba(255,255,255,0.04); }
+        .sidebar-bottom { padding: 16px 20px; border-top: 1px solid rgba(255,255,255,0.06); }
+        .user-info { display: flex; align-items: center; gap: 10px; }
+        .user-avatar {
+            width: 32px; height: 32px; border-radius: 50%; background: var(--primary);
+            color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700;
+        }
+        .user-name { color: #E4E4E7; font-size: 13px; }
+        .user-role { color: var(--sidebar-text); font-size: 11px; }
+        .sidebar-credits {
+            margin-top: 12px; padding: 10px 12px; background: rgba(255,255,255,0.04);
+            border-radius: 8px; display: flex; align-items: center; gap: 8px; color: #fff;
+        }
+        .sidebar-credits .sc-label { color: var(--sidebar-text); font-size: 11px; }
+        .sidebar-credits .sc-value { margin-left: auto; font-weight: 800; }
+
+        .main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+        .topbar {
+            height: 56px; background: #fff; border-bottom: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: space-between; padding: 0 28px;
+            position: sticky; top: 0; z-index: 10;
+        }
+        .topbar-title { font-size: 16px; font-weight: 800; }
+        .topbar-desc { color: var(--text-muted); font-size: 12px; margin-left: 14px; }
+        .topbar-left { display: flex; align-items: baseline; gap: 2px; min-width: 0; }
+        .btn {
+            height: 36px; padding: 0 14px; border-radius: 9px; border: 1px solid var(--border);
+            background: #fff; color: var(--text-primary); display: inline-flex; align-items: center;
+            justify-content: center; gap: 8px; font-weight: 700; font-size: 13px;
+        }
+        .btn:hover { border-color: var(--primary); color: var(--primary); }
+        .btn-primary { border-color: var(--primary); background: var(--primary); color: #fff; }
+        .btn-primary:hover { background: #1d4ed8; color: #fff; }
+        .btn-ghost { border-color: transparent; background: var(--primary-soft); color: var(--primary); }
+
+        .content { padding: 24px 28px 42px; overflow-y: auto; }
+        .market-head {
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            background:
+                linear-gradient(135deg, rgba(47,107,255,.10), rgba(20,184,166,.08)),
+                #fff;
+            box-shadow: var(--shadow);
+            padding: 22px;
+            margin-bottom: 18px;
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 320px;
+            gap: 20px;
+            align-items: center;
+        }
+        .market-kicker {
+            display: inline-flex; align-items: center; height: 24px; padding: 0 10px;
+            border-radius: 999px; background: #ecfeff; color: #0f766e; font-weight: 800; font-size: 11px;
+            margin-bottom: 10px;
+        }
+        .market-title { font-size: 28px; line-height: 1.2; font-weight: 900; letter-spacing: 0; }
+        .market-copy { margin-top: 8px; color: var(--text-secondary); line-height: 1.7; max-width: 720px; }
+        .market-metrics {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 10px;
+        }
+        .metric-card {
+            min-height: 82px;
+            border-radius: 12px;
+            border: 1px solid rgba(47,107,255,.16);
+            background: rgba(255,255,255,.76);
+            padding: 13px 14px;
+        }
+        .metric-card strong { display: block; font-size: 22px; margin-bottom: 4px; }
+        .metric-card span { color: var(--text-secondary); font-size: 12px; }
+
+        .toolbar {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            box-shadow: var(--shadow);
+            padding: 14px;
+            display: grid;
+            grid-template-columns: auto minmax(220px, 1fr);
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        .search-box {
+            height: 38px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 0 12px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: #fafafa;
+        }
+        .search-box input { width: 100%; border: 0; outline: 0; background: transparent; color: var(--text-primary); }
+        .tabbar {
+            display: inline-flex;
+            height: 38px;
+            padding: 3px;
+            border-radius: 10px;
+            background: #f4f4f5;
+            border: 1px solid #ededf0;
+            gap: 3px;
+        }
+        .tab-btn {
+            min-width: 92px;
+            height: 30px;
+            border-radius: 8px;
+            background: transparent;
+            color: var(--text-secondary);
+            font-weight: 800;
+            font-size: 13px;
+        }
+        .tab-btn.active { background: #fff; color: var(--primary); box-shadow: 0 1px 5px rgba(15,23,42,.08); }
+        .select {
+            height: 38px;
+            min-width: 128px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            padding: 0 10px;
+            background: #fff;
+            color: var(--text-primary);
+            outline: 0;
+            font-weight: 700;
+            font-size: 13px;
+        }
+        .filter-panel {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            box-shadow: var(--shadow);
+            padding: 12px 14px;
+            margin-bottom: 18px;
+        }
+        .filter-panel-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #f1f1f3;
+        }
+        .filter-panel-title { font-size: 13px; font-weight: 900; }
+        .filter-panel-sub { color: var(--text-muted); font-size: 12px; margin-top: 2px; }
+        .filter-toggle {
+            height: 30px;
+            padding: 0 10px;
+            border-radius: 8px;
+            background: #f4f4f5;
+            color: var(--text-secondary);
+            font-size: 12px;
+            font-weight: 800;
+        }
+        .filter-toggle:hover { color: var(--primary); background: var(--primary-soft); }
+        .filter-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+        .filter-action {
+            height: 30px;
+            padding: 0 10px;
+            border-radius: 8px;
+            background: #f4f4f5;
+            color: var(--text-secondary);
+            font-size: 12px;
+            font-weight: 800;
+        }
+        .filter-action:hover { color: var(--primary); background: var(--primary-soft); }
+        .filter-action.active { color: #fff; background: var(--primary); }
+        .filter-line {
+            display: grid;
+            grid-template-columns: 76px minmax(0, 1fr);
+            gap: 10px;
+            align-items: flex-start;
+            padding: 7px 0;
+        }
+        .filter-line + .filter-line { border-top: 1px solid #f1f1f3; }
+        .filter-label {
+            height: 30px;
+            display: flex;
+            align-items: center;
+            color: var(--text-muted);
+            font-size: 12px;
+            font-weight: 800;
+        }
+        .filter-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            min-width: 0;
+        }
+        .selected-filters {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 10px 0 3px;
+            border-top: 1px solid #f1f1f3;
+        }
+        .selected-filter-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            min-width: 0;
+        }
+        .selected-chip {
+            height: 28px;
+            padding: 0 9px 0 10px;
+            border-radius: 999px;
+            background: var(--primary-soft);
+            color: var(--primary);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            font-weight: 800;
+        }
+        .selected-chip button {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: rgba(47,107,255,.12);
+            color: var(--primary);
+            line-height: 16px;
+            font-size: 12px;
+        }
+        .clear-filters {
+            height: 28px;
+            padding: 0 8px;
+            border-radius: 8px;
+            background: transparent;
+            color: var(--text-muted);
+            font-size: 12px;
+            font-weight: 800;
+        }
+        .clear-filters:hover { color: var(--danger); background: #fef2f2; }
+        .advanced-filters {
+            display: none;
+            margin-top: 3px;
+            border-top: 1px solid #f1f1f3;
+        }
+        .advanced-filters.show { display: block; }
+        .chip {
+            height: 30px;
+            padding: 0 12px;
+            border-radius: 999px;
+            background: #fff;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            font-size: 12px;
+            font-weight: 800;
+        }
+        .chip:hover { border-color: var(--primary); color: var(--primary); }
+        .chip.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+
+        .resource-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+        }
+        .resource-card {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+        }
+        .resource-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); border-color: rgba(47,107,255,.34); }
+        .resource-visual {
+            height: 154px;
+            position: relative;
+            overflow: hidden;
+            background: #f1f5f9;
+        }
+        .official-badge {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            height: 24px;
+            padding: 0 9px;
+            border-radius: 999px;
+            background: rgba(15,23,42,.72);
+            color: #fff;
+            display: inline-flex;
+            align-items: center;
+            font-size: 11px;
+            font-weight: 800;
+            backdrop-filter: blur(10px);
+            z-index: 2;
+        }
+        .voice-card .resource-body { padding-top: 18px; }
+        .resource-badge-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 10px;
+        }
+        .resource-badge {
+            height: 22px;
+            padding: 0 8px;
+            border-radius: 999px;
+            background: var(--primary-soft);
+            color: var(--primary);
+            display: inline-flex;
+            align-items: center;
+            font-size: 11px;
+            font-weight: 900;
+        }
+        .voice-preview {
+            width: 260px;
+            min-height: 190px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            background: #fff;
+            padding: 22px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 12px;
+        }
+        .voice-preview-title { font-size: 18px; font-weight: 900; }
+        .voice-preview-meta { color: var(--text-secondary); line-height: 1.7; font-size: 13px; }
+        .scene-visual.finance { background: linear-gradient(135deg,#dbeafe 0%,#93c5fd 44%,#1e3a8a 100%); }
+        .scene-visual.studio { background: linear-gradient(135deg,#f8fafc 0%,#cbd5e1 46%,#334155 100%); }
+        .scene-visual.office { background: linear-gradient(135deg,#ecfeff 0%,#99f6e4 44%,#0f766e 100%); }
+        .scene-visual.warm { background: linear-gradient(135deg,#fef3c7 0%,#fbbf24 42%,#92400e 100%); }
+        .scene-lines {
+            position: absolute; inset: 20px;
+            border: 1px solid rgba(255,255,255,.42);
+            border-radius: 12px;
+            background:
+                linear-gradient(rgba(255,255,255,.24) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,.18) 1px, transparent 1px);
+            background-size: 32px 32px;
+        }
+        .scene-desk {
+            position: absolute;
+            left: 38px;
+            right: 38px;
+            bottom: 24px;
+            height: 22px;
+            border-radius: 14px 14px 6px 6px;
+            background: rgba(255,255,255,.62);
+            box-shadow: 0 18px 28px rgba(15,23,42,.22);
+        }
+        .template-visual {
+            background: linear-gradient(135deg,#f8fafc,#e0f2fe);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .phone-preview {
+            width: 78px;
+            height: 128px;
+            border-radius: 14px;
+            background: #0f172a;
+            overflow: hidden;
+            box-shadow: 0 14px 28px rgba(15,23,42,.30);
+            position: relative;
+        }
+        .phone-preview::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(145deg,#93c5fd,#1e40af);
+        }
+        .phone-preview::after {
+            content: "";
+            position: absolute;
+            left: 10px; right: 10px; bottom: 12px; height: 18px;
+            border-radius: 8px;
+            background: rgba(15,23,42,.74);
+        }
+        .template-map {
+            position: absolute;
+            right: 18px;
+            bottom: 18px;
+            width: 116px;
+            padding: 8px;
+            border-radius: 12px;
+            background: rgba(255,255,255,.86);
+            box-shadow: 0 10px 24px rgba(15,23,42,.16);
+        }
+        .template-step {
+            height: 7px;
+            border-radius: 99px;
+            background: #dbeafe;
+            margin: 6px 0;
+        }
+        .template-step:nth-child(2) { width: 78%; background: #bfdbfe; }
+        .template-step:nth-child(3) { width: 60%; background: #93c5fd; }
+        .resource-body { padding: 16px; }
+        .resource-top { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; margin-bottom: 8px; }
+        .resource-title { font-size: 16px; font-weight: 900; line-height: 1.35; }
+        .resource-meta { color: var(--text-secondary); font-size: 12px; line-height: 1.6; margin-top: 2px; }
+        .tag-row { display: flex; gap: 6px; flex-wrap: wrap; margin: 12px 0; }
+        .tag {
+            height: 22px;
+            padding: 0 8px;
+            border-radius: 999px;
+            background: #f4f4f5;
+            color: var(--text-secondary);
+            font-size: 11px;
+            font-weight: 800;
+            display: inline-flex;
+            align-items: center;
+        }
+        .resource-desc { color: var(--text-secondary); font-size: 13px; line-height: 1.6; min-height: 42px; }
+        .resource-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 14px;
+        }
+        .resource-actions .btn { height: 34px; border-radius: 9px; }
+        .btn-added {
+            color: var(--success);
+            border-color: #bbf7d0;
+            background: #f0fdf4;
+        }
+        .empty-state {
+            border: 1px dashed #cbd5e1;
+            border-radius: 16px;
+            padding: 46px 18px;
+            background: #fff;
+            color: var(--text-secondary);
+            text-align: center;
+        }
+
+        .modal-mask {
+            position: fixed;
+            inset: 0;
+            background: rgba(15,23,42,.52);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            z-index: 80;
+        }
+        .modal-mask.show { display: flex; }
+        .preview-modal {
+            width: min(880px, 96vw);
+            max-height: 88vh;
+            overflow: hidden;
+            background: #fff;
+            border-radius: 16px;
+            display: grid;
+            grid-template-columns: 320px minmax(0, 1fr);
+            box-shadow: 0 28px 74px rgba(15,23,42,.26);
+        }
+        .preview-side {
+            background: #f8fafc;
+            border-right: 1px solid var(--border);
+            padding: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 360px;
+        }
+        .preview-main { padding: 22px; overflow-y: auto; }
+        .preview-head { display: flex; justify-content: space-between; gap: 16px; align-items: flex-start; margin-bottom: 16px; }
+        .preview-title { font-size: 22px; font-weight: 900; margin-bottom: 6px; }
+        .preview-sub { color: var(--text-secondary); font-size: 13px; line-height: 1.6; }
+        .close-btn {
+            width: 32px; height: 32px; border-radius: 8px; background: #f4f4f5; color: var(--text-secondary);
+            font-size: 18px;
+        }
+        .detail-list {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+            margin: 16px 0;
+        }
+        .detail-item {
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 10px 12px;
+            background: #fafafa;
+        }
+        .detail-label { color: var(--text-muted); font-size: 11px; margin-bottom: 4px; }
+        .detail-value { font-weight: 800; font-size: 13px; }
+        .preview-copy { color: var(--text-secondary); line-height: 1.75; margin-top: 8px; }
+        .scene-preview-modal {
+            width: min(920px, 94vw);
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 28px 74px rgba(15,23,42,.26);
+            overflow: hidden;
+        }
+        .scene-preview-head {
+            height: 56px;
+            padding: 0 16px 0 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border);
+        }
+        .scene-preview-title { font-size: 16px; font-weight: 900; }
+        .scene-preview-body { padding: 18px; background: #f8fafc; }
+        .scene-preview-image {
+            height: min(62vh, 560px);
+            min-height: 360px;
+            border-radius: 14px;
+            position: relative;
+            overflow: hidden;
+            background: #f1f5f9;
+        }
+        .scene-preview-image .scene-lines { inset: 34px; border-radius: 18px; background-size: 52px 52px; }
+        .scene-preview-image .scene-desk { left: 80px; right: 80px; bottom: 48px; height: 36px; }
+        .template-video-modal {
+            width: min(520px, 94vw);
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 28px 74px rgba(15,23,42,.26);
+            overflow: hidden;
+        }
+        .template-video-head {
+            height: 56px;
+            padding: 0 16px 0 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border);
+        }
+        .template-video-title { font-size: 16px; font-weight: 900; }
+        .template-video-body {
+            padding: 22px;
+            background: #f8fafc;
+            display: flex;
+            justify-content: center;
+        }
+        .template-video-player {
+            width: min(290px, 76vw);
+            aspect-ratio: 9 / 16;
+            border-radius: 24px;
+            background: #0f172a;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 24px 52px rgba(15,23,42,.28);
+        }
+        .template-video-player .template-visual {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+        }
+        .template-video-player .phone-preview {
+            width: 48%;
+            height: 62%;
+            border-radius: 24px;
+        }
+        .template-video-player .template-map {
+            right: 18px;
+            bottom: 54px;
+            width: 48%;
+        }
+        .template-video-player::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            z-index: 2;
+            background: linear-gradient(180deg, transparent 0%, rgba(15,23,42,.10) 48%, rgba(15,23,42,.54) 100%);
+            pointer-events: none;
+        }
+        .template-video-player::after {
+            content: "";
+            position: absolute;
+            left: -35%;
+            top: 0;
+            z-index: 3;
+            width: 28%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,.28), transparent);
+            animation: videoSweep 2.6s linear infinite;
+            pointer-events: none;
+        }
+        .video-play-chip {
+            position: absolute;
+            left: 16px;
+            bottom: 16px;
+            z-index: 4;
+            height: 34px;
+            padding: 0 12px;
+            border-radius: 999px;
+            background: rgba(15,23,42,.76);
+            color: #fff;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            font-weight: 900;
+            backdrop-filter: blur(8px);
+        }
+        .video-play-dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: #22c55e;
+            box-shadow: 0 0 0 6px rgba(34,197,94,.18);
+        }
+        .same-modal {
+            width: min(920px, 96vw);
+            max-height: 88vh;
+            overflow: hidden;
+            background: #fff;
+            border-radius: 18px;
+            box-shadow: 0 24px 70px rgba(15,23,42,.26);
+            display: grid;
+            grid-template-columns: 310px minmax(0, 1fr);
+        }
+        .same-preview {
+            background: #f8fafc;
+            padding: 22px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            border-right: 1px solid var(--border);
+        }
+        .same-preview-phone {
+            width: 210px;
+            aspect-ratio: 9 / 16;
+            border-radius: 22px;
+            overflow: hidden;
+            margin: 0 auto 16px;
+            position: relative;
+            background: #eef2ff;
+            box-shadow: var(--shadow-md);
+        }
+        .same-preview-phone .template-visual {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+        }
+        .same-preview-phone .phone-preview { width: 48%; height: 62%; border-radius: 20px; }
+        .same-preview-phone .template-map { right: 14px; bottom: 18px; width: 48%; }
+        .same-preview h3 { font-size: 18px; line-height: 1.35; margin-bottom: 8px; }
+        .same-preview p { color: var(--text-secondary); font-size: 12px; line-height: 1.6; }
+        .same-panel { padding: 22px; overflow-y: auto; }
+        .same-panel-head { display: flex; justify-content: space-between; gap: 16px; align-items: flex-start; margin-bottom: 16px; }
+        .same-panel-title { font-size: 20px; font-weight: 900; margin-bottom: 6px; }
+        .same-panel-sub { color: var(--text-secondary); font-size: 13px; line-height: 1.6; }
+        .same-form { display: grid; gap: 12px; }
+        .same-field { border: 1px solid var(--border); border-radius: 12px; padding: 12px; background: #fafafa; }
+        .same-field label { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; font-weight: 900; margin-bottom: 8px; }
+        .reuse-status {
+            color: var(--primary);
+            background: var(--primary-soft);
+            border-radius: 999px;
+            padding: 2px 8px;
+            font-size: 11px;
+            white-space: nowrap;
+        }
+        .same-field select, .same-field textarea {
+            width: 100%;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: #fff;
+            padding: 9px 10px;
+            outline: none;
+            color: var(--text-primary);
+            font: inherit;
+        }
+        .same-field textarea { min-height: 78px; resize: vertical; line-height: 1.6; }
+        .role-config-row { display: grid; grid-template-columns: minmax(0, 1fr) 230px; gap: 10px; align-items: stretch; }
+        .role-voice-preview {
+            min-width: 0;
+            min-height: 40px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: #fff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 8px 6px 10px;
+        }
+        .role-voice-copy { min-width: 0; flex: 1; }
+        .role-voice-kicker { color: var(--text-muted); font-size: 10px; font-weight: 900; line-height: 1.1; margin-bottom: 2px; }
+        .role-voice-name { color: var(--text-primary); font-size: 13px; font-weight: 900; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .role-voice-meta { color: var(--text-secondary); font-size: 11px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-top: 1px; }
+        .role-voice-btn {
+            width: 32px;
+            height: 32px;
+            border: 1px solid rgba(47,107,255,.24);
+            border-radius: 8px;
+            background: var(--primary-soft);
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 15px;
+            line-height: 1;
+            flex-shrink: 0;
+        }
+        .role-voice-btn.playing { background: var(--primary); border-color: var(--primary); color: #fff; }
+        .role-voice-btn:disabled { opacity: .55; cursor: not-allowed; }
+        .scene-mode-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-bottom: 10px; }
+        .scene-mode-btn {
+            height: 34px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: #fff;
+            color: var(--text-secondary);
+            font-size: 12px;
+            font-weight: 900;
+        }
+        .scene-mode-btn.active { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+        .scene-control { display: none; }
+        .scene-control.show { display: block; }
+        .scene-note {
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+            padding: 9px 10px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: #fff;
+            color: var(--text-secondary);
+            font-size: 13px;
+        }
+        .bg-upload-row { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center; }
+        .upload-btn {
+            height: 40px;
+            border: 1px dashed var(--primary);
+            border-radius: 10px;
+            background: var(--primary-soft);
+            color: var(--primary);
+            font-weight: 900;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .bg-preview {
+            margin-top: 10px;
+            display: none;
+            align-items: center;
+            gap: 10px;
+            padding: 8px;
+            border-radius: 10px;
+            background: #fff;
+            border: 1px solid var(--border);
+        }
+        .bg-preview.show { display: flex; }
+        .bg-preview img { width: 44px; height: 44px; border-radius: 8px; object-fit: cover; }
+        .bg-preview-name { flex: 1; min-width: 0; font-size: 12px; color: var(--text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .clear-bg-btn { height: 30px; padding: 0 10px; border: 1px solid var(--border); border-radius: 8px; background: #fff; color: var(--text-secondary); font-size: 12px; font-weight: 800; }
+        .same-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--border); }
+        .same-action-primary {
+            height: 40px;
+            padding: 0 18px;
+            border-radius: 10px;
+            font-weight: 900;
+            border: 1px solid var(--primary);
+            background: var(--primary);
+            color: #fff;
+        }
+        @keyframes videoSweep {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(560%); }
+        }
+        .toast {
+            position: fixed;
+            right: 24px;
+            bottom: 24px;
+            min-width: 220px;
+            max-width: 360px;
+            padding: 13px 16px;
+            border-radius: 12px;
+            background: #111827;
+            color: #fff;
+            box-shadow: 0 18px 44px rgba(15,23,42,.28);
+            opacity: 0;
+            transform: translateY(12px);
+            transition: all .2s;
+            pointer-events: none;
+            z-index: 90;
+        }
+        .toast.show { opacity: 1; transform: translateY(0); }
+        .toast strong { display: block; margin-bottom: 4px; }
+        .toast span { color: rgba(255,255,255,.76); font-size: 12px; line-height: 1.5; }
+
+        @media (max-width: 980px) {
+            body { display: block; }
+            .sidebar { display: none; }
+            .topbar { padding: 0 16px; }
+            .content { padding: 16px; }
+            .market-head { grid-template-columns: 1fr; }
+            .toolbar { grid-template-columns: 1fr; }
+            .tabbar { width: 100%; }
+            .tab-btn { flex: 1; min-width: 0; }
+            .filter-panel-head { align-items: flex-start; }
+            .filter-line { grid-template-columns: 1fr; gap: 6px; }
+            .filter-label { height: auto; }
+            .selected-filters { display: block; }
+            .selected-filter-list { margin-top: 8px; }
+            .preview-modal { grid-template-columns: 1fr; overflow-y: auto; }
+            .preview-side { min-height: 230px; border-right: 0; border-bottom: 1px solid var(--border); }
+            .scene-preview-image { min-height: 260px; height: 52vh; }
+            .same-modal { grid-template-columns: 1fr; overflow-y: auto; }
+            .same-preview { display: none; }
+            .role-config-row { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+<aside class="sidebar">
+    <div class="sidebar-logo">
+        <a class="logo-mark" href="index.html">
+            <div class="logo-icon">AI</div>
+            <div>
+                <div class="logo-text">投顾视频平台</div>
+                <div class="logo-sub">AIGC · 短视频制作</div>
+            </div>
+        </a>
+    </div>
+    <nav class="sidebar-nav">
+        <div class="nav-section"><a class="nav-section-title" href="index.html"><span>🏠 首页</span></a></div>
+        <div class="nav-section">
+            <div class="nav-section-title"><span>资产</span><span>▾</span></div>
+            <div class="nav-section-children">
+                <a class="nav-sub-item" href="主体管理-首页.html"><span>👤</span> 主体</a>
+                <a class="nav-sub-item" href="语音首页.html"><span>🎙</span> 音频</a>
+                <a class="nav-sub-item" href="视频资产.html"><span>🎬</span> 视频</a>
+            </div>
+        </div>
+        <div class="nav-section"><a class="nav-section-title" href="导演台首页.html"><span>🎬 导演台</span></a></div>
+        <div class="nav-section"><a class="nav-section-title" href="全部工具.html"><span>🛠 全部工具</span></a></div>
+        <div class="nav-section"><a class="nav-section-title active" href="市场.html"><span>🏪 市场</span></a></div>
+        <div class="nav-section">
+            <div class="nav-section-title"><span>个人中心</span><span>▾</span></div>
+            <div class="nav-section-children">
+                <a class="nav-sub-item" href="个人信息.html"><span>👤</span> 个人信息</a>
+                <a class="nav-sub-item" href="账号绑定.html"><span>🔗</span> 账号绑定</a>
+                <a class="nav-sub-item" href="团队管理.html"><span>👥</span> 团队管理</a>
+                <a class="nav-sub-item" href="套餐与支付.html"><span>💳</span> 积分与支付</a>
+                <a class="nav-sub-item" href="消费账单.html"><span>🧾</span> 消费账单</a>
+            </div>
+        </div>
+    </nav>
+    <div style="border-top:1px solid rgba(255,255,255,0.06);padding:12px 20px;">
+        <a href="后台web/后台运营控制台.html" style="display:flex;align-items:center;gap:10px;padding:10px 0;color:var(--sidebar-text);font-size:14px;font-weight:600;">
+            <span>⚙️</span> 后台管理
+        </a>
+    </div>
+    <div class="sidebar-bottom">
+        <div class="user-info">
+            <div class="user-avatar">顾</div>
+            <div><div class="user-name">管理员</div><div class="user-role">内容运营</div></div>
+        </div>
+        <div class="sidebar-credits">
+            <span>🪙</span><span class="sc-label">剩余积分</span><span class="sc-value">5,000</span>
+        </div>
+    </div>
+</aside>
+
+<main class="main">
+    <div class="topbar">
+        <div class="topbar-left">
+            <span class="topbar-title">市场</span>
+            <span class="topbar-desc">官方成片模板、音色与场景</span>
+        </div>
+    </div>
+
+    <div class="content">
+        <section class="market-head">
+            <div>
+                
+                <h1 class="market-title">把市场投放元素加入资产库，再进入创作流程复用</h1>
+                <p class="market-copy"></p>
+            </div>
+            <div class="market-metrics">
+                <div class="metric-card"><strong id="metricTotal">0</strong><span>官方资源</span></div>
+                <div class="metric-card"><strong>0</strong><span>用户发布资源</span></div>
+                <div class="metric-card"><strong id="metricAdded">0</strong><span>已加入资产库</span></div>
+            </div>
+        </section>
+
+        <section class="toolbar">
+            <div class="tabbar" aria-label="市场分类">
+                <button class="tab-btn active" data-type="template" onclick="switchType('template')">成片模板</button>
+                <button class="tab-btn" data-type="voice" onclick="switchType('voice')">音色</button>
+                <button class="tab-btn" data-type="scene" onclick="switchType('scene')">场景</button>
+            </div>
+            <label class="search-box">
+                <span>⌕</span>
+                <input id="searchInput" type="search" placeholder="搜索名称、适用场景或标签" oninput="handleSearch(this.value)">
+            </label>
+        </section>
+
+        <div class="filter-panel" id="filterPanel"></div>
+        <section class="resource-grid" id="resourceGrid"></section>
+        <div class="empty-state" id="emptyState" style="display:none;">没有找到匹配的官方资源，请调整搜索或筛选条件。</div>
+    </div>
+</main>
+
+<div class="modal-mask" id="previewMask" onclick="closePreview(event)">
+    <div class="preview-modal" onclick="event.stopPropagation()">
+        <div class="preview-side" id="previewVisual"></div>
+        <div class="preview-main">
+            <div class="preview-head">
+                <div>
+                    <div class="preview-title" id="previewTitle"></div>
+                    <div class="preview-sub" id="previewSub"></div>
+                </div>
+                <button class="close-btn" onclick="closePreview()">×</button>
+            </div>
+            <div class="detail-list" id="previewDetails"></div>
+            <p class="preview-copy" id="previewCopy"></p>
+            <div class="tag-row" id="previewTags"></div>
+            <div style="display:flex;gap:10px;margin-top:18px;flex-wrap:wrap;">
+                <button class="btn" id="previewActionBtn" onclick="previewPrimaryAction()">预览</button>
+                <button class="btn btn-primary" id="previewAddBtn" onclick="addCurrentPreview()">加入资产库</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal-mask" id="scenePreviewMask" onclick="closeScenePreview(event)">
+    <div class="scene-preview-modal" onclick="event.stopPropagation()">
+        <div class="scene-preview-head">
+            <div class="scene-preview-title" id="scenePreviewTitle"></div>
+            <button class="close-btn" onclick="closeScenePreview()">×</button>
+        </div>
+        <div class="scene-preview-body">
+            <div class="scene-preview-image" id="scenePreviewImage"></div>
+        </div>
+    </div>
+</div>
+
+<div class="modal-mask" id="templateVideoMask" onclick="closeTemplateVideoPreview(event)">
+    <div class="template-video-modal" onclick="event.stopPropagation()">
+        <div class="template-video-head">
+            <div class="template-video-title" id="templateVideoTitle"></div>
+            <button class="close-btn" onclick="closeTemplateVideoPreview()">×</button>
+        </div>
+        <div class="template-video-body">
+            <div class="template-video-player" id="templateVideoPlayer"></div>
+        </div>
+    </div>
+</div>
+
+<div class="modal-mask" id="sameModal" onclick="closeSameModal(event)">
+    <div class="same-modal" onclick="event.stopPropagation()">
+        <div class="same-preview">
+            <div class="same-preview-phone" id="samePreviewPhone"></div>
+            <div>
+                <h3 id="samePreviewTitle"></h3>
+                <p id="samePreviewDesc"></p>
+            </div>
+        </div>
+        <div class="same-panel">
+            <div class="same-panel-head">
+                <div>
+                    <div class="same-panel-title">一键同款</div>
+                    <div class="same-panel-sub">默认复用模板元素；你可以只替换其中一个或多个。</div>
+                </div>
+                <button class="close-btn" type="button" onclick="closeSameModal()">×</button>
+            </div>
+            <div class="same-form">
+                <div class="same-field">
+                    <label>角色 <span class="reuse-status" id="roleStatus">复用模板</span></label>
+                    <div class="role-config-row">
+                        <select id="sameRole" onchange="handleSameRoleChange()"></select>
+                        <div class="role-voice-preview" aria-live="polite">
+                            <div class="role-voice-copy">
+                                <div class="role-voice-kicker">关联音色</div>
+                                <div class="role-voice-name" id="sameVoiceName">-</div>
+                                <div class="role-voice-meta" id="sameVoiceMeta">随角色动态更新</div>
+                            </div>
+                            <button class="role-voice-btn" id="sameVoicePlayBtn" type="button" onclick="previewSameVoice()" title="试听当前角色音色" aria-label="试听当前角色音色">🔊</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="same-field">
+                    <label>场景 <span class="reuse-status" id="sceneStatus">复用模板</span></label>
+                    <div class="scene-mode-row">
+                        <button class="scene-mode-btn active" type="button" data-scene-mode="template" onclick="setSceneMode('template')">复用模板</button>
+                        <button class="scene-mode-btn" type="button" data-scene-mode="existing" onclick="setSceneMode('existing')">内置场景</button>
+                        <button class="scene-mode-btn" type="button" data-scene-mode="upload" onclick="setSceneMode('upload')">本地上传</button>
+                    </div>
+                    <div class="scene-control show" id="sceneTemplateControl">
+                        <div class="scene-note" id="sameTemplateScene">复用模板场景</div>
+                    </div>
+                    <div class="scene-control" id="sceneExistingControl">
+                        <select id="sameScene" onchange="updateSameStatus()"></select>
+                    </div>
+                    <div class="scene-control" id="sceneUploadControl">
+                        <div class="bg-upload-row">
+                            <button class="upload-btn" type="button" onclick="document.getElementById('sameSceneFile').click()">上传本地场景图</button>
+                            <button class="clear-bg-btn" type="button" onclick="clearUploadedScene()">移除</button>
+                        </div>
+                        <input type="file" id="sameSceneFile" accept="image/*" hidden onchange="handleSceneUpload(event)">
+                        <div class="bg-preview" id="scenePreview">
+                            <img id="scenePreviewImg" alt="场景预览">
+                            <div class="bg-preview-name" id="scenePreviewName"></div>
+                            <button class="clear-bg-btn" type="button" onclick="clearUploadedScene()">移除</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="same-field">
+                    <label>台词 <span class="reuse-status" id="scriptStatus">复用模板</span></label>
+                    <textarea id="sameScript" oninput="updateSameStatus()"></textarea>
+                </div>
+            </div>
+            <div class="same-actions">
+                <button class="same-action-primary" type="button" onclick="confirmSameTemplate()">开始生成同款</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="toast" id="toast"><strong id="toastTitle"></strong><span id="toastText"></span></div>
+
+<script>
+    const ADDED_KEY = "marketAddedAssets";
+    const SUBJECT_LIBRARY_KEY = "subjectLibraryItems";
+    const SAME_SCENE_KEY = "aigc_subject_scenes";
+    const TEMPLATE_DRAFT_KEY = "platformSameTemplateDraft";
+    const PENDING_VIDEO_JOBS_KEY = "platformPendingVideoJobs";
+
+    const resources = [
+        {
+            id: "voice-finance-male-a",
+            type: "voice",
+            title: "沉稳男声 A",
+            industry: "证券",
+            gender: "男声",
+            tone: "沉稳",
+            suitableScene: "市场解读",
+            meta: "男声 · 沉稳 · 市场解读",
+            scene: "市场解读",
+            tags: ["市场解读", "资产配置", "低音"],
+            desc: "适合收评、资产配置、风险提示等需要可信度的投顾口播。",
+            score: 96,
+            favs: 128,
+            createdAt: "2026-06-20",
+            sample: "市场短期波动并不意味着趋势反转，投资者更需要关注基本面和风险承受能力。"
+        },
+        {
+            id: "voice-finance-female-b",
+            type: "voice",
+            title: "知性女声 B",
+            industry: "基金",
+            gender: "女声",
+            tone: "亲和",
+            suitableScene: "基金投教",
+            meta: "女声 · 亲和 · 基金投教",
+            scene: "基金投教",
+            tags: ["基金科普", "新手教育", "清晰"],
+            desc: "语速适中，适合基金定投、理财入门、客户服务型视频。",
+            score: 94,
+            favs: 96,
+            createdAt: "2026-06-18",
+            sample: "定投并不是保证收益的工具，而是一种帮助普通投资者平滑入场节奏的方法。"
+        },
+        {
+            id: "voice-news-c",
+            type: "voice",
+            title: "新闻播报 C",
+            industry: "通用投教",
+            gender: "中性",
+            tone: "权威",
+            suitableScene: "风险提示",
+            meta: "中性 · 权威 · 风险提示",
+            scene: "风险提示",
+            tags: ["风险揭示", "公告", "合规"],
+            desc: "适合合规提示、风险教育和公告解读，表达克制清楚。",
+            score: 91,
+            favs: 74,
+            createdAt: "2026-06-12",
+            sample: "投资有风险，过往业绩不代表未来表现，请结合自身风险承受能力审慎决策。"
+        },
+        {
+            id: "voice-fast-f",
+            type: "voice",
+            title: "快讯男声 F",
+            industry: "证券",
+            gender: "男声",
+            tone: "干练",
+            suitableScene: "热点快评",
+            meta: "男声 · 干练 · 热点快评",
+            scene: "热点快评",
+            tags: ["热点快评", "短资讯", "快节奏"],
+            desc: "适合热点事件和盘中快评，节奏更紧凑，信息密度高。",
+            score: 89,
+            favs: 61,
+            createdAt: "2026-06-14",
+            sample: "今天这个热点背后，真正值得关注的是它对市场预期和风险偏好的影响。"
+        },
+
+        {
+            id: "scene-modern-studio",
+            type: "scene",
+            title: "现代财经演播室",
+            industry: "证券",
+            ratio: "9:16",
+            place: "演播室",
+            meta: "9:16 · 演播室 · 数据大屏",
+            scene: "市场解读",
+            visual: "finance",
+            tags: ["市场解读", "数据大屏", "专业"],
+            desc: "背景包含行情图表与蓝色数据屏，适合市场收评和产品解读。",
+            score: 98,
+            favs: 142,
+            createdAt: "2026-06-21"
+        },
+        {
+            id: "scene-risk-dark",
+            type: "scene",
+            title: "深色风控看板",
+            industry: "银行",
+            ratio: "9:16",
+            place: "演播室",
+            meta: "9:16 · 演播室 · 深色风控",
+            scene: "风险提示",
+            visual: "studio",
+            tags: ["风险提示", "风控", "合规"],
+            desc: "深色背景配合风险指标和合规提示，适合风险教育内容。",
+            score: 92,
+            favs: 77,
+            createdAt: "2026-06-16"
+        },
+        {
+            id: "scene-service-office",
+            type: "scene",
+            title: "高端办公咨询室",
+            industry: "保险",
+            ratio: "16:9",
+            place: "办公室",
+            meta: "16:9 · 办公室 · 客户服务",
+            scene: "客户服务",
+            visual: "office",
+            tags: ["客户服务", "服务介绍", "可信"],
+            desc: "明亮办公环境，适合投顾服务介绍、客户流程说明。",
+            score: 90,
+            favs: 68,
+            createdAt: "2026-06-11"
+        },
+        {
+            id: "scene-warm-library",
+            type: "scene",
+            title: "温和书房口播场景",
+            industry: "基金",
+            ratio: "9:16",
+            place: "书房",
+            meta: "9:16 · 书房 · 投教科普",
+            scene: "基金投教",
+            visual: "warm",
+            tags: ["基金投教", "投教科普", "温和"],
+            desc: "书架与暖色灯光组合，适合理财科普和新手教育。",
+            score: 93,
+            favs: 83,
+            createdAt: "2026-06-19"
+        },
+
+        {
+            id: "tpl-market-close",
+            type: "template",
+            title: "一分钟市场收评模板",
+            industry: "证券",
+            duration: "45-60 秒",
+            resolution: "1080P",
+            ratio: "9:16",
+            meta: "45-60 秒 · 1080P · 9:16",
+            scene: "市场解读",
+            tags: ["市场收评", "日更", "数据解读"],
+            desc: "内含开场观点、核心数据、风险提示和行动建议四段结构。",
+            score: 97,
+            favs: 156,
+            createdAt: "2026-06-20",
+            includes: "默认音色：沉稳男声 A；默认场景：现代财经演播室",
+            role: "模板角色 · 资深投顾讲解员",
+            voice: { name: "沉稳男声 A", meta: "男声 · 财经 · 专业克制" },
+            bg: "现代财经演播室",
+            script: "市场短期波动并不意味着趋势反转，投资者更需要关注基本面、估值水平和自身风险承受能力。"
+        },
+        {
+            id: "tpl-fund-edu",
+            type: "template",
+            title: "基金定投科普模板",
+            industry: "基金",
+            duration: "30-45 秒",
+            resolution: "1080P",
+            ratio: "9:16",
+            meta: "30-45 秒 · 1080P · 9:16",
+            scene: "基金投教",
+            tags: ["基金", "投教科普", "新手教育"],
+            desc: "适合解释一个基金知识点，结构为问题、解释、误区提醒。",
+            score: 94,
+            favs: 112,
+            createdAt: "2026-06-17",
+            includes: "默认音色：知性女声 B；默认场景：温和书房口播场景",
+            role: "模板角色 · 理财科普讲解员",
+            voice: { name: "知性女声 B", meta: "女声 · 知识 · 清晰亲和" },
+            bg: "温和书房口播场景",
+            script: "基金定投的核心不是预测最低点，而是通过分批投入平滑成本，并用长期纪律对抗短期情绪。"
+        },
+        {
+            id: "tpl-risk-alert",
+            type: "template",
+            title: "风险提示模板",
+            industry: "银行",
+            duration: "20-30 秒",
+            resolution: "1080P",
+            ratio: "9:16",
+            meta: "20-30 秒 · 1080P · 9:16",
+            scene: "风险提示",
+            tags: ["风险提示", "合规", "风险揭示"],
+            desc: "用于快速生成产品风险提醒和市场波动教育内容。",
+            score: 91,
+            favs: 73,
+            createdAt: "2026-06-13",
+            includes: "默认音色：新闻播报 C；默认场景：深色风控看板",
+            role: "模板角色 · 风控讲解员",
+            voice: { name: "新闻播报 C", meta: "中性 · 播报 · 稳定权威" },
+            bg: "深色风控看板",
+            script: "任何投资都伴随风险，过往业绩不代表未来表现。做决策前，请充分了解产品特征和自身风险承受能力。"
+        },
+        {
+            id: "tpl-hotspot",
+            type: "template",
+            title: "热点快评模板",
+            industry: "通用投教",
+            duration: "20-40 秒",
+            resolution: "720P",
+            ratio: "9:16",
+            meta: "20-40 秒 · 720P · 9:16",
+            scene: "热点快评",
+            tags: ["热点快评", "快讯点评", "社媒"],
+            desc: "适合热点事件后的快速观点输出，强调节奏和标题冲击力。",
+            score: 88,
+            favs: 58,
+            createdAt: "2026-06-10",
+            includes: "默认音色：快讯男声 F；默认场景：现代财经演播室",
+            role: "模板角色 · 快评主持人",
+            voice: { name: "快讯男声 F", meta: "男声 · 播报 · 节奏明快" },
+            bg: "现代财经演播室",
+            script: "今天这个热点背后，真正值得关注的是它对市场预期和风险偏好的影响，而不是单日涨跌本身。"
+        }
+    ];
+
+    const typeLabels = { voice: "音色", scene: "场景", template: "成片模板" };
+    const attrSchemas = {
+        voice: [
+            { key: "gender", label: "性别" },
+            { key: "tone", label: "语气" }
+        ],
+        scene: [
+            { key: "ratio", label: "画幅" },
+            { key: "place", label: "场所" }
+        ],
+        template: [
+            { key: "duration", label: "时长" },
+            { key: "resolution", label: "分辨率" },
+            { key: "ratio", label: "画幅" }
+        ]
+    };
+    const builtInRoles = [
+        { value: "female-advisor", label: "内置主体 · 知性女性投顾", voice: { name: "权威女声 E", meta: "女声 · 财经 · 坚定可信" } },
+        { value: "male-advisor", label: "内置主体 · 稳健男性投顾", voice: { name: "沉稳男声 A", meta: "男声 · 财经 · 专业克制" } },
+        { value: "risk-host", label: "内置主体 · 风控讲解员", voice: { name: "新闻播报 C", meta: "中性 · 播报 · 稳定权威" } },
+        { value: "service-advisor", label: "内置主体 · 服务顾问", voice: { name: "专业女主播 / 中文", meta: "女声 · 服务 · 清晰亲和" } }
+    ];
+
+    let state = {
+        type: "template",
+        query: "",
+        industry: "全部行业",
+        tag: "全部标签",
+        attrs: {},
+        sort: "default",
+        onlyAdded: false,
+        filtersExpanded: false,
+        tagsExpanded: false
+    };
+    let previewResourceId = null;
+    let activeTemplateId = null;
+    let activeSceneMode = "template";
+    let uploadedSceneDataUrl = "";
+    let uploadedSceneFileName = "";
+    let playingVoiceId = null;
+    let toastTimer = null;
+
+    function readList(key) {
+        try {
+            const raw = localStorage.getItem(key);
+            const list = raw ? JSON.parse(raw) : [];
+            return Array.isArray(list) ? list : [];
+        } catch (e) {
+            return [];
+        }
+    }
+
+    function writeList(key, list) {
+        localStorage.setItem(key, JSON.stringify(list));
+    }
+
+    function getAdded() { return readList(ADDED_KEY); }
+    function isAdded(id) { return getAdded().indexOf(id) >= 0; }
+
+    function handleSearch(value) {
+        state.query = value.trim().toLowerCase();
+        render();
+    }
+
+    function switchType(type) {
+        state.type = type;
+        state.industry = "全部行业";
+        state.tag = "全部标签";
+        state.attrs = {};
+        state.onlyAdded = false;
+        state.filtersExpanded = false;
+        state.tagsExpanded = false;
+        document.querySelectorAll(".tab-btn").forEach(btn => btn.classList.toggle("active", btn.dataset.type === type));
+        render();
+    }
+
+    function setSort(value) {
+        state.sort = value;
+        render();
+    }
+
+    function setIndustry(value) {
+        state.industry = value;
+        state.onlyAdded = false;
+        render();
+    }
+
+    function setTag(value) {
+        state.tag = value;
+        state.onlyAdded = false;
+        render();
+    }
+
+    function setAttr(key, value) {
+        if (value === "全部") {
+            delete state.attrs[key];
+        } else {
+            state.attrs[key] = value;
+        }
+        state.onlyAdded = false;
+        render();
+    }
+
+    function setOnlyAdded() {
+        state.onlyAdded = true;
+        render();
+    }
+
+    function toggleAdvancedFilters() {
+        state.filtersExpanded = !state.filtersExpanded;
+        render();
+    }
+
+    function toggleAllTags() {
+        state.tagsExpanded = !state.tagsExpanded;
+        render();
+    }
+
+    function clearFilter(type, key) {
+        if (type === "industry") state.industry = "全部行业";
+        if (type === "tag") state.tag = "全部标签";
+        if (type === "attr") delete state.attrs[key];
+        if (type === "added") state.onlyAdded = false;
+        render();
+    }
+
+    function clearAllFilters() {
+        state.industry = "全部行业";
+        state.tag = "全部标签";
+        state.attrs = {};
+        state.onlyAdded = false;
+        render();
+    }
+
+    function getTypeResources() {
+        return resources.filter(item => item.type === state.type);
+    }
+
+    function uniqueValues(list) {
+        return Array.from(new Set(list.filter(Boolean)));
+    }
+
+    function buildChip(label, active, handlerName, value, extraArg) {
+        const args = extraArg
+            ? "'" + jsString(extraArg) + "','" + jsString(value) + "'"
+            : "'" + jsString(value) + "'";
+        return '<button class="chip' + (active ? ' active' : '') + '" onclick="' + handlerName + '(' + args + ')">' + escapeHtml(label) + '</button>';
+    }
+
+    function renderFilterLine(label, chips) {
+        return '<div class="filter-line"><div class="filter-label">' + escapeHtml(label) + '</div><div class="filter-options">' + chips.join("") + '</div></div>';
+    }
+
+    function renderSelectedFilters() {
+        const selected = [];
+        if (state.industry !== "全部行业") selected.push({ label: state.industry, type: "industry" });
+        if (state.tag !== "全部标签") selected.push({ label: state.tag, type: "tag" });
+        Object.keys(state.attrs).forEach(key => {
+            const schema = attrSchemas[state.type].find(item => item.key === key);
+            selected.push({ label: (schema ? schema.label + "：" : "") + state.attrs[key], type: "attr", key: key });
+        });
+        if (state.onlyAdded) selected.push({ label: "已加入资产库", type: "added" });
+        if (!selected.length) return "";
+
+        const chips = selected.map(item => (
+            '<span class="selected-chip">' + escapeHtml(item.label) +
+            '<button title="移除筛选" onclick="clearFilter(\'' + item.type + '\'' + (item.key ? ',\'' + jsString(item.key) + '\'' : '') + ')">×</button></span>'
+        )).join("");
+        return '<div class="selected-filters"><div class="filter-label">已选</div><div class="selected-filter-list">' + chips + '<button class="clear-filters" onclick="clearAllFilters()">清空</button></div></div>';
+    }
+
+    function getVisibleResources() {
+        const added = getAdded();
+        return resources
+            .filter(item => item.type === state.type)
+            .filter(item => state.industry === "全部行业" || item.industry === state.industry)
+            .filter(item => state.tag === "全部标签" || item.tags.indexOf(state.tag) >= 0)
+            .filter(item => Object.keys(state.attrs).every(key => item[key] === state.attrs[key]))
+            .filter(item => {
+                if (!state.query) return true;
+                const attrText = attrSchemas[state.type].map(schema => item[schema.key]).join(" ");
+                const text = [item.title, item.meta, item.industry, item.scene, item.desc, item.includes, attrText].concat(item.tags).join(" ").toLowerCase();
+                return text.indexOf(state.query) >= 0;
+            })
+            .filter(item => !state.onlyAdded || added.indexOf(item.id) >= 0)
+            .sort((a, b) => {
+                if (state.sort === "newest") return b.createdAt.localeCompare(a.createdAt);
+                return resources.indexOf(a) - resources.indexOf(b);
+            });
+    }
+
+    function renderFilters() {
+        const panel = document.getElementById("filterPanel");
+        const typeResources = getTypeResources();
+        const industryOptions = ["全部行业"].concat(uniqueValues(typeResources.map(item => item.industry)));
+        const tagOptions = ["全部标签"].concat(uniqueValues(typeResources.flatMap(item => item.tags)));
+        const rows = [];
+        const advancedRows = [];
+        const tagLimit = 8;
+        let visibleTagOptions = tagOptions;
+
+        if (!state.tagsExpanded && tagOptions.length > tagLimit + 1) {
+            visibleTagOptions = tagOptions.slice(0, tagLimit + 1);
+            if (state.tag !== "全部标签" && visibleTagOptions.indexOf(state.tag) < 0) {
+                visibleTagOptions.push(state.tag);
+            }
+        }
+
+        const hiddenTagCount = Math.max(0, tagOptions.length - visibleTagOptions.length);
+        rows.push(renderFilterLine("行业", industryOptions.map(item => buildChip(item, state.industry === item && !state.onlyAdded, "setIndustry", item))));
+        rows.push(renderFilterLine("标签", visibleTagOptions.map(item => buildChip(item, state.tag === item && !state.onlyAdded, "setTag", item)).concat(
+            tagOptions.length > tagLimit + 1
+                ? ['<button class="chip" onclick="toggleAllTags()">' + (state.tagsExpanded ? "收起标签" : "更多标签" + (hiddenTagCount ? " +" + hiddenTagCount : "")) + '</button>']
+                : []
+        )));
+
+        attrSchemas[state.type].forEach(schema => {
+            const options = ["全部"].concat(uniqueValues(typeResources.map(item => item[schema.key])));
+            advancedRows.push(renderFilterLine(schema.label, options.map(item => buildChip(item, (state.attrs[schema.key] || "全部") === item && !state.onlyAdded, "setAttr", item, schema.key))));
+        });
+
+        const activeAttrCount = Object.keys(state.attrs).length;
+        const head = '<div class="filter-panel-head">' +
+            '<div><div class="filter-panel-title">筛选官方' + typeLabels[state.type] + '</div><div class="filter-panel-sub">行业和标签常用，属性筛选可展开后组合使用</div></div>' +
+            '<div class="filter-actions">' +
+                '<button class="filter-action' + (state.onlyAdded ? ' active' : '') + '" onclick="setOnlyAdded()">已加入资产库</button>' +
+                '<button class="filter-action" onclick="toggleAdvancedFilters()">' + (state.filtersExpanded ? "收起筛选" : "更多筛选" + (activeAttrCount ? " · " + activeAttrCount : "")) + '</button>' +
+            '</div>' +
+        '</div>';
+        panel.innerHTML = head + rows.join("") +
+            '<div class="advanced-filters' + (state.filtersExpanded ? ' show' : '') + '">' + advancedRows.join("") + '</div>' +
+            renderSelectedFilters();
+    }
+
+    function render() {
+        renderFilters();
+        const list = getVisibleResources();
+        const grid = document.getElementById("resourceGrid");
+        document.getElementById("emptyState").style.display = list.length ? "none" : "block";
+        grid.innerHTML = list.map(renderCard).join("");
+        updateMetrics();
+    }
+
+    function renderCard(item) {
+        const added = isAdded(item.id);
+        const visual = item.type === "voice" ? "" :
+            '<div class="resource-visual ' + (item.type === "scene" ? 'scene-visual ' + item.visual : 'template-visual') + '">' +
+                '<span class="official-badge">官方资源</span>' +
+                buildVisual(item) +
+            '</div>';
+        const badge = item.type === "voice" ? '<div class="resource-badge-row"><span class="resource-badge">官方资源</span></div>' : "";
+        const secondaryAction = item.type === "template"
+            ? '<button class="btn btn-primary" onclick="openSameModal(\'' + item.id + '\')">一键同款</button>'
+            : '<button class="btn ' + (added ? 'btn-added' : 'btn-primary') + '" onclick="toggleAsset(\'' + item.id + '\')">' + (added ? "移出资产库" : "加入资产库") + '</button>';
+        return '<article class="resource-card' + (item.type === "voice" ? ' voice-card' : '') + '">' +
+            visual +
+            '<div class="resource-body">' +
+                badge +
+                '<div class="resource-top"><div><div class="resource-title">' + escapeHtml(item.title) + '</div></div></div>' +
+                '<div class="tag-row">' + getCardTags(item).map(tag => '<span class="tag">' + escapeHtml(tag) + '</span>').join("") + '</div>' +
+                '<div class="resource-desc">' + escapeHtml(item.desc) + '</div>' +
+                '<div class="resource-actions">' +
+                    '<button class="btn" onclick="' + (item.type === "voice" ? 'toggleVoicePreview(\'' + item.id + '\')' : 'previewResource(\'' + item.id + '\')') + '">' + (item.type === "voice" ? (playingVoiceId === item.id ? "停止" : "试听") : "预览") + '</button>' +
+                    secondaryAction +
+                '</div>' +
+            '</div>' +
+        '</article>';
+    }
+
+    function buildVisual(item) {
+        if (item.type === "scene") {
+            return '<div class="scene-lines"></div><div class="scene-desk"></div>';
+        }
+        return '<div class="phone-preview"></div><div class="template-map"><div class="template-step"></div><div class="template-step"></div><div class="template-step"></div></div>';
+    }
+
+    function getCardTags(item) {
+        if (item.type === "voice") return [item.gender, item.tone];
+        if (item.type === "scene") return [item.ratio, item.place];
+        if (item.type === "template") return [item.duration, item.resolution, item.ratio];
+        return item.tags;
+    }
+
+    function toggleVoicePreview(id) {
+        const item = resources.find(r => r.id === id);
+        if (!item || item.type !== "voice") return;
+        if (!("speechSynthesis" in window)) {
+            showToast("暂不支持试听", "当前浏览器不支持语音合成模拟");
+            return;
+        }
+        if (playingVoiceId === id) {
+            stopVoicePreview();
+            return;
+        }
+        window.speechSynthesis.cancel();
+        playingVoiceId = id;
+        render();
+        const utterance = new SpeechSynthesisUtterance(item.sample || item.desc);
+        utterance.lang = "zh-CN";
+        utterance.rate = item.tone === "干练" ? 1.12 : 0.95;
+        utterance.onend = function() {
+            if (playingVoiceId === id) {
+                playingVoiceId = null;
+                render();
+            }
+        };
+        utterance.onerror = function() {
+            if (playingVoiceId === id) {
+                playingVoiceId = null;
+                render();
+            }
+            showToast("试听中断", item.title + " 未能完成播放");
+        };
+        window.speechSynthesis.speak(utterance);
+    }
+
+    function stopVoicePreview() {
+        if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+        playingVoiceId = null;
+        render();
+    }
+
+    function toggleAsset(id) {
+        if (isAdded(id)) {
+            removeFromAssets(id);
+        } else {
+            addToAssets(id);
+        }
+    }
+
+    function addToAssets(id) {
+        const item = resources.find(r => r.id === id);
+        if (!item) return;
+        const added = getAdded();
+        if (added.indexOf(id) >= 0) {
+            showToast("已在资产库", item.title + " 无需重复加入");
+            return;
+        }
+        added.push(id);
+        writeList(ADDED_KEY, added);
+        if (item.type === "scene") addSceneToLibrary(item);
+        showToast("已加入资产库", item.title + " 已复制到我的" + typeLabels[item.type]);
+        render();
+    }
+
+    function removeFromAssets(id) {
+        const item = resources.find(r => r.id === id);
+        if (!item) return;
+        const added = getAdded().filter(assetId => assetId !== id);
+        writeList(ADDED_KEY, added);
+        if (item.type === "scene") removeSceneFromLibrary(item);
+        showToast("已移出资产库", item.title + " 已从我的" + typeLabels[item.type] + "移除");
+        render();
+    }
+
+    function addSceneToLibrary(item) {
+        const subjectList = readList(SUBJECT_LIBRARY_KEY).filter(scene => scene.id !== "market-" + item.id);
+        subjectList.unshift({
+            id: "market-" + item.id,
+            type: "scene",
+            name: item.title,
+            desc: item.desc,
+            owner: "my",
+            createdByMe: false,
+            favorite: false,
+            status: "官方场景",
+            visual: "scene"
+        });
+        writeList(SUBJECT_LIBRARY_KEY, subjectList);
+
+        const sameScenes = readList(SAME_SCENE_KEY).filter(scene => scene.id !== "market-" + item.id);
+        sameScenes.unshift({
+            id: "market-" + item.id,
+            name: item.title,
+            desc: item.desc,
+            source: "market",
+            type: "scene"
+        });
+        writeList(SAME_SCENE_KEY, sameScenes);
+    }
+
+    function removeSceneFromLibrary(item) {
+        const sceneId = "market-" + item.id;
+        writeList(SUBJECT_LIBRARY_KEY, readList(SUBJECT_LIBRARY_KEY).filter(scene => scene.id !== sceneId));
+        writeList(SAME_SCENE_KEY, readList(SAME_SCENE_KEY).filter(scene => scene.id !== sceneId));
+    }
+
+    function openTemplateVideoPreview(item) {
+        activeTemplateId = item.id;
+        document.getElementById("templateVideoTitle").textContent = item.title;
+        document.getElementById("templateVideoPlayer").innerHTML =
+            '<div class="template-visual">' + buildVisual(item) + '</div>' +
+            '<div class="video-play-chip"><span class="video-play-dot"></span><span>正在播放</span></div>';
+        document.getElementById("templateVideoMask").classList.add("show");
+    }
+
+    function closeTemplateVideoPreview(event) {
+        if (event && event.target !== document.getElementById("templateVideoMask")) return;
+        document.getElementById("templateVideoMask").classList.remove("show");
+        document.getElementById("templateVideoPlayer").innerHTML = "";
+    }
+
+    function openSameModal(templateId) {
+        const item = resources.find(r => r.id === templateId);
+        if (!item || item.type !== "template") return;
+        activeTemplateId = templateId;
+        document.getElementById("samePreviewPhone").innerHTML = '<div class="template-visual">' + buildVisual(item) + '</div>';
+        document.getElementById("samePreviewTitle").textContent = item.title;
+        document.getElementById("samePreviewDesc").textContent = item.desc;
+        fillSelect("sameRole", getRoleChoices(item));
+        fillSelect("sameScene", getSceneChoices());
+        document.getElementById("sameRole").value = "template";
+        document.getElementById("sameTemplateScene").textContent = item.bg || item.scene || "复用模板场景";
+        document.getElementById("sameScript").value = item.script || item.desc;
+        clearUploadedScene(false);
+        setSceneMode("template", false);
+        updateSameStatus();
+        updateRoleVoicePreview();
+        document.getElementById("sameModal").classList.add("show");
+    }
+
+    function closeSameModal(event) {
+        if (event && event.target !== document.getElementById("sameModal")) return;
+        stopSameVoicePreview();
+        document.getElementById("sameModal").classList.remove("show");
+    }
+
+    function getRoleChoices(template) {
+        const createdRoles = readCreatedRoles().map(role => ({ value: "created:" + role.id, label: "我的主体 · " + role.name }));
+        return [{ value: "template", label: (template.role || "模板角色") + "（模板主体）" }].concat(builtInRoles, createdRoles);
+    }
+
+    function getSceneChoices() {
+        const scenes = readCreatedScenes();
+        if (!scenes.length) return [{ value: "", label: "暂无可用场景" }];
+        return scenes.map(scene => ({ value: scene.id, label: scene.name || "未命名场景" }));
+    }
+
+    function fillSelect(id, options) {
+        document.getElementById(id).innerHTML = options.map(opt =>
+            '<option value="' + escapeHtml(opt.value) + '">' + escapeHtml(opt.label) + '</option>'
+        ).join("");
+    }
+
+    function setSceneMode(mode, update) {
+        activeSceneMode = mode;
+        document.querySelectorAll(".scene-mode-btn").forEach(btn => {
+            btn.classList.toggle("active", btn.getAttribute("data-scene-mode") === mode);
+        });
+        ["template", "existing", "upload"].forEach(name => {
+            const control = document.getElementById("scene" + name.charAt(0).toUpperCase() + name.slice(1) + "Control");
+            if (control) control.classList.toggle("show", name === mode);
+        });
+        if (update !== false) updateSameStatus();
+    }
+
+    function updateSameStatus() {
+        const item = resources.find(r => r.id === activeTemplateId);
+        if (!item) return;
+        setStatus("roleStatus", document.getElementById("sameRole").value === "template" ? "复用模板" : "已替换");
+        setStatus("sceneStatus", activeSceneMode === "template" ? "复用模板" : (activeSceneMode === "upload" ? (uploadedSceneDataUrl ? "已上传" : "待上传") : "已替换"));
+        setStatus("scriptStatus", document.getElementById("sameScript").value.trim() === String(item.script || "").trim() ? "复用模板" : "已修改");
+    }
+
+    function setStatus(id, text) {
+        const el = document.getElementById(id);
+        el.textContent = text;
+        const reused = text === "复用模板";
+        el.style.color = reused ? "var(--primary)" : "#059669";
+        el.style.background = reused ? "var(--primary-soft)" : "#ecfdf5";
+    }
+
+    function handleSameRoleChange() {
+        updateRoleVoicePreview();
+        updateSameStatus();
+    }
+
+    function getSelectedRoleVoice() {
+        const roleId = document.getElementById("sameRole").value;
+        const item = resources.find(r => r.id === activeTemplateId);
+        if (!item) return { name: "", meta: "未选择角色", unavailable: true };
+        if (roleId === "template") {
+            return Object.assign({ unavailable: false }, item.voice || { name: "未配置音色", meta: "模板主体未关联音色", unavailable: true });
+        }
+        const builtInRole = builtInRoles.find(role => role.value === roleId);
+        if (builtInRole) {
+            return Object.assign({ unavailable: false }, builtInRole.voice || { name: "未配置音色", meta: "内置主体未关联音色", unavailable: true });
+        }
+        const createdRoleId = roleId.indexOf("created:") === 0 ? roleId.slice(8) : "";
+        const createdRole = readCreatedRoles().find(role => role.id === createdRoleId);
+        if (createdRole) {
+            return {
+                name: createdRole.voice || "未配置音色",
+                meta: createdRole.voice ? ("来自主体管理 · " + createdRole.name) : "该角色尚未关联音色",
+                unavailable: !createdRole.voice
+            };
+        }
+        return { name: "未配置音色", meta: "未找到当前角色的音色信息", unavailable: true };
+    }
+
+    function updateRoleVoicePreview() {
+        const voice = getSelectedRoleVoice();
+        const nameEl = document.getElementById("sameVoiceName");
+        const metaEl = document.getElementById("sameVoiceMeta");
+        const btn = document.getElementById("sameVoicePlayBtn");
+        if (!nameEl || !metaEl || !btn) return;
+        nameEl.textContent = voice.name || "未配置音色";
+        metaEl.textContent = voice.meta || "随角色动态更新";
+        btn.disabled = !!voice.unavailable;
+        btn.classList.remove("playing");
+        btn.title = voice.unavailable ? "当前角色未配置音色" : "试听当前角色音色";
+        btn.setAttribute("aria-label", btn.title);
+    }
+
+    function handleSceneUpload(event) {
+        const file = event.target.files && event.target.files[0];
+        if (!file) return;
+        if (!file.type || file.type.indexOf("image/") !== 0) {
+            showToast("上传失败", "请上传图片格式文件");
+            return;
+        }
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            uploadedSceneDataUrl = e.target.result || "";
+            uploadedSceneFileName = file.name;
+            document.getElementById("scenePreviewImg").src = uploadedSceneDataUrl;
+            document.getElementById("scenePreviewName").textContent = uploadedSceneFileName;
+            document.getElementById("scenePreview").classList.add("show");
+            updateSameStatus();
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function clearUploadedScene(shouldUpdate) {
+        uploadedSceneDataUrl = "";
+        uploadedSceneFileName = "";
+        const fileInput = document.getElementById("sameSceneFile");
+        if (fileInput) fileInput.value = "";
+        const preview = document.getElementById("scenePreview");
+        if (preview) preview.classList.remove("show");
+        const image = document.getElementById("scenePreviewImg");
+        if (image) image.removeAttribute("src");
+        const name = document.getElementById("scenePreviewName");
+        if (name) name.textContent = "";
+        if (shouldUpdate !== false) updateSameStatus();
+    }
+
+    function getSelectedRoleLabel() {
+        const select = document.getElementById("sameRole");
+        if (!select || select.selectedIndex < 0) return "";
+        return select.options[select.selectedIndex].text;
+    }
+
+    function readCreatedRoles() {
+        return readList(SUBJECT_LIBRARY_KEY).filter(item => item && item.type === "role").map(item => ({
+            id: item.id || item.name,
+            name: item.name || "未命名角色",
+            voice: item.voice || ""
+        }));
+    }
+
+    function readCreatedScenes() {
+        return readList(SAME_SCENE_KEY);
+    }
+
+    function stopSameVoicePreview() {
+        const btn = document.getElementById("sameVoicePlayBtn");
+        if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+        if (btn) btn.classList.remove("playing");
+    }
+
+    function preferredSameSpeechVoice(voiceName) {
+        const voices = "speechSynthesis" in window ? window.speechSynthesis.getVoices() : [];
+        const isEnglish = voiceName.indexOf("English") >= 0;
+        const localePrefix = isEnglish ? "en" : "zh";
+        return voices.find(voice => voice.lang && voice.lang.toLowerCase().indexOf(localePrefix) === 0) || voices[0] || null;
+    }
+
+    function previewSameVoice() {
+        const voice = getSelectedRoleVoice();
+        if (voice.unavailable || !voice.name) {
+            showToast("无法试听", "当前角色尚未关联音色");
+            return;
+        }
+        if (!("speechSynthesis" in window)) {
+            showToast("无法试听", "当前浏览器不支持语音试听");
+            return;
+        }
+        const btn = document.getElementById("sameVoicePlayBtn");
+        if (btn && btn.classList.contains("playing")) {
+            stopSameVoicePreview();
+            return;
+        }
+        stopSameVoicePreview();
+        const isEnglish = voice.name.indexOf("English") >= 0;
+        const scriptText = document.getElementById("sameScript").value.trim();
+        const previewText = isEnglish ? "Hello, this is a short preview of the selected voice." : (scriptText ? scriptText.slice(0, 42) : "您好，这是当前角色音色的试听效果。");
+        const utterance = new SpeechSynthesisUtterance(previewText);
+        const voiceProfile = voice.name + " " + (voice.meta || "");
+        utterance.lang = isEnglish ? "en-US" : "zh-CN";
+        utterance.rate = voiceProfile.indexOf("快讯") >= 0 || voiceProfile.indexOf("节奏明快") >= 0 ? 1.04 : 0.95;
+        utterance.pitch = voiceProfile.indexOf("女") >= 0 ? 1.08 : 0.94;
+        const matchedVoice = preferredSameSpeechVoice(voice.name);
+        if (matchedVoice) utterance.voice = matchedVoice;
+        utterance.onend = utterance.onerror = function() {
+            if (btn) btn.classList.remove("playing");
+        };
+        if (btn) btn.classList.add("playing");
+        window.speechSynthesis.speak(utterance);
+    }
+
+    function confirmSameTemplate() {
+        const item = resources.find(r => r.id === activeTemplateId);
+        if (!item) return;
+        const selectedVoice = getSelectedRoleVoice();
+        const draft = {
+            templateId: item.id,
+            templateTitle: item.title,
+            roleId: document.getElementById("sameRole").value,
+            roleLabel: getSelectedRoleLabel(),
+            roleVoiceName: selectedVoice.name || "",
+            roleVoiceMeta: selectedVoice.meta || "",
+            backgroundMode: activeSceneMode,
+            backgroundSceneId: document.getElementById("sameScene").value,
+            backgroundImageDataUrl: uploadedSceneDataUrl,
+            backgroundFileName: uploadedSceneFileName,
+            script: document.getElementById("sameScript").value,
+            reuse: {
+                role: document.getElementById("sameRole").value === "template",
+                background: activeSceneMode === "template",
+                script: document.getElementById("sameScript").value.trim() === String(item.script || "").trim()
+            }
+        };
+        try {
+            sessionStorage.setItem(TEMPLATE_DRAFT_KEY, JSON.stringify(draft));
+            const jobs = JSON.parse(sessionStorage.getItem(PENDING_VIDEO_JOBS_KEY) || "[]");
+            jobs.push({
+                id: "job-" + Date.now(),
+                templateTitle: item.title,
+                createdAt: new Date().toISOString(),
+                draft: draft
+            });
+            sessionStorage.setItem(PENDING_VIDEO_JOBS_KEY, JSON.stringify(jobs));
+        } catch (e) {}
+        closeSameModal();
+        showToast("生成任务已提交", "正在跳转至视频资产页，请稍候查看生成结果");
+        setTimeout(() => { window.location.href = "视频资产.html"; }, 900);
+    }
+
+    function previewResource(id) {
+        const item = resources.find(r => r.id === id);
+        if (!item) return;
+        if (item.type === "voice") {
+            toggleVoicePreview(id);
+            return;
+        }
+        if (item.type === "scene") {
+            openScenePreview(item);
+            return;
+        }
+        if (item.type === "template") {
+            openTemplateVideoPreview(item);
+            return;
+        }
+        previewResourceId = id;
+        document.getElementById("previewTitle").textContent = item.title;
+        document.getElementById("previewSub").textContent = "官方" + typeLabels[item.type] + " / " + item.meta;
+        document.getElementById("previewCopy").textContent = item.desc + (item.includes ? " " + item.includes : "");
+        document.getElementById("previewTags").innerHTML = item.tags.map(tag => '<span class="tag">' + escapeHtml(tag) + '</span>').join("");
+        document.getElementById("previewVisual").innerHTML = buildPreviewVisual(item);
+        document.getElementById("previewDetails").innerHTML =
+            detailItem("类型", typeLabels[item.type]) +
+            detailItem("行业", item.industry) +
+            getResourceDetailItems(item) +
+            detailItem("使用热度", item.favs + " 次");
+        document.getElementById("previewActionBtn").textContent = "查看预览";
+        syncPreviewAssetButton(id);
+        document.getElementById("previewMask").classList.add("show");
+    }
+
+    function openScenePreview(item) {
+        document.getElementById("scenePreviewTitle").textContent = item.title;
+        const image = document.getElementById("scenePreviewImage");
+        image.className = "scene-preview-image scene-visual " + item.visual;
+        image.innerHTML = buildVisual(item);
+        document.getElementById("scenePreviewMask").classList.add("show");
+    }
+
+    function detailItem(label, value) {
+        return '<div class="detail-item"><div class="detail-label">' + label + '</div><div class="detail-value">' + escapeHtml(value) + '</div></div>';
+    }
+
+    function buildPreviewVisual(item) {
+        if (item.type === "voice") {
+            return '<div class="voice-preview"><span class="resource-badge">官方音色</span><div class="voice-preview-title">' + escapeHtml(item.title) + '</div><div class="voice-preview-meta">' + escapeHtml(item.gender) + ' · ' + escapeHtml(item.tone) + '<br>适合场景：' + escapeHtml(item.suitableScene) + '</div></div>';
+        }
+        return '<div style="width:260px;height:190px;border-radius:16px;overflow:hidden;position:relative;background:#f1f5f9;">' + buildVisual(item) + '</div>';
+    }
+
+    function getResourceDetailItems(item) {
+        return attrSchemas[item.type].map(schema => detailItem(schema.label, item[schema.key])).join("");
+    }
+
+    function closePreview(event) {
+        if (event && event.target !== document.getElementById("previewMask")) return;
+        document.getElementById("previewMask").classList.remove("show");
+    }
+
+    function closeScenePreview(event) {
+        if (event && event.target !== document.getElementById("scenePreviewMask")) return;
+        document.getElementById("scenePreviewMask").classList.remove("show");
+    }
+
+    function previewPrimaryAction() {
+        const item = resources.find(r => r.id === previewResourceId);
+        if (!item) return;
+        showToast("预览资源", item.title + " 的预览效果已展示");
+    }
+
+    function addCurrentPreview() {
+        if (previewResourceId) toggleAsset(previewResourceId);
+        syncPreviewAssetButton(previewResourceId);
+    }
+
+    function syncPreviewAssetButton(id) {
+        const btn = document.getElementById("previewAddBtn");
+        const added = isAdded(id);
+        btn.textContent = added ? "移出资产库" : "加入资产库";
+        btn.classList.toggle("btn-added", added);
+        btn.classList.toggle("btn-primary", !added);
+    }
+
+    function updateMetrics() {
+        document.getElementById("metricTotal").textContent = resources.length;
+        document.getElementById("metricAdded").textContent = getAdded().length;
+    }
+
+    function showToast(title, text) {
+        document.getElementById("toastTitle").textContent = title;
+        document.getElementById("toastText").textContent = text || "";
+        document.getElementById("toast").classList.add("show");
+        if (toastTimer) clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => document.getElementById("toast").classList.remove("show"), 2400);
+    }
+
+    function escapeHtml(value) {
+        return String(value || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+    }
+
+    function jsString(value) {
+        return String(value || "").replace(/\\/g, "\\\\").replace(/'/g, "\\'");
+    }
+
+    document.addEventListener("keydown", function(event) {
+        if (event.key === "Escape") {
+            closePreview();
+            closeScenePreview();
+            closeTemplateVideoPreview();
+            closeSameModal();
+        }
+    });
+
+    render();
+</script>
+</body>
+</html>
