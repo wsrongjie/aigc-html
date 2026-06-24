@@ -775,7 +775,7 @@
                     <button class="btn btn-primary btn-sm" onclick="openSceneModal()" style="margin-left:auto">+ 新增场景</button>
                 </div>
                 <table>
-                    <thead><tr><th style="min-width:120px">场景名称</th><th>行业</th><th>画幅</th><th>场所</th><th>场景分类</th><th>操作</th></tr></thead>
+                    <thead><tr><th style="min-width:120px">场景名称</th><th>行业</th><th>画幅</th><th>场所</th><th>场景分类</th><th>使用次数</th><th>操作</th></tr></thead>
                     <tbody id="sceneConfigTable"></tbody>
                 </table>
             </div>
@@ -2500,15 +2500,18 @@ function renderSceneConfigs() {
     var html = '';
     for (var i = 0; i < AppState.sceneConfigs.length; i++) {
         var s = AppState.sceneConfigs[i];
+        var stCls = s.status === '启用' ? 'status-active' : 'status-stopped';
         html += '<tr>' +
-            '<td><strong>' + s.name + '</strong></td>' +
+            '<td><strong>' + s.name + '</strong><br><span class="status ' + stCls + '" style="font-size:11px;padding:1px 6px">' + (s.status === '启用' ? '上架' : '下架') + '</span></td>' +
             '<td>' + s.industry + '</td>' +
             '<td>' + s.ratio + '</td>' +
             '<td>' + s.place + '</td>' +
             '<td>' + s.scene + '</td>' +
+            '<td><strong>' + (s.used || 0).toLocaleString() + '</strong></td>' +
             '<td class="voice-actions">' +
                 '<button class="btn btn-xs" onclick="openSceneModal(' + i + ')">编辑</button> ' +
-                '<button class="btn btn-xs" onclick="previewSceneConfig(' + i + ')">预览</button>' +
+                '<button class="btn btn-xs" onclick="previewSceneConfig(' + i + ')">预览</button> ' +
+                '<button class="btn btn-xs ' + (s.status === '启用' ? '' : 'btn-primary') + '" onclick="toggleSceneStatus(' + i + ')">' + (s.status === '启用' ? '下架' : '上架') + '</button>' +
             '</td>' +
             '</tr>';
     }
@@ -2627,6 +2630,17 @@ function previewSceneConfig(index) {
 
 function closeScenePreview() {
     document.getElementById('scenePreviewMask').classList.remove('show');
+}
+
+function toggleSceneStatus(index) {
+    var s = AppState.sceneConfigs[index];
+    if (!s) return;
+    var before = s.status === '启用' ? '上架' : '下架';
+    s.status = s.status === '启用' ? '停用' : '启用';
+    addAuditLog('配置', s.name, before, s.status === '启用' ? '上架' : '下架', '调整场景状态');
+    saveData();
+    renderSceneConfigs();
+    toast('场景「' + s.name + '」已' + (s.status === '启用' ? '上架' : '下架'), 'success');
 }
 
 function buildSceneVisual() {
