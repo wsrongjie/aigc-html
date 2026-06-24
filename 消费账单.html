@@ -644,22 +644,18 @@ function openDetail(id) {
     var item = bills.find(function(row) { return row.id === id; });
     if (!item) return;
     document.getElementById('drawerTitle').textContent = item.title;
-    document.getElementById('drawerSub').textContent = item.id + ' · ' + item.time;
+    document.getElementById('drawerSub').textContent = '';
     document.getElementById('drawerBody').innerHTML =
         '<div class="detail-card">' +
             detailLine('账单类型', item.type) +
+            detailLine('任务时间', item.time) +
+            detailLine('任务编号', item.taskId) +
             detailLine('成员', item.member + ' · ' + item.role) +
             detailLine('业务内容', item.detail) +
             detailLine('模型 / 服务', item.model) +
             detailLine('积分变动', '<span class="' + amountClass(item.amount) + '">' + amountText(item.amount) + '</span>') +
             detailLine(item.amount < 0 ? '扣减后余额' : '变动后余额', formatNumber(item.balance)) +
             detailLine('状态', item.status) +
-        '</div>' +
-        '<div class="detail-card">' +
-            detailLine('任务编号', item.taskId) +
-            detailLine('订单编号', item.orderId) +
-            detailLine('支付方式', item.payMethod) +
-            detailLine('发票状态', item.invoice) +
         '</div>';
     document.getElementById('detailDrawer').classList.add('show');
 }
