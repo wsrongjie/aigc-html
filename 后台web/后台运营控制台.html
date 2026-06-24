@@ -623,7 +623,7 @@
                     <button class="btn btn-primary btn-sm" onclick="openVoiceModal()" style="margin-left:auto">+ 新增音色</button>
                 </div>
                 <table>
-                    <thead><tr><th>音色名称</th><th>音色 ID</th><th>适用场景</th><th>操作</th></tr></thead>
+                    <thead><tr><th style="min-width:120px">音色名称</th><th>性别</th><th>语气</th><th>音色 ID</th><th>操作</th></tr></thead>
                     <tbody id="voiceConfigTable"></tbody>
                 </table>
             </div>
@@ -745,18 +745,34 @@
     </div>
 </div>
 
-<!-- Modal：新增音色 -->
+<!-- Modal：新增/编辑音色 -->
 <div class="modal-overlay" id="voiceModalOverlay">
     <div class="modal" id="voiceModal">
         <div class="modal-header">
-            <span class="modal-title">新增音色</span>
+            <span class="modal-title" id="voiceModalTitle">新增音色</span>
             <button class="modal-close" onclick="closeVoiceModal()">×</button>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
             <div class="form-group"><label class="kv-label">音色名称 *</label><input class="filter-input" id="vfName" style="width:100%" placeholder="如：稳健男声 G"></div>
-            <div class="form-group"><label class="kv-label">音色 ID *</label><select class="filter-select" id="vfVoiceId" style="width:100%"></select></div>
-            <div class="form-group"><label class="kv-label">适用场景 *</label><input class="filter-input" id="vfScene" style="width:100%" placeholder="如：市场解读 / 投顾服务"></div>
+            <div class="form-group"><label class="kv-label">性别 *</label><select class="filter-select" id="vfGender" style="width:100%"><option value="">请选择</option><option value="男声">男声</option><option value="女声">女声</option><option value="中性">中性</option></select></div>
+            <div class="form-group"><label class="kv-label">语气 *</label><select class="filter-select" id="vfTone" style="width:100%"><option value="">请选择</option><option value="沉稳">沉稳</option><option value="亲和">亲和</option><option value="权威">权威</option><option value="干练">干练</option></select></div>
+            <div class="form-group"><label class="kv-label">音色 ID</label><input class="filter-input" id="vfVoiceId" style="width:100%" readonly placeholder="系统自动分配"></div>
         </div>
+        <div class="form-group" style="margin-bottom:14px">
+            <label class="kv-label">场景介绍</label>
+            <textarea id="vfDesc" style="width:100%;height:72px;padding:10px 12px;border:1px solid var(--border);border-radius:6px;font-size:13px;resize:none;line-height:1.5" placeholder="描述该音色的适用场景和风格特点..."></textarea>
+        </div>
+        <div class="form-group" style="margin-bottom:14px">
+            <label class="kv-label">上传语音文件</label>
+            <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+                <label class="btn btn-sm" style="cursor:pointer;display:inline-flex;align-items:center;gap:6px">
+                    📁 选择文件
+                    <input type="file" id="vfFile" accept="audio/*" style="display:none" onchange="onVoiceFileChange()">
+                </label>
+                <span id="vfFileName" style="font-size:12px;color:var(--text-muted)">未选择文件</span>
+            </div>
+        </div>
+        <input type="hidden" id="vfEditIndex">
         <div class="modal-footer">
             <button class="btn" onclick="closeVoiceModal()">取消</button>
             <button class="btn btn-primary" onclick="saveVoiceConfig()">保存</button>
@@ -1003,17 +1019,6 @@ function initData() {
     saveData();
 }
 
-var availableVoiceIds = [
-    { id: 'cosyvoice-v3.5-finance-male-001', name: '财经男声基准音色 #1' },
-    { id: 'cosyvoice-v3.5-finance-male-002', name: '财经男声基准音色 #2' },
-    { id: 'cosyvoice-v3.5-finance-female-001', name: '财经女声基准音色 #1' },
-    { id: 'cosyvoice-v3.5-news-male-001', name: '新闻播报基准音色' },
-    { id: 'cosyvoice-v3.5-warm-female-001', name: '亲和女声基准音色' },
-    { id: 'cosyvoice-v3.5-fast-male-001', name: '快讯男声基准音色' },
-    { id: 'cosyvoice-v3.5-default-male-001', name: '通用男声基准音色' },
-    { id: 'cosyvoice-v3.5-default-female-001', name: '通用女声基准音色' }
-];
-
 var AppState = {
     tenants: [
         { id:'t001',name:'雨虹投资',industry:'金融投顾',status:'启用中',adminName:'张明',adminPhone:'13800001001',adminEmail:'zhang@yh-am.com',dailyQuota:1000,dailyUsed:800,concurrency:10,modelLevel:'高级',credits:3200,expiry:'2026-12-31',openedAt:'2025-03-15',features:['视频生成','图片创作','语音合成','分镜管理'] },
@@ -1078,11 +1083,11 @@ var AppState = {
         { time:'2026-01-15 17:00',title:'dir_video_v8 发布',desc:'导演台·分镜短视频生成提示词更新，优化人物一致性描述',status:'发布',operator:'admin' }
     ],
     voiceConfigs: [
-        { name:'沉稳男声 A', voiceId:'cosyvoice-v3.5-finance-male-001', type:'男声', scene:'市场解读 / 资产配置', binding:'稳健男性投顾', status:'启用' },
-        { name:'职业女声 B', voiceId:'cosyvoice-v3.5-finance-female-001', type:'女声', scene:'基金定投 / 投顾服务', binding:'知性女性投顾', status:'启用' },
-        { name:'新闻播报 C', voiceId:'cosyvoice-v3.5-news-male-001', type:'中性', scene:'风险提示 / 合规提示', binding:'风控讲解员', status:'启用' },
-        { name:'快讯男声 F', voiceId:'cosyvoice-v3.5-fast-male-001', type:'男声', scene:'热点快评 / 早盘速递', binding:'快评主持人', status:'启用' },
-        { name:'亲和女声 E', voiceId:'cosyvoice-v3.5-warm-female-001', type:'女声', scene:'账户服务 / 新手引导', binding:'客服讲解员', status:'停用' }
+        { name:'沉稳男声 A', voiceId:'cosyvoice-v3.5-finance-male-001', gender:'男声', tone:'沉稳', desc:'适合收评、资产配置、风险提示等需要可信度的投顾口播。', voiceFile:'', status:'启用' },
+        { name:'知性女声 B', voiceId:'cosyvoice-v3.5-finance-female-001', gender:'女声', tone:'亲和', desc:'语速适中，适合基金定投、理财入门、客户服务型视频。', voiceFile:'', status:'启用' },
+        { name:'新闻播报 C', voiceId:'cosyvoice-v3.5-news-male-001', gender:'中性', tone:'权威', desc:'适合合规提示、风险教育和公告解读，表达克制清楚。', voiceFile:'', status:'启用' },
+        { name:'快讯男声 F', voiceId:'cosyvoice-v3.5-fast-male-001', gender:'男声', tone:'干练', desc:'适合热点事件和盘中快评，节奏更紧凑，信息密度高。', voiceFile:'', status:'启用' },
+        { name:'亲和女声 E', voiceId:'cosyvoice-v3.5-warm-female-001', gender:'女声', tone:'亲和', desc:'适合账户服务、新手引导等需要亲和力的场景。', voiceFile:'', status:'停用' }
     ],
     creditRate: 10,
     pricingRules: [
@@ -2032,11 +2037,18 @@ function renderVoiceConfigs() {
     for (var i = 0; i < AppState.voiceConfigs.length; i++) {
         var v = AppState.voiceConfigs[i];
         var stCls = v.status === '启用' ? 'status-active' : 'status-stopped';
+        var toneCls = v.tone === '沉稳' ? 'chip-blue' : (v.tone === '干练' ? 'chip-green' : '');
+        var fileLabel = v.voiceFile ? '<span style="color:var(--text-muted);font-size:12px">📄 ' + v.voiceFile + '</span>' : '<span style="color:var(--text-muted);font-size:12px">-</span>';
         html += '<tr>' +
             '<td><strong>' + v.name + '</strong></td>' +
+            '<td><span class="status ' + stCls + '" style="font-size:11px;padding:2px 8px">' + (v.gender || '-') + '</span></td>' +
+            '<td>' + (v.tone ? '<span class="chip ' + toneCls + '">' + v.tone + '</span>' : '<span style="color:var(--text-muted)">-</span>') + '</td>' +
             '<td><code style="font-size:12px;background:#F0F0F3;padding:2px 6px;border-radius:4px">' + (v.voiceId || '-') + '</code></td>' +
-            '<td>' + v.scene + '</td>' +
-            '<td><button class="btn btn-xs" onclick="previewVoice(' + i + ')">试听</button> <button class="btn btn-xs" onclick="toggleVoiceStatus(' + i + ')">' + (v.status === '启用' ? '停用' : '启用') + '</button></td>' +
+            '<td class="voice-actions">' +
+                '<button class="btn btn-xs" onclick="openVoiceModal(' + i + ')">编辑</button> ' +
+                '<button class="btn btn-xs" onclick="previewVoice(' + i + ')">试听</button> ' +
+                '<button class="btn btn-xs ' + (v.status === '启用' ? '' : 'btn-primary') + '" onclick="toggleVoiceStatus(' + i + ')">' + (v.status === '启用' ? '停用' : '启用') + '</button>' +
+            '</td>' +
             '</tr>';
     }
     document.getElementById('voiceConfigTable').innerHTML = html;
@@ -2045,33 +2057,34 @@ function renderVoiceConfigs() {
 function previewVoice(index) {
     var v = AppState.voiceConfigs[index];
     if (!v) return;
-    toast('正在试听「' + v.name + '」ID: ' + (v.voiceId || '-'));
+    if (v.voiceFile) {
+        toast('🎵 正在试听「' + v.name + '」— 文件：' + v.voiceFile);
+    } else {
+        toast('🎵 正在试听「' + v.name + '」' + (v.voiceId ? '（ID: ' + v.voiceId + '）' : ''));
+    }
 }
 
-function populateVoiceIdSelect(selectedId) {
-    var sel = document.getElementById('vfVoiceId');
-    var boundIds = {};
-    for (var i = 0; i < AppState.voiceConfigs.length; i++) {
-        if (AppState.voiceConfigs[i].voiceId) {
-            boundIds[AppState.voiceConfigs[i].voiceId] = AppState.voiceConfigs[i].name;
-        }
+function openVoiceModal(editIndex) {
+    var isEdit = typeof editIndex === 'number';
+    document.getElementById('voiceModalTitle').textContent = isEdit ? '编辑音色' : '新增音色';
+    document.getElementById('vfEditIndex').value = isEdit ? editIndex : '';
+    if (isEdit) {
+        var v = AppState.voiceConfigs[editIndex];
+        document.getElementById('vfName').value = v.name || '';
+        document.getElementById('vfGender').value = v.gender || '';
+        document.getElementById('vfTone').value = v.tone || '';
+        document.getElementById('vfVoiceId').value = v.voiceId || '（系统分配）';
+        document.getElementById('vfDesc').value = v.desc || '';
+        document.getElementById('vfFileName').textContent = v.voiceFile ? '📄 ' + v.voiceFile : '未选择文件';
+    } else {
+        document.getElementById('vfName').value = '';
+        document.getElementById('vfGender').value = '';
+        document.getElementById('vfTone').value = '';
+        document.getElementById('vfVoiceId').value = '（系统自动分配）';
+        document.getElementById('vfDesc').value = '';
+        document.getElementById('vfFileName').textContent = '未选择文件';
+        document.getElementById('vfFile').value = '';
     }
-    var opts = '<option value="">请选择音色 ID</option>';
-    for (var j = 0; j < availableVoiceIds.length; j++) {
-        var av = availableVoiceIds[j];
-        var bound = boundIds[av.id];
-        var disabled = bound ? ' disabled' : '';
-        var note = bound ? '（已绑定：' + bound + '）' : '（空闲）';
-        var selected = av.id === selectedId ? ' selected' : '';
-        opts += '<option value="' + av.id + '"' + disabled + selected + '>' + av.id + ' - ' + av.name + ' ' + note + '</option>';
-    }
-    sel.innerHTML = opts;
-}
-
-function openVoiceModal() {
-    document.getElementById('vfName').value = '';
-    document.getElementById('vfScene').value = '';
-    populateVoiceIdSelect('');
     document.getElementById('voiceModalOverlay').classList.add('show');
 }
 
@@ -2079,23 +2092,46 @@ function closeVoiceModal() {
     document.getElementById('voiceModalOverlay').classList.remove('show');
 }
 
+function onVoiceFileChange() {
+    var fileInput = document.getElementById('vfFile');
+    var file = fileInput.files && fileInput.files[0];
+    document.getElementById('vfFileName').textContent = file ? '📄 ' + file.name : '未选择文件';
+}
+
 function saveVoiceConfig() {
     var data = {
         name: document.getElementById('vfName').value.trim(),
-        voiceId: document.getElementById('vfVoiceId').value,
-        scene: document.getElementById('vfScene').value.trim()
+        gender: document.getElementById('vfGender').value,
+        tone: document.getElementById('vfTone').value,
+        desc: document.getElementById('vfDesc').value.trim(),
+        voiceFile: document.getElementById('vfFileName').textContent.replace('📄 ', '')
     };
-    if (!data.name || !data.voiceId || !data.scene) {
-        toast('请完整填写音色名称、音色 ID 和适用场景', 'error');
+    if (data.voiceFile === '未选择文件') data.voiceFile = '';
+    if (!data.name || !data.gender || !data.tone) {
+        toast('请填写音色名称、性别和语气', 'error');
         return;
     }
 
-    AppState.voiceConfigs.push({ name: data.name, voiceId: data.voiceId, scene: data.scene, status: '启用' });
-    addAuditLog('配置', data.name, '-', '启用', '新增内置音色');
+    var editIndex = document.getElementById('vfEditIndex').value;
+    if (editIndex) {
+        var v = AppState.voiceConfigs[parseInt(editIndex)];
+        if (v) {
+            v.name = data.name; v.gender = data.gender; v.tone = data.tone;
+            v.desc = data.desc; v.voiceFile = data.voiceFile;
+            addAuditLog('配置', data.name, '-', '-', '编辑内置音色');
+            toast('音色「' + data.name + '」已更新', 'success');
+        }
+    } else {
+        AppState.voiceConfigs.push({
+            name: data.name, voiceId: '', gender: data.gender, tone: data.tone,
+            desc: data.desc, voiceFile: data.voiceFile, status: '启用'
+        });
+        addAuditLog('配置', data.name, '-', '启用', '新增内置音色');
+        toast('音色「' + data.name + '」已新增', 'success');
+    }
     saveData();
     closeVoiceModal();
     renderVoiceConfigs();
-    toast('音色「' + data.name + '」已新增', 'success');
 }
 
 function toggleVoiceStatus(index) {
