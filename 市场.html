@@ -594,7 +594,7 @@
         .detail-value { font-weight: 800; font-size: 13px; }
         .preview-copy { color: var(--text-secondary); line-height: 1.75; margin-top: 8px; }
         .scene-preview-modal {
-            width: min(920px, 94vw);
+            width: min(800px, 94vw);
             background: #fff;
             border-radius: 16px;
             box-shadow: 0 28px 74px rgba(15,23,42,.26);
@@ -609,18 +609,51 @@
             border-bottom: 1px solid var(--border);
         }
         .scene-preview-title { font-size: 16px; font-weight: 900; }
-        .scene-preview-body { padding: 18px; background: #f8fafc; }
-        .scene-preview-image {
-            height: min(62vh, 560px);
-            min-height: 360px;
-            border-radius: 14px;
-            position: relative;
-            overflow: hidden;
-            background: #f1f5f9;
+        .scene-preview-tags {
+            padding: 10px 20px;
+            display: flex; gap: 6px; flex-wrap: wrap;
+            border-bottom: 1px solid var(--border);
         }
-        .scene-preview-image.scene-visual { height: min(62vh, 560px); aspect-ratio: unset; }
-        .scene-preview-image .scene-lines { inset: 34px; border-radius: 18px; background-size: 52px 52px; }
-        .scene-preview-image .scene-desk { left: 80px; right: 80px; bottom: 48px; height: 36px; }
+        .scene-preview-tags .tag {
+            height: 24px; padding: 0 10px; border-radius: 999px;
+            background: var(--primary-soft); color: var(--primary);
+            font-size: 11px; font-weight: 800; display: inline-flex; align-items: center;
+        }
+        .scene-preview-body {
+            padding: 16px; background: #f8fafc;
+            display: flex; gap: 16px;
+        }
+        .scene-preview-image, .scene-preview-effect {
+            flex: 1; min-width: 0;
+            aspect-ratio: 9 / 16; max-height: 420px;
+            border-radius: 12px; position: relative; overflow: hidden;
+        }
+        .scene-preview-image.scene-visual { height: auto; aspect-ratio: 9/16; max-height: 420px; min-height: 0; border-radius: 12px; }
+        .scene-preview-image .scene-lines { inset: 16px 24px; border-radius: 12px; background-size: 24px 24px; border-width: 1px; }
+        .scene-preview-image .scene-desk { left: 28px; right: 28px; bottom: 20px; height: 14px; border-radius: 10px 10px 4px 4px; }
+        .scene-preview-effect .scene-lines { inset: 16px 24px; border-radius: 12px; background-size: 24px 24px; }
+        .scene-preview-effect .scene-desk { left: 28px; right: 28px; bottom: 20px; height: 14px; border-radius: 10px 10px 4px 4px; z-index: 3; }
+        .effect-person {
+            position: absolute; left: 50%; bottom: 50%;
+            transform: translate(-50%, 28%);
+            display: flex; flex-direction: column; align-items: center;
+            z-index: 2;
+        }
+        .effect-person-head {
+            width: 52px; height: 52px; border-radius: 50%;
+            background: rgba(255,255,255,.82);
+            box-shadow: 0 4px 12px rgba(0,0,0,.12);
+        }
+        .effect-person-body {
+            width: 72px; height: 40px;
+            border-radius: 28px 28px 8px 8px;
+            background: rgba(255,255,255,.5);
+            margin-top: -10px;
+        }
+        @media (max-width: 700px) {
+            .scene-preview-body { flex-direction: column; align-items: center; }
+            .scene-preview-image, .scene-preview-effect { max-height: 300px; width: 100%; }
+        }
         .template-video-modal {
             width: min(520px, 94vw);
             background: #fff;
@@ -1047,8 +1080,10 @@
             <div class="scene-preview-title" id="scenePreviewTitle"></div>
             <button class="close-btn" onclick="closeScenePreview()">×</button>
         </div>
+        <div class="scene-preview-tags" id="scenePreviewTags"></div>
         <div class="scene-preview-body">
             <div class="scene-preview-image" id="scenePreviewImage"></div>
+            <div class="scene-preview-effect" id="scenePreviewEffect"></div>
         </div>
     </div>
 </div>
@@ -2084,10 +2119,27 @@
 
     function openScenePreview(item) {
         document.getElementById("scenePreviewTitle").textContent = item.title;
+        const cardTags = getCardTags(item);
+        const allTags = cardTags.concat(item.tags);
+        const seen = {};
+        const uniqueTags = allTags.filter(t => { const k = t.toLowerCase(); if (seen[k]) return false; seen[k] = true; return true; });
+        document.getElementById("scenePreviewTags").innerHTML = uniqueTags.map(t => '<span class="tag">' + escapeHtml(t) + '</span>').join("");
         const image = document.getElementById("scenePreviewImage");
         image.className = "scene-preview-image scene-visual " + item.visual;
         image.innerHTML = buildVisual(item);
+        const effect = document.getElementById("scenePreviewEffect");
+        effect.className = "scene-preview-effect scene-visual " + item.visual;
+        effect.innerHTML = buildEffectVisual(item);
         document.getElementById("scenePreviewMask").classList.add("show");
+    }
+
+    function buildEffectVisual(item) {
+        return '<div class="scene-lines"></div>' +
+            '<div class="effect-person">' +
+                '<div class="effect-person-head"></div>' +
+                '<div class="effect-person-body"></div>' +
+            '</div>' +
+            '<div class="scene-desk"></div>';
     }
 
     function detailItem(label, value) {
