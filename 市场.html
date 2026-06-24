@@ -70,6 +70,9 @@
             background: rgba(47,107,255,0.15);
             border-left: 3px solid var(--primary);
         }
+        .nav-section-title .collapse-icon { font-size: 10px; transition: transform 0.2s; }
+        .nav-section-title.collapsed .collapse-icon { transform: rotate(-90deg); }
+        .nav-icon { width: 18px; text-align: center; font-size: 15px; }
         .nav-section-children { display: flex; flex-direction: column; }
         .nav-sub-item {
             display: flex; align-items: center; gap: 10px; padding: 9px 20px 9px 36px;
@@ -888,26 +891,38 @@
         </a>
     </div>
     <nav class="sidebar-nav">
-        <div class="nav-section"><a class="nav-section-title" href="index.html"><span>🏠 首页</span></a></div>
         <div class="nav-section">
-            <div class="nav-section-title"><span>资产</span><span>▾</span></div>
+            <a class="nav-section-title" href="index.html" style="text-decoration:none;"><span class="nav-icon">🏠</span> 首页</a>
+        </div>
+        <div class="nav-section">
+            <a class="nav-section-title active" href="市场.html" style="text-decoration:none;"><span class="nav-icon">🏪</span> 市场</a>
+        </div>
+        <div class="nav-section">
+            <div class="nav-section-title" onclick="toggleSection(this)">
+                <span class="nav-icon">📦</span> 资产 <span class="collapse-icon">▾</span>
+            </div>
             <div class="nav-section-children">
-                <a class="nav-sub-item" href="主体管理-首页.html"><span>👤</span> 主体</a>
-                <a class="nav-sub-item" href="语音首页.html"><span>🎙</span> 音频</a>
-                <a class="nav-sub-item" href="视频资产.html"><span>🎬</span> 视频</a>
+                <a class="nav-sub-item" href="主体管理-首页.html"><span class="nav-icon">👤</span> 主体</a>
+                <a class="nav-sub-item" href="语音首页.html"><span class="nav-icon">🎙</span> 音频</a>
+                <a class="nav-sub-item" href="视频资产.html"><span class="nav-icon">🎬</span> 视频</a>
             </div>
         </div>
-        <div class="nav-section"><a class="nav-section-title" href="导演台首页.html"><span>🎬 导演台</span></a></div>
-        <div class="nav-section"><a class="nav-section-title" href="全部工具.html"><span>🛠 全部工具</span></a></div>
-        <div class="nav-section"><a class="nav-section-title active" href="市场.html"><span>🏪 市场</span></a></div>
         <div class="nav-section">
-            <div class="nav-section-title"><span>个人中心</span><span>▾</span></div>
+            <a class="nav-section-title" href="导演台首页.html" style="text-decoration:none;"><span class="nav-icon">🎬</span> 导演台</a>
+        </div>
+        <div class="nav-section">
+            <a class="nav-section-title" href="全部工具.html" style="text-decoration:none;"><span class="nav-icon">🛠</span> 全部工具</a>
+        </div>
+        <div class="nav-section">
+            <div class="nav-section-title" onclick="toggleSection(this)">
+                <span class="nav-icon">👤</span> 个人中心 <span class="collapse-icon">▾</span>
+            </div>
             <div class="nav-section-children">
-                <a class="nav-sub-item" href="个人信息.html"><span>👤</span> 个人信息</a>
-                <a class="nav-sub-item" href="账号绑定.html"><span>🔗</span> 账号绑定</a>
-                <a class="nav-sub-item" href="团队管理.html"><span>👥</span> 团队管理</a>
-                <a class="nav-sub-item" href="套餐与支付.html"><span>💳</span> 积分与支付</a>
-                <a class="nav-sub-item" href="消费账单.html"><span>🧾</span> 消费账单</a>
+                <a class="nav-sub-item" href="个人信息.html"><span class="nav-icon">👤</span> 个人信息</a>
+                <a class="nav-sub-item" href="账号绑定.html"><span class="nav-icon">🔗</span> 账号绑定</a>
+                <a class="nav-sub-item" href="团队管理.html"><span class="nav-icon">👥</span> 团队管理</a>
+                <a class="nav-sub-item" href="套餐与支付.html"><span class="nav-icon">💳</span> 积分与支付</a>
+                <a class="nav-sub-item" href="消费账单.html"><span class="nav-icon">🧾</span> 消费账单</a>
             </div>
         </div>
     </nav>
@@ -1086,6 +1101,11 @@
 <div class="toast" id="toast"><strong id="toastTitle"></strong><span id="toastText"></span></div>
 
 <script>
+    function toggleSection(titleEl) {
+        titleEl.classList.toggle('collapsed');
+        var children = titleEl.nextElementSibling;
+        if (children) children.classList.toggle('hidden');
+    }
     const ADDED_KEY = "marketAddedAssets";
     const SUBJECT_LIBRARY_KEY = "subjectLibraryItems";
     const SAME_SCENE_KEY = "aigc_subject_scenes";
