@@ -633,6 +633,14 @@
         .scene-preview-image .scene-desk { left: 28px; right: 28px; bottom: 20px; height: 14px; border-radius: 10px 10px 4px 4px; }
         .scene-preview-effect .scene-lines { inset: 16px 24px; border-radius: 12px; background-size: 24px 24px; }
         .scene-preview-effect .scene-desk { left: 28px; right: 28px; bottom: 20px; height: 14px; border-radius: 10px 10px 4px 4px; z-index: 3; }
+        .preview-badge {
+            position: absolute; top: 10px; left: 10px; z-index: 10;
+            height: 22px; padding: 0 9px; border-radius: 999px;
+            background: rgba(0,0,0,.55); color: #fff;
+            display: inline-flex; align-items: center;
+            font-size: 11px; font-weight: 800;
+            backdrop-filter: blur(6px);
+        }
         .effect-person {
             position: absolute; left: 50%; bottom: 50%;
             transform: translate(-50%, 28%);
@@ -2126,10 +2134,10 @@
         document.getElementById("scenePreviewTags").innerHTML = uniqueTags.map(t => '<span class="tag">' + escapeHtml(t) + '</span>').join("");
         const image = document.getElementById("scenePreviewImage");
         image.className = "scene-preview-image scene-visual " + item.visual;
-        image.innerHTML = buildVisual(item);
+        image.innerHTML = '<span class="preview-badge">场景原图</span>' + buildVisual(item);
         const effect = document.getElementById("scenePreviewEffect");
         effect.className = "scene-preview-effect scene-visual " + item.visual;
-        effect.innerHTML = buildEffectVisual(item);
+        effect.innerHTML = '<span class="preview-badge">人物+场景示例</span>' + buildEffectVisual(item);
         document.getElementById("scenePreviewMask").classList.add("show");
     }
 
