@@ -558,11 +558,11 @@
         <div class="nav-item" data-view="view-billing"><span class="nav-icon">💰</span> 积分与账单</div>
         <div class="nav-item nav-parent" data-toggle="business-config"><span class="nav-icon">⚙️</span> 业务配置 <span class="nav-caret">▾</span></div>
         <div class="nav-submenu" id="businessConfigSubmenu">
+            <div class="nav-item sub" data-view="view-template-config"><span class="nav-icon">●</span> 模板配置</div>
             <div class="nav-item sub" data-view="view-voice-config"><span class="nav-icon">●</span> 音色配置</div>
+            <div class="nav-item sub" data-view="view-scene-config"><span class="nav-icon">●</span> 场景配置</div>
             <div class="nav-item sub" data-view="view-credit-config"><span class="nav-icon">●</span> 积分配置</div>
             <div class="nav-item sub" data-view="view-prompt-config"><span class="nav-icon">●</span> 提示词配置</div>
-            <div class="nav-item sub" data-view="view-template-config"><span class="nav-icon">●</span> 模板配置</div>
-            <div class="nav-item sub" data-view="view-scene-config"><span class="nav-icon">●</span> 场景配置</div>
         </div>
         <div class="nav-item" data-view="view-audit"><span class="nav-icon">🧾</span> 操作审计</div>
     </nav>
@@ -708,6 +708,20 @@
             </div>
         </div>
 
+        <!-- 视图：模板配置 -->
+        <div class="panel" id="view-template-config">
+            <div class="section-title">模板配置</div>
+            <div class="table-wrap">
+                <div class="table-toolbar">
+                    <span style="font-weight:600;font-size:13px">业务内置视频模板</span>
+                </div>
+                <table>
+                    <thead><tr><th>模板名称</th><th>业务场景</th><th>适用行业</th><th>默认角色</th><th>默认音色</th><th>状态</th><th>使用次数</th><th>操作</th></tr></thead>
+                    <tbody id="templateConfigTable"></tbody>
+                </table>
+            </div>
+        </div>
+
         <!-- 视图：音色配置 -->
         <div class="panel" id="view-voice-config">
             <div class="section-title">音色配置</div>
@@ -717,8 +731,23 @@
                     <button class="btn btn-primary btn-sm" onclick="openVoiceModal()" style="margin-left:auto">+ 新增音色</button>
                 </div>
                 <table>
-                    <thead><tr><th style="min-width:120px">音色名称</th><th>性别</th><th>语气</th><th>音色 ID</th><th>操作</th></tr></thead>
+                    <thead><tr><th style="min-width:120px">音色名称</th><th>性别</th><th>语气</th><th>音色 ID</th><th>使用次数</th><th>操作</th></tr></thead>
                     <tbody id="voiceConfigTable"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 视图：场景配置 -->
+        <div class="panel" id="view-scene-config">
+            <div class="section-title">场景配置</div>
+            <div class="table-wrap">
+                <div class="table-toolbar">
+                    <span style="font-weight:600;font-size:13px">平台内置场景</span>
+                    <button class="btn btn-primary btn-sm" onclick="openSceneModal()" style="margin-left:auto">+ 新增场景</button>
+                </div>
+                <table>
+                    <thead><tr><th style="min-width:120px">场景名称</th><th>行业</th><th>画幅</th><th>场所</th><th>场景分类</th><th>使用次数</th><th>操作</th></tr></thead>
+                    <tbody id="sceneConfigTable"></tbody>
                 </table>
             </div>
         </div>
@@ -749,35 +778,6 @@
                     <span style="font-weight:600;font-size:13px">最近版本变更</span>
                 </div>
                 <div class="timeline" id="releaseTimeline" style="padding:14px 18px"></div>
-            </div>
-        </div>
-
-        <!-- 视图：模板配置 -->
-        <div class="panel" id="view-template-config">
-            <div class="section-title">模板配置</div>
-            <div class="table-wrap">
-                <div class="table-toolbar">
-                    <span style="font-weight:600;font-size:13px">业务内置视频模板</span>
-                </div>
-                <table>
-                    <thead><tr><th>模板名称</th><th>业务场景</th><th>适用行业</th><th>默认角色</th><th>默认音色</th><th>状态</th><th>操作</th></tr></thead>
-                    <tbody id="templateConfigTable"></tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- 视图：场景配置 -->
-        <div class="panel" id="view-scene-config">
-            <div class="section-title">场景配置</div>
-            <div class="table-wrap">
-                <div class="table-toolbar">
-                    <span style="font-weight:600;font-size:13px">平台内置场景</span>
-                    <button class="btn btn-primary btn-sm" onclick="openSceneModal()" style="margin-left:auto">+ 新增场景</button>
-                </div>
-                <table>
-                    <thead><tr><th style="min-width:120px">场景名称</th><th>行业</th><th>画幅</th><th>场所</th><th>场景分类</th><th>使用次数</th><th>操作</th></tr></thead>
-                    <tbody id="sceneConfigTable"></tbody>
-                </table>
             </div>
         </div>
 
@@ -854,6 +854,29 @@
     </div>
 </div>
 
+<!-- Modal：新增/编辑模板 -->
+<div class="modal-overlay" id="templateModalOverlay">
+    <div class="modal" id="templateModal">
+        <div class="modal-header">
+            <span class="modal-title" id="templateModalTitle">编辑模板</span>
+            <button class="modal-close" onclick="closeTemplateModal()">×</button>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
+            <div class="form-group"><label class="kv-label">模板名称 *</label><input class="filter-input" id="tmplName" style="width:100%"></div>
+            <div class="form-group"><label class="kv-label">业务场景 *</label><input class="filter-input" id="tmplScene" style="width:100%"></div>
+            <div class="form-group"><label class="kv-label">适用行业 *</label><input class="filter-input" id="tmplIndustry" style="width:100%"></div>
+            <div class="form-group"><label class="kv-label">默认角色</label><input class="filter-input" id="tmplRole" style="width:100%"></div>
+            <div class="form-group"><label class="kv-label">默认音色</label><input class="filter-input" id="tmplVoice" style="width:100%"></div>
+            <div class="form-group"><label class="kv-label">使用次数</label><input class="filter-input" id="tmplUsed" style="width:100%" type="number" min="0" value="0"></div>
+        </div>
+        <input type="hidden" id="tmplEditIndex">
+        <div class="modal-footer">
+            <button class="btn" onclick="closeTemplateModal()">取消</button>
+            <button class="btn btn-primary" onclick="saveTemplateConfig()">保存</button>
+        </div>
+    </div>
+</div>
+
 <!-- Modal：新增/编辑音色 -->
 <div class="modal-overlay" id="voiceModalOverlay">
     <div class="modal" id="voiceModal">
@@ -866,6 +889,7 @@
             <div class="form-group"><label class="kv-label">性别 *</label><select class="filter-select" id="vfGender" style="width:100%"><option value="">请选择</option><option value="男声">男声</option><option value="女声">女声</option><option value="中性">中性</option></select></div>
             <div class="form-group"><label class="kv-label">语气 *</label><select class="filter-select" id="vfTone" style="width:100%"><option value="">请选择</option><option value="沉稳">沉稳</option><option value="亲和">亲和</option><option value="权威">权威</option><option value="干练">干练</option></select></div>
             <div class="form-group"><label class="kv-label">音色 ID</label><input class="filter-input" id="vfVoiceId" style="width:100%" readonly placeholder="系统自动分配"></div>
+            <div class="form-group"><label class="kv-label">使用次数</label><input class="filter-input" id="vfUsed" style="width:100%" type="number" min="0" value="0"></div>
         </div>
         <div class="form-group" style="margin-bottom:14px">
             <label class="kv-label">场景介绍</label>
@@ -1112,7 +1136,7 @@ function switchView(viewId) {
     document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active'); });
     var currentNav = document.querySelector('.nav-item[data-view="' + viewId + '"]');
     if (currentNav) currentNav.classList.add('active');
-    var businessViews = ['view-voice-config','view-credit-config','view-prompt-config','view-template-config','view-scene-config'];
+    var businessViews = ['view-template-config','view-voice-config','view-scene-config','view-credit-config','view-prompt-config'];
     var inBusiness = businessViews.indexOf(viewId) !== -1;
     if (inBusiness) {
         document.querySelector('.nav-parent[data-toggle="business-config"]').classList.add('active');
@@ -1263,11 +1287,11 @@ var AppState = {
         { time:'2026-01-15 17:00',title:'dir_video_v8 发布',desc:'导演台·分镜短视频生成提示词更新，优化人物一致性描述',status:'发布',operator:'admin' }
     ],
     voiceConfigs: [
-        { name:'沉稳男声 A', voiceId:'cosyvoice-v3.5-finance-male-001', gender:'男声', tone:'沉稳', desc:'适合收评、资产配置、风险提示等需要可信度的投顾口播。', voiceFile:'', status:'启用' },
-        { name:'知性女声 B', voiceId:'cosyvoice-v3.5-finance-female-001', gender:'女声', tone:'亲和', desc:'语速适中，适合基金定投、理财入门、客户服务型视频。', voiceFile:'', status:'启用' },
-        { name:'新闻播报 C', voiceId:'cosyvoice-v3.5-news-male-001', gender:'中性', tone:'权威', desc:'适合合规提示、风险教育和公告解读，表达克制清楚。', voiceFile:'', status:'启用' },
-        { name:'快讯男声 F', voiceId:'cosyvoice-v3.5-fast-male-001', gender:'男声', tone:'干练', desc:'适合热点事件和盘中快评，节奏更紧凑，信息密度高。', voiceFile:'', status:'启用' },
-        { name:'亲和女声 E', voiceId:'cosyvoice-v3.5-warm-female-001', gender:'女声', tone:'亲和', desc:'适合账户服务、新手引导等需要亲和力的场景。', voiceFile:'', status:'停用' }
+        { name:'沉稳男声 A', voiceId:'cosyvoice-v3.5-finance-male-001', gender:'男声', tone:'沉稳', desc:'适合收评、资产配置、风险提示等需要可信度的投顾口播。', voiceFile:'', used:1856, status:'启用' },
+        { name:'知性女声 B', voiceId:'cosyvoice-v3.5-finance-female-001', gender:'女声', tone:'亲和', desc:'语速适中，适合基金定投、理财入门、客户服务型视频。', voiceFile:'', used:1432, status:'启用' },
+        { name:'新闻播报 C', voiceId:'cosyvoice-v3.5-news-male-001', gender:'中性', tone:'权威', desc:'适合合规提示、风险教育和公告解读，表达克制清楚。', voiceFile:'', used:987, status:'启用' },
+        { name:'快讯男声 F', voiceId:'cosyvoice-v3.5-fast-male-001', gender:'男声', tone:'干练', desc:'适合热点事件和盘中快评，节奏更紧凑，信息密度高。', voiceFile:'', used:756, status:'启用' },
+        { name:'亲和女声 E', voiceId:'cosyvoice-v3.5-warm-female-001', gender:'女声', tone:'亲和', desc:'适合账户服务、新手引导等需要亲和力的场景。', voiceFile:'', used:0, status:'停用' }
     ],
     creditRate: 10,
     pricingRules: [
@@ -1283,11 +1307,11 @@ var AppState = {
         ]}
     ],
     templateConfigs: [
-        { name:'市场收评模板', scene:'收盘解读 / 市场复盘', industry:'金融投顾', role:'稳健男性投顾', voice:'沉稳男声 A', status:'启用' },
-        { name:'基金定投科普模板', scene:'基金知识 / 定投教育', industry:'金融投顾', role:'知性女性投顾', voice:'知性女声 B', status:'启用' },
-        { name:'风险提示模板', scene:'风险揭示 / 合规提示', industry:'金融投顾', role:'风控讲解员', voice:'新闻播报 C', status:'启用' },
-        { name:'热点快评模板', scene:'热点事件 / 快讯点评', industry:'金融投顾', role:'快评主持人', voice:'快讯男声 F', status:'启用' },
-        { name:'服务引导模板', scene:'客户服务 / 操作引导', industry:'通用', role:'客服讲解员', voice:'亲和女声 E', status:'停用' }
+        { name:'市场收评模板', scene:'收盘解读 / 市场复盘', industry:'金融投顾', role:'稳健男性投顾', voice:'沉稳男声 A', used:2456, status:'启用' },
+        { name:'基金定投科普模板', scene:'基金知识 / 定投教育', industry:'金融投顾', role:'知性女性投顾', voice:'知性女声 B', used:1876, status:'启用' },
+        { name:'风险提示模板', scene:'风险揭示 / 合规提示', industry:'金融投顾', role:'风控讲解员', voice:'新闻播报 C', used:1123, status:'启用' },
+        { name:'热点快评模板', scene:'热点事件 / 快讯点评', industry:'金融投顾', role:'快评主持人', voice:'快讯男声 F', used:678, status:'启用' },
+        { name:'服务引导模板', scene:'客户服务 / 操作引导', industry:'通用', role:'客服讲解员', voice:'亲和女声 E', used:0, status:'停用' }
     ],
     sceneConfigs: [
         { id:'scene-modern-studio', name:'现代财经演播室', industry:'证券', ratio:'9:16', place:'演播室', scene:'市场解读', tags:['市场解读','数据大屏','专业'], desc:'背景包含行情图表与蓝色数据屏，适合市场收评和产品解读。', imageOriginal:'', imageExample:'', used:2134, status:'启用' },
@@ -2231,6 +2255,7 @@ function renderVoiceConfigs() {
             '<td><span class="status ' + stCls + '" style="font-size:11px;padding:2px 8px">' + (v.gender || '-') + '</span></td>' +
             '<td>' + (v.tone ? '<span class="chip ' + toneCls + '">' + v.tone + '</span>' : '<span style="color:var(--text-muted)">-</span>') + '</td>' +
             '<td><code style="font-size:12px;background:#F0F0F3;padding:2px 6px;border-radius:4px">' + (v.voiceId || '-') + '</code></td>' +
+            '<td><strong>' + (v.used || 0).toLocaleString() + '</strong></td>' +
             '<td class="voice-actions">' +
                 '<button class="btn btn-xs" onclick="openVoiceModal(' + i + ')">编辑</button> ' +
                 '<button class="btn btn-xs" onclick="previewVoice(' + i + ')">试听</button> ' +
@@ -2261,6 +2286,7 @@ function openVoiceModal(editIndex) {
         document.getElementById('vfGender').value = v.gender || '';
         document.getElementById('vfTone').value = v.tone || '';
         document.getElementById('vfVoiceId').value = v.voiceId || '（系统分配）';
+        document.getElementById('vfUsed').value = v.used || 0;
         document.getElementById('vfDesc').value = v.desc || '';
         document.getElementById('vfFileName').textContent = v.voiceFile ? '📄 ' + v.voiceFile : '未选择文件';
     } else {
@@ -2268,6 +2294,7 @@ function openVoiceModal(editIndex) {
         document.getElementById('vfGender').value = '';
         document.getElementById('vfTone').value = '';
         document.getElementById('vfVoiceId').value = '（系统自动分配）';
+        document.getElementById('vfUsed').value = 0;
         document.getElementById('vfDesc').value = '';
         document.getElementById('vfFileName').textContent = '未选择文件';
         document.getElementById('vfFile').value = '';
@@ -2291,7 +2318,8 @@ function saveVoiceConfig() {
         gender: document.getElementById('vfGender').value,
         tone: document.getElementById('vfTone').value,
         desc: document.getElementById('vfDesc').value.trim(),
-        voiceFile: document.getElementById('vfFileName').textContent.replace('📄 ', '')
+        voiceFile: document.getElementById('vfFileName').textContent.replace('📄 ', ''),
+        used: parseInt(document.getElementById('vfUsed').value) || 0
     };
     if (data.voiceFile === '未选择文件') data.voiceFile = '';
     if (!data.name || !data.gender || !data.tone) {
@@ -2304,14 +2332,14 @@ function saveVoiceConfig() {
         var v = AppState.voiceConfigs[parseInt(editIndex)];
         if (v) {
             v.name = data.name; v.gender = data.gender; v.tone = data.tone;
-            v.desc = data.desc; v.voiceFile = data.voiceFile;
+            v.desc = data.desc; v.voiceFile = data.voiceFile; v.used = data.used;
             addAuditLog('配置', data.name, '-', '-', '编辑内置音色');
             toast('音色「' + data.name + '」已更新', 'success');
         }
     } else {
         AppState.voiceConfigs.push({
             name: data.name, voiceId: '', gender: data.gender, tone: data.tone,
-            desc: data.desc, voiceFile: data.voiceFile, status: '启用'
+            desc: data.desc, voiceFile: data.voiceFile, used: data.used, status: '启用'
         });
         addAuditLog('配置', data.name, '-', '启用', '新增内置音色');
         toast('音色「' + data.name + '」已新增', 'success');
@@ -2476,7 +2504,11 @@ function renderTemplates() {
             '<td><span class="chip chip-blue">' + t.role + '</span></td>' +
             '<td>' + t.voice + '</td>' +
             '<td><span class="status ' + stCls + '">' + t.status + '</span></td>' +
-            '<td><button class="btn btn-xs" onclick="toggleTemplateStatus(' + i + ')">' + (t.status === '启用' ? '停用' : '启用') + '</button></td>' +
+            '<td><strong>' + (t.used || 0).toLocaleString() + '</strong></td>' +
+            '<td>' +
+                '<button class="btn btn-xs" onclick="openTemplateModal(' + i + ')">编辑</button> ' +
+                '<button class="btn btn-xs ' + (t.status === '启用' ? '' : 'btn-primary') + '" onclick="toggleTemplateStatus(' + i + ')">' + (t.status === '启用' ? '停用' : '启用') + '</button>' +
+            '</td>' +
             '</tr>';
     }
     document.getElementById('templateConfigTable').innerHTML = html;
@@ -2491,6 +2523,45 @@ function toggleTemplateStatus(index) {
     saveData();
     renderTemplates();
     toast('模板「' + t.name + '」已' + t.status, 'success');
+}
+
+function openTemplateModal(editIndex) {
+    var t = AppState.templateConfigs[editIndex];
+    if (!t) return;
+    document.getElementById('templateModalTitle').textContent = '编辑模板';
+    document.getElementById('tmplEditIndex').value = editIndex;
+    document.getElementById('tmplName').value = t.name || '';
+    document.getElementById('tmplScene').value = t.scene || '';
+    document.getElementById('tmplIndustry').value = t.industry || '';
+    document.getElementById('tmplRole').value = t.role || '';
+    document.getElementById('tmplVoice').value = t.voice || '';
+    document.getElementById('tmplUsed').value = t.used || 0;
+    document.getElementById('templateModalOverlay').classList.add('show');
+}
+
+function closeTemplateModal() {
+    document.getElementById('templateModalOverlay').classList.remove('show');
+}
+
+function saveTemplateConfig() {
+    var editIndex = document.getElementById('tmplEditIndex').value;
+    var t = AppState.templateConfigs[parseInt(editIndex)];
+    if (!t) return;
+    t.name = document.getElementById('tmplName').value.trim();
+    t.scene = document.getElementById('tmplScene').value.trim();
+    t.industry = document.getElementById('tmplIndustry').value.trim();
+    t.role = document.getElementById('tmplRole').value.trim();
+    t.voice = document.getElementById('tmplVoice').value.trim();
+    t.used = parseInt(document.getElementById('tmplUsed').value) || 0;
+    if (!t.name || !t.scene || !t.industry) {
+        toast('请完整填写模板名称、业务场景和适用行业', 'error');
+        return;
+    }
+    addAuditLog('配置', t.name, '-', '-', '编辑模板');
+    saveData();
+    closeTemplateModal();
+    renderTemplates();
+    toast('模板「' + t.name + '」已更新', 'success');
 }
 
 // ===========================
