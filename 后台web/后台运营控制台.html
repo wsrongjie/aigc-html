@@ -439,6 +439,99 @@
         .prompt-template-table.collapsed { display: none; }
         .prompt-template-table tr:first-child td { border-top: none; }
 
+        /* ===== 场景预览 ===== */
+        .scene-preview-modal {
+            width: min(800px, 94vw);
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 28px 74px rgba(15,23,42,.26);
+            overflow: hidden;
+        }
+        .scene-preview-head {
+            height: 56px;
+            padding: 0 16px 0 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border);
+        }
+        .scene-preview-title { font-size: 16px; font-weight: 900; }
+        .scene-preview-tags {
+            padding: 10px 20px;
+            display: flex; gap: 6px; flex-wrap: wrap;
+            border-bottom: 1px solid var(--border);
+        }
+        .scene-preview-tags .tag {
+            height: 24px; padding: 0 10px; border-radius: 999px;
+            background: var(--primary-light); color: var(--primary);
+            font-size: 11px; font-weight: 800; display: inline-flex; align-items: center;
+        }
+        .scene-preview-body {
+            padding: 16px; background: #f8fafc;
+            display: flex; gap: 16px;
+        }
+        .scene-preview-image, .scene-preview-effect {
+            flex: 1; min-width: 0;
+            aspect-ratio: 9 / 16; max-height: 420px;
+            border-radius: 12px; position: relative; overflow: hidden;
+            background: linear-gradient(135deg,#f8fafc 0%,#cbd5e1 46%,#334155 100%);
+        }
+        .scene-preview-image .scene-lines {
+            position: absolute; inset: 20px 28px;
+            border: 1px solid rgba(255,255,255,.2);
+            border-radius: 14px;
+            background-image: linear-gradient(rgba(255,255,255,.08) 1px,transparent 0),linear-gradient(90deg,rgba(255,255,255,.08) 1px,transparent 0);
+            background-size: 28px 28px;
+        }
+        .scene-preview-image .scene-desk {
+            position: absolute; left: 32px; right: 32px; bottom: 24px;
+            height: 16px; border-radius: 12px 12px 4px 4px;
+            background: rgba(255,255,255,.15);
+            backdrop-filter: blur(6px);
+        }
+        .scene-preview-effect .scene-lines {
+            position: absolute; inset: 20px 28px;
+            border: 1px solid rgba(255,255,255,.2);
+            border-radius: 14px;
+            background-image: linear-gradient(rgba(255,255,255,.08) 1px,transparent 0),linear-gradient(90deg,rgba(255,255,255,.08) 1px,transparent 0);
+            background-size: 28px 28px;
+        }
+        .scene-preview-effect .scene-desk {
+            position: absolute; left: 32px; right: 32px; bottom: 24px;
+            height: 16px; border-radius: 12px 12px 4px 4px;
+            background: rgba(255,255,255,.15);
+            backdrop-filter: blur(6px); z-index: 3;
+        }
+        .effect-person {
+            position: absolute; left: 50%; bottom: 50%;
+            transform: translate(-50%, 28%);
+            display: flex; flex-direction: column; align-items: center;
+            z-index: 2;
+        }
+        .effect-person-head {
+            width: 52px; height: 52px; border-radius: 50%;
+            background: rgba(255,255,255,.82);
+            box-shadow: 0 4px 12px rgba(0,0,0,.12);
+        }
+        .effect-person-body {
+            width: 72px; height: 40px;
+            border-radius: 28px 28px 8px 8px;
+            background: rgba(255,255,255,.5);
+            margin-top: -10px;
+        }
+        .preview-badge {
+            position: absolute; top: 10px; left: 10px; z-index: 10;
+            height: 22px; padding: 0 9px; border-radius: 999px;
+            background: rgba(0,0,0,.55); color: #fff;
+            display: inline-flex; align-items: center;
+            font-size: 11px; font-weight: 800;
+            backdrop-filter: blur(6px);
+        }
+        @media (max-width: 700px) {
+            .scene-preview-body { flex-direction: column; align-items: center; }
+            .scene-preview-image, .scene-preview-effect { max-height: 300px; width: 100%; }
+        }
+
         /* ===== 响应式 ===== */
         @media (max-width: 1440px) { .metrics-row,.card-grid4,.task-metrics,.task-stat-metrics,.mini-metrics { grid-template-columns: repeat(2, 1fr); } }
         @media (max-width: 1200px) { .card-grid2 { grid-template-columns: 1fr; } }
@@ -469,6 +562,7 @@
             <div class="nav-item sub" data-view="view-credit-config"><span class="nav-icon">●</span> 积分配置</div>
             <div class="nav-item sub" data-view="view-prompt-config"><span class="nav-icon">●</span> 提示词配置</div>
             <div class="nav-item sub" data-view="view-template-config"><span class="nav-icon">●</span> 模板配置</div>
+            <div class="nav-item sub" data-view="view-scene-config"><span class="nav-icon">●</span> 场景配置</div>
         </div>
         <div class="nav-item" data-view="view-audit"><span class="nav-icon">🧾</span> 操作审计</div>
     </nav>
@@ -672,6 +766,21 @@
             </div>
         </div>
 
+        <!-- 视图：场景配置 -->
+        <div class="panel" id="view-scene-config">
+            <div class="section-title">场景配置</div>
+            <div class="table-wrap">
+                <div class="table-toolbar">
+                    <span style="font-weight:600;font-size:13px">平台内置场景</span>
+                    <button class="btn btn-primary btn-sm" onclick="openSceneModal()" style="margin-left:auto">+ 新增场景</button>
+                </div>
+                <table>
+                    <thead><tr><th style="min-width:120px">场景名称</th><th>行业</th><th>画幅</th><th>场所</th><th>场景分类</th><th>操作</th></tr></thead>
+                    <tbody id="sceneConfigTable"></tbody>
+                </table>
+            </div>
+        </div>
+
         <!-- 视图：操作审计 -->
         <div class="panel" id="view-audit">
             <div class="section-title">操作审计</div>
@@ -826,6 +935,73 @@
     </div>
 </div>
 
+<!-- Modal：新增/编辑场景 -->
+<div class="modal-overlay" id="sceneModalOverlay">
+    <div class="modal" id="sceneModal">
+        <div class="modal-header">
+            <span class="modal-title" id="sceneModalTitle">新增场景</span>
+            <button class="modal-close" onclick="closeSceneModal()">×</button>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
+            <div class="form-group"><label class="kv-label">场景名称 *</label><input class="filter-input" id="sfName" style="width:100%" placeholder="如：现代财经演播室"></div>
+            <div class="form-group"><label class="kv-label">行业 *</label><select class="filter-select" id="sfIndustry" style="width:100%"><option value="">请选择</option><option>证券</option><option>银行</option><option>基金</option><option>保险</option><option>通用投教</option></select></div>
+            <div class="form-group"><label class="kv-label">画幅 *</label><select class="filter-select" id="sfRatio" style="width:100%"><option value="">请选择</option><option>9:16</option><option>16:9</option></select></div>
+            <div class="form-group"><label class="kv-label">场所 *</label><select class="filter-select" id="sfPlace" style="width:100%"><option value="">请选择</option><option>演播室</option><option>办公室</option><option>书房</option><option>户外</option><option>家居</option></select></div>
+            <div class="form-group"><label class="kv-label">场景分类 *</label><select class="filter-select" id="sfScene" style="width:100%"><option value="">请选择</option><option>市场解读</option><option>风险提示</option><option>基金投教</option><option>客户服务</option><option>热点快评</option></select></div>
+            <div class="form-group"><label class="kv-label">使用次数</label><input class="filter-input" id="sfUsed" style="width:100%" type="number" min="0" value="0"></div>
+        </div>
+        <div class="form-group" style="margin-bottom:14px">
+            <label class="kv-label">标签（逗号分隔）</label>
+            <input class="filter-input" id="sfTags" style="width:100%" placeholder="如：数据大屏,专业"></div>
+        <div class="form-group" style="margin-bottom:14px">
+            <label class="kv-label">场景介绍</label>
+            <textarea id="sfDesc" style="width:100%;height:60px;padding:10px 12px;border:1px solid var(--border);border-radius:6px;font-size:13px;resize:none;line-height:1.5" placeholder="描述该场景的特点和适用内容..."></textarea>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
+            <div class="form-group">
+                <label class="kv-label">上传场景原图</label>
+                <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+                    <label class="btn btn-sm" style="cursor:pointer;display:inline-flex;align-items:center;gap:6px">
+                        📁 选择文件
+                        <input type="file" id="sfOriginal" accept="image/*" style="display:none" onchange="onSceneFileChange('sfOriginal','sfOriginalName')">
+                    </label>
+                    <span id="sfOriginalName" style="font-size:12px;color:var(--text-muted)">未选择</span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="kv-label">上传示例图（含人物）</label>
+                <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+                    <label class="btn btn-sm" style="cursor:pointer;display:inline-flex;align-items:center;gap:6px">
+                        📁 选择文件
+                        <input type="file" id="sfExample" accept="image/*" style="display:none" onchange="onSceneFileChange('sfExample','sfExampleName')">
+                    </label>
+                    <span id="sfExampleName" style="font-size:12px;color:var(--text-muted)">未选择</span>
+                </div>
+            </div>
+        </div>
+        <input type="hidden" id="sfEditIndex">
+        <div class="modal-footer">
+            <button class="btn" onclick="closeSceneModal()">取消</button>
+            <button class="btn btn-primary" onclick="saveSceneConfig()">保存</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal：场景预览 -->
+<div class="modal-overlay" id="scenePreviewMask">
+    <div class="scene-preview-modal">
+        <div class="scene-preview-head">
+            <span class="scene-preview-title" id="scenePreviewTitle">场景预览</span>
+            <button class="modal-close" onclick="closeScenePreview()">×</button>
+        </div>
+        <div class="scene-preview-tags" id="scenePreviewTags"></div>
+        <div class="scene-preview-body">
+            <div class="scene-preview-image" id="scenePreviewImage"></div>
+            <div class="scene-preview-effect" id="scenePreviewEffect"></div>
+        </div>
+    </div>
+</div>
+
 <!-- Drawer：租户详情 -->
 <div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
 <div class="drawer" id="tenantDrawer">
@@ -936,7 +1112,7 @@ function switchView(viewId) {
     document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active'); });
     var currentNav = document.querySelector('.nav-item[data-view="' + viewId + '"]');
     if (currentNav) currentNav.classList.add('active');
-    var businessViews = ['view-voice-config','view-credit-config','view-prompt-config','view-template-config'];
+    var businessViews = ['view-voice-config','view-credit-config','view-prompt-config','view-template-config','view-scene-config'];
     var inBusiness = businessViews.indexOf(viewId) !== -1;
     if (inBusiness) {
         document.querySelector('.nav-parent[data-toggle="business-config"]').classList.add('active');
@@ -955,6 +1131,7 @@ function switchView(viewId) {
         'view-credit-config':'业务配置 / 积分配置',
         'view-prompt-config':'业务配置 / 提示词配置',
         'view-template-config':'业务配置 / 模板配置',
+        'view-scene-config':'业务配置 / 场景配置',
         'view-audit':'操作审计'
     };
     document.getElementById('topbarSection').textContent = titles[viewId] || '';
@@ -971,6 +1148,7 @@ function updateTopbarActions() {
         'view-credit-config': '',
         'view-prompt-config': '',
         'view-template-config': '',
+        'view-scene-config': '',
         'view-audit': '<button class="btn btn-sm" onclick="renderAudit()">刷新</button>',
         'view-billing': '<button class="btn btn-sm" onclick="renderBilling()">🔄 刷新</button>'
     };
@@ -986,6 +1164,7 @@ function refreshView(viewId) {
     else if (viewId === 'view-credit-config') renderPricing();
     else if (viewId === 'view-prompt-config') renderPrompts();
     else if (viewId === 'view-template-config') renderTemplates();
+    else if (viewId === 'view-scene-config') renderSceneConfigs();
     else if (viewId === 'view-audit') renderAudit();
 }
 
@@ -1011,6 +1190,7 @@ function initData() {
         AppState.voiceConfigs = saved.voiceConfigs || AppState.voiceConfigs;
         AppState.pricingRules = saved.pricingRules || AppState.pricingRules;
         AppState.templateConfigs = saved.templateConfigs || AppState.templateConfigs;
+        AppState.sceneConfigs = saved.sceneConfigs || AppState.sceneConfigs;
         AppState.prompts = mergePromptDefaults(saved.prompts || []);
         AppState.opsTasks = saved.opsTasks || AppState.opsTasks;
         AppState.auditLogs = normalizeAuditLogs(saved.auditLogs || AppState.auditLogs);
@@ -1104,10 +1284,16 @@ var AppState = {
     ],
     templateConfigs: [
         { name:'市场收评模板', scene:'收盘解读 / 市场复盘', industry:'金融投顾', role:'稳健男性投顾', voice:'沉稳男声 A', status:'启用' },
-        { name:'基金定投科普模板', scene:'基金知识 / 定投教育', industry:'金融投顾', role:'知性女性投顾', voice:'职业女声 B', status:'启用' },
+        { name:'基金定投科普模板', scene:'基金知识 / 定投教育', industry:'金融投顾', role:'知性女性投顾', voice:'知性女声 B', status:'启用' },
         { name:'风险提示模板', scene:'风险揭示 / 合规提示', industry:'金融投顾', role:'风控讲解员', voice:'新闻播报 C', status:'启用' },
         { name:'热点快评模板', scene:'热点事件 / 快讯点评', industry:'金融投顾', role:'快评主持人', voice:'快讯男声 F', status:'启用' },
         { name:'服务引导模板', scene:'客户服务 / 操作引导', industry:'通用', role:'客服讲解员', voice:'亲和女声 E', status:'停用' }
+    ],
+    sceneConfigs: [
+        { id:'scene-modern-studio', name:'现代财经演播室', industry:'证券', ratio:'9:16', place:'演播室', scene:'市场解读', tags:['市场解读','数据大屏','专业'], desc:'背景包含行情图表与蓝色数据屏，适合市场收评和产品解读。', imageOriginal:'', imageExample:'', used:2134, status:'启用' },
+        { id:'scene-risk-dark', name:'深色风控看板', industry:'银行', ratio:'9:16', place:'演播室', scene:'风险提示', tags:['风险提示','风控','合规'], desc:'深色背景配合风险指标和合规提示，适合风险教育内容。', imageOriginal:'', imageExample:'', used:1267, status:'启用' },
+        { id:'scene-service-office', name:'高端办公咨询室', industry:'保险', ratio:'16:9', place:'办公室', scene:'客户服务', tags:['客户服务','服务介绍','可信'], desc:'明亮办公环境，适合投顾服务介绍、客户流程说明。', imageOriginal:'', imageExample:'', used:892, status:'启用' },
+        { id:'scene-warm-library', name:'温和书房口播场景', industry:'基金', ratio:'9:16', place:'书房', scene:'基金投教', tags:['基金投教','投教科普','温和'], desc:'书架与暖色灯光组合，适合理财科普和新手教育。', imageOriginal:'', imageExample:'', used:1589, status:'启用' }
     ],
     opsTasks: [
         { taskId:'vt_001',tenantId:'t001',tenantName:'雨虹投资',taskName:'市场收评_0602',videoCount:3,totalCost:360,status:'completed',progress:100,createdAt:'2026-06-02 09:15',startedAt:'2026-06-02 09:16',completedAt:'2026-06-02 09:20',subTasks:[
@@ -2030,6 +2216,7 @@ function renderConfig() {
     renderPricing();
     renderPrompts();
     renderTemplates();
+    renderSceneConfigs();
 }
 
 function renderVoiceConfigs() {
@@ -2304,6 +2491,153 @@ function toggleTemplateStatus(index) {
     saveData();
     renderTemplates();
     toast('模板「' + t.name + '」已' + t.status, 'success');
+}
+
+// ===========================
+// 场景配置
+// ===========================
+function renderSceneConfigs() {
+    var html = '';
+    for (var i = 0; i < AppState.sceneConfigs.length; i++) {
+        var s = AppState.sceneConfigs[i];
+        html += '<tr>' +
+            '<td><strong>' + s.name + '</strong></td>' +
+            '<td>' + s.industry + '</td>' +
+            '<td>' + s.ratio + '</td>' +
+            '<td>' + s.place + '</td>' +
+            '<td>' + s.scene + '</td>' +
+            '<td class="voice-actions">' +
+                '<button class="btn btn-xs" onclick="openSceneModal(' + i + ')">编辑</button> ' +
+                '<button class="btn btn-xs" onclick="previewSceneConfig(' + i + ')">预览</button>' +
+            '</td>' +
+            '</tr>';
+    }
+    document.getElementById('sceneConfigTable').innerHTML = html;
+}
+
+function openSceneModal(editIndex) {
+    var isEdit = typeof editIndex === 'number';
+    document.getElementById('sceneModalTitle').textContent = isEdit ? '编辑场景' : '新增场景';
+    document.getElementById('sfEditIndex').value = isEdit ? editIndex : '';
+    if (isEdit) {
+        var s = AppState.sceneConfigs[editIndex];
+        document.getElementById('sfName').value = s.name || '';
+        document.getElementById('sfIndustry').value = s.industry || '';
+        document.getElementById('sfRatio').value = s.ratio || '';
+        document.getElementById('sfPlace').value = s.place || '';
+        document.getElementById('sfScene').value = s.scene || '';
+        document.getElementById('sfUsed').value = s.used || 0;
+        document.getElementById('sfTags').value = (s.tags || []).join(',');
+        document.getElementById('sfDesc').value = s.desc || '';
+        document.getElementById('sfOriginalName').textContent = s.imageOriginal ? '📄 ' + s.imageOriginal : '未选择';
+        document.getElementById('sfExampleName').textContent = s.imageExample ? '📄 ' + s.imageExample : '未选择';
+    } else {
+        document.getElementById('sfName').value = '';
+        document.getElementById('sfIndustry').value = '';
+        document.getElementById('sfRatio').value = '';
+        document.getElementById('sfPlace').value = '';
+        document.getElementById('sfScene').value = '';
+        document.getElementById('sfUsed').value = 0;
+        document.getElementById('sfTags').value = '';
+        document.getElementById('sfDesc').value = '';
+        document.getElementById('sfOriginalName').textContent = '未选择';
+        document.getElementById('sfExampleName').textContent = '未选择';
+    }
+    document.getElementById('sceneModalOverlay').classList.add('show');
+}
+
+function closeSceneModal() {
+    document.getElementById('sceneModalOverlay').classList.remove('show');
+}
+
+function onSceneFileChange(inputId, labelId) {
+    var fileInput = document.getElementById(inputId);
+    var file = fileInput.files && fileInput.files[0];
+    document.getElementById(labelId).textContent = file ? '📄 ' + file.name : '未选择';
+}
+
+function saveSceneConfig() {
+    var data = {
+        name: document.getElementById('sfName').value.trim(),
+        industry: document.getElementById('sfIndustry').value,
+        ratio: document.getElementById('sfRatio').value,
+        place: document.getElementById('sfPlace').value,
+        scene: document.getElementById('sfScene').value,
+        used: parseInt(document.getElementById('sfUsed').value) || 0,
+        tags: document.getElementById('sfTags').value.split(',').map(function(t) { return t.trim(); }).filter(function(t) { return t; }),
+        desc: document.getElementById('sfDesc').value.trim(),
+        imageOriginal: document.getElementById('sfOriginalName').textContent.replace('📄 ', ''),
+        imageExample: document.getElementById('sfExampleName').textContent.replace('📄 ', '')
+    };
+    if (data.imageOriginal === '未选择') data.imageOriginal = '';
+    if (data.imageExample === '未选择') data.imageExample = '';
+    if (!data.name || !data.industry || !data.ratio || !data.place || !data.scene) {
+        toast('请完整填写场景名称、行业、画幅、场所和场景分类', 'error');
+        return;
+    }
+
+    var editIndex = document.getElementById('sfEditIndex').value;
+    if (editIndex) {
+        var s = AppState.sceneConfigs[parseInt(editIndex)];
+        if (s) {
+            s.name = data.name; s.industry = data.industry; s.ratio = data.ratio;
+            s.place = data.place; s.scene = data.scene; s.used = data.used;
+            s.tags = data.tags; s.desc = data.desc;
+            s.imageOriginal = data.imageOriginal; s.imageExample = data.imageExample;
+            addAuditLog('配置', data.name, '-', '-', '编辑内置场景');
+            toast('场景「' + data.name + '」已更新', 'success');
+        }
+    } else {
+        var newId = 'scene-' + Date.now();
+        AppState.sceneConfigs.push({
+            id: newId, name: data.name, industry: data.industry, ratio: data.ratio,
+            place: data.place, scene: data.scene, used: data.used,
+            tags: data.tags, desc: data.desc,
+            imageOriginal: data.imageOriginal, imageExample: data.imageExample,
+            status: '启用'
+        });
+        addAuditLog('配置', data.name, '-', '启用', '新增内置场景');
+        toast('场景「' + data.name + '」已新增', 'success');
+    }
+    saveData();
+    closeSceneModal();
+    renderSceneConfigs();
+}
+
+function previewSceneConfig(index) {
+    var s = AppState.sceneConfigs[index];
+    if (!s) return;
+    document.getElementById('scenePreviewTitle').textContent = s.name;
+    var allTags = (s.tags || []).slice();
+    allTags.unshift(s.ratio, s.place, s.scene);
+    var seen = {};
+    var uniqueTags = allTags.filter(function(t) { var k = t.toLowerCase(); if (seen[k]) return false; seen[k] = true; return true; });
+    document.getElementById('scenePreviewTags').innerHTML = uniqueTags.map(function(t) { return '<span class="tag">' + escapeHtml(t) + '</span>'; }).join('');
+
+    var image = document.getElementById('scenePreviewImage');
+    image.className = 'scene-preview-image';
+    image.innerHTML = (s.imageOriginal ? '' : '<span class="preview-badge">场景原图</span>' + buildSceneVisual());
+
+    var effect = document.getElementById('scenePreviewEffect');
+    effect.className = 'scene-preview-effect';
+    effect.innerHTML = '<span class="preview-badge">人物+场景示例</span>' + buildSceneVisual() + buildEffectVisual();
+
+    document.getElementById('scenePreviewMask').classList.add('show');
+}
+
+function closeScenePreview() {
+    document.getElementById('scenePreviewMask').classList.remove('show');
+}
+
+function buildSceneVisual() {
+    return '<div class="scene-lines"></div><div class="scene-desk"></div>';
+}
+
+function buildEffectVisual() {
+    return '<div class="effect-person">' +
+        '<div class="effect-person-head"></div>' +
+        '<div class="effect-person-body"></div>' +
+        '</div>';
 }
 
 function buildPromptTableRows(prompts) {
