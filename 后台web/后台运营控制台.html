@@ -456,16 +456,6 @@
             border-bottom: 1px solid var(--border);
         }
         .scene-preview-title { font-size: 16px; font-weight: 900; }
-        .scene-preview-tags {
-            padding: 10px 20px;
-            display: flex; gap: 6px; flex-wrap: wrap;
-            border-bottom: 1px solid var(--border);
-        }
-        .scene-preview-tags .tag {
-            height: 24px; padding: 0 10px; border-radius: 999px;
-            background: var(--primary-light); color: var(--primary);
-            font-size: 11px; font-weight: 800; display: inline-flex; align-items: center;
-        }
         .scene-preview-body {
             padding: 16px; background: #f8fafc;
             display: flex; gap: 16px;
@@ -558,9 +548,9 @@
         <div class="nav-item" data-view="view-billing"><span class="nav-icon">💰</span> 积分与账单</div>
         <div class="nav-item nav-parent" data-toggle="business-config"><span class="nav-icon">⚙️</span> 业务配置 <span class="nav-caret">▾</span></div>
         <div class="nav-submenu" id="businessConfigSubmenu">
-            <div class="nav-item sub" data-view="view-template-config"><span class="nav-icon">●</span> 模板配置</div>
-            <div class="nav-item sub" data-view="view-voice-config"><span class="nav-icon">●</span> 音色配置</div>
-            <div class="nav-item sub" data-view="view-scene-config"><span class="nav-icon">●</span> 场景配置</div>
+            <div class="nav-item sub" data-view="view-template-config"><span class="nav-icon">●</span> 视频模板</div>
+            <div class="nav-item sub" data-view="view-voice-config"><span class="nav-icon">●</span> 音色模板</div>
+            <div class="nav-item sub" data-view="view-scene-config"><span class="nav-icon">●</span> 场景模板</div>
             <div class="nav-item sub" data-view="view-credit-config"><span class="nav-icon">●</span> 积分配置</div>
             <div class="nav-item sub" data-view="view-prompt-config"><span class="nav-icon">●</span> 提示词配置</div>
         </div>
@@ -708,45 +698,45 @@
             </div>
         </div>
 
-        <!-- 视图：模板配置 -->
+        <!-- 视图：视频模板 -->
         <div class="panel" id="view-template-config">
-            <div class="section-title">模板配置</div>
+            <div class="section-title">视频模板</div>
             <div class="table-wrap">
                 <div class="table-toolbar">
                     <span style="font-weight:600;font-size:13px">业务内置视频模板</span>
                 </div>
                 <table>
-                    <thead><tr><th>模板名称</th><th>业务场景</th><th>适用行业</th><th>默认角色</th><th>默认音色</th><th>状态</th><th>使用次数</th><th>操作</th></tr></thead>
+                    <thead><tr><th>模板名称</th><th>标签</th><th>适用行业</th><th>状态</th><th>使用次数</th><th>备注</th><th>操作</th></tr></thead>
                     <tbody id="templateConfigTable"></tbody>
                 </table>
             </div>
         </div>
 
-        <!-- 视图：音色配置 -->
+        <!-- 视图：音色模板 -->
         <div class="panel" id="view-voice-config">
-            <div class="section-title">音色配置</div>
+            <div class="section-title">音色模板</div>
             <div class="table-wrap" style="margin-bottom:24px">
                 <div class="table-toolbar">
                     <span style="font-weight:600;font-size:13px">平台内置音色</span>
                     <button class="btn btn-primary btn-sm" onclick="openVoiceModal()" style="margin-left:auto">+ 新增音色</button>
                 </div>
                 <table>
-                    <thead><tr><th style="min-width:120px">音色名称</th><th>性别</th><th>语气</th><th>音色 ID</th><th>使用次数</th><th>操作</th></tr></thead>
+                    <thead><tr><th style="min-width:120px">音色名称</th><th>性别</th><th>语气</th><th>音色 ID</th><th>状态</th><th>使用次数</th><th>操作</th></tr></thead>
                     <tbody id="voiceConfigTable"></tbody>
                 </table>
             </div>
         </div>
 
-        <!-- 视图：场景配置 -->
+        <!-- 视图：场景模板 -->
         <div class="panel" id="view-scene-config">
-            <div class="section-title">场景配置</div>
+            <div class="section-title">场景模板</div>
             <div class="table-wrap">
                 <div class="table-toolbar">
                     <span style="font-weight:600;font-size:13px">平台内置场景</span>
                     <button class="btn btn-primary btn-sm" onclick="openSceneModal()" style="margin-left:auto">+ 新增场景</button>
                 </div>
                 <table>
-                    <thead><tr><th style="min-width:120px">场景名称</th><th>行业</th><th>画幅</th><th>场所</th><th>场景分类</th><th>使用次数</th><th>操作</th></tr></thead>
+                    <thead><tr><th style="min-width:120px">场景名称</th><th>行业</th><th>画幅</th><th>场所</th><th>状态</th><th>使用次数</th><th>操作</th></tr></thead>
                     <tbody id="sceneConfigTable"></tbody>
                 </table>
             </div>
@@ -862,12 +852,14 @@
             <button class="modal-close" onclick="closeTemplateModal()">×</button>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
-            <div class="form-group"><label class="kv-label">模板名称 *</label><input class="filter-input" id="tmplName" style="width:100%"></div>
-            <div class="form-group"><label class="kv-label">业务场景 *</label><input class="filter-input" id="tmplScene" style="width:100%"></div>
-            <div class="form-group"><label class="kv-label">适用行业 *</label><input class="filter-input" id="tmplIndustry" style="width:100%"></div>
-            <div class="form-group"><label class="kv-label">默认角色</label><input class="filter-input" id="tmplRole" style="width:100%"></div>
-            <div class="form-group"><label class="kv-label">默认音色</label><input class="filter-input" id="tmplVoice" style="width:100%"></div>
+            <div class="form-group"><label class="kv-label">模板名称 <span style="color:red">*</span></label><input class="filter-input" id="tmplName" style="width:100%"></div>
+            <div class="form-group"><label class="kv-label">适用行业 <span style="color:red">*</span></label><input class="filter-input" id="tmplIndustry" style="width:100%"></div>
+            <div class="form-group"><label class="kv-label">标签 <span style="color:red">*</span></label><input class="filter-input" id="tmplTags" style="width:100%" placeholder="多个标签用逗号分隔"></div>
             <div class="form-group"><label class="kv-label">使用次数</label><input class="filter-input" id="tmplUsed" style="width:100%" type="number" min="0" value="0"></div>
+        </div>
+        <div class="form-group" style="margin-bottom:14px">
+            <label class="kv-label">备注</label>
+            <textarea id="tmplRemark" style="width:100%;height:60px;padding:10px 12px;border:1px solid var(--border);border-radius:6px;font-size:13px;resize:none;line-height:1.5" placeholder="备注信息（非必填）"></textarea>
         </div>
         <input type="hidden" id="tmplEditIndex">
         <div class="modal-footer">
@@ -885,10 +877,11 @@
             <button class="modal-close" onclick="closeVoiceModal()">×</button>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
-            <div class="form-group"><label class="kv-label">音色名称 *</label><input class="filter-input" id="vfName" style="width:100%" placeholder="如：稳健男声 G"></div>
-            <div class="form-group"><label class="kv-label">性别 *</label><select class="filter-select" id="vfGender" style="width:100%"><option value="">请选择</option><option value="男声">男声</option><option value="女声">女声</option><option value="中性">中性</option></select></div>
-            <div class="form-group"><label class="kv-label">语气 *</label><select class="filter-select" id="vfTone" style="width:100%"><option value="">请选择</option><option value="沉稳">沉稳</option><option value="亲和">亲和</option><option value="权威">权威</option><option value="干练">干练</option></select></div>
+            <div class="form-group"><label class="kv-label">音色名称 <span style="color:red">*</span></label><input class="filter-input" id="vfName" style="width:100%" placeholder="如：稳健男声 G"></div>
+            <div class="form-group"><label class="kv-label">性别 <span style="color:red">*</span></label><select class="filter-select" id="vfGender" style="width:100%"><option value="">请选择</option><option value="男">男</option><option value="女">女</option></select></div>
+            <div class="form-group"><label class="kv-label">语气 <span style="color:red">*</span></label><select class="filter-select" id="vfTone" style="width:100%"><option value="">请选择</option><option value="沉稳">沉稳</option><option value="亲和">亲和</option><option value="权威">权威</option><option value="干练">干练</option></select></div>
             <div class="form-group"><label class="kv-label">音色 ID</label><input class="filter-input" id="vfVoiceId" style="width:100%" readonly placeholder="系统自动分配"></div>
+            <div class="form-group"><label class="kv-label">状态</label><select class="filter-select" id="vfStatus" style="width:100%"><option value="使用中">使用中</option><option value="已停用">已停用</option></select></div>
             <div class="form-group"><label class="kv-label">使用次数</label><input class="filter-input" id="vfUsed" style="width:100%" type="number" min="0" value="0"></div>
         </div>
         <div class="form-group" style="margin-bottom:14px">
@@ -970,8 +963,7 @@
             <div class="form-group"><label class="kv-label">场景名称 *</label><input class="filter-input" id="sfName" style="width:100%" placeholder="如：现代财经演播室"></div>
             <div class="form-group"><label class="kv-label">行业 *</label><select class="filter-select" id="sfIndustry" style="width:100%"><option value="">请选择</option><option>证券</option><option>银行</option><option>基金</option><option>保险</option><option>通用投教</option></select></div>
             <div class="form-group"><label class="kv-label">画幅 *</label><select class="filter-select" id="sfRatio" style="width:100%"><option value="">请选择</option><option>9:16</option><option>16:9</option></select></div>
-            <div class="form-group"><label class="kv-label">场所 *</label><select class="filter-select" id="sfPlace" style="width:100%"><option value="">请选择</option><option>演播室</option><option>办公室</option><option>书房</option><option>户外</option><option>家居</option></select></div>
-            <div class="form-group"><label class="kv-label">场景分类 *</label><select class="filter-select" id="sfScene" style="width:100%"><option value="">请选择</option><option>市场解读</option><option>风险提示</option><option>基金投教</option><option>客户服务</option><option>热点快评</option></select></div>
+            <div class="form-group"><label class="kv-label">场所 *</label><input class="filter-input" id="sfPlace" style="width:100%" placeholder="如：演播室、办公室、书房"></div>
             <div class="form-group"><label class="kv-label">使用次数</label><input class="filter-input" id="sfUsed" style="width:100%" type="number" min="0" value="0"></div>
         </div>
         <div class="form-group" style="margin-bottom:14px">
@@ -1018,8 +1010,7 @@
             <span class="scene-preview-title" id="scenePreviewTitle">场景预览</span>
             <button class="modal-close" onclick="closeScenePreview()">×</button>
         </div>
-        <div class="scene-preview-tags" id="scenePreviewTags"></div>
-        <div class="scene-preview-body">
+        <div class="scene-preview-body" style="padding-top:20px">
             <div class="scene-preview-image" id="scenePreviewImage"></div>
             <div class="scene-preview-effect" id="scenePreviewEffect"></div>
         </div>
@@ -1151,11 +1142,11 @@ function switchView(viewId) {
         'view-tenants':'租户管理',
         'view-tasks':'任务统计',
         'view-billing':'积分与账单',
-        'view-voice-config':'业务配置 / 音色配置',
+        'view-voice-config':'业务配置 / 音色模板',
         'view-credit-config':'业务配置 / 积分配置',
         'view-prompt-config':'业务配置 / 提示词配置',
-        'view-template-config':'业务配置 / 模板配置',
-        'view-scene-config':'业务配置 / 场景配置',
+        'view-template-config':'业务配置 / 视频模板',
+        'view-scene-config':'业务配置 / 场景模板',
         'view-audit':'操作审计'
     };
     document.getElementById('topbarSection').textContent = titles[viewId] || '';
@@ -1287,11 +1278,11 @@ var AppState = {
         { time:'2026-01-15 17:00',title:'dir_video_v8 发布',desc:'导演台·分镜短视频生成提示词更新，优化人物一致性描述',status:'发布',operator:'admin' }
     ],
     voiceConfigs: [
-        { name:'沉稳男声 A', voiceId:'cosyvoice-v3.5-finance-male-001', gender:'男声', tone:'沉稳', desc:'适合收评、资产配置、风险提示等需要可信度的投顾口播。', voiceFile:'', used:1856, status:'启用' },
-        { name:'知性女声 B', voiceId:'cosyvoice-v3.5-finance-female-001', gender:'女声', tone:'亲和', desc:'语速适中，适合基金定投、理财入门、客户服务型视频。', voiceFile:'', used:1432, status:'启用' },
-        { name:'新闻播报 C', voiceId:'cosyvoice-v3.5-news-male-001', gender:'中性', tone:'权威', desc:'适合合规提示、风险教育和公告解读，表达克制清楚。', voiceFile:'', used:987, status:'启用' },
-        { name:'快讯男声 F', voiceId:'cosyvoice-v3.5-fast-male-001', gender:'男声', tone:'干练', desc:'适合热点事件和盘中快评，节奏更紧凑，信息密度高。', voiceFile:'', used:756, status:'启用' },
-        { name:'亲和女声 E', voiceId:'cosyvoice-v3.5-warm-female-001', gender:'女声', tone:'亲和', desc:'适合账户服务、新手引导等需要亲和力的场景。', voiceFile:'', used:0, status:'停用' }
+        { name:'沉稳男声 A', voiceId:'cosyvoice-v3.5-finance-male-001', gender:'男', tone:'沉稳', desc:'适合收评、资产配置、风险提示等需要可信度的投顾口播。', voiceFile:'', used:1856, status:'使用中' },
+        { name:'知性女声 B', voiceId:'cosyvoice-v3.5-finance-female-001', gender:'女', tone:'亲和', desc:'语速适中，适合基金定投、理财入门、客户服务型视频。', voiceFile:'', used:1432, status:'使用中' },
+        { name:'新闻播报 C', voiceId:'cosyvoice-v3.5-news-male-001', gender:'男', tone:'权威', desc:'适合合规提示、风险教育和公告解读，表达克制清楚。', voiceFile:'', used:987, status:'使用中' },
+        { name:'快讯男声 F', voiceId:'cosyvoice-v3.5-fast-male-001', gender:'男', tone:'干练', desc:'适合热点事件和盘中快评，节奏更紧凑，信息密度高。', voiceFile:'', used:756, status:'使用中' },
+        { name:'亲和女声 E', voiceId:'cosyvoice-v3.5-warm-female-001', gender:'女', tone:'亲和', desc:'适合账户服务、新手引导等需要亲和力的场景。', voiceFile:'', used:0, status:'已停用' }
     ],
     creditRate: 10,
     pricingRules: [
@@ -1307,17 +1298,17 @@ var AppState = {
         ]}
     ],
     templateConfigs: [
-        { name:'市场收评模板', scene:'收盘解读 / 市场复盘', industry:'金融投顾', role:'稳健男性投顾', voice:'沉稳男声 A', used:2456, status:'启用' },
-        { name:'基金定投科普模板', scene:'基金知识 / 定投教育', industry:'金融投顾', role:'知性女性投顾', voice:'知性女声 B', used:1876, status:'启用' },
-        { name:'风险提示模板', scene:'风险揭示 / 合规提示', industry:'金融投顾', role:'风控讲解员', voice:'新闻播报 C', used:1123, status:'启用' },
-        { name:'热点快评模板', scene:'热点事件 / 快讯点评', industry:'金融投顾', role:'快评主持人', voice:'快讯男声 F', used:678, status:'启用' },
-        { name:'服务引导模板', scene:'客户服务 / 操作引导', industry:'通用', role:'客服讲解员', voice:'亲和女声 E', used:0, status:'停用' }
+        { name:'市场收评模板', tags:'收盘解读,市场复盘', industry:'金融投顾', used:2456, status:'启用', remark:'' },
+        { name:'基金定投科普模板', tags:'基金知识,定投教育', industry:'金融投顾', used:1876, status:'启用', remark:'' },
+        { name:'风险提示模板', tags:'风险揭示,合规提示', industry:'金融投顾', used:1123, status:'启用', remark:'' },
+        { name:'热点快评模板', tags:'热点事件,快讯点评', industry:'金融投顾', used:678, status:'启用', remark:'' },
+        { name:'服务引导模板', tags:'客户服务,操作引导', industry:'通用', used:0, status:'停用', remark:'' }
     ],
     sceneConfigs: [
-        { id:'scene-modern-studio', name:'现代财经演播室', industry:'证券', ratio:'9:16', place:'演播室', scene:'市场解读', tags:['市场解读','数据大屏','专业'], desc:'背景包含行情图表与蓝色数据屏，适合市场收评和产品解读。', imageOriginal:'', imageExample:'', used:2134, status:'启用' },
-        { id:'scene-risk-dark', name:'深色风控看板', industry:'银行', ratio:'9:16', place:'演播室', scene:'风险提示', tags:['风险提示','风控','合规'], desc:'深色背景配合风险指标和合规提示，适合风险教育内容。', imageOriginal:'', imageExample:'', used:1267, status:'启用' },
-        { id:'scene-service-office', name:'高端办公咨询室', industry:'保险', ratio:'16:9', place:'办公室', scene:'客户服务', tags:['客户服务','服务介绍','可信'], desc:'明亮办公环境，适合投顾服务介绍、客户流程说明。', imageOriginal:'', imageExample:'', used:892, status:'启用' },
-        { id:'scene-warm-library', name:'温和书房口播场景', industry:'基金', ratio:'9:16', place:'书房', scene:'基金投教', tags:['基金投教','投教科普','温和'], desc:'书架与暖色灯光组合，适合理财科普和新手教育。', imageOriginal:'', imageExample:'', used:1589, status:'启用' }
+        { id:'scene-modern-studio', name:'现代财经演播室', industry:'证券', ratio:'9:16', place:'演播室', scene:'市场解读', tags:['市场解读','数据大屏','专业'], desc:'背景包含行情图表与蓝色数据屏，适合市场收评和产品解读。', imageOriginal:'', imageExample:'', used:2134, status:'使用中' },
+        { id:'scene-risk-dark', name:'深色风控看板', industry:'银行', ratio:'9:16', place:'演播室', scene:'风险提示', tags:['风险提示','风控','合规'], desc:'深色背景配合风险指标和合规提示，适合风险教育内容。', imageOriginal:'', imageExample:'', used:1267, status:'使用中' },
+        { id:'scene-service-office', name:'高端办公咨询室', industry:'保险', ratio:'16:9', place:'办公室', scene:'客户服务', tags:['客户服务','服务介绍','可信'], desc:'明亮办公环境，适合投顾服务介绍、客户流程说明。', imageOriginal:'', imageExample:'', used:892, status:'使用中' },
+        { id:'scene-warm-library', name:'温和书房口播场景', industry:'基金', ratio:'9:16', place:'书房', scene:'基金投教', tags:['基金投教','投教科普','温和'], desc:'书架与暖色灯光组合，适合理财科普和新手教育。', imageOriginal:'', imageExample:'', used:1589, status:'使用中' }
     ],
     opsTasks: [
         { taskId:'vt_001',tenantId:'t001',tenantName:'雨虹投资',taskName:'市场收评_0602',videoCount:3,totalCost:360,status:'completed',progress:100,createdAt:'2026-06-02 09:15',startedAt:'2026-06-02 09:16',completedAt:'2026-06-02 09:20',subTasks:[
@@ -2247,19 +2238,21 @@ function renderVoiceConfigs() {
     var html = '';
     for (var i = 0; i < AppState.voiceConfigs.length; i++) {
         var v = AppState.voiceConfigs[i];
-        var stCls = v.status === '启用' ? 'status-active' : 'status-stopped';
+        var stCls = v.status === '使用中' ? 'status-active' : 'status-stopped';
         var toneCls = v.tone === '沉稳' ? 'chip-blue' : (v.tone === '干练' ? 'chip-green' : '');
         var fileLabel = v.voiceFile ? '<span style="color:var(--text-muted);font-size:12px">📄 ' + v.voiceFile + '</span>' : '<span style="color:var(--text-muted);font-size:12px">-</span>';
         html += '<tr>' +
             '<td><strong>' + v.name + '</strong></td>' +
-            '<td><span class="status ' + stCls + '" style="font-size:11px;padding:2px 8px">' + (v.gender || '-') + '</span></td>' +
+            '<td><span style="font-size:11px;padding:2px 8px">' + (v.gender || '-') + '</span></td>' +
             '<td>' + (v.tone ? '<span class="chip ' + toneCls + '">' + v.tone + '</span>' : '<span style="color:var(--text-muted)">-</span>') + '</td>' +
             '<td><code style="font-size:12px;background:#F0F0F3;padding:2px 6px;border-radius:4px">' + (v.voiceId || '-') + '</code></td>' +
+            '<td><span class="status ' + stCls + '" style="font-size:11px">' + v.status + '</span></td>' +
             '<td><strong>' + (v.used || 0).toLocaleString() + '</strong></td>' +
             '<td class="voice-actions">' +
                 '<button class="btn btn-xs" onclick="openVoiceModal(' + i + ')">编辑</button> ' +
                 '<button class="btn btn-xs" onclick="previewVoice(' + i + ')">试听</button> ' +
-                '<button class="btn btn-xs ' + (v.status === '启用' ? '' : 'btn-primary') + '" onclick="toggleVoiceStatus(' + i + ')">' + (v.status === '启用' ? '停用' : '启用') + '</button>' +
+                '<button class="btn btn-xs ' + (v.status === '使用中' ? '' : 'btn-primary') + '" onclick="toggleVoiceStatus(' + i + ')">' + (v.status === '使用中' ? '下架' : '上架') + '</button>' +
+                '<button class="btn btn-xs btn-danger" onclick="deleteVoice(' + i + ')">删除</button>' +
             '</td>' +
             '</tr>';
     }
@@ -2286,6 +2279,7 @@ function openVoiceModal(editIndex) {
         document.getElementById('vfGender').value = v.gender || '';
         document.getElementById('vfTone').value = v.tone || '';
         document.getElementById('vfVoiceId').value = v.voiceId || '（系统分配）';
+        document.getElementById('vfStatus').value = v.status || '使用中';
         document.getElementById('vfUsed').value = v.used || 0;
         document.getElementById('vfDesc').value = v.desc || '';
         document.getElementById('vfFileName').textContent = v.voiceFile ? '📄 ' + v.voiceFile : '未选择文件';
@@ -2317,6 +2311,7 @@ function saveVoiceConfig() {
         name: document.getElementById('vfName').value.trim(),
         gender: document.getElementById('vfGender').value,
         tone: document.getElementById('vfTone').value,
+        status: document.getElementById('vfStatus').value,
         desc: document.getElementById('vfDesc').value.trim(),
         voiceFile: document.getElementById('vfFileName').textContent.replace('📄 ', ''),
         used: parseInt(document.getElementById('vfUsed').value) || 0
@@ -2332,16 +2327,16 @@ function saveVoiceConfig() {
         var v = AppState.voiceConfigs[parseInt(editIndex)];
         if (v) {
             v.name = data.name; v.gender = data.gender; v.tone = data.tone;
-            v.desc = data.desc; v.voiceFile = data.voiceFile; v.used = data.used;
+            v.status = data.status; v.desc = data.desc; v.voiceFile = data.voiceFile; v.used = data.used;
             addAuditLog('配置', data.name, '-', '-', '编辑内置音色');
             toast('音色「' + data.name + '」已更新', 'success');
         }
     } else {
         AppState.voiceConfigs.push({
             name: data.name, voiceId: '', gender: data.gender, tone: data.tone,
-            desc: data.desc, voiceFile: data.voiceFile, used: data.used, status: '启用'
+            desc: data.desc, voiceFile: data.voiceFile, used: data.used, status: '使用中'
         });
-        addAuditLog('配置', data.name, '-', '启用', '新增内置音色');
+        addAuditLog('配置', data.name, '-', '使用中', '新增内置音色');
         toast('音色「' + data.name + '」已新增', 'success');
     }
     saveData();
@@ -2353,11 +2348,32 @@ function toggleVoiceStatus(index) {
     var v = AppState.voiceConfigs[index];
     if (!v) return;
     var before = v.status;
-    v.status = before === '启用' ? '停用' : '启用';
+    v.status = before === '使用中' ? '已停用' : '使用中';
     addAuditLog('配置', v.name, before, v.status, '调整内置音色状态');
     saveData();
     renderVoiceConfigs();
     toast('内置音色「' + v.name + '」已' + v.status, 'success');
+}
+
+function deleteVoice(index) {
+    var v = AppState.voiceConfigs[index];
+    if (!v) return;
+    if (v.status === '使用中') {
+        toast('请先下架该音色后再删除', 'error');
+        return;
+    }
+    showConfirm(
+        '删除音色',
+        '确定要删除音色「' + v.name + '」吗？此操作不可撤销。',
+        '⚠️',
+        function() {
+            AppState.voiceConfigs.splice(index, 1);
+            addAuditLog('配置', v.name, '-', '-', '删除内置音色');
+            saveData();
+            renderVoiceConfigs();
+            toast('音色「' + v.name + '」已删除', 'success');
+        }
+    );
 }
 
 var pricingEditingKey = -1;
@@ -2497,14 +2513,14 @@ function renderTemplates() {
     for (var i = 0; i < AppState.templateConfigs.length; i++) {
         var t = AppState.templateConfigs[i];
         var stCls = t.status === '启用' ? 'status-active' : 'status-stopped';
+        var tagsHtml = (t.tags || '').split(',').filter(function(x){return x.trim()}).map(function(x){return '<span class="chip">' + x.trim() + '</span> '}).join('');
         html += '<tr>' +
             '<td><strong>' + t.name + '</strong></td>' +
-            '<td>' + t.scene + '</td>' +
+            '<td>' + (tagsHtml || '<span style="color:var(--text-muted)">-</span>') + '</td>' +
             '<td>' + t.industry + '</td>' +
-            '<td><span class="chip chip-blue">' + t.role + '</span></td>' +
-            '<td>' + t.voice + '</td>' +
             '<td><span class="status ' + stCls + '">' + t.status + '</span></td>' +
             '<td><strong>' + (t.used || 0).toLocaleString() + '</strong></td>' +
+            '<td style="font-size:12px;color:var(--text-secondary);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="' + escapeHtml(t.remark || '') + '">' + (t.remark || '<span style="color:var(--text-muted)">-</span>') + '</td>' +
             '<td>' +
                 '<button class="btn btn-xs" onclick="openTemplateModal(' + i + ')">编辑</button> ' +
                 '<button class="btn btn-xs ' + (t.status === '启用' ? '' : 'btn-primary') + '" onclick="toggleTemplateStatus(' + i + ')">' + (t.status === '启用' ? '停用' : '启用') + '</button>' +
@@ -2531,11 +2547,10 @@ function openTemplateModal(editIndex) {
     document.getElementById('templateModalTitle').textContent = '编辑模板';
     document.getElementById('tmplEditIndex').value = editIndex;
     document.getElementById('tmplName').value = t.name || '';
-    document.getElementById('tmplScene').value = t.scene || '';
     document.getElementById('tmplIndustry').value = t.industry || '';
-    document.getElementById('tmplRole').value = t.role || '';
-    document.getElementById('tmplVoice').value = t.voice || '';
+    document.getElementById('tmplTags').value = t.tags || '';
     document.getElementById('tmplUsed').value = t.used || 0;
+    document.getElementById('tmplRemark').value = t.remark || '';
     document.getElementById('templateModalOverlay').classList.add('show');
 }
 
@@ -2548,13 +2563,12 @@ function saveTemplateConfig() {
     var t = AppState.templateConfigs[parseInt(editIndex)];
     if (!t) return;
     t.name = document.getElementById('tmplName').value.trim();
-    t.scene = document.getElementById('tmplScene').value.trim();
     t.industry = document.getElementById('tmplIndustry').value.trim();
-    t.role = document.getElementById('tmplRole').value.trim();
-    t.voice = document.getElementById('tmplVoice').value.trim();
+    t.tags = document.getElementById('tmplTags').value.trim();
     t.used = parseInt(document.getElementById('tmplUsed').value) || 0;
-    if (!t.name || !t.scene || !t.industry) {
-        toast('请完整填写模板名称、业务场景和适用行业', 'error');
+    t.remark = document.getElementById('tmplRemark').value.trim();
+    if (!t.name || !t.industry || !t.tags) {
+        toast('请填写模板名称、适用行业和标签', 'error');
         return;
     }
     addAuditLog('配置', t.name, '-', '-', '编辑模板');
@@ -2571,18 +2585,19 @@ function renderSceneConfigs() {
     var html = '';
     for (var i = 0; i < AppState.sceneConfigs.length; i++) {
         var s = AppState.sceneConfigs[i];
-        var stCls = s.status === '启用' ? 'status-active' : 'status-stopped';
+        var stCls = s.status === '使用中' ? 'status-active' : 'status-stopped';
         html += '<tr>' +
-            '<td><strong>' + s.name + '</strong><br><span class="status ' + stCls + '" style="font-size:11px;padding:1px 6px">' + (s.status === '启用' ? '上架' : '下架') + '</span></td>' +
+            '<td><strong>' + s.name + '</strong></td>' +
             '<td>' + s.industry + '</td>' +
             '<td>' + s.ratio + '</td>' +
             '<td>' + s.place + '</td>' +
-            '<td>' + s.scene + '</td>' +
+            '<td><span class="status ' + stCls + '" style="font-size:11px">' + s.status + '</span></td>' +
             '<td><strong>' + (s.used || 0).toLocaleString() + '</strong></td>' +
             '<td class="voice-actions">' +
                 '<button class="btn btn-xs" onclick="openSceneModal(' + i + ')">编辑</button> ' +
                 '<button class="btn btn-xs" onclick="previewSceneConfig(' + i + ')">预览</button> ' +
-                '<button class="btn btn-xs ' + (s.status === '启用' ? '' : 'btn-primary') + '" onclick="toggleSceneStatus(' + i + ')">' + (s.status === '启用' ? '下架' : '上架') + '</button>' +
+                '<button class="btn btn-xs ' + (s.status === '使用中' ? '' : 'btn-primary') + '" onclick="toggleSceneStatus(' + i + ')">' + (s.status === '使用中' ? '下架' : '上架') + '</button>' +
+                '<button class="btn btn-xs btn-danger" onclick="deleteScene(' + i + ')">删除</button>' +
             '</td>' +
             '</tr>';
     }
@@ -2599,7 +2614,6 @@ function openSceneModal(editIndex) {
         document.getElementById('sfIndustry').value = s.industry || '';
         document.getElementById('sfRatio').value = s.ratio || '';
         document.getElementById('sfPlace').value = s.place || '';
-        document.getElementById('sfScene').value = s.scene || '';
         document.getElementById('sfUsed').value = s.used || 0;
         document.getElementById('sfTags').value = (s.tags || []).join(',');
         document.getElementById('sfDesc').value = s.desc || '';
@@ -2610,7 +2624,6 @@ function openSceneModal(editIndex) {
         document.getElementById('sfIndustry').value = '';
         document.getElementById('sfRatio').value = '';
         document.getElementById('sfPlace').value = '';
-        document.getElementById('sfScene').value = '';
         document.getElementById('sfUsed').value = 0;
         document.getElementById('sfTags').value = '';
         document.getElementById('sfDesc').value = '';
@@ -2635,8 +2648,7 @@ function saveSceneConfig() {
         name: document.getElementById('sfName').value.trim(),
         industry: document.getElementById('sfIndustry').value,
         ratio: document.getElementById('sfRatio').value,
-        place: document.getElementById('sfPlace').value,
-        scene: document.getElementById('sfScene').value,
+        place: document.getElementById('sfPlace').value.trim(),
         used: parseInt(document.getElementById('sfUsed').value) || 0,
         tags: document.getElementById('sfTags').value.split(',').map(function(t) { return t.trim(); }).filter(function(t) { return t; }),
         desc: document.getElementById('sfDesc').value.trim(),
@@ -2645,8 +2657,8 @@ function saveSceneConfig() {
     };
     if (data.imageOriginal === '未选择') data.imageOriginal = '';
     if (data.imageExample === '未选择') data.imageExample = '';
-    if (!data.name || !data.industry || !data.ratio || !data.place || !data.scene) {
-        toast('请完整填写场景名称、行业、画幅、场所和场景分类', 'error');
+    if (!data.name || !data.industry || !data.ratio || !data.place) {
+        toast('请完整填写场景名称、行业、画幅和场所', 'error');
         return;
     }
 
@@ -2655,7 +2667,7 @@ function saveSceneConfig() {
         var s = AppState.sceneConfigs[parseInt(editIndex)];
         if (s) {
             s.name = data.name; s.industry = data.industry; s.ratio = data.ratio;
-            s.place = data.place; s.scene = data.scene; s.used = data.used;
+            s.place = data.place; s.status = data.status; s.used = data.used;
             s.tags = data.tags; s.desc = data.desc;
             s.imageOriginal = data.imageOriginal; s.imageExample = data.imageExample;
             addAuditLog('配置', data.name, '-', '-', '编辑内置场景');
@@ -2665,12 +2677,12 @@ function saveSceneConfig() {
         var newId = 'scene-' + Date.now();
         AppState.sceneConfigs.push({
             id: newId, name: data.name, industry: data.industry, ratio: data.ratio,
-            place: data.place, scene: data.scene, used: data.used,
+            place: data.place, used: data.used,
             tags: data.tags, desc: data.desc,
             imageOriginal: data.imageOriginal, imageExample: data.imageExample,
-            status: '启用'
+            status: '使用中'
         });
-        addAuditLog('配置', data.name, '-', '启用', '新增内置场景');
+        addAuditLog('配置', data.name, '-', '使用中', '新增内置场景');
         toast('场景「' + data.name + '」已新增', 'success');
     }
     saveData();
@@ -2682,11 +2694,6 @@ function previewSceneConfig(index) {
     var s = AppState.sceneConfigs[index];
     if (!s) return;
     document.getElementById('scenePreviewTitle').textContent = s.name;
-    var allTags = (s.tags || []).slice();
-    allTags.unshift(s.ratio, s.place, s.scene);
-    var seen = {};
-    var uniqueTags = allTags.filter(function(t) { var k = t.toLowerCase(); if (seen[k]) return false; seen[k] = true; return true; });
-    document.getElementById('scenePreviewTags').innerHTML = uniqueTags.map(function(t) { return '<span class="tag">' + escapeHtml(t) + '</span>'; }).join('');
 
     var image = document.getElementById('scenePreviewImage');
     image.className = 'scene-preview-image';
@@ -2706,12 +2713,33 @@ function closeScenePreview() {
 function toggleSceneStatus(index) {
     var s = AppState.sceneConfigs[index];
     if (!s) return;
-    var before = s.status === '启用' ? '上架' : '下架';
-    s.status = s.status === '启用' ? '停用' : '启用';
-    addAuditLog('配置', s.name, before, s.status === '启用' ? '上架' : '下架', '调整场景状态');
+    var before = s.status;
+    s.status = s.status === '使用中' ? '已停用' : '使用中';
+    addAuditLog('配置', s.name, before, s.status, '调整场景状态');
     saveData();
     renderSceneConfigs();
-    toast('场景「' + s.name + '」已' + (s.status === '启用' ? '上架' : '下架'), 'success');
+    toast('场景「' + s.name + '」已' + (s.status === '使用中' ? '上架' : '下架'), 'success');
+}
+
+function deleteScene(index) {
+    var s = AppState.sceneConfigs[index];
+    if (!s) return;
+    if (s.status === '使用中') {
+        toast('请先下架该场景后再删除', 'error');
+        return;
+    }
+    showConfirm(
+        '删除场景',
+        '确定要删除场景「' + s.name + '」吗？此操作不可撤销。',
+        '⚠️',
+        function() {
+            AppState.sceneConfigs.splice(index, 1);
+            addAuditLog('配置', s.name, '-', '-', '删除内置场景');
+            saveData();
+            renderSceneConfigs();
+            toast('场景「' + s.name + '」已删除', 'success');
+        }
+    );
 }
 
 function buildSceneVisual() {
