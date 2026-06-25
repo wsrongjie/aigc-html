@@ -1024,7 +1024,7 @@
     <div class="topbar">
         <div class="topbar-left">
             <span class="topbar-title">市场</span>
-            <span class="topbar-desc">官方成片模板、音色与场景</span>
+            <span class="topbar-desc">官方视频模板、音色模板与场景模板</span>
         </div>
     </div>
 
@@ -1044,9 +1044,9 @@
 
         <section class="toolbar">
             <div class="tabbar" aria-label="市场分类">
-                <button class="tab-btn active" data-type="template" onclick="switchType('template')">成片模板</button>
-                <button class="tab-btn" data-type="voice" onclick="switchType('voice')">音色</button>
-                <button class="tab-btn" data-type="scene" onclick="switchType('scene')">场景</button>
+                <button class="tab-btn active" data-type="template" onclick="switchType('template')">视频模板</button>
+                <button class="tab-btn" data-type="voice" onclick="switchType('voice')">音色模板</button>
+                <button class="tab-btn" data-type="scene" onclick="switchType('scene')">场景模板</button>
             </div>
             <label class="search-box">
                 <span>⌕</span>
@@ -1234,10 +1234,10 @@
             type: "voice",
             title: "新闻播报 C",
             industry: "通用投教",
-            gender: "中性",
+            gender: "男声",
             tone: "权威",
             suitableScene: "风险提示",
-            meta: "中性 · 权威 · 风险提示",
+            meta: "男声 · 权威 · 风险提示",
             scene: "风险提示",
             tags: ["风险揭示", "公告", "合规"],
             desc: "适合合规提示、风险教育和公告解读，表达克制清楚。",
@@ -1425,7 +1425,7 @@
         }
     ];
 
-    const typeLabels = { voice: "音色", scene: "场景", template: "成片模板" };
+        const typeLabels = { voice: "音色模板", scene: "场景模板", template: "视频模板" };
     const attrSchemas = {
         voice: [
             { key: "gender", label: "性别" },
