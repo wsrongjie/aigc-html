@@ -181,7 +181,7 @@
     }
     .type-chip:hover, .type-chip.active { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
     .filter-grid {
-        display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr auto auto;
+        display: grid;         grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr auto auto;
         gap: 10px; align-items: end;
     }
     .field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
@@ -284,7 +284,7 @@
 
     @media (max-width: 1120px) {
         .metric-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-        .filter-grid { grid-template-columns: repeat(3, 1fr); }
+        .filter-grid { grid-template-columns: 1fr 1fr; }
     }
     @media (max-width: 760px) {
         body { display: block; height: auto; overflow: auto; }
@@ -409,13 +409,12 @@
                             <input class="input" id="keywordInput" placeholder="标题" oninput="render()">
                         </div>
                         <div class="field">
-                            <label>时间</label>
-                            <select class="select" id="rangeSelect" onchange="render()">
-                                <option value="month">本月</option>
-                                <option value="7days">近 7 天</option>
-                                <option value="quarter">本季度</option>
-                                <option value="all">全部时间</option>
-                            </select>
+                            <label>开始时间</label>
+                            <input class="input" type="datetime-local" id="startDate" onchange="render()">
+                        </div>
+                        <div class="field">
+                            <label>结束时间</label>
+                            <input class="input" type="datetime-local" id="endDate" onchange="render()">
                         </div>
                         <div class="field member-filter" id="memberFilter">
                             <label>成员</label>
@@ -593,14 +592,15 @@ function getFilteredBills() {
     var keyword = document.getElementById('keywordInput').value.trim().toLowerCase();
     var member = document.getElementById('memberSelect').value;
     var status = document.getElementById('statusSelect').value;
-    var range = document.getElementById('rangeSelect').value;
+    var startDate = document.getElementById('startDate').value;
+    var endDate = document.getElementById('endDate').value;
     return bills.filter(function(item) {
         if (state.scope === 'mine' && item.member !== '王晓明') return false;
         if (state.scope !== 'mine' && member !== 'all' && item.member !== member) return false;
         if (state.type !== '全部' && item.type !== state.type) return false;
         if (status !== 'all' && item.status !== status) return false;
-        if (range === 'month' && item.time.indexOf('2026-06') !== 0) return false;
-        if (range === '7days' && item.time < '2026-05-29') return false;
+        if (startDate && item.time.replace(' ', 'T') < startDate) return false;
+        if (endDate && item.time.replace(' ', 'T') > endDate) return false;
         if (keyword) {
             var text = [item.id, item.taskId, item.orderId, item.member, item.type, item.title, item.detail, item.model].join(' ').toLowerCase();
             if (text.indexOf(keyword) === -1) return false;
@@ -686,7 +686,8 @@ function statusTag(status) {
 function resetFilters() {
     state.type = '全部';
     document.getElementById('keywordInput').value = '';
-    document.getElementById('rangeSelect').value = 'month';
+    document.getElementById('startDate').value = '';
+    document.getElementById('endDate').value = '';
     document.getElementById('memberSelect').value = 'all';
     document.getElementById('statusSelect').value = 'all';
     renderTypeTabs();

@@ -1340,10 +1340,9 @@
             type: "template",
             title: "一分钟市场收评模板",
             industry: "证券",
-            duration: "45-60 秒",
             resolution: "1080P",
             ratio: "9:16",
-            meta: "45-60 秒 · 1080P · 9:16",
+            meta: "1080P · 9:16",
             scene: "市场解读",
             tags: ["市场收评", "日更", "数据解读"],
             desc: "内含开场观点、核心数据、风险提示和行动建议四段结构。",
@@ -1362,10 +1361,9 @@
             type: "template",
             title: "基金定投科普模板",
             industry: "基金",
-            duration: "30-45 秒",
             resolution: "1080P",
             ratio: "9:16",
-            meta: "30-45 秒 · 1080P · 9:16",
+            meta: "1080P · 9:16",
             scene: "基金投教",
             tags: ["基金", "投教科普", "新手教育"],
             desc: "适合解释一个基金知识点，结构为问题、解释、误区提醒。",
@@ -1384,10 +1382,9 @@
             type: "template",
             title: "风险提示模板",
             industry: "银行",
-            duration: "20-30 秒",
             resolution: "1080P",
             ratio: "9:16",
-            meta: "20-30 秒 · 1080P · 9:16",
+            meta: "1080P · 9:16",
             scene: "风险提示",
             tags: ["风险提示", "合规", "风险揭示"],
             desc: "用于快速生成产品风险提醒和市场波动教育内容。",
@@ -1406,10 +1403,9 @@
             type: "template",
             title: "热点快评模板",
             industry: "通用投教",
-            duration: "20-40 秒",
             resolution: "720P",
             ratio: "9:16",
-            meta: "20-40 秒 · 720P · 9:16",
+            meta: "720P · 9:16",
             scene: "热点快评",
             tags: ["热点快评", "快讯点评", "社媒"],
             desc: "适合热点事件后的快速观点输出，强调节奏和标题冲击力。",
@@ -1436,7 +1432,6 @@
             { key: "place", label: "场所" }
         ],
         template: [
-            { key: "duration", label: "时长" },
             { key: "resolution", label: "分辨率" },
             { key: "ratio", label: "画幅" }
         ]
@@ -1724,7 +1719,7 @@
     function getCardTags(item) {
         if (item.type === "voice") return [item.gender, item.tone];
         if (item.type === "scene") return [item.ratio, item.place];
-        if (item.type === "template") return [item.duration, item.resolution, item.ratio];
+        if (item.type === "template") return [item.resolution, item.ratio];
         return item.tags;
     }
 
