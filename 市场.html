@@ -350,6 +350,7 @@
             transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
         }
         .resource-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); border-color: rgba(47,107,255,.34); }
+        .resource-card.card-clickable { cursor: pointer; }
         .resource-visual {
             height: 154px;
             position: relative;
@@ -1479,6 +1480,10 @@
     function getAdded() { return readList(ADDED_KEY); }
     function isAdded(id) { return getAdded().indexOf(id) >= 0; }
 
+    function getCollectionFilterLabel() {
+        return state.type === "template" ? "已收藏" : "已加入资产库";
+    }
+
     function handleSearch(value) {
         state.query = value.trim().toLowerCase();
         render();
@@ -1586,7 +1591,7 @@
             const schema = attrSchemas[state.type].find(item => item.key === key);
             selected.push({ label: (schema ? schema.label + "：" : "") + state.attrs[key], type: "attr", key: key });
         });
-        if (state.onlyAdded) selected.push({ label: "已加入资产库", type: "added" });
+        if (state.onlyAdded) selected.push({ label: getCollectionFilterLabel(), type: "added" });
         if (!selected.length) return "";
 
         const chips = selected.map(item => (
@@ -1663,7 +1668,7 @@
                     '<option value="used"' + (state.sort === 'used' ? ' selected' : '') + '>引用次数</option>' +
                     '<option value="newest"' + (state.sort === 'newest' ? ' selected' : '') + '>最新添加</option>' +
                 '</select>' +
-                '<button class="filter-action' + (state.onlyAdded ? ' active' : '') + '" onclick="setOnlyAdded()">已加入资产库</button>' +
+                '<button class="filter-action' + (state.onlyAdded ? ' active' : '') + '" onclick="setOnlyAdded()">' + getCollectionFilterLabel() + '</button>' +
                 (state.type !== 'voice' ? '<button class="filter-action" onclick="toggleAdvancedFilters()">' + (state.filtersExpanded ? "收起筛选" : "更多筛选" + (activeAttrCount ? " · " + activeAttrCount : "")) + '</button>' : '') +
             '</div>' +
         '</div>';
@@ -1683,6 +1688,7 @@
 
     function renderCard(item) {
         const added = isAdded(item.id);
+        const safeId = jsString(item.id);
         const usedHtml = '<span class="used-badge">📋 ' + item.used.toLocaleString('zh-CN') + '</span>';
         const visual = item.type === "voice" ? "" :
             '<div class="resource-visual ' + (item.type === "scene" ? 'scene-visual ' + item.visual : 'template-visual') + '">' +
@@ -1691,10 +1697,16 @@
                 buildVisual(item) +
             '</div>';
         const badge = item.type === "voice" ? '<div class="resource-badge-row"><span class="resource-badge">官方资源</span>' + usedHtml + '</div>' : "";
+        const primaryAction = item.type === "template"
+            ? '<button class="btn ' + (added ? 'btn-added' : '') + '" onclick="toggleAsset(\'' + safeId + '\', event)">' + (added ? "已收藏" : "收藏") + '</button>'
+            : '<button class="btn" onclick="' + (item.type === "voice" ? 'toggleVoicePreview(\'' + safeId + '\')' : 'previewResource(\'' + safeId + '\')') + '">' + (item.type === "voice" ? (playingVoiceId === item.id ? "停止" : "试听") : "预览") + '</button>';
         const secondaryAction = item.type === "template"
-            ? '<button class="btn btn-primary" onclick="openSameModal(\'' + item.id + '\')">一键同款</button>'
-            : '<button class="btn ' + (added ? 'btn-added' : 'btn-primary') + '" onclick="toggleAsset(\'' + item.id + '\')">' + (added ? "移出资产库" : "加入资产库") + '</button>';
-        return '<article class="resource-card' + (item.type === "voice" ? ' voice-card' : '') + (item.type === "scene" ? ' scene-card' : '') + '">' +
+            ? '<button class="btn btn-primary" onclick="openSameModal(\'' + safeId + '\', event)">一键同款</button>'
+            : '<button class="btn ' + (added ? 'btn-added' : 'btn-primary') + '" onclick="toggleAsset(\'' + safeId + '\')">' + (added ? "移出资产库" : "加入资产库") + '</button>';
+        const cardAttrs = item.type === "template"
+            ? ' onclick="previewResource(\'' + safeId + '\')" role="button" tabindex="0" onkeydown="handleTemplateCardKey(event,\'' + safeId + '\')"'
+            : "";
+        return '<article class="resource-card' + (item.type === "voice" ? ' voice-card' : '') + (item.type === "scene" ? ' scene-card' : '') + (item.type === "template" ? ' card-clickable' : '') + '"' + cardAttrs + '>' +
             visual +
             '<div class="resource-body">' +
                 badge +
@@ -1702,11 +1714,18 @@
                 '<div class="tag-row">' + getCardTags(item).map(tag => '<span class="tag">' + escapeHtml(tag) + '</span>').join("") + '</div>' +
                 '<div class="resource-desc">' + escapeHtml(item.desc) + '</div>' +
                 '<div class="resource-actions">' +
-                    '<button class="btn" onclick="' + (item.type === "voice" ? 'toggleVoicePreview(\'' + item.id + '\')' : 'previewResource(\'' + item.id + '\')') + '">' + (item.type === "voice" ? (playingVoiceId === item.id ? "停止" : "试听") : "预览") + '</button>' +
+                    primaryAction +
                     secondaryAction +
                 '</div>' +
             '</div>' +
         '</article>';
+    }
+
+    function handleTemplateCardKey(event, id) {
+        if (event.target !== event.currentTarget) return;
+        if (event.key !== "Enter" && event.key !== " ") return;
+        event.preventDefault();
+        previewResource(id);
     }
 
     function buildVisual(item) {
@@ -1762,7 +1781,8 @@
         render();
     }
 
-    function toggleAsset(id) {
+    function toggleAsset(id, event) {
+        if (event) event.stopPropagation();
         if (isAdded(id)) {
             removeFromAssets(id);
         } else {
@@ -1775,13 +1795,17 @@
         if (!item) return;
         const added = getAdded();
         if (added.indexOf(id) >= 0) {
-            showToast("已在资产库", item.title + " 无需重复加入");
+            showToast(item.type === "template" ? "已收藏" : "已在资产库", item.title + " 无需重复加入");
             return;
         }
         added.push(id);
         writeList(ADDED_KEY, added);
         if (item.type === "scene") addSceneToLibrary(item);
-        showToast("已加入资产库", item.title + " 已复制到我的" + typeLabels[item.type]);
+        if (item.type === "template") {
+            showToast("已收藏", item.title + " 已加入收藏");
+        } else {
+            showToast("已加入资产库", item.title + " 已复制到我的" + typeLabels[item.type]);
+        }
         render();
     }
 
@@ -1791,7 +1815,11 @@
         const added = getAdded().filter(assetId => assetId !== id);
         writeList(ADDED_KEY, added);
         if (item.type === "scene") removeSceneFromLibrary(item);
-        showToast("已移出资产库", item.title + " 已从我的" + typeLabels[item.type] + "移除");
+        if (item.type === "template") {
+            showToast("已取消收藏", item.title + " 已从收藏中移除");
+        } else {
+            showToast("已移出资产库", item.title + " 已从我的" + typeLabels[item.type] + "移除");
+        }
         render();
     }
 
@@ -1842,7 +1870,8 @@
         document.getElementById("templateVideoPlayer").innerHTML = "";
     }
 
-    function openSameModal(templateId) {
+    function openSameModal(templateId, event) {
+        if (event) event.stopPropagation();
         const item = resources.find(r => r.id === templateId);
         if (!item || item.type !== "template") return;
         activeTemplateId = templateId;
