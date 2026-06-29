@@ -439,6 +439,119 @@
         .prompt-template-table.collapsed { display: none; }
         .prompt-template-table tr:first-child td { border-top: none; }
 
+        /* ===== 任务调度 ===== */
+        .scheduler-summary {
+            display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 16px;
+        }
+        .scheduler-metric {
+            background: var(--card-bg); border: 1px solid var(--border);
+            border-radius: var(--radius); padding: 14px 16px;
+        }
+        .scheduler-metric .label { font-size: 11px; color: var(--text-muted); font-weight: 600; margin-bottom: 4px; }
+        .scheduler-metric .value { font-size: 24px; font-weight: 800; color: var(--text-primary); }
+        .gpu-grid {
+            display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px;
+        }
+        .gpu-card {
+            border: 1px solid var(--border); border-radius: var(--radius-sm);
+            padding: 12px; background: #FAFAFA; position: relative; overflow: hidden;
+        }
+        .gpu-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: #d4d4d8; }
+        .gpu-card.running.vip { border-color: #93c5fd; background: #eff6ff; }
+        .gpu-card.running.vip::before { background: var(--primary); }
+        .gpu-card.running.normal { border-color: #86efac; background: #f0fdf4; }
+        .gpu-card.running.normal::before { background: var(--green); }
+        .gpu-card.running.borrowed { border-color: #fdba74; background: #fff7ed; }
+        .gpu-card.running.borrowed::before { background: var(--orange); }
+        .gpu-card.idle { border-color: #a7f3d0; background: #ecfdf5; }
+        .gpu-card.idle::before { background: var(--green); }
+        .gpu-card.unassigned { border-color: #d4d4d8; background: #fafafa; }
+        .gpu-card.unassigned::before { background: #a1a1aa; }
+        .gpu-card.maintenance, .gpu-card.fault { border-color: #fca5a5; background: #fef2f2; }
+        .gpu-card.maintenance::before, .gpu-card.fault::before { background: var(--red); }
+        .gpu-card-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+        .gpu-card-name { font-size: 13px; font-weight: 800; }
+        .gpu-queue-tag {
+            min-width: 72px; height: 24px; padding: 0 9px; border-radius: 999px;
+            display: inline-flex; align-items: center; justify-content: center;
+            font-size: 11px; font-weight: 800; white-space: nowrap;
+        }
+        .gpu-queue-tag.vip { background: var(--primary); color: #fff; }
+        .gpu-queue-tag.normal { background: var(--green); color: #fff; }
+        .gpu-queue-tag.borrowed { background: var(--orange); color: #fff; }
+        .gpu-queue-tag.idle { background: #d1fae5; color: #047857; }
+        .gpu-queue-tag.unassigned { background: #f4f4f5; color: var(--text-secondary); }
+        .gpu-queue-tag.blocked { background: #fee2e2; color: #b91c1c; }
+        .gpu-queue-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 6px; }
+        .gpu-queue-label { color: var(--text-muted); font-size: 11px; }
+        .gpu-queue-value { font-weight: 800; color: var(--text-primary); }
+        .gpu-use-pill {
+            display: inline-flex; align-items: center; height: 22px; padding: 0 8px;
+            border-radius: 999px; font-size: 11px; font-weight: 800;
+        }
+        .gpu-use-pill.vip { background: var(--primary-light); color: var(--primary); }
+        .gpu-use-pill.normal { background: var(--green-bg); color: var(--green); }
+        .gpu-use-pill.idle { background: #f4f4f5; color: var(--text-secondary); }
+        .gpu-use-pill.blocked { background: var(--red-bg); color: var(--red); }
+        .gpu-card-meta { font-size: 11px; color: var(--text-secondary); line-height: 1.6; }
+        .queue-config-grid {
+            display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-bottom: 20px;
+        }
+        .queue-card {
+            background: var(--card-bg); border: 1px solid var(--border);
+            border-radius: var(--radius); padding: 18px 20px;
+        }
+        .queue-card-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+        .queue-card-title { font-size: 15px; font-weight: 800; }
+        .queue-card-desc { font-size: 12px; color: var(--text-muted); margin-top: 3px; }
+        .queue-inline-form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 12px; }
+        .queue-inline-form .form-control { display: flex; flex-direction: column; gap: 6px; }
+        .scheduler-switch {
+            display: inline-flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-secondary);
+            user-select: none;
+        }
+        .scheduler-switch input { width: 16px; height: 16px; accent-color: var(--primary); }
+        .scheduler-warning {
+            display: none; margin: -4px 0 16px; padding: 10px 12px;
+            border: 1px solid #fed7aa; background: #fff7ed; color: #c2410c;
+            border-radius: var(--radius-sm); font-size: 12px; font-weight: 600;
+        }
+        .scheduler-warning.show { display: block; }
+        .queue-slots { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+        .queue-slot {
+            width: 28px; height: 28px; border-radius: 8px;
+            display: inline-flex; align-items: center; justify-content: center;
+            font-size: 11px; font-weight: 900; border: 1px solid var(--border);
+            background: #f4f4f5; color: var(--text-muted);
+        }
+        .queue-slot.vip { background: var(--primary); border-color: var(--primary); color: #fff; }
+        .queue-slot.normal { background: var(--green); border-color: var(--green); color: #fff; }
+        .queue-slot.idle { background: #fff; border-style: dashed; }
+        .queue-slot.borrowed { background: #facc15; border-color: #eab308; color: #713f12; }
+        .queue-slot.reserve { background: #f0fdf4; border-color: #86efac; color: #047857; }
+        .queue-slot-legend {
+            display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 10px;
+            color: var(--text-muted); font-size: 11px;
+        }
+        .queue-slot-legend span { display: inline-flex; align-items: center; gap: 5px; }
+        .queue-dot { width: 9px; height: 9px; border-radius: 3px; background: #d4d4d8; display: inline-block; }
+        .queue-dot.vip { background: var(--primary); }
+        .queue-dot.normal { background: var(--green); }
+        .queue-dot.borrowed { background: #facc15; }
+        .queue-dot.idle { background: #fff; border: 1px dashed var(--text-muted); }
+        .borrow-badge {
+            display: inline-flex; align-items: center; gap: 4px;
+            padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 700;
+            background: #fff7ed; color: #c2410c;
+        }
+        @media (max-width: 1440px) {
+            .scheduler-summary { grid-template-columns: repeat(3, 1fr); }
+            .gpu-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        }
+        @media (max-width: 900px) {
+            .scheduler-summary, .queue-config-grid, .queue-inline-form { grid-template-columns: 1fr; }
+        }
+
         /* ===== 场景预览 ===== */
         .scene-preview-modal {
             width: min(800px, 94vw);
@@ -543,6 +656,7 @@
     </div>
     <nav class="sidebar-nav">
         <div class="nav-item active" data-view="view-dashboard"><span class="nav-icon">🏠</span> 工作台</div>
+        <div class="nav-item" data-view="view-scheduler-config"><span class="nav-icon">🧭</span> 任务调度</div>
         <div class="nav-item" data-view="view-tenants"><span class="nav-icon">👥</span> 租户管理</div>
         <div class="nav-item" data-view="view-tasks"><span class="nav-icon">📋</span> 任务统计</div>
         <div class="nav-item" data-view="view-billing"><span class="nav-icon">💰</span> 积分与账单</div>
@@ -641,7 +755,7 @@
                     <button class="btn btn-primary btn-sm" onclick="openTenantModal()" style="margin-left:auto">+ 新建租户</button>
                 </div>
                 <table>
-                    <thead><tr><th>租户名称</th><th>行业</th><th>状态</th><th>管理员</th><th>当前用量/额度</th><th>积分余额</th><th>开通时间</th><th>操作</th></tr></thead>
+                    <thead><tr><th>租户名称</th><th>行业</th><th>租户等级</th><th>状态</th><th>管理员</th><th>当前用量/额度</th><th>积分余额</th><th>开通时间</th><th>操作</th></tr></thead>
                     <tbody id="tenantTable"></tbody>
                 </table>
             </div>
@@ -750,6 +864,51 @@
             <div class="pricing-grid" id="pricingGrid" style="margin-bottom:24px"></div>
         </div>
 
+        <!-- 视图：任务调度 -->
+        <div class="panel" id="view-scheduler-config">
+            <div class="section-title">GPU资源状态</div>
+            <div class="scheduler-summary" id="schedulerSummary"></div>
+            <div class="table-wrap" style="margin-bottom:24px">
+                <div class="table-toolbar">
+                    <span style="font-weight:600;font-size:13px">GPU 单卡状态</span>
+                    <span style="font-size:12px;color:var(--text-muted);margin-left:auto" id="schedulerUpdatedAt"></span>
+                </div>
+                <div id="gpuCardGrid" class="gpu-grid" style="padding:16px 18px"></div>
+            </div>
+
+            <div class="section-title">队列并发配置</div>
+            <div class="scheduler-warning" id="schedulerConfigWarning"></div>
+            <div style="font-size:12px;color:var(--text-muted);margin:-8px 0 14px">VIP 仅在自有并发已满且仍有等待任务时，才会借用普通队列保底之外的空闲资源。</div>
+            <div class="queue-config-grid" id="queueConfigGrid"></div>
+            <div style="display:flex;justify-content:flex-end;margin:-8px 0 24px">
+                <button class="btn btn-primary btn-sm" onclick="saveSchedulerConfig()">保存调度配置</button>
+            </div>
+
+            <div class="section-title">租户等级映射</div>
+            <div class="table-wrap" style="margin-bottom:24px">
+                <div class="table-toolbar">
+                    <span style="font-weight:600;font-size:13px">按租户等级分配默认队列</span>
+                    <button class="btn btn-primary btn-sm" onclick="openTenantLevelModal()" style="margin-left:auto">+ 新增租户等级</button>
+                </div>
+                <table>
+                    <thead><tr><th>租户等级</th><th>默认队列</th><th>租户数量</th><th>说明</th><th>操作</th></tr></thead>
+                    <tbody id="tenantLevelMapTable"></tbody>
+                </table>
+            </div>
+
+            <div class="section-title">实时队列状态</div>
+            <div class="table-wrap">
+                <div class="table-toolbar">
+                    <span style="font-weight:600;font-size:13px">运行中与等待中任务</span>
+                    <button class="btn btn-sm" onclick="renderScheduler()" style="margin-left:auto">刷新</button>
+                </div>
+                <table>
+                    <thead><tr><th>任务 ID</th><th>租户</th><th>等级</th><th>队列</th><th>状态</th><th>占用 GPU</th><th>等待/运行</th><th>预计完成</th></tr></thead>
+                    <tbody id="schedulerTaskTable"></tbody>
+                </table>
+            </div>
+        </div>
+
         <!-- 视图：提示词配置 -->
         <div class="panel" id="view-prompt-config">
             <div class="section-title">提示词配置</div>
@@ -791,6 +950,35 @@
     </div>
 </div>
 
+<!-- Modal：租户等级配置 -->
+<div class="modal-overlay" id="tenantLevelModalOverlay">
+    <div class="modal" id="tenantLevelModal">
+        <div class="modal-header">
+            <span class="modal-title" id="tenantLevelModalTitle">新增租户等级</span>
+            <button class="modal-close" onclick="closeTenantLevelModal()">×</button>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
+            <div class="form-group">
+                <label class="kv-label">租户等级名称 <span style="color:red">*</span></label>
+                <input class="filter-input" id="tenantLevelName" style="width:100%" placeholder="如：战略客户">
+            </div>
+            <div class="form-group">
+                <label class="kv-label">默认队列 <span style="color:red">*</span></label>
+                <select class="filter-select" id="tenantLevelQueue" style="width:100%"></select>
+            </div>
+        </div>
+        <div class="form-group" style="margin-bottom:14px">
+            <label class="kv-label">说明</label>
+            <textarea id="tenantLevelDesc" style="width:100%;height:76px;padding:10px 12px;border:1px solid var(--border);border-radius:6px;font-size:13px;resize:none;line-height:1.5" placeholder="补充该租户等级的调度策略说明"></textarea>
+        </div>
+        <input type="hidden" id="tenantLevelEditIndex">
+        <div class="modal-footer">
+            <button class="btn" onclick="closeTenantLevelModal()">取消</button>
+            <button class="btn btn-primary" onclick="saveTenantLevel()">保存</button>
+        </div>
+    </div>
+</div>
+
 <!-- Modal：租户表单 -->
 <div class="modal-overlay" id="tenantModalOverlay">
     <div class="modal" id="tenantModal">
@@ -804,6 +992,7 @@
             <div class="form-group"><label class="kv-label">管理员姓名 *</label><input class="filter-input" id="tfAdminName" style="width:100%" placeholder="姓名"></div>
             <div class="form-group"><label class="kv-label">管理员手机</label><input class="filter-input" id="tfAdminPhone" style="width:100%" placeholder="手机号"></div>
             <div class="form-group"><label class="kv-label">管理员邮箱</label><input class="filter-input" id="tfAdminEmail" style="width:100%" placeholder="邮箱"></div>
+            <div class="form-group"><label class="kv-label">租户等级 *</label><select class="filter-select" id="tfTenantLevel" style="width:100%"></select></div>
             <div class="form-group"><label class="kv-label">视频最大并发数</label><input class="filter-input" id="tfConcurrency" style="width:100%" type="number" placeholder="并发数" value="5"></div>
             <div class="form-group"><label class="kv-label">服务有效期</label><input class="filter-input" id="tfExpiry" style="width:100%" type="date"></div>
             <div class="form-group"><label class="kv-label">状态</label><select class="filter-select" id="tfStatus" style="width:100%"><option value="启用中">启用中</option><option value="已停用">已停用</option></select></div>
@@ -1090,8 +1279,9 @@ function showConfirm(title, desc, icon, cb) {
     document.getElementById('confirmOverlay').classList.add('show');
     _confirmCb = cb;
     document.getElementById('confirmOkBtn').onclick = function() {
+        var run = _confirmCb;
         closeConfirm();
-        if (_confirmCb) _confirmCb();
+        if (run) run();
     };
 }
 function closeConfirm() {
@@ -1139,6 +1329,7 @@ function switchView(viewId) {
 
     var titles = {
         'view-dashboard':'工作台',
+        'view-scheduler-config':'任务调度',
         'view-tenants':'租户管理',
         'view-tasks':'任务统计',
         'view-billing':'积分与账单',
@@ -1161,6 +1352,7 @@ function updateTopbarActions() {
         'view-tasks': '<button class="btn btn-sm" onclick="renderTasks()">🔄 刷新统计</button>',
         'view-voice-config': '',
         'view-credit-config': '',
+        'view-scheduler-config': '<button class="btn btn-sm" onclick="renderScheduler()">刷新资源状态</button>',
         'view-prompt-config': '',
         'view-template-config': '',
         'view-scene-config': '',
@@ -1177,6 +1369,7 @@ function refreshView(viewId) {
     else if (viewId === 'view-billing') renderBilling();
     else if (viewId === 'view-voice-config') renderVoiceConfigs();
     else if (viewId === 'view-credit-config') renderPricing();
+    else if (viewId === 'view-scheduler-config') renderScheduler();
     else if (viewId === 'view-prompt-config') renderPrompts();
     else if (viewId === 'view-template-config') renderTemplates();
     else if (viewId === 'view-scene-config') renderSceneConfigs();
@@ -1196,10 +1389,44 @@ function saveData() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(AppState));
 }
 
+function normalizeScheduler(data) {
+    var defaults = AppState.scheduler || {};
+    data = data || {};
+    if (defaults.scenarioVersion && data.scenarioVersion !== defaults.scenarioVersion) {
+        return JSON.parse(JSON.stringify(defaults));
+    }
+    return {
+        scenarioVersion: data.scenarioVersion || defaults.scenarioVersion || 'default',
+        updatedAt: data.updatedAt || defaults.updatedAt || '刚刚',
+        gpuCards: data.gpuCards && data.gpuCards.length ? data.gpuCards : (defaults.gpuCards || []),
+        queues: data.queues && data.queues.length ? data.queues : (defaults.queues || []),
+        tenantLevels: data.tenantLevels && data.tenantLevels.length ? data.tenantLevels : (defaults.tenantLevels || []),
+        taskPool: data.taskPool && data.taskPool.length ? data.taskPool : (defaults.taskPool || []),
+        queueTasks: data.queueTasks && data.queueTasks.length ? data.queueTasks : (defaults.queueTasks || [])
+    };
+}
+
+function getDefaultTenantLevelName(tenant) {
+    var name = tenant && tenant.name;
+    if (name === '雨虹投资' || name === '汇丰投顾') return 'VIP客户';
+    if (name === '华泰理财') return '大客户';
+    if (name === '安联保险经纪') return '试用客户';
+    return '普通客户';
+}
+
+function normalizeTenants(list) {
+    list = list || [];
+    for (var i = 0; i < list.length; i++) {
+        if (!list[i].tenantLevel) list[i].tenantLevel = getDefaultTenantLevelName(list[i]);
+    }
+    return list;
+}
+
 function initData() {
     var saved = loadData();
     if (saved) {
-        AppState.tenants = saved.tenants || AppState.tenants;
+        AppState.scheduler = normalizeScheduler(saved.scheduler || AppState.scheduler);
+        AppState.tenants = normalizeTenants(saved.tenants || AppState.tenants);
         AppState.billingLogs = saved.billingLogs || AppState.billingLogs;
         AppState.releaseLogs = normalizeReleaseLogs(saved.releaseLogs || AppState.releaseLogs);
         AppState.voiceConfigs = saved.voiceConfigs || AppState.voiceConfigs;
@@ -1211,19 +1438,20 @@ function initData() {
         AppState.auditLogs = normalizeAuditLogs(saved.auditLogs || AppState.auditLogs);
         return;
     }
+    AppState.tenants = normalizeTenants(AppState.tenants);
     saveData();
 }
 
 var AppState = {
     tenants: [
-        { id:'t001',name:'雨虹投资',industry:'金融投顾',status:'启用中',adminName:'张明',adminPhone:'13800001001',adminEmail:'zhang@yh-am.com',dailyQuota:1000,dailyUsed:800,concurrency:10,modelLevel:'高级',credits:3200,expiry:'2026-12-31',openedAt:'2025-03-15',features:['视频生成','图片创作','语音合成','分镜管理'] },
-        { id:'t002',name:'鑫源保险',industry:'保险',status:'启用中',adminName:'李芳',adminPhone:'13800001002',adminEmail:'lif@xy-bx.com',dailyQuota:500,dailyUsed:450,concurrency:5,modelLevel:'标准',credits:1800,expiry:'2026-06-30',openedAt:'2025-06-01',features:['视频生成','语音合成'] },
-        { id:'t003',name:'汇丰投顾',industry:'金融投顾',status:'启用中',adminName:'王磊',adminPhone:'13800001003',adminEmail:'wang@hf-ad.com',dailyQuota:300,dailyUsed:120,concurrency:3,modelLevel:'标准',credits:500,expiry:'2026-04-15',openedAt:'2025-12-01',features:['视频生成'] },
-        { id:'t004',name:'中诚教育',industry:'教育培训',status:'启用中',adminName:'陈静',adminPhone:'13800001004',adminEmail:'chenj@zc-edu.com',dailyQuota:800,dailyUsed:680,concurrency:8,modelLevel:'高级',credits:2400,expiry:'2027-01-31',openedAt:'2025-08-20',features:['视频生成','图片创作','语音合成','分镜管理','主体管理'] },
-        { id:'t005',name:'华泰理财',industry:'金融投顾',status:'启用中',adminName:'赵强',adminPhone:'13800001005',adminEmail:'zhaoq@ht-cf.com',dailyQuota:600,dailyUsed:310,concurrency:6,modelLevel:'标准',credits:5600,expiry:'2026-09-30',openedAt:'2025-04-10',features:['视频生成','分镜管理'] },
-        { id:'t006',name:'安联保险经纪',industry:'保险',status:'启用中',adminName:'刘洋',adminPhone:'13800001006',adminEmail:'liuy@al-bx.com',dailyQuota:200,dailyUsed:85,concurrency:2,modelLevel:'仅内测',credits:200,expiry:'2026-05-30',openedAt:'2026-01-05',features:['视频生成'] },
-        { id:'t007',name:'博学在线',industry:'教育培训',status:'启用中',adminName:'孙丽',adminPhone:'13800001007',adminEmail:'sunl@bx-edu.com',dailyQuota:400,dailyUsed:390,concurrency:4,modelLevel:'标准',credits:900,expiry:'2026-08-31',openedAt:'2025-09-12',features:['视频生成','图片创作','语音合成'] },
-        { id:'t008',name:'众盈财富',industry:'金融投顾',status:'已停用',adminName:'周浩',adminPhone:'13800001008',adminEmail:'zh@zy-cf.com',dailyQuota:1000,dailyUsed:0,concurrency:10,modelLevel:'高级',credits:0,expiry:'2026-02-28',openedAt:'2025-01-20',features:['视频生成','图片创作','语音合成','分镜管理','主体管理'] }
+        { id:'t001',name:'雨虹投资',industry:'金融投顾',tenantLevel:'VIP客户',status:'启用中',adminName:'张明',adminPhone:'13800001001',adminEmail:'zhang@yh-am.com',dailyQuota:1000,dailyUsed:800,concurrency:10,modelLevel:'高级',credits:3200,expiry:'2026-12-31',openedAt:'2025-03-15',features:['视频生成','图片创作','语音合成','分镜管理'] },
+        { id:'t002',name:'鑫源保险',industry:'保险',tenantLevel:'普通客户',status:'启用中',adminName:'李芳',adminPhone:'13800001002',adminEmail:'lif@xy-bx.com',dailyQuota:500,dailyUsed:450,concurrency:5,modelLevel:'标准',credits:1800,expiry:'2026-06-30',openedAt:'2025-06-01',features:['视频生成','语音合成'] },
+        { id:'t003',name:'汇丰投顾',industry:'金融投顾',tenantLevel:'VIP客户',status:'启用中',adminName:'王磊',adminPhone:'13800001003',adminEmail:'wang@hf-ad.com',dailyQuota:300,dailyUsed:120,concurrency:3,modelLevel:'标准',credits:500,expiry:'2026-04-15',openedAt:'2025-12-01',features:['视频生成'] },
+        { id:'t004',name:'中诚教育',industry:'教育培训',tenantLevel:'普通客户',status:'启用中',adminName:'陈静',adminPhone:'13800001004',adminEmail:'chenj@zc-edu.com',dailyQuota:800,dailyUsed:680,concurrency:8,modelLevel:'高级',credits:2400,expiry:'2027-01-31',openedAt:'2025-08-20',features:['视频生成','图片创作','语音合成','分镜管理','主体管理'] },
+        { id:'t005',name:'华泰理财',industry:'金融投顾',tenantLevel:'大客户',status:'启用中',adminName:'赵强',adminPhone:'13800001005',adminEmail:'zhaoq@ht-cf.com',dailyQuota:600,dailyUsed:310,concurrency:6,modelLevel:'标准',credits:5600,expiry:'2026-09-30',openedAt:'2025-04-10',features:['视频生成','分镜管理'] },
+        { id:'t006',name:'安联保险经纪',industry:'保险',tenantLevel:'试用客户',status:'启用中',adminName:'刘洋',adminPhone:'13800001006',adminEmail:'liuy@al-bx.com',dailyQuota:200,dailyUsed:85,concurrency:2,modelLevel:'仅内测',credits:200,expiry:'2026-05-30',openedAt:'2026-01-05',features:['视频生成'] },
+        { id:'t007',name:'博学在线',industry:'教育培训',tenantLevel:'普通客户',status:'启用中',adminName:'孙丽',adminPhone:'13800001007',adminEmail:'sunl@bx-edu.com',dailyQuota:400,dailyUsed:390,concurrency:4,modelLevel:'标准',credits:900,expiry:'2026-08-31',openedAt:'2025-09-12',features:['视频生成','图片创作','语音合成'] },
+        { id:'t008',name:'众盈财富',industry:'金融投顾',tenantLevel:'普通客户',status:'已停用',adminName:'周浩',adminPhone:'13800001008',adminEmail:'zh@zy-cf.com',dailyQuota:1000,dailyUsed:0,concurrency:10,modelLevel:'高级',credits:0,expiry:'2026-02-28',openedAt:'2025-01-20',features:['视频生成','图片创作','语音合成','分镜管理','主体管理'] }
     ],
     billingLogs: [
         { id:'b001',time:'2026-01-25 09:15',tenantId:'t001',tenantName:'雨虹投资',type:'充值',amount:5000,balance:8200,operator:'admin',taskId:'-',remark:'年度续费充值' },
@@ -1310,6 +1538,48 @@ var AppState = {
         { id:'scene-service-office', name:'高端办公咨询室', industry:'保险', ratio:'16:9', place:'办公室', scene:'客户服务', tags:['客户服务','服务介绍','可信'], desc:'明亮办公环境，适合投顾服务介绍、客户流程说明。', imageOriginal:'', imageExample:'', used:892, status:'使用中' },
         { id:'scene-warm-library', name:'温和书房口播场景', industry:'基金', ratio:'9:16', place:'书房', scene:'基金投教', tags:['基金投教','投教科普','温和'], desc:'书架与暖色灯光组合，适合理财科普和新手教育。', imageOriginal:'', imageExample:'', used:1589, status:'使用中' }
     ],
+    scheduler: {
+        scenarioVersion: 'borrow-toggle-v2',
+        updatedAt: '2026-06-29 10:30:18',
+        gpuCards: [
+            { id:'GPU-01', status:'running', assignedQueueId:'vip', assignedQueueName:'VIP队列', usedQueueId:'vip', usedQueueName:'VIP队列', tenant:'雨虹投资', taskId:'vt_201', runningTime:'04:18', borrowed:false },
+            { id:'GPU-02', status:'running', assignedQueueId:'vip', assignedQueueName:'VIP队列', usedQueueId:'vip', usedQueueName:'VIP队列', tenant:'华泰理财', taskId:'vt_202', runningTime:'02:41', borrowed:false },
+            { id:'GPU-03', status:'running', assignedQueueId:'vip', assignedQueueName:'VIP队列', usedQueueId:'vip', usedQueueName:'VIP队列', tenant:'汇丰投顾', taskId:'vt_203', runningTime:'01:36', borrowed:false },
+            { id:'GPU-04', status:'running', assignedQueueId:'vip', assignedQueueName:'VIP队列', usedQueueId:'vip', usedQueueName:'VIP队列', tenant:'雨虹投资', taskId:'vt_206', runningTime:'00:58', borrowed:false },
+            { id:'GPU-05', status:'running', assignedQueueId:'normal', assignedQueueName:'普通队列', usedQueueId:'normal', usedQueueName:'普通队列', tenant:'鑫源保险', taskId:'vt_204', runningTime:'05:12', borrowed:false },
+            { id:'GPU-06', status:'idle', assignedQueueId:'normal', assignedQueueName:'普通队列', usedQueueId:'', usedQueueName:'', tenant:'', taskId:'', runningTime:'', borrowed:false },
+            { id:'GPU-07', status:'idle', assignedQueueId:'normal', assignedQueueName:'普通队列', usedQueueId:'', usedQueueName:'', tenant:'', taskId:'', runningTime:'', borrowed:false },
+            { id:'GPU-08', status:'maintenance', assignedQueueId:'none', assignedQueueName:'不可调度', usedQueueId:'', usedQueueName:'', tenant:'', taskId:'', runningTime:'', borrowed:false }
+        ],
+        queues: [
+            { id:'vip', name:'VIP队列', desc:'大客户、VIP客户默认进入高优先级队列', baseConcurrency:4, running:4, waiting:2, avgWait:'3分18秒', allowBorrow:false, borrowedIn:0, reservedConcurrency:0 },
+            { id:'normal', name:'普通队列', desc:'普通客户、试用客户默认进入普通队列', baseConcurrency:3, running:1, waiting:0, avgWait:'9分42秒', allowBorrow:false, borrowedOut:0, reservedConcurrency:1 }
+        ],
+        tenantLevels: [
+            { name:'VIP客户', queueId:'vip', queueName:'VIP队列', tenantCount:5, desc:'合同约定高优先级保障，默认使用 VIP 队列' },
+            { name:'大客户', queueId:'vip', queueName:'VIP队列', tenantCount:3, desc:'重点客户，进入高优先级队列' },
+            { name:'普通客户', queueId:'normal', queueName:'普通队列', tenantCount:18, desc:'标准服务等级，进入普通队列' },
+            { name:'试用客户', queueId:'normal', queueName:'普通队列', tenantCount:9, desc:'试用期客户，进入普通队列' }
+        ],
+        taskPool: [
+            { taskId:'vt_201', tenant:'雨虹投资', level:'VIP客户', queueId:'vip', queueName:'VIP队列', runningTime:'04:18', eta:'约 06:20 完成' },
+            { taskId:'vt_202', tenant:'华泰理财', level:'大客户', queueId:'vip', queueName:'VIP队列', runningTime:'02:41', eta:'约 04:10 完成' },
+            { taskId:'vt_203', tenant:'汇丰投顾', level:'VIP客户', queueId:'vip', queueName:'VIP队列', runningTime:'01:36', eta:'约 03:30 完成' },
+            { taskId:'vt_206', tenant:'雨虹投资', level:'VIP客户', queueId:'vip', queueName:'VIP队列', runningTime:'00:58', eta:'约 02:50 完成' },
+            { taskId:'vt_209', tenant:'华泰理财', level:'大客户', queueId:'vip', queueName:'VIP队列', runningTime:'00:44', eta:'约 03:20 完成' },
+            { taskId:'vt_210', tenant:'汇丰投顾', level:'VIP客户', queueId:'vip', queueName:'VIP队列', runningTime:'00:31', eta:'约 03:10 完成' },
+            { taskId:'vt_204', tenant:'鑫源保险', level:'普通客户', queueId:'normal', queueName:'普通队列', runningTime:'05:12', eta:'约 07:00 完成' },
+        ],
+        queueTasks: [
+            { taskId:'vt_201', tenant:'雨虹投资', level:'VIP客户', queueName:'VIP队列', status:'running', gpu:'GPU-01', time:'运行 04:18', eta:'约 06:20 完成' },
+            { taskId:'vt_202', tenant:'华泰理财', level:'大客户', queueName:'VIP队列', status:'running', gpu:'GPU-02', time:'运行 02:41', eta:'约 04:10 完成' },
+            { taskId:'vt_203', tenant:'汇丰投顾', level:'VIP客户', queueName:'VIP队列', status:'running', gpu:'GPU-03', time:'运行 01:36', eta:'约 03:30 完成' },
+            { taskId:'vt_206', tenant:'雨虹投资', level:'VIP客户', queueName:'VIP队列', status:'running', gpu:'GPU-04', time:'运行 00:58', eta:'约 02:50 完成' },
+            { taskId:'vt_204', tenant:'鑫源保险', level:'普通客户', queueName:'普通队列', status:'running', gpu:'GPU-05', time:'运行 05:12', eta:'约 07:00 完成' },
+            { taskId:'vt_209', tenant:'华泰理财', level:'大客户', queueName:'VIP队列', status:'waiting', gpu:'-', time:'等待 01:25', eta:'约 03:20 完成' },
+            { taskId:'vt_210', tenant:'汇丰投顾', level:'VIP客户', queueName:'VIP队列', status:'waiting', gpu:'-', time:'等待 01:25', eta:'约 03:10 完成' }
+        ]
+    },
     opsTasks: [
         { taskId:'vt_001',tenantId:'t001',tenantName:'雨虹投资',taskName:'市场收评_0602',videoCount:3,totalCost:360,status:'completed',progress:100,createdAt:'2026-06-02 09:15',startedAt:'2026-06-02 09:16',completedAt:'2026-06-02 09:20',subTasks:[
             { id:1,script:'今天A股市场整体呈现震荡走势，上证指数收报3150点...',status:'completed',progress:100,duration:15,cost:150,error:null },
@@ -1472,6 +1742,48 @@ function renderDashboard() {
 // ===========================
 // 租户管理
 // ===========================
+function findTenantLevelConfig(levelName) {
+    var scheduler = getScheduler();
+    for (var i = 0; i < scheduler.tenantLevels.length; i++) {
+        if (scheduler.tenantLevels[i].name === levelName) return scheduler.tenantLevels[i];
+    }
+    return null;
+}
+
+function getInitialTenantLevelName(preferredLevel) {
+    if (preferredLevel && findTenantLevelConfig(preferredLevel)) return preferredLevel;
+    var normal = findTenantLevelConfig('普通客户');
+    if (normal) return normal.name;
+    var scheduler = getScheduler();
+    return scheduler.tenantLevels[0] ? scheduler.tenantLevels[0].name : '';
+}
+
+function renderTenantLevelSelectOptions(selectedLevel) {
+    var scheduler = getScheduler();
+    var html = '<option value="">请选择租户等级</option>';
+    var hasSelected = false;
+    for (var i = 0; i < scheduler.tenantLevels.length; i++) {
+        var item = scheduler.tenantLevels[i];
+        var selected = item.name === selectedLevel;
+        if (selected) hasSelected = true;
+        html += '<option value="' + escapeHtml(item.name) + '" ' + (selected ? 'selected' : '') + '>' + escapeHtml(item.name) + ' · ' + escapeHtml(item.queueName) + '</option>';
+    }
+    if (selectedLevel && !hasSelected) {
+        html += '<option value="' + escapeHtml(selectedLevel) + '" selected>' + escapeHtml(selectedLevel) + ' · 未配置队列</option>';
+    }
+    document.getElementById('tfTenantLevel').innerHTML = html;
+}
+
+function getTenantLevelChip(levelName) {
+    var level = findTenantLevelConfig(levelName);
+    var cls = level && level.queueId === 'vip' ? 'chip-blue' : 'chip-green';
+    return '<span class="chip ' + cls + '">' + escapeHtml(levelName || '未配置') + '</span>';
+}
+
+function getTenantLevelUsageCount(levelName) {
+    return AppState.tenants.filter(function(t) { return t.tenantLevel === levelName; }).length;
+}
+
 function renderTenants() {
     var statusFilter = document.getElementById('tenantStatusFilter').value;
     var industryFilter = document.getElementById('tenantIndustryFilter').value;
@@ -1493,6 +1805,7 @@ function renderTenants() {
         html += '<tr>' +
             '<td><strong>' + t.name + '</strong><br><span style="font-size:11px;color:var(--text-muted)">' + t.id + '</span></td>' +
             '<td>' + t.industry + '</td>' +
+            '<td>' + getTenantLevelChip(t.tenantLevel) + '</td>' +
             '<td><span class="status ' + stCls + '">' + t.status + '</span></td>' +
             '<td>' + t.adminName + '<br><span style="font-size:11px;color:var(--text-muted)">' + t.adminEmail + '</span></td>' +
             '<td><div style="display:flex;align-items:center;gap:8px"><div class="bar" style="flex:1"><div class="bar-fill' + barCls + '" style="width:' + pct + '%"></div></div><span style="font-size:12px;white-space:nowrap">' + t.dailyUsed + '/' + t.dailyQuota + '</span></div></td>' +
@@ -1501,7 +1814,7 @@ function renderTenants() {
             '<td><button class="btn btn-xs" onclick="openTenantModal(\'' + t.id + '\')">编辑</button> <button class="btn btn-xs" onclick="openRechargeModal(\'' + t.id + '\')">充值</button> <button class="btn btn-xs" onclick="viewTenantDetail(\'' + t.id + '\')">详情</button> <button class="btn btn-xs ' + (t.status === '已停用' ? '' : 'btn-danger') + '" onclick="toggleTenantStatus(\'' + t.id + '\')">' + (t.status === '已停用' ? '启用' : '停用') + '</button></td>' +
             '</tr>';
     }
-    document.getElementById('tenantTable').innerHTML = html || '<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--text-muted)">暂无匹配的租户</td></tr>';
+    document.getElementById('tenantTable').innerHTML = html || '<tr><td colspan="9" style="text-align:center;padding:40px;color:var(--text-muted)">暂无匹配的租户</td></tr>';
     updateBillTenantFilter();
 }
 
@@ -1531,6 +1844,7 @@ function openTenantModal(editId) {
             document.getElementById('tfAdminName').value = t.adminName;
             document.getElementById('tfAdminPhone').value = t.adminPhone;
             document.getElementById('tfAdminEmail').value = t.adminEmail;
+            renderTenantLevelSelectOptions(getInitialTenantLevelName(t.tenantLevel || getDefaultTenantLevelName(t)));
             document.getElementById('tfConcurrency').value = t.concurrency;
             document.getElementById('tfExpiry').value = t.expiry;
             document.getElementById('tfStatus').value = t.status;
@@ -1538,6 +1852,7 @@ function openTenantModal(editId) {
     } else {
         ['tfName','tfAdminName','tfAdminPhone','tfAdminEmail'].forEach(function(id) { document.getElementById(id).value = ''; });
         document.getElementById('tfIndustry').value = '';
+        renderTenantLevelSelectOptions(getInitialTenantLevelName('普通客户'));
         document.getElementById('tfConcurrency').value = '5';
         document.getElementById('tfExpiry').value = '';
         document.getElementById('tfStatus').value = '启用中';
@@ -1554,22 +1869,25 @@ function saveTenant() {
         adminName: document.getElementById('tfAdminName').value.trim(),
         adminPhone: document.getElementById('tfAdminPhone').value.trim(),
         adminEmail: document.getElementById('tfAdminEmail').value.trim(),
+        tenantLevel: document.getElementById('tfTenantLevel').value,
         concurrency: parseInt(document.getElementById('tfConcurrency').value) || 5,
         expiry: document.getElementById('tfExpiry').value,
         status: document.getElementById('tfStatus').value
     };
-    if (!data.name || !data.industry || !data.adminName) { toast('请填写租户名称、行业和管理员姓名', 'error'); return; }
+    if (!data.name || !data.industry || !data.adminName || !data.tenantLevel) { toast('请填写租户名称、行业、管理员姓名和租户等级', 'error'); return; }
+    if (!findTenantLevelConfig(data.tenantLevel)) { toast('请选择有效的租户等级', 'error'); return; }
 
     if (editId) {
         var t = AppState.tenants.find(function(x) { return x.id === editId; });
         if (t) {
-            var before = t.name + ' / ' + t.status;
+            var before = t.name + ' / ' + (t.tenantLevel || '-') + ' / ' + t.status;
             t.name = data.name; t.industry = data.industry; t.adminName = data.adminName;
             t.adminPhone = data.adminPhone; t.adminEmail = data.adminEmail;
+            t.tenantLevel = data.tenantLevel;
             t.concurrency = data.concurrency;
             t.expiry = data.expiry;
             t.status = data.status;
-            addAuditLog('租户', data.name, before, data.name + ' / ' + t.status, '编辑租户基础信息');
+            addAuditLog('租户', data.name, before, data.name + ' / ' + t.tenantLevel + ' / ' + t.status, '编辑租户基础信息');
         }
         toast('租户信息已更新', 'success');
     } else {
@@ -1577,7 +1895,7 @@ function saveTenant() {
         AppState.tenants.push({
             id: newId, name: data.name, industry: data.industry, status: data.status,
             adminName: data.adminName, adminPhone: data.adminPhone, adminEmail: data.adminEmail,
-            dailyQuota: 500, dailyUsed: 0, concurrency: data.concurrency,
+            tenantLevel: data.tenantLevel, dailyQuota: 500, dailyUsed: 0, concurrency: data.concurrency,
             modelLevel: '标准', credits: 0, expiry: data.expiry,
             openedAt: new Date().toISOString().slice(0,10), features: ['视频生成']
         });
@@ -2229,9 +2547,505 @@ function closeTaskDrawer() {
 function renderConfig() {
     renderVoiceConfigs();
     renderPricing();
+    renderScheduler();
     renderPrompts();
     renderTemplates();
     renderSceneConfigs();
+}
+
+function getScheduler() {
+    if (!AppState.scheduler) AppState.scheduler = normalizeScheduler();
+    return AppState.scheduler;
+}
+
+function getSchedulableGpuCount(scheduler) {
+    return scheduler.gpuCards.filter(function(card) { return card.status !== 'maintenance' && card.status !== 'fault'; }).length;
+}
+
+function getGpuStatusLabel(status) {
+    var map = { running:'运行中', idle:'空闲', maintenance:'维护中', fault:'故障' };
+    return map[status] || status;
+}
+
+function getGpuStatusClass(status) {
+    var map = { running:'status-trial', idle:'status-active', maintenance:'status-warning', fault:'status-failed' };
+    return map[status] || 'status-stopped';
+}
+
+function getGpuVisualClass(card) {
+    if (card.status === 'running' && card.borrowed) return 'running borrowed';
+    if (card.status === 'running') return 'running ' + (card.usedQueueId || card.queueId || 'normal');
+    if ((card.assignedQueueId || card.queueId) === 'none' && card.status !== 'maintenance' && card.status !== 'fault') return 'unassigned';
+    return card.status;
+}
+
+function getGpuQueueTag(card) {
+    var assignedId = card.assignedQueueId || card.queueId || (card.status === 'idle' ? 'normal' : '');
+    var assignedName = card.assignedQueueName || card.queueName || (assignedId === 'vip' ? 'VIP队列' : (assignedId === 'normal' ? '普通队列' : '不可调度'));
+    if (assignedId === 'vip') return '<span class="gpu-queue-tag vip">分派：' + assignedName + '</span>';
+    if (assignedId === 'normal') return '<span class="gpu-queue-tag normal">分派：' + assignedName + '</span>';
+    if (assignedId === 'none' && card.status !== 'maintenance' && card.status !== 'fault') return '<span class="gpu-queue-tag unassigned">未分派</span>';
+    return '<span class="gpu-queue-tag blocked">不可调度</span>';
+}
+
+function getGpuUsePill(card) {
+    if (card.status === 'running') {
+        var usedId = card.usedQueueId || card.queueId || 'normal';
+        var usedName = card.usedQueueName || card.queueName || (usedId === 'vip' ? 'VIP队列' : '普通队列');
+        return '<span class="gpu-use-pill ' + usedId + '">' + usedName + '</span>';
+    }
+    if (card.status === 'idle') return '<span class="gpu-use-pill idle">空闲</span>';
+    return '<span class="gpu-use-pill blocked">不可调度</span>';
+}
+
+function getQueueTaskStatusLabel(status) {
+    var map = { running:'运行中', waiting:'等待中' };
+    return map[status] || status;
+}
+
+function getQueueTaskStatusClass(status) {
+    var map = { running:'status-trial', waiting:'status-warning' };
+    return map[status] || 'status-stopped';
+}
+
+function buildQueueSlots(queue) {
+    var html = '<div class="queue-slots">';
+    var base = queue.baseConcurrency || 0;
+    var running = Math.min(queue.running || 0, base);
+    var borrowed = queue.id === 'vip' ? (queue.borrowedIn || 0) : (queue.borrowedOut || 0);
+    var reserveStart = queue.id === 'normal' ? Math.max(0, base - (queue.reservedConcurrency || 0)) : base;
+    for (var i = 0; i < base; i++) {
+        var cls = 'queue-slot ';
+        var label = i + 1;
+        if (i < running) {
+            cls += queue.id === 'vip' ? 'vip' : 'normal';
+        } else if (queue.id === 'normal' && i < running + borrowed) {
+            cls += 'borrowed';
+        } else if (queue.id === 'normal' && i >= reserveStart) {
+            cls += 'reserve';
+        } else {
+            cls += 'idle';
+        }
+        html += '<span class="' + cls + '" title="' + queue.name + ' 槽位 ' + label + '">' + label + '</span>';
+    }
+    if (queue.id === 'vip') {
+        for (var j = 0; j < borrowed; j++) {
+            var borrowedLabel = base + j + 1;
+            html += '<span class="queue-slot borrowed" title="借入普通资源槽位 ' + borrowedLabel + '">' + borrowedLabel + '</span>';
+        }
+    }
+    html += '</div>';
+    html += '<div class="queue-slot-legend">' +
+        '<span><i class="queue-dot ' + (queue.id === 'vip' ? 'vip' : 'normal') + '"></i>运行中</span>' +
+        '<span><i class="queue-dot idle"></i>空闲</span>';
+    if (queue.id === 'vip') html += '<span><i class="queue-dot borrowed"></i>借入资源</span>';
+    if (queue.id === 'normal') html += '<span><i class="queue-dot borrowed"></i>被 VIP 借用</span><span><i class="queue-dot normal"></i>保底槽</span>';
+    html += '</div>';
+    return html;
+}
+
+function formatSchedulerNow() {
+    var d = new Date();
+    var pad = function(n) { return String(n).padStart(2, '0'); };
+    return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds());
+}
+
+function syncSchedulerPreview(scheduler) {
+    var vip = scheduler.queues.find(function(q) { return q.id === 'vip'; });
+    var normal = scheduler.queues.find(function(q) { return q.id === 'normal'; });
+    if (!vip || !normal) return;
+
+    var cards = scheduler.gpuCards || [];
+    var schedulableCards = cards.filter(function(card) { return card.status !== 'maintenance' && card.status !== 'fault'; });
+    var taskPool = scheduler.taskPool && scheduler.taskPool.length ? scheduler.taskPool : [];
+    var vipTasks = taskPool.filter(function(t) { return t.queueId === 'vip'; });
+    var normalTasks = taskPool.filter(function(t) { return t.queueId === 'normal'; });
+    for (var i = 0; i < cards.length; i++) {
+        var card = cards[i];
+        card.tenant = ''; card.taskId = ''; card.runningTime = ''; card.borrowed = false;
+        card.usedQueueId = ''; card.usedQueueName = '';
+        if (card.status !== 'maintenance' && card.status !== 'fault') card.status = 'idle';
+    }
+
+    for (var v = 0; v < schedulableCards.length; v++) {
+        if (v < vip.baseConcurrency) {
+            schedulableCards[v].assignedQueueId = 'vip';
+            schedulableCards[v].assignedQueueName = 'VIP队列';
+        } else if (v < vip.baseConcurrency + normal.baseConcurrency) {
+            schedulableCards[v].assignedQueueId = 'normal';
+            schedulableCards[v].assignedQueueName = '普通队列';
+        } else {
+            schedulableCards[v].assignedQueueId = 'none';
+            schedulableCards[v].assignedQueueName = '未分派';
+        }
+    }
+
+    var vipOwnCards = schedulableCards.filter(function(card) { return card.assignedQueueId === 'vip'; });
+    var normalCards = schedulableCards.filter(function(card) { return card.assignedQueueId === 'normal'; });
+    var vipOwnRunning = Math.min(vipOwnCards.length, vipTasks.length);
+    for (var vi = 0; vi < vipOwnRunning; vi++) {
+        applyGpuUsage(vipOwnCards[vi], vipTasks[vi], false);
+    }
+
+    var normalRunningLimit = Math.min(normalTasks.length, normalCards.length);
+    for (var ni = 0; ni < normalRunningLimit; ni++) {
+        applyGpuUsage(normalCards[ni], normalTasks[ni], false);
+    }
+
+    var vipWaitingAfterOwn = Math.max(0, vipTasks.length - vipOwnRunning);
+    var normalIdleCards = normalCards.filter(function(card) { return card.status === 'idle'; });
+    var reserved = Math.min(normal.reservedConcurrency || 0, normalIdleCards.length);
+    var borrowable = vip.allowBorrow ? Math.max(0, normalIdleCards.length - reserved) : 0;
+    var borrowed = Math.min(vipWaitingAfterOwn, borrowable);
+    for (var bi = 0; bi < borrowed; bi++) {
+        applyGpuUsage(normalIdleCards[bi], vipTasks[vipOwnRunning + bi], true);
+    }
+
+    vip.borrowedIn = borrowed;
+    normal.borrowedOut = borrowed;
+    vip.running = vipOwnRunning + borrowed;
+    normal.running = normalRunningLimit;
+    vip.waiting = Math.max(0, vipTasks.length - vip.running);
+    normal.waiting = Math.max(0, normalTasks.length - normal.running);
+    rebuildSchedulerTasksFromCards(scheduler, vipTasks, normalTasks);
+}
+
+function applyGpuUsage(card, task, borrowed) {
+    if (!card || !task) return;
+    card.status = 'running';
+    card.usedQueueId = task.queueId;
+    card.usedQueueName = task.queueName;
+    card.tenant = task.tenant;
+    card.taskId = task.taskId;
+    card.runningTime = task.runningTime;
+    card.borrowed = !!borrowed;
+}
+
+function rebuildSchedulerTasksFromCards(scheduler, vipTasks, normalTasks) {
+    var rows = [];
+    var cards = scheduler.gpuCards || [];
+    var runningIds = {};
+    for (var i = 0; i < cards.length; i++) {
+        var card = cards[i];
+        if (card.status !== 'running') continue;
+        var task = findSchedulerTaskById(scheduler, card.taskId);
+        if (!task) continue;
+        runningIds[card.taskId] = true;
+        rows.push({
+            taskId: task.taskId,
+            tenant: task.tenant,
+            level: task.level,
+            queueName: task.queueName,
+            status: 'running',
+            gpu: card.id,
+            time: '运行 ' + task.runningTime,
+            eta: task.eta,
+            borrowed: !!card.borrowed
+        });
+    }
+    var allTasks = (vipTasks || []).concat(normalTasks || []);
+    for (var j = 0; j < allTasks.length; j++) {
+        var t = allTasks[j];
+        if (runningIds[t.taskId]) continue;
+        rows.push({
+            taskId: t.taskId,
+            tenant: t.tenant,
+            level: t.level,
+            queueName: t.queueName,
+            status: 'waiting',
+            gpu: '-',
+            time: t.queueId === 'vip' ? '等待 01:25' : '等待 08:42',
+            eta: t.eta
+        });
+    }
+    scheduler.queueTasks = rows;
+}
+
+function findSchedulerTaskById(scheduler, taskId) {
+    var list = scheduler.taskPool || [];
+    for (var i = 0; i < list.length; i++) {
+        if (list[i].taskId === taskId) return list[i];
+    }
+    return null;
+}
+
+function renderScheduler() {
+    var scheduler = getScheduler();
+    syncSchedulerPreview(scheduler);
+    var total = scheduler.gpuCards.length;
+    var schedulable = getSchedulableGpuCount(scheduler);
+    var running = scheduler.gpuCards.filter(function(card) { return card.status === 'running'; }).length;
+    var idle = scheduler.gpuCards.filter(function(card) { return card.status === 'idle'; }).length;
+    var abnormal = total - schedulable;
+
+    document.getElementById('schedulerSummary').innerHTML =
+        '<div class="scheduler-metric"><div class="label">接入 GPU</div><div class="value">' + total + '</div></div>' +
+        '<div class="scheduler-metric"><div class="label">可调度 GPU</div><div class="value" style="color:var(--primary)">' + schedulable + '</div></div>' +
+        '<div class="scheduler-metric"><div class="label">运行中</div><div class="value" style="color:var(--blue)">' + running + '</div></div>' +
+        '<div class="scheduler-metric"><div class="label">空闲</div><div class="value" style="color:var(--green)">' + idle + '</div></div>' +
+        '<div class="scheduler-metric"><div class="label">维护 / 故障</div><div class="value" style="color:var(--orange)">' + abnormal + '</div></div>';
+
+    document.getElementById('schedulerUpdatedAt').textContent = '资源接口更新时间：' + (scheduler.updatedAt || '-');
+    renderGpuCards(scheduler);
+    renderQueueConfig(scheduler);
+    renderTenantLevelMap(scheduler);
+    renderSchedulerTasks(scheduler);
+    validateSchedulerDraft();
+}
+
+function renderGpuCards(scheduler) {
+    var html = '';
+    for (var i = 0; i < scheduler.gpuCards.length; i++) {
+        var card = scheduler.gpuCards[i];
+        html += '<div class="gpu-card ' + getGpuVisualClass(card) + '">' +
+            '<div class="gpu-card-head">' +
+                '<span class="gpu-card-name">' + card.id + '</span>' +
+                getGpuQueueTag(card) +
+            '</div>';
+        if (card.status === 'running') {
+            html += '<div class="gpu-card-meta">' +
+                '<div class="gpu-queue-row"><span class="gpu-queue-label">实际使用</span>' + getGpuUsePill(card) + '</div>' +
+                '<div>状态：<span class="status ' + getGpuStatusClass(card.status) + '" style="font-size:10px">' + getGpuStatusLabel(card.status) + '</span>' + (card.borrowed ? ' <span class="borrow-badge">跨队列借用</span>' : '') + '</div>' +
+                '<div>租户：' + card.tenant + '</div>' +
+                '<div>任务：<code style="font-size:11px">' + card.taskId + '</code></div>' +
+                '<div>已运行：' + card.runningTime + '</div>' +
+            '</div>';
+        } else if (card.status === 'idle') {
+            html += '<div class="gpu-card-meta">' +
+                '<div class="gpu-queue-row"><span class="gpu-queue-label">实际使用</span>' + getGpuUsePill(card) + '</div>' +
+                '<div>状态：<span class="status ' + getGpuStatusClass(card.status) + '" style="font-size:10px">' + getGpuStatusLabel(card.status) + '</span></div>' +
+                '<div>当前无任务占用，可被调度器分配</div>' +
+            '</div>';
+        } else {
+            html += '<div class="gpu-card-meta">' +
+                '<div class="gpu-queue-row"><span class="gpu-queue-label">实际使用</span>' + getGpuUsePill(card) + '</div>' +
+                '<div>当前不可调度，不计入队列并发校验</div>' +
+            '</div>';
+        }
+        html += '</div>';
+    }
+    document.getElementById('gpuCardGrid').innerHTML = html;
+}
+
+function renderQueueConfig(scheduler) {
+    var html = '';
+    for (var i = 0; i < scheduler.queues.length; i++) {
+        var q = scheduler.queues[i];
+        html += '<div class="queue-card">' +
+            '<div class="queue-card-head">' +
+                '<div><div class="queue-card-title">' + q.name + '</div><div class="queue-card-desc">' + q.desc + '</div></div>' +
+                '<span class="status ' + (q.id === 'vip' ? 'status-trial' : 'status-active') + '">' + (q.id === 'vip' ? '高优先级' : '普通优先级') + '</span>' +
+            '</div>' +
+            '<div class="kv-grid">' +
+                '<div class="kv-item"><span class="kv-label">基础并发</span><span class="kv-value">' + q.baseConcurrency + '</span></div>' +
+                '<div class="kv-item"><span class="kv-label">运行中</span><span class="kv-value">' + q.running + '</span></div>' +
+                '<div class="kv-item"><span class="kv-label">排队中</span><span class="kv-value">' + q.waiting + '</span></div>' +
+                '<div class="kv-item"><span class="kv-label">平均等待</span><span class="kv-value">' + q.avgWait + '</span></div>' +
+            '</div>' +
+            buildQueueSlots(q) +
+            '<div class="queue-inline-form">' +
+                '<label class="form-control"><span class="kv-label">基础并发</span><input class="filter-input" id="queueBase_' + q.id + '" type="number" min="0" value="' + q.baseConcurrency + '" oninput="validateSchedulerDraft()" style="width:100%"></label>';
+        if (q.id === 'vip') {
+            html += '<label class="form-control"><span class="kv-label">软隔离</span><span class="scheduler-switch"><input type="checkbox" id="queueBorrow_vip" ' + (q.allowBorrow ? 'checked' : '') + '>允许借用普通空闲资源</span></label>';
+        } else {
+            html += '<label class="form-control"><span class="kv-label">普通保底并发</span><input class="filter-input" id="normalReserveInput" type="number" min="0" value="' + (q.reservedConcurrency || 0) + '" oninput="validateSchedulerDraft()" style="width:100%"></label>';
+        }
+        html += '</div>';
+        if (q.id === 'vip' && q.borrowedIn) {
+            html += '<div style="font-size:12px;color:var(--text-muted);margin-top:10px">当前借入普通资源：<strong style="color:var(--orange)">' + q.borrowedIn + '</strong> 个并发槽</div>';
+        }
+        if (q.id === 'normal' && q.borrowedOut) {
+            html += '<div style="font-size:12px;color:var(--text-muted);margin-top:10px">当前被 VIP 借用：<strong style="color:var(--orange)">' + q.borrowedOut + '</strong> 个并发槽</div>';
+        }
+        html += '</div>';
+    }
+    document.getElementById('queueConfigGrid').innerHTML = html;
+}
+
+function validateSchedulerDraft() {
+    var scheduler = getScheduler();
+    var warning = document.getElementById('schedulerConfigWarning');
+    if (!warning) return true;
+    var vipInput = document.getElementById('queueBase_vip');
+    var normalInput = document.getElementById('queueBase_normal');
+    var reserveInput = document.getElementById('normalReserveInput');
+    if (!vipInput || !normalInput || !reserveInput) return true;
+
+    var vipBase = parseInt(vipInput.value) || 0;
+    var normalBase = parseInt(normalInput.value) || 0;
+    var reserved = parseInt(reserveInput.value) || 0;
+    var schedulable = getSchedulableGpuCount(scheduler);
+    var msg = '';
+    if (vipBase + normalBase > schedulable) {
+        msg = '当前可调度 GPU 为 ' + schedulable + '，队列基础并发合计不能超过 ' + schedulable;
+    } else if (reserved > normalBase) {
+        msg = '普通保底并发不能大于普通队列基础并发';
+    }
+    warning.textContent = msg;
+    warning.classList.toggle('show', !!msg);
+    return !msg;
+}
+
+function saveSchedulerConfig() {
+    if (!validateSchedulerDraft()) {
+        toast('请先修正任务调度配置', 'error');
+        return;
+    }
+    var scheduler = getScheduler();
+    var vip = scheduler.queues.find(function(q) { return q.id === 'vip'; });
+    var normal = scheduler.queues.find(function(q) { return q.id === 'normal'; });
+    if (!vip || !normal) return;
+
+    var before = 'VIP ' + vip.baseConcurrency + ' / 普通 ' + normal.baseConcurrency + ' / 保底 ' + normal.reservedConcurrency;
+    vip.baseConcurrency = parseInt(document.getElementById('queueBase_vip').value) || 0;
+    normal.baseConcurrency = parseInt(document.getElementById('queueBase_normal').value) || 0;
+    vip.allowBorrow = !!document.getElementById('queueBorrow_vip').checked;
+    normal.reservedConcurrency = parseInt(document.getElementById('normalReserveInput').value) || 0;
+    scheduler.updatedAt = formatSchedulerNow();
+    var after = 'VIP ' + vip.baseConcurrency + ' / 普通 ' + normal.baseConcurrency + ' / 保底 ' + normal.reservedConcurrency + ' / 借用' + (vip.allowBorrow ? '开启' : '关闭');
+
+    addAuditLog('配置', '任务调度配置', before, after, '调整队列基础并发与软隔离规则');
+    syncSchedulerPreview(scheduler);
+    saveData();
+    renderScheduler();
+    toast('任务调度配置已保存', 'success');
+}
+
+function renderTenantLevelMap(scheduler) {
+    var html = '';
+    for (var i = 0; i < scheduler.tenantLevels.length; i++) {
+        var item = scheduler.tenantLevels[i];
+        var tenantCount = getTenantLevelUsageCount(item.name);
+        html += '<tr>' +
+            '<td><strong>' + escapeHtml(item.name) + '</strong></td>' +
+            '<td><span class="chip ' + (item.queueId === 'vip' ? 'chip-blue' : 'chip-green') + '">' + escapeHtml(item.queueName) + '</span></td>' +
+            '<td><strong>' + tenantCount + '</strong></td>' +
+            '<td style="color:var(--text-secondary)">' + escapeHtml(item.desc || '-') + '</td>' +
+            '<td><button class="btn btn-xs" onclick="openTenantLevelModal(' + i + ')">编辑</button> <button class="btn btn-xs btn-danger" onclick="deleteTenantLevel(' + i + ')">删除</button></td>' +
+        '</tr>';
+    }
+    document.getElementById('tenantLevelMapTable').innerHTML = html || '<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--text-muted)">暂无租户等级配置</td></tr>';
+}
+
+function renderTenantLevelQueueOptions(selectedQueueId) {
+    var scheduler = getScheduler();
+    var options = '<option value="">请选择默认队列</option>';
+    for (var i = 0; i < scheduler.queues.length; i++) {
+        var q = scheduler.queues[i];
+        options += '<option value="' + q.id + '" ' + (q.id === selectedQueueId ? 'selected' : '') + '>' + escapeHtml(q.name) + '</option>';
+    }
+    document.getElementById('tenantLevelQueue').innerHTML = options;
+}
+
+function openTenantLevelModal(editIndex) {
+    var scheduler = getScheduler();
+    var isEdit = editIndex !== undefined && editIndex !== null && editIndex !== '';
+    var item = isEdit ? scheduler.tenantLevels[editIndex] : null;
+    document.getElementById('tenantLevelModalTitle').textContent = isEdit ? '编辑租户等级' : '新增租户等级';
+    document.getElementById('tenantLevelEditIndex').value = isEdit ? editIndex : '';
+    document.getElementById('tenantLevelName').value = item ? item.name : '';
+    document.getElementById('tenantLevelDesc').value = item ? (item.desc || '') : '';
+    renderTenantLevelQueueOptions(item ? item.queueId : '');
+    document.getElementById('tenantLevelModalOverlay').classList.add('show');
+}
+
+function closeTenantLevelModal() {
+    document.getElementById('tenantLevelModalOverlay').classList.remove('show');
+}
+
+function saveTenantLevel() {
+    var scheduler = getScheduler();
+    var editIndexRaw = document.getElementById('tenantLevelEditIndex').value;
+    var editIndex = editIndexRaw === '' ? -1 : parseInt(editIndexRaw);
+    var name = document.getElementById('tenantLevelName').value.trim();
+    var queueId = document.getElementById('tenantLevelQueue').value;
+    var desc = document.getElementById('tenantLevelDesc').value.trim();
+    if (!name || !queueId) {
+        toast('请填写租户等级名称和默认队列', 'error');
+        return;
+    }
+    for (var i = 0; i < scheduler.tenantLevels.length; i++) {
+        if (i !== editIndex && scheduler.tenantLevels[i].name === name) {
+            toast('租户等级名称不能重复', 'error');
+            return;
+        }
+    }
+    var queue = scheduler.queues.find(function(q) { return q.id === queueId; });
+    if (!queue) {
+        toast('请选择有效的默认队列', 'error');
+        return;
+    }
+    if (editIndex >= 0) {
+        var old = scheduler.tenantLevels[editIndex];
+        var before = old.name + ' / ' + old.queueName;
+        var oldName = old.name;
+        old.name = name;
+        old.queueId = queue.id;
+        old.queueName = queue.name;
+        old.desc = desc;
+        if (oldName !== name) {
+            AppState.tenants.forEach(function(t) {
+                if (t.tenantLevel === oldName) t.tenantLevel = name;
+            });
+        }
+        addAuditLog('配置', '租户等级映射', before, name + ' / ' + queue.name, '更新租户等级默认队列');
+        toast('租户等级「' + name + '」已更新', 'success');
+    } else {
+        scheduler.tenantLevels.push({
+            name: name,
+            queueId: queue.id,
+            queueName: queue.name,
+            tenantCount: 0,
+            desc: desc
+        });
+        addAuditLog('配置', '租户等级映射', '-', name + ' / ' + queue.name, '新增租户等级默认队列');
+        toast('租户等级「' + name + '」已新增', 'success');
+    }
+    saveData();
+    closeTenantLevelModal();
+    renderTenantLevelMap(scheduler);
+}
+
+function deleteTenantLevel(index) {
+    var scheduler = getScheduler();
+    var item = scheduler.tenantLevels[index];
+    if (!item) return;
+    var tenantCount = getTenantLevelUsageCount(item.name);
+    if (tenantCount > 0) {
+        toast('当前有 ' + tenantCount + ' 个租户绑定该等级，不可删除', 'error');
+        return;
+    }
+    showConfirm(
+        '删除租户等级',
+        '确定要删除租户等级「' + item.name + '」吗？',
+        '🗑️',
+        function() {
+            var before = item.name + ' / ' + item.queueName;
+            scheduler.tenantLevels.splice(index, 1);
+            addAuditLog('配置', '租户等级映射', before, '已删除', '删除未被租户使用的租户等级');
+            saveData();
+            renderTenantLevelMap(scheduler);
+            toast('租户等级「' + item.name + '」已删除', 'success');
+        }
+    );
+}
+
+function renderSchedulerTasks(scheduler) {
+    var html = '';
+    for (var i = 0; i < scheduler.queueTasks.length; i++) {
+        var t = scheduler.queueTasks[i];
+        html += '<tr>' +
+            '<td><code style="font-size:12px;background:#F0F0F3;padding:2px 6px;border-radius:4px">' + t.taskId + '</code></td>' +
+            '<td>' + t.tenant + '</td>' +
+            '<td><span class="chip ' + (t.queueName === 'VIP队列' ? 'chip-blue' : 'chip-green') + '">' + t.level + '</span></td>' +
+            '<td>' + t.queueName + (t.borrowed ? ' <span class="borrow-badge">借用中</span>' : '') + '</td>' +
+            '<td><span class="status ' + getQueueTaskStatusClass(t.status) + '">' + getQueueTaskStatusLabel(t.status) + '</span></td>' +
+            '<td>' + t.gpu + '</td>' +
+            '<td>' + t.time + '</td>' +
+            '<td style="color:var(--text-secondary)">' + t.eta + '</td>' +
+        '</tr>';
+    }
+    document.getElementById('schedulerTaskTable').innerHTML = html || '<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--text-muted)">暂无队列任务</td></tr>';
 }
 
 function renderVoiceConfigs() {
@@ -3059,11 +3873,12 @@ function escapeHtml(str) {
 // ===========================
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
-        closeTenantModal(); closeRechargeModal(); closeVoiceModal(); closePromptModal();
+        closeTenantLevelModal(); closeTenantModal(); closeRechargeModal(); closeVoiceModal(); closePromptModal();
         closeDiffModal(); closeDrawer(); closeTaskDrawer(); closeConfirm();
     }
 });
 
+document.getElementById('tenantLevelModalOverlay').addEventListener('click', function(e) { if (e.target === this) closeTenantLevelModal(); });
 document.getElementById('tenantModalOverlay').addEventListener('click', function(e) { if (e.target === this) closeTenantModal(); });
 document.getElementById('rechargeModalOverlay').addEventListener('click', function(e) { if (e.target === this) closeRechargeModal(); });
 document.getElementById('voiceModalOverlay').addEventListener('click', function(e) { if (e.target === this) closeVoiceModal(); });
