@@ -1,0 +1,1861 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>简单模式（模板版）- AI视频创作</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', sans-serif; background: #f0f2f5; color: #1a1a2e; min-height: 100vh; -webkit-font-smoothing: antialiased; }
+
+    /* 顶栏 */
+    .top-bar { background: #fff; border-bottom: 1px solid #e8e8e8; padding: 0 32px; height: 56px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 1px 4px rgba(0,0,0,0.04); position: sticky; top: 0; z-index: 100; }
+    .logo { font-size: 18px; font-weight: 700; color: #0066ff; display: flex; align-items: center; gap: 10px; letter-spacing: -0.3px; }
+    .logo-icon { width: 32px; height: 32px; background: linear-gradient(135deg, #0066ff 0%, #5856d6 100%); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 16px; }
+    .top-right { display: flex; align-items: center; gap: 14px; }
+    .ratio-pill { font-size: 11px; color: #666; background: #f0f2f5; border: 1px solid #e8e8e8; padding: 4px 10px; border-radius: 20px; font-weight: 500; }
+    .user-avatar { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 13px; font-weight: 600; cursor: pointer; box-shadow: 0 2px 8px rgba(102,126,234,0.3); }
+    .back-to-task-detail { background: none; border: 1px solid #d0d0d0; color: #555; padding: 5px 12px; border-radius: 8px; font-size: 12px; cursor: pointer; margin-right: 12px; transition: all 0.15s; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; }
+    .back-to-task-detail:hover { border-color: #0066ff; color: #0066ff; }
+
+    /* 步骤指示器 */
+    .stepper { background: #fff; border-bottom: 1px solid #e8e8e8; padding: 16px 32px; display: flex; align-items: center; justify-content: center; }
+    .stp { display: flex; align-items: center; gap: 10px; }
+    .stp-dot { width: 28px; height: 28px; border-radius: 50%; background: #e8e8e8; color: #999; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; transition: all 0.2s; flex-shrink: 0; }
+    .stp-lb { font-size: 13px; font-weight: 600; color: #999; transition: all 0.2s; white-space: nowrap; }
+    .stp.active .stp-dot { background: #0066ff; color: #fff; box-shadow: 0 2px 8px rgba(0,102,255,0.3); }
+    .stp.active .stp-lb { color: #1a1a2e; }
+    .stp.done .stp-dot { background: #059669; color: #fff; }
+    .stp.done .stp-lb { color: #059669; }
+    .stp-line { width: 64px; height: 2px; background: #e8e8e8; margin: 0 16px; transition: all 0.2s; }
+    .stp-line.done { background: #059669; }
+
+    /* 向导容器 */
+    .wizard { max-width: 1280px; margin: 0 auto; padding: 24px 24px 120px; }
+    .step-panel { display: none; }
+    .step-panel.active { display: block; animation: fadeIn 0.25s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+    /* 区块 */
+    .section { margin-bottom: 22px; background: #fff; border: 1px solid #e8e8e8; border-radius: 14px; padding: 20px; }
+    .section-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+    .section-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+    .section-icon.blue { background: #e8f4ff; }
+    .section-icon.purple { background: #f0e8ff; }
+    .section-icon.orange { background: #fff0e6; }
+    .section-icon.green { background: #e8f8f0; }
+    .section-name { font-size: 15px; font-weight: 600; color: #1a1a2e; }
+    .section-hint { font-size: 11px; color: #999; margin-left: 4px; }
+    .section-badge { font-size: 10px; padding: 2px 8px; border-radius: 10px; font-weight: 500; margin-left: auto; }
+    .section-badge.done { background: #e8f8f0; color: #059669; }
+
+    /* 行内开关（多选 / 水印） */
+    .inline-toggle { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #666; cursor: pointer; font-weight: 500; }
+    .inline-toggle input { width: 15px; height: 15px; accent-color: #0066ff; cursor: pointer; }
+    .toggle-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+    .toggle-hint { font-size: 10px; color: #999; }
+
+    /* 角色水印输入 */
+    .wm-input-wrap { display: flex; align-items: center; gap: 8px; margin: 8px 0; padding: 10px 12px; background: #fbfcff; border: 1.5px solid #e8e8e8; border-radius: 10px; }
+    .wm-input-wrap input { flex: 1; padding: 7px 10px; border: 1.5px solid #e8e8e8; border-radius: 8px; font-size: 12px; background: #fff; transition: all 0.2s; }
+    .wm-input-wrap input:focus { outline: none; border-color: #0066ff; box-shadow: 0 0 0 3px rgba(0,102,255,0.08); }
+    .wm-input-wrap input:disabled { background: #f5f5f5; color: #bbb; }
+    .wm-hint { font-size: 11px; color: #999; white-space: nowrap; }
+    .wm-hint.warn { color: #d97706; }
+
+    /* 数字人 - 紧凑多列网格 */
+    .av-search, .bg-search { margin-bottom: 8px; }
+    .av-search input, .bg-search input { width: 100%; padding: 7px 10px; border: 1.5px solid #e8e8e8; border-radius: 8px; font-size: 12px; background: #fafafa; transition: all 0.2s; }
+    .av-search input:focus, .bg-search input:focus { outline: none; border-color: #0066ff; background: #fff; box-shadow: 0 0 0 3px rgba(0,102,255,0.08); }
+    .av-grid-compact { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; max-height: 240px; overflow-y: auto; padding-right: 4px; }
+    .av-item-compact { display: flex; flex-direction: column; align-items: center; padding: 8px 4px; border-radius: 8px; cursor: pointer; transition: all 0.15s; background: #fafafa; border: 1.5px solid #e8e8e8; position: relative; }
+    .av-item-compact:hover { background: #f5f8ff; border-color: #0066ff33; }
+    .av-item-compact.sel { background: #f0f4ff; border-color: #0066ff; }
+    .av-item-compact .av-cb-compact { position: absolute; top: 4px; right: 4px; width: 14px; height: 14px; border-radius: 50%; background: #e8e8e8; display: flex; align-items: center; justify-content: center; font-size: 8px; color: #fff; transition: all 0.15s; opacity: 0; }
+    .av-item-compact.sel .av-cb-compact { background: #0066ff; opacity: 1; }
+    .av-item-compact .av-wm-flag { position: absolute; top: 4px; left: 4px; font-size: 9px; background: #0066ff; color: #fff; border-radius: 4px; padding: 0 4px; line-height: 14px; height: 14px; opacity: 0; transition: all 0.15s; }
+    .av-item-compact.sel .av-wm-flag.show { opacity: 1; }
+    .av-item-compact .av-listen-btn { position: absolute; bottom: 2px; right: 2px; width: 18px; height: 18px; border-radius: 50%; background: rgba(0,102,255,0.85); display: flex; align-items: center; justify-content: center; cursor: pointer; opacity: 0; transition: opacity 0.15s; border: none; color: #fff; font-size: 9px; z-index: 3; }
+    .av-item-compact:hover .av-listen-btn { opacity: 1; }
+    .av-item-compact .av-listen-btn:hover { background: #0066ff; }
+    .av-item-compact .av-face-compact { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, #667eea, #764ba2); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 17px; margin-bottom: 4px; }
+    .av-item-compact .av-nm-compact { font-size: 11px; font-weight: 600; color: #1a1a2e; }
+    .av-item-compact .av-tg-compact { font-size: 9px; color: #999; }
+    .av-nore { font-size: 11px; color: #bbb; text-align: center; padding: 16px 0; grid-column: 1 / -1; }
+
+    /* 预设背景 */
+    .bg-grid-compact { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; max-height: 240px; overflow-y: auto; padding-right: 4px; }
+    .bg-card-compact { border-radius: 8px; cursor: pointer; transition: all 0.15s; background: #fafafa; border: 1.5px solid #e8e8e8; position: relative; overflow: hidden; }
+    .bg-card-compact:hover { border-color: #0066ff33; }
+    .bg-card-compact.sel { border-color: #0066ff; }
+    .bg-card-compact .bg-cb-compact { position: absolute; top: 4px; right: 4px; z-index: 2; width: 14px; height: 14px; border-radius: 50%; background: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; font-size: 8px; color: #fff; transition: all 0.15s; opacity: 0; }
+    .bg-card-compact.sel .bg-cb-compact { background: #0066ff; opacity: 1; }
+    .bg-card-compact .bg-thumb-compact { height: 40px; background-size: cover; background-position: center; }
+    .bg-card-compact .bg-lb-compact { padding: 4px; font-size: 10px; text-align: center; color: #333; font-weight: 500; }
+
+    /* 台词卡片 - 扁平 */
+    .script-cards { display: flex; flex-direction: column; gap: 10px; }
+    .sc-flat { border: 1.5px solid #e8e8e8; border-radius: 10px; padding: 12px; background: #fafafa; position: relative; transition: all 0.15s; display: flex; flex-direction: column; }
+    .sc-flat:hover { border-color: #d0d0d0; }
+    .sc-flat-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+    .sc-flat-tag { font-size: 11px; font-weight: 600; color: #0066ff; }
+    .sc-count { font-size: 10px; color: #999; margin-left: auto; margin-right: 8px; }
+    .sc-flat textarea { width: 100%; min-height: 56px; border: 1.5px solid #e8e8e8; border-radius: 6px; padding: 8px 10px; font-size: 13px; line-height: 1.6; resize: vertical; font-family: inherit; background: #fff; transition: all 0.2s; }
+    .sc-flat textarea:focus { outline: none; border-color: #0066ff; box-shadow: 0 0 0 3px rgba(0,102,255,0.08); }
+    .sc-flat .tts-play-row { margin-top: 6px; }
+    .sc-flat .ff-voice-toggle { margin-top: 4px; }
+    .sc-flat .ff-voice-cfg { margin-top: 4px; }
+    .btn { padding: 7px 14px; border-radius: 8px; font-size: 12px; cursor: pointer; border: none; transition: all 0.15s; font-weight: 500; }
+    .btn2 { background: #f0f0f0; color: #666; }
+    .btn2:hover { background: #e8e8e8; }
+    .btn1 { background: #0066ff; color: #fff; }
+    .btn1:hover { background: #0055dd; box-shadow: 0 2px 8px rgba(0,102,255,0.3); }
+    .sc-add { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 12px; border: 1.5px dashed #d8d8d8; border-radius: 10px; cursor: pointer; color: #999; font-size: 12px; transition: all 0.15s; background: #fafafa; }
+    .sc-add:hover { border-color: #0066ff; color: #0066ff; background: #f5f8ff; }
+
+	    /* 语速步进 */
+	    .speed-row { display: flex; align-items: center; gap: 6px; font-size: 11px; flex: 1; justify-content: center; }
+	    .speed-row .speed-label { color: #888; font-size: 10px; flex-shrink: 0; }
+	    .speed-step { display: flex; align-items: center; border: 1.5px solid #e0e0e0; border-radius: 6px; overflow: hidden; background: #fff; }
+	    .speed-step-val { width: 38px; text-align: center; font-size: 12px; font-weight: 600; color: #1a1a2e; padding: 2px 0; user-select: none; }
+	    .speed-step-btn { width: 22px; height: 22px; border: none; background: #f5f5f5; color: #666; font-size: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.1s; padding: 0; line-height: 1; }
+	    .speed-step-btn:hover { background: #e8e8e8; color: #333; }
+	    .speed-step-btn:active { background: #0066ff; color: #fff; }
+	    .speed-synth { font-size: 12px; cursor: pointer; margin-left: 2px; }
+	    .speed-row .speed-est { margin-left: 4px; font-size: 10px; color: #059669; font-weight: 500; }
+
+    /* 全局语音合成配置条 */
+    .tts-bar { padding: 12px 14px; margin-bottom: 16px; border: 1.5px solid #e8e8e8; border-radius: 12px; background: #fbfcff; }
+    .tts-bar-label { font-size: 13px; font-weight: 600; color: #1a1a2e; }
+    .tts-item { display: flex; align-items: center; gap: 4px; }
+    .tts-item span.lb { font-size: 11px; color: #666; white-space: nowrap; min-width: 28px; }
+    .tts-item input[type="range"] { width: 80px; accent-color: #0066ff; }
+    .tts-item .tts-val { font-size: 11px; font-weight: 600; color: #0066ff; min-width: 36px; text-align: right; }
+
+    /* 首帧卡片（左右分区） */
+    .ff-cards { display: flex; flex-direction: column; gap: 14px; }
+    .ff-card { display: flex; gap: 16px; border: 1.5px solid #e8e8e8; border-radius: 12px; padding: 14px; background: #fff; }
+    /* 左：首帧画面 */
+    .ff-left { width: 200px; flex-shrink: 0; display: flex; flex-direction: column; gap: 8px; }
+    .ff-preview { width: 112px; aspect-ratio: 9/16; border-radius: 10px; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; box-shadow: inset 0 0 0 1px rgba(0,0,0,0.06); align-self: center; }
+    .ff-preview .ff-emoji { font-size: 46px; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.25)); transition: transform 0.25s; }
+    .ff-preview .ff-corner { position: absolute; left: 5px; top: 5px; background: rgba(0,0,0,0.5); color: #fff; font-size: 9px; padding: 2px 6px; border-radius: 5px; font-weight: 500; max-width: calc(100% - 10px); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .ff-preview .ff-corner-bottom { position: absolute; left: 5px; bottom: 5px; right: 5px; background: rgba(0,0,0,0.5); color: #fff; font-size: 9px; padding: 2px 6px; border-radius: 5px; font-weight: 500; text-align: center; }
+    .ff-preview .ff-loading { position: absolute; inset: 0; background: rgba(255,255,255,0.85); display: none; align-items: center; justify-content: center; flex-direction: column; gap: 6px; font-size: 11px; color: #0066ff; font-weight: 600; }
+    .ff-preview.gen .ff-loading { display: flex; }
+    .ff-spin { width: 22px; height: 22px; border: 2.5px solid #d8e4ff; border-top-color: #0066ff; border-radius: 50%; animation: spin 0.7s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    /* 首帧失败状态 */
+    .ff-preview.failed { border: 2px dashed #ef4444; background: #fef2f2 !important; }
+    .ff-preview .ff-failed-overlay { display: none; position: absolute; inset: 0; background: rgba(254,242,242,0.9); align-items: center; justify-content: center; flex-direction: column; gap: 4px; z-index: 5; }
+    .ff-preview.failed .ff-failed-overlay { display: flex; }
+    .ff-preview.failed .ff-corner,
+    .ff-preview.failed .ff-corner-bottom,
+    .ff-preview.failed .ff-emoji { opacity: 0.35; }
+    .ff-failed-icon { font-size: 28px; }
+    .ff-failed-text { font-size: 10px; color: #ef4444; font-weight: 600; }
+    /* TTS 失败状态 */
+    .tts-play-row.failed .tts-progress-bar { background: #fee2e2; }
+    .tts-play-row.failed .tts-progress-fill { background: #ef4444; }
+    .tts-retry-btn { width: 26px; height: 26px; border-radius: 6px; border: 1.5px solid #ef4444; background: #fef2f2; color: #ef4444; font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.15s; padding: 0; }
+    .tts-retry-btn:hover { background: #ef4444; color: #fff; }
+    .tts-status-failed { font-size: 10px; color: #ef4444; font-weight: 600; min-width: 40px; text-align: right; }
+    /* Step2 只读 textarea */
+    textarea.readonly-step2 { background: #f9fafb; color: #555; cursor: default; resize: none; }
+    textarea.readonly-step2:focus { border-color: #e8e8e8; box-shadow: none; }
+    /* 角色/场景小角标 */
+    .ff-minis { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; }
+    .ff-mini { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; color: #555; background: #f3f5f9; border: 1px solid #e8e8e8; border-radius: 12px; padding: 2px 8px; cursor: default; }
+    .ff-mini:hover { border-color: #0066ff66; color: #0066ff; }
+    /* 标签 chips */
+    .ff-tags { display: flex; flex-direction: column; gap: 6px; }
+    .ff-tag-group { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
+    .ff-tag-group > .ff-tg-lb { font-size: 10px; color: #999; width: 28px; flex-shrink: 0; }
+    .ff-chip { font-size: 11px; padding: 3px 9px; border-radius: 14px; border: 1.5px solid #e8e8e8; background: #fafafa; color: #666; cursor: pointer; transition: all 0.15s; user-select: none; }
+    .ff-chip:hover { border-color: #0066ff66; color: #0066ff; }
+    .ff-chip.on { background: #eef4ff; border-color: #0066ff; color: #0066ff; font-weight: 600; }
+    .ff-regen { font-size: 11px; padding: 6px 12px; border-radius: 7px; border: 1.5px solid #0066ff; background: #eef4ff; color: #0066ff; cursor: pointer; font-weight: 500; transition: all 0.15s; align-self: center; }
+    .ff-regen:hover { background: #0066ff; color: #fff; }
+    /* 右：台词 + 语音 */
+    .ff-right { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 8px; border-left: 1px dashed #ececec; padding-left: 16px; }
+    .ff-head { display: flex; align-items: center; gap: 8px; }
+    .ff-head .ff-no { font-size: 12px; font-weight: 700; color: #0066ff; }
+    .ff-head .ff-cnt { font-size: 10px; color: #999; margin-left: auto; }
+    .ff-right textarea { width: 100%; min-height: 60px; border: 1.5px solid #e8e8e8; border-radius: 6px; padding: 8px 10px; font-size: 13px; line-height: 1.6; resize: vertical; font-family: inherit; background: #fafafa; transition: all 0.2s; }
+    .ff-right textarea:focus { outline: none; border-color: #0066ff; background: #fff; box-shadow: 0 0 0 3px rgba(0,102,255,0.08); }
+
+    /* TTS 播放条 */
+    .tts-play-row { display: flex; align-items: center; gap: 8px; }
+    .tts-play-btn { width: 28px; height: 28px; border-radius: 50%; border: 1.5px solid #0066ff; background: #eef4ff; color: #0066ff; font-size: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.15s; }
+    .tts-play-btn:hover { background: #0066ff; color: #fff; }
+    .tts-play-btn.playing { background: #0066ff; color: #fff; }
+    .tts-progress-wrap { flex: 1; min-width: 0; height: 22px; position: relative; cursor: pointer; }
+    .tts-progress-bar { position: absolute; left: 0; top: 50%; transform: translateY(-50%); width: 100%; height: 4px; background: #e8e8e8; border-radius: 2px; overflow: hidden; }
+    .tts-progress-fill { height: 100%; background: #0066ff; border-radius: 2px; width: 0%; transition: width 0.1s linear; }
+    .tts-dl-btn { width: 26px; height: 26px; border-radius: 6px; border: 1.5px solid #e8e8e8; background: #fff; color: #666; font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.15s; }
+    .tts-dl-btn:hover { border-color: #0066ff; color: #0066ff; background: #f5f8ff; }
+    .tts-dl-btn.done { border-color: #059669; color: #059669; background: #f0fdf4; }
+
+    /* 单条语音配置 */
+    .ff-voice-toggle { font-size: 11px; color: #0066ff; cursor: pointer; user-select: none; width: fit-content; }
+    .ff-voice-toggle:hover { text-decoration: underline; }
+    .ff-voice-cfg { display: none; margin-top: 2px; padding: 10px 12px; background: #fbfcff; border: 1.5px solid #e8e8e8; border-radius: 8px; flex-direction: column; gap: 8px; }
+    .ff-voice-cfg.show { display: flex; }
+    .ff-voice-cfg .row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .ff-voice-cfg .cfg-instr { width: 100%; padding: 6px 9px; border: 1.5px solid #e8e8e8; border-radius: 6px; font-size: 12px; background: #fff; }
+    .ff-voice-cfg .cfg-instr:focus { outline: none; border-color: #0066ff; }
+    .ff-voice-cfg .cfg-acts { display: flex; gap: 8px; }
+    .ff-voice-cfg .badge-custom { font-size: 10px; color: #d97706; background: #fff7ed; border-radius: 8px; padding: 1px 7px; }
+
+    /* 通用 hover 大图 tooltip */
+    .hover-tip { display: none; position: fixed; z-index: 3000; border-radius: 12px; background: #fff; box-shadow: 0 8px 32px rgba(0,0,0,0.22); pointer-events: none; overflow: hidden; width: 150px; }
+    .hover-tip.show { display: block; }
+    .hover-tip .ht-img { width: 150px; height: 200px; display: flex; align-items: center; justify-content: center; font-size: 72px; }
+    .hover-tip .ht-name { font-size: 11px; color: #555; text-align: center; padding: 5px 8px; background: #fff; }
+
+    /* 确认表 Step3 */
+    .cf-summary { display: flex; align-items: center; gap: 16px; margin-bottom: 14px; padding: 12px 16px; background: #eef4ff; border-radius: 10px; font-size: 13px; color: #1a1a2e; flex-wrap: wrap; }
+    .cf-summary strong { color: #0066ff; }
+    .cf-table { width: 100%; border-collapse: collapse; }
+    .cf-table thead th { font-size: 11px; color: #999; font-weight: 500; text-align: left; padding: 8px 10px; border-bottom: 1px solid #f0f0f0; }
+    .cf-table tbody tr { transition: background 0.1s; border-bottom: 1px solid #f5f5f5; }
+    .cf-table tbody tr:hover { background: #f9fafb; }
+    .cf-table tbody tr.off { opacity: 0.35; }
+    .cf-table td { font-size: 12px; color: #333; padding: 8px 10px; vertical-align: middle; }
+    .cf-thumb { width: 30px; height: 53px; border-radius: 5px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+    .cf-script { max-width: 340px; }
+    .cf-op-btn { font-size: 11px; color: #ef4444; cursor: pointer; background: none; border: none; padding: 3px 8px; border-radius: 4px; font-weight: 500; }
+    .cf-op-btn:hover { background: #fef2f2; }
+    .cf-op-btn.restore { color: #059669; }
+    .cf-op-btn.restore:hover { background: #f0fdf4; }
+
+    /* Step3 表格 hover 交互 */
+    .cf-table td { position: relative; }
+    .cf-hoverable { cursor: pointer; border-bottom: 1px dashed transparent; transition: all 0.15s; }
+    .cf-hoverable:hover { border-bottom-color: #0066ff; color: #0066ff; }
+    .cf-thumb-hover { cursor: pointer; transition: transform 0.15s; }
+    .cf-thumb-hover:hover { transform: scale(1.08); }
+    /* 台词 hover 弹窗 */
+    .cf-script-tip { display: none; position: fixed; z-index: 3000; background: #1a1a2e; color: #fff; padding: 10px 14px; border-radius: 10px; font-size: 12px; line-height: 1.6; max-width: 380px; pointer-events: none; box-shadow: 0 6px 20px rgba(0,0,0,0.25); white-space: pre-wrap; }
+    .cf-script-tip.show { display: block; }
+
+    /* Step1 右侧固定概览列 */
+    .step1-layout { display: flex; gap: 24px; align-items: flex-start; }
+    .step1-left { width: 420px; flex-shrink: 0; display: flex; flex-direction: column; gap: 22px; }
+	    .step1-main { flex: 1; min-width: 0; }
+    .step1-sidebar { width: 180px; flex-shrink: 0; position: sticky; top: 80px; background: #fff; border: 1px solid #e8e8e8; border-radius: 14px; padding: 14px 12px; max-height: calc(100vh - 140px); overflow-y: auto; }
+    .sb-title { font-size: 13px; font-weight: 700; color: #1a1a2e; margin-bottom: 14px; display: flex; align-items: center; gap: 6px; }
+    .sb-section { margin-bottom: 14px; }
+    .sb-section:last-child { margin-bottom: 0; }
+    .sb-label { font-size: 10px; color: #999; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+    .sb-avatar { display: flex; align-items: center; gap: 8px; padding: 8px 10px; background: #f8f9fb; border-radius: 8px; }
+    .sb-avatar .sb-av-emoji { font-size: 24px; width: 28px; text-align: center; }
+    .sb-avatar .sb-av-info { flex:1; min-width:0; }
+    .sb-avatar .sb-av-name { font-size: 12px; font-weight: 600; color: #1a1a2e; }
+    .sb-avatar .sb-av-tag { font-size: 10px; color: #999; }
+    .sb-empty { font-size: 11px; color: #bbb; padding: 8px 10px; background: #fafafa; border-radius: 8px; text-align: center; }
+    .sb-bg-list { display: flex; flex-direction: column; gap: 6px; }
+    .sb-bg-tag { font-size: 10px; padding: 3px 8px; border-radius: 12px; background: #f0f4ff; color: #6366f1; font-weight: 500; }
+      .sb-bg-item { display: flex; align-items: center; gap: 8px; padding: 6px 8px; background: #f8f9fb; border-radius: 8px; }
+      .sb-bg-thumb { width: 36px; height: 28px; border-radius: 4px; flex-shrink: 0; background-size: cover; background-position: center; }
+      .sb-bg-name { font-size: 11px; font-weight: 500; color: #333; }
+    .sb-stat { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; }
+    .sb-stat .sb-stat-num { font-size: 18px; font-weight: 700; color: #0066ff; }
+    .sb-stat .sb-stat-lbl { font-size: 11px; color: #888; }
+    .sb-est { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; }
+    .sb-est .sb-est-num { font-size: 14px; font-weight: 700; color: #f59e0b; }
+    .sb-est .sb-est-lbl { font-size: 11px; color: #888; }
+
+    /* 视频模板（可选） */
+    .tpl-empty { padding: 14px 12px; border: 1.5px dashed #d8d8d8; border-radius: 10px; background: #fafafa; text-align: center; color: #999; font-size: 12px; line-height: 1.7; }
+    .tpl-empty a { color: #0066ff; text-decoration: none; font-weight: 600; }
+    .tpl-list { display: flex; flex-direction: column; gap: 8px; max-height: 210px; overflow-y: auto; padding-right: 4px; }
+    .tpl-card { border: 1.5px solid #e8e8e8; border-radius: 10px; padding: 10px 11px; background: #fafafa; cursor: pointer; transition: all 0.15s; }
+    .tpl-card:hover { border-color: #0066ff66; background: #f5f8ff; }
+    .tpl-card.sel { border-color: #0066ff; background: #f0f4ff; box-shadow: 0 3px 10px rgba(0,102,255,0.08); }
+    .tpl-card-head { display: flex; align-items: flex-start; gap: 8px; }
+    .tpl-card-icon { width: 30px; height: 42px; border-radius: 8px; background: linear-gradient(135deg,#e0f2fe,#bfdbfe); flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 16px; box-shadow: inset 0 0 0 1px rgba(0,102,255,0.08); }
+    .tpl-card-title { font-size: 12px; font-weight: 700; color: #1a1a2e; line-height: 1.4; }
+    .tpl-card-meta { margin-top: 2px; color: #999; font-size: 10px; line-height: 1.5; }
+    .tpl-card-desc { margin-top: 7px; color: #666; font-size: 11px; line-height: 1.55; }
+    .tpl-card-tags { margin-top: 7px; display: flex; gap: 5px; flex-wrap: wrap; }
+    .tpl-tag { font-size: 10px; color: #0066ff; background: #eef4ff; border-radius: 10px; padding: 2px 7px; font-weight: 600; }
+    .tpl-card-actions { margin-top: 8px; display: flex; justify-content: flex-end; }
+    .tpl-preview-btn { height: 26px; padding: 0 10px; border-radius: 7px; border: 1px solid #dbe7ff; background: #fff; color: #0066ff; font-size: 11px; font-weight: 700; cursor: pointer; }
+    .tpl-preview-btn:hover { background: #eef4ff; border-color: #0066ff66; }
+    .tpl-apply { margin-top: 10px; padding: 10px 12px; border: 1.5px solid #dbe7ff; border-radius: 10px; background: #fbfdff; }
+    .tpl-apply-title { display: flex; justify-content: space-between; gap: 10px; align-items: center; font-size: 12px; font-weight: 700; color: #1a1a2e; margin-bottom: 8px; }
+    .tpl-clear { border: none; background: transparent; color: #999; font-size: 11px; cursor: pointer; font-weight: 600; }
+    .tpl-clear:hover { color: #ef4444; }
+    .tpl-scene-toggle { display: flex; align-items: center; gap: 7px; cursor: pointer; font-size: 12px; color: #333; font-weight: 600; }
+    .tpl-scene-toggle input { width: 15px; height: 15px; accent-color: #0066ff; cursor: pointer; }
+    .tpl-note { margin-top: 8px; font-size: 11px; color: #777; line-height: 1.6; }
+    .tpl-note strong { color: #1a1a2e; }
+    .tpl-manual { margin-top: 8px; display: grid; gap: 5px; font-size: 11px; color: #666; line-height: 1.5; }
+    .tpl-manual span { display: flex; align-items: center; gap: 5px; }
+    .tpl-hidden { display: none !important; }
+    .sb-template { padding: 8px 10px; background: #f8f9fb; border-radius: 8px; }
+    .sb-template-name { font-size: 12px; font-weight: 600; color: #1a1a2e; line-height: 1.45; }
+    .sb-template-meta { font-size: 10px; color: #999; margin-top: 2px; line-height: 1.5; }
+    .sb-source { font-size: 10px; color: #0066ff; margin-top: 3px; font-weight: 600; }
+
+    .tpl-preview-overlay { display: none; position: fixed; inset: 0; background: rgba(15,23,42,0.52); z-index: 2100; align-items: center; justify-content: center; padding: 24px; }
+    .tpl-preview-overlay.show { display: flex; }
+    .tpl-preview-modal { width: min(780px, 94vw); max-height: 88vh; overflow: hidden; background: #fff; border-radius: 18px; box-shadow: 0 24px 70px rgba(15,23,42,0.26); display: grid; grid-template-columns: 300px minmax(0, 1fr); }
+    .tpl-preview-stage { background: #f8fafc; border-right: 1px solid #e8e8e8; padding: 22px; display: flex; justify-content: center; align-items: center; }
+    .tpl-preview-phone { width: 210px; aspect-ratio: 9 / 16; border-radius: 24px; background: #0f172a; overflow: hidden; position: relative; box-shadow: 0 24px 52px rgba(15,23,42,0.28); }
+    .tpl-preview-scene { position: absolute; inset: 0; }
+    .tpl-preview-grid { position: absolute; inset: 18px 24px; border: 1px solid rgba(255,255,255,0.42); border-radius: 14px; background: linear-gradient(rgba(255,255,255,.22) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.16) 1px, transparent 1px); background-size: 26px 26px; }
+    .tpl-preview-person { position: absolute; left: 50%; bottom: 35%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; z-index: 2; }
+    .tpl-preview-head { width: 48px; height: 48px; border-radius: 50%; background: rgba(255,255,255,.88); box-shadow: 0 4px 12px rgba(0,0,0,.12); }
+    .tpl-preview-body { width: 70px; height: 46px; margin-top: -8px; border-radius: 28px 28px 10px 10px; background: rgba(255,255,255,.58); }
+    .tpl-preview-caption { position: absolute; left: 14px; right: 14px; bottom: 16px; z-index: 4; min-height: 34px; border-radius: 12px; background: rgba(15,23,42,.76); color: #fff; display: flex; align-items: center; justify-content: center; text-align: center; padding: 6px 10px; font-size: 11px; line-height: 1.45; font-weight: 600; }
+    .tpl-preview-phone::after { content: ""; position: absolute; left: -35%; top: 0; z-index: 5; width: 28%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,.28), transparent); animation: tplSweep 2.6s linear infinite; pointer-events: none; }
+    @keyframes tplSweep { 0% { transform: translateX(0); } 100% { transform: translateX(560%); } }
+    .tpl-preview-info { padding: 22px; overflow-y: auto; }
+    .tpl-preview-headline { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 14px; }
+    .tpl-preview-title { font-size: 20px; line-height: 1.35; font-weight: 800; color: #1a1a2e; }
+    .tpl-preview-meta { color: #999; font-size: 12px; margin-top: 6px; line-height: 1.6; }
+    .tpl-preview-close { width: 30px; height: 30px; border: none; border-radius: 8px; background: #f0f0f0; color: #666; font-size: 18px; cursor: pointer; flex-shrink: 0; }
+    .tpl-preview-close:hover { background: #e8e8e8; color: #333; }
+    .tpl-preview-desc { color: #666; font-size: 13px; line-height: 1.8; margin: 14px 0; }
+    .tpl-preview-detail { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin: 14px 0; }
+    .tpl-preview-detail-item { border: 1px solid #e8e8e8; background: #fafafa; border-radius: 10px; padding: 10px 12px; }
+    .tpl-preview-detail-label { color: #999; font-size: 10px; margin-bottom: 4px; }
+    .tpl-preview-detail-val { color: #1a1a2e; font-size: 12px; font-weight: 700; line-height: 1.45; }
+    .tpl-preview-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px; padding-top: 14px; border-top: 1px solid #f0f0f0; }
+
+    /* Step2 首帧区域调整 */
+    .ff-left .ff-regen-all { font-size: 11px; padding: 6px 12px; border-radius: 7px; border: 1.5px dashed #d97706; background: #fff7ed; color: #d97706; cursor: pointer; font-weight: 500; transition: all 0.15s; text-align: center; }
+    .ff-left .ff-regen-all:hover { background: #d97706; color: #fff; border-color: #d97706; }
+    .ff-right textarea { min-height: 130px; }
+
+    /* 底部操作栏 */
+    .footer-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; border-top: 1px solid #e8e8e8; padding: 14px 32px; box-shadow: 0 -2px 8px rgba(0,0,0,0.04); display: flex; align-items: center; justify-content: space-between; z-index: 90; }
+    .footer-info { font-size: 12px; color: #999; }
+    .footer-acts { display: flex; gap: 10px; }
+    .nav-btn { padding: 11px 30px; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; border: none; transition: all 0.2s; }
+    .nav-btn.prev { background: #f0f0f0; color: #666; }
+    .nav-btn.prev:hover { background: #e6e6e6; }
+    .nav-btn.next { background: linear-gradient(135deg, #0066ff 0%, #5856d6 100%); color: #fff; }
+    .nav-btn.next:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(0,102,255,0.32); }
+    .nav-btn.next.disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; background: #ccc; }
+
+    /* 批量导入弹窗 */
+    .imp-ov { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1500; align-items: center; justify-content: center; backdrop-filter: blur(2px); }
+    .imp-ov.show { display: flex; }
+    .imp-modal { background: #fff; border-radius: 14px; width: 440px; max-width: 90vw; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.15); }
+    .imp-hd { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid #f0f0f0; }
+    .imp-hd h3 { font-size: 18px; font-weight: 700; color: #1a1a2e; }
+    .imp-hd .close-btn { width: 26px; height: 26px; border-radius: 50%; background: #f0f0f0; border: none; color: #666; font-size: 13px; cursor: pointer; }
+    .imp-bd { padding: 20px; }
+    .imp-tip { font-size: 13px; color: #666; line-height: 1.8; }
+    .imp-tip strong { color: #1a1a2e; }
+    .imp-tip ul { margin: 8px 0 12px 18px; }
+    .imp-format { display: flex; gap: 8px; margin: 12px 0; }
+    .imp-format-item { flex: 1; background: #f5f5f5; border-radius: 8px; padding: 10px 12px; text-align: center; font-size: 12px; color: #333; font-weight: 500; }
+    .imp-format-item .ext { font-size: 10px; color: #999; margin-top: 2px; }
+    .imp-actions { display: flex; gap: 8px; margin-top: 16px; }
+    .imp-actions .btn { flex: 1; text-align: center; font-size: 13px; padding: 9px 0; font-weight: 500; }
+    .imp-up-zone { border: 1.5px dashed #d8d8d8; border-radius: 10px; padding: 18px; text-align: center; cursor: pointer; transition: all 0.2s; background: #fafafa; margin-top: 12px; }
+    .imp-up-zone:hover { border-color: #0066ff; background: #f5f8ff; }
+    .imp-up-zone .ico { font-size: 22px; margin-bottom: 4px; }
+    .imp-up-zone .txt { font-size: 12px; color: #666; font-weight: 500; }
+    .imp-up-zone .hint { font-size: 11px; color: #999; margin-top: 2px; }
+
+    /* 进度弹窗 */
+    .p-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(2px); }
+    .p-overlay.show { display: flex; }
+    .p-modal { background: #fff; border-radius: 14px; padding: 28px; width: 400px; max-width: 90vw; box-shadow: 0 20px 60px rgba(0,0,0,0.15); }
+    .p-title { font-size: 17px; font-weight: 700; margin-bottom: 18px; text-align: center; color: #1a1a2e; }
+    .p-bar { background: #e8e8e8; border-radius: 5px; height: 5px; margin-bottom: 18px; overflow: hidden; }
+    .p-fill { height: 100%; background: linear-gradient(90deg, #0066ff, #5856d6); border-radius: 5px; transition: width 0.5s; width: 0%; }
+    .p-steps { list-style: none; margin-bottom: 18px; }
+    .p-step { display: flex; align-items: center; gap: 10px; padding: 7px 0; }
+    .p-step .ico { width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; flex-shrink: 0; font-weight: 600; }
+    .p-step.w .ico { background: #f0f0f0; color: #999; }
+    .p-step.a .ico { background: #0066ff; color: #fff; animation: pulse 1.5s infinite; }
+    .p-step.d .ico { background: #059669; color: #fff; }
+    .p-step .lbl { font-size: 12px; font-weight: 500; }
+    .p-step.w .lbl { color: #999; }
+    .p-step.a .lbl { color: #0066ff; }
+    .p-step.d .lbl { color: #059669; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+    .p-acts { display: flex; gap: 8px; }
+    .p-acts .btn { flex: 1; text-align: center; font-size: 13px; padding: 9px; font-weight: 500; }
+
+    .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: #1a1a2e; color: #fff; padding: 10px 20px; border-radius: 8px; font-size: 12px; z-index: 2001; opacity: 0; transition: opacity 0.3s; pointer-events: none; font-weight: 500; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+    .toast.show { opacity: 1; }
+
+    /* 积分确认弹窗 */
+    .credits-confirm-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 2000; align-items: center; justify-content: center; }
+    .credits-confirm-overlay.active { display: flex; }
+    .credits-confirm-modal { background: #fff; border-radius: 18px; padding: 32px 36px; max-width: 400px; width: 90%; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.18); }
+    .credits-confirm-icon { font-size: 40px; margin-bottom: 12px; }
+    .credits-confirm-title { font-size: 18px; font-weight: 700; color: #111827; margin-bottom: 10px; }
+    .credits-confirm-desc { font-size: 14px; color: #6b7280; line-height: 1.7; margin-bottom: 24px; }
+    .credits-confirm-actions { display: flex; gap: 12px; justify-content: center; }
+    .credits-confirm-actions .btn { min-width: 120px; height: 42px; font-size: 14px; font-weight: 600; }
+    .credits-confirm-skip { display: block; margin-top: 14px; font-size: 12px; color: #6b7280; cursor: pointer; }
+    .credits-confirm-skip input { margin-right: 4px; vertical-align: middle; }
+  </style>
+</head>
+<body>
+  <div class="top-bar">
+    <div class="logo"><div class="logo-icon">🎬</div><span>AI视频创作 · 简单模式（模板版）</span></div>
+    <div class="top-right">
+      <span class="ratio-pill">竖屏 9:16 · 720p</span>
+      <div class="user-avatar">U</div>
+    </div>
+  </div>
+  <div id="backFromFlow" style="display:none;border-bottom:1px solid #e8e8e8;padding:8px 32px;background:#fafcff;">
+    <a class="back-to-task-detail" href="全部工具.html">← 返回任务详情</a>
+  </div>
+
+  <!-- 步骤指示器 -->
+  <div class="stepper">
+    <div class="stp active" id="stp-1"><div class="stp-dot">1</div><div class="stp-lb">配置素材</div></div>
+    <div class="stp-line" id="line-1"></div>
+    <div class="stp" id="stp-2"><div class="stp-dot">2</div><div class="stp-lb">首帧</div></div>
+    <div class="stp-line" id="line-2"></div>
+    <div class="stp" id="stp-3"><div class="stp-dot">3</div><div class="stp-lb">生成视频</div></div>
+  </div>
+
+  <div class="wizard">
+    <!-- ===== Step 1 ===== -->
+    <div class="step-panel active" id="panel-1">
+      <div class="step1-layout">
+        <div class="step1-left">
+          <!-- 任务配置 -->
+          <div class="section">
+            <div class="section-header">
+              <div class="section-icon blue">📋</div>
+              <div class="section-name">任务配置</div>
+            </div>
+            <div style="display:flex;gap:12px;align-items:flex-end;">
+              <div style="flex:1;">
+                <label style="font-size:12px;color:var(--text-secondary);display:block;margin-bottom:6px;">任务名称</label>
+                <input type="text" id="task-name-input" placeholder="留空自动生成" oninput="onTaskNameChange()" style="width:100%;height:36px;border:1.5px solid #e8e8e8;border-radius:8px;padding:0 10px;font-size:13px;outline:none;font-family:inherit;" maxlength="30">
+              </div>
+              <div style="flex-shrink:0;width:130px;">
+                <label style="font-size:12px;color:var(--text-secondary);display:block;margin-bottom:6px;">可见范围</label>
+                <select id="task-visibility" style="width:100%;height:36px;padding:0 8px;border:1.5px solid #e8e8e8;border-radius:8px;font-size:13px;color:#333;background:#fff;outline:none;cursor:pointer;" onchange="onVisibilityChange()">
+                  <option value="private">🔒 仅自己</option>
+                  <option value="team">👥 团队共享</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <!-- 视频模板（可选） -->
+          <div class="section">
+            <div class="section-header">
+              <div class="section-icon purple">🎞️</div>
+              <div class="section-name">视频模板</div>
+              <span class="section-hint">可选，默认只应用模板场景</span>
+              <span class="section-badge done" id="t-template" style="display:none;">已选择</span>
+            </div>
+            <div id="template-panel"></div>
+          </div>
+          <!-- 角色（单选） -->
+          <div class="section">
+            <div class="section-header">
+              <div class="section-icon orange">👤</div>
+              <div class="section-name">选择角色</div>
+              <span class="section-hint">单选</span>
+              <span class="section-badge done" id="t-person" style="display:none;">已选择</span>
+            </div>
+
+            <div class="av-search"><input type="text" placeholder="搜索角色名称、标签..." oninput="filterAvatarList(this.value)"></div>
+            <div class="av-grid-compact" id="avatar-grid"></div>
+          </div>
+
+          <!-- 背景（多选开关） -->
+          <div class="section" id="bg-section">
+            <div class="section-header">
+              <div class="section-icon green">🖼️</div>
+              <div class="section-name">选择背景</div>
+              <span class="section-hint">每条台词将随机分配其一</span>
+              <span class="section-badge done" id="t-bg" style="display:none;">已选 0</span>
+            </div>
+            <div class="toggle-row">
+              <label class="inline-toggle"><input type="checkbox" id="bg-batch" onchange="toggleBatchBg(this.checked)"> 批量场景生成</label>
+              <span class="toggle-hint">（关闭=只能选 1 个，开启=可多选）</span>
+            </div>
+            <div class="bg-search"><input type="text" placeholder="搜索场景名称..." oninput="filterBgList(this.value)"></div>
+            <div class="bg-grid-compact" id="bg-grid-preset"></div>
+          </div>
+        </div>
+        <div class="step1-main">
+          <!-- 台词 -->
+          <div class="section">
+            <div class="section-header">
+              <div class="section-icon blue">📝</div>
+              <div class="section-name">台词列表</div>
+              <span class="section-hint"></span>
+              <span class="section-badge done" id="t-script" style="display:none;">0 条</span>
+            </div>
+            <!-- 全局语音合成配置条 -->
+            <div class="tts-bar" style="margin-bottom:12px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+                <span class="tts-bar-label">🎤 语音合成（全局默认）<span style="font-size:11px;font-weight:400;color:#999;margin-left:8px;" id="voice-name-hint"></span></span>
+                <button class="btn btn1" style="font-size:12px;padding:6px 16px;" onclick="resynthAll()">🔊 应用并合成全部</button>
+              </div>
+              <div style="display:flex;align-items:center;gap:14px;margin-bottom:8px;flex-wrap:wrap;">
+                <div class="tts-item"><span class="lb">语速</span><input type="range" id="g-speed" min="5" max="20" value="10" oninput="updGlobalLabel()"><span class="tts-val" id="g-speed-val">1.0x</span></div>
+                <div class="tts-item"><span class="lb">音调</span><input type="range" id="g-pitch" min="-10" max="10" value="0" oninput="updGlobalLabel()"><span class="tts-val" id="g-pitch-val">0</span></div>
+                <div class="tts-item"><span class="lb">音量</span><input type="range" id="g-volume" min="0" max="100" value="80" oninput="updGlobalLabel()"><span class="tts-val" id="g-volume-val">80%</span></div>
+              </div>
+              <input type="text" id="g-instruction" placeholder="全局合成指令，例如：用沉稳专业的语气，适当停顿，语速偏慢，重读关键数字..." style="width:100%;padding:8px 10px;border:1.5px solid #e8e8e8;border-radius:6px;font-size:12px;background:#fff;">
+            </div>
+            <div class="script-cards" id="script-cards"></div>
+            <div style="margin-top:10px; display:flex; gap:8px;">
+              <div class="sc-add" onclick="addScriptCard()" style="flex:1;">＋ 新增台词</div>
+              <div class="sc-add" onclick="showImportModal()" style="flex:1;">📥 批量导入</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 右侧固定概览列 -->
+        <div class="step1-sidebar" id="step1-sidebar">
+          <div class="sb-title">📋 配置概览</div>
+          <!-- 任务名称 -->
+          <div class="sb-section">
+            <div class="sb-label">📛 任务名称</div>
+            <div id="sb-task-name" style="font-size:12px;color:#333;font-weight:600;line-height:1.5;">未填写</div>
+          </div>
+          <!-- 可见范围 -->
+          <div class="sb-section">
+            <div class="sb-label">👁 可见范围</div>
+            <div id="sb-visibility-display" style="font-size:12px;color:#333;font-weight:600;">🔒 仅自己</div>
+          </div>
+          <!-- 模板 -->
+          <div class="sb-section">
+            <div class="sb-label">🎞️ 已选模板</div>
+            <div id="sb-template-content"><div class="sb-empty">未选择模板</div></div>
+          </div>
+          <!-- 角色 -->
+          <div class="sb-section">
+            <div class="sb-label">👤 已选角色</div>
+            <div id="sb-avatar-content"><div class="sb-empty">未选择角色</div></div>
+          </div>
+          <!-- 背景 -->
+          <div class="sb-section">
+            <div class="sb-label">🖼️ 已选背景</div>
+            <div id="sb-bg-content"><div class="sb-empty">未选择背景</div></div>
+          </div>
+          <!-- 台词统计 -->
+          <div class="sb-section">
+            <div class="sb-label">📝 台词统计</div>
+            <div class="sb-stat"><span class="sb-stat-lbl">台词数量</span><span class="sb-stat-num" id="sb-script-count">0</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== Step 2 ===== -->
+    <div class="step-panel" id="panel-2">
+      <!-- 首帧 + 语音卡片（全局语音配置已移至 Step1 台词列表） -->
+      <div class="section">
+        <div class="section-header">
+          <div class="section-icon purple">🎞️</div>
+          <div class="section-name">首帧</div>
+          <span class="section-hint">首帧已生成、可根据台词风格逐条调整</span>
+        </div>
+        <div class="ff-cards" id="ff-cards"></div>
+      </div>
+    </div>
+
+    <!-- ===== Step 3 ===== -->
+    <div class="step-panel" id="panel-3">
+      <div class="section">
+        <div class="section-header">
+          <div class="section-icon blue">🎬</div>
+          <div class="section-name">生成确认</div>
+          <span class="section-hint">每条台词将生成一条视频</span>
+        </div>
+        <div class="cf-summary">
+          <div>📛 任务：<strong id="cf-task">—</strong></div>
+          <div>角色：<strong id="cf-avatar">—</strong></div>
+          <div>背景池：<strong id="cf-bgs">—</strong></div>
+          <div>共 <strong id="cf-count">0</strong> 条视频 · 预计 <strong id="cf-time">0</strong> 分钟</div>
+        </div>
+        <table class="cf-table">
+          <thead><tr><th style="width:44px">序号</th><th style="width:50px">首帧</th><th>角色</th><th>背景</th><th>镜头</th><th>台词</th><th style="width:70px">预估时长</th><th style="width:60px">操作</th></tr></thead>
+          <tbody id="cf-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- 底部操作栏 -->
+  <div class="footer-bar">
+    <div class="footer-info" id="footer-info">请完成角色、背景、台词配置</div>
+    <div class="footer-acts">
+      <button class="nav-btn prev" id="btn-prev" style="display:none;" onclick="prevStep()">上一步</button>
+      <button class="nav-btn next" id="btn-next" onclick="nextStep()">下一步</button>
+    </div>
+  </div>
+
+  <!-- 批量导入弹窗 -->
+  <div class="imp-ov" id="imp-ov">
+    <div class="imp-modal">
+      <div class="imp-hd"><h3>批量导入台词</h3><button class="close-btn" onclick="closeImportModal()">✕</button></div>
+      <div class="imp-bd">
+        <div class="imp-tip">
+          <strong>支持的格式：</strong>
+          <div class="imp-format">
+            <div class="imp-format-item">📄 CSV 文件<div class="ext">.csv</div></div>
+            <div class="imp-format-item">📊 Excel 文件<div class="ext">.xlsx / .xls</div></div>
+          </div>
+          <strong>文件要求：</strong>
+          <ul>
+            <li>每行一条台词</li>
+            <li>第一列为台词内容（必填）</li>
+            <li>文件不超过 100 条台词</li>
+          </ul>
+        </div>
+        <div class="imp-actions">
+          <button class="btn btn2" onclick="downloadTemplate()">📥 下载模板</button>
+        </div>
+        <div class="imp-up-zone" onclick="document.getElementById('imp-file').click()">
+          <div class="ico">📁</div>
+          <div class="txt">点击上传 CSV / Excel 文件</div>
+          <div class="hint">支持 .csv, .xlsx, .xls 格式</div>
+        </div>
+        <input type="file" id="imp-file" accept=".csv,.xlsx,.xls" style="display:none" onchange="handleImportFile(this)">
+      </div>
+    </div>
+  </div>
+
+  <!-- 进度弹窗 -->
+  <div class="p-overlay" id="p-overlay">
+    <div class="p-modal">
+      <div class="p-title" id="p-title">正在生成视频...</div>
+      <div class="p-bar"><div class="p-fill" id="p-fill"></div></div>
+      <ul class="p-steps">
+        <li class="p-step w" id="ps-1"><div class="ico">1</div><div class="lbl">解析台词</div></li>
+        <li class="p-step w" id="ps-2"><div class="ico">2</div><div class="lbl">驱动首帧</div></li>
+        <li class="p-step w" id="ps-3"><div class="ico">3</div><div class="lbl">合成语音</div></li>
+        <li class="p-step w" id="ps-4"><div class="ico">4</div><div class="lbl">渲染视频</div></li>
+        <li class="p-step w" id="ps-5"><div class="ico">5</div><div class="lbl">整理导出</div></li>
+      </ul>
+      <div class="p-acts" id="p-acts" style="display:none;"><button class="btn btn2" onclick="closeProgress()">关闭</button><button class="btn btn1" onclick="viewResults()">查看结果</button></div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast-el"></div>
+
+  <!-- 通用 hover 大图 -->
+  <div class="hover-tip" id="hover-tip">
+    <div class="ht-img" id="ht-img"></div>
+    <div class="ht-name" id="ht-name"></div>
+  </div>
+
+  <!-- 台词 hover 弹窗 -->
+  <div class="cf-script-tip" id="cf-script-tip"></div>
+
+  <!-- 模板预览弹窗 -->
+  <div class="tpl-preview-overlay" id="tplPreviewOverlay" onclick="closeTemplatePreview(event)">
+    <div class="tpl-preview-modal" onclick="event.stopPropagation()">
+      <div class="tpl-preview-stage">
+        <div class="tpl-preview-phone" id="tplPreviewPhone"></div>
+      </div>
+      <div class="tpl-preview-info">
+        <div class="tpl-preview-headline">
+          <div>
+            <div class="tpl-preview-title" id="tplPreviewTitle"></div>
+            <div class="tpl-preview-meta" id="tplPreviewMeta"></div>
+          </div>
+          <button class="tpl-preview-close" type="button" onclick="closeTemplatePreview()">×</button>
+        </div>
+        <div class="tpl-preview-detail" id="tplPreviewDetail"></div>
+        <div class="tpl-card-tags" id="tplPreviewTags"></div>
+        <p class="tpl-preview-desc" id="tplPreviewDesc"></p>
+        <div class="tpl-preview-actions">
+          <button class="btn btn2" type="button" onclick="closeTemplatePreview()">关闭</button>
+          <button class="btn btn1" type="button" onclick="usePreviewTemplate()">使用该模板</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 积分消耗确认弹窗 -->
+  <div class="credits-confirm-overlay" id="creditsConfirmOverlay">
+    <div class="credits-confirm-modal">
+      <div class="credits-confirm-icon">🪙</div>
+      <div class="credits-confirm-title">积分消耗确认</div>
+      <div class="credits-confirm-desc" id="creditsConfirmDesc">此操作会消耗 🪙10 积分，请确定执行操作</div>
+      <div class="credits-confirm-actions">
+        <button class="btn btn-light" type="button" onclick="closeCreditsConfirm()">取消</button>
+        <button class="btn btn-primary" type="button" onclick="executeCreditsAction()">确定执行</button>
+      </div>
+      <label class="credits-confirm-skip">
+        <input type="checkbox" id="skipCreditsConfirm"> 下次不再提醒
+      </label>
+    </div>
+  </div>
+
+  <script>
+    /* ── 积分确认弹窗逻辑 ── */
+    var pendingCreditsAction = null;
+    function openCreditsConfirm(cost, actionFn) {
+      if (localStorage.getItem('aigc_skip_credits_confirm') === 'true') {
+        actionFn();
+        return;
+      }
+      pendingCreditsAction = actionFn;
+      document.getElementById('creditsConfirmDesc').textContent =
+        '此操作会消耗 🪙' + cost + ' 积分，请确定执行操作';
+      document.getElementById('creditsConfirmOverlay').classList.add('active');
+    }
+    function closeCreditsConfirm() {
+      pendingCreditsAction = null;
+      document.getElementById('creditsConfirmOverlay').classList.remove('active');
+    }
+    function executeCreditsAction() {
+      if (document.getElementById('skipCreditsConfirm').checked) {
+        localStorage.setItem('aigc_skip_credits_confirm', 'true');
+      }
+      if (pendingCreditsAction) pendingCreditsAction();
+      closeCreditsConfirm();
+    }
+
+    var S = {
+      step: 1,
+      taskName: '',                // 任务名称，空则自动生成
+      avatar: null,               // 单选角色 key
+      bgMulti: [],                // 已选背景
+      bgBatch: false,             // 背景是否多选
+      templateId: null,           // 可选视频模板
+      useTemplateScene: false,    // 是否使用模板场景
+      cards: [],                  // {id, content, frame:{bg,pose,shot}, tts:{...}}
+      nextId: 1,
+      ttsPlaying: {},
+      visibility: 'private'       // 可见范围：private=仅自己, team=团队共享
+    };
+
+    var POSES = ['站立', '坐姿', '侧身'];
+    var SHOTS = ['中景', '近景'];
+
+    var bgM = {'办公室':'linear-gradient(135deg,#667eea,#764ba2)','居家':'linear-gradient(135deg,#f093fb,#f5576c)','咖啡厅':'linear-gradient(135deg,#4facfe,#00f2fe)','户外':'linear-gradient(135deg,#43e97b,#38f9d7)','演播室':'linear-gradient(135deg,#fa709a,#fee140)','书架':'linear-gradient(135deg,#a8edea,#fed6e3)','教室':'linear-gradient(135deg,#ffecd2,#fcb69f)','会议室':'linear-gradient(135deg,#a1c4fd,#c2e9fb)','公园':'linear-gradient(135deg,#d4fc79,#96e6a1)','海边':'linear-gradient(135deg,#89f7fe,#66a6ff)','天台':'linear-gradient(135deg,#f6d365,#fda085)','展厅':'linear-gradient(135deg,#fbc2eb,#a6c1ee)','厨房':'linear-gradient(135deg,#ff9a9e,#fecfef)','健身房':'linear-gradient(135deg,#fddb92,#d1fdff)','图书馆':'linear-gradient(135deg,#c1dfc4,#deecdd)','花园':'linear-gradient(135deg,#f5f7fa,#c3cfe2)','餐厅':'linear-gradient(135deg,#e0c3fc,#8ec5fc)','地铁站':'linear-gradient(135deg,#434343,#000000)','机场':'linear-gradient(135deg,#c9d6ff,#e2e2e2)','雪山':'linear-gradient(135deg,#e6e9f0,#eef1f5)','森林':'linear-gradient(135deg,#134e5e,#71b280)','沙漠':'linear-gradient(135deg,#f4a460,#deb887)','草原':'linear-gradient(135deg,#96e6a1,#d4fc79)','城市夜景':'linear-gradient(135deg,#0f2027,#203a43,#2c5364)','工作室':'linear-gradient(135deg,#c9c6ff,#8b87af)'};
+
+    var templateList = [
+      { id:'tpl-market-close', title:'一分钟市场收评模板', meta:'证券 · 1080P · 9:16', scene:'现代财经演播室', sceneGradient:'linear-gradient(135deg,#dbeafe 0%,#93c5fd 44%,#1e3a8a 100%)', tags:['市场收评','数据解读'], desc:'适合日更收评，模板场景包含行情图表与蓝色数据屏。' },
+      { id:'tpl-fund-edu', title:'基金定投科普模板', meta:'基金 · 1080P · 9:16', scene:'温和书房口播场景', sceneGradient:'linear-gradient(135deg,#fef3c7 0%,#fbbf24 42%,#92400e 100%)', tags:['基金投教','新手教育'], desc:'适合解释基金知识点，模板场景为暖色书房与投教氛围。' },
+      { id:'tpl-risk-alert', title:'风险提示模板', meta:'银行 · 1080P · 9:16', scene:'深色风控看板', sceneGradient:'linear-gradient(135deg,#f8fafc 0%,#cbd5e1 46%,#334155 100%)', tags:['风险提示','合规'], desc:'适合产品风险提醒和市场波动教育，场景突出风控信息。' },
+      { id:'tpl-hotspot', title:'热点快评模板', meta:'通用投教 · 720P · 9:16', scene:'现代财经演播室', sceneGradient:'linear-gradient(135deg,#dbeafe 0%,#93c5fd 44%,#1e3a8a 100%)', tags:['热点快评','社媒'], desc:'适合热点事件后的快速观点输出，强调节奏和视觉冲击力。' }
+    ];
+
+    var avList = [
+      { key: '知性女性', name: '角色 A', tag: '女 · 知性' },
+      { key: '商务男性', name: '角色 B', tag: '男 · 商务' },
+      { key: '活泼女性', name: '角色 C', tag: '女 · 活泼' },
+      { key: '青年男声', name: '角色 D', tag: '男 · 阳光' },
+      { key: '成熟女性', name: '角色 E', tag: '女 · 优雅' },
+      { key: '老年男性', name: '角色 F', tag: '男 · 沉稳' },
+      { key: '儿童女孩', name: '角色 G', tag: '女 · 可爱' },
+      { key: '新闻主播', name: '角色 H', tag: '女 · 专业' },
+      { key: '科技达人', name: '角色 I', tag: '男 · 科技感' },
+      { key: '医疗顾问', name: '角色 J', tag: '男 · 医学' },
+      { key: '教育讲师', name: '角色 K', tag: '女 · 教学' },
+      { key: '运动教练', name: '角色 L', tag: '男 · 运动' },
+      { key: '时尚博主', name: '角色 M', tag: '女 · 时尚' },
+      { key: '旅行者', name: '角色 N', tag: '男 · 户外' },
+      { key: '厨师', name: '角色 O', tag: '男 · 美食' },
+      { key: '艺术家', name: '角色 P', tag: '男 · 创意' }
+    ];
+    var avI = {'知性女性':'👩','商务男性':'👨','活泼女性':'👧','青年男声':'🧑','成熟女性':'👩‍💼','老年男性':'👴','儿童女孩':'👧','新闻主播':'👩‍💻','科技达人':'👨‍💻','医疗顾问':'👨‍⚕️','教育讲师':'👩‍🏫','运动教练':'🏃','时尚博主':'💃','旅行者':'🧳','厨师':'👨‍🍳','艺术家':'🎨'};
+
+    function toast(m) { var t = document.getElementById('toast-el'); t.textContent = m; t.classList.add('show'); setTimeout(function(){t.classList.remove('show');}, 2000); }
+
+    function readJsonList(key) {
+      try {
+        var raw = localStorage.getItem(key);
+        var list = raw ? JSON.parse(raw) : [];
+        return Array.isArray(list) ? list : [];
+      } catch(e) {
+        return [];
+      }
+    }
+
+    function getSelectedTemplate() {
+      return templateList.find(function(t){ return t.id === S.templateId; }) || null;
+    }
+
+    function getFavoriteTemplates() {
+      var addedIds = readJsonList('marketAddedAssets');
+      return templateList.filter(function(t){ return addedIds.indexOf(t.id) > -1; });
+    }
+
+    function getTemplateSceneName() {
+      var tpl = getSelectedTemplate();
+      return tpl ? tpl.scene : '';
+    }
+
+    function getBgGradient(name) {
+      if (bgM[name]) return bgM[name];
+      var tpl = templateList.find(function(t){ return t.scene === name; });
+      return tpl ? tpl.sceneGradient : bgM['办公室'];
+    }
+
+    function getActiveBgNames() {
+      var tplScene = getTemplateSceneName();
+      if (S.templateId && S.useTemplateScene && tplScene) return [tplScene];
+      return S.bgMulti;
+    }
+
+    function renderTemplatePanel() {
+      var panel = document.getElementById('template-panel');
+      if (!panel) return;
+      var favorites = getFavoriteTemplates();
+      var selected = getSelectedTemplate();
+      var h = '';
+      if (!favorites.length && !selected) {
+        panel.innerHTML = '<div class="tpl-empty">暂无收藏的视频模板<br><a href="市场.html">去市场收藏模板</a></div>';
+        syncTemplateBadge();
+        updateTemplateDependentVisibility();
+        return;
+      }
+      h += '<div class="tpl-list">';
+      favorites.forEach(function(tpl) {
+        var sel = S.templateId === tpl.id;
+        h += '<div class="tpl-card'+(sel?' sel':'')+'" onclick="selectTemplate(\''+tpl.id+'\')">';
+        h += '<div class="tpl-card-head"><div class="tpl-card-icon">🎬</div><div><div class="tpl-card-title">'+escapeHtml(tpl.title)+'</div><div class="tpl-card-meta">'+escapeHtml(tpl.meta)+' · 场景：'+escapeHtml(tpl.scene)+'</div></div></div>';
+        h += '<div class="tpl-card-desc">'+escapeHtml(tpl.desc)+'</div>';
+        h += '<div class="tpl-card-tags">'+tpl.tags.map(function(tag){return '<span class="tpl-tag">'+escapeHtml(tag)+'</span>';}).join('')+'</div>';
+        h += '<div class="tpl-card-actions"><button class="tpl-preview-btn" type="button" onclick="openTemplatePreview(event,\''+tpl.id+'\')">预览</button></div>';
+        h += '</div>';
+      });
+      h += '</div>';
+      if (selected) {
+        h += '<div class="tpl-apply">';
+        h += '<div class="tpl-apply-title"><span>模板应用设置</span><button class="tpl-clear" type="button" onclick="clearTemplate()">清除模板</button></div>';
+        h += '<label class="tpl-scene-toggle"><input type="checkbox" '+(S.useTemplateScene?'checked':'')+' onchange="toggleTemplateScene(this.checked)"> 使用模板场景：'+escapeHtml(selected.scene)+'</label>';
+        h += '</div>';
+      }
+      panel.innerHTML = h;
+      syncTemplateBadge();
+      updateTemplateDependentVisibility();
+    }
+
+    function syncTemplateBadge() {
+      var badge = document.getElementById('t-template');
+      if (!badge) return;
+      var tpl = getSelectedTemplate();
+      badge.style.display = tpl ? 'inline-block' : 'none';
+      if (tpl) badge.textContent = tpl.title;
+    }
+
+    function selectTemplate(id) {
+      S.templateId = id;
+      S.useTemplateScene = true;
+      renderTemplatePanel();
+      updFooter();
+      updateSidebar();
+      saveDraft();
+    }
+
+    function clearTemplate() {
+      S.templateId = null;
+      S.useTemplateScene = false;
+      renderTemplatePanel();
+      renderBgList(getBgSearchValue());
+      updFooter();
+      updateSidebar();
+      saveDraft();
+    }
+
+    function toggleTemplateScene(checked) {
+      S.useTemplateScene = checked;
+      renderTemplatePanel();
+      renderBgList(getBgSearchValue());
+      updFooter();
+      updateSidebar();
+      saveDraft();
+    }
+
+    function updateTemplateDependentVisibility() {
+      var bgSection = document.getElementById('bg-section');
+      if (!bgSection) return;
+      bgSection.classList.toggle('tpl-hidden', !!(S.templateId && S.useTemplateScene && getTemplateSceneName()));
+    }
+
+    var previewTemplateId = null;
+
+    function openTemplatePreview(event, id) {
+      if (event) event.stopPropagation();
+      var tpl = templateList.find(function(t){ return t.id === id; });
+      if (!tpl) return;
+      previewTemplateId = id;
+      document.getElementById('tplPreviewTitle').textContent = tpl.title;
+      document.getElementById('tplPreviewMeta').textContent = tpl.meta;
+      document.getElementById('tplPreviewDesc').textContent = tpl.desc;
+      document.getElementById('tplPreviewTags').innerHTML = tpl.tags.map(function(tag){ return '<span class="tpl-tag">'+escapeHtml(tag)+'</span>'; }).join('');
+      document.getElementById('tplPreviewDetail').innerHTML =
+        '<div class="tpl-preview-detail-item"><div class="tpl-preview-detail-label">模板场景</div><div class="tpl-preview-detail-val">'+escapeHtml(tpl.scene)+'</div></div>' +
+        '<div class="tpl-preview-detail-item"><div class="tpl-preview-detail-label">应用规则</div><div class="tpl-preview-detail-val">默认只使用模板场景</div></div>' +
+        '<div class="tpl-preview-detail-item"><div class="tpl-preview-detail-label">角色主体</div><div class="tpl-preview-detail-val">需选择你的主体资源</div></div>' +
+        '<div class="tpl-preview-detail-item"><div class="tpl-preview-detail-label">台词</div><div class="tpl-preview-detail-val">默认自行填写</div></div>';
+      document.getElementById('tplPreviewPhone').innerHTML =
+        '<div class="tpl-preview-scene" style="background:'+tpl.sceneGradient+'"></div>' +
+        '<div class="tpl-preview-grid"></div>' +
+        '<div class="tpl-preview-person"><div class="tpl-preview-head"></div><div class="tpl-preview-body"></div></div>' +
+        '<div class="tpl-preview-caption">正在播放 · '+escapeHtml(tpl.title)+'</div>';
+      document.getElementById('tplPreviewOverlay').classList.add('show');
+    }
+
+    function closeTemplatePreview(event) {
+      if (event && event.target !== document.getElementById('tplPreviewOverlay')) return;
+      document.getElementById('tplPreviewOverlay').classList.remove('show');
+      document.getElementById('tplPreviewPhone').innerHTML = '';
+    }
+
+    function usePreviewTemplate() {
+      if (!previewTemplateId) return;
+      selectTemplate(previewTemplateId);
+      closeTemplatePreview();
+    }
+
+    /* ── 草稿存取 ── */
+    function saveDraft() {
+      var hasData = S.taskName.trim() || S.avatar || S.bgMulti.length > 0 || S.templateId || validCards().length > 0;
+      if (!hasData) return;
+      var draft = {
+        taskName: S.taskName,
+        avatar: S.avatar,
+        bgMulti: S.bgMulti,
+        bgBatch: S.bgBatch,
+        templateId: S.templateId,
+        useTemplateScene: S.useTemplateScene,
+        visibility: S.visibility,
+        cards: S.cards.map(function(c) {
+          return { id: c.id, content: c.content, tts: { custom: c.tts.custom, speed: c.tts.speed, pitch: c.tts.pitch, volume: c.tts.volume, instruction: c.tts.instruction } };
+        })
+      };
+      localStorage.setItem('aigc_draft_task', JSON.stringify(draft));
+    }
+    function restoreDraft() {
+      if (new URLSearchParams(window.location.search).get('editDraft') !== '1') return;
+      try {
+        var raw = localStorage.getItem('aigc_draft_task');
+        if (!raw) return;
+        var d = JSON.parse(raw);
+        if (!d.taskName && !d.avatar && (!d.cards || d.cards.length === 0)) return;
+        if (d.taskName) S.taskName = d.taskName;
+        if (d.avatar) S.avatar = d.avatar;
+        if (d.bgMulti) S.bgMulti = d.bgMulti;
+        if (d.bgBatch !== undefined) S.bgBatch = d.bgBatch;
+        if (d.templateId) S.templateId = d.templateId;
+        if (d.useTemplateScene !== undefined) S.useTemplateScene = d.useTemplateScene;
+        if (d.visibility) S.visibility = d.visibility;
+        if (d.cards && d.cards.length > 0) {
+          S.cards = [];
+          d.cards.forEach(function(c) {
+            S.cards.push({ id: c.id, content: c.content, frame: null, tts: Object.assign({}, defaultTts(), c.tts, { ready: false, status: 'pending' }) });
+          });
+          S.nextId = Math.max.apply(null, S.cards.map(function(c){return c.id;})) + 1;
+        }
+        document.getElementById('task-name-input').value = S.taskName || '';
+        document.getElementById('task-visibility').value = S.visibility || 'private';
+        document.getElementById('bg-batch').checked = S.bgBatch;
+        updGlobalLabel();
+        toast('已恢复草稿「' + getTaskName() + '」');
+      } catch(e) {}
+    }
+
+    function getTaskName() {
+      if (S.taskName.trim()) return S.taskName.trim();
+      var avatarName = S.avatar ? getAvatarMeta(S.avatar).name : '未选角色';
+      var today = new Date();
+      var mm = ('0' + (today.getMonth()+1)).slice(-2);
+      var dd = ('0' + today.getDate()).slice(-2);
+      var count = validCards().length || 0;
+      return avatarName + '_' + mm + dd + '_' + count + '条视频';
+    }
+    function onTaskNameChange() {
+      S.taskName = document.getElementById('task-name-input').value;
+      updateSidebar();
+      saveDraft();
+    }
+    function onVisibilityChange() {
+      S.visibility = document.getElementById('task-visibility').value;
+      updateSidebar();
+      saveDraft();
+    }
+    function escapeHtml(v) { return String(v || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+    function getAvatarMeta(key) { for (var i=0;i<avList.length;i++){ if(avList[i].key===key) return avList[i]; } return { key:key, name:key, tag:'' }; }
+    function pick(arr) { return arr[Math.floor(Math.random()*arr.length)]; }
+    function formatTime(sec) { var m=Math.floor(sec/60), s=Math.floor(sec%60); return m+':'+(s<10?'0':'')+s; }
+
+    /* ========== 状态判断 ========== */
+    function hasAvatar() { return !!S.avatar; }
+    function hasBg() { return getActiveBgNames().length > 0; }
+    function validCards() { return S.cards.filter(function(c){ return c.content.trim(); }); }
+    function hasScript() { return validCards().length > 0; }
+    function getMissing() {
+      var m = [];
+      if (!hasAvatar()) m.push('角色');
+      if (!hasBg()) m.push('背景');
+      if (!hasScript()) m.push('台词');
+      return m;
+    }
+    /* ========== 角色（单选） ========== */
+    function getAvatarSearchValue() { var el=document.querySelector('.av-search input'); return el?el.value:''; }
+    function filterAvatarList(v) { renderAvatarList(v); }
+
+    function renderAvatarList(keyword) {
+      keyword = (keyword || '').toLowerCase();
+      var filtered = avList.filter(function(a){ return a.name.toLowerCase().indexOf(keyword)>-1 || a.tag.toLowerCase().indexOf(keyword)>-1 || a.key.toLowerCase().indexOf(keyword)>-1; });
+      var c = document.getElementById('avatar-grid');
+      if (filtered.length === 0) { c.innerHTML = '<div class="av-nore">没有找到匹配的角色</div>'; return; }
+      var h = '';
+      filtered.forEach(function(a) {
+        var sel = S.avatar === a.key;
+        var emoji = avI[a.key] || '👤';
+        var nameEsc = a.name.replace(/'/g,"\\'");
+        h += '<div class="av-item-compact' + (sel?' sel':'') + '" onclick="selAvatar(\''+a.key+'\')" onmouseenter="showCharTip(event,\''+emoji+'\',\''+a.name.replace(/'/g,"\\'")+'\',\''+a.tag.replace(/'/g,"\\'")+'\')" onmouseleave="hideTip()">';
+        h += '<div class="av-cb-compact">✓</div>';
+        h += '<div class="av-face-compact">'+emoji+'</div>';
+        h += '<div class="av-nm-compact">'+a.name+'</div>';
+        h += '<div class="av-tg-compact">'+a.tag+'</div>';
+        h += '<button class="av-listen-btn" onclick="event.stopPropagation();toast(\'试听：'+nameEsc+' 的音色预览\')" title="试听音色">🔊</button>';
+        h += '</div>';
+      });
+      c.innerHTML = h;
+    }
+
+    function selAvatar(key) {
+      S.avatar = (S.avatar === key) ? null : key;  // 再次点击取消
+      var badge = document.getElementById('t-person');
+      if (S.avatar) { badge.style.display='inline-block'; badge.textContent = getAvatarMeta(S.avatar).name; }
+      else { badge.style.display='none'; }
+      renderAvatarList(getAvatarSearchValue());
+      updFooter();
+      updateSidebar();
+      saveDraft();
+    }
+
+    /* ========== 背景（单选/多选开关） ========== */
+    function filterBgList(v) { renderBgList(v); }
+    function getBgSearchValue() { var el=document.querySelector('.bg-search input'); return el?el.value:''; }
+
+    function renderBgList(keyword) {
+      keyword = (keyword || '').toLowerCase();
+      var keys = Object.keys(bgM).filter(function(k){ return k.toLowerCase().indexOf(keyword)>-1; });
+      var c = document.getElementById('bg-grid-preset');
+      if (keys.length === 0) { c.innerHTML = '<div class="av-nore">没有找到匹配的场景</div>'; return; }
+      var h = '';
+      keys.forEach(function(n) {
+        var sel = S.bgMulti.indexOf(n) > -1;
+        h += '<div class="bg-card-compact'+(sel?' sel':'')+'" onclick="selBg(\''+n.replace(/'/g,"\\'")+'\')" onmouseenter="showBgTip(event,\''+bgM[n].replace(/'/g,"\\'")+'\',\''+n.replace(/'/g,"\\'")+'\')" onmouseleave="hideTip()">';
+        h += '<div class="bg-cb-compact">✓</div>';
+        h += '<div class="bg-thumb-compact" style="background:'+bgM[n]+'"></div>';
+        h += '<div class="bg-lb-compact">'+n+'</div>';
+        h += '</div>';
+      });
+      c.innerHTML = h;
+    }
+
+    function toggleBatchBg(checked) {
+      S.bgBatch = checked;
+      S.bgMulti = [];
+      var badge = document.getElementById('t-bg');
+      badge.style.display = 'none'; badge.textContent = '已选 0';
+      renderBgList(getBgSearchValue());
+      updFooter();
+      updateSidebar();
+      saveDraft();
+    }
+
+    function selBg(key) {
+      if (S.bgBatch) {
+        var idx = S.bgMulti.indexOf(key);
+        if (idx > -1) S.bgMulti.splice(idx, 1); else S.bgMulti.push(key);
+      } else {
+        S.bgMulti = (S.bgMulti.length === 1 && S.bgMulti[0] === key) ? [] : [key];
+      }
+      var badge = document.getElementById('t-bg');
+      badge.style.display = S.bgMulti.length>0 ? 'inline-block' : 'none';
+      badge.textContent = '已选 ' + S.bgMulti.length;
+      renderBgList(getBgSearchValue());
+      updFooter();
+      updateSidebar();
+      saveDraft();
+    }
+
+    /* ========== 台词（Step1 录入，含字数） ========== */
+    function addScriptCard(content) {
+      S.cards.push({ id: S.nextId++, content: content || '', frame: null, tts: defaultTts() });
+      renderCards();
+    }
+    function defaultTts() { return { ready:false, status:'pending', duration:3, custom:false, speed:10, pitch:0, volume:80, instruction:'' }; }
+    function delScript(id) { S.cards = S.cards.filter(function(x){return x.id!==id;}); renderCards(); updFooter(); updateSidebar(); }
+    function updScript(id, v) {
+      var g = S.cards.find(function(x){return x.id===id;});
+      if (g) g.content = v;
+      var c1 = document.getElementById('cnt-'+id); if (c1) c1.textContent = (v||'').length + ' 字';
+      var c2 = document.getElementById('ff-cnt-'+id); if (c2) c2.textContent = (v||'').length + ' 字';
+      updFooter();
+      updateSidebar();
+      saveDraft();
+    }
+
+    function renderCards() {
+      var c = document.getElementById('script-cards');
+      if (S.cards.length === 0) {
+        c.innerHTML = '<div style="font-size:12px;color:#999;text-align:center;padding:10px;">点击下方「＋ 新增台词」或「📥 批量导入」开始</div>';
+        updFooter(); updateSidebar(); return;
+      }
+      var h = '';
+      S.cards.forEach(function(g, i) {
+        var t = g.tts;
+        h += '<div class="sc-flat">';
+        // header
+        h += '<div class="sc-flat-header"><span class="sc-flat-tag">台词 '+(i+1)+'</span>';
+        if (t.custom) h += '<span class="badge-custom" style="font-size:10px;color:#d97706;background:#fff7ed;border-radius:8px;padding:1px 7px;">单独配置</span>';
+        // 语速步进
+        h += '<div class="speed-row"><span class="speed-label">语速</span>';
+        h += '<div class="speed-step"><button class="speed-step-btn" onclick="adjSpeed('+g.id+',-1)">▾</button>';
+        h += '<span class="speed-step-val" id="speed-val-'+g.id+'">'+(t.speed/10).toFixed(1)+'x</span>';
+        h += '<button class="speed-step-btn" onclick="adjSpeed('+g.id+',1)">▴</button></div>';
+        h += '<span class="speed-synth" onclick="resynthOne('+g.id+')" title="合成本条语音">🔄</span>';
+        h += '<span class="speed-est" id="speed-est-'+g.id+'">预估 '+estDuration(g.content, t.speed)+'</span></div>';
+        h += '<span class="sc-count" id="cnt-'+g.id+'" style="margin-left:auto;">'+g.content.length+' 字</span>';
+        h += '<button class="btn btn2" style="font-size:10px;padding:2px 8px;" onclick="delScript('+g.id+')">删除</button></div>';
+        // textarea
+        h += '<textarea placeholder="请输入这条台词的内容..." oninput="updScript('+g.id+',this.value)">'+escapeHtml(g.content)+'</textarea>';
+        // TTS 播放条
+        var ttsFailed = t.status === 'failed';
+        var ttsReady = t.status === 'ready';
+        h += '<div class="tts-play-row'+(ttsFailed?' failed':'')+'" style="margin-top:6px;">';
+        h += '<button class="tts-play-btn" id="tts-btn-'+g.id+'" onclick="toggleTtsPlay('+g.id+')" title="试听">▶</button>';
+        h += '<div class="tts-progress-wrap" onclick="seekTts(event,'+g.id+')"><div class="tts-progress-bar"><div class="tts-progress-fill" id="tts-fill-'+g.id+'" style="width:0%"></div></div></div>';
+        if (ttsFailed) {
+          h += '<span class="tts-status-failed">失败</span>';
+          h += '<button class="tts-retry-btn" onclick="event.stopPropagation();resynthOne('+g.id+')" title="重新合成">🔄</button>';
+        } else {
+          h += '<span style="font-size:10px;color:#999;min-width:30px;text-align:right;" id="tts-time-'+g.id+'">0:00</span>';
+          h += '<button class="tts-dl-btn'+(ttsReady?' done':'')+'" onclick="downloadTts('+g.id+')" title="下载音频">⬇</button>';
+        }
+        h += '</div>';
+        // 单条语音配置
+        h += '<div class="ff-voice-toggle" style="margin-top:4px;" onclick="toggleVoiceCfg('+g.id+')">⚙ 单独调整本条语音 ▾</div>';
+        h += '<div class="ff-voice-cfg" id="vcfg-'+g.id+'" style="margin-top:4px;">';
+        h += '<div class="row">';
+        h += '<div class="tts-item"><span class="lb">音调</span><input type="range" id="vc-pitch-'+g.id+'" min="-10" max="10" value="'+t.pitch+'" oninput="updVcLabel('+g.id+')"><span class="tts-val" id="vc-pitch-val-'+g.id+'">'+(t.pitch>0?'+'+t.pitch:t.pitch)+'</span></div>';
+        h += '<div class="tts-item"><span class="lb">音量</span><input type="range" id="vc-volume-'+g.id+'" min="0" max="100" value="'+t.volume+'" oninput="updVcLabel('+g.id+')"><span class="tts-val" id="vc-volume-val-'+g.id+'">'+t.volume+'%</span></div>';
+        h += '</div>';
+        h += '<input class="cfg-instr" id="vc-instr-'+g.id+'" type="text" placeholder="本条合成指令（留空则用全局）" value="'+escapeHtml(t.instruction)+'">';
+        h += '<div class="cfg-acts"><button class="btn btn1" style="font-size:11px;padding:5px 12px;" onclick="resynthOne('+g.id+')">🔊 重新合成本条</button>';
+        h += '<button class="btn btn2" style="font-size:11px;padding:5px 12px;" onclick="resetVoice('+g.id+')">↺ 恢复全局配置</button></div>';
+        h += '</div>';
+        h += '</div>';
+      });
+      c.innerHTML = h;
+      updFooter();
+      updateSidebar();
+      saveDraft();
+    }
+
+    /* ========== 批量导入 ========== */
+    function showImportModal() { document.getElementById('imp-ov').classList.add('show'); }
+    function closeImportModal() { document.getElementById('imp-ov').classList.remove('show'); document.getElementById('imp-file').value=''; }
+    document.getElementById('imp-ov').addEventListener('click', function(e){ if(e.target===this) closeImportModal(); });
+
+    function downloadTemplate() {
+      var csv = '﻿台词内容\n大家好，今天我要分享的是如何高效学习AI技术。\n首先，我们需要了解AI的基本概念和应用场景。\n其次，选择合适的学习路径非常重要。\n最后，多动手做项目才能真正掌握AI技能。\n希望今天的分享对大家有所帮助，谢谢观看！';
+      var blob = new Blob([csv], { type:'text/csv;charset=utf-8;' });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a'); a.href=url; a.download='台词导入模板.csv'; a.click();
+      URL.revokeObjectURL(url); toast('模板已下载');
+    }
+
+    function handleImportFile(inp) {
+      if (!inp.files || inp.files.length === 0) return;
+      var file = inp.files[0];
+      var ext = file.name.split('.').pop().toLowerCase();
+      if (ext !== 'csv' && ext !== 'xlsx' && ext !== 'xls') { toast('请上传 CSV 或 Excel 格式文件'); return; }
+      if (ext === 'csv') {
+        var reader = new FileReader();
+        reader.onload = function(e) {
+          var text = e.target.result;
+          if (text.charCodeAt(0) === 0xFEFF) text = text.substring(1);
+          var lines = text.split(/\r?\n/).filter(function(l){return l.trim();});
+          var contents = lines.slice(1).map(function(l){ return l.replace(/^["']|["']$/g,'').trim(); }).filter(function(c){return c;});
+          if (contents.length === 0) { toast('文件中没有找到台词数据'); return; }
+          if (contents.length > 100) { toast('台词数量超过100条限制，已导入前100条'); contents = contents.slice(0,100); }
+          contents.forEach(function(c){ S.cards.push({ id:S.nextId++, content:c, frame:null, tts:defaultTts() }); });
+          renderCards(); closeImportModal(); toast('成功导入 '+contents.length+' 条台词'); updFooter();
+        };
+        reader.readAsText(file, 'UTF-8');
+      } else {
+        toast('检测到 Excel 文件，原型演示：模拟导入 3 条台词');
+        addScriptCard('这是从 Excel 导入的第一条台词');
+        addScriptCard('这是从 Excel 导入的第二条台词');
+        addScriptCard('这是从 Excel 导入的第三条台词');
+        closeImportModal();
+      }
+    }
+
+    /* ========== 步骤导航 ========== */
+    function gotoStep(n) {
+      S.step = n;
+      [1,2,3].forEach(function(i){
+        document.getElementById('panel-'+i).classList.toggle('active', i===n);
+        var stp = document.getElementById('stp-'+i);
+        stp.classList.toggle('active', i===n);
+        stp.classList.toggle('done', i<n);
+      });
+      document.getElementById('line-1').classList.toggle('done', n>=2);
+      document.getElementById('line-2').classList.toggle('done', n>=3);
+      document.getElementById('btn-prev').style.display = n>1 ? 'inline-block' : 'none';
+      if (n === 3) {
+        var totalSec = 0;
+        validCards().forEach(function(g) { totalSec += durOf(g.content, g.tts ? g.tts.speed : 10); });
+        document.getElementById('btn-next').textContent = '🪙' + (20 * totalSec) + ' · 🎬 确认生成';
+      } else {
+        document.getElementById('btn-next').textContent = '下一步';
+      }
+      if (n === 1) { renderTemplatePanel(); renderCards(); updateSidebar(); }
+      if (n === 2) enterStep2();
+      if (n === 3) renderConfirm();
+      window.scrollTo({ top:0, behavior:'smooth' });
+      updFooter();
+    }
+    function hasAllSynth() {
+      var cards = validCards();
+      if (cards.length === 0) return true;
+      // 至少要尝试过合成（非 pending），允许有失败条目后续重试
+      return cards.every(function(c){ return c.tts && c.tts.status !== 'pending'; });
+    }
+    function nextStep() {
+      if (S.step === 1) {
+        var miss = getMissing();
+        if (miss.length > 0) { toast('请先配置：' + miss.join('、')); return; }
+        if (!hasAllSynth()) { toast('请先进行语音合成操作再进入下一步'); return; }
+        var failedCards = validCards().filter(function(c){return c.tts && c.tts.status==='failed';});
+        if (failedCards.length > 0) {
+          var failedNums = failedCards.map(function(c){
+            var idx = validCards().findIndex(function(vc){return vc.id===c.id;});
+            return '台词'+(idx+1);
+          }).join('、');
+          toast('⚠️ ' + failedNums + ' 语音合成失败，请重试');
+          return;
+        }
+      }
+      if (S.step === 2) {
+        var failedFrames = validCards().filter(function(c){return c.frame && c.frame.status==='failed';});
+        if (failedFrames.length > 0) {
+          var ffNums = failedFrames.map(function(c){
+            var idx = validCards().findIndex(function(vc){return vc.id===c.id;});
+            return '台词'+(idx+1);
+          }).join('、');
+          toast('⚠️ ' + ffNums + ' 对应的首帧图生成失败，请重新生成首帧后再操作');
+          return;
+        }
+        var failedTts = validCards().filter(function(c){return c.tts && c.tts.status==='failed';});
+        if (failedTts.length > 0) {
+          var ftNums = failedTts.map(function(c){
+            var idx = validCards().findIndex(function(vc){return vc.id===c.id;});
+            return '台词'+(idx+1);
+          }).join('、');
+          toast('⚠️ ' + ftNums + ' 语音合成失败，请重试');
+          return;
+        }
+      }
+      if (S.step === 3) {
+        var totalSec = 0;
+        validCards().forEach(function(g) { totalSec += durOf(g.content, g.tts ? g.tts.speed : 10); });
+        openCreditsConfirm(20 * totalSec, confirmGen);
+        return;
+      }
+      gotoStep(S.step + 1);
+    }
+    function prevStep() { if (S.step > 1) gotoStep(S.step - 1); }
+
+    function updFooter() {
+      var info = document.getElementById('footer-info');
+      var next = document.getElementById('btn-next');
+      if (S.step === 1) {
+        var miss = getMissing();
+        if (miss.length > 0) {
+          next.classList.add('disabled'); info.textContent = '缺少：' + miss.join('、');
+        } else if (!hasAllSynth()) {
+          next.classList.add('disabled'); info.textContent = '请先合成语音：点击「应用并合成全部」或逐条合成后再进入下一步';
+        } else {
+          var failedCards = validCards().filter(function(c){return c.tts && c.tts.status==='failed';});
+          if (failedCards.length > 0) {
+            next.classList.add('disabled');
+            var failedNums = failedCards.map(function(c){
+              var idx = validCards().findIndex(function(vc){return vc.id===c.id;});
+              return '台词'+(idx+1);
+            }).join('、');
+            info.textContent = '⚠️ ' + failedNums + ' 语音合成失败，请重试后再进入下一步';
+          } else {
+            next.classList.remove('disabled');
+            info.textContent = validCards().length + ' 条台词 → ' + validCards().length + ' 条视频';
+          }
+        }
+      } else if (S.step === 2) {
+        var failedFrames = validCards().filter(function(c){return c.frame && c.frame.status==='failed';});
+        var failedTts2 = validCards().filter(function(c){return c.tts && c.tts.status==='failed';});
+        if (failedFrames.length > 0 || failedTts2.length > 0) {
+          next.classList.add('disabled');
+          var parts = [];
+          if (failedFrames.length > 0) {
+            var ffNums = failedFrames.map(function(c){
+              var idx = validCards().findIndex(function(vc){return vc.id===c.id;});
+              return '台词'+(idx+1);
+            }).join('、');
+            parts.push(ffNums + ' 首帧图生成失败，请重新生成');
+          }
+          if (failedTts2.length > 0) {
+            var ftNums = failedTts2.map(function(c){
+              var idx = validCards().findIndex(function(vc){return vc.id===c.id;});
+              return '台词'+(idx+1);
+            }).join('、');
+            parts.push(ftNums + ' 语音合成失败，请重试');
+          }
+          info.textContent = '⚠️ ' + parts.join('；');
+        } else {
+          next.classList.remove('disabled');
+          info.textContent = '已生成 ' + validCards().length + ' 张首帧并合成语音（台词只读，可试听/下载）';
+        }
+      } else {
+        next.classList.remove('disabled');
+        info.textContent = '确认无误后开始批量生成';
+      }
+    }
+
+    /* ========== 右侧配置概览列更新 ========== */
+    function updateSidebar() {
+      // 模板
+      var tplContent = document.getElementById('sb-template-content');
+      var selectedTpl = getSelectedTemplate();
+      if (tplContent) {
+        if (selectedTpl) {
+          tplContent.innerHTML = '<div class="sb-template"><div class="sb-template-name">'+escapeHtml(selectedTpl.title)+'</div><div class="sb-template-meta">'+escapeHtml(selectedTpl.meta)+'</div></div>';
+        } else {
+          tplContent.innerHTML = '<div class="sb-empty">未选择模板</div>';
+        }
+      }
+      // 角色
+      var avContent = document.getElementById('sb-avatar-content');
+      if (S.avatar) {
+        var meta = getAvatarMeta(S.avatar);
+        var emoji = avI[S.avatar] || '👤';
+        avContent.innerHTML = '<div class="sb-avatar"><div class="sb-av-emoji">'+emoji+'</div><div class="sb-av-info"><div class="sb-av-name">'+escapeHtml(meta.name)+'</div><div class="sb-av-tag">'+escapeHtml(meta.tag)+'</div></div></div>';
+      } else {
+        avContent.innerHTML = '<div class="sb-empty">未选择角色</div>';
+      }
+      // 背景
+      var bgContent = document.getElementById('sb-bg-content');
+      var activeBgs = getActiveBgNames();
+      if (activeBgs.length > 0) {
+        var bgItems = activeBgs.map(function(n){
+          var source = (S.templateId && S.useTemplateScene && n === getTemplateSceneName()) ? '<div class="sb-source">来自模板</div>' : '';
+          return '<div class="sb-bg-item"><div class="sb-bg-thumb" style="background:'+getBgGradient(n)+'"></div><div><div class="sb-bg-name">'+escapeHtml(n)+'</div>'+source+'</div></div>';
+        }).join('');
+        bgContent.innerHTML = '<div class="sb-bg-list">'+bgItems+'</div>';
+      } else {
+        bgContent.innerHTML = '<div class="sb-empty">未选择背景</div>';
+      }
+      // 台词
+      var cards = validCards();
+      document.getElementById("sb-script-count").textContent = cards.length;
+      // 任务名称
+      document.getElementById('sb-task-name').textContent = getTaskName();
+      // 可见范围
+      document.getElementById('sb-visibility-display').innerHTML = S.visibility === 'team' ? '👥 团队共享' : '🔒 仅自己';
+      }
+
+    /* ========== Step 2：首帧 + 语音 ========== */
+    function getGlobalTts() {
+      return {
+        speed: parseInt(document.getElementById('g-speed').value),
+        pitch: parseInt(document.getElementById('g-pitch').value),
+        volume: parseInt(document.getElementById('g-volume').value),
+        instruction: document.getElementById('g-instruction').value
+      };
+    }
+    function updGlobalLabel() {
+      var s=parseInt(document.getElementById('g-speed').value), p=parseInt(document.getElementById('g-pitch').value), v=parseInt(document.getElementById('g-volume').value);
+      document.getElementById('g-speed-val').textContent = (s/10).toFixed(1)+'x';
+      document.getElementById('g-pitch-val').textContent = p>0?'+'+p:p;
+      document.getElementById('g-volume-val').textContent = v+'%';
+      // 实时同步非自定义卡片的语速
+      S.cards.forEach(function(card){
+        if (card.tts.custom) return;
+        card.tts.speed = s;
+        card.tts.duration = durOf(card.content, s);
+        var vel = document.getElementById('speed-val-'+card.id);
+        var eel = document.getElementById('speed-est-'+card.id);
+        if (vel) vel.textContent = (s/10).toFixed(1)+'x';
+        if (eel) eel.textContent = '预估 '+estDuration(card.content, s);
+      });
+    }
+    function durOf(text, speed) { speed = speed || 10; return Math.max(2, Math.ceil((text||'').length/(speed/10*4))); }
+	    function estDuration(text, speed) { var chars=(text||'').length; if(!chars)return'--'; var sec=Math.max(1,Math.round(chars/(speed/10*4))); return sec+'s'; }
+	    function adjSpeed(id, delta) {
+	      var g=S.cards.find(function(x){return x.id===id;});
+	      if(!g)return;
+	      var ns=g.tts.speed+delta;
+	      if(ns<10||ns>20)return;
+	      g.tts.speed=ns; g.tts.custom=true; g.tts.duration=durOf(g.content,ns);
+	      renderCards();
+	    }
+
+    function enterStep2() {
+      var g = getGlobalTts();
+      var activeBgs = getActiveBgNames();
+      S.cards.forEach(function(card) {
+        if (!card.content.trim()) { card.frame = null; return; }
+        // 首帧
+        if (!card.frame) card.frame = { bg: pick(activeBgs), pose: pick(POSES), shot: pick(SHOTS), status: 'ready' };
+        else if (activeBgs.indexOf(card.frame.bg) === -1) card.frame.bg = pick(activeBgs);
+        // 模拟首帧生成：~20% 概率失败
+        if (!card.frame.status) card.frame.status = 'ready';
+        if (Math.random() < 0.2) card.frame.status = 'failed';
+        // 语音：默认用全局配置合成初版（未单独覆盖的）
+        if (!card.tts) card.tts = defaultTts();
+        if (!card.tts.custom) { card.tts.speed=g.speed; card.tts.pitch=g.pitch; card.tts.volume=g.volume; card.tts.instruction=g.instruction; }
+        card.tts.duration = durOf(card.content, card.tts.speed);
+      });
+      var meta = S.avatar ? getAvatarMeta(S.avatar) : null;
+      document.getElementById('voice-name-hint').textContent = meta ? ('· 音色跟随「'+meta.name+'」') : '';
+      renderFirstFrames();
+    }
+
+    function renderFirstFrames() {
+      var emoji = S.avatar ? (avI[S.avatar]||'👤') : '👤';
+      var avName = S.avatar ? getAvatarMeta(S.avatar).name : '角色';
+      var c = document.getElementById('ff-cards');
+      var h = '';
+      // 全部重新生成按钮 - 左列顶部
+      h += '<div style="display:flex;gap:16px;margin-bottom:14px;"><div style="width:200px;flex-shrink:0;display:flex;justify-content:center;">';
+      var regenAllCost = 10 * validCards().length;
+      h += '<button class="ff-regen-all" onclick="confirmRegenAll()" style="width:100%;">🪙'+regenAllCost+' · 🔄 全部重新生成首帧</button>';
+      h += '</div><div style="flex:1;"></div></div>';
+      validCards().forEach(function(g, i) {
+        var f = g.frame;
+        var t = g.tts;
+        var bgGrad = getBgGradient(f.bg);
+        var frameFailed = f.status === 'failed';
+        var ttsFailed = t.status === 'failed';
+        var ttsReady = t.status === 'ready';
+        h += '<div class="ff-card" data-id="'+g.id+'">';
+        /* 左：首帧画面 */
+        h += '<div class="ff-left">';
+        h += '<div class="ff-preview'+(frameFailed?' failed':'')+'" id="ff-prev-'+g.id+'" style="background:'+bgGrad+'">';
+        h += '<div class="ff-corner">'+escapeHtml(f.bg)+'</div>';
+        h += '<div class="ff-emoji">'+emoji+'</div>';
+        h += '<div class="ff-corner-bottom">'+f.pose+' · '+f.shot+'</div>';
+        h += '<div class="ff-loading"><div class="ff-spin"></div>生成中…</div>';
+        // 失败遮罩
+        h += '<div class="ff-failed-overlay"><div class="ff-failed-icon">⚠️</div><div class="ff-failed-text">生成失败</div></div>';
+        h += '</div>';
+        // 角色/场景小角标（hover 大图）
+        h += '<div class="ff-minis">';
+        var avTagS2 = S.avatar ? (getAvatarMeta(S.avatar).tag||'') : '';
+        h += '<span class="ff-mini" onmouseenter="showCharTip(event,\''+emoji+'\',\''+avName.replace(/'/g,"\\'")+'\',\''+avTagS2.replace(/'/g,"\\'")+'\')" onmouseleave="hideTip()">👤 '+escapeHtml(avName)+'</span>';
+        h += '<span class="ff-mini" onmouseenter="showSceneTip(event,\''+bgGrad.replace(/'/g,"\\'")+'\',\''+f.bg.replace(/'/g,"\\'")+'\')" onmouseleave="hideTip()">🖼️ '+escapeHtml(f.bg)+'</span>';
+        h += '</div>';
+        // 姿态/景别 + 重新生成
+        h += '<div class="ff-tags">';
+        h += '<div class="ff-tag-group"><span class="ff-tg-lb">姿态</span>';
+        POSES.forEach(function(p){ h += '<span class="ff-chip'+(f.pose===p?' on':'')+'" onclick="setFrameTag('+g.id+',\'pose\',\''+p+'\')">'+p+'</span>'; });
+        h += '</div>';
+        h += '<div class="ff-tag-group"><span class="ff-tg-lb">景别</span>';
+        SHOTS.forEach(function(s){ h += '<span class="ff-chip'+(f.shot===s?' on':'')+'" onclick="setFrameTag('+g.id+',\'shot\',\''+s+'\')">'+s+'</span>'; });
+        h += '</div>';
+        h += '</div>';
+        h += '<button class="ff-regen" onclick="confirmRegenFrame('+g.id+')">🪙10 · 🔄 重新生成首帧</button>';
+        h += '</div>'; // ff-left
+
+        /* 右：台词 + 语音 */
+        h += '<div class="ff-right">';
+        h += '<div class="ff-head"><span class="ff-no">台词 '+(i+1)+'</span>';
+        if (t.custom) h += '<span class="badge-custom" style="margin-left:8px;">单独配置</span>';
+        h += '<span class="ff-cnt" id="ff-cnt-'+g.id+'">'+g.content.length+' 字</span>';
+        h += '<span style="font-size:11px;color:#059669;font-weight:500;margin-left:6px;">预估时长 '+(t&&t.duration?t.duration+'s':'--')+'</span></div>';
+        // Step2 台词只读
+        h += '<textarea class="readonly-step2" readonly placeholder="台词内容（Step2 不允许修改）">'+escapeHtml(g.content)+'</textarea>';
+        // 播放条
+        h += '<div class="tts-play-row'+(ttsFailed?' failed':'')+'">';
+        h += '<button class="tts-play-btn" id="tts-btn-'+g.id+'" onclick="toggleTtsPlay('+g.id+')" title="试听">▶</button>';
+        h += '<div class="tts-progress-wrap" onclick="seekTts(event,'+g.id+')"><div class="tts-progress-bar"><div class="tts-progress-fill" id="tts-fill-'+g.id+'" style="width:0%"></div></div></div>';
+        if (ttsFailed) {
+          h += '<span class="tts-status-failed">失败</span>';
+          h += '<button class="tts-retry-btn" onclick="event.stopPropagation();resynthOne('+g.id+')" title="重新合成">🔄</button>';
+        } else {
+          h += '<span style="font-size:10px;color:#999;min-width:30px;text-align:right;" id="tts-time-'+g.id+'">0:00</span>';
+          h += '<button class="tts-dl-btn'+(ttsReady?' done':'')+'" onclick="downloadTts('+g.id+')" title="下载音频">⬇</button>';
+        }
+        h += '</div>';
+        h += '</div>'; // ff-right
+        h += '</div>'; // ff-card
+      });
+      c.innerHTML = h;
+    }
+
+    function setFrameTag(id, type, val) {
+      var g = S.cards.find(function(x){return x.id===id;});
+      if (!g || !g.frame) return;
+      g.frame[type] = val;
+      renderFirstFrames();
+      toast('已选「'+val+'」，点「重新生成首帧」应用');
+    }
+    function confirmRegenFrame(id) {
+      openCreditsConfirm(10, function() { regenFrame(id); });
+    }
+    function confirmRegenAll() {
+      var cost = 10 * validCards().length;
+      openCreditsConfirm(cost, regenAllFrames);
+    }
+    function regenFrame(id) {
+      var g = S.cards.find(function(x){return x.id===id;});
+      if (g && g.frame) g.frame.status = 'ready';
+      var prev = document.getElementById('ff-prev-'+id);
+      if (prev) { prev.classList.add('gen'); prev.classList.remove('failed'); }
+      setTimeout(function(){
+        var em = prev ? prev.querySelector('.ff-emoji') : null;
+        // 模拟重新生成：仍有 ~10% 概率失败
+        if (Math.random() < 0.1) {
+          if (g && g.frame) g.frame.status = 'failed';
+          if (prev) { prev.classList.remove('gen'); prev.classList.add('failed'); }
+          toast('⚠️ 首帧重新生成失败，请重试');
+        } else {
+          if (em) em.style.transform = 'scale('+(0.9+Math.random()*0.25).toFixed(2)+') rotate('+(Math.random()*8-4).toFixed(1)+'deg)';
+          if (prev) prev.classList.remove('gen');
+          toast('首帧已重新生成');
+        }
+        updFooter();
+      }, 800);
+    }
+    function regenAllFrames() {
+      var ids = validCards().map(function(g){return g.id;});
+      var activeBgs = getActiveBgNames();
+      var failedCount = 0;
+      ids.forEach(function(id){
+        var g = S.cards.find(function(x){return x.id===id;});
+        if (g && g.frame) { g.frame.pose = pick(POSES); g.frame.shot = pick(SHOTS); g.frame.bg = pick(activeBgs); }
+        // 模拟重新生成：~15% 概率失败
+        if (Math.random() < 0.15) {
+          if (g && g.frame) g.frame.status = 'failed';
+          failedCount++;
+        } else {
+          if (g && g.frame) g.frame.status = 'ready';
+        }
+      });
+      renderFirstFrames();
+      ids.forEach(function(id){ var p=document.getElementById('ff-prev-'+id); if(p) p.classList.add('gen'); });
+      setTimeout(function(){
+        ids.forEach(function(id){ var p=document.getElementById('ff-prev-'+id); if(p) p.classList.remove('gen'); });
+        var msg = '已重新生成 '+ids.length+' 张首帧';
+        if (failedCount > 0) msg += '，⚠️ ' + failedCount + ' 张失败，请单独重试';
+        toast(msg);
+        updFooter();
+      }, 900);
+    }
+
+    /* hover 大图 */
+    function showCharTip(e, emoji, name, tag) {
+      var tip = document.getElementById('hover-tip');
+      document.getElementById('ht-img').style.background = 'linear-gradient(135deg,#eef2ff,#f7f8ff)';
+      document.getElementById('ht-img').textContent = emoji;
+      document.getElementById('ht-name').textContent = name + (tag?(' · '+tag):'');
+      placeTip(tip, e);
+    }
+    function showSceneTip(e, gradient, name) {
+      var tip = document.getElementById('hover-tip');
+      var img = document.getElementById('ht-img');
+      img.style.background = gradient; img.textContent = '';
+      document.getElementById('ht-name').textContent = '🖼️ ' + name;
+      placeTip(tip, e);
+    }
+    function showBgTip(e, gradient, name) {
+      var tip = document.getElementById('hover-tip');
+      var img = document.getElementById('ht-img');
+      img.style.background = gradient; img.textContent = '';
+      document.getElementById('ht-name').textContent = '🖼️ ' + name;
+      placeTip(tip, e);
+    }
+    function showImgTip(e, emoji, gradient, label) {
+      var tip = document.getElementById('hover-tip');
+      var img = document.getElementById('ht-img');
+      img.style.background = gradient;
+      img.textContent = emoji || '';
+      document.getElementById('ht-name').textContent = label || '';
+      placeTip(tip, e);
+    }
+    function showScriptTip(e, text) {
+      var tip = document.getElementById('cf-script-tip');
+      tip.textContent = text;
+      tip.classList.add('show');
+      var r = e.target.getBoundingClientRect();
+      var left = r.right + 10;
+      if (left + 390 > window.innerWidth) left = r.left - 390;
+      var top = r.top;
+      if (top + 200 > window.innerHeight) top = window.innerHeight - 210;
+      tip.style.left = left + 'px';
+      tip.style.top = top + 'px';
+    }
+    function hideScriptTip() { document.getElementById('cf-script-tip').classList.remove('show'); }
+    function placeTip(tip, e) {
+      tip.classList.add('show');
+      var r = e.target.getBoundingClientRect();
+      var left = r.left + r.width/2 - 75;
+      left = Math.max(8, Math.min(left, window.innerWidth - 158));
+      var top = r.bottom + 8;
+      if (top + 230 > window.innerHeight) top = r.top - 238;
+      tip.style.left = left + 'px';
+      tip.style.top = top + 'px';
+    }
+    function hideTip() { document.getElementById('hover-tip').classList.remove('show'); }
+
+    /* ========== TTS ========== */
+    function toggleVoiceCfg(id) { document.getElementById('vcfg-'+id).classList.toggle('show'); }
+    function updVcLabel(id) {
+      var p=parseInt(document.getElementById('vc-pitch-'+id).value), v=parseInt(document.getElementById('vc-volume-'+id).value);
+      document.getElementById('vc-pitch-val-'+id).textContent = p>0?'+'+p:p;
+      document.getElementById('vc-volume-val-'+id).textContent = v+'%';
+    }
+    function resynthOne(id) {
+      var g = S.cards.find(function(x){return x.id===id;});
+      if (!g) return;
+      stopTts(id);
+      // Step1 卡片视图有独立配置控件，Step2 首帧视图直接用已有配置
+      var pitchEl = document.getElementById('vc-pitch-'+id);
+      var volumeEl = document.getElementById('vc-volume-'+id);
+      var instrEl = document.getElementById('vc-instr-'+id);
+      if (pitchEl) g.tts.pitch = parseInt(pitchEl.value);
+      if (volumeEl) g.tts.volume = parseInt(volumeEl.value);
+      if (instrEl) g.tts.instruction = instrEl.value;
+      g.tts.custom = true;
+      g.tts.duration = durOf(g.content, g.tts.speed);
+      // 模拟合成：~15% 概率失败
+      if (Math.random() < 0.15) {
+        g.tts.ready = false;
+        g.tts.status = 'failed';
+      } else {
+        g.tts.ready = true;
+        g.tts.status = 'ready';
+      }
+      if (S.step === 2) renderFirstFrames(); else renderCards();
+      updFooter();
+      var vcfg = document.getElementById('vcfg-'+id);
+      if (vcfg) vcfg.classList.add('show');
+      toast(g.tts.status==='failed' ? '⚠️ 台词 '+id+' 语音合成失败，请重试' : '已按单独配置重新合成台词 '+id);
+    }
+    function resetVoice(id) {
+      var g = S.cards.find(function(x){return x.id===id;});
+      if (!g) return;
+      stopTts(id);
+      var gt = getGlobalTts();
+      g.tts.custom = false;
+      g.tts.speed=gt.speed; g.tts.pitch=gt.pitch; g.tts.volume=gt.volume; g.tts.instruction=gt.instruction;
+      g.tts.duration = durOf(g.content, g.tts.speed);
+      g.tts.ready = true;
+      g.tts.status = 'ready';
+      renderCards();
+      toast('台词 '+id+' 已恢复为全局配置');
+    }
+    function resynthAll() {
+      var g = getGlobalTts();
+      var failedCount = 0;
+      validCards().forEach(function(card){
+        stopTts(card.id);
+        if (!card.tts.custom) { card.tts.speed=g.speed; card.tts.pitch=g.pitch; card.tts.volume=g.volume; card.tts.instruction=g.instruction; }
+        card.tts.duration = durOf(card.content, card.tts.speed);
+        // 模拟合成：~10% 概率失败
+        if (Math.random() < 0.1) {
+          card.tts.ready = false;
+          card.tts.status = 'failed';
+          failedCount++;
+        } else {
+          card.tts.ready = true;
+          card.tts.status = 'ready';
+        }
+      });
+      renderCards();
+      var customCnt = validCards().filter(function(c){return c.tts.custom;}).length;
+      var msg = '已合成全部语音' + (customCnt? ('（'+customCnt+'条保留单独配置）') : '');
+      if (failedCount > 0) msg += '，⚠️ ' + failedCount + ' 条失败，请逐条重试';
+      toast(msg);
+    }
+
+    function toggleTtsPlay(id) {
+      if (S.ttsPlaying[id]) { stopTts(id); return; }
+      var g = S.cards.find(function(x){return x.id===id;});
+      if (!g || !g.tts || g.tts.status !== 'ready') { toast('请先进行语音合成操作再试听'); return; }
+      S.ttsPlaying[id] = { start: Date.now(), duration: g.tts.duration, timer: null };
+      var btn = document.getElementById('tts-btn-'+id); if(btn){ btn.textContent='⏸'; btn.classList.add('playing'); }
+      runTtsTick(id, g.tts.duration);
+    }
+    function runTtsTick(id, dur) {
+      if (!S.ttsPlaying[id]) return;
+      var elapsed = (Date.now()-S.ttsPlaying[id].start)/1000;
+      var pct = Math.min(100, (elapsed/dur)*100);
+      var fill = document.getElementById('tts-fill-'+id), time = document.getElementById('tts-time-'+id);
+      if (fill) fill.style.width = pct+'%';
+      if (time) time.textContent = formatTime(Math.min(elapsed, dur));
+      if (pct >= 100) { stopTts(id); return; }
+      S.ttsPlaying[id].timer = setTimeout(function(){ runTtsTick(id, dur); }, 80);
+    }
+    function stopTts(id) {
+      if (S.ttsPlaying[id] && S.ttsPlaying[id].timer) clearTimeout(S.ttsPlaying[id].timer);
+      delete S.ttsPlaying[id];
+      var btn = document.getElementById('tts-btn-'+id); if(btn){ btn.textContent='▶'; btn.classList.remove('playing'); }
+    }
+    function seekTts(e, id) {
+      if (!S.ttsPlaying[id]) return;
+      var rect = e.currentTarget.getBoundingClientRect();
+      var pct = Math.max(0, Math.min(1, (e.clientX-rect.left)/rect.width));
+      var g = S.cards.find(function(x){return x.id===id;});
+      var dur = (g&&g.tts)?g.tts.duration:3;
+      S.ttsPlaying[id].start = Date.now()-(pct*dur*1000);
+      if (S.ttsPlaying[id].timer) clearTimeout(S.ttsPlaying[id].timer);
+      runTtsTick(id, dur);
+    }
+    function downloadTts(id) {
+      var g = S.cards.find(function(x){return x.id===id;});
+      if (!g || !g.tts || g.tts.status !== 'ready') { toast('请先进行语音合成操作再试听'); return; }
+      toast('已下载音频文件：台词'+id+'.mp3（'+formatTime(g.tts.duration)+'）');
+    }
+
+    /* ========== Step 3：确认 ========== */
+    function renderConfirm() {
+      var meta = S.avatar ? getAvatarMeta(S.avatar) : null;
+      var emoji = S.avatar ? (avI[S.avatar]||'👤') : '👤';
+      var avName = meta ? meta.name : '—';
+      var avTag = meta ? meta.tag : '';
+      var activeBgs = getActiveBgNames();
+      var bgNameList = activeBgs.length ? activeBgs.join('、') : '—';
+      document.getElementById('cf-task').textContent = getTaskName();
+      document.getElementById('cf-avatar').textContent = avName;
+      document.getElementById('cf-bgs').textContent = bgNameList;
+      var rows = validCards();
+      var h = '';
+      rows.forEach(function(g, i) {
+        var f = g.frame || { bg:'-', pose:'-', shot:'-' };
+        var preview = g.content.length>40 ? g.content.substring(0,40)+'...' : g.content;
+        var bgGrad = getBgGradient(f.bg);
+        var hasCustomTts = g.tts && g.tts.custom;
+        h += '<tr>';
+        h += '<td>'+(i+1)+'</td>';
+        // 首帧 - hover 大图
+        h += '<td><div class="cf-thumb cf-thumb-hover" style="background:'+bgGrad+'" onmouseenter="showImgTip(event,\''+emoji+'\',\''+bgGrad.replace(/'/g,"\\'")+'\',\''+escapeHtml(f.bg)+' · '+f.pose+' · '+f.shot+'\')" onmouseleave="hideTip()">'+emoji+'</div></td>';
+        // 角色 - hover 大图
+        h += '<td><span class="cf-hoverable" onmouseenter="showCharTip(event,\''+emoji+'\',\''+avName.replace(/'/g,"\\'")+'\',\''+avTag.replace(/'/g,"\\'")+'\')" onmouseleave="hideTip()">'+(meta?escapeHtml(meta.name):'—')+'</span></td>';
+        // 背景 - hover 大图
+        h += '<td><span class="cf-hoverable" onmouseenter="showBgTip(event,\''+bgGrad.replace(/'/g,"\\'")+'\',\''+f.bg.replace(/'/g,"\\'")+'\')" onmouseleave="hideTip()">'+escapeHtml(f.bg)+'</span></td>';
+        // 镜头
+        h += '<td>'+f.pose+' · '+f.shot+(hasCustomTts?' · 单独语音':'')+'</td>';
+        // 台词 - hover 显示全文
+        h += '<td class="cf-script cf-hoverable" onmouseenter="showScriptTip(event,\''+escapeHtml(g.content).replace(/'/g,"\\'")+'\')" onmouseleave="hideScriptTip()">'+escapeHtml(preview)+'</td>';
+        h += '<td style="color:#059669;font-weight:500;">'+(g.tts&&g.tts.duration?g.tts.duration+'s':'--')+'</td>';
+        h += '<td><button class="cf-op-btn" onclick="cfToggleRow(this)">移除</button></td>';
+        h += '</tr>';
+      });
+      document.getElementById('cf-tbody').innerHTML = h;
+      updCfCount();
+    }
+    function cfToggleRow(btn) {
+      var row = btn.closest('tr');
+      row.classList.toggle('off');
+      btn.classList.toggle('restore');
+      btn.textContent = btn.textContent === '移除' ? '恢复' : '移除';
+      updCfCount();
+    }
+    function updCfCount() {
+      var rows = document.querySelectorAll('#cf-tbody tr');
+      var allCards = validCards();
+      var total = rows.length - document.querySelectorAll('#cf-tbody tr.off').length;
+      var totalSec = 0;
+      rows.forEach(function(row, i) {
+        if (!row.classList.contains('off') && allCards[i]) {
+          totalSec += durOf(allCards[i].content, allCards[i].tts ? allCards[i].tts.speed : 10);
+        }
+      });
+      document.getElementById('cf-count').textContent = total;
+      document.getElementById('cf-time').textContent = Math.ceil(total*1.5)+'-'+Math.ceil(total*3);
+      // 更新确认生成按钮的积分显示
+      document.getElementById('btn-next').textContent = '🪙' + (20 * totalSec) + ' · 🎬 确认生成';
+    }
+
+    /* ========== 生成进度 ========== */
+    function confirmGen() {
+      var total = document.querySelectorAll('#cf-tbody tr').length - document.querySelectorAll('#cf-tbody tr.off').length;
+      if (total === 0) { toast('请至少保留一条视频'); return; }
+      // 构建新任务数据并返回任务详情页
+      var rows = validCards().map(function(card) {
+        var dur = durOf(card.content, card.tts ? card.tts.speed : 10);
+        var avatarMeta = S.avatar ? getAvatarMeta(S.avatar) : null;
+        var activeBgs = getActiveBgNames();
+        var bgName = card.frame ? card.frame.bg : (activeBgs.length > 0 ? activeBgs[0] : '办公室');
+        return {
+          script: card.content,
+          person: avatarMeta ? { name: avatarMeta.name, emoji: (avI[S.avatar] || '👤'), gradient: '#667eea,#764ba2' } : null,
+          bg: { name: bgName, gradient: getBgGradient(bgName) },
+          duration: dur
+        };
+      });
+      localStorage.setItem('newTaskFromFlow', JSON.stringify({ taskName: getTaskName(), rows: rows }));
+      localStorage.removeItem('aigc_draft_task');
+      window.location.href = '全部工具.html?openTaskDetail=1';
+    }
+    function simProgress() {
+      var steps=[{id:'ps-1',d:1200},{id:'ps-2',d:2600},{id:'ps-3',d:4000},{id:'ps-4',d:5600},{id:'ps-5',d:7000}];
+      var bar=document.getElementById('p-fill');
+      steps.forEach(function(s){ document.getElementById(s.id).className='p-step w'; });
+      steps.forEach(function(s,idx){
+        setTimeout(function(){
+          for(var i=0;i<idx;i++){ var p=document.getElementById(steps[i].id); p.className='p-step d'; p.querySelector('.ico').textContent='✓'; }
+          document.getElementById(s.id).className='p-step a';
+          bar.style.width=((idx+1)/steps.length*100)+'%';
+        }, s.d);
+      });
+      setTimeout(function(){
+        steps.forEach(function(s){ var el=document.getElementById(s.id); el.className='p-step d'; el.querySelector('.ico').textContent='✓'; });
+        document.getElementById('p-title').textContent='生成完成！';
+        document.getElementById('p-acts').style.display='flex';
+      }, 8500);
+    }
+    function closeProgress() {
+      document.getElementById('p-overlay').classList.remove('show');
+      document.getElementById('p-title').textContent='正在生成视频...';
+      document.getElementById('p-acts').style.display='none';
+      document.getElementById('p-fill').style.width='0%';
+      document.querySelectorAll('.p-step').forEach(function(s){ s.className='p-step w'; s.querySelector('.ico').textContent=s.id.split('-')[1]; });
+    }
+    function viewResults() { closeProgress(); toast('跳转到视频资产...'); }
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') closeTemplatePreview();
+    });
+
+    /* ========== 初始化 ========== */
+    // 检测是否从任务详情页返回
+    if (new URLSearchParams(window.location.search).get('returnTo') === 'taskDetail') {
+      document.getElementById('backFromFlow').style.display = 'block';
+    }
+    // 检测是否恢复草稿
+    var isDraft = new URLSearchParams(window.location.search).get('editDraft') === '1';
+    if (isDraft) {
+      restoreDraft();
+      renderTemplatePanel();
+      renderAvatarList();
+      renderBgList();
+      renderCards();
+      updateSidebar();
+    } else {
+      renderTemplatePanel();
+      renderAvatarList();
+      renderBgList();
+      addScriptCard();
+    }
+    updGlobalLabel();
+    updFooter();
+  </script>
+</body>
+</html>

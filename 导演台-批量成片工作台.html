@@ -1926,7 +1926,7 @@
     }
 
     function goCreate() {
-      window.location.href = '简单模式-流程版.html?returnTo=directorWorkbench';
+      window.location.href = '简单模式-流程版-模板版.html?returnTo=directorWorkbench';
     }
 
     function fmtDate(v) {
@@ -2230,7 +2230,7 @@
       html += '<td class="task-report-progress">' + progress + '%</td>';
       html += '<td class="task-report-time">' + (latestCompleted ? fmtTime(latestCompleted) : '—') + '</td>';
       html += '<td><div class="task-report-actions">';
-      html += '<button class="task-report-action"' + editDisabled + ' onclick="window.location.href=\'简单模式-流程版.html?editDraft=1\'">编辑</button>';
+      html += '<button class="task-report-action"' + editDisabled + ' onclick="window.location.href=\'简单模式-流程版-模板版.html?editDraft=1\'">编辑</button>';
       html += '<button class="task-report-action cover"' + coverDisabled + ' onclick="openGroupCoverConfig(\'' + tnEsc + '\')">' + coverLabel + '</button>';
       html += '<button class="task-report-action wm"' + wmDisabled + ' onclick="openBatchWmConfig(\'' + tnEsc + '\')">' + wmLabel + '</button>';
       html += '<button class="task-report-action"' + downloadDisabled + ' onclick="downloadTaskVideos(\'' + tnEsc + '\')">下载</button>';
@@ -2515,7 +2515,7 @@
 
     function editGroup(name) {
       toast('打开「' + name + '」的编辑流程');
-      window.location.href = '简单模式-流程版.html?editDraft=1';
+      window.location.href = '简单模式-流程版-模板版.html?editDraft=1';
     }
 
     function retryGroup(name) {
