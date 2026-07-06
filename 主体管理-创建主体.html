@@ -299,7 +299,7 @@
         }
 
         .upload-preview {
-            margin-top: 12px;
+            margin-top: 32px;
             min-height: 48px;
             border: 1px solid #e5e7eb;
             border-radius: 12px;
@@ -407,7 +407,8 @@
         }
 
         .edit-preview-frame {
-            height: 360px;
+            aspect-ratio: 9 / 16;
+            max-height: 420px;
             border-radius: 14px;
             overflow: hidden;
             background:
@@ -423,6 +424,42 @@
             height: 100%;
             object-fit: cover;
             display: block;
+        }
+
+        #imageRefExample {
+            min-height: 264px;
+        }
+
+        #aiAdjustResultImg {
+            aspect-ratio: 9 / 16;
+            object-fit: cover;
+            max-height: 264px;
+            width: 100%;
+            border-radius: 10px;
+            display: block;
+        }
+
+        .btn-ai-adjust {
+            flex: 1;
+            height: 38px;
+            border-radius: 10px;
+            border: none;
+            background: #4f46e5;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s ease, box-shadow 0.2s ease;
+        }
+        .btn-ai-adjust:hover:not(:disabled) {
+            background: #4338ca;
+            box-shadow: 0 4px 14px rgba(79, 70, 229, 0.3);
+        }
+        .btn-ai-adjust:disabled {
+            background: #d1d5db;
+            color: #9ca3af;
+            cursor: not-allowed;
+            box-shadow: none;
         }
 
         .edit-preview-empty {
@@ -825,14 +862,25 @@
                                 <div class="seg-btn" id="segAi" onclick="switchImageSource('ai')">AI 生图</div>
                             </div>
 
-                            <!-- 本地上传 -->
-                            <div id="imageUploadArea">
-                                <label class="upload-box" for="subjectImage">
+                            <!-- 本地上传 - 左右结构 -->
+                            <div id="imageUploadArea" style="display:flex; gap:14px; align-items:flex-start;">
+                                <label class="upload-box" for="subjectImage" style="flex:1; min-width:0;">
                                     <div class="upload-icon">+</div>
                                     <div class="upload-title" id="uploadTitle">上传一张角色主图</div>
                                     <div class="upload-desc" id="uploadDesc">支持 JPG、PNG。建议上传人物清晰、正面、无遮挡的图片。</div>
                                     <input id="subjectImage" type="file" accept="image/jpeg,image/png,image/webp" />
                                 </label>
+                                <div id="imageRefExample" style="flex:1; min-width:0; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:18px; border:1px solid #e5e7eb; border-radius:16px; background:#f8fafc;">
+                                    <svg width="100" height="133" viewBox="0 0 100 133" style="margin-bottom:12px;">
+                                        <rect width="100" height="133" rx="6" fill="#e5e7eb"/>
+                                        <circle cx="50" cy="46" r="20" fill="#9ca3af"/>
+                                        <path d="M33 100c4-17 30-17 34 0v17H33z" fill="#9ca3af"/>
+                                        <rect x="16" y="8" width="68" height="117" rx="5" fill="none" stroke="#d1d5db" stroke-width="1" stroke-dasharray="4,3"/>
+                                    </svg>
+                                    <div style="font-size:11px; color:#6b7280; text-align:center; line-height:1.5;">
+                                        为了保证视频创作的效果，请上传清晰的单视图，纯色背景的半身照
+                                    </div>
+                                </div>
                             </div>
 
                             <!-- AI 生图 -->
@@ -871,12 +919,6 @@
                     </section>
 
                     <aside class="edit-side-panel asset-workbench">
-                        <div class="asset-head">
-                            <div>
-                                <h3 id="assetTitle">角色视角资产</h3>
-                            </div>
-                        </div>
-
                         <div class="asset-stage">
                             <div class="asset-main-card">
                                 <div class="edit-preview-frame" id="previewFrame">
@@ -889,12 +931,29 @@
                             </div>
 
                             <div class="asset-summary">
-                                <h4>多视图资产</h4>
-                                <div class="asset-action-row">
-                                    <button class="btn btn-primary" type="button" id="createViewsBtn" disabled>创建视图</button>
-                                    <button class="btn btn-sr" type="button" id="srExecuteBtn" disabled onclick="confirmSrExecute()">🪙5 · 一键超分</button>
+                                <!-- AI 智能调整区域（仅角色模式 + 已上传图片时显示） -->
+                                <div id="aiAdjustArea" style="display:none;">
+                                    <div style="display:flex; align-items:center; gap:8px; margin-bottom:10px;">
+                                        <span style="font-size:13px; font-weight:600; color:#374151;">AI 智能调整</span>
+                                        <span style="font-size:11px; color:#6b7280;">基于提示词调整人物形象</span>
+                                    </div>
+                                    <textarea id="aiAdjustPrompt" placeholder="描述你想要的调整，例如：换成棕色正装、调整手部姿势、表情更自然等..." style="width:100%; min-height:72px; padding:10px 12px; border:1px solid #d1d5db; border-radius:10px; font-size:13px; line-height:1.6; resize:vertical; outline:none; transition:border-color 0.2s;"></textarea>
+                                    <div style="display:flex; gap:10px; margin-top:10px;">
+                                        <button type="button" id="aiAdjustBtn" class="btn-ai-adjust" onclick="confirmAiAdjust()" disabled>🪙10 · AI 调整</button>
+                                    </div>
+                                    <div id="aiAdjustResult" style="display:none; margin-top:14px;">
+                                        <div style="padding:12px; border:1px solid #e5e7eb; border-radius:12px; background:#f8fafc;">
+                                            <img id="aiAdjustResultImg" src="" alt="调整结果" style="margin-bottom:10px;" />
+                                            <div style="display:flex; align-items:center; gap:12px;">
+                                                <div style="flex:1; min-width:0;">
+                                                    <div style="font-size:13px; font-weight:600; color:#111827; margin-bottom:4px;">AI 调整完成</div>
+                                                    <div style="font-size:12px; color:#6b7280;" id="aiAdjustResultPrompt">-</div>
+                                                </div>
+                                                <button type="button" onclick="applyAdjustedImage()" style="height:32px; padding:0 14px; border-radius:8px; border:1px solid #10b981; background:#10b981; color:#fff; font-size:13px; font-weight:600; cursor:pointer;">使用此图</button>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="view-assets-grid" id="viewsGrid" style="display: none;"></div>
                             </div>
                         </div>
                     </aside>
@@ -942,6 +1001,7 @@
         let aiResults = [];
         let aiSelectedIndex = -1;
         let viewsReady = false;
+        let aiAdjustedImage = ""; // AI 调整后的图片
 
         const libraryKey = "subjectLibraryItems";
         const step2Key = "step2NewSubject";
@@ -956,9 +1016,6 @@
         const previewFrame = document.getElementById("previewFrame");
         const previewName = document.getElementById("previewName");
         const previewMeta = document.getElementById("previewMeta");
-        const createViewsBtn = document.getElementById("createViewsBtn");
-        const srExecuteBtn = document.getElementById("srExecuteBtn");
-        const viewsGrid = document.getElementById("viewsGrid");
         const toast = document.getElementById("toast");
         const voiceSelectRow = document.getElementById("voiceSelectRow");
         const previewVoiceBtn = document.getElementById("previewVoiceBtn");
@@ -1037,9 +1094,14 @@
             imageData = src || "";
             if (srcType) imageSource = srcType;
             viewsReady = false;
-            viewsGrid.style.display = "none";
-            createViewsBtn.disabled = !imageData;
-            srExecuteBtn.disabled = !imageData;
+
+            // 角色模式 + 上传图片后，显示 AI 调整区域
+            const aiAdjustArea = document.getElementById("aiAdjustArea");
+            if (subjectType === "role" && imageData && imageSource === "upload") {
+                aiAdjustArea.style.display = "block";
+            } else {
+                aiAdjustArea.style.display = "none";
+            }
 
             if (!imageData) {
                 uploadPreview.innerHTML = '<span>暂未上传主图</span>';
@@ -1089,43 +1151,13 @@
             sessionStorage.removeItem("imageCreationHandoff");
         }
 
-        function renderViews() {
-            if (subjectType === "role") {
-                viewsGrid.className = "view-assets-grid role-long";
-                viewsGrid.innerHTML =
-                    '<div class="long-view-card">' +
-                        '<div class="role-long-art"></div>' +
-                    '</div>';
-                return;
-            }
-
-            const names = ["左45度", "右45度", "正俯视", "正仰视", "近景", "中景", "远景", "旋转180度"];
-            viewsGrid.className = "view-assets-grid scene";
-            viewsGrid.innerHTML = names.map((name) => (
-                '<div class="view-asset-card">' +
-                    '<div class="view-asset-art"></div>' +
-                    '<div class="view-asset-name">' + name + '</div>' +
-                '</div>'
-            )).join("");
-        }
-
-        function createViews() {
-            if (!imageData) {
-                showToast("请先上传主图");
-                return;
-            }
-            viewsReady = true;
-            renderViews();
-            viewsGrid.style.display = "grid";
-            showToast("视角资产已创建");
-        }
 
         function switchImageSource(source) {
             imageSource = source;
             const isUpload = source === "upload";
             document.getElementById("segUpload").classList.toggle("on", isUpload);
             document.getElementById("segAi").classList.toggle("on", !isUpload);
-            imageUploadArea.style.display = isUpload ? "" : "none";
+            imageUploadArea.style.display = isUpload ? "flex" : "none";
             imageAiArea.style.display = isUpload ? "none" : "";
             // 切换回上传模式时保持已有图片；切换回 AI 模式时保持已有 prompt 和生成结果
             updGenBtnAndStatus();
@@ -1244,6 +1276,82 @@
             aiRefFileInput.value = "";
         }
 
+        /* ── AI 智能调整 ── */
+        const aiAdjustPrompt = document.getElementById("aiAdjustPrompt");
+        const aiAdjustBtn = document.getElementById("aiAdjustBtn");
+        const aiAdjustResult = document.getElementById("aiAdjustResult");
+        const aiAdjustResultImg = document.getElementById("aiAdjustResultImg");
+        const aiAdjustResultPromptEl = document.getElementById("aiAdjustResultPrompt");
+
+        // 提示词输入监听
+        aiAdjustPrompt.addEventListener("input", () => {
+            aiAdjustBtn.disabled = aiAdjustPrompt.value.trim().length === 0;
+        });
+
+        function confirmAiAdjust() {
+            const prompt = aiAdjustPrompt.value.trim();
+            if (!prompt) { showToast("请先输入调整描述"); return; }
+            if (!imageData) { showToast("请先上传角色主图"); return; }
+            openCreditsConfirm(10, executeAiAdjust);
+        }
+
+        function executeAiAdjust() {
+            const prompt = aiAdjustPrompt.value.trim();
+            if (!prompt) return;
+
+            aiAdjustBtn.disabled = true;
+            aiAdjustBtn.textContent = "调整中...";
+
+            // 模拟生成：1.5s 后生成调整后的图
+            setTimeout(() => {
+                // 基于原图生成一个调整后的占位图（模拟效果）
+                aiAdjustedImage = createAdjustedImage(imageData, prompt);
+                aiAdjustResultImg.src = aiAdjustedImage;
+                aiAdjustResultPromptEl.textContent = prompt.slice(0, 30) + (prompt.length > 30 ? "..." : "");
+                aiAdjustResult.style.display = "block";
+
+                aiAdjustBtn.disabled = false;
+                aiAdjustBtn.textContent = "🪙10 · AI 调整";
+                showToast("调整完成，可预览结果");
+            }, 1500);
+        }
+
+        function createAdjustedImage(baseImage, prompt) {
+            // 原型模拟：基于原图生成一个带调整标记的占位图
+            const shortPrompt = (prompt || "AI调整").slice(0, 20);
+            const svg =
+                '<svg xmlns="http://www.w3.org/2000/svg" width="900" height="1200" viewBox="0 0 900 1200">' +
+                    '<defs>' +
+                        '<linearGradient id="adjBg" x1="0" y1="0" x2="1" y2="1">' +
+                            '<stop offset="0%" stop-color="#1e40af"/>' +
+                            '<stop offset="100%" stop-color="#3b82f6"/>' +
+                        '</linearGradient>' +
+                    '</defs>' +
+                    '<rect width="900" height="1200" fill="url(#adjBg)"/>' +
+                    '<rect x="60" y="60" width="780" height="1080" rx="40" fill="#ffffff" opacity="0.95"/>' +
+                    '<circle cx="450" cy="380" r="120" fill="#9ca3af" opacity="0.6"/>' +
+                    '<path d="M300 700c40-120 260-120 300 0v180H300z" fill="#6b7280" opacity="0.5"/>' +
+                    '<rect x="100" y="920" width="700" height="100" rx="16" fill="#e0e7ff"/>' +
+                    '<text x="450" y="980" fill="#4f46e5" font-size="24" font-weight="700" text-anchor="middle" font-family="Arial,sans-serif">' + shortPrompt + '</text>' +
+                    '<rect x="100" y="100" width="160" height="36" rx="8" fill="#4f46e5"/>' +
+                    '<text x="180" y="124" fill="#ffffff" font-size="16" font-weight="600" text-anchor="middle" font-family="Arial,sans-serif">AI 调整</text>' +
+                    '<text x="450" y="1140" fill="#6b7280" font-size="18" text-anchor="middle" font-family="Arial,sans-serif">基于提示词调整后的效果预览</text>' +
+                '</svg>';
+            return "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(svg);
+        }
+
+        function applyAdjustedImage() {
+            if (!aiAdjustedImage) {
+                showToast("请先生成调整图");
+                return;
+            }
+            // 使用调整后的图替换当前主图
+            setPreview(aiAdjustedImage, "AI调整后的角色图", "upload");
+            aiAdjustResult.style.display = "none";
+            aiAdjustedImage = "";
+            showToast("已应用调整后的图片");
+        }
+
         function setType(nextType) {
             subjectType = nextType === "scene" ? "scene" : "role";
             const isScene = subjectType === "scene";
@@ -1260,11 +1368,20 @@
             document.getElementById("uploadDesc").textContent = isScene ?
                 "支持 JPG、PNG。建议使用 9:16 竖版图片，适合信息流短视频投放。" :
                 "支持 JPG、PNG。建议上传人物清晰、正面、无遮挡的图片。";
-            document.getElementById("assetTitle").textContent = isScene ? "场景视角资产" : "角色视角资产";
             document.getElementById("subjectNameLabel").innerHTML = (isScene ? "场景名称" : "角色名称") + '<span class="required">*</span>';
             subjectName.placeholder = isScene ? "请输入场景名称" : "请输入角色名称";
             // 场景模式显示 AI 生图切换条，角色模式隐藏（仅本地上传）
             imageSourceBar.style.display = isScene ? "inline-flex" : "none";
+            // 角色模式显示参考图示例，场景模式隐藏
+            const imageUploadAreaEl = document.getElementById("imageUploadArea");
+            const imageRefExampleEl = document.getElementById("imageRefExample");
+            if (isScene) {
+                imageUploadAreaEl.style.display = "flex";
+                imageRefExampleEl.style.display = "none";
+            } else {
+                imageUploadAreaEl.style.display = "flex";
+                imageRefExampleEl.style.display = "flex";
+            }
             if (!isScene) {
                 switchImageSource("upload"); // 角色模式强制切回上传
                 // 清空 AI 生成结果
@@ -1288,7 +1405,6 @@
                 "创建完成后会返回 Step 2，并把新主体插入对应列表第一位。" :
                 "创建完成后会返回一级主体管理首页。";
             updatePreviewText();
-            renderViews();
         }
 
         function readLibrary() {
@@ -1380,9 +1496,6 @@
 
         function finishCreate() {
             if (!validateBeforeCreate()) return;
-            if (!viewsReady) {
-                createViews();
-            }
             const subject = buildSubject("done");
             const savedSubject = saveToLibrary(subject);
             if (source === "step2") {
@@ -1432,22 +1545,6 @@
             showToast("正在试听：" + voiceName);
         }
 
-        /* ── 一键超分 ── */
-        function confirmSrExecute() {
-            if (!imageData) { showToast("请先上传主图"); return; }
-            openCreditsConfirm(5, executeSuperResolution);
-        }
-
-        function executeSuperResolution() {
-            srExecuteBtn.disabled = true;
-            srExecuteBtn.textContent = "超分处理中…";
-            setTimeout(() => {
-                srExecuteBtn.disabled = false;
-                srExecuteBtn.textContent = "🪙5 · 一键超分";
-                showToast("超分完成");
-            }, 2000);
-        }
-
         document.getElementById("backBtn").addEventListener("click", () => {
             window.location.href = returnUrl();
         });
@@ -1470,8 +1567,6 @@
             };
             reader.readAsDataURL(file);
         });
-
-        createViewsBtn.addEventListener("click", createViews);
 
         // AI 生图 prompt 输入监听
         aiPromptInput.addEventListener("input", () => {
