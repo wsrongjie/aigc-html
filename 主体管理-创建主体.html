@@ -462,6 +462,150 @@
             box-shadow: none;
         }
 
+        .market-guide {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            padding: 28px 24px;
+            border: 1px dashed #cbd5e1;
+            border-radius: 16px;
+            background: #f8fafc;
+            text-align: center;
+        }
+        .market-guide-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: #eef2ff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .market-guide-text {
+            color: #111827;
+            font-size: 15px;
+            font-weight: 600;
+        }
+        .market-guide-desc {
+            color: #6b7280;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .market-modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 200;
+            align-items: center;
+            justify-content: center;
+        }
+        .market-modal-overlay.active {
+            display: flex;
+        }
+        .market-modal {
+            background: #ffffff;
+            border-radius: 18px;
+            max-width: 780px;
+            width: 92%;
+            max-height: 88vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 24px 64px rgba(0, 0, 0, 0.2);
+        }
+        .market-modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 24px;
+            border-bottom: 1px solid #e5e7eb;
+            flex-shrink: 0;
+        }
+        .market-modal-header h3 {
+            margin: 0;
+            font-size: 18px;
+            color: #111827;
+        }
+        .market-modal-close {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            border: none;
+            background: #f3f4f6;
+            color: #6b7280;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.15s;
+        }
+        .market-modal-close:hover {
+            background: #e5e7eb;
+        }
+        .market-modal-body {
+            padding: 24px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .market-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+        }
+        .market-card {
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+            background: #ffffff;
+        }
+        .market-card:hover {
+            border-color: #a5b4fc;
+            box-shadow: 0 2px 8px rgba(79, 70, 229, 0.1);
+        }
+        .market-card.sel {
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+        }
+        .market-card-img {
+            width: 100%;
+            aspect-ratio: 9 / 16;
+            object-fit: cover;
+            display: block;
+            background: #f3f4f6;
+        }
+        .market-card-info {
+            padding: 8px 10px;
+        }
+        .market-card-name {
+            font-size: 12px;
+            color: #111827;
+            font-weight: 600;
+            line-height: 1.3;
+        }
+        .market-card-meta {
+            font-size: 11px;
+            color: #9ca3af;
+            margin-top: 2px;
+        }
+
+        @media (max-width: 640px) {
+            .market-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .market-modal {
+                max-width: 100%;
+                width: 100%;
+                max-height: 100vh;
+                border-radius: 0;
+            }
+        }
+
         .edit-preview-empty {
             color: rgba(255, 255, 255, 0.7);
             font-size: 13px;
@@ -856,10 +1000,21 @@
                         <div class="form-group" id="imageFormGroup">
                             <label id="imageLabel">上传主图 <span class="required">*</span></label>
 
-                            <!-- 场景模式：本地上传 / AI 生图 切换（角色模式隐藏） -->
+                            <!-- 场景模式：从市场添加 / AI 生图 / 本地上传（角色模式隐藏） -->
                             <div class="seg-bar image-source-bar" id="imageSourceBar" style="display:none;">
-                                <div class="seg-btn on" id="segUpload" onclick="switchImageSource('upload')">本地上传</div>
+                                <div class="seg-btn on" id="segMarket" onclick="switchImageSource('market')">从市场添加</div>
                                 <div class="seg-btn" id="segAi" onclick="switchImageSource('ai')">AI 生图</div>
+                                <div class="seg-btn" id="segUpload" onclick="switchImageSource('upload')">本地上传</div>
+                            </div>
+
+                            <!-- 从市场添加 - 引导 + 弹窗 -->
+                            <div id="imageMarketArea" style="display:none;">
+                                <div class="market-guide">
+                                    <div class="market-guide-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></div>
+                                    <div class="market-guide-text">从市场场景模板选择</div>
+                                    <button type="button" class="btn btn-primary" onclick="openMarketModal()" style="height:40px;padding:0 24px;font-size:14px;margin-top:2px;">浏览模板</button>
+                                    <div id="marketSelectedInfo" style="display:none;width:100%;margin-top:12px;padding:12px 14px;border:1px solid #e5e7eb;border-radius:12px;background:#ffffff;font-size:13px;color:#374151;text-align:center;"></div>
+                                </div>
                             </div>
 
                             <!-- 本地上传 - 左右结构 -->
@@ -988,6 +1143,19 @@
         </div>
     </div>
 
+    <!-- 市场模板弹窗 -->
+    <div class="market-modal-overlay" id="marketModalOverlay">
+        <div class="market-modal">
+            <div class="market-modal-header">
+                <h3>场景模板市场 <span style="font-size:13px;font-weight:400;color:#9ca3af;margin-left:8px;"><span id="marketCount">0</span> 个模板</span></h3>
+                <button class="market-modal-close" onclick="closeMarketModal()">✕</button>
+            </div>
+            <div class="market-modal-body">
+                <div class="market-grid" id="marketGrid"></div>
+            </div>
+        </div>
+    </div>
+
     <div class="toast" id="toast">已保存</div>
 
     <script>
@@ -995,7 +1163,7 @@
         const source = params.get("from") || "library";
         let subjectType = params.get("type") === "scene" ? "scene" : "role";
         let imageData = "";
-        let imageSource = "upload"; // 'upload' | 'ai'
+        let imageSource = "market"; // 'market' | 'ai' | 'upload'
         let aiPrompt = "";
         let aiRefImage = "";
         let aiResults = [];
@@ -1021,6 +1189,7 @@
         const previewVoiceBtn = document.getElementById("previewVoiceBtn");
         const addVoiceBtn = document.getElementById("addVoiceBtn");
         const imageSourceBar = document.getElementById("imageSourceBar");
+        const imageMarketArea = document.getElementById("imageMarketArea");
         const imageUploadArea = document.getElementById("imageUploadArea");
         const imageAiArea = document.getElementById("imageAiArea");
         const aiPromptInput = document.getElementById("aiPromptInput");
@@ -1151,16 +1320,89 @@
             sessionStorage.removeItem("imageCreationHandoff");
         }
 
+        /* ── 市场模板 ── */
+        const marketTemplates = [
+            { id: "mt1", name: "现代财经演播室", meta: "蓝白配色 · 大屏数据", colors: ["#1e3a5f", "#2d6aa0", "#e8f0f8"] },
+            { id: "mt2", name: "科技感蓝光", meta: "暗色背景 · 光效线条", colors: ["#0f172a", "#1e40af", "#dbeafe"] },
+            { id: "mt3", name: "温馨居家客厅", meta: "暖色灯光 · 舒适自然", colors: ["#4a3728", "#c4794a", "#fef3c7"] },
+            { id: "mt4", name: "绿色植被自然风", meta: "清新绿植 · 通透光线", colors: ["#2d4a3e", "#5a8a6e", "#d1fae5"] },
+            { id: "mt5", name: "极简纯色背景", meta: "干净简洁 · 主体突出", colors: ["#374151", "#6b7280", "#f3f4f6"] },
+            { id: "mt6", name: "户外城市街景", meta: "都市风光 · 现代感", colors: ["#334155", "#64748b", "#f1f5f9"] },
+        ];
+        let marketSelectedId = "";
+        let marketLoaded = false;
+
+        function createMarketPlaceholder(colors, name) {
+            const svg =
+                '<svg xmlns="http://www.w3.org/2000/svg" width="720" height="1280" viewBox="0 0 720 1280">' +
+                    '<defs><linearGradient id="mbg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="' + colors[0] + '"/><stop offset="100%" stop-color="' + colors[1] + '"/></linearGradient></defs>' +
+                    '<rect width="720" height="1280" fill="url(#mbg)"/>' +
+                    '<rect x="60" y="180" width="260" height="400" rx="20" fill="' + colors[2] + '" opacity="0.2"/>' +
+                    '<rect x="370" y="220" width="300" height="500" rx="20" fill="' + colors[2] + '" opacity="0.15"/>' +
+                    '<rect x="80" y="700" width="560" height="140" rx="16" fill="' + colors[2] + '" opacity="0.18"/>' +
+                    '<rect x="100" y="920" width="520" height="100" rx="16" fill="' + colors[2] + '" opacity="0.12"/>' +
+                    '<text x="360" y="640" fill="#ffffff" font-size="26" font-weight="700" text-anchor="middle" font-family="Arial,sans-serif" opacity="0.85">' + escapeHtml(name) + '</text>' +
+                '</svg>';
+            return "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(svg);
+        }
+
+        function renderMarketTemplates() {
+            const grid = document.getElementById("marketGrid");
+            const count = document.getElementById("marketCount");
+            grid.innerHTML = marketTemplates.map((t) => (
+                '<div class="market-card' + (t.id === marketSelectedId ? " sel" : "") + '" data-id="' + t.id + '" onclick="selectMarketTemplate(\'' + t.id + '\')">' +
+                    '<img class="market-card-img" src="' + createMarketPlaceholder(t.colors, t.name) + '" alt="' + escapeHtml(t.name) + '" />' +
+                    '<div class="market-card-info">' +
+                        '<div class="market-card-name">' + escapeHtml(t.name) + '</div>' +
+                        '<div class="market-card-meta">' + escapeHtml(t.meta) + '</div>' +
+                    '</div>' +
+                '</div>'
+            )).join("");
+            count.textContent = marketTemplates.length;
+            marketLoaded = true;
+        }
+
+        function openMarketModal() {
+            if (!marketLoaded) renderMarketTemplates();
+            else {
+                // 刷新选中状态
+                const cards = document.querySelectorAll("#marketGrid .market-card");
+                cards.forEach((c) => c.classList.toggle("sel", c.dataset.id === marketSelectedId));
+            }
+            document.getElementById("marketModalOverlay").classList.add("active");
+        }
+
+        function closeMarketModal() {
+            document.getElementById("marketModalOverlay").classList.remove("active");
+        }
+
+        function selectMarketTemplate(id) {
+            const tmpl = marketTemplates.find((t) => t.id === id);
+            if (!tmpl) return;
+            marketSelectedId = id;
+            // 更新弹窗内选中高亮
+            const cards = document.querySelectorAll("#marketGrid .market-card");
+            cards.forEach((c) => c.classList.toggle("sel", c.dataset.id === id));
+            // 关闭弹窗，应用到预览
+            closeMarketModal();
+            setPreview(createMarketPlaceholder(tmpl.colors, tmpl.name), "市场模板 - " + tmpl.name, "market");
+            // 显示已选信息
+            const info = document.getElementById("marketSelectedInfo");
+            info.style.display = "block";
+            info.innerHTML = '已选：<strong>' + escapeHtml(tmpl.name) + '</strong> <span style="color:#9ca3af;margin-left:8px;">' + escapeHtml(tmpl.meta) + '</span> <button type="button" class="btn" onclick="openMarketModal()" style="margin-left:10px;height:30px;padding:0 12px;font-size:12px;">更换</button>';
+        }
 
         function switchImageSource(source) {
             imageSource = source;
-            const isUpload = source === "upload";
-            document.getElementById("segUpload").classList.toggle("on", isUpload);
-            document.getElementById("segAi").classList.toggle("on", !isUpload);
-            imageUploadArea.style.display = isUpload ? "flex" : "none";
-            imageAiArea.style.display = isUpload ? "none" : "";
-            // 切换回上传模式时保持已有图片；切换回 AI 模式时保持已有 prompt 和生成结果
-            updGenBtnAndStatus();
+            document.getElementById("segMarket").classList.toggle("on", source === "market");
+            document.getElementById("segAi").classList.toggle("on", source === "ai");
+            document.getElementById("segUpload").classList.toggle("on", source === "upload");
+            imageMarketArea.style.display = source === "market" ? "" : "none";
+            imageAiArea.style.display = source === "ai" ? "" : "none";
+            imageUploadArea.style.display = source === "upload" ? "flex" : "none";
+            if (source === "ai") {
+                updGenBtnAndStatus();
+            }
         }
 
         function updGenBtnAndStatus() {
@@ -1370,7 +1612,7 @@
                 "支持 JPG、PNG。建议上传人物清晰、正面、无遮挡的图片。";
             document.getElementById("subjectNameLabel").innerHTML = (isScene ? "场景名称" : "角色名称") + '<span class="required">*</span>';
             subjectName.placeholder = isScene ? "请输入场景名称" : "请输入角色名称";
-            // 场景模式显示 AI 生图切换条，角色模式隐藏（仅本地上传）
+            // 场景模式显示切换条，角色模式隐藏（仅本地上传）
             imageSourceBar.style.display = isScene ? "inline-flex" : "none";
             // 角色模式显示参考图示例，场景模式隐藏
             const imageUploadAreaEl = document.getElementById("imageUploadArea");
@@ -1378,6 +1620,10 @@
             if (isScene) {
                 imageUploadAreaEl.style.display = "flex";
                 imageRefExampleEl.style.display = "none";
+                // 场景模式默认切换到市场模式
+                imageSource = "market";
+                switchImageSource("market");
+                if (!marketLoaded) renderMarketTemplates();
             } else {
                 imageUploadAreaEl.style.display = "flex";
                 imageRefExampleEl.style.display = "flex";
@@ -1484,7 +1730,12 @@
                 return false;
             }
             if (!imageData) {
-                showToast(subjectType === "scene" && imageSource === "ai" ? "请先选择一张 AI 生成的场景图" : "请上传主体主图");
+                let msg = "请上传主体主图";
+                if (subjectType === "scene") {
+                    if (imageSource === "ai") msg = "请先选择一张 AI 生成的场景图";
+                    else if (imageSource === "market") msg = "请先从市场选择场景模板";
+                }
+                showToast(msg);
                 return false;
             }
             if (subjectType === "role" && !document.getElementById("authCheck").checked) {
@@ -1628,6 +1879,11 @@
                 window.history.replaceState({}, "", cleanUrl);
             }
         }
+
+        // 市场弹窗点击外部关闭
+        document.getElementById("marketModalOverlay").addEventListener("click", (e) => {
+            if (e.target === e.currentTarget) closeMarketModal();
+        });
 
         setType(subjectType);
         updateNameCount();
