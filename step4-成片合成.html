@@ -875,6 +875,61 @@
       font-size: 15px;
     }
 
+    .gen-option-card {
+      flex: 1;
+      border: 2px solid var(--line);
+      border-radius: 14px;
+      padding: 22px 18px 18px;
+      cursor: pointer;
+      text-align: center;
+      transition: 0.18s ease;
+      position: relative;
+      background: #fff;
+    }
+    .gen-option-card:hover { border-color: #bcd0ff; background: #fbfdff; }
+    .gen-option-card.active {
+      border-color: var(--blue);
+      background: var(--blue-soft);
+      box-shadow: 0 0 0 4px rgba(47,107,255,0.08);
+    }
+    .gen-option-badge {
+      position: absolute;
+      top: -1px;
+      right: -1px;
+      height: 24px;
+      padding: 0 10px;
+      border-radius: 0 12px 0 12px;
+      background: var(--blue);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+    }
+    .gen-option-badge.night { background: #10b981; }
+    .gen-option-icon { font-size: 32px; line-height: 1; margin-bottom: 10px; }
+    .gen-option-title { font-size: 16px; font-weight: 900; color: #111827; margin-bottom: 6px; }
+    .gen-option-desc { font-size: 12px; color: var(--muted); margin-bottom: 10px; }
+    .gen-option-cost { font-size: 13px; color: var(--muted); }
+    .gen-option-cost strong { font-size: 20px; font-weight: 900; color: var(--blue); }
+    .gen-cost-original {
+      display: block;
+      font-size: 12px;
+      color: var(--faint);
+      text-decoration: line-through;
+      margin-top: 2px;
+    }
+    .gen-notice {
+      margin-top: 14px;
+      padding: 10px 14px;
+      border-radius: 10px;
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
     .toast {
       position: fixed;
       right: 28px;
@@ -2147,7 +2202,7 @@
       <button class="btn" onclick="goBackStep3()">上一步</button>
     </div>
     <div class="bottom-right">
-      <button class="btn btn-primary export-btn" onclick="openExportModal()">导出视频</button>
+      <button class="btn btn-primary export-btn" onclick="openGenerateModal()">确认生成</button>
     </div>
   </footer>
 
@@ -2342,6 +2397,42 @@
       <div class="modal-footer">
         <button class="btn" onclick="closeWmSubModal()">取消</button>
         <button class="btn btn-primary" onclick="startComposing()">开始合成</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== 生成选项弹窗 ========== -->
+  <div id="generateModal" class="modal-mask">
+    <div class="modal" style="width:520px;">
+      <div class="modal-header">
+        <div class="modal-title">选择生成方式</div>
+        <button class="icon-btn" onclick="closeGenerateModal()">×</button>
+      </div>
+      <div class="modal-body" style="padding:20px;">
+        <div style="display:flex;gap:14px;">
+          <div class="gen-option-card active" id="genImmediate" onclick="selectScheduleMode('immediate')">
+            <div class="gen-option-badge">推荐</div>
+            <div class="gen-option-icon">⚡</div>
+            <div class="gen-option-title">立即生成</div>
+            <div class="gen-option-desc">立即开始，预计 2-5 分钟完成</div>
+            <div class="gen-option-cost">消耗 <strong id="genCostImmediate">100</strong> 积分</div>
+          </div>
+          <div class="gen-option-card" id="genNight" onclick="selectScheduleMode('night')">
+            <div class="gen-option-badge night">7 折</div>
+            <div class="gen-option-icon">🌙</div>
+            <div class="gen-option-title">夜间生成</div>
+            <div class="gen-option-desc">夜间空闲时段执行</div>
+            <div class="gen-option-cost">
+              消耗 <strong id="genCostNight" style="color:#10b981;">70</strong> 积分
+              <span class="gen-cost-original">原价 100</span>
+            </div>
+          </div>
+        </div>
+        <div class="gen-notice" id="genNotice">立即使用 GPU 资源生成视频，适合紧急需求。</div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" onclick="closeGenerateModal()">取消</button>
+        <button class="btn btn-primary" id="genConfirmBtn" onclick="confirmGenerate()">确认提交</button>
       </div>
     </div>
   </div>
@@ -3032,6 +3123,41 @@
 
       document.addEventListener("mousemove", move);
       document.addEventListener("mouseup", up);
+    }
+
+    // ===== 生成选项 =====
+    var selectedGenerateMode = "immediate";
+
+    function openGenerateModal() {
+      selectedGenerateMode = "immediate";
+      document.getElementById("generateModal").classList.add("show");
+      updateGenerateUI();
+    }
+
+    function closeGenerateModal() {
+      document.getElementById("generateModal").classList.remove("show");
+    }
+
+    function selectScheduleMode(mode) {
+      selectedGenerateMode = mode;
+      updateGenerateUI();
+    }
+
+    function updateGenerateUI() {
+      document.getElementById("genImmediate").classList.toggle("active", selectedGenerateMode === "immediate");
+      document.getElementById("genNight").classList.toggle("active", selectedGenerateMode === "night");
+      document.getElementById("genNotice").innerText = selectedGenerateMode === "immediate"
+        ? "立即使用 GPU 资源生成视频，适合紧急需求。"
+        : "任务将在夜间空闲时段自动执行，预计消耗 7 折积分。";
+    }
+
+    function confirmGenerate() {
+      closeGenerateModal();
+      if (selectedGenerateMode === "night") {
+        showToast("已加入夜间队列", "视频已加入夜间生成队列，预计今晚空闲时段自动执行，消耗 7 折积分。");
+      } else {
+        showToast("生成已启动", "视频已提交至生成队列，预计 2-5 分钟完成。");
+      }
     }
 
     // ===== 导出 =====

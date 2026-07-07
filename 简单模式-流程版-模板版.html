@@ -426,6 +426,34 @@
     .credits-confirm-actions .btn { min-width: 120px; height: 42px; font-size: 14px; font-weight: 600; }
     .credits-confirm-skip { display: block; margin-top: 14px; font-size: 12px; color: #6b7280; cursor: pointer; }
     .credits-confirm-skip input { margin-right: 4px; vertical-align: middle; }
+
+    .genmode-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 2000; align-items: center; justify-content: center; }
+    .genmode-overlay.active { display: flex; }
+    .genmode-modal { background: #fff; border-radius: 18px; max-width: 520px; width: 90%; box-shadow: 0 20px 60px rgba(0,0,0,0.18); overflow: hidden; }
+    .genmode-header { padding: 24px 28px 16px; text-align: center; }
+    .genmode-title { font-size: 18px; font-weight: 700; color: #111827; }
+    .genmode-sub { font-size: 13px; color: #6b7280; margin-top: 6px; }
+    .genmode-body { padding: 0 20px 20px; display: flex; gap: 14px; }
+    .genmode-card {
+      flex: 1; border: 2px solid #e5e7eb; border-radius: 14px; padding: 20px 16px 16px;
+      cursor: pointer; text-align: center; transition: 0.18s; position: relative; background: #fff;
+    }
+    .genmode-card:hover { border-color: #bcd0ff; background: #f8fbff; }
+    .genmode-card.active { border-color: var(--c1); background: #eef4ff; box-shadow: 0 0 0 4px rgba(47,107,255,0.08); }
+    .genmode-badge {
+      position: absolute; top: -1px; right: -1px; height: 24px; padding: 0 10px;
+      border-radius: 0 12px 0 12px; background: var(--c1); color: #fff; font-size: 10px; font-weight: 800;
+      display: flex; align-items: center;
+    }
+    .genmode-badge.night { background: #10b981; }
+    .genmode-icon { font-size: 30px; line-height: 1; margin-bottom: 8px; }
+    .genmode-name { font-size: 15px; font-weight: 800; color: #111827; margin-bottom: 4px; }
+    .genmode-desc { font-size: 11px; color: #6b7280; margin-bottom: 10px; }
+    .genmode-cost { font-size: 12px; color: #6b7280; }
+    .genmode-cost strong { font-size: 18px; font-weight: 900; color: var(--c1); }
+    .genmode-cost .orig { display: block; font-size: 11px; color: #9ca3af; text-decoration: line-through; margin-top: 2px; }
+    .genmode-notice { margin-top: 14px; padding: 10px 14px; border-radius: 10px; background: #f8fafc; border: 1px solid #e5e7eb; font-size: 12px; color: #6b7280; line-height: 1.55; }
+    .genmode-footer { padding: 0 20px 20px; display: flex; gap: 10px; justify-content: flex-end; }
   </style>
 </head>
 <body>
@@ -725,6 +753,40 @@
     </div>
   </div>
 
+  <!-- 生成方式选择弹窗 -->
+  <div class="genmode-overlay" id="genmodeOverlay">
+    <div class="genmode-modal">
+      <div class="genmode-header">
+        <div class="genmode-title">选择生成方式</div>
+        <div class="genmode-sub" id="genmodeSub">共需生成 <strong id="genmodeCount">0</strong> 条视频</div>
+      </div>
+      <div class="genmode-body">
+        <div class="genmode-card active" id="genmodeImmediate" onclick="selectGenMode('immediate')">
+          <div class="genmode-badge">推荐</div>
+          <div class="genmode-icon">⚡</div>
+          <div class="genmode-name">立即生成</div>
+          <div class="genmode-desc">立即开始，预计 2-5 分钟完成</div>
+          <div class="genmode-cost">消耗 <strong id="genmodeCostImmediate">0</strong> 积分</div>
+        </div>
+        <div class="genmode-card" id="genmodeNight" onclick="selectGenMode('night')">
+          <div class="genmode-badge night">7 折</div>
+          <div class="genmode-icon">🌙</div>
+          <div class="genmode-name">夜间生成</div>
+          <div class="genmode-desc">夜间空闲时段执行</div>
+          <div class="genmode-cost">
+            消耗 <strong id="genmodeCostNight" style="color:#10b981;">0</strong> 积分
+            <span class="orig" id="genmodeOrigCost">原价 0</span>
+          </div>
+        </div>
+      </div>
+      <div class="genmode-notice" id="genmodeNotice">立即使用 GPU 资源生成视频，适合紧急需求。</div>
+      <div class="genmode-footer">
+        <button class="btn btn2" type="button" onclick="closeGenMode()">取消</button>
+        <button class="btn btn1" type="button" onclick="confirmGenMode()">确认提交</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     /* ── 积分确认弹窗逻辑 ── */
     var pendingCreditsAction = null;
@@ -748,6 +810,44 @@
       }
       if (pendingCreditsAction) pendingCreditsAction();
       closeCreditsConfirm();
+    }
+
+    /* ── 生成方式选择弹窗逻辑 ── */
+    var selectedGenMode = 'immediate';
+    var genModeCost = 0;
+
+    function openGenModeModal(cost, count) {
+      selectedGenMode = 'immediate';
+      genModeCost = cost;
+      document.getElementById('genmodeCount').textContent = count;
+      document.getElementById('genmodeCostImmediate').textContent = cost;
+      document.getElementById('genmodeCostNight').textContent = Math.floor(cost * 0.7);
+      document.getElementById('genmodeOrigCost').textContent = '原价 ' + cost;
+      updateGenModeUI();
+      document.getElementById('genmodeOverlay').classList.add('active');
+    }
+
+    function closeGenMode() {
+      document.getElementById('genmodeOverlay').classList.remove('active');
+    }
+
+    function selectGenMode(mode) {
+      selectedGenMode = mode;
+      updateGenModeUI();
+    }
+
+    function updateGenModeUI() {
+      document.getElementById('genmodeImmediate').classList.toggle('active', selectedGenMode === 'immediate');
+      document.getElementById('genmodeNight').classList.toggle('active', selectedGenMode === 'night');
+      document.getElementById('genmodeNotice').textContent = selectedGenMode === 'immediate'
+        ? '立即使用 GPU 资源生成视频，适合紧急需求。'
+        : '任务将在夜间空闲时段自动执行，预计消耗 7 折积分。';
+    }
+
+    function confirmGenMode() {
+      closeGenMode();
+      window._genScheduleMode = selectedGenMode;
+      confirmGen(selectedGenMode);
     }
 
     var S = {
@@ -1565,7 +1665,8 @@
       if (S.step === 3) {
         var totalSec = 0;
         validCards().forEach(function(g) { totalSec += durOf(g.content, g.tts ? g.tts.speed : 10, g.tts ? g.tts.breaks : []); });
-        openCreditsConfirm(20 * totalSec, confirmGen);
+        var totalCount = document.querySelectorAll('#cf-tbody tr').length - document.querySelectorAll('#cf-tbody tr.off').length;
+        openGenModeModal(20 * totalSec, totalCount);
         return;
       }
       gotoStep(S.step + 1);
@@ -2090,10 +2191,9 @@
     }
 
     /* ========== 生成进度 ========== */
-    function confirmGen() {
+    function confirmGen(scheduleMode) {
       var total = document.querySelectorAll('#cf-tbody tr').length - document.querySelectorAll('#cf-tbody tr.off').length;
       if (total === 0) { toast('请至少保留一条视频'); return; }
-      // 构建新任务数据并返回任务详情页
       var rows = validCards().map(function(card) {
         var dur = durOf(card.content, card.tts ? card.tts.speed : 10, card.tts ? card.tts.breaks : []);
         var avatarMeta = S.avatar ? getAvatarMeta(S.avatar) : null;
@@ -2106,9 +2206,14 @@
           duration: dur
         };
       });
-      localStorage.setItem('newTaskFromFlow', JSON.stringify({ taskName: getTaskName(), rows: rows }));
+      localStorage.setItem('newTaskFromFlow', JSON.stringify({ taskName: getTaskName(), rows: rows, scheduleMode: scheduleMode || undefined }));
       localStorage.removeItem('aigc_draft_task');
-      window.location.href = '全部工具.html?openTaskDetail=1';
+      var params = new URLSearchParams(window.location.search);
+      if (params.get('returnTo') === 'directorWorkbench') {
+        window.location.href = '导演台-批量成片工作台.html';
+      } else {
+        window.location.href = '全部工具.html?openTaskDetail=1';
+      }
     }
     function simProgress() {
       var steps=[{id:'ps-1',d:1200},{id:'ps-2',d:2600},{id:'ps-3',d:4000},{id:'ps-4',d:5600},{id:'ps-5',d:7000}];

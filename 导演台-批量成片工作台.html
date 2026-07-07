@@ -1839,6 +1839,32 @@
     </div>
   </div>
 
+  <!-- 立即执行确认弹窗 -->
+  <div class="overlay" id="executeNowOverlay" onclick="if(event.target===this)closeExecuteNowModal()">
+    <div class="modal" style="width:420px;">
+      <div class="modal-hd">
+        <div class="modal-title">确认立即执行</div>
+        <button class="close-btn" type="button" onclick="closeExecuteNowModal()">×</button>
+      </div>
+      <div class="modal-body" style="padding:24px 20px;text-align:center;">
+        <div style="font-size:36px;margin-bottom:12px;">⚡</div>
+        <div style="font-size:15px;font-weight:800;color:#111827;margin-bottom:8px;">确认立即执行？</div>
+        <div style="font-size:13px;color:#6b7280;line-height:1.7;">
+          立即执行将取消夜间折扣，积分消耗恢复为原价。
+          <br>预计 <strong id="executeNowCount">0</strong> 条视频，积分从
+          <span style="color:#10b981;font-weight:700;" id="executeNowNightCost">0</span>
+          恢复为
+          <span style="color:#f59e0b;font-weight:700;" id="executeNowFullCost">0</span>
+          <span style="font-size:12px;color:#999;">（原价）</span>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" type="button" onclick="closeExecuteNowModal()">取消</button>
+        <button class="btn btn-primary" type="button" id="executeNowConfirmBtn" onclick="confirmExecuteNow()">确认执行</button>
+      </div>
+    </div>
+  </div>
+
   <div class="toast" id="toast"></div>
 
   <script>
@@ -1872,7 +1898,7 @@
       { id: 5, taskName: '生成中_保险配置攻略', visibility: '团队共享', script: '重大疾病保险的保额建议设置为年收入的3-5倍，才能有效覆盖风险。', status: 'completed', progress: 100, duration: 9, cost: 18, createdAt: '2026-06-11T10:00:00', startedAt: '2026-06-11T10:01:00', completedAt: '2026-06-11T10:07:30', wmStatus: null, person: { name: '角色 C · 可靠中年', emoji: '🧑', gradient: 'linear-gradient(135deg,#ffecd2,#fcb69f)' }, bg: { name: '居家', gradient: 'linear-gradient(135deg,#a8edea,#fed6e3)' } },
       { id: 12, taskName: '生成中_保险配置攻略', visibility: '团队共享', script: '医疗险主要解决住院报销问题，适合作为重疾险之外的基础补充保障。', status: 'completed', progress: 100, duration: 7, cost: 14, createdAt: '2026-06-11T10:00:00', startedAt: '2026-06-11T10:01:30', completedAt: '2026-06-11T10:06:40', wmStatus: null, person: { name: '角色 C · 可靠中年', emoji: '🧑', gradient: 'linear-gradient(135deg,#ffecd2,#fcb69f)' }, bg: { name: '会议室', gradient: 'linear-gradient(135deg,#a1c4fd,#c2e9fb)' } },
       { id: 13, taskName: '生成中_保险配置攻略', visibility: '团队共享', script: '寿险的核心作用是覆盖家庭经济责任，尤其适合有房贷和子女教育压力的人群。', status: 'generating', progress: 32, duration: 10, cost: 20, createdAt: '2026-06-11T10:00:00', startedAt: '2026-06-11T10:03:00', completedAt: null, wmStatus: null, person: { name: '角色 C · 可靠中年', emoji: '🧑', gradient: 'linear-gradient(135deg,#ffecd2,#fcb69f)' }, bg: { name: '办公室', gradient: 'linear-gradient(135deg,#667eea,#764ba2)' } },
-      { id: 14, taskName: '生成中_保险配置攻略', visibility: '团队共享', script: '意外险保费低、杠杆高，可以优先覆盖意外身故、伤残和意外医疗责任。', status: 'queued', progress: 0, duration: 6, cost: 12, createdAt: '2026-06-11T10:00:00', startedAt: null, completedAt: null, wmStatus: null, person: { name: '角色 C · 可靠中年', emoji: '🧑', gradient: 'linear-gradient(135deg,#ffecd2,#fcb69f)' }, bg: { name: '演播室', gradient: 'linear-gradient(135deg,#fa709a,#fee140)' } },
+      { id: 14, taskName: '生成中_保险配置攻略', visibility: '团队共享', script: '意外险保费低、杠杆高，可以优先覆盖意外身故、伤残和意外医疗责任。', status: 'queued', progress: 0, duration: 6, cost: 12, createdAt: '2026-06-11T10:00:00', startedAt: null, completedAt: null, wmStatus: null, scheduleMode: 'night', person: { name: '角色 C · 可靠中年', emoji: '🧑', gradient: 'linear-gradient(135deg,#ffecd2,#fcb69f)' }, bg: { name: '演播室', gradient: 'linear-gradient(135deg,#fa709a,#fee140)' } },
       { id: 15, taskName: '生成中_保险配置攻略', visibility: '团队共享', script: '给父母配置保险时，要重点关注健康告知、续保条件和既往症限制。', status: 'failed', progress: 0, duration: 8, cost: 16, createdAt: '2026-06-11T10:00:00', startedAt: '2026-06-11T10:02:10', completedAt: null, wmStatus: null, person: { name: '角色 C · 可靠中年', emoji: '🧑', gradient: 'linear-gradient(135deg,#ffecd2,#fcb69f)' }, bg: { name: '书架', gradient: 'linear-gradient(135deg,#a8edea,#fed6e3)' }, error: '口型驱动失败，请重试生成该条视频' },
       { id: 6, taskName: '已完成_养老金规划', visibility: '团队共享', script: '养老金规划越早开始越好，复利效应是长期积累的核心动力。', status: 'completed', progress: 100, duration: 7, cost: 14, createdAt: '2026-06-10T14:00:00', startedAt: '2026-06-10T14:02:00', completedAt: '2026-06-10T14:08:00', wmStatus: 'done', person: { name: '角色 A · 知性女性', emoji: '👩', gradient: 'linear-gradient(135deg,#ff9a9e,#fad0c4)' }, bg: { name: '办公室', gradient: 'linear-gradient(135deg,#667eea,#764ba2)' } },
       { id: 7, taskName: '已完成_养老金规划', visibility: '团队共享', script: '目前国家推行的个人养老金制度每年可享受最高12000元的税收优惠。', status: 'completed', progress: 100, duration: 6, cost: 12, createdAt: '2026-06-10T14:00:00', startedAt: '2026-06-10T14:02:00', completedAt: '2026-06-10T14:07:00', wmStatus: 'done', person: { name: '角色 A · 知性女性', emoji: '👩', gradient: 'linear-gradient(135deg,#ff9a9e,#fad0c4)' }, bg: { name: '办公室', gradient: 'linear-gradient(135deg,#667eea,#764ba2)' } },
@@ -1913,16 +1939,17 @@
             status: 'queued',
             progress: 0,
             duration: row.duration || 8,
-            cost: (row.duration || 8) * 2,
+            cost: (row.duration || 8) * (data.scheduleMode === 'night' ? 1.4 : 2),
             createdAt: new Date().toISOString(),
             startedAt: null,
             completedAt: null,
-            wmStatus: null
+            wmStatus: null,
+            scheduleMode: data.scheduleMode || undefined
           });
         });
         saveTasks(tasks);
         localStorage.removeItem('newTaskFromFlow');
-        toast('新任务已进入导演台');
+        toast(data.scheduleMode === 'night' ? '视频已加入夜间队列，预计今晚空闲时段执行' : '新任务已进入导演台，开始生成');
       } catch(e) {}
     }
 
@@ -2063,11 +2090,62 @@
     }
 
     function countStatuses(tasks) {
-      var count = { all: tasks.length, generating: 0, queued: 0, completed: 0, failed: 0, draft: 0, cancelled: 0 };
+      var count = { all: tasks.length, generating: 0, queued: 0, nightQueued: 0, completed: 0, failed: 0, draft: 0, cancelled: 0 };
       tasks.forEach(function(t) {
         if (count.hasOwnProperty(t.status)) count[t.status]++;
+        if (t.status === 'queued' && t.scheduleMode === 'night') count.nightQueued++;
       });
       return count;
+    }
+
+    function isNightSchedule(rows) {
+      return rows.some(function(t) { return t.status === 'queued' && t.scheduleMode === 'night'; });
+    }
+
+    var executeNowContext = null;
+
+    function executeNow(taskName) {
+      var tasks = loadTasks();
+      var nightCost = 0, fullCost = 0, count = 0;
+      tasks.forEach(function(t) {
+        if (t.taskName === taskName && t.status === 'queued' && t.scheduleMode === 'night') {
+          nightCost += Math.round(t.cost || 0);
+          var dur = t.duration || 8;
+          fullCost += dur * 2;
+          count++;
+        }
+      });
+      if (!count) return;
+      executeNowContext = { taskName: taskName, nightCost: nightCost, fullCost: fullCost, count: count };
+      document.getElementById('executeNowCount').textContent = count;
+      document.getElementById('executeNowNightCost').textContent = nightCost;
+      document.getElementById('executeNowFullCost').textContent = fullCost;
+      document.getElementById('executeNowOverlay').classList.add('show');
+    }
+
+    function closeExecuteNowModal() {
+      document.getElementById('executeNowOverlay').classList.remove('show');
+      executeNowContext = null;
+    }
+
+    function confirmExecuteNow() {
+      var ctx = executeNowContext;
+      if (!ctx) return;
+      closeExecuteNowModal();
+      var tasks = loadTasks();
+      tasks.forEach(function(t) {
+        if (t.taskName === ctx.taskName && t.status === 'queued' && t.scheduleMode === 'night') {
+          t.scheduleMode = undefined;
+          t.status = 'generating';
+          t.progress = 8;
+          t.startedAt = new Date().toISOString();
+          t.cost = (t.duration || 8) * 2;
+        }
+      });
+      saveTasks(tasks);
+      render();
+      toast('已触发「' + ctx.taskName + '」中 ' + ctx.count + ' 条视频立即执行，积分已恢复原价');
+      executeNowContext = null;
     }
 
     function getProgress(rows) {
@@ -2216,6 +2294,7 @@
       var coverLabel = getGroupCoverLabel(tn);
       var downloadDisabled = hasCompleted ? '' : ' disabled';
       var cancelDisabled = (stCounts.queued === 0 && stCounts.generating === 0) ? ' disabled' : '';
+      var nightNowDisabled = isNightSchedule(rows) ? '' : ' disabled';
       var tnq = escapeHtml(tn);
       var tnEsc = jsString(tn);
       var detailId = 'task-detail-sub-' + index;
@@ -2227,11 +2306,12 @@
       html += '<td class="task-report-count">' + rows.length + '</td>';
       html += '<td class="task-report-cost">' + totalCost + '🪙</td>';
       html += '<td class="task-report-time">' + fmtTime(earliestCreated) + '</td>';
-      html += '<td><span class="task-state-chip" style="color:' + statusInfo.color + ';">' + statusInfo.text + '</span></td>';
+      html += '<td><span class="task-state-chip" style="color:' + statusInfo.color + ';">' + statusInfo.text + '</span>' + (isNightSchedule(rows) ? ' <span style="font-size:11px;color:#10b981;font-weight:800;">🌙夜间</span>' : '') + '</td>';
       html += '<td class="task-report-progress">' + progress + '%</td>';
       html += '<td class="task-report-time">' + (latestCompleted ? fmtTime(latestCompleted) : '—') + '</td>';
       html += '<td><div class="task-report-actions">';
       html += '<button class="task-report-action"' + editDisabled + ' onclick="window.location.href=\'简单模式-流程版-模板版.html?editDraft=1\'">编辑</button>';
+      html += '<button class="task-report-action"' + nightNowDisabled + ' onclick="executeNow(\'' + tnEsc + '\')" style="color:#10b981;font-weight:800;">立即执行</button>';
       html += '<button class="task-report-action cover"' + coverDisabled + ' onclick="openGroupCoverConfig(\'' + tnEsc + '\')">' + coverLabel + '</button>';
       html += '<button class="task-report-action wm"' + wmDisabled + ' onclick="openBatchWmConfig(\'' + tnEsc + '\')">' + wmLabel + '</button>';
       html += '<button class="task-report-action"' + downloadDisabled + ' onclick="downloadTaskVideos(\'' + tnEsc + '\')">下载</button>';
@@ -2270,7 +2350,11 @@
         statusHtml = '<span class="ts generating"><span class="ico">🔄</span>生成中</span>';
         progressHtml = '<div class="tpb"><div class="tpb-fill" style="width:' + task.progress + '%"></div></div><span class="tpb-text">' + task.progress + '%</span>';
       } else if (task.status === 'queued') {
-        statusHtml = '<span class="ts queued"><span class="ico">⏳</span>排队中</span>';
+        if (task.scheduleMode === 'night') {
+          statusHtml = '<span class="ts queued" style="color:#10b981;"><span class="ico">🌙</span>夜间排队</span>';
+        } else {
+          statusHtml = '<span class="ts queued"><span class="ico">⏳</span>排队中</span>';
+        }
         progressHtml = '<span class="tpb-text">等待中</span>';
       } else if (task.status === 'cancelled') {
         statusHtml = '<span class="ts failed"><span class="ico">🚫</span>已取消</span>';
@@ -2342,8 +2426,9 @@
       var html = '<section class="video-task-group">';
       html += '<div class="video-group-head">';
       html += '<div class="video-group-title"><div class="video-group-name" title="' + escapeHtml(tn) + '">' + escapeHtml(tn) + '</div>';
-      html += '<div class="video-group-meta"><span>' + rows.length + ' 条视频</span><span style="color:' + statusInfo.color + '">' + statusInfo.text + '</span><span>总消耗 ' + totalCost + '🪙</span></div></div>';
+      html += '<div class="video-group-meta"><span>' + rows.length + ' 条视频</span><span style="color:' + statusInfo.color + '">' + statusInfo.text + '</span>' + (isNightSchedule(rows) ? ' <span style="font-size:11px;color:#10b981;font-weight:800;">🌙夜间</span>' : '') + '<span>总消耗 ' + totalCost + '🪙</span></div></div>';
       html += '<div class="video-group-actions">';
+      html += '<button class="task-report-action"' + (isNightSchedule(rows) ? '' : ' disabled') + ' onclick="executeNow(\'' + tnEsc + '\')" style="color:#10b981;font-weight:800;">立即执行</button>';
       html += '<button class="task-report-action cover"' + coverDisabled + ' onclick="openGroupCoverConfig(\'' + tnEsc + '\')">' + coverLabel + '</button>';
       html += '<button class="task-report-action wm"' + wmDisabled + ' onclick="openBatchWmConfig(\'' + tnEsc + '\')">' + wmLabel + '</button>';
       html += '<button class="task-report-action"' + (hasCompleted ? '' : ' disabled') + ' onclick="downloadTaskVideos(\'' + tnEsc + '\')">批量下载</button>';
@@ -3123,6 +3208,7 @@
         closePreview();
         closeCoverConfig();
         closeWmConfig();
+        closeExecuteNowModal();
       }
     });
 
