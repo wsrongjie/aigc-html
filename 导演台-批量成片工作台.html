@@ -1865,6 +1865,32 @@
     </div>
   </div>
 
+  <!-- 积分不足弹窗 -->
+  <div class="overlay" id="creditInsufficientOverlay" onclick="if(event.target===this)closeCreditInsufficientModal()">
+    <div class="modal" style="width:420px;">
+      <div class="modal-hd">
+        <div class="modal-title">积分不足</div>
+        <button class="close-btn" type="button" onclick="closeCreditInsufficientModal()">×</button>
+      </div>
+      <div class="modal-body" style="padding:24px 20px;text-align:center;">
+        <div style="font-size:40px;margin-bottom:12px;">🪙</div>
+        <div style="font-size:15px;font-weight:800;color:#111827;margin-bottom:10px;">当前积分不足</div>
+        <div style="font-size:13px;color:#6b7280;line-height:1.8;">
+          当前余额 <strong style="color:#111827;" id="ciCurrentCredits">0</strong> 🪙
+          <br>立即执行需消耗 <strong style="color:#f59e0b;" id="ciRequiredCredits">0</strong> 🪙（原价）
+          <br>差额 <strong style="color:#ef4444;" id="ciShortfall">0</strong> 🪙
+        </div>
+        <div style="margin-top:14px;padding:10px 14px;border-radius:10px;background:#fff7ed;border:1px solid #fed7aa;font-size:12px;color:#92400e;line-height:1.55;">
+          请充值后再试，否则只能等待夜间空闲时段自动生成（继续享受 7 折优惠）。
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" type="button" onclick="closeCreditInsufficientModal()">返回等待夜间生成</button>
+        <button class="btn btn-primary" type="button" onclick="closeCreditInsufficientModal();toast('跳转至充值页面…')">去充值</button>
+      </div>
+    </div>
+  </div>
+
   <div class="toast" id="toast"></div>
 
   <script>
@@ -2103,6 +2129,7 @@
     }
 
     var executeNowContext = null;
+    var userCredits = 10;
 
     function executeNow(taskName) {
       var tasks = loadTasks();
@@ -2131,6 +2158,14 @@
     function confirmExecuteNow() {
       var ctx = executeNowContext;
       if (!ctx) return;
+      if (ctx.fullCost > userCredits) {
+        document.getElementById('ciCurrentCredits').textContent = userCredits;
+        document.getElementById('ciRequiredCredits').textContent = ctx.fullCost;
+        document.getElementById('ciShortfall').textContent = ctx.fullCost - userCredits;
+        document.getElementById('executeNowOverlay').classList.remove('show');
+        document.getElementById('creditInsufficientOverlay').classList.add('show');
+        return;
+      }
       closeExecuteNowModal();
       var tasks = loadTasks();
       tasks.forEach(function(t) {
@@ -2142,10 +2177,15 @@
           t.cost = (t.duration || 8) * 2;
         }
       });
+      userCredits -= ctx.fullCost;
       saveTasks(tasks);
       render();
-      toast('已触发「' + ctx.taskName + '」中 ' + ctx.count + ' 条视频立即执行，积分已恢复原价');
+      toast('已触发「' + ctx.taskName + '」中 ' + ctx.count + ' 条视频立即执行，积分已恢复原价，剩余 🪙' + userCredits);
       executeNowContext = null;
+    }
+
+    function closeCreditInsufficientModal() {
+      document.getElementById('creditInsufficientOverlay').classList.remove('show');
     }
 
     function getProgress(rows) {
@@ -3209,6 +3249,7 @@
         closeCoverConfig();
         closeWmConfig();
         closeExecuteNowModal();
+        closeCreditInsufficientModal();
       }
     });
 
