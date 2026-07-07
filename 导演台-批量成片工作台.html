@@ -1725,6 +1725,7 @@
               <div class="cover-time-input-row">
                 <input class="cover-time-input" id="groupCoverSecond" type="number" min="0" step="1" value="1" oninput="syncCoverPreview()">
                 <span class="cover-time-unit">秒</span>
+                <button class="btn btn-secondary" type="button" style="height:34px;padding:0 12px;font-size:12px;flex-shrink:0;" onclick="document.getElementById('groupCoverSecond').value=0;syncCoverPreview();">使用视频首帧</button>
               </div>
               <div class="cover-help">将按同一整数秒为该任务组内所有已完成视频截取封面；若视频短于该时间，使用该视频末帧。</div>
             </div>

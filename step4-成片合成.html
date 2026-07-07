@@ -1595,6 +1595,198 @@
       border-color: rgba(255,255,255,0.6);
     }
 
+    /* ========== 水印模板相关样式 ========== */
+    .wm-template-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      background: #f9fbff;
+      border: 1px solid #eef2f7;
+      border-radius: 10px;
+      margin-bottom: 10px;
+    }
+
+    .wm-template-bar .tmpl-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: #374151;
+      white-space: nowrap;
+    }
+
+    .wm-template-bar select {
+      flex: 1;
+      height: 30px;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      padding: 0 8px;
+      font-size: 12px;
+      color: #374151;
+      background: #fff;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .wm-template-bar select:focus {
+      border-color: #2f6bff;
+    }
+
+    .wm-template-bar .tmpl-btn {
+      height: 30px;
+      padding: 0 10px;
+      border-radius: 6px;
+      border: 1px solid #d1d5db;
+      background: #fff;
+      color: #374151;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .wm-template-bar .tmpl-btn:hover {
+      border-color: #2f6bff;
+      color: #2f6bff;
+    }
+
+    .wm-template-bar .tmpl-btn.primary {
+      background: #2f6bff;
+      color: #fff;
+      border-color: #2f6bff;
+    }
+
+    .wm-template-bar .tmpl-btn.primary:hover {
+      background: #2458d8;
+    }
+
+    .wm-setting-row.locked .wm-setting-input,
+    .wm-setting-row.locked .wm-setting-range,
+    .wm-setting-row.locked .wm-setting-color {
+      opacity: 0.4;
+      pointer-events: none;
+    }
+
+    .wm-setting-row.locked .wm-setting-value {
+      color: #94a3b8;
+    }
+
+    .wm-locked-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 10px;
+      color: #2f6bff;
+      background: #eef4ff;
+      border-radius: 4px;
+      padding: 2px 6px;
+      margin-left: 8px;
+    }
+
+    /* 模板管理弹窗 */
+    .tmpl-modal-body {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .tmpl-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 260px;
+      overflow-y: auto;
+    }
+
+    .tmpl-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      background: #fff;
+    }
+
+    .tmpl-item-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .tmpl-item-name {
+      font-size: 13px;
+      font-weight: 700;
+      color: #111827;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .tmpl-item-desc {
+      font-size: 11px;
+      color: #94a3b8;
+      margin-top: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .tmpl-item-actions {
+      display: flex;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .tmpl-item-actions button {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      border: 1px solid #e5e7eb;
+      background: #fff;
+      font-size: 13px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .tmpl-item-actions button:hover {
+      border-color: #2f6bff;
+      color: #2f6bff;
+    }
+
+    .tmpl-item-actions button.danger:hover {
+      border-color: #ef4444;
+      color: #ef4444;
+      background: #fef2f2;
+    }
+
+    .tmpl-add-form {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .tmpl-add-form input {
+      flex: 1;
+      height: 34px;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      padding: 0 10px;
+      font-size: 13px;
+      outline: none;
+    }
+
+    .tmpl-add-form input:focus {
+      border-color: #2f6bff;
+    }
+
+    .tmpl-empty {
+      text-align: center;
+      color: #94a3b8;
+      font-size: 13px;
+      padding: 24px 0;
+    }
+
     /* Export modal */
     .export-form {
       display: grid;
@@ -2024,6 +2216,28 @@
     </div>
   </div>
 
+  <!-- ========== 水印模板管理弹窗 ========== -->
+  <div id="templateModal" class="modal-mask">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">水印模板管理</div>
+        <button class="icon-btn" onclick="closeTemplateModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="tmpl-modal-body">
+          <div class="tmpl-list" id="tmplList"></div>
+          <div class="tmpl-add-form">
+            <input id="tmplNameInput" type="text" placeholder="模板名称" maxlength="20" />
+            <button class="btn btn-primary" style="height:34px;padding:0 14px;font-size:13px;" onclick="addTemplate()">保存为模板</button>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" onclick="closeTemplateModal()">关闭</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ========== 水印与字幕配置弹窗 ========== -->
   <div id="wmSubModal" class="modal-mask">
     <div class="modal wide">
@@ -2057,22 +2271,31 @@
 
               <div class="wm-detail-pane">
                 <div id="wmEditorSection" style="display:none;">
+                  <!-- 模板选择栏 -->
+                  <div class="wm-template-bar">
+                    <span class="tmpl-label">模板</span>
+                    <select id="wmTemplateSelect" onchange="onWmTemplateChange()">
+                      <option value="">— 不使用模板 —</option>
+                    </select>
+                    <button class="tmpl-btn primary" onclick="openTemplateModal()">管理模板</button>
+                  </div>
+
                   <div class="wm-settings">
-                    <div class="wm-setting-row">
+                    <div class="wm-setting-row" id="wmTextRow">
                       <span class="wm-setting-label">水印文字</span>
                       <textarea class="wm-setting-input" placeholder="请输入水印文字" maxlength="100" id="wmTextInput" oninput="syncActiveWm()"></textarea>
                     </div>
-                    <div class="wm-setting-row">
+                    <div class="wm-setting-row" id="wmSizeRow">
                       <span class="wm-setting-label">字体大小</span>
                       <input class="wm-setting-range" type="range" id="wmSizeRange" min="10" max="48" value="24" oninput="syncActiveWm()" />
                       <span class="wm-setting-value" id="wmSizeVal">24px</span>
                     </div>
-                    <div class="wm-setting-row">
+                    <div class="wm-setting-row" id="wmOpacityRow">
                       <span class="wm-setting-label">透明度</span>
                       <input class="wm-setting-range" type="range" id="wmOpacityRange" min="5" max="100" value="30" oninput="syncActiveWm()" />
                       <span class="wm-setting-value" id="wmOpacityVal">30%</span>
                     </div>
-                    <div class="wm-setting-row">
+                    <div class="wm-setting-row" id="wmColorRow">
                       <span class="wm-setting-label">文字颜色</span>
                       <input class="wm-setting-color" type="color" id="wmColorPicker" value="#ffffff" oninput="syncActiveWm()" />
                       <span class="wm-setting-value" id="wmColorVal">#ffffff</span>
@@ -2360,6 +2583,159 @@
     var watermarks = [];
     var activeWmIndex = -1;
 
+    // 水印模板管理
+    var wmTemplates = [
+      { id: "t1", name: "公司 Logo 水印", text: "© 2026 某某投顾", size: 18, opacity: 35, color: "#ffffff" },
+      { id: "t2", name: "免责声明", text: "投资有风险，入市需谨慎", size: 14, opacity: 50, color: "#cccccc" }
+    ];
+
+    function openTemplateModal() {
+      document.getElementById("templateModal").classList.add("show");
+      renderTemplateList();
+    }
+
+    function closeTemplateModal() {
+      document.getElementById("templateModal").classList.remove("show");
+      document.getElementById("tmplNameInput").value = "";
+      renderTemplateSelect();
+    }
+
+    function renderTemplateList() {
+      var list = document.getElementById("tmplList");
+      if (wmTemplates.length === 0) {
+        list.innerHTML = '<div class="tmpl-empty">暂无模板，请先添加一个水印后保存为模板</div>';
+        return;
+      }
+      list.innerHTML = "";
+      wmTemplates.forEach(function(tmpl, i) {
+        var div = document.createElement("div");
+        div.className = "tmpl-item";
+        var desc = tmpl.text.slice(0, 30) + " · " + tmpl.size + "px · " + tmpl.opacity + "%";
+        div.innerHTML =
+          '<div class="tmpl-item-info">' +
+            '<div class="tmpl-item-name">' + tmpl.name + '</div>' +
+            '<div class="tmpl-item-desc">' + desc + '</div>' +
+          '</div>' +
+          '<div class="tmpl-item-actions">' +
+            '<button onclick="renameTemplate(' + i + ')" title="重命名">重命名</button>' +
+            '<button class="danger" onclick="deleteTemplate(' + i + ')" title="删除">删除</button>' +
+          '</div>';
+        list.appendChild(div);
+      });
+    }
+
+    function addTemplate() {
+      var name = document.getElementById("tmplNameInput").value.trim();
+      if (!name) {
+        showToast("请输入名称", "模板名称不能为空");
+        return;
+      }
+      if (activeWmIndex < 0) {
+        showToast("请先选择水印", "需要先添加并选择一个水印，才能保存为模板");
+        return;
+      }
+      var wm = watermarks[activeWmIndex];
+      wmTemplates.push({
+        id: "t" + Date.now(),
+        name: name,
+        text: wm.text,
+        size: wm.size,
+        opacity: wm.opacity,
+        color: wm.color
+      });
+      document.getElementById("tmplNameInput").value = "";
+      renderTemplateList();
+      renderTemplateSelect();
+      showToast("模板已保存", "「" + name + "」已添加到模板列表");
+    }
+
+    function renameTemplate(index) {
+      var tmpl = wmTemplates[index];
+      var newName = prompt("重命名模板", tmpl.name);
+      if (newName && newName.trim()) {
+        tmpl.name = newName.trim();
+        renderTemplateList();
+        renderTemplateSelect();
+      }
+    }
+
+    function deleteTemplate(index) {
+      var tmpl = wmTemplates[index];
+      if (confirm("确定删除模板「" + tmpl.name + "」？")) {
+        wmTemplates.splice(index, 1);
+        renderTemplateList();
+        renderTemplateSelect();
+      }
+    }
+
+    function renderTemplateSelect() {
+      var sel = document.getElementById("wmTemplateSelect");
+      var currentVal = sel.value;
+      sel.innerHTML = '<option value="">— 不使用模板 —</option>';
+      wmTemplates.forEach(function(tmpl) {
+        var opt = document.createElement("option");
+        opt.value = tmpl.id;
+        opt.textContent = tmpl.name;
+        sel.appendChild(opt);
+      });
+      sel.value = currentVal;
+    }
+
+    function onWmTemplateChange() {
+      if (activeWmIndex < 0) return;
+      var sel = document.getElementById("wmTemplateSelect");
+      var tmplId = sel.value;
+
+      if (!tmplId) {
+        // 不使用模板，解锁编辑器
+        unlockWmEditor();
+        return;
+      }
+
+      var tmpl = wmTemplates.find(function(t) { return t.id === tmplId; });
+      if (!tmpl) return;
+
+      // 应用模板配置
+      var wm = watermarks[activeWmIndex];
+      wm.text = tmpl.text;
+      wm.size = tmpl.size;
+      wm.opacity = tmpl.opacity;
+      wm.color = tmpl.color;
+
+      // 更新编辑器显示
+      document.getElementById("wmTextInput").value = wm.text;
+      document.getElementById("wmSizeRange").value = wm.size;
+      document.getElementById("wmOpacityRange").value = wm.opacity;
+      document.getElementById("wmColorPicker").value = wm.color;
+      document.getElementById("wmSizeVal").innerText = wm.size + "px";
+      document.getElementById("wmOpacityVal").innerText = wm.opacity + "%";
+      document.getElementById("wmColorVal").innerText = wm.color;
+
+      // 锁定编辑器
+      lockWmEditor();
+      renderWmList();
+      renderWmStage();
+    }
+
+    function lockWmEditor() {
+      document.getElementById("wmTextRow").classList.add("locked");
+      document.getElementById("wmSizeRow").classList.add("locked");
+      document.getElementById("wmOpacityRow").classList.add("locked");
+      document.getElementById("wmColorRow").classList.add("locked");
+      var sel = document.getElementById("wmTemplateSelect");
+      var tmplId = sel.value;
+      if (tmplId && !sel.querySelector("option[value='" + tmplId + "'] .wm-locked-badge")) {
+        // 显示锁定标记
+      }
+    }
+
+    function unlockWmEditor() {
+      document.getElementById("wmTextRow").classList.remove("locked");
+      document.getElementById("wmSizeRow").classList.remove("locked");
+      document.getElementById("wmOpacityRow").classList.remove("locked");
+      document.getElementById("wmColorRow").classList.remove("locked");
+    }
+
     function openWmSubModal() {
       // 检查是否正在合成
       if (composingState.isComposing) {
@@ -2373,6 +2749,9 @@
       if (watermarks.length === 0) {
         renderWmList();
       }
+
+      // 初始化模板下拉
+      renderTemplateSelect();
 
       // 初始化字幕预览
       document.getElementById("subTextInput").value = subtitleConfig.text;
@@ -2413,7 +2792,8 @@
         color: "#ffffff",
         x: 50,
         y: 85,
-        visible: true
+        visible: true,
+        templateId: ""
       });
       activeWmIndex = watermarks.length - 1;
       renderWmList();
@@ -2436,6 +2816,15 @@
       document.getElementById("wmOpacityVal").innerText = wm.opacity + "%";
       document.getElementById("wmColorVal").innerText = wm.color;
 
+      // 重置模板选择
+      var sel = document.getElementById("wmTemplateSelect");
+      sel.value = wm.templateId || "";
+      if (wm.templateId) {
+        lockWmEditor();
+      } else {
+        unlockWmEditor();
+      }
+
       renderWmList();
       renderWmStage();
     }
@@ -2451,6 +2840,14 @@
       document.getElementById("wmSizeVal").innerText = wm.size + "px";
       document.getElementById("wmOpacityVal").innerText = wm.opacity + "%";
       document.getElementById("wmColorVal").innerText = wm.color;
+
+      // 手动修改配置后，解除模板绑定
+      var sel = document.getElementById("wmTemplateSelect");
+      if (sel.value) {
+        sel.value = "";
+        wm.templateId = "";
+        unlockWmEditor();
+      }
 
       renderWmList();
       renderWmStage();
