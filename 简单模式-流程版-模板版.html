@@ -771,8 +771,8 @@
         <div class="genmode-card" id="genmodeNight" onclick="selectGenMode('night')">
           <div class="genmode-badge night">7 折</div>
           <div class="genmode-icon">🌙</div>
-          <div class="genmode-name">夜间生成</div>
-          <div class="genmode-desc">夜间空闲时段执行</div>
+          <div class="genmode-name">闲时生成</div>
+          <div class="genmode-desc">预估晚8点到早7点之间执行</div>
           <div class="genmode-cost">
             消耗 <strong id="genmodeCostNight" style="color:#10b981;">0</strong> 积分
             <span class="orig" id="genmodeOrigCost">原价 0</span>
@@ -841,7 +841,7 @@
       document.getElementById('genmodeNight').classList.toggle('active', selectedGenMode === 'night');
       document.getElementById('genmodeNotice').textContent = selectedGenMode === 'immediate'
         ? '立即使用 GPU 资源生成视频，适合紧急需求。'
-        : '任务将在夜间空闲时段自动执行，预计消耗 7 折积分。';
+        : '任务将在闲时自动执行，预估晚8点到早7点之间执行，预计消耗 7 折积分。';
     }
 
     function confirmGenMode() {

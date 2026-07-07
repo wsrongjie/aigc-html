@@ -2420,8 +2420,8 @@
           <div class="gen-option-card" id="genNight" onclick="selectScheduleMode('night')">
             <div class="gen-option-badge night">7 折</div>
             <div class="gen-option-icon">🌙</div>
-            <div class="gen-option-title">夜间生成</div>
-            <div class="gen-option-desc">夜间空闲时段执行</div>
+            <div class="gen-option-title">闲时生成</div>
+            <div class="gen-option-desc">预估晚8点到早7点之间执行</div>
             <div class="gen-option-cost">
               消耗 <strong id="genCostNight" style="color:#10b981;">70</strong> 积分
               <span class="gen-cost-original">原价 100</span>
@@ -3148,13 +3148,13 @@
       document.getElementById("genNight").classList.toggle("active", selectedGenerateMode === "night");
       document.getElementById("genNotice").innerText = selectedGenerateMode === "immediate"
         ? "立即使用 GPU 资源生成视频，适合紧急需求。"
-        : "任务将在夜间空闲时段自动执行，预计消耗 7 折积分。";
+        : "任务将在闲时自动执行，预估晚8点到早7点之间执行，预计消耗 7 折积分。";
     }
 
     function confirmGenerate() {
       closeGenerateModal();
       if (selectedGenerateMode === "night") {
-        showToast("已加入夜间队列", "视频已加入夜间生成队列，预计今晚空闲时段自动执行，消耗 7 折积分。");
+        showToast("已加入闲时队列", "视频已加入闲时生成队列，预估晚8点到早7点之间执行，消耗 7 折积分。");
       } else {
         showToast("生成已启动", "视频已提交至生成队列，预计 2-5 分钟完成。");
       }

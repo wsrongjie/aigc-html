@@ -1850,7 +1850,7 @@
         <div style="font-size:36px;margin-bottom:12px;">⚡</div>
         <div style="font-size:15px;font-weight:800;color:#111827;margin-bottom:8px;">确认立即执行？</div>
         <div style="font-size:13px;color:#6b7280;line-height:1.7;">
-          立即执行将取消夜间折扣，积分消耗恢复为原价。
+          立即执行将取消闲时折扣，积分消耗恢复为原价。
           <br>预计 <strong id="executeNowCount">0</strong> 条视频，积分从
           <span style="color:#10b981;font-weight:700;" id="executeNowNightCost">0</span>
           恢复为
@@ -1881,11 +1881,11 @@
           <br>差额 <strong style="color:#ef4444;" id="ciShortfall">0</strong> 🪙
         </div>
         <div style="margin-top:14px;padding:10px 14px;border-radius:10px;background:#fff7ed;border:1px solid #fed7aa;font-size:12px;color:#92400e;line-height:1.55;">
-          请充值后再试，否则只能等待夜间空闲时段自动生成（继续享受 7 折优惠）。
+          请充值后再试，否则只能等待闲时自动生成（继续享受 7 折优惠）。
         </div>
       </div>
       <div class="modal-actions">
-        <button class="btn btn-secondary" type="button" onclick="closeCreditInsufficientModal()">返回等待夜间生成</button>
+        <button class="btn btn-secondary" type="button" onclick="closeCreditInsufficientModal()">返回等待闲时生成</button>
         <button class="btn btn-primary" type="button" onclick="closeCreditInsufficientModal();toast('跳转至充值页面…')">去充值</button>
       </div>
     </div>
@@ -1975,7 +1975,7 @@
         });
         saveTasks(tasks);
         localStorage.removeItem('newTaskFromFlow');
-        toast(data.scheduleMode === 'night' ? '视频已加入夜间队列，预计今晚空闲时段执行' : '新任务已进入导演台，开始生成');
+        toast(data.scheduleMode === 'night' ? '视频已加入闲时队列，预估晚8点到早7点之间执行' : '新任务已进入导演台，开始生成');
       } catch(e) {}
     }
 
@@ -2346,7 +2346,7 @@
       html += '<td class="task-report-count">' + rows.length + '</td>';
       html += '<td class="task-report-cost">' + totalCost + '🪙</td>';
       html += '<td class="task-report-time">' + fmtTime(earliestCreated) + '</td>';
-      html += '<td><span class="task-state-chip" style="color:' + statusInfo.color + ';">' + statusInfo.text + '</span>' + (isNightSchedule(rows) ? ' <span style="font-size:11px;color:#10b981;font-weight:800;">🌙夜间</span>' : '') + '</td>';
+      html += '<td><span class="task-state-chip" style="color:' + statusInfo.color + ';">' + statusInfo.text + '</span>' + (isNightSchedule(rows) ? ' <span style="font-size:11px;color:#10b981;font-weight:800;">🌙闲时</span>' : '') + '</td>';
       html += '<td class="task-report-progress">' + progress + '%</td>';
       html += '<td class="task-report-time">' + (latestCompleted ? fmtTime(latestCompleted) : '—') + '</td>';
       html += '<td><div class="task-report-actions">';
@@ -2391,7 +2391,7 @@
         progressHtml = '<div class="tpb"><div class="tpb-fill" style="width:' + task.progress + '%"></div></div><span class="tpb-text">' + task.progress + '%</span>';
       } else if (task.status === 'queued') {
         if (task.scheduleMode === 'night') {
-          statusHtml = '<span class="ts queued" style="color:#10b981;"><span class="ico">🌙</span>夜间排队</span>';
+          statusHtml = '<span class="ts queued" style="color:#10b981;"><span class="ico">🌙</span>闲时排队</span>';
         } else {
           statusHtml = '<span class="ts queued"><span class="ico">⏳</span>排队中</span>';
         }
@@ -2466,7 +2466,7 @@
       var html = '<section class="video-task-group">';
       html += '<div class="video-group-head">';
       html += '<div class="video-group-title"><div class="video-group-name" title="' + escapeHtml(tn) + '">' + escapeHtml(tn) + '</div>';
-      html += '<div class="video-group-meta"><span>' + rows.length + ' 条视频</span><span style="color:' + statusInfo.color + '">' + statusInfo.text + '</span>' + (isNightSchedule(rows) ? ' <span style="font-size:11px;color:#10b981;font-weight:800;">🌙夜间</span>' : '') + '<span>总消耗 ' + totalCost + '🪙</span></div></div>';
+      html += '<div class="video-group-meta"><span>' + rows.length + ' 条视频</span><span style="color:' + statusInfo.color + '">' + statusInfo.text + '</span>' + (isNightSchedule(rows) ? ' <span style="font-size:11px;color:#10b981;font-weight:800;">🌙闲时</span>' : '') + '<span>总消耗 ' + totalCost + '🪙</span></div></div>';
       html += '<div class="video-group-actions">';
       html += '<button class="task-report-action"' + (isNightSchedule(rows) ? '' : ' disabled') + ' onclick="executeNow(\'' + tnEsc + '\')" style="color:#10b981;font-weight:800;">立即执行</button>';
       html += '<button class="task-report-action cover"' + coverDisabled + ' onclick="openGroupCoverConfig(\'' + tnEsc + '\')">' + coverLabel + '</button>';
