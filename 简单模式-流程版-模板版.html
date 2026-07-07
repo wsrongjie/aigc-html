@@ -102,6 +102,32 @@
     .sc-count { font-size: 10px; color: #999; margin-left: auto; margin-right: 8px; }
     .sc-flat textarea { width: 100%; min-height: 56px; border: 1.5px solid #e8e8e8; border-radius: 6px; padding: 8px 10px; font-size: 13px; line-height: 1.6; resize: vertical; font-family: inherit; background: #fff; transition: all 0.2s; }
     .sc-flat textarea:focus { outline: none; border-color: #0066ff; box-shadow: 0 0 0 3px rgba(0,102,255,0.08); }
+    /* 内容可编辑 div — 替代 textarea */
+    .card-text-editor { width:100%; min-height:56px; border:1.5px solid #e8e8e8; border-radius:6px; padding:8px 10px; font-size:13px; line-height:1.6; background:#fff; transition:all 0.2s; outline:none; overflow-y:auto; word-break:break-word; }
+    .card-text-editor:focus { border-color:#0066ff; box-shadow:0 0 0 3px rgba(0,102,255,0.08); }
+    .card-text-editor:empty::before { content:'请输入这条台词的内容...'; color:#aaa; }
+    .card-text-editor.readonly-step2 { background:#f9fafb; color:#555; cursor:default; }
+    .card-text-editor.readonly-step2:focus { border-color:#e8e8e8; box-shadow:none; }
+    /* 停顿标签药丸 */
+    .break-tag { display:inline-block; background:#f3e8ff; color:#7c3aed; border-radius:4px; padding:0 5px; font-size:12px; font-weight:500; cursor:pointer; user-select:none; vertical-align:baseline; margin:0 1px; white-space:nowrap; border:1.5px solid #e9d5ff; line-height:1.4; }
+    .break-tag:hover { background:#ede9fe; border-color:#c4b5fd; }
+    .break-tag.break-selected { background:#ddd6fe; border-color:#7c3aed; box-shadow:0 0 0 2px rgba(124,58,237,0.15); }
+    /* 卡片工具栏 */
+    .card-toolbar { display:flex; align-items:center; gap:6px; margin-top:6px; flex-wrap:wrap; }
+    .card-toolbar button { font-size:11px; padding:3px 10px; border:1.5px dashed #d0d0d0; border-radius:6px; background:#fafafa; color:#666; cursor:pointer; transition:all 0.15s; }
+    .card-toolbar button:hover { border-color:#0066ff; color:#0066ff; background:#f0f5ff; }
+    /* 停顿弹窗 */
+    .break-popover { position:fixed; z-index:9999; background:#fff; border-radius:10px; box-shadow:0 8px 30px rgba(0,0,0,0.18); padding:12px; min-width:200px; }
+    .break-popover .pop-header { font-size:11px; color:#888; margin-bottom:8px; text-align:center; }
+    .break-popover .pop-presets { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:8px; justify-content:center; align-items:center; }
+    .break-popover .pop-presets button { font-size:12px; padding:4px 12px; border:1.5px solid #e8e8e8; border-radius:6px; background:#fafafa; cursor:pointer; transition:all 0.15s; }
+    .break-popover .pop-presets button:hover, .break-popover .pop-presets button.active { border-color:#7c3aed; color:#7c3aed; background:#f5f3ff; }
+    .break-popover .pop-divider { color:#ddd; font-size:11px; margin:0 2px; user-select:none; }
+    .break-popover .pop-custom-inline { width:60px; padding:4px 8px; font-size:12px; border:1.5px solid #e8e8e8; border-radius:6px; text-align:center; background:#fafafa; }
+    .break-popover .pop-custom-inline:focus { outline:none; border-color:#7c3aed; background:#fff; }
+    .break-popover .pop-custom-inline::placeholder { color:#bbb; }
+    .break-popover .pop-delete { display:block; width:100%; padding:5px; font-size:11px; color:#ef4444; border:1.5px solid #fee2e2; border-radius:6px; background:#fef2f2; cursor:pointer; transition:all 0.15s; }
+    .break-popover .pop-delete:hover { background:#fee2e2; }
     .sc-flat .tts-play-row { margin-top: 6px; }
     .sc-flat .ff-voice-toggle { margin-top: 4px; }
     .sc-flat .ff-voice-cfg { margin-top: 4px; }
@@ -112,6 +138,8 @@
     .btn1:hover { background: #0055dd; box-shadow: 0 2px 8px rgba(0,102,255,0.3); }
     .sc-add { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 12px; border: 1.5px dashed #d8d8d8; border-radius: 10px; cursor: pointer; color: #999; font-size: 12px; transition: all 0.15s; background: #fafafa; }
     .sc-add:hover { border-color: #0066ff; color: #0066ff; background: #f5f8ff; }
+    .add-item-btn { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 10px; border: 1.5px dashed #d8d8d8; border-radius: 10px; cursor: pointer; color: #999; font-size: 12px; transition: all 0.15s; background: #fafafa; margin-top: 8px; }
+    .add-item-btn:hover { border-color: #0066ff; color: #0066ff; background: #f5f8ff; }
 
 	    /* 语速步进 */
 	    .speed-row { display: flex; align-items: center; gap: 6px; font-size: 11px; flex: 1; justify-content: center; }
@@ -467,6 +495,7 @@
 
             <div class="av-search"><input type="text" placeholder="搜索角色名称、标签..." oninput="filterAvatarList(this.value)"></div>
             <div class="av-grid-compact" id="avatar-grid"></div>
+            <div class="add-item-btn" onclick="openCreateSubject('role')">＋ 新增角色</div>
           </div>
 
           <!-- 背景（多选开关） -->
@@ -483,6 +512,7 @@
             </div>
             <div class="bg-search"><input type="text" placeholder="搜索场景名称..." oninput="filterBgList(this.value)"></div>
             <div class="bg-grid-compact" id="bg-grid-preset"></div>
+            <div class="add-item-btn" onclick="openCreateSubject('scene')">＋ 新增场景</div>
           </div>
         </div>
         <div class="step1-main">
@@ -580,7 +610,7 @@
           <div>共 <strong id="cf-count">0</strong> 条视频 · 预计 <strong id="cf-time">0</strong> 分钟</div>
         </div>
         <table class="cf-table">
-          <thead><tr><th style="width:44px">序号</th><th style="width:50px">首帧</th><th>角色</th><th>背景</th><th>镜头</th><th>台词</th><th style="width:70px">预估时长</th><th style="width:60px">操作</th></tr></thead>
+          <thead><tr><th style="width:44px">序号</th><th style="width:50px">首帧</th><th>角色</th><th>背景</th><th>镜头</th><th>台词</th><th style="width:70px">预估时长</th><th style="width:60px">消耗积分</th><th style="width:60px">操作</th></tr></thead>
           <tbody id="cf-tbody"></tbody>
         </table>
       </div>
@@ -794,6 +824,8 @@
 
     function getBgGradient(name) {
       if (bgM[name]) return bgM[name];
+      var customScenes = getCustomScenes();
+      if (customScenes[name]) return customScenes[name];
       var tpl = templateList.find(function(t){ return t.scene === name; });
       return tpl ? tpl.sceneGradient : bgM['办公室'];
     }
@@ -929,7 +961,7 @@
         useTemplateScene: S.useTemplateScene,
         visibility: S.visibility,
         cards: S.cards.map(function(c) {
-          return { id: c.id, content: c.content, tts: { custom: c.tts.custom, speed: c.tts.speed, pitch: c.tts.pitch, volume: c.tts.volume, instruction: c.tts.instruction } };
+          return { id: c.id, content: c.content, tts: { custom: c.tts.custom, speed: c.tts.speed, pitch: c.tts.pitch, volume: c.tts.volume, instruction: c.tts.instruction, breaks: c.tts.breaks } };
         })
       };
       localStorage.setItem('aigc_draft_task', JSON.stringify(draft));
@@ -983,9 +1015,53 @@
       saveDraft();
     }
     function escapeHtml(v) { return String(v || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-    function getAvatarMeta(key) { for (var i=0;i<avList.length;i++){ if(avList[i].key===key) return avList[i]; } return { key:key, name:key, tag:'' }; }
+    function getAvatarMeta(key) { var list=getMergedAvatars(); for (var i=0;i<list.length;i++){ if(list[i].key===key) return list[i]; } return { key:key, name:key, tag:'' }; }
     function pick(arr) { return arr[Math.floor(Math.random()*arr.length)]; }
     function formatTime(sec) { var m=Math.floor(sec/60), s=Math.floor(sec%60); return m+':'+(s<10?'0':'')+s; }
+
+    /* ── 自定义角色/场景（localStorage）── */
+    function getCustomRoles() { try { var r=localStorage.getItem('aigc_custom_roles'); return r?JSON.parse(r):[]; } catch(e) { return []; } }
+    function getCustomScenes() { try { var r=localStorage.getItem('aigc_custom_scenes'); return r?JSON.parse(r):{}; } catch(e) { return {}; } }
+    function getMergedAvatars() { return avList.concat(getCustomRoles()); }
+    function getMergedBgMap() { var m={}; Object.keys(bgM).forEach(function(k){ m[k]=bgM[k]; }); var c=getCustomScenes(); Object.keys(c).forEach(function(k){ m[k]=c[k]; }); return m; }
+    function getCustomEmoji(idx) { var pool=['👤','🧑','👨','👩','🧔','👱','👲','👳','👴','👵','🧕','👮']; var i = idx >= 0 ? idx : 0; return pool[i % pool.length]; }
+
+    function openCreateSubject(type) {
+        var currentUrl = window.location.href.split("#")[0];
+        var returnUrlEncoded = encodeURIComponent(currentUrl);
+        window.location.href = "主体管理-创建主体.html?type=" + type + "&returnUrl=" + returnUrlEncoded;
+    }
+
+    function checkNewSubject() {
+        var params3 = new URLSearchParams(window.location.search);
+        var newRole = params3.get("newRole");
+        var newScene = params3.get("newScene");
+        var changed = false;
+        if (newRole) {
+            var customRoles = getCustomRoles();
+            if (!customRoles.some(function(r){ return r.key === newRole; })) {
+                customRoles.push({ key: newRole, name: newRole, tag: '自定义' });
+                localStorage.setItem('aigc_custom_roles', JSON.stringify(customRoles));
+            }
+            S.avatar = newRole;
+            toast('已添加并选择新角色：' + newRole);
+            changed = true;
+        }
+        if (newScene) {
+            var customScenes = getCustomScenes();
+            if (!customScenes[newScene]) {
+                customScenes[newScene] = 'linear-gradient(135deg,#a1c4fd,#c2e9fb)';
+                localStorage.setItem('aigc_custom_scenes', JSON.stringify(customScenes));
+            }
+            S.bgMulti = [newScene];
+            toast('已添加并选择新场景：' + newScene);
+            changed = true;
+        }
+        if (changed) {
+            var cleanUrl = window.location.pathname + window.location.hash;
+            window.history.replaceState({}, "", cleanUrl);
+        }
+    }
 
     /* ========== 状态判断 ========== */
     function hasAvatar() { return !!S.avatar; }
@@ -1005,13 +1081,14 @@
 
     function renderAvatarList(keyword) {
       keyword = (keyword || '').toLowerCase();
-      var filtered = avList.filter(function(a){ return a.name.toLowerCase().indexOf(keyword)>-1 || a.tag.toLowerCase().indexOf(keyword)>-1 || a.key.toLowerCase().indexOf(keyword)>-1; });
+      var list = getMergedAvatars();
+      var filtered = list.filter(function(a){ return a.name.toLowerCase().indexOf(keyword)>-1 || a.tag.toLowerCase().indexOf(keyword)>-1 || a.key.toLowerCase().indexOf(keyword)>-1; });
       var c = document.getElementById('avatar-grid');
       if (filtered.length === 0) { c.innerHTML = '<div class="av-nore">没有找到匹配的角色</div>'; return; }
       var h = '';
-      filtered.forEach(function(a) {
+      filtered.forEach(function(a, i) {
         var sel = S.avatar === a.key;
-        var emoji = avI[a.key] || '👤';
+        var emoji = avI[a.key] || getCustomEmoji(list.indexOf(a));
         var nameEsc = a.name.replace(/'/g,"\\'");
         h += '<div class="av-item-compact' + (sel?' sel':'') + '" onclick="selAvatar(\''+a.key+'\')" onmouseenter="showCharTip(event,\''+emoji+'\',\''+a.name.replace(/'/g,"\\'")+'\',\''+a.tag.replace(/'/g,"\\'")+'\')" onmouseleave="hideTip()">';
         h += '<div class="av-cb-compact">✓</div>';
@@ -1041,15 +1118,16 @@
 
     function renderBgList(keyword) {
       keyword = (keyword || '').toLowerCase();
-      var keys = Object.keys(bgM).filter(function(k){ return k.toLowerCase().indexOf(keyword)>-1; });
+      var merged = getMergedBgMap();
+      var keys = Object.keys(merged).filter(function(k){ return k.toLowerCase().indexOf(keyword)>-1; });
       var c = document.getElementById('bg-grid-preset');
       if (keys.length === 0) { c.innerHTML = '<div class="av-nore">没有找到匹配的场景</div>'; return; }
       var h = '';
       keys.forEach(function(n) {
         var sel = S.bgMulti.indexOf(n) > -1;
-        h += '<div class="bg-card-compact'+(sel?' sel':'')+'" onclick="selBg(\''+n.replace(/'/g,"\\'")+'\')" onmouseenter="showBgTip(event,\''+bgM[n].replace(/'/g,"\\'")+'\',\''+n.replace(/'/g,"\\'")+'\')" onmouseleave="hideTip()">';
+        h += '<div class="bg-card-compact'+(sel?' sel':'')+'" onclick="selBg(\''+n.replace(/'/g,"\\'")+'\')" onmouseenter="showBgTip(event,\''+merged[n].replace(/'/g,"\\'")+'\',\''+n.replace(/'/g,"\\'")+'\')" onmouseleave="hideTip()">';
         h += '<div class="bg-cb-compact">✓</div>';
-        h += '<div class="bg-thumb-compact" style="background:'+bgM[n]+'"></div>';
+        h += '<div class="bg-thumb-compact" style="background:'+merged[n]+'"></div>';
         h += '<div class="bg-lb-compact">'+n+'</div>';
         h += '</div>';
       });
@@ -1088,13 +1166,14 @@
       S.cards.push({ id: S.nextId++, content: content || '', frame: null, tts: defaultTts() });
       renderCards();
     }
-    function defaultTts() { return { ready:false, status:'pending', duration:3, custom:false, speed:10, pitch:0, volume:80, instruction:'' }; }
+    function defaultTts() { return { ready:false, status:'pending', duration:3, custom:false, speed:10, pitch:0, volume:80, instruction:'', breaks:[] }; }
     function delScript(id) { S.cards = S.cards.filter(function(x){return x.id!==id;}); renderCards(); updFooter(); updateSidebar(); }
     function updScript(id, v) {
       var g = S.cards.find(function(x){return x.id===id;});
       if (g) g.content = v;
-      var c1 = document.getElementById('cnt-'+id); if (c1) c1.textContent = (v||'').length + ' 字';
-      var c2 = document.getElementById('ff-cnt-'+id); if (c2) c2.textContent = (v||'').length + ' 字';
+      var raw = (v||'').replace(/<#\d+\.?\d*#\>/g,'');
+      var c1 = document.getElementById('cnt-'+id); if (c1) c1.textContent = raw.length + ' 字';
+      var c2 = document.getElementById('ff-cnt-'+id); if (c2) c2.textContent = raw.length + ' 字';
       updFooter();
       updateSidebar();
       saveDraft();
@@ -1120,10 +1199,11 @@
         h += '<button class="speed-step-btn" onclick="adjSpeed('+g.id+',1)">▴</button></div>';
         h += '<span class="speed-synth" onclick="resynthOne('+g.id+')" title="合成本条语音">🔄</span>';
         h += '<span class="speed-est" id="speed-est-'+g.id+'">预估 '+estDuration(g.content, t.speed)+'</span></div>';
-        h += '<span class="sc-count" id="cnt-'+g.id+'" style="margin-left:auto;">'+g.content.length+' 字</span>';
+        h += '<span class="sc-count" id="cnt-'+g.id+'" style="margin-left:auto;">'+(g.content||'').replace(/<#\d+\.?\d*#\>/g,'').length+' 字</span>';
         h += '<button class="btn btn2" style="font-size:10px;padding:2px 8px;" onclick="delScript('+g.id+')">删除</button></div>';
-        // textarea
-        h += '<textarea placeholder="请输入这条台词的内容..." oninput="updScript('+g.id+',this.value)">'+escapeHtml(g.content)+'</textarea>';
+        // 可编辑台词区
+        h += '<div class="card-text-editor" id="card-editor-'+g.id+'" contenteditable="true" placeholder="请输入这条台词的内容..."></div>';
+        h += '<div class="card-toolbar"><button onclick="insertBreak('+g.id+')">&lt;#&gt; 停顿</button></div>';
         // TTS 播放条
         var ttsFailed = t.status === 'failed';
         var ttsReady = t.status === 'ready';
@@ -1155,6 +1235,225 @@
       updFooter();
       updateSidebar();
       saveDraft();
+      initCardEditors();
+    }
+
+    /* ── 停顿标签 ── */
+    var editingCardId = null;   // 当前正在 composition 的卡片
+    function setEditorContent(el, text) {
+      el.innerHTML = '';
+      var parts = (text||'').split(/(<#\d+\.?\d*#\>)/g);
+      parts.forEach(function(p) {
+        var m = p.match(/^<#(\d+\.?\d*)#\>$/);
+        if (m) {
+          var ms = parseInt(parseFloat(m[1]));
+          var label = ms >= 1000 ? (ms/1000).toFixed(2).replace(/\.?0+$/,'') + 's' : ms + 'ms';
+          var span = document.createElement('span');
+          span.className = 'break-tag';
+          span.setAttribute('contenteditable', 'false');
+          span.setAttribute('data-duration', ms);
+          span.textContent = '\u23f8 '+label;
+          el.appendChild(span);
+        } else if (p) {
+          var lines = p.split('\n');
+          lines.forEach(function(line, i) {
+            if (i>0) el.appendChild(document.createElement('br'));
+            if (line) el.appendChild(document.createTextNode(line));
+          });
+        }
+      });
+    }
+    function getEditorText(el) {
+      var text = '';
+      function walk(nodes) {
+        for (var i=0;i<nodes.length;i++) {
+          var n = nodes[i];
+          if (n.nodeType===3) { text += n.textContent; }
+          else if (n.nodeType===1) {
+            if (n.classList.contains('break-tag')) { text += '<#'+n.getAttribute('data-duration')+'#>'; }
+            else if (n.tagName==='BR') { text += '\n'; }
+            else { walk(n.childNodes); }
+          }
+        }
+      }
+      walk(el.childNodes);
+      return text;
+    }
+    function initCardEditors() {
+      S.cards.forEach(function(g) {
+        var el = document.getElementById('card-editor-'+g.id);
+        if (!el) return;
+        setEditorContent(el, g.content);
+        el.addEventListener('input', function() { syncFromEditor(g.id); });
+        el.addEventListener('blur', function() { syncFromEditor(g.id); });
+        el.addEventListener('paste', function(e) {
+          e.preventDefault();
+          var text = (e.clipboardData||window.clipboardData).getData('text/plain');
+          document.execCommand('insertText', false, text);
+        });
+        el.onclick = function(e) {
+          var t = e.target;
+          if (t.classList && t.classList.contains('break-tag')) { e.preventDefault(); openBreakPopover(e, t, g.id); }
+        };
+      });
+      // init step2 editors
+      if (S.step===2) {
+        S.cards.forEach(function(g) {
+          var el = document.getElementById('ff-editor-'+g.id);
+          if (el) setEditorContent(el, g.content);
+        });
+      }
+    }
+    function syncFromEditor(id) {
+      var el = document.getElementById('card-editor-'+id);
+      if (!el) return;
+      var text = getEditorText(el);
+      var g = S.cards.find(function(x){return x.id===id;});
+      if (!g) return;
+      g.content = text;
+      // 提取 breaks
+      var breaks = [];
+      var raw = '';
+      var parts = (text||'').split(/(<#\d+\.?\d*#\>)/g);
+      var pos = 0;
+      parts.forEach(function(p) {
+        var m = p.match(/^<#(\d+\.?\d*)#\>$/);
+        if (m) {
+          breaks.push({ position: pos, duration: parseInt(parseFloat(m[1])) });
+        } else {
+          pos += p.length;
+          raw += p;
+        }
+      });
+      g.tts.breaks = breaks;
+      g.tts.duration = durOf(text, g.tts.speed, breaks);
+      var rawLen = raw.length;
+      var c1 = document.getElementById('cnt-'+id); if (c1) c1.textContent = rawLen + ' 字';
+      var c2 = document.getElementById('ff-cnt-'+id); if (c2) c2.textContent = rawLen + ' 字';
+      var eel = document.getElementById('speed-est-'+id); if (eel) eel.textContent = '预估 '+estDuration(text, g.tts.speed);
+      if (S.step===2) {
+        var fl = document.getElementById('ff-editor-'+id); if (fl) setEditorContent(fl, text);
+      }
+      updFooter();
+      updateSidebar();
+      saveDraft();
+    }
+    function insertBreak(id) {
+      var el = document.getElementById('card-editor-'+id);
+      if (!el) return;
+      el.focus();
+      var dur = 250;
+      var label = dur+'ms';
+      var span = document.createElement('span');
+      span.className = 'break-tag';
+      span.setAttribute('contenteditable', 'false');
+      span.setAttribute('data-duration', dur);
+      span.textContent = '\u23f8 '+label;
+      var sel = window.getSelection();
+      if (sel.rangeCount>0) {
+        var range = sel.getRangeAt(0);
+        range.deleteContents();
+        range.insertNode(span);
+        // 在标签后放置光标
+        range.setStartAfter(span);
+        range.collapse(true);
+        sel.removeAllRanges();
+        sel.addRange(range);
+      } else {
+        el.appendChild(span);
+      }
+      syncFromEditor(id);
+    }
+    function openBreakPopover(e, tagEl, id) {
+      closeBreakPopover();
+      var dur = parseInt(tagEl.getAttribute('data-duration'));
+      var rect = tagEl.getBoundingClientRect();
+      var pop = document.createElement('div');
+      pop.className = 'break-popover';
+      pop.id = 'break-popover';
+      pop.setAttribute('data-card-id', id);
+      var presets = [250, 500, 1000, 1500];
+      var h = '<div class="pop-presets">';
+      presets.forEach(function(p) {
+        var label = p>=1000?(p/1000).toFixed(1).replace(/\.0$/,'')+'s':(p/1000).toFixed(2)+'s';
+        var active = dur===p?' active':'';
+        h += '<button class="'+active+'" onclick="setBreakDurationFromPop('+p+')">'+label+'</button>';
+      });
+      h += '<span class="pop-divider">|</span>';
+      h += '<input id="pop-custom-input" class="pop-custom-inline" type="text" placeholder="自定义" onkeydown="if(event.key===\'Enter\'){var v=parseFloat(this.value);if(!isNaN(v)&&v>0){setBreakDurationFromPop(Math.round(v*1000));}}">';
+      h += '</div>';
+      h += '<button class="pop-delete" onclick="removeBreakFromPop()">删除停顿</button>';
+      pop.innerHTML = h;
+      document.body.appendChild(pop);
+      // 定位
+      var top = rect.bottom + 6;
+      var left = rect.left;
+      if (left+220 > window.innerWidth) left = window.innerWidth-228;
+      if (top+180 > window.innerHeight) top = rect.top-190;
+      pop.style.top = top+'px';
+      pop.style.left = left+'px';
+      // 标记选中的标签
+      tagEl.classList.add('break-selected');
+      // 点击外部关闭
+      setTimeout(function() {
+        document.removeEventListener('click', closeBreakPopoverOnClickOutside);
+        document.addEventListener('click', closeBreakPopoverOnClickOutside);
+      }, 0);
+    }
+    function setBreakDurationFromPop(newMs) {
+      var pop = document.getElementById('break-popover');
+      if (!pop) return;
+      var id = parseInt(pop.getAttribute('data-card-id'));
+      var el = document.getElementById('card-editor-'+id);
+      if (!el) return;
+      var tags = el.querySelectorAll('.break-tag');
+      var target = null;
+      tags.forEach(function(t) {
+        if (t.classList.contains('break-selected')) target = t;
+      });
+      if (!target) return;
+      target.setAttribute('data-duration', newMs);
+      var label = newMs>=1000?(newMs/1000).toFixed(2).replace(/\.?0+$/,'')+'s':newMs+'ms';
+      target.textContent = '\u23f8 '+label;
+      closeBreakPopover();
+      syncFromEditor(id);
+    }
+    function removeBreakFromPop() {
+      var pop = document.getElementById('break-popover');
+      if (!pop) return;
+      var id = parseInt(pop.getAttribute('data-card-id'));
+      var el = document.getElementById('card-editor-'+id);
+      if (!el) return;
+      var tags = el.querySelectorAll('.break-tag');
+      var target = null;
+      tags.forEach(function(t) {
+        if (t.classList.contains('break-selected')) target = t;
+      });
+      if (!target) { closeBreakPopover(); return; }
+      var prev = target.previousSibling;
+      var next = target.nextSibling;
+      target.remove();
+      if (prev&&prev.nodeType===3&&next&&next.nodeType===3) {
+        prev.textContent = (prev.textContent||'')+(next.textContent||'');
+        next.remove();
+      }
+      closeBreakPopover();
+      syncFromEditor(id);
+    }
+    function closeBreakPopoverOnClickOutside(e) {
+      var pop = document.getElementById('break-popover');
+      if (!pop) { document.removeEventListener('click',closeBreakPopoverOnClickOutside); return; }
+      if (pop.contains(e.target)) return;
+      var tagEl = document.querySelector('.break-tag.break-selected');
+      if (tagEl && tagEl.contains(e.target)) return;
+      document.removeEventListener('click',closeBreakPopoverOnClickOutside);
+      closeBreakPopover();
+    }
+    function closeBreakPopover() {
+      var pop = document.getElementById('break-popover');
+      if (pop) pop.remove();
+      var sel = document.querySelector('.break-tag.break-selected');
+      if (sel) sel.classList.remove('break-selected');
     }
 
     /* ========== 批量导入 ========== */
@@ -1211,7 +1510,7 @@
       document.getElementById('btn-prev').style.display = n>1 ? 'inline-block' : 'none';
       if (n === 3) {
         var totalSec = 0;
-        validCards().forEach(function(g) { totalSec += durOf(g.content, g.tts ? g.tts.speed : 10); });
+        validCards().forEach(function(g) { totalSec += durOf(g.content, g.tts ? g.tts.speed : 10, g.tts ? g.tts.breaks : []); });
         document.getElementById('btn-next').textContent = '🪙' + (20 * totalSec) + ' · 🎬 确认生成';
       } else {
         document.getElementById('btn-next').textContent = '下一步';
@@ -1265,7 +1564,7 @@
       }
       if (S.step === 3) {
         var totalSec = 0;
-        validCards().forEach(function(g) { totalSec += durOf(g.content, g.tts ? g.tts.speed : 10); });
+        validCards().forEach(function(g) { totalSec += durOf(g.content, g.tts ? g.tts.speed : 10, g.tts ? g.tts.breaks : []); });
         openCreditsConfirm(20 * totalSec, confirmGen);
         return;
       }
@@ -1343,7 +1642,7 @@
       var avContent = document.getElementById('sb-avatar-content');
       if (S.avatar) {
         var meta = getAvatarMeta(S.avatar);
-        var emoji = avI[S.avatar] || '👤';
+        var emoji = avI[S.avatar] || getCustomEmoji(getMergedAvatars().findIndex(function(a){return a.key===S.avatar;}));
         avContent.innerHTML = '<div class="sb-avatar"><div class="sb-av-emoji">'+emoji+'</div><div class="sb-av-info"><div class="sb-av-name">'+escapeHtml(meta.name)+'</div><div class="sb-av-tag">'+escapeHtml(meta.tag)+'</div></div></div>';
       } else {
         avContent.innerHTML = '<div class="sb-empty">未选择角色</div>';
@@ -1387,21 +1686,21 @@
       S.cards.forEach(function(card){
         if (card.tts.custom) return;
         card.tts.speed = s;
-        card.tts.duration = durOf(card.content, s);
+        card.tts.duration = durOf(card.content, s, card.tts.breaks);
         var vel = document.getElementById('speed-val-'+card.id);
         var eel = document.getElementById('speed-est-'+card.id);
         if (vel) vel.textContent = (s/10).toFixed(1)+'x';
         if (eel) eel.textContent = '预估 '+estDuration(card.content, s);
       });
     }
-    function durOf(text, speed) { speed = speed || 10; return Math.max(2, Math.ceil((text||'').length/(speed/10*4))); }
-	    function estDuration(text, speed) { var chars=(text||'').length; if(!chars)return'--'; var sec=Math.max(1,Math.round(chars/(speed/10*4))); return sec+'s'; }
+    function durOf(text, speed, breaks) { speed = speed || 10; var raw=(text||'').replace(/<#\d+\.?\d*#\>/g,''); var chars=raw.length; var t=Math.max(2, Math.ceil(chars/(speed/10*4))); if(breaks&&breaks.length){ breaks.forEach(function(b){ t+=b.duration/1000; }); } return Math.round(t); }
+	    function estDuration(text, speed) { var raw=(text||'').replace(/<#\d+\.?\d*#\>/g,''); var chars=raw.length; if(!chars)return'--'; var sec=Math.max(1,Math.round(chars/(speed/10*4))); return sec+'s'; }
 	    function adjSpeed(id, delta) {
 	      var g=S.cards.find(function(x){return x.id===id;});
 	      if(!g)return;
 	      var ns=g.tts.speed+delta;
 	      if(ns<10||ns>20)return;
-	      g.tts.speed=ns; g.tts.custom=true; g.tts.duration=durOf(g.content,ns);
+	      g.tts.speed=ns; g.tts.custom=true; g.tts.duration=durOf(g.content,ns,g.tts.breaks);
 	      renderCards();
 	    }
 
@@ -1419,7 +1718,7 @@
         // 语音：默认用全局配置合成初版（未单独覆盖的）
         if (!card.tts) card.tts = defaultTts();
         if (!card.tts.custom) { card.tts.speed=g.speed; card.tts.pitch=g.pitch; card.tts.volume=g.volume; card.tts.instruction=g.instruction; }
-        card.tts.duration = durOf(card.content, card.tts.speed);
+        card.tts.duration = durOf(card.content, card.tts.speed, card.tts.breaks);
       });
       var meta = S.avatar ? getAvatarMeta(S.avatar) : null;
       document.getElementById('voice-name-hint').textContent = meta ? ('· 音色跟随「'+meta.name+'」') : '';
@@ -1476,10 +1775,10 @@
         h += '<div class="ff-right">';
         h += '<div class="ff-head"><span class="ff-no">台词 '+(i+1)+'</span>';
         if (t.custom) h += '<span class="badge-custom" style="margin-left:8px;">单独配置</span>';
-        h += '<span class="ff-cnt" id="ff-cnt-'+g.id+'">'+g.content.length+' 字</span>';
+        h += '<span class="ff-cnt" id="ff-cnt-'+g.id+'">'+(g.content||'').replace(/<#\d+\.?\d*#\>/g,'').length+' 字</span>';
         h += '<span style="font-size:11px;color:#059669;font-weight:500;margin-left:6px;">预估时长 '+(t&&t.duration?t.duration+'s':'--')+'</span></div>';
-        // Step2 台词只读
-        h += '<textarea class="readonly-step2" readonly placeholder="台词内容（Step2 不允许修改）">'+escapeHtml(g.content)+'</textarea>';
+        // Step2 台词只读（渲染停顿标签）
+        h += '<div class="card-text-editor readonly-step2" id="ff-editor-'+g.id+'" contenteditable="false"></div>';
         // 播放条
         h += '<div class="tts-play-row'+(ttsFailed?' failed':'')+'">';
         h += '<button class="tts-play-btn" id="tts-btn-'+g.id+'" onclick="toggleTtsPlay('+g.id+')" title="试听">▶</button>';
@@ -1496,6 +1795,11 @@
         h += '</div>'; // ff-card
       });
       c.innerHTML = h;
+      // 渲染 Step2 只读编辑器中的停顿标签
+      S.cards.forEach(function(g) {
+        var el = document.getElementById('ff-editor-'+g.id);
+        if (el) setEditorContent(el, g.content);
+      });
     }
 
     function setFrameTag(id, type, val) {
@@ -1632,7 +1936,7 @@
       if (volumeEl) g.tts.volume = parseInt(volumeEl.value);
       if (instrEl) g.tts.instruction = instrEl.value;
       g.tts.custom = true;
-      g.tts.duration = durOf(g.content, g.tts.speed);
+      g.tts.duration = durOf(g.content, g.tts.speed, g.tts.breaks);
       // 模拟合成：~15% 概率失败
       if (Math.random() < 0.15) {
         g.tts.ready = false;
@@ -1654,7 +1958,7 @@
       var gt = getGlobalTts();
       g.tts.custom = false;
       g.tts.speed=gt.speed; g.tts.pitch=gt.pitch; g.tts.volume=gt.volume; g.tts.instruction=gt.instruction;
-      g.tts.duration = durOf(g.content, g.tts.speed);
+      g.tts.duration = durOf(g.content, g.tts.speed, g.tts.breaks);
       g.tts.ready = true;
       g.tts.status = 'ready';
       renderCards();
@@ -1666,7 +1970,7 @@
       validCards().forEach(function(card){
         stopTts(card.id);
         if (!card.tts.custom) { card.tts.speed=g.speed; card.tts.pitch=g.pitch; card.tts.volume=g.volume; card.tts.instruction=g.instruction; }
-        card.tts.duration = durOf(card.content, card.tts.speed);
+        card.tts.duration = durOf(card.content, card.tts.speed, card.tts.breaks);
         // 模拟合成：~10% 概率失败
         if (Math.random() < 0.1) {
           card.tts.ready = false;
@@ -1753,7 +2057,9 @@
         h += '<td>'+f.pose+' · '+f.shot+(hasCustomTts?' · 单独语音':'')+'</td>';
         // 台词 - hover 显示全文
         h += '<td class="cf-script cf-hoverable" onmouseenter="showScriptTip(event,\''+escapeHtml(g.content).replace(/'/g,"\\'")+'\')" onmouseleave="hideScriptTip()">'+escapeHtml(preview)+'</td>';
+        var rowCost = (g.tts&&g.tts.duration?g.tts.duration:0) * 20;
         h += '<td style="color:#059669;font-weight:500;">'+(g.tts&&g.tts.duration?g.tts.duration+'s':'--')+'</td>';
+        h += '<td style="color:#f59e0b;font-weight:700;">🪙'+rowCost+'</td>';
         h += '<td><button class="cf-op-btn" onclick="cfToggleRow(this)">移除</button></td>';
         h += '</tr>';
       });
@@ -1774,7 +2080,7 @@
       var totalSec = 0;
       rows.forEach(function(row, i) {
         if (!row.classList.contains('off') && allCards[i]) {
-          totalSec += durOf(allCards[i].content, allCards[i].tts ? allCards[i].tts.speed : 10);
+          totalSec += durOf(allCards[i].content, allCards[i].tts ? allCards[i].tts.speed : 10, allCards[i].tts ? allCards[i].tts.breaks : []);
         }
       });
       document.getElementById('cf-count').textContent = total;
@@ -1789,7 +2095,7 @@
       if (total === 0) { toast('请至少保留一条视频'); return; }
       // 构建新任务数据并返回任务详情页
       var rows = validCards().map(function(card) {
-        var dur = durOf(card.content, card.tts ? card.tts.speed : 10);
+        var dur = durOf(card.content, card.tts ? card.tts.speed : 10, card.tts ? card.tts.breaks : []);
         var avatarMeta = S.avatar ? getAvatarMeta(S.avatar) : null;
         var activeBgs = getActiveBgNames();
         var bgName = card.frame ? card.frame.bg : (activeBgs.length > 0 ? activeBgs[0] : '办公室');
@@ -1839,6 +2145,8 @@
     if (new URLSearchParams(window.location.search).get('returnTo') === 'taskDetail') {
       document.getElementById('backFromFlow').style.display = 'block';
     }
+    // 检测从创建页返回的新增角色/场景
+    checkNewSubject();
     // 检测是否恢复草稿
     var isDraft = new URLSearchParams(window.location.search).get('editDraft') === '1';
     if (isDraft) {

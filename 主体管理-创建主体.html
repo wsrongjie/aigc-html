@@ -1206,6 +1206,9 @@
         }
 
         function returnUrl() {
+            const params3 = new URLSearchParams(window.location.search);
+            const customReturnUrl = params3.get("returnUrl");
+            if (customReturnUrl) return decodeURIComponent(customReturnUrl);
             return source === "step2" ? "step2-主体管理首页（一级主体联动版）.html" : "主体管理-首页.html";
         }
 
@@ -1753,8 +1756,20 @@
                 saveStep2Handoff(savedSubject);
             }
             showToast("创建成功，正在返回");
+            let finalUrl = returnUrl();
+            const params3 = new URLSearchParams(window.location.search);
+            const customReturnUrl = params3.get("returnUrl");
+            if (customReturnUrl) {
+                const separator = finalUrl.indexOf("?") >= 0 ? "&" : "?";
+                const name = subjectName.value.trim();
+                if (subjectType === "scene") {
+                    finalUrl = finalUrl + separator + "newScene=" + encodeURIComponent(name);
+                } else {
+                    finalUrl = finalUrl + separator + "newRole=" + encodeURIComponent(name);
+                }
+            }
             setTimeout(() => {
-                window.location.href = returnUrl();
+                window.location.href = finalUrl;
             }, 450);
         }
 

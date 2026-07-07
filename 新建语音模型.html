@@ -310,34 +310,6 @@
       box-shadow: 0 0 0 3px rgba(21, 94, 239, 0.12);
     }
 
-    .option-tabs {
-      display: inline-flex;
-      gap: 4px;
-      padding: 4px;
-      border-radius: 11px;
-      background: #f1f5f9;
-      margin-bottom: 10px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-
-    .option-tab {
-      height: 32px;
-      min-width: 92px;
-      border: 0;
-      border-radius: 8px;
-      background: transparent;
-      color: var(--muted);
-      font-size: 13px;
-      font-weight: 760;
-    }
-
-    .option-tab.active {
-      background: #fff;
-      color: var(--primary);
-      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
-    }
-
     .source-panel {
       display: none;
     }
@@ -346,19 +318,11 @@
       display: block;
     }
 
-    .voice-current,
     .mini-panel {
       padding: 12px;
       border: 1px solid var(--line);
       border-radius: 12px;
       background: var(--panel-soft);
-    }
-
-    .voice-current {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) auto;
-      gap: 10px;
-      align-items: center;
     }
 
     .voice-name {
@@ -418,29 +382,6 @@
       box-shadow: none;
     }
 
-    .upload-tabs {
-      display: flex;
-      gap: 6px;
-      margin-bottom: 8px;
-    }
-
-    .upload-tab {
-      height: 31px;
-      padding: 0 11px;
-      border: 1px solid var(--line);
-      border-radius: 999px;
-      background: #fff;
-      color: var(--muted);
-      font-size: 12px;
-      font-weight: 760;
-    }
-
-    .upload-tab.active {
-      border-color: var(--primary);
-      background: var(--primary-soft);
-      color: var(--primary);
-    }
-
     .upload-mode {
       display: none;
     }
@@ -449,8 +390,7 @@
       display: block;
     }
 
-    .drop,
-    .record {
+    .drop {
       display: flex;
       align-items: center;
       justify-content: center;
@@ -461,6 +401,19 @@
       border-radius: 12px;
       background: #f8fbff;
       text-align: left;
+      cursor: pointer;
+      transition: all 0.16s ease;
+    }
+
+    .drop:hover {
+      border-color: var(--primary);
+      background: #eef4ff;
+    }
+
+    .drop.dragover {
+      border-color: var(--primary);
+      background: #dbe8ff;
+      box-shadow: 0 0 0 3px rgba(21, 94, 239, 0.08);
     }
 
     .icon-box {
@@ -474,12 +427,6 @@
       color: #fff;
       font-weight: 800;
       flex: 0 0 auto;
-    }
-
-    .record .icon-box {
-      border: 0;
-      border-radius: 999px;
-      background: #ef4444;
     }
 
     .small-title {
@@ -542,64 +489,6 @@
       gap: 12px;
     }
 
-    .params-block {
-      margin-bottom: 12px;
-      padding: 12px;
-      border: 1px solid var(--line);
-      border-radius: 12px;
-      background: #f8fbff;
-    }
-
-    .params-title {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 9px;
-    }
-
-    .params-title .label {
-      margin-bottom: 0;
-    }
-
-    .params-note {
-      color: var(--muted);
-      font-size: 12px;
-      white-space: nowrap;
-    }
-
-    .params {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 9px;
-    }
-
-    .param {
-      padding: 10px;
-      border: 1px solid var(--line);
-      border-radius: 11px;
-      background: var(--panel);
-    }
-
-    .param-head {
-      display: flex;
-      justify-content: space-between;
-      gap: 10px;
-      margin-bottom: 5px;
-      font-size: 12px;
-      font-weight: 760;
-      color: var(--text-2);
-    }
-
-    .param-value {
-      color: var(--primary);
-      font-weight: 820;
-    }
-
-    input[type="range"] {
-      width: 100%;
-      accent-color: var(--primary);
-    }
 
     .preview-player {
       display: none;
@@ -697,192 +586,7 @@
       align-items: center;
     }
 
-    .modal {
-      position: fixed;
-      inset: 0;
-      z-index: 80;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
-      background: rgba(15, 23, 42, 0.42);
-    }
 
-    .modal.active {
-      display: flex;
-    }
-
-    .modal-card {
-      width: min(880px, 100%);
-      max-height: min(720px, 92vh);
-      display: flex;
-      flex-direction: column;
-      border-radius: 16px;
-      background: #fff;
-      box-shadow: 0 24px 70px rgba(15, 23, 42, 0.24);
-      overflow: hidden;
-    }
-
-    .modal-head {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 14px;
-      padding: 16px 18px;
-      border-bottom: 1px solid var(--line);
-    }
-
-    .modal-title {
-      margin: 0;
-      font-size: 17px;
-      font-weight: 820;
-    }
-
-    .close {
-      width: 32px;
-      height: 32px;
-      border: 1px solid var(--line);
-      border-radius: 999px;
-      background: #fff;
-      color: var(--muted);
-      font-size: 18px;
-    }
-
-    .modal-body {
-      padding: 14px 18px 18px;
-      overflow: auto;
-    }
-
-    .modal-tools {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-bottom: 12px;
-    }
-
-    .cat {
-      height: 31px;
-      padding: 0 12px;
-      border: 1px solid var(--line);
-      border-radius: 999px;
-      background: #fff;
-      color: var(--text-2);
-      font-size: 12px;
-      font-weight: 760;
-    }
-
-    .cat.active {
-      border-color: var(--primary);
-      background: var(--primary-soft);
-      color: var(--primary);
-    }
-
-    .voice-grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 10px;
-    }
-
-    .voice-card {
-      min-height: 124px;
-      padding: 13px;
-      border: 1px solid var(--line);
-      border-radius: 12px;
-      background: #fff;
-      transition: all 0.16s ease;
-      cursor: pointer;
-    }
-
-    .voice-card:hover {
-      border-color: rgba(21, 94, 239, 0.45);
-      box-shadow: 0 10px 22px rgba(21, 94, 239, 0.08);
-      transform: translateY(-1px);
-    }
-
-    .voice-card.selected {
-      border-color: var(--primary);
-      background: #f8fbff;
-    }
-
-    .voice-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 8px;
-    }
-
-    .play-mini {
-      width: 30px;
-      height: 30px;
-      border: 1px solid var(--line);
-      border-radius: 999px;
-      background: #fff;
-      color: var(--primary);
-      flex: 0 0 auto;
-    }
-
-    .tags {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 5px;
-      margin-top: 10px;
-    }
-
-    .tag {
-      display: inline-flex;
-      align-items: center;
-      height: 22px;
-      padding: 0 7px;
-      border-radius: 999px;
-      background: #f1f5f9;
-      color: #475569;
-      font-size: 11px;
-      font-weight: 760;
-    }
-
-    .option-tabs .tag {
-      height: 24px;
-      padding: 0 8px;
-      background: #e2e8f0;
-      margin-left: 2px;
-    }
-
-    .seed-panel {
-      display: none;
-    }
-
-    .seed-panel.active {
-      display: block;
-    }
-
-    .seed-input-wrap {
-      flex: 0 0 auto;
-      margin-left: 4px;
-    }
-
-    .seed-presets-row {
-      display: none;
-      align-items: center;
-      gap: 4px;
-    }
-
-    .seed-presets-row.active {
-      display: inline-flex;
-    }
-
-    .seed-input-wrap .input {
-      width: 100px;
-      height: 32px;
-      text-align: center;
-      background: transparent;
-      border: 1px solid var(--line);
-    }
-
-    .seed-desc {
-      margin-top: 6px;
-      color: var(--muted);
-      font-size: 12px;
-    }
 
     .toast {
       position: fixed;
@@ -919,21 +623,10 @@
 
       .source-grid,
       .preview-grid,
-      .steps,
-      .voice-grid,
-      .params {
+      .steps {
         grid-template-columns: 1fr;
       }
 
-      .params-title {
-        align-items: flex-start;
-        flex-direction: column;
-        gap: 4px;
-      }
-
-      .params-note {
-        white-space: normal;
-      }
 
       .head-actions {
         display: none;
@@ -953,9 +646,6 @@
         width: 100%;
       }
 
-      .seed-fixed-row {
-        flex-wrap: wrap;
-      }
     }
   </style>
 </head>
@@ -994,7 +684,7 @@
               <div>
                 <p class="kicker">STEP 1</p>
                 <h2 class="card-title">音色配置</h2>
-                <p class="card-desc">填写模型名称，并选择内置音色或生成复刻音色。</p>
+                <p class="card-desc">填写音色名称，并上传录音生成复刻音色。</p>
               </div>
               <span class="status" id="sourceStatus">未完成</span>
             </div>
@@ -1003,7 +693,7 @@
               <div>
                 <div class="field-row">
                   <div class="field">
-                    <label for="modelName">模型名称 <span class="required">*</span> <span id="modelNameCounter" style="margin-left:auto;font-weight:400;color:var(--muted);font-size:12px;">9/30</span></label>
+                    <label for="modelName">音色名称 <span class="required">*</span> <span id="modelNameCounter" style="margin-left:auto;font-weight:400;color:var(--muted);font-size:12px;">9/30</span></label>
                     <input class="input" id="modelName" type="text" value="财经解读-稳重男声" maxlength="30" />
                   </div>
 
@@ -1016,31 +706,8 @@
                   </div>
                 </div>
 
-                <div class="field">
-                  <div class="label">音色来源</div>
-                  <div class="option-tabs">
-                    <button class="option-tab active" type="button" data-source="builtIn">内置音色</button>
-                    <button class="option-tab" type="button" data-source="clone">复刻音色</button>
-                  </div>
-                </div>
-
-                <div class="source-panel active" id="builtInPanel">
-                  <div class="voice-current">
-                    <div>
-                      <div class="voice-name" id="selectedVoiceName">尚未选择内置音色</div>
-                      <div class="voice-meta" id="selectedVoiceMeta">打开音色库，从分类中选择一个可用音色。</div>
-                    </div>
-                    <button class="button secondary" type="button" id="openVoiceModal">选择音色</button>
-                  </div>
-                </div>
-
-                <div class="source-panel" id="clonePanel">
+                <div class="source-panel active" id="clonePanel">
                   <div class="mini-panel">
-                    <div class="upload-tabs">
-                      <button class="upload-tab active" type="button" data-upload="upload">上传本地录音</button>
-                      <button class="upload-tab" type="button" data-upload="record">在线录音</button>
-                    </div>
-
                     <div class="upload-mode active" id="uploadMode">
                       <div class="drop" id="dropZone">
                         <div class="icon-box">↑</div>
@@ -1049,16 +716,6 @@
                           <div class="small-desc">支持 mp3 / wav，建议 10-30 秒单人清晰人声。</div>
                         </div>
                         <input id="audioInput" type="file" accept=".mp3,.wav,audio/mpeg,audio/wav" hidden />
-                      </div>
-                    </div>
-
-                    <div class="upload-mode" id="recordMode">
-                      <div class="record">
-                        <button class="icon-box" type="button" id="recordButton">●</button>
-                        <div>
-                          <div class="small-title" id="recordTitle">在线录音</div>
-                          <div class="small-desc" id="recordDesc">录制完成后可生成复刻音色。</div>
-                        </div>
                       </div>
                     </div>
 
@@ -1106,69 +763,7 @@
                   <div id="previewTextCounter" style="text-align:right;color:var(--muted);font-size:12px;margin-top:4px;">49/500</div>
                 </div>
 
-                <div class="params-block">
-                  <div class="params-title">
-                    <div class="label">合成参数</div>
-                    <div class="params-note">调整参数后，需要重新生成试听才会生效。</div>
-                  </div>
 
-                  <div class="params">
-                    <div class="param">
-                      <div class="param-head">
-                        <span>语速</span>
-                        <span class="param-value" id="speedValue">1.0x</span>
-                      </div>
-                      <input type="range" id="speedRange" min="0.8" max="1.3" step="0.1" value="1" />
-                    </div>
-
-                    <div class="param">
-                      <div class="param-head">
-                        <span>音调</span>
-                        <span class="param-value" id="pitchValue">0</span>
-                      </div>
-                      <input type="range" id="pitchRange" min="-3" max="3" step="1" value="0" />
-                    </div>
-
-                    <div class="param">
-                      <div class="param-head">
-                        <span>音量</span>
-                        <span class="param-value" id="volumeValue">标准</span>
-                      </div>
-                      <input type="range" id="volumeRange" min="0" max="2" step="1" value="1" />
-                    </div>
-
-                    <div class="param" style="grid-column: 1 / -1;">
-                      <div class="param-head">
-                        <span>合成一致性（seed）</span>
-                        <span class="param-value" id="seedModeLabel">随机模式</span>
-                      </div>
-                      <div style="margin-top: 6px;">
-                        <div class="option-tabs" style="margin-bottom: 0;">
-                          <button class="option-tab active" type="button" data-seed-mode="random">随机模式</button>
-                          <button class="option-tab" type="button" data-seed-mode="fixed">固定模式</button>
-                          <div class="seed-presets-row" id="seedPresetsRow">
-                            <div class="seed-input-wrap">
-                              <input class="input" id="seedInput" type="number" min="0" max="65535" value="0" />
-                            </div>
-                            <span class="tag" style="cursor: pointer;" data-seed="0">官方默认 0</span>
-                            <span class="tag" style="cursor: pointer;" data-seed="42">柔和 42</span>
-                            <span class="tag" style="cursor: pointer;" data-seed="2024">清晰 2024</span>
-                          </div>
-                        </div>
-
-                        <div class="seed-panel active" id="randomSeedPanel">
-                          <div class="small-desc">
-                            每次生成效果不同，适合探索不同韵律风格。无法复现历史结果。
-                          </div>
-                        </div>
-
-                        <div class="seed-panel" id="fixedSeedPanel">
-                          <div class="small-desc">范围 0 ~ 65535，相同值可复现相同结果</div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
 
                 <div class="inline-actions">
                   <button class="button primary" type="button" id="generatePreviewButton" disabled>生成试听</button>
@@ -1193,7 +788,7 @@
     </main>
 
     <footer class="footer">
-      <div class="footer-tip" id="footerTip">请先配置模型名称和音色。</div>
+      <div class="footer-tip" id="footerTip">请先配置音色名称和音色。</div>
       <div class="footer-actions">
         <button class="button ghost" type="button" id="cancelButton">取消</button>
         <button class="button secondary" type="button" id="draftButton">保存草稿</button>
@@ -1202,125 +797,10 @@
     </footer>
   </div>
 
-  <div class="modal" id="voiceModal" role="dialog" aria-modal="true" aria-labelledby="voiceModalTitle">
-    <div class="modal-card">
-      <div class="modal-head">
-        <div>
-          <h2 class="modal-title" id="voiceModalTitle">选择内置音色</h2>
-          <div class="voice-meta">按分类筛选，试听后选择一个音色用于合成。</div>
-        </div>
-        <button class="close" type="button" id="closeVoiceModal" aria-label="关闭">×</button>
-      </div>
-
-      <div class="modal-body">
-        <div class="modal-tools">
-          <button class="cat active" type="button" data-cat="all">全部</button>
-          <button class="cat" type="button" data-cat="male">男声</button>
-          <button class="cat" type="button" data-cat="female">女声</button>
-          <button class="cat" type="button" data-cat="news">播报</button>
-          <button class="cat" type="button" data-cat="finance">财经</button>
-        </div>
-
-        <div class="voice-grid">
-          <article class="voice-card" data-voice="沉稳男声 A" data-meta="男声 · 财经 · 专业克制" data-source="内置音色" data-cat="male finance" tabindex="0">
-            <div class="voice-top">
-              <div>
-                <div class="voice-name">沉稳男声 A</div>
-                <div class="voice-meta">男声 · 财经 · 专业克制</div>
-              </div>
-              <button class="play-mini" type="button">▶</button>
-            </div>
-            <div class="tags">
-              <span class="tag">男声</span>
-              <span class="tag">财经</span>
-              <span class="tag">投顾</span>
-            </div>
-          </article>
-
-          <article class="voice-card" data-voice="职业女声 B" data-meta="女声 · 知识 · 清晰干练" data-source="内置音色" data-cat="female" tabindex="0">
-            <div class="voice-top">
-              <div>
-                <div class="voice-name">职业女声 B</div>
-                <div class="voice-meta">女声 · 知识 · 清晰干练</div>
-              </div>
-              <button class="play-mini" type="button">▶</button>
-            </div>
-            <div class="tags">
-              <span class="tag">女声</span>
-              <span class="tag">课程</span>
-              <span class="tag">明亮</span>
-            </div>
-          </article>
-
-          <article class="voice-card" data-voice="新闻播报 C" data-meta="中性 · 播报 · 稳定权威" data-source="内置音色" data-cat="news" tabindex="0">
-            <div class="voice-top">
-              <div>
-                <div class="voice-name">新闻播报 C</div>
-                <div class="voice-meta">中性 · 播报 · 稳定权威</div>
-              </div>
-              <button class="play-mini" type="button">▶</button>
-            </div>
-            <div class="tags">
-              <span class="tag">播报</span>
-              <span class="tag">权威</span>
-              <span class="tag">公告</span>
-            </div>
-          </article>
-
-          <article class="voice-card" data-voice="温和男声 D" data-meta="男声 · 解读 · 亲和自然" data-source="内置音色" data-cat="male" tabindex="0">
-            <div class="voice-top">
-              <div>
-                <div class="voice-name">温和男声 D</div>
-                <div class="voice-meta">男声 · 解读 · 亲和自然</div>
-              </div>
-              <button class="play-mini" type="button">▶</button>
-            </div>
-            <div class="tags">
-              <span class="tag">男声</span>
-              <span class="tag">解读</span>
-              <span class="tag">亲和</span>
-            </div>
-          </article>
-
-          <article class="voice-card" data-voice="权威女声 E" data-meta="女声 · 财经 · 坚定可信" data-source="内置音色" data-cat="female finance" tabindex="0">
-            <div class="voice-top">
-              <div>
-                <div class="voice-name">权威女声 E</div>
-                <div class="voice-meta">女声 · 财经 · 坚定可信</div>
-              </div>
-              <button class="play-mini" type="button">▶</button>
-            </div>
-            <div class="tags">
-              <span class="tag">女声</span>
-              <span class="tag">财经</span>
-              <span class="tag">权威</span>
-            </div>
-          </article>
-
-          <article class="voice-card" data-voice="快讯男声 F" data-meta="男声 · 播报 · 节奏明快" data-source="内置音色" data-cat="male news" tabindex="0">
-            <div class="voice-top">
-              <div>
-                <div class="voice-name">快讯男声 F</div>
-                <div class="voice-meta">男声 · 播报 · 节奏明快</div>
-              </div>
-              <button class="play-mini" type="button">▶</button>
-            </div>
-            <div class="tags">
-              <span class="tag">男声</span>
-              <span class="tag">播报</span>
-              <span class="tag">快讯</span>
-            </div>
-          </article>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <div class="toast" id="toast"></div>
 
   <script>
     var state = {
-      sourceMode: "builtIn",
       modelName: "财经解读-稳重男声",
       visibility: "private",
       voiceName: "",
@@ -1331,16 +811,10 @@
       cloneGenerated: false,
       previewGenerated: false,
       seedMode: "random",
-      seedValue: 0,
-      recording: false
+      seedValue: 0
     };
 
     var modelNameInput = document.getElementById("modelName");
-    var optionTabs = document.querySelectorAll(".option-tab");
-    var builtInPanel = document.getElementById("builtInPanel");
-    var clonePanel = document.getElementById("clonePanel");
-    var selectedVoiceName = document.getElementById("selectedVoiceName");
-    var selectedVoiceMeta = document.getElementById("selectedVoiceMeta");
     var sourceStatus = document.getElementById("sourceStatus");
     var previewStatus = document.getElementById("previewStatus");
     var previewCard = document.getElementById("previewCard");
@@ -1352,19 +826,13 @@
     var pageStateEl = document.getElementById("pageStateBadge");
     var footerTip = document.getElementById("footerTip");
     var toast = document.getElementById("toast");
-    var voiceModal = document.getElementById("voiceModal");
     var sampleStatus = document.getElementById("sampleStatus");
     var sampleTitle = document.getElementById("sampleTitle");
+    var dropZone = document.getElementById("dropZone");
     var audioInput = document.getElementById("audioInput");
     var consentCheck = document.getElementById("consentCheck");
     var generateCloneButton = document.getElementById("generateCloneButton");
     var cloneHelper = document.getElementById("cloneHelper");
-    var seedModeLabel = document.getElementById("seedModeLabel");
-    var seedInput = document.getElementById("seedInput");
-    var randomSeedPanel = document.getElementById("randomSeedPanel");
-    var fixedSeedPanel = document.getElementById("fixedSeedPanel");
-
-    var seedPresetsRow = document.getElementById("seedPresetsRow");
 
     function hasModelName() {
       return state.modelName.trim().length > 0;
@@ -1417,17 +885,6 @@
       render();
     }
 
-    function renderSeedUI() {
-      document.querySelectorAll("[data-seed-mode]").forEach(function(btn) {
-        btn.classList.toggle("active", btn.getAttribute("data-seed-mode") === state.seedMode);
-      });
-      randomSeedPanel.classList.toggle("active", state.seedMode === "random");
-      fixedSeedPanel.classList.toggle("active", state.seedMode === "fixed");
-      seedPresetsRow.classList.toggle("active", state.seedMode === "fixed");
-      seedInput.value = state.seedValue;
-      seedModeLabel.textContent = state.seedMode === "random" ? "随机模式" : "固定模式 " + state.seedValue;
-    }
-
     function render() {
       var sourceDone = canPreview();
       var saveReady = canSave();
@@ -1442,25 +899,22 @@
       previewStatus.textContent = state.previewGenerated ? "已生成" : sourceDone ? "待生成" : "等待音色";
       previewStatus.classList.toggle("ready", state.previewGenerated);
       generatePreviewButton.disabled = !sourceDone;
-      document.getElementById("previewHelper").textContent = sourceDone ? "调整参数后点击生成试听。" : "完成音色配置后可生成试听。";
+      document.getElementById("previewHelper").textContent = sourceDone ? "点击下方按钮生成试听。" : "完成音色配置后可生成试听。";
 
       saveButton.disabled = !saveReady;
 
       pageStateEl.textContent = saveReady ? "可保存" : sourceDone ? "待试听" : "待配置";
       pageStateEl.classList.toggle("ready", saveReady);
 
-
-      renderSeedUI();
-
       if (saveReady) {
         setStep(2);
         footerTip.textContent = "试听已生成，可以保存语音模型。";
       } else if (sourceDone) {
         setStep(2);
-        footerTip.textContent = "音色配置已完成，请调整参数并生成试听。";
+        footerTip.textContent = "音色配置已完成，请生成试听。";
       } else {
         setStep(1);
-        footerTip.textContent = "请先配置模型名称和音色。";
+        footerTip.textContent = "请先配置音色名称和音色。";
       }
     }
 
@@ -1484,112 +938,26 @@
       render();
     });
 
-    optionTabs.forEach(function(tab) {
-      tab.addEventListener("click", function() {
-        var mode = tab.getAttribute("data-source");
-        state.sourceMode = mode;
-
-        optionTabs.forEach(function(item) {
-          item.classList.toggle("active", item === tab);
-        });
-
-        builtInPanel.classList.toggle("active", mode === "builtIn");
-        clonePanel.classList.toggle("active", mode === "clone");
-
-        if (mode === "builtIn" && state.voiceSource === "复刻音色") {
-          state.voiceName = "";
-          state.voiceMeta = "";
-          state.voiceSource = "";
-          resetPreview();
-        }
-
-        if (mode === "clone" && state.voiceSource === "内置音色") {
-          state.voiceName = "";
-          state.voiceMeta = "";
-          state.voiceSource = "";
-          document.querySelectorAll(".voice-card").forEach(function(card) {
-            card.classList.remove("selected");
-          });
-          resetPreview();
-        }
-
-        render();
-      });
-    });
-
-    document.getElementById("openVoiceModal").addEventListener("click", function() {
-      voiceModal.classList.add("active");
-    });
-
-    document.getElementById("closeVoiceModal").addEventListener("click", function() {
-      voiceModal.classList.remove("active");
-    });
-
-    voiceModal.addEventListener("click", function(event) {
-      if (event.target === voiceModal) {
-        voiceModal.classList.remove("active");
-      }
-    });
-
-    document.querySelectorAll(".cat").forEach(function(cat) {
-      cat.addEventListener("click", function() {
-        var category = cat.getAttribute("data-cat");
-
-        document.querySelectorAll(".cat").forEach(function(item) {
-          item.classList.toggle("active", item === cat);
-        });
-
-        document.querySelectorAll(".voice-card").forEach(function(card) {
-          var cats = card.getAttribute("data-cat");
-          card.style.display = category === "all" || cats.indexOf(category) !== -1 ? "block" : "none";
-        });
-      });
-    });
-
-    document.querySelectorAll(".voice-card").forEach(function(card) {
-      card.addEventListener("click", function(event) {
-        if (event.target.classList.contains("play-mini")) {
-          showToast("正在试听：" + card.getAttribute("data-voice"));
-          return;
-        }
-
-        document.querySelectorAll(".voice-card").forEach(function(item) {
-          item.classList.remove("selected");
-        });
-
-        card.classList.add("selected");
-        selectVoice(
-          card.getAttribute("data-voice"),
-          card.getAttribute("data-meta"),
-          card.getAttribute("data-source")
-        );
-
-        voiceModal.classList.remove("active");
-      });
-
-      card.addEventListener("keydown", function(event) {
-        if (event.key === "Enter" || event.key === " ") {
-          event.preventDefault();
-          card.click();
-        }
-      });
-    });
-
-    document.querySelectorAll(".upload-tab").forEach(function(tab) {
-      tab.addEventListener("click", function() {
-        var mode = tab.getAttribute("data-upload");
-
-        document.querySelectorAll(".upload-tab").forEach(function(item) {
-          item.classList.toggle("active", item === tab);
-        });
-
-        document.getElementById("uploadMode").classList.toggle("active", mode === "upload");
-        document.getElementById("recordMode").classList.toggle("active", mode === "record");
-      });
-    });
-
-    document.getElementById("dropZone").addEventListener("click", function() {
+    dropZone.addEventListener("click", function() {
       audioInput.click();
+    });
+
+    dropZone.addEventListener("dragover", function(e) {
+      e.preventDefault();
+      dropZone.classList.add("dragover");
+    });
+
+    dropZone.addEventListener("dragleave", function() {
+      dropZone.classList.remove("dragover");
+    });
+
+    dropZone.addEventListener("drop", function(e) {
+      e.preventDefault();
+      dropZone.classList.remove("dragover");
+      if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+        audioInput.files = e.dataTransfer.files;
+        audioInput.dispatchEvent(new Event("change"));
+      }
     });
 
     audioInput.addEventListener("change", function() {
@@ -1597,28 +965,6 @@
         state.sampleReady = true;
         state.cloneGenerated = false;
         sampleTitle.textContent = audioInput.files[0].name + " · 人声清晰度良好";
-        sampleStatus.classList.add("active");
-        updateCloneButton();
-      }
-    });
-
-    document.getElementById("recordButton").addEventListener("click", function() {
-      var btn = this;
-      if (!state.recording) {
-        state.recording = true;
-        btn.style.background = "#6b7280";
-        btn.textContent = "■";
-        document.getElementById("recordTitle").textContent = "正在录音…";
-        document.getElementById("recordDesc").textContent = "点击按钮停止录音";
-      } else {
-        state.recording = false;
-        btn.style.background = "#ef4444";
-        btn.textContent = "●";
-        state.sampleReady = true;
-        state.cloneGenerated = false;
-        document.getElementById("recordTitle").textContent = "录音已完成";
-        document.getElementById("recordDesc").textContent = "record_sample.wav · 16.8 秒";
-        sampleTitle.textContent = "record_sample.wav · 人声清晰度良好";
         sampleStatus.classList.add("active");
         updateCloneButton();
       }
@@ -1686,69 +1032,11 @@
       render();
     });
 
-    function bindRange(inputId, outputId, formatter) {
-      var input = document.getElementById(inputId);
-      var output = document.getElementById(outputId);
-
-      input.addEventListener("input", function() {
-        output.textContent = formatter(input.value);
-
-        if (state.previewGenerated) {
-          resetPreview();
-          render();
-        }
-      });
-    }
-
-    bindRange("speedRange", "speedValue", function(value) {
-      return Number(value).toFixed(1) + "x";
-    });
-
-    bindRange("pitchRange", "pitchValue", function(value) {
-      return Number(value) > 0 ? "+" + value : value;
-    });
-
-    bindRange("volumeRange", "volumeValue", function(value) {
-      return ["偏低", "标准", "增强"][Number(value)];
-    });
-
-    // Seed mode switching
-    document.querySelectorAll("[data-seed-mode]").forEach(function(btn) {
-      btn.addEventListener("click", function() {
-        state.seedMode = btn.getAttribute("data-seed-mode");
-        resetPreview();
-        render();
-      });
-    });
-
-    // Seed input
-    seedInput.addEventListener("input", function() {
-      var val = parseInt(seedInput.value, 10);
-      if (isNaN(val) || val < 0) val = 0;
-      if (val > 65535) val = 65535;
-      state.seedValue = val;
-      seedModeLabel.textContent = "固定模式 " + val;
-      resetPreview();
-      render();
-    });
-
-    // Seed preset tags
-    document.querySelectorAll("[data-seed]").forEach(function(tag) {
-      tag.addEventListener("click", function() {
-        var val = parseInt(tag.getAttribute("data-seed"), 10);
-        state.seedValue = val;
-        state.seedMode = "fixed";
-        seedInput.value = val;
-        resetPreview();
-        render();
-      });
-    });
-
     document.getElementById("generatePreviewButton").addEventListener("click", function() {
       var text = document.getElementById("previewText").value.trim();
 
       if (!canPreview()) {
-        showToast("请先完成模型名称和音色配置。");
+        showToast("请先完成音色名称和音色配置。");
         return;
       }
 
@@ -1790,8 +1078,7 @@
         return;
       }
 
-      var seedInfo = state.seedMode === "random" ? "随机seed" : "seed=" + state.seedValue;
-      showToast("语音模型已保存（" + seedInfo + "），保存后返回。");
+      showToast("语音模型已保存，保存后返回。");
 
       // 检查是否有 returnUrl 参数
       var params = new URLSearchParams(window.location.search);
@@ -1824,12 +1111,6 @@
       showToast("返回声音模型管理。");
     });
 
-    // ESC 关闭弹窗
-    document.addEventListener("keydown", function(e) {
-      if (e.key === "Escape" && voiceModal.classList.contains("active")) {
-        voiceModal.classList.remove("active");
-      }
-    });
 
     // 离开页面未保存提醒
     window.addEventListener("beforeunload", function(e) {
