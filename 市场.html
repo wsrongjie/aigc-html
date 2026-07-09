@@ -850,56 +850,30 @@
         }
         .role-voice-btn.playing { background: var(--primary); border-color: var(--primary); color: #fff; }
         .role-voice-btn:disabled { opacity: .55; cursor: not-allowed; }
-        .scene-mode-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-bottom: 10px; }
-        .scene-mode-btn {
-            height: 34px;
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            background: #fff;
-            color: var(--text-secondary);
-            font-size: 12px;
-            font-weight: 900;
+        .role-preview-trigger {
+            display: inline-flex; align-items: center; gap: 3px;
+            font-size: 11px; font-weight: 700; color: var(--text-muted);
+            cursor: pointer; margin-left: 6px; user-select: none;
+            padding: 1px 6px; border-radius: 4px; border: 1px solid transparent;
+            transition: all .15s;
         }
-        .scene-mode-btn.active { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
-        .scene-control { display: none; }
-        .scene-control.show { display: block; }
-        .scene-note {
-            min-height: 40px;
-            display: flex;
-            align-items: center;
-            padding: 9px 10px;
-            border-radius: 10px;
-            border: 1px solid var(--border);
-            background: #fff;
-            color: var(--text-secondary);
-            font-size: 13px;
+        .role-preview-trigger:hover { color: var(--primary); border-color: var(--primary-soft); background: var(--primary-soft); }
+        .role-hover-tip {
+            display: none; position: fixed; z-index: 3000;
+            border-radius: 12px; background: #fff;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.22);
+            pointer-events: none; overflow: hidden; width: 130px;
         }
-        .bg-upload-row { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center; }
-        .upload-btn {
-            height: 40px;
-            border: 1px dashed var(--primary);
-            border-radius: 10px;
-            background: var(--primary-soft);
-            color: var(--primary);
-            font-weight: 900;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        .role-hover-tip.show { display: block; }
+        .role-hover-tip .rht-face {
+            width: 130px; height: 160px; display: flex;
+            align-items: center; justify-content: center;
+            font-size: 56px; background: linear-gradient(135deg,#f0f4ff,#e8eeff);
         }
-        .bg-preview {
-            margin-top: 10px;
-            display: none;
-            align-items: center;
-            gap: 10px;
-            padding: 8px;
-            border-radius: 10px;
-            background: #fff;
-            border: 1px solid var(--border);
+        .role-hover-tip .rht-name {
+            font-size: 11px; color: #555; text-align: center;
+            padding: 6px 8px; background: #fff; font-weight: 600;
         }
-        .bg-preview.show { display: flex; }
-        .bg-preview img { width: 44px; height: 44px; border-radius: 8px; object-fit: cover; }
-        .bg-preview-name { flex: 1; min-width: 0; font-size: 12px; color: var(--text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .clear-bg-btn { height: 30px; padding: 0 10px; border: 1px solid var(--border); border-radius: 8px; background: #fff; color: var(--text-secondary); font-size: 12px; font-weight: 800; }
         .same-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--border); }
         .same-action-primary {
             height: 40px;
@@ -909,6 +883,22 @@
             border: 1px solid var(--primary);
             background: var(--primary);
             color: #fff;
+            transition: all .2s;
+        }
+        .same-action-primary.confirming {
+            background: #fff;
+            color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(47,107,255,.18);
+        }
+        .script-cost-hint {
+            margin-top: 6px;
+            font-size: 12px;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+        .script-cost-hint .cost-num {
+            color: #f59e0b;
+            font-weight: 800;
         }
         @keyframes videoSweep {
             0% { transform: translateX(0); }
@@ -1122,13 +1112,12 @@
             <div class="same-panel-head">
                 <div>
                     <div class="same-panel-title">一键同款</div>
-                    <div class="same-panel-sub">默认复用模板元素；你可以只替换其中一个或多个。</div>
                 </div>
                 <button class="close-btn" type="button" onclick="closeSameModal()">×</button>
             </div>
             <div class="same-form">
                 <div class="same-field">
-                    <label>角色 <span class="reuse-status" id="roleStatus">复用模板</span></label>
+                    <label>角色 <span class="reuse-status" id="roleStatus">复用模板</span><span class="role-preview-trigger" onmouseenter="showRolePreview(event)" onmouseleave="hideRolePreview()">预览</span></label>
                     <div class="role-config-row">
                         <select id="sameRole" onchange="handleSameRoleChange()"></select>
                         <div class="role-voice-preview" aria-live="polite">
@@ -1141,42 +1130,24 @@
                         </div>
                     </div>
                 </div>
-                <div class="same-field">
-                    <label>场景 <span class="reuse-status" id="sceneStatus">复用模板</span></label>
-                    <div class="scene-mode-row">
-                        <button class="scene-mode-btn active" type="button" data-scene-mode="template" onclick="setSceneMode('template')">复用模板</button>
-                        <button class="scene-mode-btn" type="button" data-scene-mode="existing" onclick="setSceneMode('existing')">内置场景</button>
-                        <button class="scene-mode-btn" type="button" data-scene-mode="upload" onclick="setSceneMode('upload')">本地上传</button>
-                    </div>
-                    <div class="scene-control show" id="sceneTemplateControl">
-                        <div class="scene-note" id="sameTemplateScene">复用模板场景</div>
-                    </div>
-                    <div class="scene-control" id="sceneExistingControl">
-                        <select id="sameScene" onchange="updateSameStatus()"></select>
-                    </div>
-                    <div class="scene-control" id="sceneUploadControl">
-                        <div class="bg-upload-row">
-                            <button class="upload-btn" type="button" onclick="document.getElementById('sameSceneFile').click()">上传本地场景图</button>
-                            <button class="clear-bg-btn" type="button" onclick="clearUploadedScene()">移除</button>
-                        </div>
-                        <input type="file" id="sameSceneFile" accept="image/*" hidden onchange="handleSceneUpload(event)">
-                        <div class="bg-preview" id="scenePreview">
-                            <img id="scenePreviewImg" alt="场景预览">
-                            <div class="bg-preview-name" id="scenePreviewName"></div>
-                            <button class="clear-bg-btn" type="button" onclick="clearUploadedScene()">移除</button>
-                        </div>
-                    </div>
-                </div>
+
                 <div class="same-field">
                     <label>台词 <span class="reuse-status" id="scriptStatus">复用模板</span></label>
-                    <textarea id="sameScript" oninput="updateSameStatus()"></textarea>
+                    <textarea id="sameScript" oninput="updateSameStatus();updateScriptCost()"></textarea>
+                    <div class="script-cost-hint" id="scriptCostHint">预估时长：-- ｜ 预估消耗 🪙-- 积分</div>
                 </div>
             </div>
             <div class="same-actions">
-                <button class="same-action-primary" type="button" onclick="confirmSameTemplate()">开始生成同款</button>
+                <div style="font-size:12px;color:var(--text-muted);display:flex;align-items:center;margin-right:10px;">视频会在视频资产页面显示</div>
+                <button class="same-action-primary" id="sameActionBtn" type="button" onclick="handleSameSubmit()">生成同款</button>
             </div>
         </div>
     </div>
+</div>
+
+<div class="role-hover-tip" id="roleHoverTip">
+    <div class="rht-face" id="roleHoverFace"></div>
+    <div class="rht-name" id="roleHoverName"></div>
 </div>
 
 <div class="toast" id="toast"><strong id="toastTitle"></strong><span id="toastText"></span></div>
@@ -1457,11 +1428,9 @@
     };
     let previewResourceId = null;
     let activeTemplateId = null;
-    let activeSceneMode = "template";
-    let uploadedSceneDataUrl = "";
-    let uploadedSceneFileName = "";
     let playingVoiceId = null;
     let toastTimer = null;
+    let confirmTimer = null;
 
     function readList(key) {
         try {
@@ -1875,24 +1844,23 @@
         const item = resources.find(r => r.id === templateId);
         if (!item || item.type !== "template") return;
         activeTemplateId = templateId;
+        resetConfirmBtn();
         document.getElementById("samePreviewPhone").innerHTML = '<div class="template-visual">' + buildVisual(item) + '</div>';
         document.getElementById("samePreviewTitle").textContent = item.title;
         document.getElementById("samePreviewDesc").textContent = item.desc;
         fillSelect("sameRole", getRoleChoices(item));
-        fillSelect("sameScene", getSceneChoices());
         document.getElementById("sameRole").value = "template";
-        document.getElementById("sameTemplateScene").textContent = item.bg || item.scene || "复用模板场景";
         document.getElementById("sameScript").value = item.script || item.desc;
-        clearUploadedScene(false);
-        setSceneMode("template", false);
         updateSameStatus();
         updateRoleVoicePreview();
+        updateScriptCost();
         document.getElementById("sameModal").classList.add("show");
     }
 
     function closeSameModal(event) {
         if (event && event.target !== document.getElementById("sameModal")) return;
         stopSameVoicePreview();
+        resetConfirmBtn();
         document.getElementById("sameModal").classList.remove("show");
     }
 
@@ -1901,35 +1869,16 @@
         return [{ value: "template", label: (template.role || "模板角色") + "（模板主体）" }].concat(builtInRoles, createdRoles);
     }
 
-    function getSceneChoices() {
-        const scenes = readCreatedScenes();
-        if (!scenes.length) return [{ value: "", label: "暂无可用场景" }];
-        return scenes.map(scene => ({ value: scene.id, label: scene.name || "未命名场景" }));
-    }
-
     function fillSelect(id, options) {
         document.getElementById(id).innerHTML = options.map(opt =>
             '<option value="' + escapeHtml(opt.value) + '">' + escapeHtml(opt.label) + '</option>'
         ).join("");
     }
 
-    function setSceneMode(mode, update) {
-        activeSceneMode = mode;
-        document.querySelectorAll(".scene-mode-btn").forEach(btn => {
-            btn.classList.toggle("active", btn.getAttribute("data-scene-mode") === mode);
-        });
-        ["template", "existing", "upload"].forEach(name => {
-            const control = document.getElementById("scene" + name.charAt(0).toUpperCase() + name.slice(1) + "Control");
-            if (control) control.classList.toggle("show", name === mode);
-        });
-        if (update !== false) updateSameStatus();
-    }
-
     function updateSameStatus() {
         const item = resources.find(r => r.id === activeTemplateId);
         if (!item) return;
         setStatus("roleStatus", document.getElementById("sameRole").value === "template" ? "复用模板" : "已替换");
-        setStatus("sceneStatus", activeSceneMode === "template" ? "复用模板" : (activeSceneMode === "upload" ? (uploadedSceneDataUrl ? "已上传" : "待上传") : "已替换"));
         setStatus("scriptStatus", document.getElementById("sameScript").value.trim() === String(item.script || "").trim() ? "复用模板" : "已修改");
     }
 
@@ -1944,6 +1893,65 @@
     function handleSameRoleChange() {
         updateRoleVoicePreview();
         updateSameStatus();
+    }
+
+    function getRoleEmoji(roleValue) {
+        if (roleValue === "template") {
+            const item = resources.find(r => r.id === activeTemplateId);
+            var name = item ? item.role || "" : "";
+            if (name.indexOf("女") >= 0) return "👩‍💼";
+            if (name.indexOf("男") >= 0) return "👨‍💼";
+            return "🎙️";
+        }
+        const builtInRole = builtInRoles.find(role => role.value === roleValue);
+        if (builtInRole) {
+            if (builtInRole.label.indexOf("女") >= 0) return "👩‍💼";
+            if (builtInRole.label.indexOf("男") >= 0) return "👨‍💼";
+            return "🎙️";
+        }
+        const createdRoleId = roleValue.indexOf("created:") === 0 ? roleValue.slice(8) : "";
+        const createdRole = readCreatedRoles().find(role => role.id === createdRoleId);
+        if (createdRole) {
+            var name = createdRole.name || "";
+            if (name.indexOf("女") >= 0) return "👩‍💼";
+            if (name.indexOf("男") >= 0) return "👨‍💼";
+            return "👤";
+        }
+        return "👤";
+    }
+
+    function getRoleDisplayName(roleValue) {
+        if (roleValue === "template") {
+            const item = resources.find(r => r.id === activeTemplateId);
+            return item ? (item.role || "模板角色") : "模板角色";
+        }
+        const builtInRole = builtInRoles.find(role => role.value === roleValue);
+        if (builtInRole) return builtInRole.label.replace("内置主体 · ", "");
+        const createdRoleId = roleValue.indexOf("created:") === 0 ? roleValue.slice(8) : "";
+        const createdRole = readCreatedRoles().find(role => role.id === createdRoleId);
+        if (createdRole) return createdRole.name || "自定义角色";
+        return "未知角色";
+    }
+
+    function showRolePreview(event) {
+        var roleValue = document.getElementById("sameRole").value;
+        var emoji = getRoleEmoji(roleValue);
+        var name = getRoleDisplayName(roleValue);
+        var tip = document.getElementById("roleHoverTip");
+        document.getElementById("roleHoverFace").textContent = emoji;
+        document.getElementById("roleHoverName").textContent = name;
+        var rect = event.target.getBoundingClientRect();
+        var left = rect.right + 8;
+        if (left + 140 > window.innerWidth) left = rect.left - 140;
+        var top = rect.bottom + 8;
+        if (top + 200 > window.innerHeight) top = rect.top - 210;
+        tip.style.left = left + "px";
+        tip.style.top = top + "px";
+        tip.classList.add("show");
+    }
+
+    function hideRolePreview() {
+        document.getElementById("roleHoverTip").classList.remove("show");
     }
 
     function getSelectedRoleVoice() {
@@ -1983,39 +1991,6 @@
         btn.setAttribute("aria-label", btn.title);
     }
 
-    function handleSceneUpload(event) {
-        const file = event.target.files && event.target.files[0];
-        if (!file) return;
-        if (!file.type || file.type.indexOf("image/") !== 0) {
-            showToast("上传失败", "请上传图片格式文件");
-            return;
-        }
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            uploadedSceneDataUrl = e.target.result || "";
-            uploadedSceneFileName = file.name;
-            document.getElementById("scenePreviewImg").src = uploadedSceneDataUrl;
-            document.getElementById("scenePreviewName").textContent = uploadedSceneFileName;
-            document.getElementById("scenePreview").classList.add("show");
-            updateSameStatus();
-        };
-        reader.readAsDataURL(file);
-    }
-
-    function clearUploadedScene(shouldUpdate) {
-        uploadedSceneDataUrl = "";
-        uploadedSceneFileName = "";
-        const fileInput = document.getElementById("sameSceneFile");
-        if (fileInput) fileInput.value = "";
-        const preview = document.getElementById("scenePreview");
-        if (preview) preview.classList.remove("show");
-        const image = document.getElementById("scenePreviewImg");
-        if (image) image.removeAttribute("src");
-        const name = document.getElementById("scenePreviewName");
-        if (name) name.textContent = "";
-        if (shouldUpdate !== false) updateSameStatus();
-    }
-
     function getSelectedRoleLabel() {
         const select = document.getElementById("sameRole");
         if (!select || select.selectedIndex < 0) return "";
@@ -2028,10 +2003,6 @@
             name: item.name || "未命名角色",
             voice: item.voice || ""
         }));
-    }
-
-    function readCreatedScenes() {
-        return readList(SAME_SCENE_KEY);
     }
 
     function stopSameVoicePreview() {
@@ -2080,6 +2051,38 @@
         window.speechSynthesis.speak(utterance);
     }
 
+    function updateScriptCost() {
+        var text = document.getElementById("sameScript").value || "";
+        var chars = text.length;
+        var duration = Math.max(2, Math.ceil(chars / 4));
+        var cost = duration * 20;
+        document.getElementById("scriptCostHint").innerHTML =
+            '预估时长：<span class="cost-num">' + duration + ' 秒</span> ｜ 预估消耗 <span class="cost-num">🪙' + cost + '</span> 积分';
+    }
+
+    function handleSameSubmit() {
+        var btn = document.getElementById("sameActionBtn");
+        if (btn.classList.contains("confirming")) {
+            resetConfirmBtn();
+            confirmSameTemplate();
+            return;
+        }
+        var text = document.getElementById("sameScript").value || "";
+        var chars = text.length;
+        var duration = Math.max(2, Math.ceil(chars / 4));
+        var cost = duration * 20;
+        btn.textContent = "确认消耗 🪙" + cost;
+        btn.classList.add("confirming");
+        if (confirmTimer) clearTimeout(confirmTimer);
+        confirmTimer = setTimeout(function() { resetConfirmBtn(); }, 3000);
+    }
+
+    function resetConfirmBtn() {
+        if (confirmTimer) { clearTimeout(confirmTimer); confirmTimer = null; }
+        var btn = document.getElementById("sameActionBtn");
+        if (btn) { btn.textContent = "生成同款"; btn.classList.remove("confirming"); }
+    }
+
     function confirmSameTemplate() {
         const item = resources.find(r => r.id === activeTemplateId);
         if (!item) return;
@@ -2091,14 +2094,9 @@
             roleLabel: getSelectedRoleLabel(),
             roleVoiceName: selectedVoice.name || "",
             roleVoiceMeta: selectedVoice.meta || "",
-            backgroundMode: activeSceneMode,
-            backgroundSceneId: document.getElementById("sameScene").value,
-            backgroundImageDataUrl: uploadedSceneDataUrl,
-            backgroundFileName: uploadedSceneFileName,
             script: document.getElementById("sameScript").value,
             reuse: {
                 role: document.getElementById("sameRole").value === "template",
-                background: activeSceneMode === "template",
                 script: document.getElementById("sameScript").value.trim() === String(item.script || "").trim()
             }
         };
