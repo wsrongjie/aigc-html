@@ -885,10 +885,29 @@
             color: #fff;
             transition: all .2s;
         }
-        .same-action-primary.confirming {
-            background: #fff;
-            color: var(--primary);
-            box-shadow: 0 0 0 4px rgba(47,107,255,.18);
+        .same-speed-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 8px;
+        }
+        .same-speed-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            flex-shrink: 0;
+        }
+        .same-speed-row input[type="range"] {
+            flex: 1;
+            accent-color: var(--primary);
+            height: 4px;
+            cursor: pointer;
+        }
+        .same-speed-val {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text);
+            min-width: 34px;
+            text-align: right;
         }
         .script-cost-hint {
             margin-top: 6px;
@@ -1134,12 +1153,17 @@
                 <div class="same-field">
                     <label>台词 <span class="reuse-status" id="scriptStatus">复用模板</span></label>
                     <textarea id="sameScript" oninput="updateSameStatus();updateScriptCost()"></textarea>
-                    <div class="script-cost-hint" id="scriptCostHint">预估时长：-- ｜ 预估消耗 🪙-- 积分</div>
+                    <div class="same-speed-row">
+                        <span class="same-speed-label">语速</span>
+                        <input type="range" id="sameSpeedSlider" min="5" max="20" value="12" oninput="updateSameSpeed()">
+                        <span class="same-speed-val" id="sameSpeedVal">1.2x</span>
+                    </div>
+                    <div class="script-cost-hint" id="scriptCostHint">预估时长：--</div>
                 </div>
             </div>
             <div class="same-actions">
                 <div style="font-size:12px;color:var(--text-muted);display:flex;align-items:center;margin-right:10px;">视频会在视频资产页面显示</div>
-                <button class="same-action-primary" id="sameActionBtn" type="button" onclick="handleSameSubmit()">生成同款</button>
+                <button class="same-action-primary" id="sameActionBtn" type="button" onclick="confirmSameTemplate()"></button>
             </div>
         </div>
     </div>
@@ -1430,7 +1454,7 @@
     let activeTemplateId = null;
     let playingVoiceId = null;
     let toastTimer = null;
-    let confirmTimer = null;
+    let sameScriptSpeed = 12;
 
     function readList(key) {
         try {
@@ -1844,7 +1868,9 @@
         const item = resources.find(r => r.id === templateId);
         if (!item || item.type !== "template") return;
         activeTemplateId = templateId;
-        resetConfirmBtn();
+        sameScriptSpeed = 12;
+        document.getElementById("sameSpeedSlider").value = 12;
+        document.getElementById("sameSpeedVal").textContent = "1.2x";
         document.getElementById("samePreviewPhone").innerHTML = '<div class="template-visual">' + buildVisual(item) + '</div>';
         document.getElementById("samePreviewTitle").textContent = item.title;
         document.getElementById("samePreviewDesc").textContent = item.desc;
@@ -1860,7 +1886,6 @@
     function closeSameModal(event) {
         if (event && event.target !== document.getElementById("sameModal")) return;
         stopSameVoicePreview();
-        resetConfirmBtn();
         document.getElementById("sameModal").classList.remove("show");
     }
 
@@ -2054,33 +2079,22 @@
     function updateScriptCost() {
         var text = document.getElementById("sameScript").value || "";
         var chars = text.length;
-        var duration = Math.max(2, Math.ceil(chars / 4));
+        var speed = sameScriptSpeed / 10;
+        var duration = Math.max(2, Math.ceil(chars / (speed * 4)));
         var cost = duration * 20;
         document.getElementById("scriptCostHint").innerHTML =
-            '预估时长：<span class="cost-num">' + duration + ' 秒</span> ｜ 预估消耗 <span class="cost-num">🪙' + cost + '</span> 积分';
+            '预估时长：<span class="cost-num">' + duration + ' 秒</span>';
+        updateActionBtn(cost);
     }
 
-    function handleSameSubmit() {
-        var btn = document.getElementById("sameActionBtn");
-        if (btn.classList.contains("confirming")) {
-            resetConfirmBtn();
-            confirmSameTemplate();
-            return;
-        }
-        var text = document.getElementById("sameScript").value || "";
-        var chars = text.length;
-        var duration = Math.max(2, Math.ceil(chars / 4));
-        var cost = duration * 20;
-        btn.textContent = "确认消耗 🪙" + cost;
-        btn.classList.add("confirming");
-        if (confirmTimer) clearTimeout(confirmTimer);
-        confirmTimer = setTimeout(function() { resetConfirmBtn(); }, 3000);
+    function updateActionBtn(cost) {
+        document.getElementById("sameActionBtn").innerHTML = '生成同款<span style="font-size:0.8em;opacity:.85">（消耗 🪙' + cost + ' 积分）</span>';
     }
 
-    function resetConfirmBtn() {
-        if (confirmTimer) { clearTimeout(confirmTimer); confirmTimer = null; }
-        var btn = document.getElementById("sameActionBtn");
-        if (btn) { btn.textContent = "生成同款"; btn.classList.remove("confirming"); }
+    function updateSameSpeed() {
+        sameScriptSpeed = parseInt(document.getElementById("sameSpeedSlider").value);
+        document.getElementById("sameSpeedVal").textContent = (sameScriptSpeed / 10).toFixed(1) + 'x';
+        updateScriptCost();
     }
 
     function confirmSameTemplate() {
@@ -2095,6 +2109,7 @@
             roleVoiceName: selectedVoice.name || "",
             roleVoiceMeta: selectedVoice.meta || "",
             script: document.getElementById("sameScript").value,
+            speed: sameScriptSpeed,
             reuse: {
                 role: document.getElementById("sameRole").value === "template",
                 script: document.getElementById("sameScript").value.trim() === String(item.script || "").trim()
