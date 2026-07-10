@@ -1218,7 +1218,7 @@
                 </div>
             </div>
             <div class="same-actions">
-                <div style="font-size:12px;color:var(--text-muted);display:flex;align-items:center;margin-right:10px;">视频会在视频资产页面显示</div>
+                <div style="font-size:12px;color:var(--text-muted);display:flex;align-items:center;margin-right:10px;">在导演台的口播创作查看任务状态</div>
                 <button class="same-action-primary" id="sameActionBtn" type="button" onclick="confirmSameTemplate()"></button>
             </div>
         </div>
@@ -1241,8 +1241,6 @@
     const ADDED_KEY = "marketAddedAssets";
     const SUBJECT_LIBRARY_KEY = "subjectLibraryItems";
     const SAME_SCENE_KEY = "aigc_subject_scenes";
-    const TEMPLATE_DRAFT_KEY = "platformSameTemplateDraft";
-    const PENDING_VIDEO_JOBS_KEY = "platformPendingVideoJobs";
 
     const resources = [
         {
@@ -2228,38 +2226,45 @@
         samePreviewProgress = 0;
     }
 
+    function getSceneGradient(name) {
+        var map = {
+            "市场解读": "linear-gradient(135deg,#667eea,#764ba2)",
+            "基金投教": "linear-gradient(135deg,#f093fb,#f5576c)",
+            "风险提示": "linear-gradient(135deg,#4facfe,#00f2fe)",
+            "热点快评": "linear-gradient(135deg,#43e97b,#38f9d7)"
+        };
+        return map[name] || "linear-gradient(135deg,#667eea,#764ba2)";
+    }
+
     function confirmSameTemplate() {
         const item = resources.find(r => r.id === activeTemplateId);
         if (!item) return;
-        const selectedVoice = getSelectedRoleVoice();
-        const draft = {
-            templateId: item.id,
-            templateTitle: item.title,
-            roleId: document.getElementById("sameRole").value,
-            roleLabel: getSelectedRoleLabel(),
-            roleVoiceName: selectedVoice.name || "",
-            roleVoiceMeta: selectedVoice.meta || "",
-            script: document.getElementById("sameScript").value,
-            speed: sameScriptSpeed,
-            reuse: {
-                role: document.getElementById("sameRole").value === "template",
-                script: document.getElementById("sameScript").value.trim() === String(item.script || "").trim()
-            }
+        var roleVal = document.getElementById("sameRole").value;
+        var script = document.getElementById("sameScript").value;
+        var chars = script.length;
+        var speed = sameScriptSpeed / 10;
+        var duration = Math.max(2, Math.ceil(chars / (speed * 4)));
+        var roleName = getRoleDisplayName(roleVal);
+        var roleEmoji = getRoleEmoji(roleVal);
+        var task = {
+            taskName: item.title,
+            rows: [{
+                script: script,
+                duration: duration,
+                person: {
+                    name: roleName,
+                    emoji: roleEmoji,
+                    gradient: roleName.indexOf("女") >= 0 ? "linear-gradient(135deg,#ff9a9e,#fad0c4)" : roleName.indexOf("男") >= 0 ? "linear-gradient(135deg,#a1c4fd,#c2e9fb)" : "linear-gradient(135deg,#ffecd2,#fcb69f)"
+                },
+                bg: {
+                    name: item.bg || item.scene || "默认场景",
+                    gradient: getSceneGradient(item.bg || item.scene || "")
+                }
+            }]
         };
-        try {
-            sessionStorage.setItem(TEMPLATE_DRAFT_KEY, JSON.stringify(draft));
-            const jobs = JSON.parse(sessionStorage.getItem(PENDING_VIDEO_JOBS_KEY) || "[]");
-            jobs.push({
-                id: "job-" + Date.now(),
-                templateTitle: item.title,
-                createdAt: new Date().toISOString(),
-                draft: draft
-            });
-            sessionStorage.setItem(PENDING_VIDEO_JOBS_KEY, JSON.stringify(jobs));
-        } catch (e) {}
+        try { localStorage.setItem("newTaskFromFlow", JSON.stringify(task)); } catch(e) {}
         closeSameModal();
-        showToast("生成任务已提交", "正在跳转至视频资产页，请稍候查看生成结果");
-        setTimeout(() => { window.location.href = "视频资产.html"; }, 900);
+        window.location.href = "导演台-批量成片工作台.html";
     }
 
     function previewResource(id) {

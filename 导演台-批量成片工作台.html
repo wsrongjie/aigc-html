@@ -1954,8 +1954,8 @@
         var data = JSON.parse(raw);
         if (!data.rows || !data.rows.length) return;
         var tasks = loadTasks();
-        data.rows.forEach(function(row, idx) {
-          tasks.push({
+        data.rows.slice().reverse().forEach(function(row, idx) {
+          tasks.unshift({
             id: Date.now() + idx,
             taskName: data.taskName || '未命名任务',
             visibility: '仅自己',
