@@ -782,14 +782,70 @@
             background: #eef2ff;
             box-shadow: var(--shadow-md);
         }
-        .same-preview-phone .template-visual {
+        .same-vp {
             position: absolute;
             inset: 0;
-            width: 100%;
-            height: 100%;
+            overflow: hidden;
         }
-        .same-preview-phone .phone-preview { width: 48%; height: 62%; border-radius: 20px; }
-        .same-preview-phone .template-map { right: 14px; bottom: 18px; width: 48%; }
+        .same-vp-visual { position: absolute; inset: 0; }
+        .same-vp-visual .template-visual {
+            position: absolute; inset: 0; width: 100%; height: 100%;
+        }
+        .same-vp-overlay {
+            position: absolute; inset: 0; z-index: 2;
+            display: flex; align-items: center; justify-content: center;
+            background: rgba(0,0,0,0.08);
+            cursor: pointer; transition: opacity .3s;
+        }
+        .same-vp-overlay.hidden { opacity: 0; pointer-events: none; }
+        .same-vp-play-icon {
+            width: 46px; height: 46px; border-radius: 50%;
+            background: rgba(255,255,255,.92);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px; color: #1a1a2e;
+            box-shadow: 0 4px 20px rgba(0,0,0,.25);
+            transition: transform .2s;
+        }
+        .same-vp-overlay:hover .same-vp-play-icon { transform: scale(1.06); }
+        .same-vp-controls {
+            position: absolute; bottom: 0; left: 0; right: 0; z-index: 3;
+            display: flex; align-items: center; gap: 6px;
+            padding: 8px 10px 7px;
+            background: linear-gradient(transparent, rgba(0,0,0,.65));
+            opacity: 0; transition: opacity .25s;
+        }
+        .same-vp:hover .same-vp-controls,
+        .same-vp-controls.show { opacity: 1; }
+        .same-vp-btn {
+            background: none; border: none; color: #fff;
+            font-size: 11px; cursor: pointer; padding: 0;
+            line-height: 1; flex-shrink: 0; width: 20px; text-align: center;
+        }
+        .same-vp-track {
+            flex: 1; height: 3px; background: rgba(255,255,255,.25);
+            border-radius: 2px; cursor: pointer; position: relative;
+        }
+        .same-vp-fill {
+            height: 100%; background: var(--primary); border-radius: 2px;
+            width: 0%; transition: width .1s linear;
+        }
+        .same-vp-thumb {
+            position: absolute; top: 50%; right: -5px;
+            width: 10px; height: 10px; border-radius: 50%;
+            background: #fff; transform: translateY(-50%);
+            box-shadow: 0 1px 4px rgba(0,0,0,.3);
+            display: none;
+        }
+        .same-vp:hover .same-vp-thumb { display: block; }
+        .same-vp-time {
+            font-size: 10px; color: rgba(255,255,255,.8);
+            flex-shrink: 0; font-variant-numeric: tabular-nums;
+            min-width: 62px; text-align: right;
+        }
+        .same-preview-phone .phone-preview,
+        .same-vp-visual .phone-preview { width: 48%; height: 62%; border-radius: 20px; }
+        .same-preview-phone .template-map,
+        .same-vp-visual .template-map { right: 14px; bottom: 18px; width: 48%; }
         .same-preview h3 { font-size: 18px; line-height: 1.35; margin-bottom: 8px; }
         .same-preview p { color: var(--text-secondary); font-size: 12px; line-height: 1.6; }
         .same-panel { padding: 22px; overflow-y: auto; }
@@ -1455,6 +1511,10 @@
     let playingVoiceId = null;
     let toastTimer = null;
     let sameScriptSpeed = 12;
+    let samePreviewPlaying = false;
+    let samePreviewTimer = null;
+    let samePreviewProgress = 0;
+    let samePreviewTotal = 30;
 
     function readList(key) {
         try {
@@ -1871,7 +1931,25 @@
         sameScriptSpeed = 12;
         document.getElementById("sameSpeedSlider").value = 12;
         document.getElementById("sameSpeedVal").textContent = "1.2x";
-        document.getElementById("samePreviewPhone").innerHTML = '<div class="template-visual">' + buildVisual(item) + '</div>';
+        var v = buildVisual(item);
+        var script = item.script || item.desc || "";
+        samePreviewTotal = Math.max(2, Math.ceil(script.length / 4));
+        samePreviewProgress = 0;
+        document.getElementById("samePreviewPhone").innerHTML =
+            '<div class="same-vp" id="sameVp">' +
+            '  <div class="same-vp-visual"><div class="template-visual">' + v + '</div></div>' +
+            '  <div class="same-vp-overlay" id="sameVpOverlay" onclick="toggleSamePlay()">' +
+            '    <div class="same-vp-play-icon">▶</div>' +
+            '  </div>' +
+            '  <div class="same-vp-controls" id="sameVpControls">' +
+            '    <button class="same-vp-btn" id="sameVpPlayBtn" onclick="toggleSamePlay()">▶</button>' +
+            '    <div class="same-vp-track" id="sameVpTrack" onclick="seekSamePlay(event)">' +
+            '      <div class="same-vp-fill" id="sameVpFill"></div>' +
+            '      <div class="same-vp-thumb" id="sameVpThumb"></div>' +
+            '    </div>' +
+            '    <span class="same-vp-time" id="sameVpTime">0:00 / ' + formatSameTime(samePreviewTotal) + '</span>' +
+            '  </div>' +
+            '</div>';
         document.getElementById("samePreviewTitle").textContent = item.title;
         document.getElementById("samePreviewDesc").textContent = item.desc;
         fillSelect("sameRole", getRoleChoices(item));
@@ -1886,6 +1964,7 @@
     function closeSameModal(event) {
         if (event && event.target !== document.getElementById("sameModal")) return;
         stopSameVoicePreview();
+        resetSamePlay();
         document.getElementById("sameModal").classList.remove("show");
     }
 
@@ -2095,6 +2174,58 @@
         sameScriptSpeed = parseInt(document.getElementById("sameSpeedSlider").value);
         document.getElementById("sameSpeedVal").textContent = (sameScriptSpeed / 10).toFixed(1) + 'x';
         updateScriptCost();
+    }
+
+    function toggleSamePlay() {
+        if (samePreviewPlaying) { pauseSamePlay(); } else { playSamePlay(); }
+    }
+    function playSamePlay() {
+        samePreviewPlaying = true;
+        document.getElementById("sameVpOverlay").classList.add("hidden");
+        document.getElementById("sameVpPlayBtn").textContent = "⏸";
+        if (samePreviewProgress >= 100) { samePreviewProgress = 0; }
+        var interval = Math.max(50, samePreviewTotal * 10);
+        samePreviewTimer = setInterval(function() {
+            samePreviewProgress += 0.5;
+            if (samePreviewProgress >= 100) { samePreviewProgress = 100; pauseSamePlay(); }
+            updateSamePlayUI();
+        }, interval);
+    }
+    function pauseSamePlay() {
+        samePreviewPlaying = false;
+        if (samePreviewTimer) { clearInterval(samePreviewTimer); samePreviewTimer = null; }
+        document.getElementById("sameVpOverlay").classList.remove("hidden");
+        document.getElementById("sameVpPlayBtn").textContent = "▶";
+    }
+    function updateSamePlayUI() {
+        var pct = Math.min(100, Math.max(0, samePreviewProgress));
+        var fill = document.getElementById("sameVpFill");
+        var thumb = document.getElementById("sameVpThumb");
+        var timeEl = document.getElementById("sameVpTime");
+        if (fill) fill.style.width = pct + "%";
+        if (thumb) thumb.style.left = pct + "%";
+        if (timeEl) {
+            var cur = Math.round(pct / 100 * samePreviewTotal);
+            timeEl.textContent = formatSameTime(cur) + " / " + formatSameTime(samePreviewTotal);
+        }
+    }
+    function seekSamePlay(event) {
+        var track = document.getElementById("sameVpTrack");
+        if (!track) return;
+        var rect = track.getBoundingClientRect();
+        var pct = Math.max(0, Math.min(100, (event.clientX - rect.left) / rect.width * 100));
+        samePreviewProgress = pct;
+        updateSamePlayUI();
+    }
+    function formatSameTime(sec) {
+        var m = Math.floor(sec / 60);
+        var s = Math.floor(sec % 60);
+        return m + ":" + (s < 10 ? "0" : "") + s;
+    }
+    function resetSamePlay() {
+        if (samePreviewTimer) { clearInterval(samePreviewTimer); samePreviewTimer = null; }
+        samePreviewPlaying = false;
+        samePreviewProgress = 0;
     }
 
     function confirmSameTemplate() {
