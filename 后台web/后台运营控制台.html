@@ -833,7 +833,7 @@
                     <button class="btn btn-primary btn-sm" onclick="openTemplateModal()" style="margin-left:auto">+ 新增模板</button>
                 </div>
                 <table>
-                    <thead><tr><th>模板名称</th><th>标签</th><th>适用行业</th><th>工作流</th><th>提示词</th><th>模板文件</th><th>状态</th><th>使用次数</th><th>操作</th></tr></thead>
+                    <thead><tr><th>模板名称</th><th>标签</th><th>适用行业</th><th>工作流</th><th>状态</th><th>使用次数</th><th>操作</th></tr></thead>
                     <tbody id="templateConfigTable"></tbody>
                 </table>
             </div>
@@ -1092,6 +1092,28 @@
         <div class="modal-footer">
             <button class="btn" onclick="closeTemplateModal()">取消</button>
             <button class="btn btn-primary" onclick="saveTemplateConfig()">保存</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal：视频模板预览 -->
+<div class="modal-overlay" id="templatePreviewOverlay">
+    <div class="modal" style="width:720px;max-width:94vw">
+        <div class="modal-header">
+            <span class="modal-title" id="templatePreviewTitle">视频预览</span>
+            <button class="modal-close" onclick="closeTemplatePreview()">×</button>
+        </div>
+        <div style="padding:20px 24px">
+            <div style="background:#000;border-radius:8px;overflow:hidden;aspect-ratio:9/16;max-height:520px;display:flex;align-items:center;justify-content:center;margin-bottom:16px">
+                <video id="templatePreviewVideo" controls style="width:100%;height:100%;object-fit:contain" poster="">
+                    <source src="" type="video/mp4">
+                    您的浏览器不支持视频播放
+                </video>
+            </div>
+            <div id="templatePreviewInfo" style="font-size:13px;line-height:1.8;color:var(--text-secondary)"></div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-primary" onclick="closeTemplatePreview()">关闭</button>
         </div>
     </div>
 </div>
@@ -3796,19 +3818,15 @@ function renderTemplates() {
         var tagsHtml = (t.tags || '').split(',').filter(function(x){return x.trim()}).map(function(x){return '<span class="chip">' + x.trim() + '</span> '}).join('');
         var workflowMap = { 'portrait_talking':'口播视频创作' };
         var workflowLabel = workflowMap[t.workflow] || t.workflow || '<span style="color:var(--text-muted)">-</span>';
-        var promptPreview = (t.promptConfig || '').slice(0, 30);
-        if (t.promptConfig && t.promptConfig.length > 30) promptPreview += '…';
-        var fileIcon = t.templateFile ? '📄' : '';
         html += '<tr>' +
             '<td><strong>' + t.name + '</strong></td>' +
             '<td>' + (tagsHtml || '<span style="color:var(--text-muted)">-</span>') + '</td>' +
             '<td>' + t.industry + '</td>' +
             '<td style="font-size:12px">' + workflowLabel + '</td>' +
-            '<td style="font-size:12px;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="' + escapeHtml(t.promptConfig || '') + '">' + (promptPreview || '<span style="color:var(--text-muted)">-</span>') + '</td>' +
-            '<td style="font-size:13px;text-align:center">' + fileIcon + '</td>' +
             '<td><span class="status ' + stCls + '">' + statusLabel + '</span></td>' +
             '<td><strong>' + (t.used || 0).toLocaleString() + '</strong></td>' +
-            '<td>' +
+            '<td class="template-actions">' +
+                '<button class="btn btn-xs btn-primary" onclick="openTemplatePreview(' + i + ')" title="预览">▶ 预览</button> ' +
                 '<button class="btn btn-xs" onclick="openTemplateModal(' + i + ')">编辑</button> ' +
                 '<button class="btn btn-xs ' + (t.status === '启用' ? '' : 'btn-primary') + '" onclick="confirmToggleTemplate(' + i + ')">' + (t.status === '启用' ? '下架' : '上架') + '</button> ' +
                 '<button class="btn btn-xs btn-danger" onclick="confirmDeleteTemplate(' + i + ')">删除</button>' +
@@ -3861,6 +3879,30 @@ function deleteTemplate(index) {
     saveData();
     renderTemplates();
     toast('模板「' + name + '」已删除', 'success');
+}
+
+function openTemplatePreview(index) {
+    var t = AppState.templateConfigs[index];
+    if (!t) return;
+    document.getElementById('templatePreviewTitle').textContent = '预览模板：' + t.name;
+    var video = document.getElementById('templatePreviewVideo');
+    video.src = '';
+    video.load();
+    var infoHtml = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px 24px">' +
+        '<span>模板名称：<strong>' + t.name + '</strong></span>' +
+        '<span>适用行业：<strong>' + t.industry + '</strong></span>' +
+        '<span>标签：<strong>' + t.tags + '</strong></span>' +
+        '<span>使用次数：<strong>' + (t.used || 0).toLocaleString() + '</strong></span>' +
+        '</div>';
+    document.getElementById('templatePreviewInfo').innerHTML = infoHtml;
+    document.getElementById('templatePreviewOverlay').classList.add('show');
+}
+
+function closeTemplatePreview() {
+    var video = document.getElementById('templatePreviewVideo');
+    video.pause();
+    video.src = '';
+    document.getElementById('templatePreviewOverlay').classList.remove('show');
 }
 
 function onTmplFileChange() {
