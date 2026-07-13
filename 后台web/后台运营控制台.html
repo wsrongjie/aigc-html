@@ -1060,7 +1060,7 @@
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
             <div class="form-group">
-                <label class="kv-label">视频模板文件</label>
+                <label class="kv-label">视频模板文件 <span style="color:red">*</span></label>
                 <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
                     <label class="btn btn-sm" style="cursor:pointer;display:inline-flex;align-items:center;gap:6px">
                         📁 选择文件
@@ -1070,7 +1070,7 @@
                 </div>
             </div>
             <div class="form-group">
-                <label class="kv-label">首帧图</label>
+                <label class="kv-label">首帧图 <span style="color:red">*</span></label>
                 <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
                     <label class="btn btn-sm" style="cursor:pointer;display:inline-flex;align-items:center;gap:6px">
                         📁 选择文件
@@ -1449,6 +1449,8 @@ function saveData() {
 }
 
 var _priorityDirty = false;
+var _mergedGroups = [];
+var _mergedExpanded = {};
 
 function normalizeScheduler(data) {
     var defaults = AppState.scheduler || {};
@@ -3186,6 +3188,13 @@ function renderSchedulerTasks(scheduler) {
     } else {
         html += '<button class="btn btn-sm btn-primary" onclick="savePriorityChanges()" style="margin-right:4px;opacity:0.4;cursor:default" disabled>💾 保存</button>';
     }
+    html += '<span style="width:8px"></span>';
+    if (_mergedGroups.length > 0) {
+        html += '<button class="btn btn-sm" onclick="unmergeAllTasks()" style="margin-right:4px">↩ 取消合并</button>';
+        html += '<button class="btn btn-sm" onclick="toggleAllMergeExpand()">' + (allMergedExpanded() ? '收起全部' : '展开全部') + '</button>';
+    } else if (waitingTasks.length > 1) {
+        html += '<button class="btn btn-sm" onclick="mergeSameUserTasks()">📦 合并同用户</button>';
+    }
     html += '</div>';
 
     if (tasks.length === 0) {
@@ -3211,10 +3220,92 @@ function renderSchedulerTasks(scheduler) {
                 '</tr>';
         }
 
+        var hiddenTaskIds = {};
+        for (var g = 0; g < _mergedGroups.length; g++) {
+            var group = _mergedGroups[g];
+            var expanded = _mergedExpanded[group.user];
+            var children = [];
+            for (var wi = 0; wi < waitingTasks.length; wi++) {
+                if (group.taskIds.indexOf(waitingTasks[wi].taskId) !== -1) {
+                    children.push(waitingTasks[wi]);
+                }
+            }
+            var mergedPriority = Math.min.apply(null, group.taskIds.map(function(id) {
+                for (var wi = 0; wi < waitingTasks.length; wi++) {
+                    if (waitingTasks[wi].taskId === id) return waitingTasks[wi].priority || 999;
+                }
+                return 999;
+            }));
+            var mergedRow = children[0];
+            var videoNames = children.map(function(c) { return c.videoName || '未命名'; });
+            var totalDuration = 0;
+            for (var di = 0; di < children.length; di++) {
+                totalDuration += parseInt(children[di].videoDuration) || 0;
+            }
+            var mergedName = videoNames[0];
+            if (videoNames.length > 1) mergedName += ' 等' + videoNames.length + '条';
+            var mergedDuration = totalDuration + '秒（' + children.length + '条）';
+
+            html += '<tr style="background:#F8F9FF">' +
+                '<td><span style="font-size:11px;color:var(--text-muted)">合并组</span></td>' +
+                '<td style="font-size:12px"><strong>' + escapeHtml(mergedName) + '</strong></td>' +
+                '<td style="font-size:12px">' + mergedDuration + '</td>' +
+                '<td><strong>' + mergedRow.tenant + '</strong></td>' +
+                '<td><span class="chip ' + (mergedRow.queueName === 'VIP队列' ? 'chip-blue' : 'chip-green') + '">' + mergedRow.level + '</span></td>' +
+                '<td><strong>' + mergedRow.user + '</strong> <span class="chip" style="font-size:10px;padding:1px 5px;">' + children.length + ' 条</span></td>' +
+                '<td><span class="status ' + getQueueTaskStatusClass(mergedRow.status) + '">' + getQueueTaskStatusLabel(mergedRow.status) + '</span></td>' +
+                '<td>' + mergedRow.gpu + '</td>' +
+                '<td style="font-size:12px;color:var(--text-secondary)">' + mergedRow.createdAt + '</td>' +
+                '<td>' + mergedRow.time + '</td>' +
+                '<td style="font-weight:700;font-size:13px;color:var(--primary)">' + mergedPriority + '</td>' +
+                '<td style="white-space:nowrap">' +
+                    '<button class="btn btn-xs" onclick="toggleMergeExpand(\'' + mergedRow.user + '\')" style="margin-right:4px">' + (expanded ? '▾ 收起' : '▸ 展开') + '</button>' +
+                    (g === 0
+                        ? '<button class="btn btn-xs" disabled style="opacity:0.4;cursor:not-allowed">↑ 上调</button>'
+                        : '<button class="btn btn-xs" onclick="mergeGroupUp(' + g + ')">↑ 上调</button>') +
+                    (g === _mergedGroups.length - 1
+                        ? '<button class="btn btn-xs" disabled style="opacity:0.4;cursor:not-allowed">↓ 下调</button>'
+                        : '<button class="btn btn-xs" onclick="mergeGroupDown(' + g + ')">↓ 下调</button>') +
+                '</td>' +
+                '</tr>';
+
+            if (!expanded) {
+                for (var hi = 0; hi < children.length; hi++) {
+                    hiddenTaskIds[children[hi].taskId] = true;
+                }
+            } else {
+                for (var ei = 0; ei < children.length; ei++) {
+                    var child = children[ei];
+                    html += '<tr style="opacity:0.7;font-size:12px;background:#FAFAFC">' +
+                        '<td><code style="font-size:11px;background:#F0F0F3;padding:1px 4px;border-radius:3px">' + child.taskId + '</code></td>' +
+                        '<td>' + (child.videoName || '-') + '</td>' +
+                        '<td>' + (child.videoDuration ? child.videoDuration + '秒' : '-') + '</td>' +
+                        '<td>' + child.tenant + '</td>' +
+                        '<td><span class="chip ' + (child.queueName === 'VIP队列' ? 'chip-blue' : 'chip-green') + '" style="font-size:10px">' + child.level + '</span></td>' +
+                        '<td>' + (child.user || '-') + '</td>' +
+                        '<td><span class="status ' + getQueueTaskStatusClass(child.status) + '" style="font-size:10px">' + getQueueTaskStatusLabel(child.status) + '</span></td>' +
+                        '<td>' + child.gpu + '</td>' +
+                        '<td>' + child.createdAt + '</td>' +
+                        '<td>' + child.time + '</td>' +
+                        '<td>' + child.priority + '</td>' +
+                        '<td><span style="font-size:11px;color:var(--text-muted)">已合并</span></td>' +
+                        '</tr>';
+                    hiddenTaskIds[child.taskId] = true;
+                }
+            }
+        }
+
+        var visibleWaitCount = 0;
+        for (var wc = 0; wc < waitingTasks.length; wc++) {
+            if (!hiddenTaskIds[waitingTasks[wc].taskId]) visibleWaitCount++;
+        }
+
+        var visibleIdx = 0;
         for (var w = 0; w < waitingTasks.length; w++) {
             var wt = waitingTasks[w];
-            var isFirst = (w === 0);
-            var isLast = (w === waitingTasks.length - 1);
+            if (hiddenTaskIds[wt.taskId]) continue;
+            var isFirst = (visibleIdx === 0);
+            var isLast = (visibleIdx === visibleWaitCount - 1);
             html += '<tr>' +
                 '<td><code style="font-size:12px;background:#F0F0F3;padding:2px 6px;border-radius:4px">' + wt.taskId + '</code></td>' +
                 '<td style="font-size:12px">' + (wt.videoName || '-') + '</td>' +
@@ -3232,6 +3323,7 @@ function renderSchedulerTasks(scheduler) {
                     '<button class="btn btn-xs' + (isLast ? '" disabled style="opacity:0.4;cursor:not-allowed' : '') + '" onclick="moveTaskDown(\'' + wt.taskId + '\')" title="下调排队号">↓ 下调</button>' +
                 '</td>' +
                 '</tr>';
+            visibleIdx++;
         }
 
         html += '</tbody></table>';
@@ -3302,14 +3394,110 @@ function savePriorityChanges() {
     saveSchedulerData(scheduler);
     addAuditLog('队列', '-', '排队号调整', '-', '批量保存排队调整');
     _priorityDirty = false;
+    _mergedGroups = [];
+    _mergedExpanded = {};
     renderScheduler();
     toast('排队调整已保存', 'success');
 }
 
 function resetPriorityChanges() {
     _priorityDirty = false;
+    _mergedGroups = [];
+    _mergedExpanded = {};
     renderScheduler();
     toast('已重置排队顺序', 'info');
+}
+
+function mergeSameUserTasks() {
+    var scheduler = getScheduler();
+    var waitingTasks = (scheduler.queueTasks || []).filter(function(t) { return t.status === 'waiting'; });
+    if (waitingTasks.length < 2) {
+        toast('等待队列中任务不足 2 条，无需合并', 'info');
+        return;
+    }
+    var userGroups = {};
+    for (var i = 0; i < waitingTasks.length; i++) {
+        var user = waitingTasks[i].user || '未知';
+        if (!userGroups[user]) userGroups[user] = [];
+        userGroups[user].push(waitingTasks[i].taskId);
+    }
+    _mergedGroups = [];
+    _mergedExpanded = {};
+    for (var user in userGroups) {
+        if (userGroups[user].length > 1) {
+            _mergedGroups.push({ user: user, taskIds: userGroups[user] });
+            _mergedExpanded[user] = false;
+        }
+    }
+    if (_mergedGroups.length === 0) {
+        toast('没有同一用户的多条任务需要合并', 'info');
+        return;
+    }
+    renderSchedulerTasks(scheduler);
+    addAuditLog('队列', '-', '-', '-', '合并同用户任务 (' + _mergedGroups.length + ' 组)');
+    toast('已合并 ' + _mergedGroups.length + ' 组同用户任务', 'success');
+}
+
+function unmergeAllTasks() {
+    _mergedGroups = [];
+    _mergedExpanded = {};
+    renderSchedulerTasks(getScheduler());
+    addAuditLog('队列', '-', '-', '-', '取消合并所有任务');
+    toast('已取消全部合并', 'info');
+}
+
+function toggleAllMergeExpand() {
+    var allExpanded = allMergedExpanded();
+    for (var user in _mergedExpanded) {
+        _mergedExpanded[user] = !allExpanded;
+    }
+    renderSchedulerTasks(getScheduler());
+}
+
+function allMergedExpanded() {
+    for (var user in _mergedExpanded) {
+        if (!_mergedExpanded[user]) return false;
+    }
+    return _mergedGroups.length > 0;
+}
+
+function toggleMergeExpand(user) {
+    _mergedExpanded[user] = !_mergedExpanded[user];
+    renderSchedulerTasks(getScheduler());
+}
+
+function mergeGroupUp(groupIndex) {
+    if (groupIndex <= 0) return;
+    var scheduler = getScheduler();
+    var prevGroup = _mergedGroups[groupIndex - 1];
+    var currGroup = _mergedGroups[groupIndex];
+    var waitingTasks = (scheduler.queueTasks || []).filter(function(t) { return t.status === 'waiting'; });
+    var currMinP = Math.min.apply(null, currGroup.taskIds.map(function(id) {
+        for (var i = 0; i < waitingTasks.length; i++) if (waitingTasks[i].taskId === id) return waitingTasks[i].priority;
+        return 999;
+    }));
+    var prevMaxP = Math.max.apply(null, prevGroup.taskIds.map(function(id) {
+        for (var i = 0; i < waitingTasks.length; i++) if (waitingTasks[i].taskId === id) return waitingTasks[i].priority;
+        return 0;
+    }));
+    for (var i = 0; i < scheduler.queueTasks.length; i++) {
+        var t = scheduler.queueTasks[i];
+        if (currGroup.taskIds.indexOf(t.taskId) !== -1 && t.priority === currMinP) {
+            t.priority = prevMaxP;
+        } else if (prevGroup.taskIds.indexOf(t.taskId) !== -1 && t.priority === prevMaxP) {
+            t.priority = currMinP;
+        }
+    }
+    _mergedGroups[groupIndex] = prevGroup;
+    _mergedGroups[groupIndex - 1] = currGroup;
+    _priorityDirty = true;
+    renderSchedulerTasks(scheduler);
+    toast('合并组已上调，点击「保存」生效', 'info');
+}
+
+function mergeGroupDown(groupIndex) {
+    if (groupIndex >= _mergedGroups.length - 1) return;
+    mergeGroupUp(groupIndex + 1);
 }
 
 function getQueueNameById(queueId) {
@@ -3604,6 +3792,7 @@ function renderTemplates() {
     for (var i = 0; i < AppState.templateConfigs.length; i++) {
         var t = AppState.templateConfigs[i];
         var stCls = t.status === '启用' ? 'status-active' : 'status-stopped';
+        var statusLabel = t.status === '启用' ? '已上架' : '已下架';
         var tagsHtml = (t.tags || '').split(',').filter(function(x){return x.trim()}).map(function(x){return '<span class="chip">' + x.trim() + '</span> '}).join('');
         var workflowMap = { 'portrait_talking':'口播视频创作' };
         var workflowLabel = workflowMap[t.workflow] || t.workflow || '<span style="color:var(--text-muted)">-</span>';
@@ -3617,11 +3806,11 @@ function renderTemplates() {
             '<td style="font-size:12px">' + workflowLabel + '</td>' +
             '<td style="font-size:12px;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="' + escapeHtml(t.promptConfig || '') + '">' + (promptPreview || '<span style="color:var(--text-muted)">-</span>') + '</td>' +
             '<td style="font-size:13px;text-align:center">' + fileIcon + '</td>' +
-            '<td><span class="status ' + stCls + '">' + t.status + '</span></td>' +
+            '<td><span class="status ' + stCls + '">' + statusLabel + '</span></td>' +
             '<td><strong>' + (t.used || 0).toLocaleString() + '</strong></td>' +
             '<td>' +
                 '<button class="btn btn-xs" onclick="openTemplateModal(' + i + ')">编辑</button> ' +
-                '<button class="btn btn-xs ' + (t.status === '启用' ? '' : 'btn-primary') + '" onclick="confirmToggleTemplate(' + i + ')">' + (t.status === '启用' ? '停用' : '启用') + '</button> ' +
+                '<button class="btn btn-xs ' + (t.status === '启用' ? '' : 'btn-primary') + '" onclick="confirmToggleTemplate(' + i + ')">' + (t.status === '启用' ? '下架' : '上架') + '</button> ' +
                 '<button class="btn btn-xs btn-danger" onclick="confirmDeleteTemplate(' + i + ')">删除</button>' +
             '</td>' +
             '</tr>';
@@ -3632,7 +3821,7 @@ function renderTemplates() {
 function confirmToggleTemplate(index) {
     var t = AppState.templateConfigs[index];
     if (!t) return;
-    var action = t.status === '启用' ? '停用' : '启用';
+    var action = t.status === '启用' ? '下架' : '上架';
     showConfirm(
         action + '模板',
         '确定要' + action + '模板「' + t.name + '」吗？',
@@ -3646,10 +3835,10 @@ function toggleTemplateStatus(index) {
     if (!t) return;
     var before = t.status;
     t.status = before === '启用' ? '停用' : '启用';
-    addAuditLog('配置', t.name, before, t.status, '调整模板状态');
+    addAuditLog('配置', t.name, before === '启用' ? '已上架' : '已下架', t.status === '启用' ? '已上架' : '已下架', '调整模板状态');
     saveData();
     renderTemplates();
-    toast('模板「' + t.name + '」已' + t.status, 'success');
+    toast('模板「' + t.name + '」已' + (t.status === '启用' ? '上架' : '下架'), 'success');
 }
 
 function confirmDeleteTemplate(index) {
@@ -3732,6 +3921,12 @@ function saveTemplateConfig() {
     }
     var templateFile = document.getElementById('tmplFile').files[0];
     var firstFrameFile = document.getElementById('tmplFirstFrame').files[0];
+    if (editIndex === '') {
+        if (!templateFile || !firstFrameFile) {
+            toast('请上传视频模板文件和首帧图', 'error');
+            return;
+        }
+    }
     if (editIndex !== '') {
         var t = AppState.templateConfigs[parseInt(editIndex)];
         if (!t) return;
