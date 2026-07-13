@@ -975,6 +975,91 @@
             color: #f59e0b;
             font-weight: 800;
         }
+
+        /* 语音合成区块 */
+        .synth-section {
+            margin-top: 10px; padding: 12px 14px;
+            border: 1px solid #dbeafe; border-radius: 10px;
+            background: #f8faff;
+        }
+        .synth-head {
+            display: flex; align-items: center; gap: 10px;
+            margin-bottom: 8px;
+        }
+        .synth-title { font-size: 13px; font-weight: 900; }
+        .synth-cost-badge {
+            margin-left: auto; font-size: 11px; color: #f59e0b; font-weight: 800;
+        }
+        .synth-status-badge {
+            margin-left: auto; font-size: 11px; color: #059669; font-weight: 800;
+            background: #ecfdf5; padding: 2px 8px; border-radius: 999px;
+        }
+        .synth-start-btn {
+            height: 36px; padding: 0 20px; border-radius: 9px;
+            border: 1px solid var(--primary); background: var(--primary); color: #fff;
+            font-weight: 800; font-size: 13px; transition: all 0.15s; width: 100%;
+        }
+        .synth-start-btn:hover { background: #1d4ed8; }
+        .synth-start-btn:disabled { opacity: .5; cursor: not-allowed; }
+        .synth-progress {
+            display: flex; flex-direction: column; gap: 6px;
+        }
+        .synth-progress-bar {
+            height: 6px; border-radius: 3px; background: #e5e7eb; overflow: hidden;
+        }
+        .synth-progress-fill {
+            height: 100%; border-radius: 3px; background: var(--primary);
+            width: 0%; transition: width 0.3s linear;
+        }
+        .synth-progress-text { font-size: 12px; color: var(--text-secondary); }
+        .synth-player {
+            display: flex; align-items: center; gap: 10px;
+            padding: 6px 10px; border-radius: 8px; background: #fff;
+            border: 1px solid #e5e7eb; margin-bottom: 8px;
+        }
+        .synth-play-btn {
+            width: 32px; height: 32px; border-radius: 50%;
+            border: 1px solid var(--primary); background: var(--primary-soft);
+            color: var(--primary); font-size: 14px; display: flex;
+            align-items: center; justify-content: center; flex-shrink: 0;
+            transition: all 0.15s;
+        }
+        .synth-play-btn:hover { background: var(--primary); color: #fff; }
+        .synth-play-btn.playing { background: var(--primary); color: #fff; }
+        .synth-track {
+            flex: 1; height: 4px; border-radius: 2px; background: #e5e7eb;
+            cursor: pointer; position: relative; min-width: 60px;
+        }
+        .synth-track-fill {
+            height: 100%; border-radius: 2px; background: var(--primary);
+            width: 0%; transition: width 0.15s linear;
+        }
+        .synth-time {
+            font-size: 11px; color: var(--text-secondary); flex-shrink: 0;
+            font-variant-numeric: tabular-nums; min-width: 82px; text-align: right;
+        }
+        .synth-dl-btn {
+            width: 26px; height: 26px; border-radius: 6px; border: 1px solid #e5e7eb;
+            background: #fff; color: var(--text-secondary); font-size: 13px; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center; cursor: pointer;
+            transition: all 0.15s;
+        }
+        .synth-dl-btn:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-soft); }
+        .synth-actions {
+            display: flex; gap: 8px; flex-wrap: wrap;
+        }
+        .synth-action-btn {
+            height: 28px; padding: 0 10px; border-radius: 7px;
+            border: 1px solid var(--border); background: #fff; color: var(--text-secondary);
+            font-size: 12px; font-weight: 700; transition: all 0.15s;
+        }
+        .synth-action-btn:hover { border-color: var(--primary); color: var(--primary); }
+        .synth-action-btn.primary { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+        .synth-error {
+            display: flex; align-items: center; gap: 10px; font-size: 12px; color: #dc2626;
+        }
+        .synth-error .synth-action-btn { flex-shrink: 0; }
+
         @keyframes videoSweep {
             0% { transform: translateX(0); }
             100% { transform: translateX(560%); }
@@ -1208,11 +1293,43 @@
 
                 <div class="same-field">
                     <label>台词 <span class="reuse-status" id="scriptStatus">复用模板</span></label>
-                    <textarea id="sameScript" oninput="updateSameStatus();updateScriptCost()"></textarea>
+                    <textarea id="sameScript" oninput="handleScriptChange()"></textarea>
                     <div class="same-speed-row">
                         <span class="same-speed-label">语速</span>
-                        <input type="range" id="sameSpeedSlider" min="5" max="20" value="12" oninput="updateSameSpeed()">
+                        <input type="range" id="sameSpeedSlider" min="5" max="20" value="12" oninput="handleSpeedChange()">
                         <span class="same-speed-val" id="sameSpeedVal">1.2x</span>
+                    </div>
+                    <div class="synth-section" id="synthSection">
+                        <div class="synth-head">
+                            <span class="synth-title">🎤 语音合成</span>
+                            <span class="synth-cost-badge" id="synthCostBadge" style="display:none;"></span>
+                            <span class="synth-status-badge" id="synthStatusBadge" style="display:none;">✅ 已合成</span>
+                        </div>
+                        <div class="synth-body">
+                            <div id="synthIdle">
+                                <button class="synth-start-btn" id="synthStartBtn" onclick="startSynthesis()">🔊 合成语音</button>
+                            </div>
+                            <div id="synthProgress" style="display:none;">
+                                <div class="synth-progress-bar"><div class="synth-progress-fill" id="synthProgressFill"></div></div>
+                                <span class="synth-progress-text" id="synthProgressText">正在合成语音...</span>
+                            </div>
+                            <div id="synthReady" style="display:none;">
+                                <div class="synth-player">
+                                    <button class="synth-play-btn" id="synthPlayBtn" onclick="toggleSynthPlay()">▶</button>
+                                    <div class="synth-track" id="synthTrack" onclick="seekSynth(event)">
+                                        <div class="synth-track-fill" id="synthTrackFill"></div>
+                                    </div>
+                                    <span class="synth-time" id="synthTime">0:00 / 0:00</span>
+                                    <button class="synth-dl-btn" onclick="downloadSynthAudio()" title="下载音频">⏬</button>
+                                </div>
+                                <div class="synth-actions">
+                                    <button class="synth-action-btn" onclick="resetSynthesis()">🔄 重新合成</button>
+                                </div>
+                            </div>
+                            <div id="synthError" style="display:none;">
+                                <div class="synth-error"><span>⚠️ 合成失败，请重试</span><button class="synth-action-btn" onclick="startSynthesis()">🔄 重试</button></div>
+                            </div>
+                        </div>
                     </div>
                     <div class="script-cost-hint" id="scriptCostHint">预估时长：--</div>
                 </div>
@@ -1513,6 +1630,11 @@
     let samePreviewTimer = null;
     let samePreviewProgress = 0;
     let samePreviewTotal = 30;
+    let synthState = 'idle';
+    let synthDuration = 0;
+    let synthAudioProgress = 0;
+    let synthAudioTimer = null;
+    let synthStepTimer = null;
 
     function readList(key) {
         try {
@@ -1933,6 +2055,11 @@
         var script = item.script || item.desc || "";
         samePreviewTotal = Math.max(2, Math.ceil(script.length / 4));
         samePreviewProgress = 0;
+        synthState = 'idle';
+        synthDuration = 0;
+        synthAudioProgress = 0;
+        clearSynthTimers();
+        renderSynthUI();
         document.getElementById("samePreviewPhone").innerHTML =
             '<div class="same-vp" id="sameVp">' +
             '  <div class="same-vp-visual"><div class="template-visual">' + v + '</div></div>' +
@@ -1963,6 +2090,7 @@
         if (event && event.target !== document.getElementById("sameModal")) return;
         stopSameVoicePreview();
         resetSamePlay();
+        clearSynthTimers();
         document.getElementById("sameModal").classList.remove("show");
     }
 
@@ -1995,6 +2123,7 @@
     function handleSameRoleChange() {
         updateRoleVoicePreview();
         updateSameStatus();
+        resetSynthesis();
     }
 
     function getRoleEmoji(roleValue) {
@@ -2160,12 +2289,23 @@
         var duration = Math.max(2, Math.ceil(chars / (speed * 4)));
         var cost = duration * 20;
         document.getElementById("scriptCostHint").innerHTML =
-            '预估时长：<span class="cost-num">' + duration + ' 秒</span>';
+            synthState === 'ready' ?             '时长：<span class="cost-num">' + duration + ' 秒</span>' : '--';
         updateActionBtn(cost);
     }
 
     function updateActionBtn(cost) {
-        document.getElementById("sameActionBtn").innerHTML = '生成同款<span style="font-size:0.8em;opacity:.85">（消耗 🪙' + cost + ' 积分）</span>';
+        var btn = document.getElementById("sameActionBtn");
+        if (synthState === 'ready') {
+            btn.innerHTML = '生成同款<span style="font-size:0.8em;opacity:.85">（消耗 🪙' + cost + ' 积分）</span>';
+            btn.disabled = false;
+            btn.style.opacity = '1';
+            btn.style.cursor = 'pointer';
+        } else {
+            btn.innerHTML = '请先合成语音';
+            btn.disabled = true;
+            btn.style.opacity = '0.5';
+            btn.style.cursor = 'not-allowed';
+        }
     }
 
     function updateSameSpeed() {
@@ -2386,6 +2526,151 @@
 
     function jsString(value) {
         return String(value || "").replace(/\\/g, "\\\\").replace(/'/g, "\\'");
+    }
+
+    function handleScriptChange() {
+        resetSynthesis();
+        updateSameStatus();
+        updateScriptCost();
+    }
+
+    function handleSpeedChange() {
+        resetSynthesis();
+        updateSameSpeed();
+    }
+
+    function clearSynthTimers() {
+        if (synthStepTimer) { clearInterval(synthStepTimer); synthStepTimer = null; }
+        if (synthAudioTimer) { clearInterval(synthAudioTimer); synthAudioTimer = null; }
+    }
+
+    function startSynthesis() {
+        var text = (document.getElementById("sameScript").value || "").trim();
+        if (!text) { showToast("无法合成", "请先输入台词"); return; }
+        synthState = 'synth';
+        synthAudioProgress = 0;
+        document.getElementById("sameScript").disabled = true;
+        document.getElementById("sameSpeedSlider").disabled = true;
+        document.getElementById("sameRole").disabled = true;
+        renderSynthUI();
+        updateActionBtn(0);
+        var pct = 0;
+        synthStepTimer = setInterval(function() {
+            pct += 4;
+            document.getElementById("synthProgressFill").style.width = pct + "%";
+            document.getElementById("synthProgressText").textContent = "正在合成语音... " + Math.min(pct, 100) + "%";
+            if (pct >= 100) {
+                clearInterval(synthStepTimer);
+                synthStepTimer = null;
+                finishSynthesis();
+            }
+        }, 80);
+    }
+
+    function finishSynthesis() {
+        var text = (document.getElementById("sameScript").value || "").trim();
+        var chars = text.length;
+        var speed = sameScriptSpeed / 10;
+        synthDuration = Math.max(2, Math.ceil(chars / (speed * 4)));
+        synthState = 'ready';
+        synthAudioProgress = 0;
+        document.getElementById("sameScript").disabled = false;
+        document.getElementById("sameSpeedSlider").disabled = false;
+        document.getElementById("sameRole").disabled = false;
+        renderSynthUI();
+        updateScriptCost();
+    }
+
+    function resetSynthesis() {
+        synthState = 'idle';
+        synthDuration = 0;
+        synthAudioProgress = 0;
+        clearSynthTimers();
+        document.getElementById("sameScript").disabled = false;
+        document.getElementById("sameSpeedSlider").disabled = false;
+        document.getElementById("sameRole").disabled = false;
+        renderSynthUI();
+        updateScriptCost();
+    }
+
+    function renderSynthUI() {
+        document.getElementById("synthIdle").style.display = synthState === 'idle' ? '' : 'none';
+        document.getElementById("synthProgress").style.display = synthState === 'synth' ? '' : 'none';
+        document.getElementById("synthReady").style.display = synthState === 'ready' ? '' : 'none';
+        document.getElementById("synthError").style.display = synthState === 'error' ? '' : 'none';
+
+        var badge = document.getElementById("synthStatusBadge");
+
+        if (synthState === 'ready') {
+            badge.style.display = '';
+            document.getElementById("synthTime").textContent = '0:00 / ' + formatSynthTime(synthDuration);
+            document.getElementById("synthTrackFill").style.width = '0%';
+        } else {
+            badge.style.display = 'none';
+        }
+    }
+
+    function toggleSynthPlay() {
+        if (synthState !== 'ready') return;
+        if (synthAudioTimer) {
+            clearInterval(synthAudioTimer);
+            synthAudioTimer = null;
+            document.getElementById("synthPlayBtn").classList.remove("playing");
+            return;
+        }
+        document.getElementById("synthPlayBtn").classList.add("playing");
+        if (synthAudioProgress >= 100) synthAudioProgress = 0;
+        updateSynthPlayerUI();
+        var interval = Math.max(30, synthDuration * 10);
+        synthAudioTimer = setInterval(function() {
+            synthAudioProgress += 0.4;
+            if (synthAudioProgress >= 100) {
+                synthAudioProgress = 100;
+                clearInterval(synthAudioTimer);
+                synthAudioTimer = null;
+                document.getElementById("synthPlayBtn").classList.remove("playing");
+            }
+            updateSynthPlayerUI();
+        }, interval);
+    }
+
+    function updateSynthPlayerUI() {
+        var pct = Math.min(100, Math.max(0, synthAudioProgress));
+        document.getElementById("synthTrackFill").style.width = pct + "%";
+        var cur = Math.round(pct / 100 * synthDuration);
+        document.getElementById("synthTime").textContent = formatSynthTime(cur) + " / " + formatSynthTime(synthDuration);
+    }
+
+    function seekSynth(event) {
+        if (synthState !== 'ready') return;
+        var track = document.getElementById("synthTrack");
+        var rect = track.getBoundingClientRect();
+        var pct = Math.max(0, Math.min(100, (event.clientX - rect.left) / rect.width * 100));
+        synthAudioProgress = pct;
+        updateSynthPlayerUI();
+    }
+
+    function downloadSynthAudio() {
+        if (synthState !== 'ready') return;
+        var text = document.getElementById("sameScript").value || "";
+        var item = resources.find(function(r) { return r.id === activeTemplateId; });
+        var voiceName = item ? (item.voice ? item.voice.name : "默认音色") : "默认音色";
+        var blob = new Blob([text], { type: "text/plain;charset=utf-8" });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement("a");
+        a.href = url;
+        a.download = voiceName + "_合成音频.txt";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showToast("已下载", "音频占位文件已保存");
+    }
+
+    function formatSynthTime(sec) {
+        var m = Math.floor(sec / 60);
+        var s = Math.floor(sec % 60);
+        return m + ":" + (s < 10 ? "0" : "") + s;
     }
 
     document.addEventListener("keydown", function(event) {

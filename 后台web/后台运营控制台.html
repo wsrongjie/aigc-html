@@ -727,7 +727,7 @@
                     </div>
                 </div>
                 <div class="info-card">
-                    <h4>失败原因 TOP <span class="card-tag">按子任务统计</span></h4>
+                    <h4>失败任务列表 <span class="card-tag">按失败时间倒序</span></h4>
                     <div id="failureReasonTop"></div>
                 </div>
             </div>
@@ -759,6 +759,15 @@
                     <tbody id="tenantTable"></tbody>
                 </table>
             </div>
+        </div>
+
+        <!-- 视图：租户详情 -->
+        <div class="panel" id="view-tenant-detail">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
+                <button class="btn btn-sm" onclick="backToTenantList()">← 返回列表</button>
+                <span class="section-title" id="tenantDetailTitle" style="margin-bottom:0">租户详情</span>
+            </div>
+            <div id="tenantDetailContent"></div>
         </div>
 
         <!-- 视图：积分与账单 -->
@@ -897,16 +906,11 @@
             </div>
 
             <div class="section-title">实时队列状态</div>
-            <div class="table-wrap">
-                <div class="table-toolbar">
-                    <span style="font-weight:600;font-size:13px">运行中与等待中任务</span>
-                    <button class="btn btn-sm" onclick="renderScheduler()" style="margin-left:auto">刷新</button>
-                </div>
-                <table>
-                    <thead><tr><th>任务 ID</th><th>租户</th><th>等级</th><th>队列</th><th>状态</th><th>占用 GPU</th><th>等待/运行</th><th>预计完成</th></tr></thead>
-                    <tbody id="schedulerTaskTable"></tbody>
-                </table>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+                <span style="font-size:12px;color:var(--text-muted)">调整排队号后需点击「保存」按钮方可生效</span>
+                <button class="btn btn-sm" onclick="renderScheduler()">🔄 刷新</button>
             </div>
+            <div id="schedulerTaskTable"></div>
         </div>
 
         <!-- 视图：提示词配置 -->
@@ -994,8 +998,6 @@
             <div class="form-group"><label class="kv-label">管理员邮箱</label><input class="filter-input" id="tfAdminEmail" style="width:100%" placeholder="邮箱"></div>
             <div class="form-group"><label class="kv-label">租户等级 *</label><select class="filter-select" id="tfTenantLevel" style="width:100%"></select></div>
             <div class="form-group"><label class="kv-label">视频最大并发数</label><input class="filter-input" id="tfConcurrency" style="width:100%" type="number" placeholder="并发数" value="5"></div>
-            <div class="form-group"><label class="kv-label">服务有效期</label><input class="filter-input" id="tfExpiry" style="width:100%" type="date"></div>
-            <div class="form-group"><label class="kv-label">状态</label><select class="filter-select" id="tfStatus" style="width:100%"><option value="启用中">启用中</option><option value="已停用">已停用</option></select></div>
         </div>
         <input type="hidden" id="tfEditId">
         <div class="modal-footer">
@@ -1331,6 +1333,7 @@ function switchView(viewId) {
         'view-dashboard':'工作台',
         'view-scheduler-config':'任务调度',
         'view-tenants':'租户管理',
+        'view-tenant-detail':'租户管理 / 租户详情',
         'view-tasks':'任务统计',
         'view-billing':'积分与账单',
         'view-voice-config':'业务配置 / 音色模板',
@@ -1349,6 +1352,7 @@ function updateTopbarActions() {
     var el = document.getElementById('topbarActions');
     var map = {
         'view-tenants': '',
+        'view-tenant-detail': '',
         'view-tasks': '<button class="btn btn-sm" onclick="renderTasks()">🔄 刷新统计</button>',
         'view-voice-config': '',
         'view-credit-config': '',
@@ -1365,6 +1369,7 @@ function updateTopbarActions() {
 function refreshView(viewId) {
     if (viewId === 'view-dashboard') renderDashboard();
     else if (viewId === 'view-tenants') renderTenants();
+    else if (viewId === 'view-tenant-detail' && currentTenantDetailId) renderTenantDetail(currentTenantDetailId);
     else if (viewId === 'view-tasks') renderTasks();
     else if (viewId === 'view-billing') renderBilling();
     else if (viewId === 'view-voice-config') renderVoiceConfigs();
@@ -1389,10 +1394,14 @@ function saveData() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(AppState));
 }
 
+var _priorityDirty = false;
+
 function normalizeScheduler(data) {
     var defaults = AppState.scheduler || {};
     data = data || {};
-    if (defaults.scenarioVersion && data.scenarioVersion !== defaults.scenarioVersion) {
+    var versionChanged = defaults.scenarioVersion && data.scenarioVersion !== defaults.scenarioVersion;
+    var needsReset = versionChanged || !data.queueTasks || !data.queueTasks[0] || !data.queueTasks[0].hasOwnProperty('user') || !data.taskPool || !data.taskPool[0] || !data.taskPool[0].hasOwnProperty('createdAt') || !data.taskPool[0].hasOwnProperty('videoName');
+    if (needsReset) {
         return JSON.parse(JSON.stringify(defaults));
     }
     return {
@@ -1442,14 +1451,14 @@ function initData() {
 
 var AppState = {
     tenants: [
-        { id:'t001',name:'雨虹投资',industry:'金融投顾',tenantLevel:'VIP客户',status:'启用中',adminName:'张明',adminPhone:'13800001001',adminEmail:'zhang@yh-am.com',dailyQuota:1000,dailyUsed:800,concurrency:10,modelLevel:'高级',credits:3200,expiry:'2026-12-31',openedAt:'2025-03-15',features:['视频生成','图片创作','语音合成','分镜管理'] },
-        { id:'t002',name:'鑫源保险',industry:'保险',tenantLevel:'普通客户',status:'启用中',adminName:'李芳',adminPhone:'13800001002',adminEmail:'lif@xy-bx.com',dailyQuota:500,dailyUsed:450,concurrency:5,modelLevel:'标准',credits:1800,expiry:'2026-06-30',openedAt:'2025-06-01',features:['视频生成','语音合成'] },
-        { id:'t003',name:'汇丰投顾',industry:'金融投顾',tenantLevel:'VIP客户',status:'启用中',adminName:'王磊',adminPhone:'13800001003',adminEmail:'wang@hf-ad.com',dailyQuota:300,dailyUsed:120,concurrency:3,modelLevel:'标准',credits:500,expiry:'2026-04-15',openedAt:'2025-12-01',features:['视频生成'] },
-        { id:'t004',name:'中诚教育',industry:'教育培训',tenantLevel:'普通客户',status:'启用中',adminName:'陈静',adminPhone:'13800001004',adminEmail:'chenj@zc-edu.com',dailyQuota:800,dailyUsed:680,concurrency:8,modelLevel:'高级',credits:2400,expiry:'2027-01-31',openedAt:'2025-08-20',features:['视频生成','图片创作','语音合成','分镜管理','主体管理'] },
-        { id:'t005',name:'华泰理财',industry:'金融投顾',tenantLevel:'VIP客户',status:'启用中',adminName:'赵强',adminPhone:'13800001005',adminEmail:'zhaoq@ht-cf.com',dailyQuota:600,dailyUsed:310,concurrency:6,modelLevel:'标准',credits:5600,expiry:'2026-09-30',openedAt:'2025-04-10',features:['视频生成','分镜管理'] },
-        { id:'t006',name:'安联保险经纪',industry:'保险',tenantLevel:'普通客户',status:'启用中',adminName:'刘洋',adminPhone:'13800001006',adminEmail:'liuy@al-bx.com',dailyQuota:200,dailyUsed:85,concurrency:2,modelLevel:'仅内测',credits:200,expiry:'2026-05-30',openedAt:'2026-01-05',features:['视频生成'] },
-        { id:'t007',name:'博学在线',industry:'教育培训',tenantLevel:'普通客户',status:'启用中',adminName:'孙丽',adminPhone:'13800001007',adminEmail:'sunl@bx-edu.com',dailyQuota:400,dailyUsed:390,concurrency:4,modelLevel:'标准',credits:900,expiry:'2026-08-31',openedAt:'2025-09-12',features:['视频生成','图片创作','语音合成'] },
-        { id:'t008',name:'众盈财富',industry:'金融投顾',tenantLevel:'普通客户',status:'已停用',adminName:'周浩',adminPhone:'13800001008',adminEmail:'zh@zy-cf.com',dailyQuota:1000,dailyUsed:0,concurrency:10,modelLevel:'高级',credits:0,expiry:'2026-02-28',openedAt:'2025-01-20',features:['视频生成','图片创作','语音合成','分镜管理','主体管理'] }
+        { id:'t001',name:'雨虹投资',industry:'金融投顾',tenantLevel:'VIP客户',status:'启用中',adminName:'张明',adminPhone:'13800001001',adminEmail:'zhang@yh-am.com',dailyQuota:1000,dailyUsed:800,concurrency:10,modelLevel:'高级',credits:3200,openedAt:'2025-03-15',features:['视频生成','图片创作','语音合成','分镜管理'] },
+        { id:'t002',name:'鑫源保险',industry:'保险',tenantLevel:'普通客户',status:'启用中',adminName:'李芳',adminPhone:'13800001002',adminEmail:'lif@xy-bx.com',dailyQuota:500,dailyUsed:450,concurrency:5,modelLevel:'标准',credits:1800,openedAt:'2025-06-01',features:['视频生成','语音合成'] },
+        { id:'t003',name:'汇丰投顾',industry:'金融投顾',tenantLevel:'VIP客户',status:'启用中',adminName:'王磊',adminPhone:'13800001003',adminEmail:'wang@hf-ad.com',dailyQuota:300,dailyUsed:120,concurrency:3,modelLevel:'标准',credits:500,openedAt:'2025-12-01',features:['视频生成'] },
+        { id:'t004',name:'中诚教育',industry:'教育培训',tenantLevel:'普通客户',status:'启用中',adminName:'陈静',adminPhone:'13800001004',adminEmail:'chenj@zc-edu.com',dailyQuota:800,dailyUsed:680,concurrency:8,modelLevel:'高级',credits:2400,openedAt:'2025-08-20',features:['视频生成','图片创作','语音合成','分镜管理','主体管理'] },
+        { id:'t005',name:'华泰理财',industry:'金融投顾',tenantLevel:'VIP客户',status:'启用中',adminName:'赵强',adminPhone:'13800001005',adminEmail:'zhaoq@ht-cf.com',dailyQuota:600,dailyUsed:310,concurrency:6,modelLevel:'标准',credits:5600,openedAt:'2025-04-10',features:['视频生成','分镜管理'] },
+        { id:'t006',name:'安联保险经纪',industry:'保险',tenantLevel:'普通客户',status:'启用中',adminName:'刘洋',adminPhone:'13800001006',adminEmail:'liuy@al-bx.com',dailyQuota:200,dailyUsed:85,concurrency:2,modelLevel:'仅内测',credits:200,openedAt:'2026-01-05',features:['视频生成'] },
+        { id:'t007',name:'博学在线',industry:'教育培训',tenantLevel:'普通客户',status:'启用中',adminName:'孙丽',adminPhone:'13800001007',adminEmail:'sunl@bx-edu.com',dailyQuota:400,dailyUsed:390,concurrency:4,modelLevel:'标准',credits:900,openedAt:'2025-09-12',features:['视频生成','图片创作','语音合成'] },
+        { id:'t008',name:'众盈财富',industry:'金融投顾',tenantLevel:'普通客户',status:'已停用',adminName:'周浩',adminPhone:'13800001008',adminEmail:'zh@zy-cf.com',dailyQuota:1000,dailyUsed:0,concurrency:10,modelLevel:'高级',credits:0,openedAt:'2025-01-20',features:['视频生成','图片创作','语音合成','分镜管理','主体管理'] }
     ],
     billingLogs: [
         { id:'b001',time:'2026-01-25 09:15',tenantId:'t001',tenantName:'雨虹投资',type:'充值',amount:5000,balance:8200,operator:'admin',taskId:'-',remark:'年度续费充值' },
@@ -1536,7 +1545,7 @@ var AppState = {
         { id:'scene-warm-library', name:'温和书房口播场景', industry:'基金', ratio:'9:16', place:'书房', scene:'基金投教', tags:['基金投教','投教科普','温和'], desc:'书架与暖色灯光组合，适合理财科普和新手教育。', imageOriginal:'', imageExample:'', used:1589, status:'使用中' }
     ],
     scheduler: {
-        scenarioVersion: 'tenant-level-v2',
+        scenarioVersion: 'tenant-level-v4',
         updatedAt: '2026-06-29 10:30:18',
         gpuCards: [
             { id:'GPU-01', status:'running', assignedQueueId:'vip', assignedQueueName:'VIP队列', usedQueueId:'vip', usedQueueName:'VIP队列', tenant:'雨虹投资', taskId:'vt_201', runningTime:'04:18', borrowed:false },
@@ -1557,29 +1566,41 @@ var AppState = {
             { name:'普通客户', queueId:'normal', queueName:'普通队列', tenantCount:18, desc:'标准服务等级，进入普通队列' }
         ],
         taskPool: [
-            { taskId:'vt_201', tenant:'雨虹投资', level:'VIP客户', queueId:'vip', queueName:'VIP队列', runningTime:'04:18', eta:'约 06:20 完成' },
-            { taskId:'vt_202', tenant:'华泰理财', level:'VIP客户', queueId:'vip', queueName:'VIP队列', runningTime:'02:41', eta:'约 04:10 完成' },
-            { taskId:'vt_203', tenant:'汇丰投顾', level:'VIP客户', queueId:'vip', queueName:'VIP队列', runningTime:'01:36', eta:'约 03:30 完成' },
-            { taskId:'vt_206', tenant:'雨虹投资', level:'VIP客户', queueId:'vip', queueName:'VIP队列', runningTime:'00:58', eta:'约 02:50 完成' },
-            { taskId:'vt_209', tenant:'华泰理财', level:'VIP客户', queueId:'vip', queueName:'VIP队列', runningTime:'00:44', eta:'约 03:20 完成' },
-            { taskId:'vt_210', tenant:'汇丰投顾', level:'VIP客户', queueId:'vip', queueName:'VIP队列', runningTime:'00:31', eta:'约 03:10 完成' },
-            { taskId:'vt_204', tenant:'鑫源保险', level:'普通客户', queueId:'normal', queueName:'普通队列', runningTime:'05:12', eta:'约 07:00 完成' },
+            { taskId:'vt_201', tenant:'雨虹投资', user:'张明', level:'VIP客户', queueId:'vip', queueName:'VIP队列', runningTime:'04:18', eta:'约 06:20 完成', createdAt:'2026-06-29 08:32', videoName:'市场收评_0602', videoDuration:45 },
+            { taskId:'vt_202', tenant:'华泰理财', user:'赵强', level:'VIP客户', queueId:'vip', queueName:'VIP队列', runningTime:'02:41', eta:'约 04:10 完成', createdAt:'2026-06-29 08:45', videoName:'盘前策略_0603', videoDuration:30 },
+            { taskId:'vt_203', tenant:'汇丰投顾', user:'王磊', level:'VIP客户', queueId:'vip', queueName:'VIP队列', runningTime:'01:36', eta:'约 03:30 完成', createdAt:'2026-06-29 09:02', videoName:'行业风向标_新能源', videoDuration:60 },
+            { taskId:'vt_206', tenant:'雨虹投资', user:'张明', level:'VIP客户', queueId:'vip', queueName:'VIP队列', runningTime:'00:58', eta:'约 02:50 完成', createdAt:'2026-06-29 09:18', videoName:'基金定投指南', videoDuration:90 },
+            { taskId:'vt_209', tenant:'华泰理财', user:'赵强', level:'VIP客户', queueId:'vip', queueName:'VIP队列', runningTime:'00:44', eta:'约 03:20 完成', createdAt:'2026-06-29 09:36', videoName:'理财小课堂_风险控制', videoDuration:120 },
+            { taskId:'vt_210', tenant:'汇丰投顾', user:'王磊', level:'VIP客户', queueId:'vip', queueName:'VIP队列', runningTime:'00:31', eta:'约 03:10 完成', createdAt:'2026-06-29 09:42', videoName:'盘中速递_0603', videoDuration:25 },
+            { taskId:'vt_204', tenant:'鑫源保险', user:'李芳', level:'普通客户', queueId:'normal', queueName:'普通队列', runningTime:'05:12', eta:'约 07:00 完成', createdAt:'2026-06-29 08:15', videoName:'保险配置入门', videoDuration:180 },
+            { taskId:'vt_205', tenant:'中信证券', user:'陈伟', level:'普通客户', queueId:'normal', queueName:'普通队列', runningTime:'03:55', eta:'约 08:30 完成', createdAt:'2026-06-29 08:28', videoName:'科创板投资指南', videoDuration:75 },
+            { taskId:'vt_207', tenant:'平安保险', user:'刘洋', level:'普通客户', queueId:'normal', queueName:'普通队列', runningTime:'02:10', eta:'约 09:50 完成', createdAt:'2026-06-29 08:55', videoName:'养老规划早知道', videoDuration:100 },
+            { taskId:'vt_208', tenant:'招商基金', user:'孙婷', level:'普通客户', queueId:'normal', queueName:'普通队列', runningTime:'01:15', eta:'约 10:30 完成', createdAt:'2026-06-29 09:10', videoName:'指数基金定投策略', videoDuration:55 },
+            { taskId:'vt_211', tenant:'中信证券', user:'陈伟', level:'普通客户', queueId:'normal', queueName:'普通队列', runningTime:'00:00', eta:'约 11:00 完成', createdAt:'2026-06-29 09:25', videoName:'港股通业务介绍', videoDuration:80 },
+            { taskId:'vt_212', tenant:'平安保险', user:'刘洋', level:'普通客户', queueId:'normal', queueName:'普通队列', runningTime:'00:00', eta:'约 11:30 完成', createdAt:'2026-06-29 09:40', videoName:'资产配置再平衡', videoDuration:110 },
+            { taskId:'vt_213', tenant:'招商基金', user:'孙婷', level:'普通客户', queueId:'normal', queueName:'普通队列', runningTime:'00:00', eta:'约 12:00 完成', createdAt:'2026-06-29 09:55', videoName:'七月投资策略展望', videoDuration:65 },
         ],
         queueTasks: [
-            { taskId:'vt_201', tenant:'雨虹投资', level:'VIP客户', queueName:'VIP队列', status:'running', gpu:'GPU-01', time:'运行 04:18', eta:'约 06:20 完成' },
-            { taskId:'vt_202', tenant:'华泰理财', level:'VIP客户', queueName:'VIP队列', status:'running', gpu:'GPU-02', time:'运行 02:41', eta:'约 04:10 完成' },
-            { taskId:'vt_203', tenant:'汇丰投顾', level:'VIP客户', queueName:'VIP队列', status:'running', gpu:'GPU-03', time:'运行 01:36', eta:'约 03:30 完成' },
-            { taskId:'vt_206', tenant:'雨虹投资', level:'VIP客户', queueName:'VIP队列', status:'running', gpu:'GPU-04', time:'运行 00:58', eta:'约 02:50 完成' },
-            { taskId:'vt_204', tenant:'鑫源保险', level:'普通客户', queueName:'普通队列', status:'running', gpu:'GPU-05', time:'运行 05:12', eta:'约 07:00 完成' },
-            { taskId:'vt_209', tenant:'华泰理财', level:'VIP客户', queueName:'VIP队列', status:'waiting', gpu:'-', time:'等待 01:25', eta:'约 03:20 完成' },
-            { taskId:'vt_210', tenant:'汇丰投顾', level:'VIP客户', queueName:'VIP队列', status:'waiting', gpu:'-', time:'等待 01:25', eta:'约 03:10 完成' }
+            { taskId:'vt_201', tenant:'雨虹投资', level:'VIP客户', user:'张明', queueName:'VIP队列', status:'running', gpu:'GPU-01', time:'运行 04:18', eta:'约 06:20 完成', priority:0, videoName:'市场收评_0602', videoDuration:45 },
+            { taskId:'vt_202', tenant:'华泰理财', level:'VIP客户', user:'赵强', queueName:'VIP队列', status:'running', gpu:'GPU-02', time:'运行 02:41', eta:'约 04:10 完成', priority:0, videoName:'盘前策略_0603', videoDuration:30 },
+            { taskId:'vt_203', tenant:'汇丰投顾', level:'VIP客户', user:'王磊', queueName:'VIP队列', status:'running', gpu:'GPU-03', time:'运行 01:36', eta:'约 03:30 完成', priority:0, videoName:'行业风向标_新能源', videoDuration:60 },
+            { taskId:'vt_206', tenant:'雨虹投资', level:'VIP客户', user:'张明', queueName:'VIP队列', status:'running', gpu:'GPU-04', time:'运行 00:58', eta:'约 02:50 完成', priority:0, videoName:'基金定投指南', videoDuration:90 },
+            { taskId:'vt_204', tenant:'鑫源保险', level:'普通客户', user:'李芳', queueName:'普通队列', status:'running', gpu:'GPU-05', time:'运行 05:12', eta:'约 07:00 完成', priority:0, videoName:'保险配置入门', videoDuration:180 },
+            { taskId:'vt_209', tenant:'华泰理财', level:'VIP客户', user:'赵强', queueName:'VIP队列', status:'waiting', gpu:'-', time:'等待 01:25', eta:'约 03:20 完成', priority:1, videoName:'理财小课堂_风险控制', videoDuration:120 },
+            { taskId:'vt_210', tenant:'汇丰投顾', level:'VIP客户', user:'王磊', queueName:'VIP队列', status:'waiting', gpu:'-', time:'等待 01:25', eta:'约 03:10 完成', priority:2, videoName:'盘中速递_0603', videoDuration:25 },
+            { taskId:'vt_205', tenant:'中信证券', level:'普通客户', user:'陈伟', queueName:'普通队列', status:'waiting', gpu:'-', time:'等待 08:42', eta:'约 08:30 完成', priority:3, videoName:'科创板投资指南', videoDuration:75 },
+            { taskId:'vt_207', tenant:'平安保险', level:'普通客户', user:'刘洋', queueName:'普通队列', status:'waiting', gpu:'-', time:'等待 08:42', eta:'约 09:50 完成', priority:4, videoName:'养老规划早知道', videoDuration:100 },
+            { taskId:'vt_208', tenant:'招商基金', level:'普通客户', user:'孙婷', queueName:'普通队列', status:'waiting', gpu:'-', time:'等待 08:42', eta:'约 10:30 完成', priority:5, videoName:'指数基金定投策略', videoDuration:55 },
+            { taskId:'vt_211', tenant:'中信证券', level:'普通客户', user:'陈伟', queueName:'普通队列', status:'waiting', gpu:'-', time:'等待 08:42', eta:'约 11:00 完成', priority:6, videoName:'港股通业务介绍', videoDuration:80 },
+            { taskId:'vt_212', tenant:'平安保险', level:'普通客户', user:'刘洋', queueName:'普通队列', status:'waiting', gpu:'-', time:'等待 08:42', eta:'约 11:30 完成', priority:7, videoName:'资产配置再平衡', videoDuration:110 },
+            { taskId:'vt_213', tenant:'招商基金', level:'普通客户', user:'孙婷', queueName:'普通队列', status:'waiting', gpu:'-', time:'等待 08:42', eta:'约 12:00 完成', priority:8, videoName:'七月投资策略展望', videoDuration:65 }
         ]
     },
     opsTasks: [
-        { taskId:'vt_001',tenantId:'t001',tenantName:'雨虹投资',taskName:'市场收评_0602',videoCount:3,totalCost:360,status:'completed',progress:100,createdAt:'2026-06-02 09:15',startedAt:'2026-06-02 09:16',completedAt:'2026-06-02 09:20',subTasks:[
+        { taskId:'vt_001',tenantId:'t001',tenantName:'雨虹投资',taskName:'市场收评_0602',videoCount:3,totalCost:360,status:'partial',progress:75,createdAt:'2026-06-02 09:15',startedAt:'2026-06-02 09:16',completedAt:'2026-06-02 09:20',subTasks:[
             { id:1,script:'今天A股市场整体呈现震荡走势，上证指数收报3150点...',status:'completed',progress:100,duration:15,cost:150,error:null },
             { id:2,script:'从板块来看，半导体、新能源表现强势，金融板块略有回调...',status:'completed',progress:100,duration:12,cost:120,error:null },
-            { id:3,script:'最后提醒投资者注意控制仓位，分散风险...',status:'completed',progress:100,duration:9,cost:90,error:null }
+            { id:3,script:'最后提醒投资者注意控制仓位，分散风险...',status:'failed',progress:30,duration:0,cost:90,error:'视频生成模型推理超时，请降低分辨率后重试' }
         ]},
         { taskId:'vt_002',tenantId:'t001',tenantName:'雨虹投资',taskName:'资产配置_0602',videoCount:2,totalCost:200,status:'completed',progress:100,createdAt:'2026-06-02 10:30',startedAt:'2026-06-02 10:32',completedAt:'2026-06-02 10:38',subTasks:[
             { id:1,script:'三季度资产配置策略建议关注权益类资产的配置比例...',status:'completed',progress:100,duration:10,cost:100,error:null },
@@ -1608,8 +1629,8 @@ var AppState = {
             { id:2,script:'ETF与普通基金最大的区别在于可以在交易所买卖...',status:'queued',progress:0,duration:0,cost:0,error:null },
             { id:3,script:'市面上常见的ETF类型包括宽基、行业、跨境等...',status:'queued',progress:0,duration:0,cost:0,error:null }
         ]},
-        { taskId:'vt_008',tenantId:'t005',tenantName:'华泰理财',taskName:'热点快评_0601',videoCount:2,totalCost:240,status:'completed',progress:100,createdAt:'2026-06-01 19:00',startedAt:'2026-06-01 19:02',completedAt:'2026-06-01 19:07',subTasks:[
-            { id:1,script:'今天市场最大的新闻是央行宣布降准0.25个百分点...',status:'completed',progress:100,duration:12,cost:120,error:null },
+        { taskId:'vt_008',tenantId:'t005',tenantName:'华泰理财',taskName:'热点快评_0601',videoCount:2,totalCost:240,status:'partial',progress:50,createdAt:'2026-06-01 19:00',startedAt:'2026-06-01 19:02',completedAt:'2026-06-01 19:07',subTasks:[
+            { id:1,script:'今天市场最大的新闻是央行宣布降准0.25个百分点...',status:'failed',progress:45,duration:0,cost:120,error:'口播台词与背景画面不匹配，请调整分镜描述' },
             { id:2,script:'降准对A股意味着什么？短期利好银行和地产板块...',status:'completed',progress:100,duration:12,cost:120,error:null }
         ]},
         { taskId:'vt_009',tenantId:'t005',tenantName:'华泰理财',taskName:'基金组合_0602',videoCount:2,totalCost:0,status:'queued',progress:0,createdAt:'2026-06-02 14:30',startedAt:null,completedAt:null,subTasks:[
@@ -1628,9 +1649,9 @@ var AppState = {
             { id:2,script:'第一个指标：基金的历史业绩，重点关注长期表现...',status:'generating',progress:55,duration:12,cost:0,error:null },
             { id:3,script:'第二个指标：基金经理的经验和稳定性...',status:'queued',progress:0,duration:0,cost:0,error:null }
         ]},
-        { taskId:'vt_012',tenantId:'t006',tenantName:'安联保险经纪',taskName:'车险指南_0601',videoCount:2,totalCost:200,status:'completed',progress:100,createdAt:'2026-06-01 15:00',startedAt:'2026-06-01 15:02',completedAt:'2026-06-01 15:08',subTasks:[
-            { id:1,script:'车险怎么买最划算？交强险、三者险、车损险...',status:'completed',progress:100,duration:10,cost:100,error:null },
-            { id:2,script:'三者险建议至少买200万保额，保费差不了多少...',status:'completed',progress:100,duration:10,cost:100,error:null }
+        { taskId:'vt_012',tenantId:'t006',tenantName:'安联保险经纪',taskName:'车险指南_0601',videoCount:2,totalCost:120,status:'partial',progress:50,createdAt:'2026-06-01 15:00',startedAt:'2026-06-01 15:02',completedAt:'2026-06-01 15:08',subTasks:[
+            { id:1,script:'车险怎么买最划算？交强险、三者险、车损险...',status:'failed',progress:20,duration:0,cost:100,error:'人物驱动失败，请检查视频主体是否包含完整人脸' },
+            { id:2,script:'三者险建议至少买200万保额，保费差不了多少...',status:'completed',progress:100,duration:12,cost:120,error:null }
         ]},
         { taskId:'vt_013',tenantId:'t004',tenantName:'中诚教育',taskName:'养老规划_0602',videoCount:1,totalCost:0,status:'queued',progress:0,createdAt:'2026-06-02 15:10',startedAt:null,completedAt:null,subTasks:[
             { id:1,script:'养老要趁早，30岁开始和40岁开始差别有多大？...',status:'queued',progress:0,duration:0,cost:0,error:null }
@@ -1701,18 +1722,38 @@ function renderDashboard() {
     }
     document.getElementById('topTenants').innerHTML = hbarHtml || '<div style="font-size:12px;color:var(--text-muted);padding:20px">暂无租户任务数据</div>';
 
-    var failureReasons = getFailureReasonList(buildTaskStats(allTasks).failureReasons).slice(0, 5);
-    var maxReason = failureReasons[0] ? failureReasons[0].count : 1;
-    var reasonHtml = '';
-    for (var fr = 0; fr < failureReasons.length; fr++) {
-        var reason = failureReasons[fr];
-        reasonHtml += '<div class="reason-row">' +
-            '<div class="reason-name" title="' + escapeHtml(reason.name) + '">' + escapeHtml(reason.name) + '</div>' +
-            '<div class="bar" style="flex:1"><div class="bar-fill danger" style="width:' + Math.max(8, reason.count / maxReason * 100) + '%"></div></div>' +
-            '<div class="reason-count">' + reason.count + ' 条</div>' +
-            '</div>';
+    var failedTasks = [];
+    for (var ft = 0; ft < allTasks.length; ft++) {
+        var task = allTasks[ft];
+        var subs = task.subTasks || [];
+        for (var sf = 0; sf < subs.length; sf++) {
+            if (subs[sf].status === 'failed') {
+                failedTasks.push({
+                    taskId: task.taskId,
+                    videoName: task.taskName,
+                    tenant: task.tenantName,
+                    createdAt: task.createdAt,
+                    failedAt: task.completedAt || task.startedAt || task.createdAt,
+                    error: subs[sf].error || '未知失败原因',
+                    subId: subs[sf].id
+                });
+            }
+        }
     }
-    document.getElementById('failureReasonTop').innerHTML = reasonHtml || '<div style="font-size:12px;color:var(--text-muted);padding:20px;text-align:center">暂无失败原因</div>';
+    failedTasks.sort(function(a, b) { return b.failedAt.localeCompare(a.failedAt); });
+    var ftHtml = '<div class="table-wrap" style="border:none"><table><thead><tr><th>任务ID</th><th>视频名称</th><th>租户</th><th>下发时间</th><th>失败时间</th></tr></thead><tbody>';
+    for (var fi = 0; fi < failedTasks.length; fi++) {
+        var f = failedTasks[fi];
+        ftHtml += '<tr>' +
+            '<td><code style="font-size:12px;background:#F0F0F3;padding:2px 6px;border-radius:4px">' + f.taskId + '</code></td>' +
+            '<td style="font-size:12px">' + escapeHtml(f.videoName) + '</td>' +
+            '<td style="font-size:12px">' + escapeHtml(f.tenant) + '</td>' +
+            '<td style="font-size:12px;color:var(--text-secondary)">' + f.createdAt + '</td>' +
+            '<td style="font-size:12px;color:var(--text-secondary)">' + f.failedAt + '</td>' +
+            '</tr>';
+    }
+    ftHtml += '</tbody></table></div>';
+    document.getElementById('failureReasonTop').innerHTML = ftHtml || '<div style="font-size:12px;color:var(--text-muted);padding:20px;text-align:center">暂无失败任务</div>';
 
     var alerts = AppState.tenants.filter(function(t) {
         return t.status !== '已停用';
@@ -1805,7 +1846,7 @@ function renderTenants() {
             '<td><div style="display:flex;align-items:center;gap:8px"><div class="bar" style="flex:1"><div class="bar-fill' + barCls + '" style="width:' + pct + '%"></div></div><span style="font-size:12px;white-space:nowrap">' + t.dailyUsed + '/' + t.dailyQuota + '</span></div></td>' +
             '<td><strong>' + t.credits.toLocaleString() + '</strong></td>' +
             '<td>' + t.openedAt + '</td>' +
-            '<td><button class="btn btn-xs" onclick="openTenantModal(\'' + t.id + '\')">编辑</button> <button class="btn btn-xs" onclick="openRechargeModal(\'' + t.id + '\')">充值</button> <button class="btn btn-xs" onclick="viewTenantDetail(\'' + t.id + '\')">详情</button> <button class="btn btn-xs ' + (t.status === '已停用' ? '' : 'btn-danger') + '" onclick="toggleTenantStatus(\'' + t.id + '\')">' + (t.status === '已停用' ? '启用' : '停用') + '</button></td>' +
+            '<td><button class="btn btn-xs" onclick="openTenantModal(\'' + t.id + '\')">编辑</button> <button class="btn btn-xs" onclick="viewTenantDetail(\'' + t.id + '\')">详情</button> <button class="btn btn-xs ' + (t.status === '已停用' ? '' : 'btn-danger') + '" onclick="toggleTenantStatus(\'' + t.id + '\')">' + (t.status === '已停用' ? '启用' : '停用') + '</button></td>' +
             '</tr>';
     }
     document.getElementById('tenantTable').innerHTML = html || '<tr><td colspan="9" style="text-align:center;padding:40px;color:var(--text-muted)">暂无匹配的租户</td></tr>';
@@ -1840,16 +1881,12 @@ function openTenantModal(editId) {
             document.getElementById('tfAdminEmail').value = t.adminEmail;
             renderTenantLevelSelectOptions(getInitialTenantLevelName(t.tenantLevel || getDefaultTenantLevelName(t)));
             document.getElementById('tfConcurrency').value = t.concurrency;
-            document.getElementById('tfExpiry').value = t.expiry;
-            document.getElementById('tfStatus').value = t.status;
         }
     } else {
         ['tfName','tfAdminName','tfAdminPhone','tfAdminEmail'].forEach(function(id) { document.getElementById(id).value = ''; });
         document.getElementById('tfIndustry').value = '';
         renderTenantLevelSelectOptions(getInitialTenantLevelName('普通客户'));
         document.getElementById('tfConcurrency').value = '5';
-        document.getElementById('tfExpiry').value = '';
-        document.getElementById('tfStatus').value = '启用中';
     }
     document.getElementById('tenantModalOverlay').classList.add('show');
 }
@@ -1864,9 +1901,7 @@ function saveTenant() {
         adminPhone: document.getElementById('tfAdminPhone').value.trim(),
         adminEmail: document.getElementById('tfAdminEmail').value.trim(),
         tenantLevel: document.getElementById('tfTenantLevel').value,
-        concurrency: parseInt(document.getElementById('tfConcurrency').value) || 5,
-        expiry: document.getElementById('tfExpiry').value,
-        status: document.getElementById('tfStatus').value
+        concurrency: parseInt(document.getElementById('tfConcurrency').value) || 5
     };
     if (!data.name || !data.industry || !data.adminName || !data.tenantLevel) { toast('请填写租户名称、行业、管理员姓名和租户等级', 'error'); return; }
     if (!findTenantLevelConfig(data.tenantLevel)) { toast('请选择有效的租户等级', 'error'); return; }
@@ -1879,8 +1914,6 @@ function saveTenant() {
             t.adminPhone = data.adminPhone; t.adminEmail = data.adminEmail;
             t.tenantLevel = data.tenantLevel;
             t.concurrency = data.concurrency;
-            t.expiry = data.expiry;
-            t.status = data.status;
             addAuditLog('租户', data.name, before, data.name + ' / ' + t.tenantLevel + ' / ' + t.status, '编辑租户基础信息');
         }
         toast('租户信息已更新', 'success');
@@ -1890,13 +1923,14 @@ function saveTenant() {
             id: newId, name: data.name, industry: data.industry, status: data.status,
             adminName: data.adminName, adminPhone: data.adminPhone, adminEmail: data.adminEmail,
             tenantLevel: data.tenantLevel, dailyQuota: 500, dailyUsed: 0, concurrency: data.concurrency,
-            modelLevel: '标准', credits: 0, expiry: data.expiry,
+            modelLevel: '标准', credits: 0,
             openedAt: new Date().toISOString().slice(0,10), features: ['视频生成']
         });
         addAuditLog('租户', data.name, '-', '启用中', '新建租户');
         toast('租户「' + data.name + '」创建成功', 'success');
     }
     saveData(); closeTenantModal(); renderTenants();
+    if (currentTenantDetailId) renderTenantDetail(currentTenantDetailId);
 }
 
 function toggleTenantStatus(id) {
@@ -1911,7 +1945,9 @@ function toggleTenantStatus(id) {
             var before = t.status;
             t.status = newStatus;
             addAuditLog('租户', t.name, before, newStatus, newStatus === '已停用' ? '停用租户' : '启用租户');
-            saveData(); renderTenants(); toast('租户「' + t.name + '」已' + newStatus, 'success');
+            saveData(); renderTenants();
+            if (currentTenantDetailId === id) renderTenantDetail(id);
+            toast('租户「' + t.name + '」已' + newStatus, 'success');
         }
     );
 }
@@ -1959,6 +1995,7 @@ function confirmRecharge() {
     addAuditLog('积分', t.name, (t.credits - pts).toLocaleString(), t.credits.toLocaleString(), remark);
 
     saveData(); closeRechargeModal(); refreshView(currentView);
+    if (currentTenantDetailId) renderTenantDetail(currentTenantDetailId);
     toast('已为「' + t.name + '」充值 ' + pts.toLocaleString() + ' 积分', 'success');
 }
 
@@ -2002,13 +2039,31 @@ function renderBilling() {
 }
 
 // ===========================
-// 租户详情 Drawer
+// 租户详情
 // ===========================
+var currentTenantDetailId = null;
+
 function viewTenantDetail(id) {
+    currentTenantDetailId = id;
+    switchView('view-tenant-detail');
+    renderTenantDetail(id);
+}
+
+function backToTenantList() {
+    currentTenantDetailId = null;
+    switchView('view-tenants');
+}
+
+function renderTenantDetail(id) {
     var t = AppState.tenants.find(function(x) { return x.id === id; });
-    if (!t) return;
-    document.getElementById('drawerTitle').textContent = t.name + ' · 详情';
-var stCls = t.status === '启用中' ? 'status-active' : 'status-stopped';
+    if (!t) {
+        document.getElementById('tenantDetailContent').innerHTML = '<div style="text-align:center;padding:60px;color:var(--text-muted)">未找到该租户</div>';
+        return;
+    }
+
+    document.getElementById('tenantDetailTitle').textContent = t.name + ' · 租户详情';
+
+    var stCls = t.status === '启用中' ? 'status-active' : 'status-stopped';
     var pct = Math.round(t.dailyUsed / t.dailyQuota * 100);
     var barCls = pct > 90 ? ' danger' : (pct > 70 ? ' warn' : '');
     var tenantLogs = AppState.billingLogs.filter(function(b) { return b.tenantId === t.id; }).slice(0, 10);
@@ -2019,38 +2074,58 @@ var stCls = t.status === '启用中' ? 'status-active' : 'status-stopped';
         logHtml += '<tr><td style="font-size:12px">' + b.time + '</td><td><span class="status ' + (b.type==='充值'?'status-active':'status-warning') + '">' + b.type + '</span></td><td style="font-weight:600">' + sign + b.amount.toLocaleString() + '</td><td style="font-size:12px;color:var(--text-secondary)">' + b.remark + '</td></tr>';
     }
 
-    document.getElementById('drawerBody').innerHTML =
-        '<div class="section-title">基本信息</div>' +
-        '<div class="kv-grid" style="margin-bottom:20px">' +
+    var tenantTasks = (AppState.opsTasks || []).filter(function(task) { return task.tenantId === t.id; }).slice(0, 10);
+    var taskHtml = '';
+    for (var k = 0; k < tenantTasks.length; k++) {
+        var task = tenantTasks[k];
+        var taskStCls = getTaskStatusClass(task.status);
+        taskHtml += '<tr>' +
+            '<td style="font-size:12px;font-family:monospace">' + task.taskId + '</td>' +
+            '<td>' + escapeHtml(task.taskName) + '</td>' +
+            '<td><span class="status ' + taskStCls + '">' + getTaskStatusLabel(task.status) + '</span></td>' +
+            '<td>' + task.videoCount + '</td>' +
+            '<td style="font-weight:600">' + task.totalCost.toLocaleString() + '</td>' +
+            '<td style="font-size:12px">' + task.createdAt + '</td>' +
+            '</tr>';
+    }
+
+    document.getElementById('tenantDetailContent').innerHTML =
+        '<div class="card-grid2" style="margin-bottom:20px">' +
+        '<div class="info-card">' +
+        '<h4>基本信息</h4>' +
+        '<div class="kv-grid">' +
         '<div class="kv-item"><span class="kv-label">租户 ID</span><span class="kv-value">' + t.id + '</span></div>' +
         '<div class="kv-item"><span class="kv-label">行业</span><span class="kv-value">' + t.industry + '</span></div>' +
         '<div class="kv-item"><span class="kv-label">状态</span><span class="kv-value"><span class="status ' + stCls + '">' + t.status + '</span></span></div>' +
+        '<div class="kv-item"><span class="kv-label">租户等级</span><span class="kv-value">' + getTenantLevelChip(t.tenantLevel) + '</span></div>' +
         '<div class="kv-item"><span class="kv-label">管理员</span><span class="kv-value">' + t.adminName + '</span></div>' +
         '<div class="kv-item"><span class="kv-label">手机</span><span class="kv-value">' + t.adminPhone + '</span></div>' +
         '<div class="kv-item"><span class="kv-label">邮箱</span><span class="kv-value">' + t.adminEmail + '</span></div>' +
         '<div class="kv-item"><span class="kv-label">开通时间</span><span class="kv-value">' + t.openedAt + '</span></div>' +
-        '<div class="kv-item"><span class="kv-label">服务有效期</span><span class="kv-value">' + t.expiry + '</span></div>' +
-        '</div>' +
-        '<div class="section-title">额度与用量</div>' +
-        '<div style="margin-bottom:20px">' +
-        '<div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span>当前用量</span><span>' + t.dailyUsed + ' / ' + t.dailyQuota + '</span></div>' +
-        '<div class="bar"><div class="bar-fill' + barCls + '" style="width:' + pct + '%"></div></div>' +
-        '<div class="kv-grid" style="margin-top:10px">' +
         '<div class="kv-item"><span class="kv-label">最大并发</span><span class="kv-value">' + t.concurrency + '</span></div>' +
-        '<div class="kv-item"><span class="kv-label">当前额度</span><span class="kv-value">' + t.dailyQuota + '</span></div>' +
+        '<div class="kv-item"><span class="kv-label">模型等级</span><span class="kv-value">' + t.modelLevel + '</span></div>' +
+        '<div class="kv-item"><span class="kv-label">可用功能</span><span class="kv-value">' + (t.features || []).join('、') + '</span></div>' +
         '</div></div>' +
-        '<div class="section-title">积分余额：<strong style="color:var(--primary)">' + t.credits.toLocaleString() + '</strong></div>' +
+        '<div class="info-card">' +
+        '<h4>额度与用量</h4>' +
+        '<div style="margin-bottom:16px">' +
+        '<div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px"><span>今日用量</span><span style="font-weight:600">' + t.dailyUsed + ' / ' + t.dailyQuota + '</span></div>' +
+        '<div class="bar" style="height:8px"><div class="bar-fill' + barCls + '" style="width:' + pct + '%"></div></div>' +
+        '<div style="font-size:11px;color:var(--text-muted);margin-top:4px">使用率 ' + pct + '%</div>' +
+        '</div>' +
+        '<div class="kv-grid">' +
+        '<div class="kv-item"><span class="kv-label">积分余额</span><span class="kv-value" style="font-size:20px;font-weight:800;color:var(--primary)">' + t.credits.toLocaleString() + '</span></div>' +
+        '<div class="kv-item"><span class="kv-label">每日额度</span><span class="kv-value">' + t.dailyQuota.toLocaleString() + '</span></div>' +
+        '</div>' +
+        '</div></div>' +
         '<div class="section-title">最近积分流水</div>' +
+        '<div class="table-wrap" style="margin-bottom:20px">' +
         '<table style="font-size:12px"><thead><tr><th>时间</th><th>类型</th><th>变动</th><th>备注</th></tr></thead><tbody>' + (logHtml || '<tr><td colspan="4" style="color:var(--text-muted);text-align:center;padding:20px">暂无流水</td></tr>') + '</tbody></table>' +
-        '<div class="section-title" style="margin-top:20px">最近任务</div>' +
-        '<div style="font-size:12px" id="drawerTaskList">' + renderTenantTasksDrawer(t.id) + '</div>';
-
-    document.getElementById('drawerOverlay').classList.add('show');
-    document.getElementById('tenantDrawer').classList.add('show');
-}
-function closeDrawer() {
-    document.getElementById('drawerOverlay').classList.remove('show');
-    document.getElementById('tenantDrawer').classList.remove('show');
+        '</div>' +
+        '<div class="section-title">最近任务</div>' +
+        '<div class="table-wrap">' +
+        '<table style="font-size:12px"><thead><tr><th>任务 ID</th><th>任务名称</th><th>状态</th><th>视频数</th><th>消耗积分</th><th>创建时间</th></tr></thead><tbody>' + (taskHtml || '<tr><td colspan="6" style="color:var(--text-muted);text-align:center;padding:20px">暂无任务</td></tr>') + '</tbody></table>' +
+        '</div>';
 }
 
 // ===========================
@@ -2715,6 +2790,10 @@ function applyGpuUsage(card, task, borrowed) {
 function rebuildSchedulerTasksFromCards(scheduler, vipTasks, normalTasks) {
     var rows = [];
     var cards = scheduler.gpuCards || [];
+    var oldQueueTasks = (scheduler.queueTasks || []).reduce(function(map, t) {
+        map[t.taskId] = t;
+        return map;
+    }, {});
     var runningIds = {};
     for (var i = 0; i < cards.length; i++) {
         var card = cards[i];
@@ -2722,31 +2801,46 @@ function rebuildSchedulerTasksFromCards(scheduler, vipTasks, normalTasks) {
         var task = findSchedulerTaskById(scheduler, card.taskId);
         if (!task) continue;
         runningIds[card.taskId] = true;
+        var old = oldQueueTasks[card.taskId] || {};
         rows.push({
             taskId: task.taskId,
             tenant: task.tenant,
             level: task.level,
+            user: task.user || old.user || '-',
             queueName: task.queueName,
             status: 'running',
             gpu: card.id,
             time: '运行 ' + task.runningTime,
+            createdAt: task.createdAt || old.createdAt || '-',
             eta: task.eta,
-            borrowed: !!card.borrowed
+            borrowed: !!card.borrowed,
+            priority: 0,
+            videoName: task.videoName || old.videoName || '-',
+            videoDuration: task.videoDuration || old.videoDuration || '-'
         });
     }
     var allTasks = (vipTasks || []).concat(normalTasks || []);
+    var priorityCounter = {};
     for (var j = 0; j < allTasks.length; j++) {
         var t = allTasks[j];
         if (runningIds[t.taskId]) continue;
+        var old = oldQueueTasks[t.taskId] || {};
+        var qName = t.queueName || 'default';
+        if (!priorityCounter[qName]) priorityCounter[qName] = 1;
         rows.push({
             taskId: t.taskId,
             tenant: t.tenant,
             level: t.level,
-            queueName: t.queueName,
+            user: t.user || old.user || '-',
+            queueName: qName,
             status: 'waiting',
             gpu: '-',
             time: t.queueId === 'vip' ? '等待 01:25' : '等待 08:42',
-            eta: t.eta
+            createdAt: t.createdAt || old.createdAt || '-',
+            eta: t.eta,
+            priority: old.priority || priorityCounter[qName]++,
+            videoName: t.videoName || old.videoName || '-',
+            videoDuration: t.videoDuration || old.videoDuration || '-'
         });
     }
     scheduler.queueTasks = rows;
@@ -3022,21 +3116,160 @@ function deleteTenantLevel(index) {
 }
 
 function renderSchedulerTasks(scheduler) {
+    var tasks = scheduler.queueTasks || [];
+    var runningTasks = tasks.filter(function(t) { return t.status === 'running'; });
+    var waitingTasks = tasks.filter(function(t) { return t.status === 'waiting'; }).sort(function(a, b) { return (a.priority || 0) - (b.priority || 0); });
     var html = '';
-    for (var i = 0; i < scheduler.queueTasks.length; i++) {
-        var t = scheduler.queueTasks[i];
-        html += '<tr>' +
-            '<td><code style="font-size:12px;background:#F0F0F3;padding:2px 6px;border-radius:4px">' + t.taskId + '</code></td>' +
-            '<td>' + t.tenant + '</td>' +
-            '<td><span class="chip ' + (t.queueName === 'VIP队列' ? 'chip-blue' : 'chip-green') + '">' + t.level + '</span></td>' +
-            '<td>' + t.queueName + (t.borrowed ? ' <span class="borrow-badge">借用中</span>' : '') + '</td>' +
-            '<td><span class="status ' + getQueueTaskStatusClass(t.status) + '">' + getQueueTaskStatusLabel(t.status) + '</span></td>' +
-            '<td>' + t.gpu + '</td>' +
-            '<td>' + t.time + '</td>' +
-            '<td style="color:var(--text-secondary)">' + t.eta + '</td>' +
-        '</tr>';
+
+    html += '<div class="table-wrap">';
+    html += '<div class="table-toolbar">';
+    html += '<span style="font-weight:600;font-size:13px">任务队列</span>';
+    html += '<span style="font-size:12px;color:var(--text-muted);margin-left:12px">' + runningTasks.length + ' 运行中，' + waitingTasks.length + ' 等待中</span>';
+    html += '<span style="flex:1"></span>';
+    if (_priorityDirty) {
+        html += '<span style="font-size:12px;color:var(--orange);margin-right:8px">⚠ 有未保存的调整</span>';
+        html += '<button class="btn btn-sm btn-primary" onclick="savePriorityChanges()" style="margin-right:4px">💾 保存</button>';
+        html += '<button class="btn btn-sm" onclick="resetPriorityChanges()">↩ 重置</button>';
+    } else {
+        html += '<button class="btn btn-sm btn-primary" onclick="savePriorityChanges()" style="margin-right:4px;opacity:0.4;cursor:default" disabled>💾 保存</button>';
     }
-    document.getElementById('schedulerTaskTable').innerHTML = html || '<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--text-muted)">暂无队列任务</td></tr>';
+    html += '</div>';
+
+    if (tasks.length === 0) {
+        html += '<div style="text-align:center;padding:24px;color:var(--text-muted);font-size:13px">暂无任务</div>';
+    } else {
+        html += '<table><thead><tr><th>任务 ID</th><th>视频名称</th><th>视频时长</th><th>租户</th><th>等级</th><th>用户</th><th>状态</th><th>占用 GPU</th><th>任务创建时间</th><th>等待/运行</th><th>排队号</th><th>操作</th></tr></thead><tbody>';
+
+        for (var r = 0; r < runningTasks.length; r++) {
+            var rt = runningTasks[r];
+            html += '<tr>' +
+                '<td><code style="font-size:12px;background:#F0F0F3;padding:2px 6px;border-radius:4px">' + rt.taskId + '</code></td>' +
+                '<td style="font-size:12px">' + (rt.videoName || '-') + '</td>' +
+                '<td style="font-size:12px">' + (rt.videoDuration ? rt.videoDuration + '秒' : '-') + '</td>' +
+                '<td>' + rt.tenant + '</td>' +
+                '<td><span class="chip ' + (rt.queueName === 'VIP队列' ? 'chip-blue' : 'chip-green') + '">' + rt.level + '</span></td>' +
+                '<td>' + (rt.user || '-') + '</td>' +
+                '<td><span class="status ' + getQueueTaskStatusClass(rt.status) + '">' + getQueueTaskStatusLabel(rt.status) + '</span></td>' +
+                '<td>' + rt.gpu + '</td>' +
+                '<td style="font-size:12px;color:var(--text-secondary)">' + (rt.createdAt || '-') + '</td>' +
+                '<td>' + rt.time + '</td>' +
+                '<td style="color:var(--text-muted);font-size:12px">-</td>' +
+                '<td><span style="font-size:11px;color:var(--text-muted)">生成中</span></td>' +
+                '</tr>';
+        }
+
+        for (var w = 0; w < waitingTasks.length; w++) {
+            var wt = waitingTasks[w];
+            var isFirst = (w === 0);
+            var isLast = (w === waitingTasks.length - 1);
+            html += '<tr>' +
+                '<td><code style="font-size:12px;background:#F0F0F3;padding:2px 6px;border-radius:4px">' + wt.taskId + '</code></td>' +
+                '<td style="font-size:12px">' + (wt.videoName || '-') + '</td>' +
+                '<td style="font-size:12px">' + (wt.videoDuration ? wt.videoDuration + '秒' : '-') + '</td>' +
+                '<td>' + wt.tenant + '</td>' +
+                '<td><span class="chip ' + (wt.queueName === 'VIP队列' ? 'chip-blue' : 'chip-green') + '">' + wt.level + '</span></td>' +
+                '<td>' + (wt.user || '-') + '</td>' +
+                '<td><span class="status ' + getQueueTaskStatusClass(wt.status) + '">' + getQueueTaskStatusLabel(wt.status) + '</span></td>' +
+                '<td>' + wt.gpu + '</td>' +
+                '<td style="font-size:12px;color:var(--text-secondary)">' + (wt.createdAt || '-') + '</td>' +
+                '<td>' + wt.time + '</td>' +
+                '<td style="font-weight:700;font-size:13px;color:var(--primary)">' + wt.priority + '</td>' +
+                '<td style="white-space:nowrap">' +
+                    '<button class="btn btn-xs' + (isFirst ? '" disabled style="opacity:0.4;cursor:not-allowed' : '') + '" onclick="moveTaskUp(\'' + wt.taskId + '\')" title="上调排队号">↑ 上调</button> ' +
+                    '<button class="btn btn-xs' + (isLast ? '" disabled style="opacity:0.4;cursor:not-allowed' : '') + '" onclick="moveTaskDown(\'' + wt.taskId + '\')" title="下调排队号">↓ 下调</button>' +
+                '</td>' +
+                '</tr>';
+        }
+
+        html += '</tbody></table>';
+    }
+    html += '</div>';
+
+    document.getElementById('schedulerTaskTable').innerHTML = html || '<div style="text-align:center;padding:40px;color:var(--text-muted)">暂无队列任务</div>';
+}
+
+function moveTaskUp(taskId) {
+    var scheduler = getScheduler();
+    var waitingTasks = (scheduler.queueTasks || []).filter(function(t) { return t.status === 'waiting'; }).sort(function(a, b) { return (a.priority || 0) - (b.priority || 0); });
+    var idx = -1;
+    for (var i = 0; i < waitingTasks.length; i++) {
+        if (waitingTasks[i].taskId === taskId) { idx = i; break; }
+    }
+    if (idx <= 0) return;
+
+    var prevPriority = waitingTasks[idx - 1].priority;
+    var currPriority = waitingTasks[idx].priority;
+    waitingTasks[idx - 1].priority = currPriority;
+    waitingTasks[idx].priority = prevPriority;
+
+    for (var j = 0; j < scheduler.queueTasks.length; j++) {
+        for (var k = 0; k < waitingTasks.length; k++) {
+            if (scheduler.queueTasks[j].taskId === waitingTasks[k].taskId) {
+                scheduler.queueTasks[j].priority = waitingTasks[k].priority;
+                break;
+            }
+        }
+    }
+
+    _priorityDirty = true;
+    renderSchedulerTasks(scheduler);
+    toast('任务 ' + taskId + ' 已上调，点击「保存」生效', 'info');
+}
+
+function moveTaskDown(taskId) {
+    var scheduler = getScheduler();
+    var waitingTasks = (scheduler.queueTasks || []).filter(function(t) { return t.status === 'waiting'; }).sort(function(a, b) { return (a.priority || 0) - (b.priority || 0); });
+    var idx = -1;
+    for (var i = 0; i < waitingTasks.length; i++) {
+        if (waitingTasks[i].taskId === taskId) { idx = i; break; }
+    }
+    if (idx < 0 || idx >= waitingTasks.length - 1) return;
+
+    var nextPriority = waitingTasks[idx + 1].priority;
+    var currPriority = waitingTasks[idx].priority;
+    waitingTasks[idx + 1].priority = currPriority;
+    waitingTasks[idx].priority = nextPriority;
+
+    for (var j = 0; j < scheduler.queueTasks.length; j++) {
+        for (var k = 0; k < waitingTasks.length; k++) {
+            if (scheduler.queueTasks[j].taskId === waitingTasks[k].taskId) {
+                scheduler.queueTasks[j].priority = waitingTasks[k].priority;
+                break;
+            }
+        }
+    }
+
+    _priorityDirty = true;
+    renderSchedulerTasks(scheduler);
+    toast('任务 ' + taskId + ' 已下调，点击「保存」生效', 'info');
+}
+
+function savePriorityChanges() {
+    var scheduler = getScheduler();
+    saveSchedulerData(scheduler);
+    addAuditLog('队列', '-', '排队号调整', '-', '批量保存排队调整');
+    _priorityDirty = false;
+    renderScheduler();
+    toast('排队调整已保存', 'success');
+}
+
+function resetPriorityChanges() {
+    _priorityDirty = false;
+    renderScheduler();
+    toast('已重置排队顺序', 'info');
+}
+
+function getQueueNameById(queueId) {
+    var scheduler = getScheduler();
+    for (var i = 0; i < scheduler.queues.length; i++) {
+        if (scheduler.queues[i].id === queueId) return scheduler.queues[i].name;
+    }
+    return '';
+}
+
+function saveSchedulerData(scheduler) {
+    AppState.scheduler = scheduler;
+    saveData();
 }
 
 function renderVoiceConfigs() {
