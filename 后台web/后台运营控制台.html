@@ -658,14 +658,17 @@
         <div class="nav-item active" data-view="view-dashboard"><span class="nav-icon">🏠</span> 工作台</div>
         <div class="nav-item" data-view="view-scheduler-config"><span class="nav-icon">🧭</span> 任务调度</div>
         <div class="nav-item" data-view="view-tenants"><span class="nav-icon">👥</span> 租户管理</div>
+        <div class="nav-item nav-parent" data-toggle="market-config"><span class="nav-icon">🏪</span> 市场配置 <span class="nav-caret">▾</span></div>
+        <div class="nav-submenu" id="marketConfigSubmenu">
+            <div class="nav-item sub" data-view="view-template-config"><span class="nav-icon">●</span> 视频模板</div>
+            <div class="nav-item sub" data-view="view-voice-config"><span class="nav-icon">●</span> 音色模板</div>
+            <div class="nav-item sub" data-view="view-scene-config"><span class="nav-icon">●</span> 场景模板</div>
+        </div>
         <div class="nav-item" data-view="view-tasks"><span class="nav-icon">📋</span> 任务统计</div>
         <div class="nav-item" data-view="view-billing"><span class="nav-icon">💰</span> 积分与账单</div>
         <div class="nav-item nav-parent" data-toggle="business-config"><span class="nav-icon">⚙️</span> 业务配置 <span class="nav-caret">▾</span></div>
         <div class="nav-submenu" id="businessConfigSubmenu">
             <div class="nav-item sub" data-view="view-credit-config"><span class="nav-icon">●</span> 积分配置</div>
-            <div class="nav-item sub" data-view="view-template-config"><span class="nav-icon">●</span> 视频模板</div>
-            <div class="nav-item sub" data-view="view-voice-config"><span class="nav-icon">●</span> 音色模板</div>
-            <div class="nav-item sub" data-view="view-scene-config"><span class="nav-icon">●</span> 场景模板</div>
             <div class="nav-item sub" data-view="view-prompt-config"><span class="nav-icon">●</span> 提示词配置</div>
         </div>
         <div class="nav-item" data-view="view-audit"><span class="nav-icon">🧾</span> 操作审计</div>
@@ -827,9 +830,10 @@
             <div class="table-wrap">
                 <div class="table-toolbar">
                     <span style="font-weight:600;font-size:13px">业务内置视频模板</span>
+                    <button class="btn btn-primary btn-sm" onclick="openTemplateModal()" style="margin-left:auto">+ 新增模板</button>
                 </div>
                 <table>
-                    <thead><tr><th>模板名称</th><th>标签</th><th>适用行业</th><th>状态</th><th>使用次数</th><th>备注</th><th>操作</th></tr></thead>
+                    <thead><tr><th>模板名称</th><th>标签</th><th>适用行业</th><th>工作流</th><th>提示词</th><th>模板文件</th><th>状态</th><th>使用次数</th><th>操作</th></tr></thead>
                     <tbody id="templateConfigTable"></tbody>
                 </table>
             </div>
@@ -1047,6 +1051,38 @@
             <div class="form-group"><label class="kv-label">适用行业 <span style="color:red">*</span></label><input class="filter-input" id="tmplIndustry" style="width:100%"></div>
             <div class="form-group"><label class="kv-label">标签 <span style="color:red">*</span></label><input class="filter-input" id="tmplTags" style="width:100%" placeholder="多个标签用逗号分隔"></div>
             <div class="form-group"><label class="kv-label">使用次数</label><input class="filter-input" id="tmplUsed" style="width:100%" type="number" min="0" value="0"></div>
+            <div class="form-group"><label class="kv-label">工作流 <span style="color:red">*</span></label>
+                <select class="filter-select" id="tmplWorkflow" style="width:100%">
+                    <option value="">请选择工作流</option>
+                    <option value="portrait_talking">口播视频创作</option>
+                </select>
+            </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
+            <div class="form-group">
+                <label class="kv-label">视频模板文件</label>
+                <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+                    <label class="btn btn-sm" style="cursor:pointer;display:inline-flex;align-items:center;gap:6px">
+                        📁 选择文件
+                        <input type="file" id="tmplFile" accept=".zip,.json,.txt" style="display:none" onchange="onTmplFileChange()">
+                    </label>
+                    <span id="tmplFileName" style="font-size:12px;color:var(--text-muted)">未选择文件</span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="kv-label">首帧图</label>
+                <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+                    <label class="btn btn-sm" style="cursor:pointer;display:inline-flex;align-items:center;gap:6px">
+                        📁 选择文件
+                        <input type="file" id="tmplFirstFrame" accept="image/*" style="display:none" onchange="onTmplFirstFrameChange()">
+                    </label>
+                    <span id="tmplFirstFrameName" style="font-size:12px;color:var(--text-muted)">未选择</span>
+                </div>
+            </div>
+        </div>
+        <div class="form-group" style="margin-bottom:14px">
+            <label class="kv-label">提示词配置</label>
+            <textarea id="tmplPromptConfig" style="width:100%;height:100px;padding:10px 12px;border:1px solid var(--border);border-radius:6px;font-size:13px;font-family:'SF Mono','Menlo','Consolas',monospace;resize:vertical;line-height:1.6" placeholder="输入提示词内容，支持 {{变量}} 占位符..."></textarea>
         </div>
         <div class="form-group" style="margin-bottom:14px">
             <label class="kv-label">备注</label>
@@ -1302,6 +1338,10 @@ document.querySelectorAll('.nav-item').forEach(function(item) {
             toggleBusinessMenu();
             return;
         }
+        if (toggleKey === 'market-config') {
+            toggleMarketMenu();
+            return;
+        }
         switchView(item.getAttribute('data-view'));
     });
 });
@@ -1314,16 +1354,30 @@ function toggleBusinessMenu(forceOpen) {
     parent.classList.toggle('collapsed', !shouldOpen);
 }
 
+function toggleMarketMenu(forceOpen) {
+    var parent = document.querySelector('.nav-parent[data-toggle="market-config"]');
+    var submenu = document.getElementById('marketConfigSubmenu');
+    var shouldOpen = forceOpen === true ? true : submenu.classList.contains('collapsed');
+    submenu.classList.toggle('collapsed', !shouldOpen);
+    parent.classList.toggle('collapsed', !shouldOpen);
+}
+
 function switchView(viewId) {
     currentView = viewId;
     document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active'); });
     var currentNav = document.querySelector('.nav-item[data-view="' + viewId + '"]');
     if (currentNav) currentNav.classList.add('active');
-    var businessViews = ['view-template-config','view-voice-config','view-scene-config','view-credit-config','view-prompt-config'];
+    var businessViews = ['view-credit-config','view-prompt-config'];
     var inBusiness = businessViews.indexOf(viewId) !== -1;
     if (inBusiness) {
         document.querySelector('.nav-parent[data-toggle="business-config"]').classList.add('active');
         toggleBusinessMenu(true);
+    }
+    var marketViews = ['view-template-config','view-voice-config','view-scene-config'];
+    var inMarket = marketViews.indexOf(viewId) !== -1;
+    if (inMarket) {
+        document.querySelector('.nav-parent[data-toggle="market-config"]').classList.add('active');
+        toggleMarketMenu(true);
     }
     document.querySelectorAll('.panel').forEach(function(p) { p.classList.remove('active'); });
     document.getElementById(viewId).classList.add('active');
@@ -1336,11 +1390,11 @@ function switchView(viewId) {
         'view-tenant-detail':'租户管理 / 租户详情',
         'view-tasks':'任务统计',
         'view-billing':'积分与账单',
-        'view-voice-config':'业务配置 / 音色模板',
+        'view-voice-config':'市场配置 / 音色模板',
         'view-credit-config':'业务配置 / 积分配置',
         'view-prompt-config':'业务配置 / 提示词配置',
-        'view-template-config':'业务配置 / 视频模板',
-        'view-scene-config':'业务配置 / 场景模板',
+        'view-template-config':'市场配置 / 视频模板',
+        'view-scene-config':'市场配置 / 场景模板',
         'view-audit':'操作审计'
     };
     document.getElementById('topbarSection').textContent = titles[viewId] || '';
@@ -1532,11 +1586,11 @@ var AppState = {
         ]}
     ],
     templateConfigs: [
-        { name:'市场收评模板', tags:'收盘解读,市场复盘', industry:'金融投顾', used:2456, status:'启用', remark:'' },
-        { name:'基金定投科普模板', tags:'基金知识,定投教育', industry:'金融投顾', used:1876, status:'启用', remark:'' },
-        { name:'风险提示模板', tags:'风险揭示,合规提示', industry:'金融投顾', used:1123, status:'启用', remark:'' },
-        { name:'热点快评模板', tags:'热点事件,快讯点评', industry:'金融投顾', used:678, status:'启用', remark:'' },
-        { name:'服务引导模板', tags:'客户服务,操作引导', industry:'通用', used:0, status:'停用', remark:'' }
+        { name:'市场收评模板', tags:'收盘解读,市场复盘', industry:'金融投顾', used:2456, status:'启用', remark:'', workflow:'portrait_talking', promptConfig:'你是金融投顾视频台词优化助手，根据收盘数据和市场信息生成收评内容。', templateFile:'market_review_v3.zip', firstFrameFile:'market_first_frame.png' },
+        { name:'基金定投科普模板', tags:'基金知识,定投教育', industry:'金融投顾', used:1876, status:'启用', remark:'', workflow:'portrait_talking', promptConfig:'你是基金投教专家，将复杂基金知识转化为通俗易懂的口播内容。', templateFile:'fund_edu_v2.zip', firstFrameFile:'fund_first_frame.png' },
+        { name:'风险提示模板', tags:'风险揭示,合规提示', industry:'金融投顾', used:1123, status:'启用', remark:'', workflow:'portrait_talking', promptConfig:'你是合规风控专家，生成风险提示内容，语言严谨专业。', templateFile:'risk_notice_v1.zip', firstFrameFile:'' },
+        { name:'热点快评模板', tags:'热点事件,快讯点评', industry:'金融投顾', used:678, status:'启用', remark:'', workflow:'portrait_talking', promptConfig:'你是财经快讯评论员，对热点事件进行快速点评分析。', templateFile:'hotspot_comment_v2.zip', firstFrameFile:'hotspot_first_frame.png' },
+        { name:'服务引导模板', tags:'客户服务,操作引导', industry:'通用', used:0, status:'停用', remark:'', workflow:'portrait_talking', promptConfig:'', templateFile:'', firstFrameFile:'' }
     ],
     sceneConfigs: [
         { id:'scene-modern-studio', name:'现代财经演播室', industry:'证券', ratio:'9:16', place:'演播室', scene:'市场解读', tags:['市场解读','数据大屏','专业'], desc:'背景包含行情图表与蓝色数据屏，适合市场收评和产品解读。', imageOriginal:'', imageExample:'', used:2134, status:'使用中' },
@@ -2104,7 +2158,6 @@ function renderTenantDetail(id) {
         '<div class="kv-item"><span class="kv-label">开通时间</span><span class="kv-value">' + t.openedAt + '</span></div>' +
         '<div class="kv-item"><span class="kv-label">最大并发</span><span class="kv-value">' + t.concurrency + '</span></div>' +
         '<div class="kv-item"><span class="kv-label">模型等级</span><span class="kv-value">' + t.modelLevel + '</span></div>' +
-        '<div class="kv-item"><span class="kv-label">可用功能</span><span class="kv-value">' + (t.features || []).join('、') + '</span></div>' +
         '</div></div>' +
         '<div class="info-card">' +
         '<h4>额度与用量</h4>' +
@@ -3552,20 +3605,40 @@ function renderTemplates() {
         var t = AppState.templateConfigs[i];
         var stCls = t.status === '启用' ? 'status-active' : 'status-stopped';
         var tagsHtml = (t.tags || '').split(',').filter(function(x){return x.trim()}).map(function(x){return '<span class="chip">' + x.trim() + '</span> '}).join('');
+        var workflowMap = { 'portrait_talking':'口播视频创作' };
+        var workflowLabel = workflowMap[t.workflow] || t.workflow || '<span style="color:var(--text-muted)">-</span>';
+        var promptPreview = (t.promptConfig || '').slice(0, 30);
+        if (t.promptConfig && t.promptConfig.length > 30) promptPreview += '…';
+        var fileIcon = t.templateFile ? '📄' : '';
         html += '<tr>' +
             '<td><strong>' + t.name + '</strong></td>' +
             '<td>' + (tagsHtml || '<span style="color:var(--text-muted)">-</span>') + '</td>' +
             '<td>' + t.industry + '</td>' +
+            '<td style="font-size:12px">' + workflowLabel + '</td>' +
+            '<td style="font-size:12px;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="' + escapeHtml(t.promptConfig || '') + '">' + (promptPreview || '<span style="color:var(--text-muted)">-</span>') + '</td>' +
+            '<td style="font-size:13px;text-align:center">' + fileIcon + '</td>' +
             '<td><span class="status ' + stCls + '">' + t.status + '</span></td>' +
             '<td><strong>' + (t.used || 0).toLocaleString() + '</strong></td>' +
-            '<td style="font-size:12px;color:var(--text-secondary);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="' + escapeHtml(t.remark || '') + '">' + (t.remark || '<span style="color:var(--text-muted)">-</span>') + '</td>' +
             '<td>' +
                 '<button class="btn btn-xs" onclick="openTemplateModal(' + i + ')">编辑</button> ' +
-                '<button class="btn btn-xs ' + (t.status === '启用' ? '' : 'btn-primary') + '" onclick="toggleTemplateStatus(' + i + ')">' + (t.status === '启用' ? '停用' : '启用') + '</button>' +
+                '<button class="btn btn-xs ' + (t.status === '启用' ? '' : 'btn-primary') + '" onclick="confirmToggleTemplate(' + i + ')">' + (t.status === '启用' ? '停用' : '启用') + '</button> ' +
+                '<button class="btn btn-xs btn-danger" onclick="confirmDeleteTemplate(' + i + ')">删除</button>' +
             '</td>' +
             '</tr>';
     }
     document.getElementById('templateConfigTable').innerHTML = html;
+}
+
+function confirmToggleTemplate(index) {
+    var t = AppState.templateConfigs[index];
+    if (!t) return;
+    var action = t.status === '启用' ? '停用' : '启用';
+    showConfirm(
+        action + '模板',
+        '确定要' + action + '模板「' + t.name + '」吗？',
+        '⚠️',
+        function() { toggleTemplateStatus(index); }
+    );
 }
 
 function toggleTemplateStatus(index) {
@@ -3579,16 +3652,66 @@ function toggleTemplateStatus(index) {
     toast('模板「' + t.name + '」已' + t.status, 'success');
 }
 
-function openTemplateModal(editIndex) {
-    var t = AppState.templateConfigs[editIndex];
+function confirmDeleteTemplate(index) {
+    var t = AppState.templateConfigs[index];
     if (!t) return;
-    document.getElementById('templateModalTitle').textContent = '编辑模板';
-    document.getElementById('tmplEditIndex').value = editIndex;
-    document.getElementById('tmplName').value = t.name || '';
-    document.getElementById('tmplIndustry').value = t.industry || '';
-    document.getElementById('tmplTags').value = t.tags || '';
-    document.getElementById('tmplUsed').value = t.used || 0;
-    document.getElementById('tmplRemark').value = t.remark || '';
+    showConfirm(
+        '删除模板',
+        '确定要删除模板「' + t.name + '」吗？此操作不可撤销。',
+        '⚠️',
+        function() { deleteTemplate(index); }
+    );
+}
+
+function deleteTemplate(index) {
+    var t = AppState.templateConfigs[index];
+    if (!t) return;
+    var name = t.name;
+    AppState.templateConfigs.splice(index, 1);
+    addAuditLog('配置', name, '删除', '-', '删除模板');
+    saveData();
+    renderTemplates();
+    toast('模板「' + name + '」已删除', 'success');
+}
+
+function onTmplFileChange() {
+    var f = document.getElementById('tmplFile').files[0];
+    document.getElementById('tmplFileName').textContent = f ? '📄 ' + f.name : '未选择文件';
+}
+
+function onTmplFirstFrameChange() {
+    var f = document.getElementById('tmplFirstFrame').files[0];
+    document.getElementById('tmplFirstFrameName').textContent = f ? '🖼️ ' + f.name : '未选择';
+}
+
+function openTemplateModal(editIndex) {
+    var isEdit = typeof editIndex === 'number';
+    document.getElementById('templateModalTitle').textContent = isEdit ? '编辑模板' : '新增模板';
+    document.getElementById('tmplEditIndex').value = isEdit ? editIndex : '';
+    if (isEdit) {
+        var t = AppState.templateConfigs[editIndex];
+        document.getElementById('tmplName').value = t.name || '';
+        document.getElementById('tmplIndustry').value = t.industry || '';
+        document.getElementById('tmplTags').value = t.tags || '';
+        document.getElementById('tmplUsed').value = t.used || 0;
+        document.getElementById('tmplRemark').value = t.remark || '';
+        document.getElementById('tmplWorkflow').value = t.workflow || '';
+        document.getElementById('tmplPromptConfig').value = t.promptConfig || '';
+        document.getElementById('tmplFileName').textContent = t.templateFile ? '📄 ' + t.templateFile : '未选择文件';
+        document.getElementById('tmplFirstFrameName').textContent = t.firstFrameFile ? '🖼️ ' + t.firstFrameFile : '未选择';
+    } else {
+        document.getElementById('tmplName').value = '';
+        document.getElementById('tmplIndustry').value = '';
+        document.getElementById('tmplTags').value = '';
+        document.getElementById('tmplUsed').value = 0;
+        document.getElementById('tmplRemark').value = '';
+        document.getElementById('tmplWorkflow').value = '';
+        document.getElementById('tmplPromptConfig').value = '';
+        document.getElementById('tmplFileName').textContent = '未选择文件';
+        document.getElementById('tmplFirstFrameName').textContent = '未选择';
+        document.getElementById('tmplFile').value = '';
+        document.getElementById('tmplFirstFrame').value = '';
+    }
     document.getElementById('templateModalOverlay').classList.add('show');
 }
 
@@ -3598,22 +3721,49 @@ function closeTemplateModal() {
 
 function saveTemplateConfig() {
     var editIndex = document.getElementById('tmplEditIndex').value;
-    var t = AppState.templateConfigs[parseInt(editIndex)];
-    if (!t) return;
-    t.name = document.getElementById('tmplName').value.trim();
-    t.industry = document.getElementById('tmplIndustry').value.trim();
-    t.tags = document.getElementById('tmplTags').value.trim();
-    t.used = parseInt(document.getElementById('tmplUsed').value) || 0;
-    t.remark = document.getElementById('tmplRemark').value.trim();
-    if (!t.name || !t.industry || !t.tags) {
-        toast('请填写模板名称、适用行业和标签', 'error');
+    var name = document.getElementById('tmplName').value.trim();
+    var industry = document.getElementById('tmplIndustry').value.trim();
+    var tags = document.getElementById('tmplTags').value.trim();
+    var workflow = document.getElementById('tmplWorkflow').value;
+    var promptConfig = document.getElementById('tmplPromptConfig').value.trim();
+    if (!name || !industry || !tags || !workflow) {
+        toast('请填写模板名称、适用行业、标签和工作流', 'error');
         return;
     }
-    addAuditLog('配置', t.name, '-', '-', '编辑模板');
+    var templateFile = document.getElementById('tmplFile').files[0];
+    var firstFrameFile = document.getElementById('tmplFirstFrame').files[0];
+    if (editIndex !== '') {
+        var t = AppState.templateConfigs[parseInt(editIndex)];
+        if (!t) return;
+        t.name = name;
+        t.industry = industry;
+        t.tags = tags;
+        t.used = parseInt(document.getElementById('tmplUsed').value) || 0;
+        t.remark = document.getElementById('tmplRemark').value.trim();
+        t.workflow = workflow;
+        t.promptConfig = promptConfig;
+        if (templateFile) t.templateFile = templateFile.name;
+        if (firstFrameFile) t.firstFrameFile = firstFrameFile.name;
+        addAuditLog('配置', t.name, '-', '-', '编辑模板');
+    } else {
+        AppState.templateConfigs.push({
+            name: name,
+            industry: industry,
+            tags: tags,
+            used: parseInt(document.getElementById('tmplUsed').value) || 0,
+            status: '启用',
+            remark: document.getElementById('tmplRemark').value.trim(),
+            workflow: workflow,
+            promptConfig: promptConfig,
+            templateFile: templateFile ? templateFile.name : '',
+            firstFrameFile: firstFrameFile ? firstFrameFile.name : ''
+        });
+        addAuditLog('配置', name, '-', '-', '新增模板');
+    }
     saveData();
     closeTemplateModal();
     renderTemplates();
-    toast('模板「' + t.name + '」已更新', 'success');
+    toast('模板「' + name + '」已' + (editIndex !== '' ? '更新' : '创建'), 'success');
 }
 
 // ===========================
