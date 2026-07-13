@@ -203,6 +203,12 @@
     .ff-chip:hover { border-color: #0066ff66; color: #0066ff; }
     .ff-chip.on { background: #eef4ff; border-color: #0066ff; color: #0066ff; font-weight: 600; }
     .ff-regen { font-size: 11px; padding: 6px 12px; border-radius: 7px; border: 1.5px solid #0066ff; background: #eef4ff; color: #0066ff; cursor: pointer; font-weight: 500; transition: all 0.15s; align-self: center; }
+
+    /* 姿态/动作分段切换 */
+    .seg-switch { display: inline-flex; border: 1.5px solid #e0e0e0; border-radius: 8px; overflow: hidden; }
+    .seg-opt { padding: 3px 14px; font-size: 11px; font-weight: 600; cursor: pointer; color: #666; background: #fff; border: none; transition: all 0.15s; }
+    .seg-opt:first-child { border-right: 1px solid #e0e0e0; }
+    .seg-opt.sel { background: #0066ff; color: #fff; border-color: #0066ff; }
     .ff-regen:hover { background: #0066ff; color: #fff; }
     /* 右：台词 + 语音 */
     .ff-right { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 8px; border-left: 1px dashed #ececec; padding-left: 16px; }
@@ -864,7 +870,8 @@
       visibility: 'private'       // 可见范围：private=仅自己, team=团队共享
     };
 
-    var POSES = ['站立', '坐姿', '侧身', '走动'];
+    var POSES = ['站立', '坐姿', '侧身'];
+    var ACTIONS = ['走动'];
     var SHOTS = ['中景', '近景'];
 
     var bgM = {'办公室':'linear-gradient(135deg,#667eea,#764ba2)','居家':'linear-gradient(135deg,#f093fb,#f5576c)','咖啡厅':'linear-gradient(135deg,#4facfe,#00f2fe)','户外':'linear-gradient(135deg,#43e97b,#38f9d7)','演播室':'linear-gradient(135deg,#fa709a,#fee140)','书架':'linear-gradient(135deg,#a8edea,#fed6e3)','教室':'linear-gradient(135deg,#ffecd2,#fcb69f)','会议室':'linear-gradient(135deg,#a1c4fd,#c2e9fb)','公园':'linear-gradient(135deg,#d4fc79,#96e6a1)','海边':'linear-gradient(135deg,#89f7fe,#66a6ff)','天台':'linear-gradient(135deg,#f6d365,#fda085)','展厅':'linear-gradient(135deg,#fbc2eb,#a6c1ee)','厨房':'linear-gradient(135deg,#ff9a9e,#fecfef)','健身房':'linear-gradient(135deg,#fddb92,#d1fdff)','图书馆':'linear-gradient(135deg,#c1dfc4,#deecdd)','花园':'linear-gradient(135deg,#f5f7fa,#c3cfe2)','餐厅':'linear-gradient(135deg,#e0c3fc,#8ec5fc)','地铁站':'linear-gradient(135deg,#434343,#000000)','机场':'linear-gradient(135deg,#c9d6ff,#e2e2e2)','雪山':'linear-gradient(135deg,#e6e9f0,#eef1f5)','森林':'linear-gradient(135deg,#134e5e,#71b280)','沙漠':'linear-gradient(135deg,#f4a460,#deb887)','草原':'linear-gradient(135deg,#96e6a1,#d4fc79)','城市夜景':'linear-gradient(135deg,#0f2027,#203a43,#2c5364)','工作室':'linear-gradient(135deg,#c9c6ff,#8b87af)'};
@@ -1811,7 +1818,10 @@
       S.cards.forEach(function(card) {
         if (!card.content.trim()) { card.frame = null; return; }
         // 首帧
-        if (!card.frame) card.frame = { bg: pick(activeBgs), pose: pick(POSES), shot: pick(SHOTS), status: 'ready' };
+        if (!card.frame) {
+          var mode = Math.random() > 0.8 ? 'action' : 'pose';
+          card.frame = { mode: mode, bg: pick(activeBgs), pose: mode === 'pose' ? pick(POSES) : '', action: mode === 'action' ? pick(ACTIONS) : '', shot: pick(SHOTS), status: 'ready' };
+        }
         else if (activeBgs.indexOf(card.frame.bg) === -1) card.frame.bg = pick(activeBgs);
         // 模拟首帧生成：~20% 概率失败
         if (!card.frame.status) card.frame.status = 'ready';
@@ -1849,7 +1859,8 @@
         h += '<div class="ff-preview'+(frameFailed?' failed':'')+'" id="ff-prev-'+g.id+'" style="background:'+bgGrad+'">';
         h += '<div class="ff-corner">'+escapeHtml(f.bg)+'</div>';
         h += '<div class="ff-emoji">'+emoji+'</div>';
-        h += '<div class="ff-corner-bottom">'+f.pose+' · '+f.shot+'</div>';
+        var displayVal = f.mode === 'action' ? f.action : f.pose;
+        h += '<div class="ff-corner-bottom">'+displayVal+' · '+f.shot+'</div>';
         h += '<div class="ff-loading"><div class="ff-spin"></div>生成中…</div>';
         // 失败遮罩
         h += '<div class="ff-failed-overlay"><div class="ff-failed-icon">⚠️</div><div class="ff-failed-text">生成失败</div></div>';
@@ -1860,11 +1871,22 @@
         h += '<span class="ff-mini" onmouseenter="showCharTip(event,\''+emoji+'\',\''+avName.replace(/'/g,"\\'")+'\',\''+avTagS2.replace(/'/g,"\\'")+'\')" onmouseleave="hideTip()">👤 '+escapeHtml(avName)+'</span>';
         h += '<span class="ff-mini" onmouseenter="showSceneTip(event,\''+bgGrad.replace(/'/g,"\\'")+'\',\''+f.bg.replace(/'/g,"\\'")+'\')" onmouseleave="hideTip()">🖼️ '+escapeHtml(f.bg)+'</span>';
         h += '</div>';
-        // 姿态/景别 + 重新生成
+        // 姿态/动作（分段切换）+ 景别 + 重新生成
         h += '<div class="ff-tags">';
-        h += '<div class="ff-tag-group"><span class="ff-tg-lb">姿态</span>';
-        POSES.forEach(function(p){ h += '<span class="ff-chip'+(f.pose===p?' on':'')+'" onclick="setFrameTag('+g.id+',\'pose\',\''+p+'\')">'+p+'</span>'; });
-        h += '</div>';
+        h += '<div class="ff-tag-group"><span class="ff-tg-lb">姿态/动作</span>';
+        h += '<div class="seg-switch">';
+        h += '<button class="seg-opt'+(f.mode==='pose'?' sel':'')+'" onclick="setFrameMode('+g.id+',\'pose\')">姿态</button>';
+        h += '<button class="seg-opt'+(f.mode==='action'?' sel':'')+'" onclick="setFrameMode('+g.id+',\'action\')">动作</button>';
+        h += '</div></div>';
+        if (f.mode === 'pose') {
+          h += '<div class="ff-tag-group"><span class="ff-tg-lb"></span>';
+          POSES.forEach(function(p){ h += '<span class="ff-chip'+(f.pose===p?' on':'')+'" onclick="setFrameTag('+g.id+',\'pose\',\''+p+'\')">'+p+'</span>'; });
+          h += '</div>';
+        } else {
+          h += '<div class="ff-tag-group"><span class="ff-tg-lb"></span>';
+          ACTIONS.forEach(function(a){ h += '<span class="ff-chip'+(f.action===a?' on':'')+'" onclick="setFrameTag('+g.id+',\'action\',\''+a+'\')">'+a+'</span>'; });
+          h += '</div>';
+        }
         h += '<div class="ff-tag-group"><span class="ff-tg-lb">景别</span>';
         SHOTS.forEach(function(s){ h += '<span class="ff-chip'+(f.shot===s?' on':'')+'" onclick="setFrameTag('+g.id+',\'shot\',\''+s+'\')">'+s+'</span>'; });
         h += '</div>';
@@ -1906,9 +1928,27 @@
     function setFrameTag(id, type, val) {
       var g = S.cards.find(function(x){return x.id===id;});
       if (!g || !g.frame) return;
-      g.frame[type] = val;
+      if (type === 'pose') {
+        g.frame.mode = 'pose';
+        g.frame.pose = val;
+        g.frame.action = '';
+      } else if (type === 'action') {
+        g.frame.mode = 'action';
+        g.frame.action = val;
+        g.frame.pose = '';
+      } else if (type === 'shot') {
+        g.frame.shot = val;
+      }
       renderFirstFrames();
       toast('已选「'+val+'」，点「重新生成首帧」应用');
+    }
+    function setFrameMode(id, mode) {
+      var g = S.cards.find(function(x){return x.id===id;});
+      if (!g || !g.frame) return;
+      g.frame.mode = mode;
+      if (mode === 'pose') { g.frame.pose = g.frame.pose || pick(POSES); g.frame.action = ''; }
+      else { g.frame.action = g.frame.action || pick(ACTIONS); g.frame.pose = ''; }
+      renderFirstFrames();
     }
     function confirmRegenFrame(id) {
       openCreditsConfirm(10, function() { regenFrame(id); });
@@ -1943,7 +1983,14 @@
       var failedCount = 0;
       ids.forEach(function(id){
         var g = S.cards.find(function(x){return x.id===id;});
-        if (g && g.frame) { g.frame.pose = pick(POSES); g.frame.shot = pick(SHOTS); g.frame.bg = pick(activeBgs); }
+        if (g && g.frame) {
+          var mode = Math.random() > 0.8 ? 'action' : 'pose';
+          g.frame.mode = mode;
+          g.frame.pose = mode === 'pose' ? pick(POSES) : '';
+          g.frame.action = mode === 'action' ? pick(ACTIONS) : '';
+          g.frame.shot = pick(SHOTS);
+          g.frame.bg = pick(activeBgs);
+        }
         // 模拟重新生成：~15% 概率失败
         if (Math.random() < 0.15) {
           if (g && g.frame) g.frame.status = 'failed';
@@ -2149,13 +2196,14 @@
         h += '<tr>';
         h += '<td>'+(i+1)+'</td>';
         // 首帧 - hover 大图
-        h += '<td><div class="cf-thumb cf-thumb-hover" style="background:'+bgGrad+'" onmouseenter="showImgTip(event,\''+emoji+'\',\''+bgGrad.replace(/'/g,"\\'")+'\',\''+escapeHtml(f.bg)+' · '+f.pose+' · '+f.shot+'\')" onmouseleave="hideTip()">'+emoji+'</div></td>';
+        var disp = f.mode === 'action' ? f.action : f.pose;
+        h += '<td><div class="cf-thumb cf-thumb-hover" style="background:'+bgGrad+'" onmouseenter="showImgTip(event,\''+emoji+'\',\''+bgGrad.replace(/'/g,"\\'")+'\',\''+escapeHtml(f.bg)+' · '+disp+' · '+f.shot+'\')" onmouseleave="hideTip()">'+emoji+'</div></td>';
         // 角色 - hover 大图
         h += '<td><span class="cf-hoverable" onmouseenter="showCharTip(event,\''+emoji+'\',\''+avName.replace(/'/g,"\\'")+'\',\''+avTag.replace(/'/g,"\\'")+'\')" onmouseleave="hideTip()">'+(meta?escapeHtml(meta.name):'—')+'</span></td>';
         // 背景 - hover 大图
         h += '<td><span class="cf-hoverable" onmouseenter="showBgTip(event,\''+bgGrad.replace(/'/g,"\\'")+'\',\''+f.bg.replace(/'/g,"\\'")+'\')" onmouseleave="hideTip()">'+escapeHtml(f.bg)+'</span></td>';
         // 镜头
-        h += '<td>'+f.pose+' · '+f.shot+(hasCustomTts?' · 单独语音':'')+'</td>';
+        h += '<td>'+disp+' · '+f.shot+(hasCustomTts?' · 单独语音':'')+'</td>';
         // 台词 - hover 显示全文
         h += '<td class="cf-script cf-hoverable" onmouseenter="showScriptTip(event,\''+escapeHtml(g.content).replace(/'/g,"\\'")+'\')" onmouseleave="hideScriptTip()">'+escapeHtml(preview)+'</td>';
         var rowCost = (g.tts&&g.tts.duration?g.tts.duration:0) * 20;
