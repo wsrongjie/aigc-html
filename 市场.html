@@ -1277,7 +1277,7 @@
             </div>
             <div class="same-form">
                 <div class="same-field">
-                    <label>角色 <span class="reuse-status" id="roleStatus">复用模板</span><span class="role-preview-trigger" onmouseenter="showRolePreview(event)" onmouseleave="hideRolePreview()">预览</span></label>
+                    <label>角色 <span class="role-preview-trigger" onmouseenter="showRolePreview(event)" onmouseleave="hideRolePreview()">预览</span></label>
                     <div class="role-config-row">
                         <select id="sameRole" onchange="handleSameRoleChange()"></select>
                         <div class="role-voice-preview" aria-live="polite">
@@ -1292,7 +1292,7 @@
                 </div>
 
                 <div class="same-field">
-                    <label>台词 <span class="reuse-status" id="scriptStatus">复用模板</span></label>
+                    <label>台词</label>
                     <textarea id="sameScript" oninput="handleScriptChange()"></textarea>
                     <div class="same-speed-row">
                         <span class="same-speed-label">语速</span>
@@ -2077,8 +2077,16 @@
             '</div>';
         document.getElementById("samePreviewTitle").textContent = item.title;
         document.getElementById("samePreviewDesc").textContent = item.desc;
-        fillSelect("sameRole", getRoleChoices(item));
-        document.getElementById("sameRole").value = "template";
+        var choices = getRoleChoices(item);
+        if (choices.length > 0) {
+            fillSelect("sameRole", choices);
+            document.getElementById("sameRole").value = choices[0].value;
+            document.getElementById("sameRole").disabled = false;
+        } else {
+            fillSelect("sameRole", [{value: "", label: "暂无角色，请去资产->主体管理创建角色"}]);
+            document.getElementById("sameRole").value = "";
+            document.getElementById("sameRole").disabled = true;
+        }
         document.getElementById("sameScript").value = item.script || item.desc;
         updateSameStatus();
         updateRoleVoicePreview();
@@ -2095,8 +2103,7 @@
     }
 
     function getRoleChoices(template) {
-        const createdRoles = readCreatedRoles().map(role => ({ value: "created:" + role.id, label: "我的主体 · " + role.name }));
-        return [{ value: "template", label: (template.role || "模板角色") + "（模板主体）" }].concat(builtInRoles, createdRoles);
+        return readCreatedRoles().map(role => ({ value: "created:" + role.id, label: "我的主体 · " + role.name }));
     }
 
     function fillSelect(id, options) {
@@ -2108,12 +2115,14 @@
     function updateSameStatus() {
         const item = resources.find(r => r.id === activeTemplateId);
         if (!item) return;
-        setStatus("roleStatus", document.getElementById("sameRole").value === "template" ? "复用模板" : "已替换");
+        var roleValue = document.getElementById("sameRole").value;
+        setStatus("roleStatus", roleValue ? "我的主体" : "—");
         setStatus("scriptStatus", document.getElementById("sameScript").value.trim() === String(item.script || "").trim() ? "复用模板" : "已修改");
     }
 
     function setStatus(id, text) {
         const el = document.getElementById(id);
+        if (!el) return;
         el.textContent = text;
         const reused = text === "复用模板";
         el.style.color = reused ? "var(--primary)" : "#059669";
@@ -2220,6 +2229,8 @@
         btn.classList.remove("playing");
         btn.title = voice.unavailable ? "当前角色未配置音色" : "试听当前角色音色";
         btn.setAttribute("aria-label", btn.title);
+        var synthBtn = document.getElementById("synthStartBtn");
+        if (synthBtn && synthState === 'idle') synthBtn.disabled = !!voice.unavailable;
     }
 
     function getSelectedRoleLabel() {
@@ -2229,6 +2240,8 @@
     }
 
     function readCreatedRoles() {
+        if (activeTemplateId === 'tpl-market-close') return []; // 模拟：一分钟市场收评 - 无角色
+        if (activeTemplateId === 'tpl-fund-edu') return [{ id: "mock_role_01", name: "我的投顾角色", voice: "知性女声" }]; // 模拟：基金定投 - 有角色
         return readList(SUBJECT_LIBRARY_KEY).filter(item => item && item.type === "role").map(item => ({
             id: item.id || item.name,
             name: item.name || "未命名角色",
@@ -2295,7 +2308,13 @@
 
     function updateActionBtn(cost) {
         var btn = document.getElementById("sameActionBtn");
-        if (synthState === 'ready') {
+        var hasRole = document.getElementById("sameRole").value !== "";
+        if (!hasRole) {
+            btn.innerHTML = '生成同款';
+            btn.disabled = true;
+            btn.style.opacity = '0.5';
+            btn.style.cursor = 'not-allowed';
+        } else if (synthState === 'ready') {
             btn.innerHTML = '生成同款<span style="font-size:0.8em;opacity:.85">（消耗 🪙' + cost + ' 积分）</span>';
             btn.disabled = false;
             btn.style.opacity = '1';
@@ -2380,6 +2399,7 @@
         const item = resources.find(r => r.id === activeTemplateId);
         if (!item) return;
         var roleVal = document.getElementById("sameRole").value;
+        if (!roleVal) { showToast("提示", "暂无角色，请去资产->主体管理创建角色"); return; }
         var script = document.getElementById("sameScript").value;
         var chars = script.length;
         var speed = sameScriptSpeed / 10;
@@ -2545,6 +2565,10 @@
     }
 
     function startSynthesis() {
+        var roleId = document.getElementById("sameRole").value;
+        if (!roleId) { showToast("无法合成", "请先选择角色"); return; }
+        var voice = getSelectedRoleVoice();
+        if (voice.unavailable) { showToast("无法合成", "当前角色未配置音色"); return; }
         var text = (document.getElementById("sameScript").value || "").trim();
         if (!text) { showToast("无法合成", "请先输入台词"); return; }
         synthState = 'synth';
@@ -2598,6 +2622,12 @@
         document.getElementById("synthProgress").style.display = synthState === 'synth' ? '' : 'none';
         document.getElementById("synthReady").style.display = synthState === 'ready' ? '' : 'none';
         document.getElementById("synthError").style.display = synthState === 'error' ? '' : 'none';
+
+        if (synthState === 'idle') {
+            var voice = getSelectedRoleVoice();
+            var synthBtn = document.getElementById("synthStartBtn");
+            if (synthBtn) synthBtn.disabled = !!voice.unavailable;
+        }
 
         var badge = document.getElementById("synthStatusBadge");
 
