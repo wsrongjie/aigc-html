@@ -808,15 +808,13 @@
                 </div>
             </div>
             <div class="task-metrics task-stat-metrics" id="taskMetricsRow"></div>
-            <div class="card-grid2" style="margin-bottom:20px">
-                <div class="info-card">
-                    <h4>租户任务表现排行 <span class="card-tag">点击查看明细</span></h4>
-                    <div id="tenantTaskRank"></div>
-                </div>
-                <div class="info-card">
-                    <h4>失败原因分析 <span class="card-tag">当前筛选范围</span></h4>
-                    <div id="taskFailureReasons"></div>
-                </div>
+            <div class="info-card" style="margin-bottom:20px">
+                <h4>租户任务表现排行 <span class="card-tag">点击查看明细</span></h4>
+                <div id="tenantTaskRank"></div>
+            </div>
+            <div class="info-card" style="margin-bottom:20px">
+                <h4>失败任务明细 <span class="card-tag">当前筛选范围</span></h4>
+                <div id="taskFailureDetail"></div>
             </div>
             <div class="info-card" id="tenantTaskDetail">
                 <h4>租户任务明细</h4>
@@ -2473,7 +2471,7 @@ function renderTasks() {
 
     renderTaskMetrics(list);
     renderTenantTaskRank(list);
-    renderTaskFailureReasons(list);
+    renderFailureDetail(selectedTenantId, list);
     renderTenantTaskDetail(selectedTenantId, list);
 }
 
@@ -2500,19 +2498,48 @@ function selectTaskTenant(tenantId) {
     renderTasks();
 }
 
-function renderTaskFailureReasons(tasks) {
-    var reasons = getFailureReasonList(buildTaskStats(tasks).failureReasons);
-    var max = reasons[0] ? reasons[0].count : 1;
-    var html = '';
-    for (var i = 0; i < Math.min(reasons.length, 6); i++) {
-        var r = reasons[i];
-        html += '<div class="reason-row">' +
-            '<div class="reason-name" title="' + escapeHtml(r.name) + '">' + escapeHtml(r.name) + '</div>' +
-            '<div class="bar" style="flex:1"><div class="bar-fill danger" style="width:' + Math.max(8, r.count / max * 100) + '%"></div></div>' +
-            '<div class="reason-count">' + r.count + ' 条</div>' +
-            '</div>';
+function renderFailureDetail(selectedTenantId, tasks) {
+    var failedItems = [];
+    for (var ft = 0; ft < tasks.length; ft++) {
+        var task = tasks[ft];
+        if (selectedTenantId && task.tenantId !== selectedTenantId) continue;
+        var subs = task.subTasks || [];
+        for (var sf = 0; sf < subs.length; sf++) {
+            if (subs[sf].status === 'failed') {
+                var tenant = AppState.tenants.find(function(t) { return t.id === task.tenantId; });
+                var user = tenant ? tenant.adminName : '-';
+                var duration = subs[sf].duration > 0 ? subs[sf].duration + 's' : '--';
+                failedItems.push({
+                    taskId: task.taskId,
+                    videoName: task.taskName,
+                    tenant: task.tenantName,
+                    user: user,
+                    duration: duration,
+                    createdAt: task.createdAt,
+                    failedAt: task.completedAt || task.startedAt || task.createdAt,
+                    subId: subs[sf].id
+                });
+            }
+        }
     }
-    document.getElementById('taskFailureReasons').innerHTML = html || '<div style="font-size:12px;color:var(--text-muted);padding:20px;text-align:center">当前筛选范围内暂无失败原因</div>';
+    failedItems.sort(function(a, b) { return b.failedAt.localeCompare(a.failedAt); });
+
+    var label = selectedTenantId ? (AppState.tenants.find(function(t) { return t.id === selectedTenantId; }) || {}).name || '' + ' · 失败任务' : '失败任务明细 · 当前筛选范围';
+    var html = '<div class="table-wrap" style="border:none"><table><thead><tr><th>任务ID</th><th>视频名称</th><th>租户</th><th>操作用户</th><th>视频时长</th><th>下发时间</th><th>失败时间</th></tr></thead><tbody>';
+    for (var fi = 0; fi < failedItems.length; fi++) {
+        var f = failedItems[fi];
+        html += '<tr>' +
+            '<td><code style="font-size:12px;background:#F0F0F3;padding:2px 6px;border-radius:4px">' + f.taskId + '</code></td>' +
+            '<td style="font-size:12px">' + escapeHtml(f.videoName) + '</td>' +
+            '<td style="font-size:12px">' + escapeHtml(f.tenant) + '</td>' +
+            '<td style="font-size:12px">' + escapeHtml(f.user) + '</td>' +
+            '<td style="font-size:12px;text-align:center">' + f.duration + '</td>' +
+            '<td style="font-size:12px;color:var(--text-secondary)">' + f.createdAt + '</td>' +
+            '<td style="font-size:12px;color:var(--text-secondary)">' + f.failedAt + '</td>' +
+            '</tr>';
+    }
+    html += '</tbody></table></div>';
+    document.getElementById('taskFailureDetail').innerHTML = html || '<div style="font-size:12px;color:var(--text-muted);padding:20px;text-align:center">当前筛选范围内暂无失败任务</div>';
 }
 
 function renderTenantTaskDetail(tenantId, tasks) {
@@ -2548,7 +2575,6 @@ function renderTenantTaskDetail(tenantId, tasks) {
     el.innerHTML =
         '<div class="tenant-detail-head">' +
             '<div><div class="tenant-detail-title">' + tenantStats.tenantName + '</div><div class="tenant-detail-sub">按当前筛选条件统计该租户账号下任务表现</div></div>' +
-            '<button class="btn btn-sm" onclick="viewTenantDetail(\'' + tenantId + '\')">查看租户详情</button>' +
         '</div>' +
         '<div class="mini-metrics">' +
             '<div class="mini-metric"><div class="mini-metric-value">' + tenantStats.taskCount + '</div><div class="mini-metric-label">任务数</div></div>' +
