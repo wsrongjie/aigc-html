@@ -2182,13 +2182,12 @@ function renderTenantDetail(id) {
         '<div class="info-card">' +
         '<h4>额度与用量</h4>' +
         '<div style="margin-bottom:16px">' +
-        '<div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px"><span>今日用量</span><span style="font-weight:600">' + t.dailyUsed + ' / ' + t.dailyQuota + '</span></div>' +
+        '<div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px"><span>已消耗积分</span><span style="font-weight:600">' + t.dailyUsed + ' / ' + t.dailyQuota + '</span></div>' +
         '<div class="bar" style="height:8px"><div class="bar-fill' + barCls + '" style="width:' + pct + '%"></div></div>' +
         '<div style="font-size:11px;color:var(--text-muted);margin-top:4px">使用率 ' + pct + '%</div>' +
         '</div>' +
         '<div class="kv-grid">' +
         '<div class="kv-item"><span class="kv-label">积分余额</span><span class="kv-value" style="font-size:20px;font-weight:800;color:var(--primary)">' + t.credits.toLocaleString() + '</span></div>' +
-        '<div class="kv-item"><span class="kv-label">每日额度</span><span class="kv-value">' + t.dailyQuota.toLocaleString() + '</span></div>' +
         '</div>' +
         '</div></div>' +
         '<div class="section-title">最近积分流水</div>' +
