@@ -1587,20 +1587,6 @@
       overflow: auto;
       background: #202020;
     }
-    .wm-switch-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 18px;
-      margin-bottom: 34px;
-    }
-    .wm-switch-cell {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      color: #e5e7eb;
-      font-size: 13px;
-      font-weight: 800;
-    }
     .switch-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
     .switch-row strong { font-size: 13px; }
     .switch { width: 42px; height: 24px; position: relative; }
@@ -1626,11 +1612,38 @@
     }
     .switch input:checked + i { background: var(--blue); }
     .switch input:checked + i::after { transform: translateX(18px); }
-    .wm-columns {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 18px;
+    .wm-tab-bar {
+      display: flex;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      margin-bottom: 22px;
+      gap: 0;
     }
+    .wm-tab-item {
+      flex: 1;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: transparent;
+      border: none;
+      color: #8f8f8f;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+      position: relative;
+      transition: color 0.16s;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+    }
+    .wm-tab-item:hover { color: #d1d5db; }
+    .wm-tab-item.active {
+      color: #22c55e;
+      border-bottom-color: #22c55e;
+    }
+    .wm-tab-item .wm-tab-ico { font-size: 15px; }
+    .wm-tab-panel { display: none; }
+    .wm-tab-panel.active { display: block; }
     .wm-section-title {
       display: grid;
       grid-template-columns: 1fr auto 1fr;
@@ -1646,6 +1659,201 @@
       content: "";
       height: 1px;
       background: rgba(255,255,255,0.12);
+    }
+    .wm-sub-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 16px;
+    }
+    @media (max-width: 1180px) {
+      .wm-sub-grid { grid-template-columns: 1fr 1fr; }
+    }
+
+    .sub-custom-layout {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      gap: 16px;
+      min-height: 380px;
+    }
+    @media (max-width: 1180px) {
+      .sub-custom-layout { grid-template-columns: 180px 1fr; }
+    }
+
+    .sub-video-list {
+      border: 1px solid #3d3d3d;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.02);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .sub-video-list-hd {
+      padding: 10px 12px;
+      border-bottom: 1px solid #3d3d3d;
+      color: #e5e7eb;
+      font-size: 12px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(255,255,255,0.03);
+      flex-shrink: 0;
+    }
+    .sub-video-list-hd span:last-child { color: #8f8f8f; font-weight: 500; }
+    .sub-video-list-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 6px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .sub-video-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: 1px solid transparent;
+      background: transparent;
+      cursor: pointer;
+      transition: all 0.15s;
+      text-align: left;
+      width: 100%;
+      color: #d1d5db;
+    }
+    .sub-video-item:hover {
+      background: rgba(52,199,89,0.06);
+      border-color: rgba(52,199,89,0.3);
+    }
+    .sub-video-item.active {
+      background: rgba(52,199,89,0.1);
+      border-color: #34c759;
+    }
+    .sub-video-thumb {
+      width: 28px;
+      height: 40px;
+      border-radius: 5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+    .sub-video-info { min-width: 0; flex: 1; }
+    .sub-video-name {
+      font-size: 11px;
+      font-weight: 700;
+      color: #e5e7eb;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      line-height: 1.4;
+    }
+    .sub-video-meta {
+      font-size: 10px;
+      color: #8f8f8f;
+      margin-top: 2px;
+    }
+
+    .sub-transcript-area {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      min-width: 0;
+    }
+    .sub-transcript-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .sub-transcript-header .wm-field-label { margin-bottom: 0; }
+    .sub-transcript-meta { color: #8f8f8f; font-size: 11px; }
+
+    .sub-line-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      max-height: 280px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+    .sub-line-item {
+      display: grid;
+      grid-template-columns: 90px 1fr 28px;
+      gap: 8px;
+      align-items: center;
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: 1px solid #3d3d3d;
+      background: #202020;
+      transition: border-color 0.15s, background 0.15s;
+      cursor: pointer;
+    }
+    .sub-line-item:hover {
+      border-color: rgba(52,199,89,0.4);
+      background: rgba(52,199,89,0.04);
+    }
+    .sub-line-item.active {
+      border-color: #34c759;
+      background: rgba(52,199,89,0.08);
+    }
+    .sub-line-time {
+      font-size: 11px;
+      color: #8f8f8f;
+      font-family: 'SF Mono', 'Menlo', 'Consolas', monospace;
+      white-space: nowrap;
+      letter-spacing: 0.3px;
+    }
+    .sub-line-text {
+      font-size: 13px;
+      color: #e5e7eb;
+      line-height: 1.5;
+      min-width: 0;
+      word-break: break-all;
+    }
+    .sub-line-text-editing {
+      width: 100%;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid #34c759;
+      border-radius: 6px;
+      padding: 4px 8px;
+      color: #e5e7eb;
+      font-size: 13px;
+      line-height: 1.5;
+      outline: none;
+      font-family: inherit;
+      resize: none;
+      min-height: 32px;
+    }
+    .sub-line-text-editing:focus {
+      box-shadow: 0 0 0 2px rgba(52,199,89,0.15);
+    }
+    .sub-line-edit-btn {
+      width: 26px;
+      height: 26px;
+      border-radius: 6px;
+      border: 1px solid #3d3d3d;
+      background: transparent;
+      color: #8f8f8f;
+      font-size: 13px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+      flex-shrink: 0;
+    }
+    .sub-line-edit-btn:hover {
+      border-color: #34c759;
+      color: #34c759;
+      background: rgba(52,199,89,0.08);
+    }
+    .sub-line-edit-btn.editing {
+      border-color: #34c759;
+      color: #34c759;
+      background: rgba(52,199,89,0.12);
     }
     .wm-field { margin-bottom: 18px; }
     .wm-field-label {
@@ -1805,6 +2013,25 @@
       gap: 8px;
     }
     .subtitle-actions .wm-mini-btn { width: 100%; padding: 0 8px; }
+    .subtitle-actions .btn-apply {
+      background: #34c759;
+      border-color: #34c759;
+      color: #fff;
+      font-weight: 900;
+    }
+    .subtitle-actions .btn-apply:hover {
+      background: #2ea84e;
+      border-color: #2ea84e;
+    }
+    .subtitle-actions .btn-clear {
+      background: rgba(239, 68, 68, 0.1);
+      border-color: rgba(239, 68, 68, 0.3);
+      color: #ef4444;
+    }
+    .subtitle-actions .btn-clear:hover {
+      background: rgba(239, 68, 68, 0.2);
+      border-color: rgba(239, 68, 68, 0.5);
+    }
     .subtitle-mode-tabs {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -1981,8 +2208,6 @@
     .wm-reset-btn { margin-left: auto; margin-right: 250px; }
     @media (max-width: 1180px) {
       .wm-body { grid-template-columns: 360px 1fr; }
-      .wm-columns { grid-template-columns: 1fr; }
-      .wm-switch-grid { grid-template-columns: 1fr 1fr; }
       .wm-reset-btn { margin-right: 0; }
     }
     .modal-actions {
@@ -2288,48 +2513,49 @@
           <div style="font-size:12px;color:#8f8f8f;" id="wmTaskName">应用到当前批次</div>
         </div>
         <div class="wm-config">
-          <div class="wm-switch-grid">
-            <div class="wm-switch-cell">
-              <span>水印开关</span>
-              <label class="switch"><input id="wmEnabled" type="checkbox" checked onchange="syncWmPreview()"><i></i></label>
-            </div>
-            <div class="wm-switch-cell">
-              <span>字幕开关</span>
-              <label class="switch"><input id="subEnabled" type="checkbox" checked onchange="syncWmPreview()"><i></i></label>
-            </div>
+          <div class="wm-tab-bar">
+            <button class="wm-tab-item active" id="wmTabWatermark" type="button" onclick="setWmTab('watermark')">
+              <span class="wm-tab-ico">💧</span>水印配置
+            </button>
+            <button class="wm-tab-item" id="wmTabSubtitle" type="button" onclick="setWmTab('subtitle')">
+              <span class="wm-tab-ico">📝</span>字幕配置
+            </button>
           </div>
 
-          <div class="wm-columns">
-            <div class="wm-watermark-panel">
-              <div class="wm-section-title"><span>水印配置</span></div>
+          <div class="wm-tab-panel active" id="wmPanelWatermark">
+            <div class="switch-row" style="margin-bottom:20px;">
+              <strong style="color:#e5e7eb;font-size:13px;">启用水印</strong>
+              <label class="switch"><input id="wmEnabled" type="checkbox" checked onchange="syncWmPreview()"><i></i></label>
+            </div>
 
-              <div class="wm-field">
-                <div class="wm-field-label">水印模板</div>
-                <div class="wm-control-row">
-                  <select class="cfg-select" id="wmTemplate">
-                    <option value="">选择已保存的水印模板</option>
-                    <option value="risk">投顾合规提示</option>
-                    <option value="brand">品牌角标模板</option>
-                  </select>
-                  <button class="wm-mini-btn" type="button" onclick="toast('水印模板已刷新')">刷新</button>
-                </div>
-                <button class="wm-mini-btn" type="button" style="margin-top:8px;" onclick="saveWmTemplate()">保存水印模板</button>
+            <div class="wm-field">
+              <div class="wm-field-label">水印模板</div>
+              <div class="wm-control-row">
+                <select class="cfg-select" id="wmTemplate">
+                  <option value="">选择已保存的水印模板</option>
+                  <option value="risk">投顾合规提示</option>
+                  <option value="brand">品牌角标模板</option>
+                </select>
+                <button class="wm-mini-btn" type="button" onclick="toast('水印模板已刷新')">刷新</button>
+                <button class="wm-mini-btn" type="button" onclick="saveWmTemplate()">保存模板</button>
               </div>
+            </div>
 
-              <div class="wm-field">
-                <div class="wm-field-label">水印操作</div>
-                <button class="wm-add-btn" type="button" onclick="addPreviewWatermark()">添加水印</button>
-                <div class="wm-help">双击左侧水印编辑文字，按 Delete/Backspace 或点击右上角图标删除</div>
-              </div>
-
-              <div class="wm-field">
-                <div class="wm-field-label">水印类型</div>
+            <div class="wm-field">
+              <div class="wm-field-label">水印类型</div>
+              <div style="display:flex;align-items:center;gap:12px;">
                 <div class="wm-tab-group">
                   <button class="wm-tab-btn active" id="wmTypeText" type="button" onclick="setWmType('text')">文字水印</button>
                   <button class="wm-tab-btn" id="wmTypeImage" type="button" onclick="setWmType('image')">图片水印</button>
                 </div>
+                <button class="wm-add-btn" type="button" onclick="addPreviewWatermark()">＋ 添加水印</button>
               </div>
+              <div class="wm-help">双击预览区水印编辑文字，按 Delete/Backspace 或点击右上角图标删除；拖拽移动位置，右下角缩放</div>
+            </div>
 
+            <div class="wm-section-title"><span>排版</span></div>
+
+            <div class="wm-control-grid">
               <div class="wm-field">
                 <div class="wm-field-label"><span class="wm-required">*</span> 字体</div>
                 <select class="cfg-select" id="wmFont" onchange="syncWmPreview()">
@@ -2339,47 +2565,46 @@
                   <option value="'PingFang SC',sans-serif">苹方</option>
                 </select>
               </div>
+              <div class="wm-field">
+                <div class="wm-field-label"><span class="wm-required">*</span> 字体粗细</div>
+                <select class="cfg-select" id="wmWeight" onchange="syncWmPreview()">
+                  <option value="700">加粗</option>
+                  <option value="400">常规</option>
+                  <option value="900">特粗</option>
+                </select>
+              </div>
+            </div>
 
-              <div class="wm-control-grid">
-                <div class="wm-field">
-                  <div class="wm-field-label"><span class="wm-required">*</span> 文本对齐</div>
-                  <div class="wm-align-group">
-                    <button class="wm-align-btn active" id="wmAlignLeft" type="button" onclick="setWmAlign('left')">左</button>
-                    <button class="wm-align-btn" id="wmAlignCenter" type="button" onclick="setWmAlign('center')">中</button>
-                    <button class="wm-align-btn" id="wmAlignRight" type="button" onclick="setWmAlign('right')">右</button>
-                  </div>
-                </div>
-                <div class="wm-field">
-                  <div class="wm-field-label"><span class="wm-required">*</span> 字体粗细</div>
-                  <select class="cfg-select" id="wmWeight" onchange="syncWmPreview()">
-                    <option value="700">加粗</option>
-                    <option value="400">常规</option>
-                    <option value="900">特粗</option>
-                  </select>
+            <div class="wm-control-grid">
+              <div class="wm-field">
+                <div class="wm-field-label"><span class="wm-required">*</span> 文本对齐</div>
+                <div class="wm-align-group">
+                  <button class="wm-align-btn active" id="wmAlignLeft" type="button" onclick="setWmAlign('left')">左</button>
+                  <button class="wm-align-btn" id="wmAlignCenter" type="button" onclick="setWmAlign('center')">中</button>
+                  <button class="wm-align-btn" id="wmAlignRight" type="button" onclick="setWmAlign('right')">右</button>
                 </div>
               </div>
-
-              <div class="wm-control-grid">
-                <div class="wm-field">
-                  <div class="wm-field-label"><span class="wm-required">*</span> 字体大小</div>
-                  <div class="wm-stepper">
-                    <button class="wm-step-btn" type="button" onclick="stepNumber('wmSize', -1)">−</button>
-                    <input class="cfg-input" id="wmSize" type="number" min="12" max="96" value="36" oninput="syncWmPreview()">
-                    <select class="cfg-select" aria-label="水印字号单位"><option>px</option></select>
-                    <button class="wm-step-btn" type="button" onclick="stepNumber('wmSize', 1)">＋</button>
-                  </div>
-                  <button class="wm-mini-btn" type="button" style="margin-top:8px;" onclick="clearWmFontSize()">清除字号</button>
-                </div>
-                <div class="wm-field">
-                  <div class="wm-field-label"><span class="wm-required">*</span> 字体颜色</div>
-                  <button class="wm-color-btn" type="button" onclick="openColorPicker('wmColor')">
-                    <span style="font-size:16px;">A</span><span class="wm-color-swatch" id="wmColorSwatch"></span>⌄
-                  </button>
-                  <input class="wm-color-picker" id="wmColor" type="color" value="#ffffff" oninput="syncWmPreview()">
-                  <div class="wm-help">输入样式：#ffffff</div>
+              <div class="wm-field">
+                <div class="wm-field-label"><span class="wm-required">*</span> 字体大小</div>
+                <div class="wm-stepper">
+                  <button class="wm-step-btn" type="button" onclick="stepNumber('wmSize', -1)">−</button>
+                  <input class="cfg-input" id="wmSize" type="number" min="12" max="96" value="36" oninput="syncWmPreview()">
+                  <select class="cfg-select" aria-label="水印字号单位"><option>px</option></select>
+                  <button class="wm-step-btn" type="button" onclick="stepNumber('wmSize', 1)">＋</button>
                 </div>
               </div>
+            </div>
 
+            <div class="wm-section-title"><span>外观</span></div>
+
+            <div class="wm-control-grid">
+              <div class="wm-field">
+                <div class="wm-field-label"><span class="wm-required">*</span> 字体颜色</div>
+                <button class="wm-color-btn" type="button" onclick="openColorPicker('wmColor')">
+                  <span style="font-size:16px;">A</span><span class="wm-color-swatch" id="wmColorSwatch"></span>⌄
+                </button>
+                <input class="wm-color-picker" id="wmColor" type="color" value="#ffffff" oninput="syncWmPreview()">
+              </div>
               <div class="wm-field">
                 <div class="wm-field-label"><span class="wm-required">*</span> 行高</div>
                 <div class="wm-range-row">
@@ -2387,134 +2612,139 @@
                   <input class="wm-range-value" id="wmLineHeightInput" type="number" min="0.8" max="2" step="0.05" value="1.00" oninput="syncInputRange('wmLineHeightInput','wmLineHeight');syncWmPreview()">
                 </div>
               </div>
-
-              <div class="wm-field">
-                <div class="wm-field-label"><span class="wm-required">*</span> 透明度</div>
-                <div class="wm-range-row">
-                  <input class="wm-range" id="wmOpacity" type="range" min="0.2" max="1" value="0.85" step="0.05" oninput="syncRangeInput('wmOpacity','wmOpacityInput');syncWmPreview()">
-                  <input class="wm-range-value" id="wmOpacityInput" type="number" min="0.2" max="1" step="0.05" value="0.85" oninput="syncInputRange('wmOpacityInput','wmOpacity');syncWmPreview()">
-                </div>
-              </div>
             </div>
 
-            <div class="wm-subtitle-panel">
-              <div class="wm-section-title"><span>字幕配置</span></div>
-
-              <div class="subtitle-mode-tabs">
-                <button class="subtitle-mode-btn active" id="subtitleModeGlobal" type="button" onclick="setSubtitleMode('global')">全局配置</button>
-                <button class="subtitle-mode-btn" id="subtitleModeCustom" type="button" onclick="setSubtitleMode('custom')">视频自定义配置</button>
+            <div class="wm-field">
+              <div class="wm-field-label"><span class="wm-required">*</span> 透明度</div>
+              <div class="wm-range-row">
+                <input class="wm-range" id="wmOpacity" type="range" min="0.2" max="1" value="0.85" step="0.05" oninput="syncRangeInput('wmOpacity','wmOpacityInput');syncWmPreview()">
+                <input class="wm-range-value" id="wmOpacityInput" type="number" min="0.2" max="1" step="0.05" value="0.85" oninput="syncInputRange('wmOpacityInput','wmOpacity');syncWmPreview()">
               </div>
+            </div>
+          </div>
 
-              <div class="subtitle-panel" id="subtitleGlobalPanel">
-                <div class="wm-help" style="margin-top:0;margin-bottom:12px;">任务下所有视频共用这一套字幕样式，不支持单句台词或局部文字调整。</div>
+          <div class="wm-tab-panel" id="wmPanelSubtitle">
+            <div class="switch-row" style="margin-bottom:20px;">
+              <strong style="color:#e5e7eb;font-size:13px;">启用字幕</strong>
+              <label class="switch"><input id="subEnabled" type="checkbox" checked onchange="syncWmPreview()"><i></i></label>
+            </div>
 
-                <div class="wm-control-grid">
-                  <div class="wm-field">
-                    <div class="wm-field-label"><span class="wm-required">*</span> 字体</div>
-                    <select class="cfg-select" id="subFont" onchange="saveGlobalSubtitleStyle();syncWmPreview()">
-                      <option value="'Source Han Sans SC','Noto Sans SC','Microsoft YaHei',sans-serif">思源黑体</option>
-                      <option value="'Microsoft YaHei',sans-serif">微软雅黑</option>
-                      <option value="'SimSun',serif">宋体</option>
-                      <option value="'PingFang SC',sans-serif">苹方</option>
-                    </select>
-                  </div>
-                  <div class="wm-field">
-                    <div class="wm-field-label"><span class="wm-required">*</span> 字体粗细</div>
-                    <select class="cfg-select" id="subWeight" onchange="saveGlobalSubtitleStyle();syncWmPreview()">
-                      <option value="400">常规</option>
-                      <option value="700">加粗</option>
-                      <option value="900">特粗</option>
-                    </select>
-                  </div>
+            <div class="subtitle-mode-tabs">
+              <button class="subtitle-mode-btn active" id="subtitleModeGlobal" type="button" onclick="setSubtitleMode('global')">全局配置</button>
+              <button class="subtitle-mode-btn" id="subtitleModeCustom" type="button" onclick="setSubtitleMode('custom')">视频自定义配置</button>
+            </div>
+
+            <div class="subtitle-panel" id="subtitleGlobalPanel">
+              <div class="wm-help" style="margin-top:0;margin-bottom:16px;">任务下所有视频共用这一套字幕样式，不支持单句台词或局部文字调整。</div>
+
+              <div class="wm-sub-grid">
+                <div class="wm-field">
+                  <div class="wm-field-label"><span class="wm-required">*</span> 字体</div>
+                  <select class="cfg-select" id="subFont" onchange="saveGlobalSubtitleStyle();syncWmPreview()">
+                    <option value="'Source Han Sans SC','Noto Sans SC','Microsoft YaHei',sans-serif">思源黑体</option>
+                    <option value="'Microsoft YaHei',sans-serif">微软雅黑</option>
+                    <option value="'SimSun',serif">宋体</option>
+                    <option value="'PingFang SC',sans-serif">苹方</option>
+                  </select>
                 </div>
-
-                <div class="wm-control-grid">
-                  <div class="wm-field">
-                    <div class="wm-field-label"><span class="wm-required">*</span> 字体颜色</div>
-                    <button class="wm-color-btn" type="button" onclick="openColorPicker('subColor')">
-                      <span style="font-size:16px;">A</span><span class="wm-color-swatch" id="subColorSwatch"></span>⌄
-                    </button>
-                    <input class="wm-color-picker" id="subColor" type="color" value="#ffffff" oninput="saveGlobalSubtitleStyle();syncWmPreview()">
-                  </div>
-                  <div class="wm-field">
-                    <div class="wm-field-label"><span class="wm-required">*</span> 背景颜色</div>
-                    <button class="wm-color-btn" type="button" onclick="openColorPicker('subBgColor')">
-                      <span style="font-size:16px;">A</span><span class="wm-color-swatch" id="subBgColorSwatch"></span>⌄
-                    </button>
-                    <input class="wm-color-picker" id="subBgColor" type="color" value="#111111" oninput="saveGlobalSubtitleStyle();syncWmPreview()">
-                  </div>
+                <div class="wm-field">
+                  <div class="wm-field-label"><span class="wm-required">*</span> 字体粗细</div>
+                  <select class="cfg-select" id="subWeight" onchange="saveGlobalSubtitleStyle();syncWmPreview()">
+                    <option value="400">常规</option>
+                    <option value="700">加粗</option>
+                    <option value="900">特粗</option>
+                  </select>
                 </div>
-
-                <div class="wm-control-grid">
-                  <div class="wm-field">
-                    <div class="wm-field-label"><span class="wm-required">*</span> 字幕位置</div>
-                    <select class="cfg-select" id="subPos" onchange="saveGlobalSubtitleStyle();syncWmPreview()">
-                      <option value="bottom">中下（默认）</option>
-                      <option value="middle">居中</option>
-                      <option value="top">中上</option>
-                    </select>
-                  </div>
-                  <div class="wm-field">
-                    <div class="wm-field-label"><span class="wm-required">*</span> 距离</div>
-                    <div class="wm-control-row">
-                      <input class="cfg-input" id="subDistance" type="number" min="0" max="1200" value="1000" oninput="saveGlobalSubtitleStyle();syncWmPreview()">
-                      <span class="wm-unit">px</span>
-                    </div>
-                  </div>
-                </div>
-
                 <div class="wm-field">
                   <div class="wm-field-label"><span class="wm-required">*</span> 字号</div>
                   <div class="wm-control-row">
-                    <input class="cfg-input" id="subSize" type="number" min="12" max="96" value="36" oninput="saveGlobalSubtitleStyle();syncWmPreview()" style="max-width:150px;">
+                    <input class="cfg-input" id="subSize" type="number" min="12" max="96" value="36" oninput="saveGlobalSubtitleStyle();syncWmPreview()" style="max-width:120px;">
                     <span class="wm-unit">px</span>
                   </div>
                 </div>
               </div>
 
-              <div class="subtitle-panel is-hidden" id="subtitleCustomPanel">
+              <div class="wm-sub-grid">
                 <div class="wm-field">
-                  <div class="wm-field-label">当前视频</div>
-                  <div class="subtitle-video-card">
-                    <select class="cfg-select" id="subtitleVideoSelect" onchange="selectSubtitleVideo(this.value)"></select>
-                    <div class="subtitle-meta" id="subtitleVideoMeta">选择视频后，可在下方台词中选中一句或几个字做局部样式。</div>
+                  <div class="wm-field-label"><span class="wm-required">*</span> 字体颜色</div>
+                  <button class="wm-color-btn" type="button" onclick="openColorPicker('subColor')">
+                    <span style="font-size:16px;">A</span><span class="wm-color-swatch" id="subColorSwatch"></span>⌄
+                  </button>
+                  <input class="wm-color-picker" id="subColor" type="color" value="#ffffff" oninput="saveGlobalSubtitleStyle();syncWmPreview()">
+                </div>
+                <div class="wm-field">
+                  <div class="wm-field-label"><span class="wm-required">*</span> 背景颜色</div>
+                  <button class="wm-color-btn" type="button" onclick="openColorPicker('subBgColor')">
+                    <span style="font-size:16px;">A</span><span class="wm-color-swatch" id="subBgColorSwatch"></span>⌄
+                  </button>
+                  <input class="wm-color-picker" id="subBgColor" type="color" value="#111111" oninput="saveGlobalSubtitleStyle();syncWmPreview()">
+                </div>
+                <div class="wm-field">
+                  <div class="wm-field-label"><span class="wm-required">*</span> 字幕位置</div>
+                  <select class="cfg-select" id="subPos" onchange="saveGlobalSubtitleStyle();syncWmPreview()">
+                    <option value="bottom">中下（默认）</option>
+                    <option value="middle">居中</option>
+                    <option value="top">中上</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="wm-field">
+                <div class="wm-field-label"><span class="wm-required">*</span> 距离底部/顶部</div>
+                <div class="wm-control-row">
+                  <input class="cfg-input" id="subDistance" type="number" min="0" max="1200" value="1000" oninput="saveGlobalSubtitleStyle();syncWmPreview()" style="max-width:150px;">
+                  <span class="wm-unit">px</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="subtitle-panel is-hidden" id="subtitleCustomPanel">
+              <div class="sub-custom-layout">
+                <div class="sub-video-list">
+                  <div class="sub-video-list-hd">
+                    <span>视频列表</span>
+                    <span id="subVideoCount">0 条</span>
                   </div>
+                  <div class="sub-video-list-body" id="subVideoListBody"></div>
                 </div>
 
-                <div class="wm-field">
-                  <div class="wm-field-label">台词内容</div>
-                  <div class="subtitle-transcript-box" id="subtitleTranscript" onmouseup="handleSubtitleTextSelection()" onkeyup="handleSubtitleTextSelection()"></div>
-                  <div class="subtitle-selection-info" id="subtitleSelectionInfo">按标点自动分行；文字不可编辑。请用鼠标选中一句或几个字。</div>
-                </div>
+                <div class="sub-transcript-area">
+                  <div class="sub-transcript-header">
+                    <div class="wm-field-label" style="margin-bottom:0;">台词列表</div>
+                    <div class="sub-transcript-meta" id="subtitleVideoMeta">选择左侧视频查看台词</div>
+                  </div>
 
-                <div class="wm-field subtitle-inline-toolbar">
-                  <div class="wm-field-label">选中文字样式</div>
-                  <div class="wm-control-grid">
-                    <div>
-                      <div class="wm-field-label">字号</div>
-                      <div class="wm-control-row">
-                        <input class="cfg-input" id="inlineSubSize" type="number" min="12" max="96" value="40" oninput="syncWmPreview()">
-                        <span class="wm-unit">px</span>
+                  <div class="sub-line-list" id="subLineList" onmouseup="handleSubtitleTextSelection()" onkeyup="handleSubtitleTextSelection()"></div>
+
+                  <div class="subtitle-selection-info" id="subtitleSelectionInfo">点击左侧视频查看台词，点击 ✏️ 编辑单句台词内容。</div>
+
+                  <div class="wm-field subtitle-inline-toolbar">
+                    <div class="wm-field-label">选中文字样式</div>
+                    <div class="wm-sub-grid" style="gap:12px;">
+                      <div>
+                        <div class="wm-field-label">字号</div>
+                        <div class="wm-control-row">
+                          <input class="cfg-input" id="inlineSubSize" type="number" min="12" max="96" value="40" oninput="syncWmPreview()">
+                          <span class="wm-unit">px</span>
+                        </div>
+                      </div>
+                      <div>
+                        <div class="wm-field-label">字体颜色</div>
+                        <button class="wm-color-btn" type="button" onclick="openColorPicker('inlineSubColor')">
+                          <span style="font-size:16px;">A</span><span class="wm-color-swatch" id="inlineSubColorSwatch"></span>⌄
+                        </button>
+                        <input class="wm-color-picker" id="inlineSubColor" type="color" value="#ffd166" oninput="updateColorSwatches();syncWmPreview()">
+                      </div>
+                      <div>
+                        <div class="wm-field-label">粗细</div>
+                        <select class="cfg-select" id="inlineSubWeight" onchange="syncWmPreview()">
+                          <option value="700">加粗</option>
+                          <option value="400">常规</option>
+                          <option value="900">特粗</option>
+                        </select>
                       </div>
                     </div>
-                    <div>
-                      <div class="wm-field-label">字体颜色</div>
-                      <button class="wm-color-btn" type="button" onclick="openColorPicker('inlineSubColor')">
-                        <span style="font-size:16px;">A</span><span class="wm-color-swatch" id="inlineSubColorSwatch"></span>⌄
-                      </button>
-                      <input class="wm-color-picker" id="inlineSubColor" type="color" value="#ffd166" oninput="updateColorSwatches();syncWmPreview()">
-                    </div>
-                  </div>
-                  <div class="wm-control-grid" style="margin-top:12px;">
-                    <div>
-                      <div class="wm-field-label">粗细</div>
-                      <select class="cfg-select" id="inlineSubWeight" onchange="syncWmPreview()">
-                        <option value="700">加粗</option>
-                        <option value="400">常规</option>
-                        <option value="900">特粗</option>
-                      </select>
-                    </div>
-                    <div>
+                    <div class="wm-field" style="margin-top:12px;">
                       <div class="wm-field-label">描边/阴影</div>
                       <div class="subtitle-effect-tabs">
                         <button class="wm-tab-btn active" id="inlineEffectShadow" type="button" onclick="setInlineEffect('shadow')">阴影</button>
@@ -2522,10 +2752,10 @@
                         <button class="wm-tab-btn" id="inlineEffectNone" type="button" onclick="setInlineEffect('none')">无</button>
                       </div>
                     </div>
-                  </div>
-                  <div class="subtitle-actions" style="margin-top:12px;">
-                    <button class="wm-mini-btn" type="button" onclick="applyInlineSubtitleStyle()">应用到选中文字</button>
-                    <button class="wm-mini-btn" type="button" onclick="clearInlineSubtitleStyle()">清除当前行样式</button>
+                    <div class="subtitle-actions" style="margin-top:12px;">
+                      <button class="wm-mini-btn btn-apply" type="button" onclick="applyInlineSubtitleStyle()">应用到选中文字</button>
+                      <button class="wm-mini-btn btn-clear" type="button" onclick="clearInlineSubtitleStyle()">清除当前行样式</button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -2629,8 +2859,10 @@
       videoId: null,
       activeLineIndex: 0,
       selection: null,
-      inlineEffect: 'shadow'
+      inlineEffect: 'shadow',
+      editingLineIndex: null
     };
+    var subtitleEditedLines = {};
     var coverContext = null;
     var currentCoverMode = 'frame';
     var singleCoverPct = 28;
@@ -3904,9 +4136,17 @@
       document.getElementById('wmModalTitle').textContent = name + ' - 水印字幕配置';
       document.getElementById('wmTaskName').textContent = '当前应用范围：' + name;
       document.getElementById('wmOverlay').classList.add('show');
+      setWmTab('watermark');
       initWmDrag();
       initSubtitleWorkspace(name);
       syncWmPreview();
+    }
+
+    function setWmTab(tab) {
+      document.getElementById('wmTabWatermark').classList.toggle('active', tab === 'watermark');
+      document.getElementById('wmTabSubtitle').classList.toggle('active', tab === 'subtitle');
+      document.getElementById('wmPanelWatermark').classList.toggle('active', tab === 'watermark');
+      document.getElementById('wmPanelSubtitle').classList.toggle('active', tab === 'subtitle');
     }
 
     function closeWmConfig() {
@@ -3995,192 +4235,9 @@
       });
     }
 
-    function makeSubtitleSegments(task) {
-      var raw = String(task && task.script ? task.script : '字幕示例').replace(/[（）]/g, '').trim() || '字幕示例';
-      var parts = raw.match(/[^，。！？；、,.!?;]+[，。！？；、,.!?;]?/g) || [raw];
-      parts = parts.map(function(p) { return p.trim(); }).filter(Boolean);
-      if (parts.length < 2 && raw.length > 18) {
-        parts = [];
-        for (var i = 0; i < raw.length; i += 14) parts.push(raw.slice(i, i + 14));
-      }
-      return parts.map(function(text, index) {
-        var start = index * 2.4;
-        var end = start + Math.max(1.6, Math.min(3.2, text.length / 6));
-        return {
-          id: 'seg-' + task.id + '-' + index,
-          index: index + 1,
-          text: text,
-          start: start,
-          end: end
-        };
-      });
-    }
-
-    function formatSegmentTime(sec) {
-      var total = Math.max(0, Math.round(sec));
-      return '0:' + pad(total);
-    }
-
     function getActiveSubtitleTask() {
       var id = String(subtitleState.videoId || '');
       return getCompletedTasksInCurrentGroup().find(function(t) { return String(t.id) === id; }) || null;
-    }
-
-    function getActiveSubtitleSegment() {
-      var task = getActiveSubtitleTask();
-      if (!task) return null;
-      return makeSubtitleSegments(task).find(function(seg) { return seg.id === subtitleState.activeSegmentId; }) || null;
-    }
-
-    function getCurrentSubtitleOverrides(config, videoId) {
-      if (!config.subtitleOverridesByVideoId) config.subtitleOverridesByVideoId = {};
-      if (!config.subtitleOverridesByVideoId[String(videoId)]) config.subtitleOverridesByVideoId[String(videoId)] = {};
-      return config.subtitleOverridesByVideoId[String(videoId)];
-    }
-
-    function getEffectiveSubtitleStyle(taskName, videoId, segmentId) {
-      var config = getGroupWmConfig(taskName);
-      var globalStyle = Object.assign(getDefaultSubtitleStyle(), config.globalSubtitleStyle || {});
-      var overrides = getCurrentSubtitleOverrides(config, videoId);
-      return Object.assign(globalStyle, overrides[segmentId] || {});
-    }
-
-    function initSubtitleWorkspace(taskName) {
-      var tasks = getCompletedTasksInCurrentGroup();
-      var select = document.getElementById('subtitleVideoSelect');
-      select.innerHTML = tasks.map(function(task) {
-        return '<option value="' + task.id + '">' + escapeHtml(task.script.slice(0, 18)) + ' · #' + task.id + '</option>';
-      }).join('');
-      if (!tasks.length) {
-        subtitleState.videoId = null;
-        subtitleState.activeSegmentId = null;
-        subtitleState.selectedSegmentIds.clear();
-        document.getElementById('subtitleVideoMeta').textContent = '当前批次暂无已完成视频，生成完成后可配置片段字幕。';
-        document.getElementById('subtitleSegmentList').innerHTML = '';
-        document.getElementById('subtitleSegmentSummary').textContent = '当前未选择字幕片段';
-        applySubtitleStyleToControls(getGroupWmConfig(taskName).globalSubtitleStyle);
-        return;
-      }
-      subtitleState.videoId = String(tasks[0].id);
-      select.value = subtitleState.videoId;
-      subtitleState.selectedSegmentIds.clear();
-      var firstSeg = makeSubtitleSegments(tasks[0])[0];
-      subtitleState.activeSegmentId = firstSeg ? firstSeg.id : null;
-      if (firstSeg) subtitleState.selectedSegmentIds.add(firstSeg.id);
-      refreshSubtitleSegmentPanel();
-    }
-
-    function selectSubtitleVideo(videoId) {
-      subtitleState.videoId = String(videoId);
-      subtitleState.selectedSegmentIds.clear();
-      var task = getActiveSubtitleTask();
-      var firstSeg = task ? makeSubtitleSegments(task)[0] : null;
-      subtitleState.activeSegmentId = firstSeg ? firstSeg.id : null;
-      if (firstSeg) subtitleState.selectedSegmentIds.add(firstSeg.id);
-      refreshSubtitleSegmentPanel();
-      syncWmPreview();
-    }
-
-    function refreshSubtitleSegmentPanel() {
-      var task = getActiveSubtitleTask();
-      var list = document.getElementById('subtitleSegmentList');
-      var meta = document.getElementById('subtitleVideoMeta');
-      var summary = document.getElementById('subtitleSegmentSummary');
-      if (!task) {
-        list.innerHTML = '';
-        meta.textContent = '当前未选择视频。';
-        summary.textContent = '当前未选择字幕片段';
-        return;
-      }
-      var segments = makeSubtitleSegments(task);
-      var config = getGroupWmConfig(currentWmTask);
-      var overrides = getCurrentSubtitleOverrides(config, task.id);
-      if (!subtitleState.activeSegmentId && segments[0]) subtitleState.activeSegmentId = segments[0].id;
-      meta.textContent = '视频 #' + task.id + ' · ' + (task.duration || 0) + 's · 共 ' + segments.length + ' 条字幕片段';
-      list.innerHTML = segments.map(function(seg) {
-        var active = seg.id === subtitleState.activeSegmentId ? ' active' : '';
-        var selected = subtitleState.selectedSegmentIds.has(seg.id) ? ' is-selected' : '';
-        var checked = subtitleState.selectedSegmentIds.has(seg.id) ? ' checked' : '';
-        var hasOverride = overrides[seg.id] ? '<span class="subtitle-override-badge">已覆盖</span>' : '<span></span>';
-        return '<button class="subtitle-segment-item' + active + selected + '" type="button" onclick="selectSubtitleSegment(\'' + seg.id + '\')">' +
-          '<input class="subtitle-segment-check" type="checkbox"' + checked + ' onclick="toggleSubtitleSegmentSelect(event,\'' + seg.id + '\')">' +
-          '<span class="subtitle-segment-main">' +
-            '<span class="subtitle-segment-time">' + formatSegmentTime(seg.start) + ' - ' + formatSegmentTime(seg.end) + ' · 字幕 ' + seg.index + '</span>' +
-            '<span class="subtitle-segment-text">' + escapeHtml(seg.text) + '</span>' +
-          '</span>' +
-          hasOverride +
-        '</button>';
-      }).join('');
-      var activeSeg = getActiveSubtitleSegment();
-      document.getElementById('subInput').value = activeSeg ? activeSeg.text : '字幕示例';
-      applySubtitleStyleToControls(getEffectiveSubtitleStyle(currentWmTask, task.id, subtitleState.activeSegmentId));
-      summary.textContent = '已选择 ' + subtitleState.selectedSegmentIds.size + ' 条字幕；绿色标记表示该片段已有独立样式。';
-    }
-
-    function selectSubtitleSegment(segmentId) {
-      subtitleState.activeSegmentId = segmentId;
-      if (!subtitleState.selectedSegmentIds.has(segmentId)) subtitleState.selectedSegmentIds.add(segmentId);
-      refreshSubtitleSegmentPanel();
-      syncWmPreview();
-    }
-
-    function toggleSubtitleSegmentSelect(event, segmentId) {
-      event.stopPropagation();
-      if (event.target.checked) {
-        subtitleState.selectedSegmentIds.add(segmentId);
-        subtitleState.activeSegmentId = segmentId;
-      } else {
-        subtitleState.selectedSegmentIds.delete(segmentId);
-      }
-      refreshSubtitleSegmentPanel();
-      syncWmPreview();
-    }
-
-    function applyCurrentSubtitleStyle() {
-      var task = getActiveSubtitleTask();
-      if (!task || !subtitleState.activeSegmentId) return toast('请先选择字幕片段');
-      var config = getGroupWmConfig(currentWmTask);
-      var overrides = getCurrentSubtitleOverrides(config, task.id);
-      overrides[subtitleState.activeSegmentId] = captureSubtitleStyle();
-      persistGroupWmConfig(currentWmTask, config);
-      refreshSubtitleSegmentPanel();
-      syncWmPreview();
-      toast('已应用到当前字幕片段');
-    }
-
-    function applySelectedSubtitleStyle() {
-      var task = getActiveSubtitleTask();
-      if (!task || !subtitleState.selectedSegmentIds.size) return toast('请先勾选字幕片段');
-      var style = captureSubtitleStyle();
-      var config = getGroupWmConfig(currentWmTask);
-      var overrides = getCurrentSubtitleOverrides(config, task.id);
-      subtitleState.selectedSegmentIds.forEach(function(id) { overrides[id] = Object.assign({}, style); });
-      persistGroupWmConfig(currentWmTask, config);
-      refreshSubtitleSegmentPanel();
-      syncWmPreview();
-      toast('已应用到 ' + subtitleState.selectedSegmentIds.size + ' 条字幕片段');
-    }
-
-    function clearSubtitleOverrides() {
-      var task = getActiveSubtitleTask();
-      if (!task) return toast('请先选择视频');
-      var config = getGroupWmConfig(currentWmTask);
-      var overrides = getCurrentSubtitleOverrides(config, task.id);
-      var targets = subtitleState.selectedSegmentIds.size ? Array.from(subtitleState.selectedSegmentIds) : [subtitleState.activeSegmentId];
-      targets.forEach(function(id) { if (id) delete overrides[id]; });
-      persistGroupWmConfig(currentWmTask, config);
-      refreshSubtitleSegmentPanel();
-      syncWmPreview();
-      toast('已清除片段样式覆盖');
-    }
-
-    function saveGlobalSubtitleStyle() {
-      var config = getGroupWmConfig(currentWmTask);
-      config.globalSubtitleStyle = captureSubtitleStyle();
-      persistGroupWmConfig(currentWmTask, config);
-      refreshSubtitleSegmentPanel();
-      syncWmPreview();
-      toast('已保存为全局字幕默认样式');
     }
 
     function makeSubtitleLines(task) {
@@ -4191,7 +4248,28 @@
         parts = [];
         for (var i = 0; i < raw.length; i += 14) parts.push(raw.slice(i, i + 14));
       }
-      return parts.map(function(text, index) { return { index: index, text: text }; });
+      var duration = task && task.duration ? task.duration : 12;
+      var totalChars = parts.reduce(function(sum, p) { return sum + p.length; }, 0);
+      var currentTime = 0;
+      return parts.map(function(text, index) {
+        var start = currentTime;
+        var portion = totalChars > 0 ? text.length / totalChars : 1 / parts.length;
+        var lineDuration = Math.max(1.2, portion * duration);
+        currentTime = start + lineDuration;
+        var editedKey = task.id + '-' + index;
+        var displayText = subtitleEditedLines[editedKey] !== undefined ? subtitleEditedLines[editedKey] : text;
+        return { index: index, text: displayText, originalText: text, start: start, end: currentTime };
+      });
+    }
+
+    function formatTimeRange(start, end) {
+      function fmt(sec) {
+        var s = Math.max(0, Math.round(sec));
+        var m = Math.floor(s / 60);
+        s = s % 60;
+        return pad(m) + ':' + pad(s);
+      }
+      return fmt(start) + '~' + fmt(end);
     }
 
     function getVideoCustomSubtitle(config, videoId) {
@@ -4236,60 +4314,155 @@
       setSubtitleMode(config.subtitleMode || 'global', true);
       setInlineEffect(subtitleState.inlineEffect || 'shadow');
       var tasks = getCompletedTasksInCurrentGroup();
-      var select = document.getElementById('subtitleVideoSelect');
-      select.innerHTML = tasks.map(function(task) {
-        return '<option value="' + task.id + '">' + escapeHtml(task.script.slice(0, 18)) + ' · #' + task.id + '</option>';
-      }).join('');
+      renderSubtitleVideoList(tasks);
       if (!tasks.length) {
         subtitleState.videoId = null;
         subtitleState.activeLineIndex = 0;
         subtitleState.selection = null;
-        document.getElementById('subtitleVideoMeta').textContent = '当前批次暂无已完成视频，生成完成后可做视频自定义字幕。';
-        document.getElementById('subtitleTranscript').innerHTML = '';
+        subtitleState.editingLineIndex = null;
+        document.getElementById('subtitleVideoMeta').textContent = '当前批次暂无已完成视频';
+        document.getElementById('subLineList').innerHTML = '';
         document.getElementById('subtitleSelectionInfo').textContent = '当前未选择视频';
         return;
       }
       subtitleState.videoId = String(tasks[0].id);
-      select.value = subtitleState.videoId;
       subtitleState.activeLineIndex = 0;
       subtitleState.selection = null;
+      subtitleState.editingLineIndex = null;
+      renderSubtitleVideoList(tasks);
       renderSubtitleTranscript();
+    }
+
+    function renderSubtitleVideoList(tasks) {
+      var body = document.getElementById('subVideoListBody');
+      var countEl = document.getElementById('subVideoCount');
+      if (!body) return;
+      if (countEl) countEl.textContent = tasks.length + ' 条';
+      if (!tasks.length) {
+        body.innerHTML = '<div style="padding:20px 10px;text-align:center;color:#8f8f8f;font-size:12px;">暂无已完成视频</div>';
+        return;
+      }
+      body.innerHTML = tasks.map(function(task) {
+        var person = task.person || { emoji: '👤', name: '角色' };
+        var isActive = String(task.id) === subtitleState.videoId;
+        var scriptPreview = task.script && task.script.length > 12 ? task.script.slice(0, 12) + '…' : (task.script || '');
+        return '<button class="sub-video-item' + (isActive ? ' active' : '') + '" type="button" onclick="selectSubtitleVideo(\'' + task.id + '\')">' +
+          '<div class="sub-video-thumb" style="' + getCoverBackgroundStyle(task) + '">' + (getEffectiveCoverConfig(task) && getEffectiveCoverConfig(task).type === 'upload' ? '' : escapeHtml(person.emoji)) + '</div>' +
+          '<div class="sub-video-info">' +
+            '<div class="sub-video-name" title="' + escapeHtml(task.script) + '">#' + task.id + ' ' + escapeHtml(scriptPreview) + '</div>' +
+            '<div class="sub-video-meta">' + (task.duration || 0) + 's · ' + (person.name || '角色') + '</div>' +
+          '</div>' +
+        '</button>';
+      }).join('');
     }
 
     function selectSubtitleVideo(videoId) {
       subtitleState.videoId = String(videoId);
       subtitleState.activeLineIndex = 0;
       subtitleState.selection = null;
+      subtitleState.editingLineIndex = null;
+      var tasks = getCompletedTasksInCurrentGroup();
+      renderSubtitleVideoList(tasks);
       renderSubtitleTranscript();
       syncWmPreview();
     }
 
     function renderSubtitleTranscript() {
       var task = getActiveSubtitleTask();
-      var box = document.getElementById('subtitleTranscript');
+      var list = document.getElementById('subLineList');
       var meta = document.getElementById('subtitleVideoMeta');
       var info = document.getElementById('subtitleSelectionInfo');
       if (!task) {
-        box.innerHTML = '';
-        meta.textContent = '当前未选择视频。';
-        info.textContent = '当前未选择视频';
+        if (list) list.innerHTML = '';
+        if (meta) meta.textContent = '选择左侧视频查看台词';
+        if (info) info.textContent = '点击左侧视频查看台词，点击 ✏️ 编辑单句台词内容。';
         return;
       }
       var lines = makeSubtitleLines(task);
       if (subtitleState.activeLineIndex >= lines.length) subtitleState.activeLineIndex = 0;
-      meta.textContent = '视频 #' + task.id + ' · ' + (task.duration || 0) + 's · 按标点拆分为 ' + lines.length + ' 行台词';
-      box.innerHTML = lines.map(function(line) {
-        var active = line.index === subtitleState.activeLineIndex ? ' active' : '';
-        var selectedRange = subtitleState.selection && subtitleState.selection.lineIndex === line.index
-          ? subtitleState.selection
-          : null;
-        return '<div class="subtitle-line' + active + '" data-line-index="' + line.index + '" onclick="selectSubtitleLine(' + line.index + ')">' +
-          renderSubtitleLineHtml(line.text, getLineStyleRanges(currentWmTask, task.id, line.index), selectedRange) +
-        '</div>';
-      }).join('');
-      info.textContent = subtitleState.selection
-        ? '已选中第 ' + (subtitleState.activeLineIndex + 1) + ' 行的 ' + (subtitleState.selection.end - subtitleState.selection.start) + ' 个字，可应用局部样式。'
-        : '当前预览第 ' + (subtitleState.activeLineIndex + 1) + ' 行；可拖选整句或几个字后设置局部样式。';
+      if (meta) meta.textContent = '视频 #' + task.id + ' · ' + (task.duration || 0) + 's · ' + lines.length + ' 句台词';
+      if (list) {
+        list.innerHTML = lines.map(function(line) {
+          var active = line.index === subtitleState.activeLineIndex ? ' active' : '';
+          var isEditing = subtitleState.editingLineIndex === line.index;
+          var timeRange = formatTimeRange(line.start, line.end);
+          var textContent;
+          if (isEditing) {
+            textContent = '<textarea class="sub-line-text-editing" id="subLineEditInput" rows="1" onkeydown="handleLineEditKeydown(event,' + line.index + ')" onblur="saveSubtitleLineEdit(' + line.index + ')">' + escapeHtml(line.text) + '</textarea>';
+          } else {
+            var selectedRange = subtitleState.selection && subtitleState.selection.lineIndex === line.index
+              ? subtitleState.selection
+              : null;
+            var ranges = getLineStyleRanges(currentWmTask, task.id, line.index);
+            var highlightedHtml = renderSubtitleLineHtml(line.text, ranges, selectedRange);
+            textContent = '<span class="sub-line-text">' + highlightedHtml + '</span>';
+          }
+          var editBtnClass = isEditing ? 'sub-line-edit-btn editing' : 'sub-line-edit-btn';
+          var editBtnTitle = isEditing ? '保存修改' : '编辑台词';
+          var editBtnIcon = isEditing ? '✅' : '✏️';
+          var editBtnOnclick = isEditing
+            ? 'saveSubtitleLineEdit(' + line.index + ')'
+            : 'startSubtitleLineEdit(' + line.index + ')';
+          return '<div class="sub-line-item' + active + '" data-line-index="' + line.index + '" onclick="selectSubtitleLine(' + line.index + ')">' +
+            '<span class="sub-line-time">' + timeRange + '</span>' +
+            textContent +
+            '<button class="' + editBtnClass + '" type="button" title="' + editBtnTitle + '" onclick="event.stopPropagation();' + editBtnOnclick + '">' + editBtnIcon + '</button>' +
+          '</div>';
+        }).join('');
+        if (subtitleState.editingLineIndex !== null) {
+          var input = document.getElementById('subLineEditInput');
+          if (input) {
+            input.focus();
+            input.setSelectionRange(input.value.length, input.value.length);
+            input.style.height = 'auto';
+            input.style.height = input.scrollHeight + 'px';
+          }
+        }
+      }
+      if (info) {
+        info.textContent = subtitleState.selection
+          ? '已选中第 ' + (subtitleState.activeLineIndex + 1) + ' 句的 ' + (subtitleState.selection.end - subtitleState.selection.start) + ' 个字，可应用局部样式。'
+          : '点击 ✏️ 编辑单句台词；选中文字后可设置局部样式。';
+      }
+    }
+
+    function startSubtitleLineEdit(lineIndex) {
+      subtitleState.editingLineIndex = lineIndex;
+      renderSubtitleTranscript();
+    }
+
+    function saveSubtitleLineEdit(lineIndex) {
+      var input = document.getElementById('subLineEditInput');
+      if (!input) return;
+      var newText = input.value.trim();
+      if (!newText) {
+        toast('台词内容不能为空');
+        return;
+      }
+      var task = getActiveSubtitleTask();
+      if (task) {
+        var editedKey = task.id + '-' + lineIndex;
+        subtitleEditedLines[editedKey] = newText;
+      }
+      subtitleState.editingLineIndex = null;
+      renderSubtitleTranscript();
+      syncWmPreview();
+      toast('第 ' + (lineIndex + 1) + ' 句台词已修改');
+    }
+
+    function cancelSubtitleLineEdit() {
+      subtitleState.editingLineIndex = null;
+      renderSubtitleTranscript();
+    }
+
+    function handleLineEditKeydown(event, lineIndex) {
+      if (event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault();
+        saveSubtitleLineEdit(lineIndex);
+      } else if (event.key === 'Escape') {
+        event.preventDefault();
+        cancelSubtitleLineEdit();
+      }
     }
 
     function renderSubtitleLineHtml(text, ranges, selectedRange) {
@@ -4341,7 +4514,12 @@
     function selectSubtitleLine(index) {
       var selection = window.getSelection();
       if (selection && !selection.isCollapsed) return;
-      subtitleState.activeLineIndex = Number(index) || 0;
+      index = Number(index) || 0;
+      if (subtitleState.selection && subtitleState.selection.lineIndex === index) {
+        subtitleState.activeLineIndex = index;
+        return;
+      }
+      subtitleState.activeLineIndex = index;
       subtitleState.selection = null;
       renderSubtitleTranscript();
       syncWmPreview();
@@ -4351,15 +4529,18 @@
       var selection = window.getSelection();
       if (!selection || selection.isCollapsed || !selection.rangeCount) return;
       var range = selection.getRangeAt(0);
-      var lineEl = range.startContainer.parentElement && range.startContainer.parentElement.closest
-        ? range.startContainer.parentElement.closest('.subtitle-line')
-        : null;
-      if (!lineEl || !lineEl.contains(range.endContainer)) return;
+      var startNode = range.startContainer;
+      var lineEl = null;
+      if (startNode.nodeType === 3) startNode = startNode.parentElement;
+      if (startNode && startNode.closest) lineEl = startNode.closest('.sub-line-item');
+      if (!lineEl) return;
+      var textEl = lineEl.querySelector('.sub-line-text');
+      if (!textEl || !textEl.contains(range.endContainer)) return;
       var lineIndex = Number(lineEl.dataset.lineIndex || 0);
       var line = makeSubtitleLines(getActiveSubtitleTask())[lineIndex];
       if (!line) return;
       var preRange = document.createRange();
-      preRange.selectNodeContents(lineEl);
+      preRange.selectNodeContents(textEl);
       preRange.setEnd(range.startContainer, range.startOffset);
       var start = preRange.toString().length;
       var selected = range.toString();
