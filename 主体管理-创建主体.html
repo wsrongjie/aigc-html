@@ -762,6 +762,122 @@
             color: #dc2626;
         }
 
+        .role-asset-upload {
+            border: 2px dashed #d1d5db;
+            background: #f8fafc;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: border-color .16s ease, background .16s ease;
+            border-radius: 12px;
+            min-height: 0;
+            aspect-ratio: 3 / 4;
+            user-select: none;
+        }
+        .role-asset-upload:hover {
+            border-color: #4f46e5;
+            background: #eef2ff;
+        }
+        .role-asset-upload .plus {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #e5e7eb;
+            color: #6b7280;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            transition: background .16s ease, color .16s ease;
+        }
+        .role-asset-upload:hover .plus {
+            background: #c7d2fe;
+            color: #4f46e5;
+        }
+        .role-asset-upload .upload-label {
+            font-size: 11px;
+            color: #9ca3af;
+        }
+
+        .prompt-template-area {
+            margin-top: 12px;
+        }
+        .prompt-template-categories {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+        .prompt-category-btn {
+            padding: 6px 14px;
+            border-radius: 16px;
+            border: 1px solid #e5e7eb;
+            background: #ffffff;
+            color: #4b5563;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            user-select: none;
+        }
+        .prompt-category-btn:hover {
+            border-color: #4f46e5;
+            background: #f5f7ff;
+        }
+        .prompt-category-btn.active {
+            border-color: #a5b4fc;
+            background: #eef2ff;
+            color: #4f46e5;
+        }
+        .prompt-template-content {
+            display: none;
+        }
+        .prompt-template-content.expanded {
+            display: block;
+        }
+        .prompt-template-group {
+            margin-bottom: 10px;
+        }
+        .prompt-template-group:last-child {
+            margin-bottom: 0;
+        }
+        .prompt-template-title {
+            font-size: 11px;
+            color: #6b7280;
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+        .prompt-template-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        .prompt-tag {
+            padding: 4px 10px;
+            border-radius: 14px;
+            border: 1px solid #e5e7eb;
+            background: #ffffff;
+            color: #4b5563;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            user-select: none;
+        }
+        .prompt-tag:hover {
+            border-color: #4f46e5;
+            background: #eef2ff;
+            color: #4f46e5;
+        }
+        .prompt-tag.active {
+            border-color: #4f46e5;
+            background: #4f46e5;
+            color: #ffffff;
+        }
+        .prompt-tag:active {
+            transform: scale(0.96);
+        }
+
         .ai-adjust-base-tip {
             margin: 0 0 10px;
             border-radius: 9px;
@@ -769,6 +885,35 @@
             color: #4338ca;
             padding: 8px 10px;
             font-size: 12px;
+        }
+
+        .prompt-textarea-wrap {
+            position: relative;
+        }
+        .prompt-clear-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            border: none;
+            background: #e5e7eb;
+            color: #6b7280;
+            font-size: 12px;
+            line-height: 1;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.15s ease, color 0.15s ease;
+        }
+        .prompt-clear-btn:hover {
+            background: #d1d5db;
+            color: #374151;
+        }
+        .prompt-clear-btn.visible {
+            display: flex;
         }
 
         .ai-result-actions {
@@ -1329,6 +1474,7 @@
                                     <div class="role-assets-help">选择任意形象作为 AI 调整基图。主图只有一张，服饰图最多保存 8 张。</div>
                                     <div class="role-assets-grid" id="roleAssetsGrid"></div>
                                 </div>
+                                <input id="uploadOutfitInput" type="file" accept="image/jpeg,image/png,image/webp" style="display:none;" />
                                 <!-- AI 智能调整区域（仅角色模式 + 已上传图片时显示） -->
                                 <div id="aiAdjustArea" style="display:none;">
                                     <div style="display:flex; align-items:center; gap:8px; margin-bottom:10px;">
@@ -1336,7 +1482,44 @@
                                         <span style="font-size:11px; color:#6b7280;">基于提示词调整人物形象</span>
                                     </div>
                                     <div class="ai-adjust-base-tip" id="aiAdjustBaseTip">当前基图：默认主图</div>
-                                    <textarea id="aiAdjustPrompt" placeholder="描述你想要的调整，例如：换成棕色正装、调整手部姿势、表情更自然等..." style="width:100%; min-height:72px; padding:10px 12px; border:1px solid #d1d5db; border-radius:10px; font-size:13px; line-height:1.6; resize:vertical; outline:none; transition:border-color 0.2s;"></textarea>
+                                    <div class="prompt-textarea-wrap">
+                                        <textarea id="aiAdjustPrompt" placeholder="描述你想要的调整，例如：换成棕色正装、调整手部姿势、表情更自然等..." style="width:100%; min-height:72px; padding:10px 32px 10px 12px; border:1px solid #d1d5db; border-radius:10px; font-size:13px; line-height:1.6; resize:vertical; outline:none; transition:border-color 0.2s;"></textarea>
+                                        <button type="button" class="prompt-clear-btn" id="promptClearBtn" onclick="clearPromptInput()" title="清空">✕</button>
+                                    </div>
+                                    <div class="prompt-template-area" id="promptTemplateArea">
+                                        <div class="prompt-template-categories">
+                                            <button type="button" class="prompt-category-btn" onclick="togglePromptCategory('outfit')">服装风格</button>
+                                            <button type="button" class="prompt-category-btn" onclick="togglePromptCategory('hair')">发型调整</button>
+                                            <button type="button" class="prompt-category-btn" onclick="togglePromptCategory('accessory')">配饰调整</button>
+                                        </div>
+                                        <div class="prompt-template-content" id="promptContentOutfit">
+                                            <div class="prompt-template-tags">
+                                                <span class="prompt-tag" onclick="applyPromptTemplate('人物服装换成深色商务西装', this)">深色西装</span>
+                                                <span class="prompt-tag" onclick="applyPromptTemplate('人物服装换成浅色职业套装', this)">浅色套装</span>
+                                                <span class="prompt-tag" onclick="applyPromptTemplate('人物服装换成休闲商务衬衫', this)">商务衬衫</span>
+                                                <span class="prompt-tag" onclick="applyPromptTemplate('人物服装换成深色毛衣搭配西装外套', this)">毛衣+西装</span>
+                                                <span class="prompt-tag" onclick="applyPromptTemplate('人物服装换成夏季正式短袖衬衫搭配西裤', this)">夏季正装</span>
+                                            </div>
+                                        </div>
+                                        <div class="prompt-template-content" id="promptContentHair">
+                                            <div class="prompt-template-tags">
+                                                <span class="prompt-tag" onclick="applyPromptTemplate('人物发型换成短发', this)">短发</span>
+                                                <span class="prompt-tag" onclick="applyPromptTemplate('人物发型换成长发', this)">长发</span>
+                                                <span class="prompt-tag" onclick="applyPromptTemplate('人物发型扎起来', this)">扎发</span>
+                                                <span class="prompt-tag" onclick="applyPromptTemplate('人物头发换成棕色', this)">棕色头发</span>
+                                                <span class="prompt-tag" onclick="applyPromptTemplate('人物头发换成黑色', this)">黑色头发</span>
+                                            </div>
+                                        </div>
+                                        <div class="prompt-template-content" id="promptContentAccessory">
+                                            <div class="prompt-template-tags">
+                                                <span class="prompt-tag" onclick="applyPromptTemplate('摘掉人物脸上的眼镜', this)">摘眼镜</span>
+                                                <span class="prompt-tag" onclick="applyPromptTemplate('去掉人物脖子上的项链', this)">去项链</span>
+                                                <span class="prompt-tag" onclick="applyPromptTemplate('去掉人物耳朵上的耳环', this)">去耳环</span>
+                                                <span class="prompt-tag" onclick="applyPromptTemplate('人物戴上耳环', this)">加耳环</span>
+                                                <span class="prompt-tag" onclick="applyPromptTemplate('人物戴上手表', this)">加手表</span>
+                                            </div>
+                                        </div>
+                                    </div>
                                     <div style="display:flex; gap:10px; margin-top:10px;">
                                         <button type="button" id="aiAdjustBtn" class="btn-ai-adjust" onclick="confirmAiAdjust()" disabled>🪙10 · AI 调整</button>
                                     </div>
@@ -1457,6 +1640,7 @@
         let isInitializing = true;
         let outfitNameContext = null;
         let pendingMainCandidate = null;
+        let pendingOutfitUploadImg = "";
         const maxOutfits = 8;
 
         const libraryKey = "subjectLibraryItems";
@@ -1583,7 +1767,16 @@
 
             const cards = [{ id: "main", name: "默认主图", img: imageData, isMain: true }]
                 .concat(outfits.map((item) => ({ id: item.id, name: item.name, img: item.img, isMain: false })));
+            if (outfits.length < maxOutfits) {
+                cards.push({ id: "__upload", isUpload: true });
+            }
             roleAssetsGrid.innerHTML = cards.map((item) => {
+                if (item.isUpload) {
+                    return '<div class="role-asset-upload" onclick="document.getElementById(\'uploadOutfitInput\').click()">' +
+                        '<div class="plus">+</div>' +
+                        '<div class="upload-label">上传服饰</div>' +
+                    '</div>';
+                }
                 const key = item.isMain ? "main" : "outfit:" + item.id;
                 const safeId = escapeJsString(item.id);
                 const safeKey = escapeJsString(key);
@@ -1685,6 +1878,19 @@
                 });
                 aiAdjustBaseKey = "outfit:" + outfits[outfits.length - 1].id;
                 clearAiAdjustedResult();
+                showToast("已添加服饰：" + name);
+            } else if (outfitNameContext.type === "add-uploaded") {
+                if (!pendingOutfitUploadImg) { showToast("请先选择服饰图片"); return; }
+                if (outfits.length >= maxOutfits) { error.textContent = "最多保存 8 张服饰图"; return; }
+                outfits.push({
+                    id: makeOutfitId(),
+                    name,
+                    img: pendingOutfitUploadImg,
+                    prompt: "",
+                    createdAt: new Date().toISOString()
+                });
+                aiAdjustBaseKey = "outfit:" + outfits[outfits.length - 1].id;
+                pendingOutfitUploadImg = "";
                 showToast("已添加服饰：" + name);
             } else if (outfitNameContext.type === "rename") {
                 const outfit = outfits.find((item) => item.id === outfitNameContext.outfitId);
@@ -2020,7 +2226,56 @@
         // 提示词输入监听
         aiAdjustPrompt.addEventListener("input", () => {
             aiAdjustBtn.disabled = aiAdjustPrompt.value.trim().length === 0;
+            const clearBtn = document.getElementById("promptClearBtn");
+            clearBtn.classList.toggle("visible", aiAdjustPrompt.value.trim().length > 0);
         });
+
+        function clearPromptInput() {
+            aiAdjustPrompt.value = "";
+            aiAdjustBtn.disabled = true;
+            document.getElementById("promptClearBtn").classList.remove("visible");
+            document.querySelectorAll('.prompt-tag.active').forEach(t => t.classList.remove('active'));
+            aiAdjustPrompt.focus();
+        }
+
+        function applyPromptTemplate(text, el) {
+            aiAdjustPrompt.value = text;
+            aiAdjustBtn.disabled = false;
+            document.getElementById("promptClearBtn").classList.add("visible");
+            aiAdjustPrompt.focus();
+            if (el) {
+                const siblings = el.parentElement.querySelectorAll('.prompt-tag');
+                siblings.forEach(s => s.classList.remove('active'));
+                el.classList.add('active');
+            }
+        }
+
+        function togglePromptTemplates() {
+            const content = document.getElementById("promptTemplateContent");
+            const arrow = document.getElementById("promptTemplateArrow");
+            content.classList.toggle("expanded");
+            arrow.classList.toggle("expanded");
+        }
+
+        function togglePromptCategory(category) {
+            const contentMap = {
+                'outfit': 'promptContentOutfit',
+                'hair': 'promptContentHair',
+                'accessory': 'promptContentAccessory'
+            };
+            const buttons = document.querySelectorAll('.prompt-category-btn');
+            const contents = document.querySelectorAll('.prompt-template-content');
+
+            buttons.forEach(btn => btn.classList.remove('active'));
+            contents.forEach(c => c.classList.remove('expanded'));
+
+            const targetContent = document.getElementById(contentMap[category]);
+            if (targetContent) {
+                targetContent.classList.add('expanded');
+                const targetBtn = event.target;
+                targetBtn.classList.add('active');
+            }
+        }
 
         function confirmAiAdjust() {
             const prompt = aiAdjustPrompt.value.trim();
@@ -2490,6 +2745,23 @@
         document.getElementById("createSubjectBtn").addEventListener("click", finishCreate);
         document.getElementById("cancelBtn").addEventListener("click", navigateBack);
 
+        // 服饰图本地上传
+        document.getElementById("uploadOutfitInput").addEventListener("change", (event) => {
+            const file = event.target.files && event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (loadEvent) => {
+                pendingOutfitUploadImg = loadEvent.target.result;
+                openOutfitNameModal({
+                    type: "add-uploaded",
+                    title: "添加服饰图",
+                    desc: "填写服饰名称后，这张图片会保存为当前角色的一套服饰。",
+                    value: ""
+                });
+            };
+            reader.readAsDataURL(file);
+            event.target.value = "";
+        });
         // 新增音色：跳转到新建语音模型页面，携带回跳地址
         addVoiceBtn.addEventListener("click", () => {
             const currentUrl = window.location.href.split("#")[0];
