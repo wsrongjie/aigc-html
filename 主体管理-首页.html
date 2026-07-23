@@ -404,6 +404,21 @@
             font-size: 12px;
         }
 
+        .outfit-count-tag {
+            position: absolute;
+            right: 12px;
+            bottom: 12px;
+            height: 26px;
+            display: inline-flex;
+            align-items: center;
+            border-radius: 999px;
+            background: rgba(79, 70, 229, .9);
+            color: #ffffff;
+            padding: 0 10px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
         .card-body {
             padding: 16px;
         }
@@ -501,6 +516,12 @@
             font-size: 13px;
         }
 
+        .modal-header-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
         .close-btn {
             width: 34px;
             height: 34px;
@@ -595,6 +616,48 @@
 
         .detail-views-grid.role-long {
             grid-template-columns: 1fr;
+        }
+
+        .detail-views-grid.role-outfits {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .outfit-detail-card {
+            overflow: hidden;
+            border: 1px solid #e5e7eb;
+            border-radius: 14px;
+            background: #f8fafc;
+        }
+
+        .outfit-detail-card img {
+            display: block;
+            width: 100%;
+            aspect-ratio: 3 / 4;
+            object-fit: cover;
+            background: #e5e7eb;
+        }
+
+        .outfit-detail-name {
+            overflow: hidden;
+            padding: 10px 12px;
+            color: #111827;
+            font-size: 13px;
+            font-weight: 600;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .outfit-empty {
+            grid-column: 1 / -1;
+            min-height: 180px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px dashed #d1d5db;
+            border-radius: 14px;
+            color: #9ca3af;
+            text-align: center;
+            line-height: 1.7;
         }
 
         .long-view-card {
@@ -705,6 +768,10 @@
                 grid-template-columns: repeat(2, minmax(0, 1fr));
             }
 
+            .detail-views-grid.role-outfits {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
             .card-row {
                 grid-template-columns: repeat(2, minmax(0, 1fr));
             }
@@ -729,6 +796,10 @@
             .quick-grid,
             .card-row,
             .detail-views-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .detail-views-grid.role-outfits {
                 grid-template-columns: 1fr;
             }
 
@@ -823,7 +894,10 @@
                     <h3 id="detailTitle">主体详情</h3>
                     <p id="detailSubtitle">角色</p>
                 </div>
-                <button class="close-btn" type="button" id="closeModal">×</button>
+                <div class="modal-header-actions">
+                    <button class="btn btn-primary" type="button" id="detailEditBtn" style="display:none;">编辑角色</button>
+                    <button class="close-btn" type="button" id="closeModal" aria-label="关闭主体详情">×</button>
+                </div>
             </div>
             <div class="modal-body">
                 <section class="detail-main">
@@ -846,6 +920,21 @@
 
     <script>
         const libraryKey = "subjectLibraryItems";
+
+        function createDemoRoleImage(label, jacketColor, accentColor) {
+            const safeLabel = String(label || "角色").replace(/[<>&"]/g, "").slice(0, 10);
+            const svg =
+                '<svg xmlns="http://www.w3.org/2000/svg" width="720" height="960" viewBox="0 0 720 960">' +
+                    '<defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#eef2ff"/><stop offset="1" stop-color="#ecfeff"/></linearGradient></defs>' +
+                    '<rect width="720" height="960" fill="url(#bg)"/>' +
+                    '<circle cx="360" cy="300" r="126" fill="#d1d5db"/>' +
+                    '<path d="M230 650c28-164 232-164 260 0l58 252H172z" fill="' + jacketColor + '"/>' +
+                    '<path d="M300 510l60 106 60-106 45 62-105 126-105-126z" fill="#f8fafc"/>' +
+                    '<rect x="44" y="42" width="210" height="52" rx="14" fill="' + accentColor + '"/>' +
+                    '<text x="68" y="77" fill="#fff" font-size="24" font-family="Microsoft YaHei,Arial">' + safeLabel + '</text>' +
+                '</svg>';
+            return "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(svg);
+        }
 
         const seedSubjects = [
             {
@@ -870,7 +959,24 @@
                 createdByMe: true,
                 favorite: true,
                 status: "4 视图",
-                visual: "role"
+                visual: "role",
+                img: createDemoRoleImage("默认主图", "#334155", "#4f46e5"),
+                outfits: [
+                    {
+                        id: "seed-role-2-outfit-1",
+                        name: "深蓝商务西装",
+                        img: createDemoRoleImage("深蓝商务西装", "#1e3a8a", "#2563eb"),
+                        prompt: "换成深蓝色商务西装",
+                        createdAt: "2026-07-22T00:00:00.000Z"
+                    },
+                    {
+                        id: "seed-role-2-outfit-2",
+                        name: "米白休闲套装",
+                        img: createDemoRoleImage("米白休闲套装", "#d6d3d1", "#b45309"),
+                        prompt: "换成米白色休闲套装",
+                        createdAt: "2026-07-22T00:00:00.000Z"
+                    }
+                ]
             },
             {
                 id: "seed-scene-1",
@@ -900,6 +1006,8 @@
         let query = "";
         let onlyFav = false;
         let onlyCreated = false;
+        let currentDetailSubjectId = "";
+        let detailReturnFocus = null;
 
         const assetGrid = document.getElementById("assetGrid");
         const emptyState = document.getElementById("emptyState");
@@ -929,6 +1037,20 @@
             return type === "scene" ? "场景" : "角色";
         }
 
+        function safeImageSource(value) {
+            const src = String(value || "").trim();
+            if (!src || /["'<>\r\n]/.test(src)) return "";
+            if (/^data:image\/(?:png|jpe?g|webp|gif|svg\+xml)(?:;[^,]*)?,/i.test(src)) return src;
+            if (/^(?:blob:|https?:\/\/)/i.test(src)) return src;
+            if (/^(?:\.\.\/|\.\/|[^:\\/]+\.(?:png|jpe?g|webp|gif|svg)(?:[?#].*)?)$/i.test(src)) return src;
+            return "";
+        }
+
+        function subjectOutfits(subject) {
+            return subject && subject.type === "role" && Array.isArray(subject.outfits) ?
+                subject.outfits.map((item) => Object.assign({}, item, { img: safeImageSource(item && item.img) })).filter((item) => item.img) : [];
+        }
+
         function escapeHtml(value) {
             return String(value || "")
                 .replace(/&/g, "&amp;")
@@ -938,8 +1060,9 @@
         }
 
         function renderVisual(subject) {
-            if (subject.img) {
-                return '<img src="' + subject.img + '" alt="' + escapeHtml(subject.name) + '" />';
+            const safeImg = safeImageSource(subject.img);
+            if (safeImg) {
+                return '<img src="' + safeImg + '" alt="' + escapeHtml(subject.name) + '" />';
             }
 
             const visualClass = subject.type === "scene" ? "visual-scene" : "visual-role";
@@ -965,11 +1088,16 @@
 
         function renderDetailViews(subject) {
             if (subject.type === "role") {
-                return (
-                    '<article class="long-view-card">' +
-                        '<div class="role-long-art"></div>' +
+                const roleOutfits = subjectOutfits(subject);
+                if (!roleOutfits.length) {
+                    return '<div class="outfit-empty">暂未添加服饰图<br>可进入编辑页通过 AI 调整生成</div>';
+                }
+                return roleOutfits.map((item) => (
+                    '<article class="outfit-detail-card">' +
+                        '<img src="' + item.img + '" alt="' + escapeHtml(item.name) + '" />' +
+                        '<div class="outfit-detail-name">' + escapeHtml(item.name) + '</div>' +
                     '</article>'
-                );
+                )).join("");
             }
 
             return detailViewItems(subject).map((item) => (
@@ -995,9 +1123,20 @@
 
             assetGrid.innerHTML = filtered.map((subject) => {
                 const canDelete = subject.id && subject.id.indexOf("created-") === 0;
-                const actionButtons = canDelete ?
-                    '<button class="btn-link" type="button" data-action="delete">删除</button><button class="btn-link" type="button" data-action="view">查看</button>' :
-                    '<button class="btn-link" type="button" data-action="fav">' + (subject.favorite ? "取消收藏" : "收藏") + '</button><button class="btn-link" type="button" data-action="view">查看</button>';
+                const outfitCount = subjectOutfits(subject).length;
+                const isRole = subject.type === "role";
+                let actionButtons = '';
+                if (isRole) {
+                    actionButtons += '<button class="btn-link" type="button" data-action="edit">编辑</button>';
+                    actionButtons += canDelete ?
+                        '<button class="btn-link" type="button" data-action="delete">删除</button>' :
+                        '<button class="btn-link" type="button" data-action="fav">' + (subject.favorite ? "取消收藏" : "收藏") + '</button>';
+                } else if (canDelete) {
+                    actionButtons += '<button class="btn-link" type="button" data-action="delete">删除</button>';
+                } else {
+                    actionButtons += '<button class="btn-link" type="button" data-action="fav">' + (subject.favorite ? "取消收藏" : "收藏") + '</button>';
+                }
+                actionButtons += '<button class="btn-link" type="button" data-action="view">查看</button>';
 
                 return (
                     '<article class="subject-card" data-id="' + escapeHtml(subject.id) + '">' +
@@ -1005,6 +1144,7 @@
                             renderVisual(subject) +
                             '<div class="badge">' + escapeHtml(subject.status || "视角已生成") + '</div>' +
                             '<div class="type-tag">' + subjectTypeName(subject.type) + '</div>' +
+                            (subject.type === "role" ? '<div class="outfit-count-tag">' + outfitCount + ' 套服饰</div>' : '') +
                         '</div>' +
                         '<div class="card-body">' +
                             '<div class="avatar-letter">' + escapeHtml((subject.name || "主").slice(0, 1)) + '</div>' +
@@ -1048,18 +1188,41 @@
 
         function openDetail(subject) {
             if (!subject) return;
+            detailReturnFocus = document.activeElement;
             const viewItems = detailViewItems(subject);
+            const roleOutfits = subjectOutfits(subject);
+            currentDetailSubjectId = subject.id || "";
             document.getElementById("detailTitle").textContent = subject.name;
             document.getElementById("detailSubtitle").textContent = subjectTypeName(subject.type) + " / " + (subject.status || "视角已生成");
             document.getElementById("detailMainPreview").innerHTML = renderVisual(subject);
             document.getElementById("detailMainLabel").textContent = subjectTypeName(subject.type) + "主视图";
             document.getElementById("detailMainDesc").textContent = subject.desc || "该主视图用于生成右侧的多角度视图资产。";
-            document.getElementById("detailViewsCount").textContent = subject.type === "role" ? "1 张长图" : viewItems.length + " 个视图";
+            document.querySelector(".detail-views-head h4").textContent = subject.type === "role" ? "服饰形象" : "其他视图";
+            document.getElementById("detailViewsCount").textContent = subject.type === "role" ? roleOutfits.length + " 套服饰" : viewItems.length + " 个视图";
             const detailViewsGrid = document.getElementById("detailViewsGrid");
-            detailViewsGrid.className = "detail-views-grid" + (subject.type === "role" ? " role-long" : "");
+            detailViewsGrid.className = "detail-views-grid" + (subject.type === "role" ? " role-outfits" : "");
             detailViewsGrid.innerHTML = renderDetailViews(subject);
+            const canEdit = subject.type === "role" && !!subject.id;
+            document.getElementById("detailEditBtn").style.display = canEdit ? "inline-flex" : "none";
             document.getElementById("detailModal").classList.add("active");
             document.getElementById("detailModal").setAttribute("aria-hidden", "false");
+            setTimeout(() => {
+                const target = canEdit ? document.getElementById("detailEditBtn") : document.getElementById("closeModal");
+                target.focus();
+            }, 0);
+        }
+
+        function closeDetail() {
+            document.getElementById("detailModal").classList.remove("active");
+            document.getElementById("detailModal").setAttribute("aria-hidden", "true");
+            if (detailReturnFocus && typeof detailReturnFocus.focus === "function") detailReturnFocus.focus();
+            detailReturnFocus = null;
+        }
+
+        function editSubject(id) {
+            const subject = findSubject(id);
+            if (!subject || subject.type !== "role") return;
+            window.location.href = "主体管理-创建主体.html?type=role&mode=edit&id=" + encodeURIComponent(id) + "&from=library";
         }
 
         document.querySelectorAll("[data-create]").forEach((button) => {
@@ -1107,25 +1270,29 @@
                 toggleFavorite(card.dataset.id);
                 return;
             }
+            if (action === "edit") {
+                event.stopPropagation();
+                editSubject(card.dataset.id);
+                return;
+            }
             openDetail(findSubject(card.dataset.id));
         });
 
-        document.getElementById("closeModal").addEventListener("click", () => {
-            document.getElementById("detailModal").classList.remove("active");
-            document.getElementById("detailModal").setAttribute("aria-hidden", "true");
+        document.getElementById("detailEditBtn").addEventListener("click", () => {
+            editSubject(currentDetailSubjectId);
         });
+
+        document.getElementById("closeModal").addEventListener("click", closeDetail);
 
         document.getElementById("detailModal").addEventListener("click", (event) => {
             if (event.target.id === "detailModal") {
-                event.currentTarget.classList.remove("active");
-                event.currentTarget.setAttribute("aria-hidden", "true");
+                closeDetail();
             }
         });
 
         document.addEventListener("keydown", (event) => {
             if (event.key === "Escape") {
-                document.getElementById("detailModal").classList.remove("active");
-                document.getElementById("detailModal").setAttribute("aria-hidden", "true");
+                closeDetail();
             }
         });
 

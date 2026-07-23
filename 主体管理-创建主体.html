@@ -649,6 +649,232 @@
             line-height: 1.7;
         }
 
+        .role-assets-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .role-assets-head strong {
+            color: #111827;
+            font-size: 14px;
+        }
+
+        .role-assets-count {
+            color: #6b7280;
+            font-size: 12px;
+        }
+
+        .role-assets-count.limit {
+            color: #dc2626;
+            font-weight: 600;
+        }
+
+        .role-assets-help {
+            margin-bottom: 12px;
+            color: #6b7280;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        .role-assets-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 10px;
+            margin-bottom: 18px;
+        }
+
+        .role-asset-card {
+            position: relative;
+            min-width: 0;
+            overflow: hidden;
+            border: 2px solid transparent;
+            border-radius: 12px;
+            background: #f8fafc;
+            cursor: pointer;
+            transition: border-color .16s ease, box-shadow .16s ease;
+        }
+
+        .role-asset-card:hover {
+            border-color: #c7d2fe;
+        }
+
+        .role-asset-card.selected {
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, .12);
+        }
+
+        .role-asset-select {
+            display: block;
+            width: 100%;
+            border: 0;
+            background: transparent;
+            padding: 0;
+            text-align: left;
+            cursor: pointer;
+        }
+
+        .role-asset-card img {
+            display: block;
+            width: 100%;
+            aspect-ratio: 3 / 4;
+            object-fit: cover;
+            background: #e5e7eb;
+        }
+
+        .role-asset-card-copy {
+            padding: 8px;
+        }
+
+        .role-asset-card-name {
+            overflow: hidden;
+            color: #111827;
+            font-size: 12px;
+            font-weight: 700;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .role-asset-card-type {
+            margin-top: 2px;
+            color: #9ca3af;
+            font-size: 10px;
+        }
+
+        .role-asset-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            padding: 0 8px 8px;
+        }
+
+        .role-asset-action {
+            border: 0;
+            background: transparent;
+            color: #4f46e5;
+            padding: 2px 0;
+            font-size: 10px;
+        }
+
+        .role-asset-action.danger {
+            color: #dc2626;
+        }
+
+        .ai-adjust-base-tip {
+            margin: 0 0 10px;
+            border-radius: 9px;
+            background: #eef2ff;
+            color: #4338ca;
+            padding: 8px 10px;
+            font-size: 12px;
+        }
+
+        .ai-result-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .ai-result-actions button {
+            height: 32px;
+            border-radius: 8px;
+            padding: 0 12px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-result-main {
+            border: 1px solid #4f46e5;
+            background: #ffffff;
+            color: #4f46e5;
+        }
+
+        .btn-result-outfit {
+            border: 1px solid #10b981;
+            background: #10b981;
+            color: #ffffff;
+        }
+
+        .btn-result-outfit:disabled {
+            border-color: #d1d5db;
+            background: #e5e7eb;
+            color: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        .outfit-modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 240;
+            align-items: center;
+            justify-content: center;
+            background: rgba(15, 23, 42, .48);
+        }
+
+        .outfit-modal-overlay.active {
+            display: flex;
+        }
+
+        .outfit-modal {
+            width: min(420px, calc(100% - 32px));
+            border-radius: 18px;
+            background: #ffffff;
+            box-shadow: 0 24px 64px rgba(15, 23, 42, .24);
+            padding: 24px;
+        }
+
+        .outfit-modal h3 {
+            margin: 0 0 8px;
+            color: #111827;
+            font-size: 18px;
+        }
+
+        .outfit-modal p {
+            margin: 0 0 16px;
+            color: #6b7280;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .outfit-modal label {
+            display: block;
+            margin-bottom: 7px;
+            color: #374151;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .outfit-name-error {
+            min-height: 18px;
+            margin-top: 6px;
+            color: #dc2626;
+            font-size: 12px;
+        }
+
+        .outfit-modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 16px;
+        }
+
+        .main-swap-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 18px;
+        }
+
+        .main-swap-actions .btn {
+            min-height: 42px;
+            white-space: normal;
+        }
+
         .asset-action-row {
             display: flex;
             align-items: center;
@@ -899,6 +1125,15 @@
         .credits-confirm-skip input { margin-right: 4px; vertical-align: middle; }
 
         @media (max-width: 720px) {
+            .role-assets-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .role-asset-action {
+                min-height: 32px;
+                font-size: 12px;
+            }
+
             .topbar {
                 padding: 0 16px;
             }
@@ -1086,12 +1321,21 @@
                             </div>
 
                             <div class="asset-summary">
+                                <div id="roleAssetManager" style="display:none;">
+                                    <div class="role-assets-head">
+                                        <strong>角色形象</strong>
+                                        <span class="role-assets-count" id="roleAssetsCount">0 / 8 套服饰</span>
+                                    </div>
+                                    <div class="role-assets-help">选择任意形象作为 AI 调整基图。主图只有一张，服饰图最多保存 8 张。</div>
+                                    <div class="role-assets-grid" id="roleAssetsGrid"></div>
+                                </div>
                                 <!-- AI 智能调整区域（仅角色模式 + 已上传图片时显示） -->
                                 <div id="aiAdjustArea" style="display:none;">
                                     <div style="display:flex; align-items:center; gap:8px; margin-bottom:10px;">
                                         <span style="font-size:13px; font-weight:600; color:#374151;">AI 智能调整</span>
                                         <span style="font-size:11px; color:#6b7280;">基于提示词调整人物形象</span>
                                     </div>
+                                    <div class="ai-adjust-base-tip" id="aiAdjustBaseTip">当前基图：默认主图</div>
                                     <textarea id="aiAdjustPrompt" placeholder="描述你想要的调整，例如：换成棕色正装、调整手部姿势、表情更自然等..." style="width:100%; min-height:72px; padding:10px 12px; border:1px solid #d1d5db; border-radius:10px; font-size:13px; line-height:1.6; resize:vertical; outline:none; transition:border-color 0.2s;"></textarea>
                                     <div style="display:flex; gap:10px; margin-top:10px;">
                                         <button type="button" id="aiAdjustBtn" class="btn-ai-adjust" onclick="confirmAiAdjust()" disabled>🪙10 · AI 调整</button>
@@ -1100,11 +1344,14 @@
                                         <div style="padding:12px; border:1px solid #e5e7eb; border-radius:12px; background:#f8fafc;">
                                             <img id="aiAdjustResultImg" src="" alt="调整结果" style="margin-bottom:10px;" />
                                             <div style="display:flex; align-items:center; gap:12px;">
-                                                <div style="flex:1; min-width:0;">
-                                                    <div style="font-size:13px; font-weight:600; color:#111827; margin-bottom:4px;">AI 调整完成</div>
-                                                    <div style="font-size:12px; color:#6b7280;" id="aiAdjustResultPrompt">-</div>
+                                            <div style="flex:1; min-width:0;">
+                                                <div style="font-size:13px; font-weight:600; color:#111827; margin-bottom:4px;">AI 调整完成</div>
+                                                <div style="font-size:12px; color:#6b7280;" id="aiAdjustResultPrompt">-</div>
+                                            </div>
+                                                <div class="ai-result-actions">
+                                                    <button type="button" class="btn-result-main" onclick="openMainSwapForAiResult()">设为主图</button>
+                                                    <button type="button" class="btn-result-outfit" id="addAiResultOutfitBtn" onclick="openAddOutfitDialog()">添加为服饰图</button>
                                                 </div>
-                                                <button type="button" onclick="applyAdjustedImage()" style="height:32px; padding:0 14px; border-radius:8px; border:1px solid #10b981; background:#10b981; color:#fff; font-size:13px; font-weight:600; cursor:pointer;">使用此图</button>
                                             </div>
                                         </div>
                                     </div>
@@ -1156,12 +1403,44 @@
         </div>
     </div>
 
+    <!-- 服饰命名 / 重命名弹窗 -->
+    <div class="outfit-modal-overlay" id="outfitNameModal">
+        <div class="outfit-modal" role="dialog" aria-modal="true" aria-labelledby="outfitNameTitle">
+            <h3 id="outfitNameTitle">添加服饰图</h3>
+            <p id="outfitNameDesc">为这套服饰填写一个便于后续选择的名称。</p>
+            <label for="outfitNameInput">服饰名称 <span class="required">*</span></label>
+            <input class="form-control" id="outfitNameInput" maxlength="20" placeholder="例如：深蓝商务西装" aria-describedby="outfitNameError" />
+            <div class="outfit-name-error" id="outfitNameError" role="alert" aria-live="polite"></div>
+            <div class="outfit-modal-actions">
+                <button class="btn btn-light" type="button" onclick="closeOutfitNameModal()">取消</button>
+                <button class="btn btn-primary" type="button" onclick="confirmOutfitName()">确认</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 主图替换策略弹窗 -->
+    <div class="outfit-modal-overlay" id="mainSwapModal">
+        <div class="outfit-modal" role="dialog" aria-modal="true" aria-labelledby="mainSwapTitle">
+            <h3 id="mainSwapTitle">设为角色主图</h3>
+            <p id="mainSwapDesc">请选择如何处理当前主图。新主图设置成功后，将成为该角色的默认形象。</p>
+            <div class="main-swap-actions">
+                <button class="btn btn-light" type="button" onclick="confirmMainSwap(false)">替换并丢弃原主图</button>
+                <button class="btn btn-primary" id="retainMainBtn" type="button" onclick="confirmMainSwap(true)">保留原图为服饰</button>
+            </div>
+            <div class="outfit-modal-actions">
+                <button class="btn btn-light" type="button" onclick="closeMainSwapModal()">取消</button>
+            </div>
+        </div>
+    </div>
+
     <div class="toast" id="toast">已保存</div>
 
     <script>
         const params = new URLSearchParams(window.location.search);
         const source = params.get("from") || "library";
         let subjectType = params.get("type") === "scene" ? "scene" : "role";
+        const editMode = params.get("mode") === "edit";
+        const editSubjectId = params.get("id") || "";
         let imageData = "";
         let imageSource = "market"; // 'market' | 'ai' | 'upload'
         let aiPrompt = "";
@@ -1170,6 +1449,15 @@
         let aiSelectedIndex = -1;
         let viewsReady = false;
         let aiAdjustedImage = ""; // AI 调整后的图片
+        let aiAdjustedPrompt = "";
+        let aiAdjustBaseKey = "main";
+        let outfits = [];
+        let originalSubject = null;
+        let hasUnsavedChanges = false;
+        let isInitializing = true;
+        let outfitNameContext = null;
+        let pendingMainCandidate = null;
+        const maxOutfits = 8;
 
         const libraryKey = "subjectLibraryItems";
         const step2Key = "step2NewSubject";
@@ -1200,6 +1488,39 @@
         const aiGenBtn = document.getElementById("aiGenBtn");
         const aiGenStatus = document.getElementById("aiGenStatus");
         const aiResultGrid = document.getElementById("aiResultGrid");
+        const roleAssetManager = document.getElementById("roleAssetManager");
+        const roleAssetsGrid = document.getElementById("roleAssetsGrid");
+        const roleAssetsCount = document.getElementById("roleAssetsCount");
+        const aiAdjustBaseTip = document.getElementById("aiAdjustBaseTip");
+        const addAiResultOutfitBtn = document.getElementById("addAiResultOutfitBtn");
+
+        function markDirty() {
+            if (!isInitializing) hasUnsavedChanges = true;
+        }
+
+        function safeImageSource(value) {
+            const src = String(value || "").trim();
+            if (!src || /["'<>\r\n]/.test(src)) return "";
+            if (/^data:image\/(?:png|jpe?g|webp|gif|svg\+xml)(?:;[^,]*)?,/i.test(src)) return src;
+            if (/^(?:blob:|https?:\/\/)/i.test(src)) return src;
+            if (/^(?:\.\.\/|\.\/|[^:\\/]+\.(?:png|jpe?g|webp|gif|svg)(?:[?#].*)?)$/i.test(src)) return src;
+            return "";
+        }
+
+        function normalizeOutfits(list) {
+            if (!Array.isArray(list)) return [];
+            return list.slice(0, maxOutfits).map((item, index) => ({
+                id: item && item.id ? String(item.id) : "outfit-legacy-" + index + "-" + Date.now(),
+                name: item && item.name ? String(item.name).slice(0, 20) : "服饰 " + (index + 1),
+                img: item && item.img ? safeImageSource(item.img) : "",
+                prompt: item && item.prompt ? String(item.prompt) : "",
+                createdAt: item && item.createdAt ? item.createdAt : new Date().toISOString()
+            })).filter((item) => item.img);
+        }
+
+        function makeOutfitId() {
+            return "outfit-" + Date.now() + "-" + Math.random().toString(36).slice(2, 7);
+        }
 
         function typeName() {
             return subjectType === "scene" ? "场景" : "角色";
@@ -1224,6 +1545,168 @@
                 .replace(/</g, "&lt;")
                 .replace(/>/g, "&gt;")
                 .replace(/"/g, "&quot;");
+        }
+
+        function escapeJsString(value) {
+            return String(value || "")
+                .replace(/\\/g, "\\\\")
+                .replace(/'/g, "\\'")
+                .replace(/\r/g, "\\r")
+                .replace(/\n/g, "\\n");
+        }
+
+        function getSelectedAdjustBase() {
+            if (aiAdjustBaseKey === "main") {
+                return imageData ? { key: "main", name: "默认主图", img: imageData } : null;
+            }
+            const outfitId = aiAdjustBaseKey.replace(/^outfit:/, "");
+            const outfit = outfits.find((item) => item.id === outfitId);
+            return outfit ? { key: aiAdjustBaseKey, name: outfit.name, img: outfit.img } : null;
+        }
+
+        function selectAiAdjustBase(key) {
+            const nextKey = key || "main";
+            const exists = nextKey === "main" ? Boolean(imageData) : outfits.some((item) => "outfit:" + item.id === nextKey);
+            aiAdjustBaseKey = exists ? nextKey : "main";
+            renderRoleAssets();
+        }
+
+        function renderRoleAssets() {
+            const isRoleWithImage = subjectType === "role" && Boolean(imageData);
+            roleAssetManager.style.display = isRoleWithImage ? "block" : "none";
+            document.querySelector(".asset-summary").style.display = isRoleWithImage ? "block" : "none";
+            if (!isRoleWithImage) return;
+
+            if (aiAdjustBaseKey !== "main" && !outfits.some((item) => "outfit:" + item.id === aiAdjustBaseKey)) {
+                aiAdjustBaseKey = "main";
+            }
+
+            const cards = [{ id: "main", name: "默认主图", img: imageData, isMain: true }]
+                .concat(outfits.map((item) => ({ id: item.id, name: item.name, img: item.img, isMain: false })));
+            roleAssetsGrid.innerHTML = cards.map((item) => {
+                const key = item.isMain ? "main" : "outfit:" + item.id;
+                const safeId = escapeJsString(item.id);
+                const safeKey = escapeJsString(key);
+                const selected = key === aiAdjustBaseKey ? " selected" : "";
+                const actions = item.isMain ? "" :
+                    '<div class="role-asset-actions">' +
+                        '<button type="button" class="role-asset-action" onclick="event.stopPropagation(); openRenameOutfitDialog(\'' + safeId + '\')">重命名</button>' +
+                        '<button type="button" class="role-asset-action" onclick="event.stopPropagation(); openMainSwapForOutfit(\'' + safeId + '\')">设为主图</button>' +
+                        '<button type="button" class="role-asset-action danger" onclick="event.stopPropagation(); deleteOutfit(\'' + safeId + '\')">删除</button>' +
+                    '</div>';
+                return '<article class="role-asset-card' + selected + '">' +
+                    '<button type="button" class="role-asset-select" aria-pressed="' + (selected ? 'true' : 'false') + '" onclick="selectAiAdjustBase(\'' + safeKey + '\')">' +
+                        '<img src="' + item.img + '" alt="' + escapeHtml(item.name) + '" />' +
+                        '<div class="role-asset-card-copy">' +
+                            '<div class="role-asset-card-name">' + escapeHtml(item.name) + '</div>' +
+                            '<div class="role-asset-card-type">' + (item.isMain ? "角色默认形象" : "服饰附图") + '</div>' +
+                        '</div>' +
+                    '</button>' + actions +
+                '</article>';
+            }).join("");
+
+            const atLimit = outfits.length >= maxOutfits;
+            roleAssetsCount.textContent = outfits.length + " / " + maxOutfits + " 套服饰" + (atLimit ? " · 已达上限，请先删除一套" : "");
+            roleAssetsCount.classList.toggle("limit", atLimit);
+            const base = getSelectedAdjustBase();
+            aiAdjustBaseTip.textContent = "当前基图：" + (base ? base.name : "默认主图");
+            if (addAiResultOutfitBtn) {
+                addAiResultOutfitBtn.disabled = outfits.length >= maxOutfits;
+                addAiResultOutfitBtn.title = outfits.length >= maxOutfits ? "最多保存 8 张服饰图，请先删除已有服饰" : "";
+            }
+        }
+
+        function isOutfitNameDuplicate(name, exceptId) {
+            const normalized = name.trim().toLocaleLowerCase();
+            return outfits.some((item) => item.id !== exceptId && item.name.trim().toLocaleLowerCase() === normalized);
+        }
+
+        function openOutfitNameModal(context) {
+            outfitNameContext = context;
+            const input = document.getElementById("outfitNameInput");
+            document.getElementById("outfitNameTitle").textContent = context.title;
+            document.getElementById("outfitNameDesc").textContent = context.desc;
+            document.getElementById("outfitNameError").textContent = "";
+            input.value = context.value || "";
+            document.getElementById("outfitNameModal").classList.add("active");
+            setTimeout(() => input.focus(), 0);
+        }
+
+        function closeOutfitNameModal() {
+            if (outfitNameContext && outfitNameContext.type === "retain-main") {
+                pendingMainCandidate = null;
+            }
+            document.getElementById("outfitNameModal").classList.remove("active");
+            outfitNameContext = null;
+        }
+
+        function openAddOutfitDialog() {
+            if (!aiAdjustedImage) { showToast("请先生成调整图"); return; }
+            if (outfits.length >= maxOutfits) { showToast("最多保存 8 张服饰图，请先删除已有服饰"); return; }
+            openOutfitNameModal({
+                type: "add-ai-result",
+                title: "添加为服饰图",
+                desc: "填写服饰名称后，这张图片会保留为当前角色的一套服饰。",
+                value: ""
+            });
+        }
+
+        function openRenameOutfitDialog(id) {
+            const outfit = outfits.find((item) => item.id === id);
+            if (!outfit) return;
+            openOutfitNameModal({
+                type: "rename",
+                outfitId: id,
+                title: "重命名服饰",
+                desc: "名称用于主体管理和 Step 2 中识别这套服饰。",
+                value: outfit.name
+            });
+        }
+
+        function confirmOutfitName() {
+            if (!outfitNameContext) return;
+            const input = document.getElementById("outfitNameInput");
+            const error = document.getElementById("outfitNameError");
+            const name = input.value.trim();
+            if (!name) { error.textContent = "请输入服饰名称"; input.focus(); return; }
+            if (name.length > 20) { error.textContent = "服饰名称最多 20 个字符"; input.focus(); return; }
+            const exceptId = outfitNameContext.type === "rename" ? outfitNameContext.outfitId :
+                (outfitNameContext.type === "retain-main" && pendingMainCandidate && pendingMainCandidate.source === "outfit" ? pendingMainCandidate.outfitId : "");
+            if (isOutfitNameDuplicate(name, exceptId)) { error.textContent = "服饰名称不能重复"; input.focus(); return; }
+
+            if (outfitNameContext.type === "add-ai-result") {
+                if (outfits.length >= maxOutfits) { error.textContent = "最多保存 8 张服饰图"; return; }
+                outfits.push({
+                    id: makeOutfitId(),
+                    name,
+                    img: aiAdjustedImage,
+                    prompt: aiAdjustedPrompt,
+                    createdAt: new Date().toISOString()
+                });
+                aiAdjustBaseKey = "outfit:" + outfits[outfits.length - 1].id;
+                clearAiAdjustedResult();
+                showToast("已添加服饰：" + name);
+            } else if (outfitNameContext.type === "rename") {
+                const outfit = outfits.find((item) => item.id === outfitNameContext.outfitId);
+                if (outfit) outfit.name = name;
+                showToast("服饰名称已更新");
+            } else if (outfitNameContext.type === "retain-main") {
+                applyPendingMainCandidate(true, name);
+            }
+            markDirty();
+            closeOutfitNameModal();
+            renderRoleAssets();
+        }
+
+        function deleteOutfit(id) {
+            const outfit = outfits.find((item) => item.id === id);
+            if (!outfit) return;
+            if (!confirm("确认删除服饰「" + outfit.name + "」吗？删除后无法恢复。")) return;
+            outfits = outfits.filter((item) => item.id !== id);
+            if (aiAdjustBaseKey === "outfit:" + id) aiAdjustBaseKey = "main";
+            markDirty();
+            renderRoleAssets();
+            showToast("服饰已删除");
         }
 
         function updateNameCount() {
@@ -1263,13 +1746,13 @@
         }
 
         function setPreview(src, fileName, srcType, fileSize, dimensions) {
-            imageData = src || "";
+            imageData = safeImageSource(src);
             if (srcType) imageSource = srcType;
             viewsReady = false;
 
             // 角色模式 + 上传图片后，显示 AI 调整区域
             const aiAdjustArea = document.getElementById("aiAdjustArea");
-            if (subjectType === "role" && imageData && imageSource === "upload") {
+            if (subjectType === "role" && imageData) {
                 aiAdjustArea.style.display = "block";
             } else {
                 aiAdjustArea.style.display = "none";
@@ -1278,6 +1761,7 @@
             if (!imageData) {
                 uploadPreview.innerHTML = '<span>暂未上传主图</span>';
                 previewFrame.innerHTML = '<div class="edit-preview-empty">上传主图后显示预览</div>';
+                renderRoleAssets();
                 return;
             }
 
@@ -1296,6 +1780,11 @@
                 + metaHtml
                 + '</div>';
             previewFrame.innerHTML = '<img src="' + imageData + '" alt="预览" />';
+            if (subjectType === "role") {
+                aiAdjustBaseKey = "main";
+                renderRoleAssets();
+            }
+            markDirty();
         }
 
         function applyImageCreationHandoff() {
@@ -1536,13 +2025,14 @@
         function confirmAiAdjust() {
             const prompt = aiAdjustPrompt.value.trim();
             if (!prompt) { showToast("请先输入调整描述"); return; }
-            if (!imageData) { showToast("请先上传角色主图"); return; }
+            if (!getSelectedAdjustBase()) { showToast("请先选择 AI 调整基图"); return; }
             openCreditsConfirm(10, executeAiAdjust);
         }
 
         function executeAiAdjust() {
             const prompt = aiAdjustPrompt.value.trim();
-            if (!prompt) return;
+            const base = getSelectedAdjustBase();
+            if (!prompt || !base) return;
 
             aiAdjustBtn.disabled = true;
             aiAdjustBtn.textContent = "调整中...";
@@ -1550,20 +2040,22 @@
             // 模拟生成：1.5s 后生成调整后的图
             setTimeout(() => {
                 // 基于原图生成一个调整后的占位图（模拟效果）
-                aiAdjustedImage = createAdjustedImage(imageData, prompt);
+                aiAdjustedImage = createAdjustedImage(base.img, prompt);
+                aiAdjustedPrompt = prompt;
                 aiAdjustResultImg.src = aiAdjustedImage;
-                aiAdjustResultPromptEl.textContent = prompt.slice(0, 30) + (prompt.length > 30 ? "..." : "");
+                aiAdjustResultPromptEl.textContent = "基于「" + base.name + "」· " + prompt.slice(0, 30) + (prompt.length > 30 ? "..." : "");
                 aiAdjustResult.style.display = "block";
 
                 aiAdjustBtn.disabled = false;
                 aiAdjustBtn.textContent = "🪙10 · AI 调整";
+                renderRoleAssets();
                 showToast("调整完成，可预览结果");
             }, 1500);
         }
 
         function createAdjustedImage(baseImage, prompt) {
             // 原型模拟：基于原图生成一个带调整标记的占位图
-            const shortPrompt = (prompt || "AI调整").slice(0, 20);
+            const shortPrompt = escapeHtml((prompt || "AI调整").slice(0, 20));
             const svg =
                 '<svg xmlns="http://www.w3.org/2000/svg" width="900" height="1200" viewBox="0 0 900 1200">' +
                     '<defs>' +
@@ -1585,16 +2077,100 @@
             return "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(svg);
         }
 
-        function applyAdjustedImage() {
-            if (!aiAdjustedImage) {
-                showToast("请先生成调整图");
-                return;
-            }
-            // 使用调整后的图替换当前主图
-            setPreview(aiAdjustedImage, "AI调整后的角色图", "upload");
+        function clearAiAdjustedResult() {
             aiAdjustResult.style.display = "none";
             aiAdjustedImage = "";
-            showToast("已应用调整后的图片");
+            aiAdjustedPrompt = "";
+            aiAdjustResultImg.removeAttribute("src");
+        }
+
+        function openMainSwapForAiResult() {
+            if (!aiAdjustedImage) { showToast("请先生成调整图"); return; }
+            openMainSwapModal({
+                img: aiAdjustedImage,
+                prompt: aiAdjustedPrompt,
+                source: "ai",
+                outfitId: ""
+            });
+        }
+
+        function openMainSwapForOutfit(id) {
+            const outfit = outfits.find((item) => item.id === id);
+            if (!outfit) return;
+            openMainSwapModal({
+                img: outfit.img,
+                prompt: outfit.prompt,
+                source: "outfit",
+                outfitId: outfit.id
+            });
+        }
+
+        function openMainSwapModal(candidate) {
+            pendingMainCandidate = candidate;
+            const retainsWithoutGrowth = candidate.source === "outfit";
+            const canRetain = retainsWithoutGrowth || outfits.length < maxOutfits;
+            const retainBtn = document.getElementById("retainMainBtn");
+            retainBtn.disabled = !canRetain;
+            retainBtn.title = canRetain ? "" : "服饰已达 8 张，请先删除一张后再保留原主图";
+            const sourceNote = candidate.source === "outfit" ? "该服饰转为主图后，将不再保留在服饰列表中。" : "";
+            document.getElementById("mainSwapDesc").textContent = canRetain ?
+                "请选择丢弃当前主图，或将当前主图命名后保留为一套服饰。" + sourceNote :
+                "服饰已达 8 张，当前只能直接替换主图；如需保留原图，请先删除一张服饰。";
+            document.getElementById("mainSwapModal").classList.add("active");
+        }
+
+        function closeMainSwapModal() {
+            document.getElementById("mainSwapModal").classList.remove("active");
+            pendingMainCandidate = null;
+        }
+
+        function confirmMainSwap(retainOldMain) {
+            if (!pendingMainCandidate) return;
+            if (!retainOldMain) {
+                applyPendingMainCandidate(false, "");
+                return;
+            }
+            const candidate = Object.assign({}, pendingMainCandidate);
+            document.getElementById("mainSwapModal").classList.remove("active");
+            pendingMainCandidate = candidate;
+            openOutfitNameModal({
+                type: "retain-main",
+                title: "命名原主图",
+                desc: "原主图会作为一套服饰保留，请填写便于后续选择的名称。",
+                value: ""
+            });
+        }
+
+        function applyPendingMainCandidate(retainOldMain, oldMainName) {
+            const candidate = pendingMainCandidate;
+            if (!candidate || !candidate.img) return;
+            const oldMainImage = imageData;
+
+            if (candidate.source === "outfit") {
+                outfits = outfits.filter((item) => item.id !== candidate.outfitId);
+            }
+            if (retainOldMain && oldMainImage) {
+                if (candidate.source !== "outfit" && outfits.length >= maxOutfits) {
+                    showToast("服饰已达 8 张，无法保留原主图");
+                    return;
+                }
+                outfits.push({
+                    id: makeOutfitId(),
+                    name: oldMainName,
+                    img: oldMainImage,
+                    prompt: "",
+                    createdAt: new Date().toISOString()
+                });
+            }
+
+            setPreview(candidate.img, "角色主图", "upload");
+            aiAdjustBaseKey = "main";
+            if (candidate.source === "ai") clearAiAdjustedResult();
+            pendingMainCandidate = null;
+            document.getElementById("mainSwapModal").classList.remove("active");
+            markDirty();
+            renderRoleAssets();
+            showToast(retainOldMain ? "主图已更新，原图已保留为服饰" : "角色主图已更新");
         }
 
         function setType(nextType) {
@@ -1653,7 +2229,52 @@
             document.getElementById("footerTip").textContent = source === "step2" ?
                 "创建完成后会返回 Step 2，并把新主体插入对应列表第一位。" :
                 "创建完成后会返回一级主体管理首页。";
+            document.querySelector(".asset-summary").style.display = "none";
             updatePreviewText();
+        }
+
+        function ensureVoiceOption(voiceName) {
+            if (!voiceName) return;
+            const exists = Array.from(subjectVoice.options).some((option) => option.value === voiceName);
+            if (exists) return;
+            const option = document.createElement("option");
+            option.value = voiceName;
+            option.textContent = voiceName;
+            subjectVoice.appendChild(option);
+        }
+
+        function loadEditSubject() {
+            if (!editMode || !editSubjectId) return false;
+            const subject = readLibrary().find((item) => item.id === editSubjectId);
+            if (!subject || subject.type !== "role") {
+                showToast("未找到可编辑的角色主体");
+                return false;
+            }
+
+            originalSubject = Object.assign({}, subject);
+            subjectType = "role";
+            subjectName.value = subject.name || "";
+            subjectDesc.value = subject.desc || "";
+            ensureVoiceOption(subject.voice || "");
+            subjectVoice.value = subject.voice || "";
+            visibilitySelect.value = subject.visibility || "self";
+            document.getElementById("authCheck").checked = true;
+            outfits = normalizeOutfits(subject.outfits);
+            imageSource = subject.imageSource || "upload";
+            if (subject.img) setPreview(subject.img, "当前角色主图", imageSource);
+
+            document.title = "编辑角色";
+            document.getElementById("breadcrumbTitle").textContent = "编辑角色";
+            document.getElementById("pageTitle").textContent = "编辑角色";
+            document.getElementById("pageDesc").textContent = "管理角色主图、服饰形象、音色和角色资料。";
+            document.getElementById("createSubjectBtn").textContent = "保存修改";
+            document.getElementById("footerTip").textContent = source === "step2" ?
+                "保存后会返回 Step 2，并同步更新当前角色。" :
+                "保存后会返回主体资源库。";
+            updateNameCount();
+            updatePreviewText();
+            renderRoleAssets();
+            return true;
         }
 
         function readLibrary() {
@@ -1666,12 +2287,6 @@
             }
         }
 
-        function compactSubject(subject) {
-            return Object.assign({}, subject, {
-                img: createPlaceholderImage(subject.type, subject.name)
-            });
-        }
-
         function saveToLibrary(subject) {
             const list = readLibrary().filter((item) => item.id !== subject.id);
             const next = [subject].concat(list);
@@ -1679,23 +2294,28 @@
                 localStorage.setItem(libraryKey, JSON.stringify(next));
                 return subject;
             } catch (error) {
-                const compact = compactSubject(subject);
-                localStorage.setItem(libraryKey, JSON.stringify([compact].concat(list)));
-                return compact;
+                console.warn("角色资产保存失败", error);
+                return null;
             }
         }
 
         function saveStep2Handoff(subject) {
             const payload = JSON.stringify(subject);
+            let saved = false;
             try {
                 sessionStorage.setItem(step2Key, payload);
-                localStorage.setItem(step2Key, payload);
-                return;
+                saved = true;
             } catch (error) {
-                const compactPayload = JSON.stringify(compactSubject(subject));
-                sessionStorage.setItem(step2Key, compactPayload);
-                localStorage.setItem(step2Key, compactPayload);
+                console.warn("无法写入 Step 2 会话交接数据", error);
             }
+            try {
+                localStorage.setItem(step2Key, payload);
+                saved = true;
+            } catch (error) {
+                // 主体本身已写入资源库；Step 2 会从资源库同步，不能静默替换真实图片。
+                console.warn("无法写入 Step 2 本地交接数据", error);
+            }
+            return saved;
         }
 
         function buildSubject(status) {
@@ -1704,8 +2324,9 @@
             if (!imageData) {
                 setPreview(createPlaceholderImage(subjectType, name), "系统生成主图");
             }
+            const now = new Date().toISOString();
             return {
-                id: "created-" + subjectType + "-" + Date.now(),
+                id: editMode && originalSubject ? originalSubject.id : "created-" + subjectType + "-" + Date.now(),
                 type: subjectType,
                 name,
                 desc,
@@ -1713,11 +2334,13 @@
                 visibility: visibilitySelect.value,
                 img: imageData,
                 imageSource: imageSource,
-                owner: "my",
+                outfits: subjectType === "role" ? normalizeOutfits(outfits) : [],
+                owner: originalSubject ? (originalSubject.owner || "my") : "my",
                 createdByMe: true,
-                favorite: false,
+                favorite: originalSubject ? Boolean(originalSubject.favorite) : false,
                 status: status === "draft" ? "草稿" : (subjectType === "scene" ? "8 视角" : "4 视图"),
-                createdAt: new Date().toISOString()
+                createdAt: originalSubject && originalSubject.createdAt ? originalSubject.createdAt : now,
+                updatedAt: now
             };
         }
 
@@ -1752,10 +2375,13 @@
             if (!validateBeforeCreate()) return;
             const subject = buildSubject("done");
             const savedSubject = saveToLibrary(subject);
-            if (source === "step2") {
-                saveStep2Handoff(savedSubject);
+            if (!savedSubject) {
+                showToast("保存失败：浏览器存储空间不足，请减少服饰或图片大小");
+                return;
             }
-            showToast("创建成功，正在返回");
+            const handoffSaved = source !== "step2" || saveStep2Handoff(savedSubject);
+            hasUnsavedChanges = false;
+            showToast(!handoffSaved ? "主体已保存，返回后请手动选择" : (editMode ? "修改已保存，正在返回" : "创建成功，正在返回"));
             let finalUrl = returnUrl();
             const params3 = new URLSearchParams(window.location.search);
             const customReturnUrl = params3.get("returnUrl");
@@ -1811,12 +2437,19 @@
             showToast("正在试听：" + voiceName);
         }
 
-        document.getElementById("backBtn").addEventListener("click", () => {
+        function navigateBack() {
+            if (hasUnsavedChanges && !confirm("当前修改尚未保存，确认离开吗？")) return;
+            hasUnsavedChanges = false;
             window.location.href = returnUrl();
-        });
+        }
 
-        subjectName.addEventListener("input", updateNameCount);
-        subjectVoice.addEventListener("change", updatePreviewText);
+        document.getElementById("backBtn").addEventListener("click", navigateBack);
+
+        subjectName.addEventListener("input", () => { updateNameCount(); markDirty(); });
+        subjectVoice.addEventListener("change", () => { updatePreviewText(); markDirty(); });
+        subjectDesc.addEventListener("input", markDirty);
+        visibilitySelect.addEventListener("change", markDirty);
+        document.getElementById("authCheck").addEventListener("change", markDirty);
         previewVoiceBtn.addEventListener("click", previewSelectedVoice);
 
         subjectImage.addEventListener("change", (event) => {
@@ -1855,9 +2488,7 @@
         });
 
         document.getElementById("createSubjectBtn").addEventListener("click", finishCreate);
-        document.getElementById("cancelBtn").addEventListener("click", () => {
-            window.location.href = returnUrl();
-        });
+        document.getElementById("cancelBtn").addEventListener("click", navigateBack);
 
         // 新增音色：跳转到新建语音模型页面，携带回跳地址
         addVoiceBtn.addEventListener("click", () => {
@@ -1888,9 +2519,12 @@
                 }
                 select.value = newVoice;
                 updatePreviewText();
+                markDirty();
                 showToast("新音色已选择：" + newVoice);
-                // 清理 URL 中的参数
-                const cleanUrl = window.location.pathname + window.location.hash;
+                // 只清理 newVoice，保留编辑模式、来源和回跳地址
+                params2.delete("newVoice");
+                const cleanQuery = params2.toString();
+                const cleanUrl = window.location.pathname + (cleanQuery ? "?" + cleanQuery : "") + window.location.hash;
                 window.history.replaceState({}, "", cleanUrl);
             }
         }
@@ -1900,10 +2534,34 @@
             if (e.target === e.currentTarget) closeMarketModal();
         });
 
+        document.getElementById("outfitNameModal").addEventListener("click", (event) => {
+            if (event.target === event.currentTarget) closeOutfitNameModal();
+        });
+        document.getElementById("mainSwapModal").addEventListener("click", (event) => {
+            if (event.target === event.currentTarget) closeMainSwapModal();
+        });
+        document.getElementById("outfitNameInput").addEventListener("keydown", (event) => {
+            if (event.key === "Enter") confirmOutfitName();
+        });
+        document.addEventListener("keydown", (event) => {
+            if (event.key !== "Escape") return;
+            closeOutfitNameModal();
+            closeMainSwapModal();
+        });
+        window.addEventListener("beforeunload", (event) => {
+            if (!hasUnsavedChanges) return;
+            event.preventDefault();
+            event.returnValue = "";
+        });
+
         setType(subjectType);
         updateNameCount();
+        loadEditSubject();
         checkNewVoice();
-        applyImageCreationHandoff();
+        if (!editMode) applyImageCreationHandoff();
+        isInitializing = false;
+        hasUnsavedChanges = false;
+        renderRoleAssets();
     </script>
 </body>
 </html>

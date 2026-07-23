@@ -1420,52 +1420,187 @@
       text-align: right;
     }
 
-    .wm-modal { width: 860px; }
-    .wm-body { display: grid; grid-template-columns: 300px 1fr; gap: 0; min-height: 460px; }
+    .wm-modal {
+      width: min(1400px, calc(100vw - 48px));
+      background: #202020;
+      color: #e5e7eb;
+      border-color: rgba(255,255,255,0.08);
+      box-shadow: 0 28px 90px rgba(0,0,0,0.42);
+    }
+    .wm-modal .modal-hd {
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      background: #202020;
+    }
+    .wm-modal .modal-title { color: #fff; }
+    .wm-modal .close-btn {
+      background: transparent;
+      color: #9ca3af;
+      font-size: 22px;
+    }
+    .wm-modal .close-btn:hover { background: rgba(255,255,255,0.08); color: #fff; }
+    .wm-body {
+      display: grid;
+      grid-template-columns: minmax(430px, 44%) 1fr;
+      gap: 0;
+      min-height: 720px;
+      max-height: calc(90vh - 112px);
+      overflow: hidden;
+    }
     .wm-preview {
-      padding: 18px;
-      background: #111827;
+      padding: 18px 20px 24px;
+      background: #202020;
       color: #fff;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
+      justify-content: flex-start;
       gap: 14px;
+      overflow: auto;
+    }
+    .wm-preview-tip {
+      align-self: stretch;
+      color: #9ca3af;
+      font-size: 12px;
+      line-height: 1.7;
     }
     .wm-stage {
-      width: 220px;
+      width: min(316px, 72vw);
       aspect-ratio: 9 / 16;
-      border-radius: 18px;
-      background: linear-gradient(135deg,#475569,#111827);
+      border-radius: 10px;
+      background:
+        radial-gradient(circle at 50% 42%, rgba(255,255,255,0.5) 0 12%, transparent 13%),
+        linear-gradient(180deg, rgba(226,232,240,0.85) 0 10%, transparent 10%),
+        linear-gradient(135deg,#dbeafe 0 36%, #e5e7eb 36% 52%, #f3d6a6 52% 100%);
       position: relative;
       overflow: hidden;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 68px;
+      font-size: 0;
+      box-shadow: 0 18px 40px rgba(0,0,0,0.24);
+      user-select: none;
+    }
+    .wm-stage::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 0;
+      height: 62%;
+      background:
+        linear-gradient(90deg, rgba(255,255,255,0.7) 0 2px, transparent 2px 44px) 8px 0/46px 100%,
+        linear-gradient(180deg, rgba(148,163,184,0.36), rgba(148,163,184,0.08));
+      opacity: 0.72;
+    }
+    .wm-stage::after {
+      content: "";
+      position: absolute;
+      width: 132px;
+      height: 258px;
+      left: 92px;
+      bottom: 95px;
+      background:
+        radial-gradient(circle at 50% 18%, #f4c7a1 0 21px, transparent 22px),
+        linear-gradient(92deg, transparent 0 30px, #172554 31px 100px, transparent 101px),
+        linear-gradient(180deg, transparent 0 58px, #f8fafc 59px 95px, #1e3a8a 96px 178px, #111827 179px);
+      border-radius: 54px 54px 18px 18px;
+      opacity: 0.92;
+      filter: drop-shadow(0 10px 16px rgba(15,23,42,0.24));
+    }
+    .wm-preview-person {
+      position: absolute;
+      inset: 0;
+      display: none;
     }
     .wm-text {
       position: absolute;
       top: 18px;
       left: 14px;
       max-width: calc(100% - 28px);
-      padding: 5px 8px;
+      min-width: 58px;
+      padding: 7px 10px;
       border-radius: 7px;
-      background: rgba(0,0,0,0.32);
-      font-size: 13px;
+      background: rgba(255,255,255,0.16);
+      color: #fff;
+      font-size: 18px;
+      line-height: 1.1;
+      cursor: move;
+      z-index: 3;
+      border: 1px solid transparent;
+      text-shadow: 0 1px 4px rgba(0,0,0,0.38);
+    }
+    .wm-text.is-selected { border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59,130,246,0.18); }
+    .wm-remove-dot {
+      position: absolute;
+      right: -7px;
+      top: -9px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: rgba(31,41,55,0.82);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      line-height: 1;
+      cursor: pointer;
+    }
+    .wm-resize-handle {
+      position: absolute;
+      right: -6px;
+      bottom: -6px;
+      width: 12px;
+      height: 12px;
+      border-radius: 3px;
+      border: 1px solid rgba(255,255,255,0.72);
+      background: #3b82f6;
+      cursor: nwse-resize;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.28);
     }
     .wm-sub {
       position: absolute;
-      left: 16px;
-      right: 16px;
-      bottom: 30px;
+      left: 50%;
+      bottom: 95px;
+      transform: translateX(-50%);
+      max-width: calc(100% - 42px);
       padding: 7px 9px;
       border-radius: 9px;
       background: rgba(0,0,0,0.45);
+      color: #fff;
       font-size: 12px;
       text-align: center;
+      line-height: 1.35;
+      font-weight: 700;
+      z-index: 2;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.42);
+      white-space: pre-wrap;
     }
-    .wm-config { padding: 18px; overflow: auto; }
+    .wm-resolution {
+      width: min(316px, 72vw);
+      color: #8f8f8f;
+      font-size: 12px;
+    }
+    .wm-config {
+      padding: 26px 22px 18px 20px;
+      overflow: auto;
+      background: #202020;
+    }
+    .wm-switch-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      margin-bottom: 34px;
+    }
+    .wm-switch-cell {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      color: #e5e7eb;
+      font-size: 13px;
+      font-weight: 800;
+    }
     .switch-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
     .switch-row strong { font-size: 13px; }
     .switch { width: 42px; height: 24px; position: relative; }
@@ -1473,7 +1608,7 @@
     .switch i {
       position: absolute;
       inset: 0;
-      background: #cbd5e1;
+      background: #3f3f46;
       border-radius: 999px;
       transition: 0.16s;
     }
@@ -1491,6 +1626,365 @@
     }
     .switch input:checked + i { background: var(--blue); }
     .switch input:checked + i::after { transform: translateX(18px); }
+    .wm-columns {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+    .wm-section-title {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 12px;
+      color: #e5e7eb;
+      font-size: 13px;
+      font-weight: 900;
+      margin: 0 0 18px;
+    }
+    .wm-section-title::before,
+    .wm-section-title::after {
+      content: "";
+      height: 1px;
+      background: rgba(255,255,255,0.12);
+    }
+    .wm-field { margin-bottom: 18px; }
+    .wm-field-label {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      color: #e5e7eb;
+      font-size: 13px;
+      font-weight: 750;
+      margin-bottom: 8px;
+    }
+    .wm-required { color: #ef4444; }
+    .wm-control-row { display: flex; align-items: center; gap: 8px; }
+    .wm-control-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .wm-modal .cfg-input,
+    .wm-modal .cfg-select,
+    .wm-modal .cfg-textarea {
+      background: #202020;
+      border-color: #3d3d3d;
+      color: #e5e7eb;
+      border-radius: 6px;
+    }
+    .wm-modal .cfg-input::placeholder,
+    .wm-modal .cfg-textarea::placeholder { color: #6b7280; }
+    .wm-modal .cfg-input:focus,
+    .wm-modal .cfg-select:focus,
+    .wm-modal .cfg-textarea:focus {
+      border-color: #34c759;
+      box-shadow: 0 0 0 3px rgba(52,199,89,0.12);
+    }
+    .wm-modal .cfg-textarea { min-height: 50px; }
+    .wm-modal .cfg-textarea[readonly] {
+      color: #a1a1aa;
+      background: rgba(255,255,255,0.03);
+      cursor: default;
+    }
+    .wm-mini-btn,
+    .wm-tab-btn,
+    .wm-align-btn,
+    .wm-step-btn,
+    .wm-color-btn {
+      height: 32px;
+      border: 1px solid #3d3d3d;
+      background: #202020;
+      color: #e5e7eb;
+      border-radius: 6px;
+      padding: 0 12px;
+      font-size: 12px;
+      font-weight: 800;
+    }
+    .wm-mini-btn:hover,
+    .wm-tab-btn:hover,
+    .wm-align-btn:hover,
+    .wm-step-btn:hover,
+    .wm-color-btn:hover { border-color: #34c759; color: #34c759; }
+    .wm-tab-group { display: inline-flex; }
+    .wm-tab-btn { border-radius: 0; }
+    .wm-tab-btn:first-child { border-radius: 6px 0 0 6px; }
+    .wm-tab-btn:last-child { border-radius: 0 6px 6px 0; margin-left: -1px; }
+    .wm-tab-btn.active {
+      color: #22c55e;
+      border-color: #22c55e;
+      position: relative;
+      z-index: 1;
+    }
+    .wm-add-btn {
+      height: 30px;
+      padding: 0 14px;
+      border-radius: 6px;
+      background: #28a745;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 850;
+    }
+    .wm-help {
+      color: #8f8f8f;
+      font-size: 12px;
+      line-height: 1.7;
+      margin-top: 8px;
+    }
+    .subtitle-video-card {
+      border: 1px solid #3d3d3d;
+      border-radius: 10px;
+      padding: 10px;
+      background: rgba(255,255,255,0.02);
+    }
+    .subtitle-meta {
+      margin-top: 8px;
+      color: #8f8f8f;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+    .subtitle-segment-list {
+      max-height: 190px;
+      overflow: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding-right: 4px;
+    }
+    .subtitle-segment-item {
+      display: grid;
+      grid-template-columns: 18px 1fr auto;
+      gap: 8px;
+      align-items: flex-start;
+      width: 100%;
+      padding: 9px;
+      border: 1px solid #3d3d3d;
+      border-radius: 9px;
+      background: #202020;
+      color: #d1d5db;
+      text-align: left;
+      cursor: pointer;
+      transition: border-color 0.16s, background 0.16s;
+    }
+    .subtitle-segment-item:hover {
+      border-color: rgba(52,199,89,0.7);
+      background: rgba(52,199,89,0.06);
+    }
+    .subtitle-segment-item.active {
+      border-color: #34c759;
+      background: rgba(52,199,89,0.1);
+    }
+    .subtitle-segment-item.is-selected {
+      box-shadow: inset 3px 0 0 #34c759;
+    }
+    .subtitle-segment-check {
+      margin-top: 3px;
+      accent-color: #22c55e;
+    }
+    .subtitle-segment-main {
+      min-width: 0;
+      font-size: 12px;
+      line-height: 1.55;
+    }
+    .subtitle-segment-time {
+      color: #8f8f8f;
+      font-size: 11px;
+      margin-bottom: 3px;
+    }
+    .subtitle-segment-text {
+      color: #e5e7eb;
+      word-break: break-all;
+    }
+    .subtitle-override-badge {
+      align-self: center;
+      border: 1px solid rgba(52,199,89,0.35);
+      border-radius: 999px;
+      padding: 2px 7px;
+      color: #34c759;
+      font-size: 11px;
+      white-space: nowrap;
+    }
+    .subtitle-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .subtitle-actions .wm-mini-btn { width: 100%; padding: 0 8px; }
+    .subtitle-mode-tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 18px;
+    }
+    .subtitle-mode-btn {
+      height: 34px;
+      border: 1px solid #3d3d3d;
+      background: #202020;
+      color: #d1d5db;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 850;
+    }
+    .subtitle-mode-btn.active {
+      border-color: #34c759;
+      color: #34c759;
+      background: rgba(52,199,89,0.08);
+    }
+    .subtitle-panel.is-hidden { display: none; }
+    .subtitle-transcript-box {
+      min-height: 168px;
+      max-height: 250px;
+      overflow: auto;
+      border: 1px solid #3d3d3d;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.03);
+      padding: 10px;
+      color: #d1d5db;
+      user-select: text;
+      cursor: text;
+    }
+    .subtitle-transcript-box::selection,
+    .subtitle-line::selection,
+    .subtitle-line *::selection {
+      color: #f5fff7;
+      background: rgba(52,199,89,0.72);
+    }
+    .subtitle-line {
+      display: block;
+      padding: 7px 8px;
+      border-radius: 8px;
+      font-size: 13px;
+      line-height: 1.75;
+      word-break: break-all;
+    }
+    .subtitle-line + .subtitle-line { margin-top: 4px; }
+    .subtitle-line:hover,
+    .subtitle-line.active {
+      background: rgba(52,199,89,0.08);
+      outline: 1px solid rgba(52,199,89,0.28);
+    }
+    .subtitle-inline-mark {
+      border-radius: 4px;
+      padding: 0 1px;
+    }
+    .subtitle-selected-range {
+      border-radius: 4px;
+      background: rgba(52,199,89,0.28);
+      box-shadow: inset 0 0 0 1px rgba(82,226,108,0.72);
+      color: #f2fff5;
+      padding: 1px 2px;
+      margin: 0 -1px;
+    }
+    .subtitle-selection-info {
+      color: #8f8f8f;
+      font-size: 12px;
+      line-height: 1.6;
+      margin-top: 8px;
+    }
+    .subtitle-inline-toolbar {
+      border: 1px solid #3d3d3d;
+      border-radius: 10px;
+      padding: 10px;
+      background: rgba(255,255,255,0.02);
+    }
+    .subtitle-effect-tabs {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+    }
+    .wm-align-group,
+    .wm-stepper {
+      display: inline-flex;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .wm-align-btn,
+    .wm-step-btn {
+      min-width: 30px;
+      padding: 0 8px;
+      border-radius: 0;
+      margin-left: -1px;
+    }
+    .wm-align-btn:first-child,
+    .wm-step-btn:first-child { margin-left: 0; }
+    .wm-align-btn.active {
+      color: #22c55e;
+      border-color: #22c55e;
+      position: relative;
+      z-index: 1;
+    }
+    .wm-stepper .cfg-input {
+      width: 66px;
+      flex: 0 0 66px;
+      text-align: center;
+      border-radius: 0;
+      margin-left: -1px;
+    }
+    .wm-stepper .cfg-select {
+      width: 36px;
+      flex: 0 0 36px;
+      border-radius: 0;
+      margin-left: -1px;
+      padding: 0 3px;
+    }
+    .wm-color-btn {
+      min-width: 58px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 0 10px;
+    }
+    .wm-color-swatch {
+      width: 16px;
+      height: 3px;
+      border-radius: 999px;
+      background: currentColor;
+      box-shadow: 0 -10px 0 transparent;
+    }
+    .wm-color-picker {
+      position: absolute;
+      opacity: 0;
+      width: 1px;
+      height: 1px;
+      pointer-events: none;
+    }
+    .wm-range-row { display: flex; align-items: center; gap: 14px; }
+    .wm-range {
+      flex: 1;
+      accent-color: #16a34a;
+      min-width: 0;
+    }
+    .wm-range-value {
+      width: 80px;
+      flex: 0 0 80px;
+      height: 30px;
+      border: 1px solid #3d3d3d;
+      background: #202020;
+      color: #e5e7eb;
+      border-radius: 6px;
+      padding: 0 10px;
+      outline: none;
+    }
+    .wm-unit { color: #8f8f8f; font-size: 12px; margin-left: -2px; }
+    .wm-modal .modal-actions {
+      border-top: 1px solid rgba(255,255,255,0.06);
+      background: #202020;
+      justify-content: space-between;
+    }
+    .wm-modal .btn-secondary {
+      background: #202020;
+      color: #e5e7eb;
+      border-color: #3d3d3d;
+    }
+    .wm-modal .btn-secondary:hover { border-color: #34c759; color: #34c759; background: #202020; }
+    .wm-modal .btn-primary {
+      background: #28a745;
+      box-shadow: none;
+    }
+    .wm-action-right { display: flex; gap: 8px; }
+    .wm-reset-btn { margin-left: auto; margin-right: 250px; }
+    @media (max-width: 1180px) {
+      .wm-body { grid-template-columns: 360px 1fr; }
+      .wm-columns { grid-template-columns: 1fr; }
+      .wm-switch-grid { grid-template-columns: 1fr 1fr; }
+      .wm-reset-btn { margin-right: 0; }
+    }
     .modal-actions {
       border-top: 1px solid var(--line);
       padding: 12px 18px;
@@ -1775,66 +2269,276 @@
   <div class="overlay" id="wmOverlay" onclick="if(event.target===this)closeWmConfig()">
     <div class="modal wm-modal">
       <div class="modal-hd">
-        <div class="modal-title">水印与字幕配置</div>
+        <div class="modal-title" id="wmModalTitle">水印与字幕配置</div>
         <button class="close-btn" type="button" onclick="closeWmConfig()">×</button>
       </div>
       <div class="wm-body">
         <div class="wm-preview">
+          <div class="wm-preview-tip">布局模式支持拖拽移动与右下角缩放，双击水印进入编辑模式可选中文字设置样式</div>
           <div class="wm-stage">
-            <div id="wmPreviewPerson">👩</div>
-            <div class="wm-text" id="wmPreviewText">投顾观点仅供参考</div>
+            <div class="wm-preview-person" id="wmPreviewPerson">👩</div>
+            <div class="wm-text is-selected" id="wmPreviewText" tabindex="0">
+              <span id="wmPreviewTextValue">添加水印</span>
+              <button class="wm-remove-dot" type="button" title="删除水印" onclick="removePreviewWatermark(event)">×</button>
+              <span class="wm-resize-handle" title="拖拽缩放" onpointerdown="startWmResize(event)"></span>
+            </div>
             <div class="wm-sub" id="wmPreviewSub">字幕示例</div>
           </div>
-          <div style="font-size:12px;color:#cbd5e1;" id="wmTaskName">应用到当前批次</div>
+          <div class="wm-resolution">首帧分辨率：720 × 1280</div>
+          <div style="font-size:12px;color:#8f8f8f;" id="wmTaskName">应用到当前批次</div>
         </div>
         <div class="wm-config">
-          <div class="config-panel">
-            <div class="switch-row">
-              <div><strong>水印配置</strong><div style="color:var(--faint);font-size:12px;">应用到该批次全部视频</div></div>
+          <div class="wm-switch-grid">
+            <div class="wm-switch-cell">
+              <span>水印开关</span>
               <label class="switch"><input id="wmEnabled" type="checkbox" checked onchange="syncWmPreview()"><i></i></label>
             </div>
-            <div class="cfg-row">
-              <span class="cfg-label">内容</span>
-              <input class="cfg-input" id="wmInput" type="text" value="投顾观点仅供参考" maxlength="24" oninput="syncWmPreview()">
-            </div>
-            <div class="cfg-row">
-              <span class="cfg-label">位置</span>
-              <select class="cfg-select" id="wmPos" onchange="syncWmPreview()">
-                <option value="lt">左上</option>
-                <option value="rt">右上</option>
-                <option value="lb">左下</option>
-                <option value="rb">右下</option>
-              </select>
-            </div>
-            <div class="cfg-row">
-              <span class="cfg-label">透明度</span>
-              <input class="cfg-input" id="wmOpacity" type="range" min="0.2" max="1" value="0.85" step="0.05" oninput="syncWmPreview()">
-            </div>
-          </div>
-          <div class="config-panel">
-            <div class="switch-row">
-              <div><strong>字幕配置</strong><div style="color:var(--faint);font-size:12px;">默认跟随每条台词生成</div></div>
+            <div class="wm-switch-cell">
+              <span>字幕开关</span>
               <label class="switch"><input id="subEnabled" type="checkbox" checked onchange="syncWmPreview()"><i></i></label>
             </div>
-            <div class="cfg-row">
-              <span class="cfg-label">示例</span>
-              <input class="cfg-input" id="subInput" type="text" value="字幕示例" maxlength="36" oninput="syncWmPreview()">
+          </div>
+
+          <div class="wm-columns">
+            <div class="wm-watermark-panel">
+              <div class="wm-section-title"><span>水印配置</span></div>
+
+              <div class="wm-field">
+                <div class="wm-field-label">水印模板</div>
+                <div class="wm-control-row">
+                  <select class="cfg-select" id="wmTemplate">
+                    <option value="">选择已保存的水印模板</option>
+                    <option value="risk">投顾合规提示</option>
+                    <option value="brand">品牌角标模板</option>
+                  </select>
+                  <button class="wm-mini-btn" type="button" onclick="toast('水印模板已刷新')">刷新</button>
+                </div>
+                <button class="wm-mini-btn" type="button" style="margin-top:8px;" onclick="saveWmTemplate()">保存水印模板</button>
+              </div>
+
+              <div class="wm-field">
+                <div class="wm-field-label">水印操作</div>
+                <button class="wm-add-btn" type="button" onclick="addPreviewWatermark()">添加水印</button>
+                <div class="wm-help">双击左侧水印编辑文字，按 Delete/Backspace 或点击右上角图标删除</div>
+              </div>
+
+              <div class="wm-field">
+                <div class="wm-field-label">水印类型</div>
+                <div class="wm-tab-group">
+                  <button class="wm-tab-btn active" id="wmTypeText" type="button" onclick="setWmType('text')">文字水印</button>
+                  <button class="wm-tab-btn" id="wmTypeImage" type="button" onclick="setWmType('image')">图片水印</button>
+                </div>
+              </div>
+
+              <div class="wm-field">
+                <div class="wm-field-label"><span class="wm-required">*</span> 字体</div>
+                <select class="cfg-select" id="wmFont" onchange="syncWmPreview()">
+                  <option value="'Source Han Sans SC','Noto Sans SC','Microsoft YaHei',sans-serif">思源黑体</option>
+                  <option value="'Microsoft YaHei',sans-serif">微软雅黑</option>
+                  <option value="'SimSun',serif">宋体</option>
+                  <option value="'PingFang SC',sans-serif">苹方</option>
+                </select>
+              </div>
+
+              <div class="wm-control-grid">
+                <div class="wm-field">
+                  <div class="wm-field-label"><span class="wm-required">*</span> 文本对齐</div>
+                  <div class="wm-align-group">
+                    <button class="wm-align-btn active" id="wmAlignLeft" type="button" onclick="setWmAlign('left')">左</button>
+                    <button class="wm-align-btn" id="wmAlignCenter" type="button" onclick="setWmAlign('center')">中</button>
+                    <button class="wm-align-btn" id="wmAlignRight" type="button" onclick="setWmAlign('right')">右</button>
+                  </div>
+                </div>
+                <div class="wm-field">
+                  <div class="wm-field-label"><span class="wm-required">*</span> 字体粗细</div>
+                  <select class="cfg-select" id="wmWeight" onchange="syncWmPreview()">
+                    <option value="700">加粗</option>
+                    <option value="400">常规</option>
+                    <option value="900">特粗</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="wm-control-grid">
+                <div class="wm-field">
+                  <div class="wm-field-label"><span class="wm-required">*</span> 字体大小</div>
+                  <div class="wm-stepper">
+                    <button class="wm-step-btn" type="button" onclick="stepNumber('wmSize', -1)">−</button>
+                    <input class="cfg-input" id="wmSize" type="number" min="12" max="96" value="36" oninput="syncWmPreview()">
+                    <select class="cfg-select" aria-label="水印字号单位"><option>px</option></select>
+                    <button class="wm-step-btn" type="button" onclick="stepNumber('wmSize', 1)">＋</button>
+                  </div>
+                  <button class="wm-mini-btn" type="button" style="margin-top:8px;" onclick="clearWmFontSize()">清除字号</button>
+                </div>
+                <div class="wm-field">
+                  <div class="wm-field-label"><span class="wm-required">*</span> 字体颜色</div>
+                  <button class="wm-color-btn" type="button" onclick="openColorPicker('wmColor')">
+                    <span style="font-size:16px;">A</span><span class="wm-color-swatch" id="wmColorSwatch"></span>⌄
+                  </button>
+                  <input class="wm-color-picker" id="wmColor" type="color" value="#ffffff" oninput="syncWmPreview()">
+                  <div class="wm-help">输入样式：#ffffff</div>
+                </div>
+              </div>
+
+              <div class="wm-field">
+                <div class="wm-field-label"><span class="wm-required">*</span> 行高</div>
+                <div class="wm-range-row">
+                  <input class="wm-range" id="wmLineHeight" type="range" min="0.8" max="2" step="0.05" value="1.00" oninput="syncRangeInput('wmLineHeight','wmLineHeightInput');syncWmPreview()">
+                  <input class="wm-range-value" id="wmLineHeightInput" type="number" min="0.8" max="2" step="0.05" value="1.00" oninput="syncInputRange('wmLineHeightInput','wmLineHeight');syncWmPreview()">
+                </div>
+              </div>
+
+              <div class="wm-field">
+                <div class="wm-field-label"><span class="wm-required">*</span> 透明度</div>
+                <div class="wm-range-row">
+                  <input class="wm-range" id="wmOpacity" type="range" min="0.2" max="1" value="0.85" step="0.05" oninput="syncRangeInput('wmOpacity','wmOpacityInput');syncWmPreview()">
+                  <input class="wm-range-value" id="wmOpacityInput" type="number" min="0.2" max="1" step="0.05" value="0.85" oninput="syncInputRange('wmOpacityInput','wmOpacity');syncWmPreview()">
+                </div>
+              </div>
             </div>
-            <div class="cfg-row">
-              <span class="cfg-label">位置</span>
-              <select class="cfg-select" id="subPos" onchange="syncWmPreview()">
-                <option value="bottom">中下</option>
-                <option value="middle">居中</option>
-                <option value="top">中上</option>
-              </select>
+
+            <div class="wm-subtitle-panel">
+              <div class="wm-section-title"><span>字幕配置</span></div>
+
+              <div class="subtitle-mode-tabs">
+                <button class="subtitle-mode-btn active" id="subtitleModeGlobal" type="button" onclick="setSubtitleMode('global')">全局配置</button>
+                <button class="subtitle-mode-btn" id="subtitleModeCustom" type="button" onclick="setSubtitleMode('custom')">视频自定义配置</button>
+              </div>
+
+              <div class="subtitle-panel" id="subtitleGlobalPanel">
+                <div class="wm-help" style="margin-top:0;margin-bottom:12px;">任务下所有视频共用这一套字幕样式，不支持单句台词或局部文字调整。</div>
+
+                <div class="wm-control-grid">
+                  <div class="wm-field">
+                    <div class="wm-field-label"><span class="wm-required">*</span> 字体</div>
+                    <select class="cfg-select" id="subFont" onchange="saveGlobalSubtitleStyle();syncWmPreview()">
+                      <option value="'Source Han Sans SC','Noto Sans SC','Microsoft YaHei',sans-serif">思源黑体</option>
+                      <option value="'Microsoft YaHei',sans-serif">微软雅黑</option>
+                      <option value="'SimSun',serif">宋体</option>
+                      <option value="'PingFang SC',sans-serif">苹方</option>
+                    </select>
+                  </div>
+                  <div class="wm-field">
+                    <div class="wm-field-label"><span class="wm-required">*</span> 字体粗细</div>
+                    <select class="cfg-select" id="subWeight" onchange="saveGlobalSubtitleStyle();syncWmPreview()">
+                      <option value="400">常规</option>
+                      <option value="700">加粗</option>
+                      <option value="900">特粗</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="wm-control-grid">
+                  <div class="wm-field">
+                    <div class="wm-field-label"><span class="wm-required">*</span> 字体颜色</div>
+                    <button class="wm-color-btn" type="button" onclick="openColorPicker('subColor')">
+                      <span style="font-size:16px;">A</span><span class="wm-color-swatch" id="subColorSwatch"></span>⌄
+                    </button>
+                    <input class="wm-color-picker" id="subColor" type="color" value="#ffffff" oninput="saveGlobalSubtitleStyle();syncWmPreview()">
+                  </div>
+                  <div class="wm-field">
+                    <div class="wm-field-label"><span class="wm-required">*</span> 背景颜色</div>
+                    <button class="wm-color-btn" type="button" onclick="openColorPicker('subBgColor')">
+                      <span style="font-size:16px;">A</span><span class="wm-color-swatch" id="subBgColorSwatch"></span>⌄
+                    </button>
+                    <input class="wm-color-picker" id="subBgColor" type="color" value="#111111" oninput="saveGlobalSubtitleStyle();syncWmPreview()">
+                  </div>
+                </div>
+
+                <div class="wm-control-grid">
+                  <div class="wm-field">
+                    <div class="wm-field-label"><span class="wm-required">*</span> 字幕位置</div>
+                    <select class="cfg-select" id="subPos" onchange="saveGlobalSubtitleStyle();syncWmPreview()">
+                      <option value="bottom">中下（默认）</option>
+                      <option value="middle">居中</option>
+                      <option value="top">中上</option>
+                    </select>
+                  </div>
+                  <div class="wm-field">
+                    <div class="wm-field-label"><span class="wm-required">*</span> 距离</div>
+                    <div class="wm-control-row">
+                      <input class="cfg-input" id="subDistance" type="number" min="0" max="1200" value="1000" oninput="saveGlobalSubtitleStyle();syncWmPreview()">
+                      <span class="wm-unit">px</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="wm-field">
+                  <div class="wm-field-label"><span class="wm-required">*</span> 字号</div>
+                  <div class="wm-control-row">
+                    <input class="cfg-input" id="subSize" type="number" min="12" max="96" value="36" oninput="saveGlobalSubtitleStyle();syncWmPreview()" style="max-width:150px;">
+                    <span class="wm-unit">px</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="subtitle-panel is-hidden" id="subtitleCustomPanel">
+                <div class="wm-field">
+                  <div class="wm-field-label">当前视频</div>
+                  <div class="subtitle-video-card">
+                    <select class="cfg-select" id="subtitleVideoSelect" onchange="selectSubtitleVideo(this.value)"></select>
+                    <div class="subtitle-meta" id="subtitleVideoMeta">选择视频后，可在下方台词中选中一句或几个字做局部样式。</div>
+                  </div>
+                </div>
+
+                <div class="wm-field">
+                  <div class="wm-field-label">台词内容</div>
+                  <div class="subtitle-transcript-box" id="subtitleTranscript" onmouseup="handleSubtitleTextSelection()" onkeyup="handleSubtitleTextSelection()"></div>
+                  <div class="subtitle-selection-info" id="subtitleSelectionInfo">按标点自动分行；文字不可编辑。请用鼠标选中一句或几个字。</div>
+                </div>
+
+                <div class="wm-field subtitle-inline-toolbar">
+                  <div class="wm-field-label">选中文字样式</div>
+                  <div class="wm-control-grid">
+                    <div>
+                      <div class="wm-field-label">字号</div>
+                      <div class="wm-control-row">
+                        <input class="cfg-input" id="inlineSubSize" type="number" min="12" max="96" value="40" oninput="syncWmPreview()">
+                        <span class="wm-unit">px</span>
+                      </div>
+                    </div>
+                    <div>
+                      <div class="wm-field-label">字体颜色</div>
+                      <button class="wm-color-btn" type="button" onclick="openColorPicker('inlineSubColor')">
+                        <span style="font-size:16px;">A</span><span class="wm-color-swatch" id="inlineSubColorSwatch"></span>⌄
+                      </button>
+                      <input class="wm-color-picker" id="inlineSubColor" type="color" value="#ffd166" oninput="updateColorSwatches();syncWmPreview()">
+                    </div>
+                  </div>
+                  <div class="wm-control-grid" style="margin-top:12px;">
+                    <div>
+                      <div class="wm-field-label">粗细</div>
+                      <select class="cfg-select" id="inlineSubWeight" onchange="syncWmPreview()">
+                        <option value="700">加粗</option>
+                        <option value="400">常规</option>
+                        <option value="900">特粗</option>
+                      </select>
+                    </div>
+                    <div>
+                      <div class="wm-field-label">描边/阴影</div>
+                      <div class="subtitle-effect-tabs">
+                        <button class="wm-tab-btn active" id="inlineEffectShadow" type="button" onclick="setInlineEffect('shadow')">阴影</button>
+                        <button class="wm-tab-btn" id="inlineEffectStroke" type="button" onclick="setInlineEffect('stroke')">描边</button>
+                        <button class="wm-tab-btn" id="inlineEffectNone" type="button" onclick="setInlineEffect('none')">无</button>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="subtitle-actions" style="margin-top:12px;">
+                    <button class="wm-mini-btn" type="button" onclick="applyInlineSubtitleStyle()">应用到选中文字</button>
+                    <button class="wm-mini-btn" type="button" onclick="clearInlineSubtitleStyle()">清除当前行样式</button>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
       <div class="modal-actions">
-        <button class="btn btn-secondary" type="button" onclick="resetWmConfig()">重置</button>
-        <button class="btn btn-secondary" type="button" onclick="closeWmConfig()">取消</button>
-        <button class="btn btn-primary" type="button" onclick="saveWmConfig()">应用至该批次</button>
+        <button class="btn btn-secondary wm-reset-btn" type="button" onclick="resetWmConfig()">重置</button>
+        <div class="wm-action-right">
+          <button class="btn btn-secondary" type="button" onclick="closeWmConfig()">取消</button>
+          <button class="btn btn-primary" type="button" onclick="saveWmConfig()">应用</button>
+        </div>
       </div>
     </div>
   </div>
@@ -1896,6 +2600,7 @@
   <script>
     var STORAGE_KEY = 'director_batch_workbench_tasks_v2';
     var COVER_KEY = 'director_batch_workbench_cover_configs_v1';
+    var WM_CONFIG_KEY = 'director_batch_workbench_wm_configs_v1';
     var selectedGroups = new Set();
     var currentFilter = 'all';
     var currentTaskView = 'list';
@@ -1907,6 +2612,25 @@
     var cardPlayingId = null;
     var cardPlaybackProgress = 0;
     var currentWmTask = null;
+    var wmState = {
+      type: 'text',
+      align: 'left',
+      text: '添加水印',
+      xPct: 4,
+      yPct: 3,
+      scale: 1,
+      dragging: false,
+      resizing: false,
+      resizeStartX: 0,
+      resizeBase: 1
+    };
+    var subtitleState = {
+      mode: 'global',
+      videoId: null,
+      activeLineIndex: 0,
+      selection: null,
+      inlineEffect: 'shadow'
+    };
     var coverContext = null;
     var currentCoverMode = 'frame';
     var singleCoverPct = 28;
@@ -1917,9 +2641,9 @@
     var coverCropScale = 1;
 
     var seedTasks = [
-      { id: 1, taskName: '草稿_投资入门指南', visibility: '仅自己', script: '（草稿，暂未填写台词）', status: 'draft', progress: 0, duration: 0, cost: 0, createdAt: '2026-06-10T08:00:00', startedAt: null, completedAt: null, wmStatus: null, person: { name: '角色 A · 知性女性', emoji: '👩', gradient: 'linear-gradient(135deg,#ff9a9e,#fad0c4)' }, bg: { name: '办公室', gradient: 'linear-gradient(135deg,#667eea,#764ba2)' } },
-      { id: 2, taskName: '排队中_基金定投解读', visibility: '团队共享', script: '基金定投是一种适合普通投资者的长期理财方式，每月固定金额投入。', status: 'queued', progress: 0, duration: 7, cost: 14, createdAt: '2026-06-11T09:00:00', startedAt: null, completedAt: null, wmStatus: null, person: { name: '角色 B · 商务男性', emoji: '👨', gradient: 'linear-gradient(135deg,#a18cd1,#fbc2eb)' }, bg: { name: '办公室', gradient: 'linear-gradient(135deg,#667eea,#764ba2)' } },
-      { id: 3, taskName: '排队中_基金定投解读', visibility: '团队共享', script: '选择定投基金时，建议优先考虑指数型基金，费率低且长期收益稳定。', status: 'queued', progress: 0, duration: 6, cost: 12, createdAt: '2026-06-11T09:00:00', startedAt: null, completedAt: null, wmStatus: null, person: { name: '角色 B · 商务男性', emoji: '👨', gradient: 'linear-gradient(135deg,#a18cd1,#fbc2eb)' }, bg: { name: '办公室', gradient: 'linear-gradient(135deg,#667eea,#764ba2)' } },
+      { id: 1, taskName: '已完成_投资入门指南', visibility: '仅自己', script: '投资入门的第一步，不是追求高收益，而是先明确资金期限、风险承受能力和投资目标。', status: 'completed', progress: 100, duration: 9, cost: 18, createdAt: '2026-06-10T08:00:00', startedAt: '2026-06-10T08:02:00', completedAt: '2026-06-10T08:08:00', wmStatus: null, person: { name: '角色 A · 知性女性', emoji: '👩', gradient: 'linear-gradient(135deg,#ff9a9e,#fad0c4)' }, bg: { name: '办公室', gradient: 'linear-gradient(135deg,#667eea,#764ba2)' } },
+      { id: 2, taskName: '基金定投科普模板', visibility: '团队共享', script: '基金定投是一种适合普通投资者的长期理财方式，每月固定金额投入。', status: 'completed', progress: 100, duration: 7, cost: 14, createdAt: '2026-06-11T09:00:00', startedAt: '2026-06-11T09:01:00', completedAt: '2026-06-11T09:06:00', wmStatus: null, person: { name: '角色 B · 商务男性', emoji: '👨', gradient: 'linear-gradient(135deg,#a18cd1,#fbc2eb)' }, bg: { name: '办公室', gradient: 'linear-gradient(135deg,#667eea,#764ba2)' } },
+      { id: 3, taskName: '基金定投科普模板', visibility: '团队共享', script: '选择定投基金时，建议优先考虑指数型基金，费率低且长期收益稳定。', status: 'completed', progress: 100, duration: 6, cost: 12, createdAt: '2026-06-11T09:00:00', startedAt: '2026-06-11T09:01:30', completedAt: '2026-06-11T09:06:30', wmStatus: null, person: { name: '角色 B · 商务男性', emoji: '👨', gradient: 'linear-gradient(135deg,#a18cd1,#fbc2eb)' }, bg: { name: '办公室', gradient: 'linear-gradient(135deg,#667eea,#764ba2)' } },
       { id: 4, taskName: '生成中_保险配置攻略', visibility: '团队共享', script: '家庭保险配置应该遵循先大人后小孩、先保障后理财的原则。', status: 'generating', progress: 55, duration: 8, cost: 16, createdAt: '2026-06-11T10:00:00', startedAt: '2026-06-11T10:01:00', completedAt: null, wmStatus: null, person: { name: '角色 C · 可靠中年', emoji: '🧑', gradient: 'linear-gradient(135deg,#ffecd2,#fcb69f)' }, bg: { name: '居家', gradient: 'linear-gradient(135deg,#a8edea,#fed6e3)' } },
       { id: 5, taskName: '生成中_保险配置攻略', visibility: '团队共享', script: '重大疾病保险的保额建议设置为年收入的3-5倍，才能有效覆盖风险。', status: 'completed', progress: 100, duration: 9, cost: 18, createdAt: '2026-06-11T10:00:00', startedAt: '2026-06-11T10:01:00', completedAt: '2026-06-11T10:07:30', wmStatus: null, person: { name: '角色 C · 可靠中年', emoji: '🧑', gradient: 'linear-gradient(135deg,#ffecd2,#fcb69f)' }, bg: { name: '居家', gradient: 'linear-gradient(135deg,#a8edea,#fed6e3)' } },
       { id: 12, taskName: '生成中_保险配置攻略', visibility: '团队共享', script: '医疗险主要解决住院报销问题，适合作为重疾险之外的基础补充保障。', status: 'completed', progress: 100, duration: 7, cost: 14, createdAt: '2026-06-11T10:00:00', startedAt: '2026-06-11T10:01:30', completedAt: '2026-06-11T10:06:40', wmStatus: null, person: { name: '角色 C · 可靠中年', emoji: '🧑', gradient: 'linear-gradient(135deg,#ffecd2,#fcb69f)' }, bg: { name: '会议室', gradient: 'linear-gradient(135deg,#a1c4fd,#c2e9fb)' } },
@@ -1937,7 +2661,40 @@
     function loadTasks() {
       try {
         var raw = localStorage.getItem(STORAGE_KEY);
-        if (raw) return JSON.parse(raw);
+        if (raw) {
+          var storedTasks = JSON.parse(raw);
+          if (Array.isArray(storedTasks)) {
+            var mockDataChanged = false;
+            var legacyFirstIndex = storedTasks.findIndex(function(task) {
+              return task.id === 1 && task.taskName === '草稿_投资入门指南' && task.status === 'draft';
+            });
+            if (legacyFirstIndex >= 0) {
+              storedTasks[legacyFirstIndex] = Object.assign({}, storedTasks[legacyFirstIndex], seedTasks[0]);
+              mockDataChanged = true;
+            }
+            storedTasks = storedTasks.map(function(task) {
+              var isLegacyFundMock = (task.id === 2 || task.id === 3) && task.taskName === '排队中_基金定投解读';
+              if (isLegacyFundMock) {
+                var fundSeed = seedTasks.find(function(seedTask) { return seedTask.id === task.id; });
+                mockDataChanged = true;
+                return Object.assign({}, task, fundSeed);
+              }
+              if (task.taskName === '基金定投科普模板' && (task.status !== 'completed' || task.progress !== 100 || task.wmStatus === 'processing')) {
+                mockDataChanged = true;
+                return Object.assign({}, task, {
+                  status: 'completed',
+                  progress: 100,
+                  startedAt: task.startedAt || task.createdAt || '2026-06-11T09:01:00',
+                  completedAt: task.completedAt || '2026-06-11T09:06:30',
+                  wmStatus: null
+                });
+              }
+              return task;
+            });
+            if (mockDataChanged) saveTasks(storedTasks);
+          }
+          return storedTasks;
+        }
       } catch (e) {}
       saveTasks(seedTasks);
       return seedTasks.slice();
@@ -2100,6 +2857,8 @@
         var rows = map[name].sort(function(a, b) { return new Date(a.createdAt) - new Date(b.createdAt); });
         return { name: name, rows: rows };
       }).sort(function(a, b) {
+        if (a.name === '基金定投科普模板') return -1;
+        if (b.name === '基金定投科普模板') return 1;
         return new Date(b.rows[0].createdAt) - new Date(a.rows[0].createdAt);
       });
     }
@@ -3142,52 +3901,851 @@
 
     function openWmConfig(name) {
       currentWmTask = name;
-      document.getElementById('wmTaskName').textContent = name;
+      document.getElementById('wmModalTitle').textContent = name + ' - 水印字幕配置';
+      document.getElementById('wmTaskName').textContent = '当前应用范围：' + name;
       document.getElementById('wmOverlay').classList.add('show');
+      initWmDrag();
+      initSubtitleWorkspace(name);
       syncWmPreview();
     }
 
     function closeWmConfig() {
       document.getElementById('wmOverlay').classList.remove('show');
       currentWmTask = null;
+      subtitleState.videoId = null;
+      subtitleState.activeLineIndex = 0;
+      subtitleState.selection = null;
+    }
+
+    function loadWmConfigs() {
+      try {
+        var raw = localStorage.getItem(WM_CONFIG_KEY);
+        if (raw) return JSON.parse(raw);
+      } catch (e) {}
+      return { groups: {} };
+    }
+
+    function saveWmConfigs(configs) {
+      try { localStorage.setItem(WM_CONFIG_KEY, JSON.stringify(configs)); } catch (e) {}
+    }
+
+    function getGroupWmConfig(taskName) {
+      var configs = loadWmConfigs();
+      if (!configs.groups) configs.groups = {};
+      if (!configs.groups[taskName]) {
+        configs.groups[taskName] = {
+          globalSubtitleStyle: getDefaultSubtitleStyle(),
+          customSubtitleByVideoId: {},
+          subtitleMode: 'global'
+        };
+      }
+      if (!configs.groups[taskName].globalSubtitleStyle) configs.groups[taskName].globalSubtitleStyle = getDefaultSubtitleStyle();
+      if (!configs.groups[taskName].customSubtitleByVideoId) configs.groups[taskName].customSubtitleByVideoId = {};
+      if (!configs.groups[taskName].subtitleMode) configs.groups[taskName].subtitleMode = 'global';
+      return configs.groups[taskName];
+    }
+
+    function persistGroupWmConfig(taskName, config) {
+      var configs = loadWmConfigs();
+      if (!configs.groups) configs.groups = {};
+      configs.groups[taskName] = config;
+      saveWmConfigs(configs);
+    }
+
+    function getDefaultSubtitleStyle() {
+      return {
+        font: "'Source Han Sans SC','Noto Sans SC','Microsoft YaHei',sans-serif",
+        weight: '400',
+        color: '#ffffff',
+        bgColor: '#111111',
+        pos: 'bottom',
+        distance: '1000',
+        size: '36'
+      };
+    }
+
+    function captureSubtitleStyle() {
+      return {
+        font: document.getElementById('subFont').value,
+        weight: document.getElementById('subWeight').value,
+        color: document.getElementById('subColor').value,
+        bgColor: document.getElementById('subBgColor').value,
+        pos: document.getElementById('subPos').value,
+        distance: document.getElementById('subDistance').value,
+        size: document.getElementById('subSize').value
+      };
+    }
+
+    function applySubtitleStyleToControls(style) {
+      var s = Object.assign(getDefaultSubtitleStyle(), style || {});
+      document.getElementById('subFont').value = s.font;
+      document.getElementById('subWeight').value = s.weight;
+      document.getElementById('subColor').value = s.color;
+      document.getElementById('subBgColor').value = s.bgColor;
+      document.getElementById('subPos').value = s.pos;
+      document.getElementById('subDistance').value = s.distance;
+      document.getElementById('subSize').value = s.size;
+      updateColorSwatches();
+    }
+
+    function getCompletedTasksInCurrentGroup() {
+      if (!currentWmTask) return [];
+      return loadTasks().filter(function(t) {
+        return t.taskName === currentWmTask && t.status === 'completed';
+      });
+    }
+
+    function makeSubtitleSegments(task) {
+      var raw = String(task && task.script ? task.script : '字幕示例').replace(/[（）]/g, '').trim() || '字幕示例';
+      var parts = raw.match(/[^，。！？；、,.!?;]+[，。！？；、,.!?;]?/g) || [raw];
+      parts = parts.map(function(p) { return p.trim(); }).filter(Boolean);
+      if (parts.length < 2 && raw.length > 18) {
+        parts = [];
+        for (var i = 0; i < raw.length; i += 14) parts.push(raw.slice(i, i + 14));
+      }
+      return parts.map(function(text, index) {
+        var start = index * 2.4;
+        var end = start + Math.max(1.6, Math.min(3.2, text.length / 6));
+        return {
+          id: 'seg-' + task.id + '-' + index,
+          index: index + 1,
+          text: text,
+          start: start,
+          end: end
+        };
+      });
+    }
+
+    function formatSegmentTime(sec) {
+      var total = Math.max(0, Math.round(sec));
+      return '0:' + pad(total);
+    }
+
+    function getActiveSubtitleTask() {
+      var id = String(subtitleState.videoId || '');
+      return getCompletedTasksInCurrentGroup().find(function(t) { return String(t.id) === id; }) || null;
+    }
+
+    function getActiveSubtitleSegment() {
+      var task = getActiveSubtitleTask();
+      if (!task) return null;
+      return makeSubtitleSegments(task).find(function(seg) { return seg.id === subtitleState.activeSegmentId; }) || null;
+    }
+
+    function getCurrentSubtitleOverrides(config, videoId) {
+      if (!config.subtitleOverridesByVideoId) config.subtitleOverridesByVideoId = {};
+      if (!config.subtitleOverridesByVideoId[String(videoId)]) config.subtitleOverridesByVideoId[String(videoId)] = {};
+      return config.subtitleOverridesByVideoId[String(videoId)];
+    }
+
+    function getEffectiveSubtitleStyle(taskName, videoId, segmentId) {
+      var config = getGroupWmConfig(taskName);
+      var globalStyle = Object.assign(getDefaultSubtitleStyle(), config.globalSubtitleStyle || {});
+      var overrides = getCurrentSubtitleOverrides(config, videoId);
+      return Object.assign(globalStyle, overrides[segmentId] || {});
+    }
+
+    function initSubtitleWorkspace(taskName) {
+      var tasks = getCompletedTasksInCurrentGroup();
+      var select = document.getElementById('subtitleVideoSelect');
+      select.innerHTML = tasks.map(function(task) {
+        return '<option value="' + task.id + '">' + escapeHtml(task.script.slice(0, 18)) + ' · #' + task.id + '</option>';
+      }).join('');
+      if (!tasks.length) {
+        subtitleState.videoId = null;
+        subtitleState.activeSegmentId = null;
+        subtitleState.selectedSegmentIds.clear();
+        document.getElementById('subtitleVideoMeta').textContent = '当前批次暂无已完成视频，生成完成后可配置片段字幕。';
+        document.getElementById('subtitleSegmentList').innerHTML = '';
+        document.getElementById('subtitleSegmentSummary').textContent = '当前未选择字幕片段';
+        applySubtitleStyleToControls(getGroupWmConfig(taskName).globalSubtitleStyle);
+        return;
+      }
+      subtitleState.videoId = String(tasks[0].id);
+      select.value = subtitleState.videoId;
+      subtitleState.selectedSegmentIds.clear();
+      var firstSeg = makeSubtitleSegments(tasks[0])[0];
+      subtitleState.activeSegmentId = firstSeg ? firstSeg.id : null;
+      if (firstSeg) subtitleState.selectedSegmentIds.add(firstSeg.id);
+      refreshSubtitleSegmentPanel();
+    }
+
+    function selectSubtitleVideo(videoId) {
+      subtitleState.videoId = String(videoId);
+      subtitleState.selectedSegmentIds.clear();
+      var task = getActiveSubtitleTask();
+      var firstSeg = task ? makeSubtitleSegments(task)[0] : null;
+      subtitleState.activeSegmentId = firstSeg ? firstSeg.id : null;
+      if (firstSeg) subtitleState.selectedSegmentIds.add(firstSeg.id);
+      refreshSubtitleSegmentPanel();
+      syncWmPreview();
+    }
+
+    function refreshSubtitleSegmentPanel() {
+      var task = getActiveSubtitleTask();
+      var list = document.getElementById('subtitleSegmentList');
+      var meta = document.getElementById('subtitleVideoMeta');
+      var summary = document.getElementById('subtitleSegmentSummary');
+      if (!task) {
+        list.innerHTML = '';
+        meta.textContent = '当前未选择视频。';
+        summary.textContent = '当前未选择字幕片段';
+        return;
+      }
+      var segments = makeSubtitleSegments(task);
+      var config = getGroupWmConfig(currentWmTask);
+      var overrides = getCurrentSubtitleOverrides(config, task.id);
+      if (!subtitleState.activeSegmentId && segments[0]) subtitleState.activeSegmentId = segments[0].id;
+      meta.textContent = '视频 #' + task.id + ' · ' + (task.duration || 0) + 's · 共 ' + segments.length + ' 条字幕片段';
+      list.innerHTML = segments.map(function(seg) {
+        var active = seg.id === subtitleState.activeSegmentId ? ' active' : '';
+        var selected = subtitleState.selectedSegmentIds.has(seg.id) ? ' is-selected' : '';
+        var checked = subtitleState.selectedSegmentIds.has(seg.id) ? ' checked' : '';
+        var hasOverride = overrides[seg.id] ? '<span class="subtitle-override-badge">已覆盖</span>' : '<span></span>';
+        return '<button class="subtitle-segment-item' + active + selected + '" type="button" onclick="selectSubtitleSegment(\'' + seg.id + '\')">' +
+          '<input class="subtitle-segment-check" type="checkbox"' + checked + ' onclick="toggleSubtitleSegmentSelect(event,\'' + seg.id + '\')">' +
+          '<span class="subtitle-segment-main">' +
+            '<span class="subtitle-segment-time">' + formatSegmentTime(seg.start) + ' - ' + formatSegmentTime(seg.end) + ' · 字幕 ' + seg.index + '</span>' +
+            '<span class="subtitle-segment-text">' + escapeHtml(seg.text) + '</span>' +
+          '</span>' +
+          hasOverride +
+        '</button>';
+      }).join('');
+      var activeSeg = getActiveSubtitleSegment();
+      document.getElementById('subInput').value = activeSeg ? activeSeg.text : '字幕示例';
+      applySubtitleStyleToControls(getEffectiveSubtitleStyle(currentWmTask, task.id, subtitleState.activeSegmentId));
+      summary.textContent = '已选择 ' + subtitleState.selectedSegmentIds.size + ' 条字幕；绿色标记表示该片段已有独立样式。';
+    }
+
+    function selectSubtitleSegment(segmentId) {
+      subtitleState.activeSegmentId = segmentId;
+      if (!subtitleState.selectedSegmentIds.has(segmentId)) subtitleState.selectedSegmentIds.add(segmentId);
+      refreshSubtitleSegmentPanel();
+      syncWmPreview();
+    }
+
+    function toggleSubtitleSegmentSelect(event, segmentId) {
+      event.stopPropagation();
+      if (event.target.checked) {
+        subtitleState.selectedSegmentIds.add(segmentId);
+        subtitleState.activeSegmentId = segmentId;
+      } else {
+        subtitleState.selectedSegmentIds.delete(segmentId);
+      }
+      refreshSubtitleSegmentPanel();
+      syncWmPreview();
+    }
+
+    function applyCurrentSubtitleStyle() {
+      var task = getActiveSubtitleTask();
+      if (!task || !subtitleState.activeSegmentId) return toast('请先选择字幕片段');
+      var config = getGroupWmConfig(currentWmTask);
+      var overrides = getCurrentSubtitleOverrides(config, task.id);
+      overrides[subtitleState.activeSegmentId] = captureSubtitleStyle();
+      persistGroupWmConfig(currentWmTask, config);
+      refreshSubtitleSegmentPanel();
+      syncWmPreview();
+      toast('已应用到当前字幕片段');
+    }
+
+    function applySelectedSubtitleStyle() {
+      var task = getActiveSubtitleTask();
+      if (!task || !subtitleState.selectedSegmentIds.size) return toast('请先勾选字幕片段');
+      var style = captureSubtitleStyle();
+      var config = getGroupWmConfig(currentWmTask);
+      var overrides = getCurrentSubtitleOverrides(config, task.id);
+      subtitleState.selectedSegmentIds.forEach(function(id) { overrides[id] = Object.assign({}, style); });
+      persistGroupWmConfig(currentWmTask, config);
+      refreshSubtitleSegmentPanel();
+      syncWmPreview();
+      toast('已应用到 ' + subtitleState.selectedSegmentIds.size + ' 条字幕片段');
+    }
+
+    function clearSubtitleOverrides() {
+      var task = getActiveSubtitleTask();
+      if (!task) return toast('请先选择视频');
+      var config = getGroupWmConfig(currentWmTask);
+      var overrides = getCurrentSubtitleOverrides(config, task.id);
+      var targets = subtitleState.selectedSegmentIds.size ? Array.from(subtitleState.selectedSegmentIds) : [subtitleState.activeSegmentId];
+      targets.forEach(function(id) { if (id) delete overrides[id]; });
+      persistGroupWmConfig(currentWmTask, config);
+      refreshSubtitleSegmentPanel();
+      syncWmPreview();
+      toast('已清除片段样式覆盖');
+    }
+
+    function saveGlobalSubtitleStyle() {
+      var config = getGroupWmConfig(currentWmTask);
+      config.globalSubtitleStyle = captureSubtitleStyle();
+      persistGroupWmConfig(currentWmTask, config);
+      refreshSubtitleSegmentPanel();
+      syncWmPreview();
+      toast('已保存为全局字幕默认样式');
+    }
+
+    function makeSubtitleLines(task) {
+      var raw = String(task && task.script ? task.script : '字幕示例').replace(/[（）]/g, '').trim() || '字幕示例';
+      var parts = raw.match(/[^，。！？；、,.!?;]+[，。！？；、,.!?;]?/g) || [raw];
+      parts = parts.map(function(p) { return p.trim(); }).filter(Boolean);
+      if (parts.length < 2 && raw.length > 18) {
+        parts = [];
+        for (var i = 0; i < raw.length; i += 14) parts.push(raw.slice(i, i + 14));
+      }
+      return parts.map(function(text, index) { return { index: index, text: text }; });
+    }
+
+    function getVideoCustomSubtitle(config, videoId) {
+      if (!config.customSubtitleByVideoId) config.customSubtitleByVideoId = {};
+      if (!config.customSubtitleByVideoId[String(videoId)]) config.customSubtitleByVideoId[String(videoId)] = { lines: {} };
+      if (!config.customSubtitleByVideoId[String(videoId)].lines) config.customSubtitleByVideoId[String(videoId)].lines = {};
+      return config.customSubtitleByVideoId[String(videoId)];
+    }
+
+    function getActiveSubtitleLine() {
+      var task = getActiveSubtitleTask();
+      if (!task) return null;
+      return makeSubtitleLines(task)[subtitleState.activeLineIndex] || null;
+    }
+
+    function getLineStyleRanges(taskName, videoId, lineIndex) {
+      var config = getGroupWmConfig(taskName);
+      var videoConfig = getVideoCustomSubtitle(config, videoId);
+      var line = videoConfig.lines[String(lineIndex)];
+      return line && Array.isArray(line.ranges) ? line.ranges : [];
+    }
+
+    function setSubtitleMode(mode, silent) {
+      subtitleState.mode = mode;
+      document.getElementById('subtitleModeGlobal').classList.toggle('active', mode === 'global');
+      document.getElementById('subtitleModeCustom').classList.toggle('active', mode === 'custom');
+      document.getElementById('subtitleGlobalPanel').classList.toggle('is-hidden', mode !== 'global');
+      document.getElementById('subtitleCustomPanel').classList.toggle('is-hidden', mode !== 'custom');
+      if (currentWmTask) {
+        var config = getGroupWmConfig(currentWmTask);
+        config.subtitleMode = mode;
+        persistGroupWmConfig(currentWmTask, config);
+      }
+      if (mode === 'custom') renderSubtitleTranscript();
+      syncWmPreview();
+      if (!silent) toast(mode === 'global' ? '已切换为全局字幕配置' : '已切换为视频自定义字幕配置');
+    }
+
+    function initSubtitleWorkspace(taskName) {
+      var config = getGroupWmConfig(taskName);
+      applySubtitleStyleToControls(config.globalSubtitleStyle);
+      setSubtitleMode(config.subtitleMode || 'global', true);
+      setInlineEffect(subtitleState.inlineEffect || 'shadow');
+      var tasks = getCompletedTasksInCurrentGroup();
+      var select = document.getElementById('subtitleVideoSelect');
+      select.innerHTML = tasks.map(function(task) {
+        return '<option value="' + task.id + '">' + escapeHtml(task.script.slice(0, 18)) + ' · #' + task.id + '</option>';
+      }).join('');
+      if (!tasks.length) {
+        subtitleState.videoId = null;
+        subtitleState.activeLineIndex = 0;
+        subtitleState.selection = null;
+        document.getElementById('subtitleVideoMeta').textContent = '当前批次暂无已完成视频，生成完成后可做视频自定义字幕。';
+        document.getElementById('subtitleTranscript').innerHTML = '';
+        document.getElementById('subtitleSelectionInfo').textContent = '当前未选择视频';
+        return;
+      }
+      subtitleState.videoId = String(tasks[0].id);
+      select.value = subtitleState.videoId;
+      subtitleState.activeLineIndex = 0;
+      subtitleState.selection = null;
+      renderSubtitleTranscript();
+    }
+
+    function selectSubtitleVideo(videoId) {
+      subtitleState.videoId = String(videoId);
+      subtitleState.activeLineIndex = 0;
+      subtitleState.selection = null;
+      renderSubtitleTranscript();
+      syncWmPreview();
+    }
+
+    function renderSubtitleTranscript() {
+      var task = getActiveSubtitleTask();
+      var box = document.getElementById('subtitleTranscript');
+      var meta = document.getElementById('subtitleVideoMeta');
+      var info = document.getElementById('subtitleSelectionInfo');
+      if (!task) {
+        box.innerHTML = '';
+        meta.textContent = '当前未选择视频。';
+        info.textContent = '当前未选择视频';
+        return;
+      }
+      var lines = makeSubtitleLines(task);
+      if (subtitleState.activeLineIndex >= lines.length) subtitleState.activeLineIndex = 0;
+      meta.textContent = '视频 #' + task.id + ' · ' + (task.duration || 0) + 's · 按标点拆分为 ' + lines.length + ' 行台词';
+      box.innerHTML = lines.map(function(line) {
+        var active = line.index === subtitleState.activeLineIndex ? ' active' : '';
+        var selectedRange = subtitleState.selection && subtitleState.selection.lineIndex === line.index
+          ? subtitleState.selection
+          : null;
+        return '<div class="subtitle-line' + active + '" data-line-index="' + line.index + '" onclick="selectSubtitleLine(' + line.index + ')">' +
+          renderSubtitleLineHtml(line.text, getLineStyleRanges(currentWmTask, task.id, line.index), selectedRange) +
+        '</div>';
+      }).join('');
+      info.textContent = subtitleState.selection
+        ? '已选中第 ' + (subtitleState.activeLineIndex + 1) + ' 行的 ' + (subtitleState.selection.end - subtitleState.selection.start) + ' 个字，可应用局部样式。'
+        : '当前预览第 ' + (subtitleState.activeLineIndex + 1) + ' 行；可拖选整句或几个字后设置局部样式。';
+    }
+
+    function renderSubtitleLineHtml(text, ranges, selectedRange) {
+      ranges = ranges || [];
+      if (!ranges.length && !selectedRange) return escapeHtml(text);
+      var points = [0, text.length];
+      ranges.forEach(function(r) {
+        points.push(Math.max(0, Math.min(text.length, r.start)));
+        points.push(Math.max(0, Math.min(text.length, r.end)));
+      });
+      if (selectedRange) {
+        points.push(Math.max(0, Math.min(text.length, selectedRange.start)));
+        points.push(Math.max(0, Math.min(text.length, selectedRange.end)));
+      }
+      points = Array.from(new Set(points)).sort(function(a, b) { return a - b; });
+      var html = '';
+      for (var i = 0; i < points.length - 1; i++) {
+        var start = points[i];
+        var end = points[i + 1];
+        if (start === end) continue;
+        var style = null;
+        ranges.forEach(function(r) {
+          if (start >= r.start && end <= r.end) style = r.style;
+        });
+        var chunk = escapeHtml(text.slice(start, end));
+        var isSelected = selectedRange && start >= selectedRange.start && end <= selectedRange.end;
+        if (style || isSelected) {
+          var classes = [];
+          if (style) classes.push('subtitle-inline-mark');
+          if (isSelected) classes.push('subtitle-selected-range');
+          html += '<span class="' + classes.join(' ') + '"' + (style ? ' style="' + inlineStyleToCss(style) + '"' : '') + '>' + chunk + '</span>';
+        } else {
+          html += chunk;
+        }
+      }
+      return html;
+    }
+
+    function inlineStyleToCss(style) {
+      var css = [];
+      if (style.size) css.push('font-size:' + style.size + 'px');
+      if (style.color) css.push('color:' + style.color);
+      if (style.weight) css.push('font-weight:' + style.weight);
+      if (style.effect === 'shadow') css.push('text-shadow:0 2px 5px rgba(0,0,0,0.75)');
+      if (style.effect === 'stroke') css.push('-webkit-text-stroke:1px rgba(0,0,0,0.85);text-shadow:0 1px 2px rgba(0,0,0,0.55)');
+      return css.join(';');
+    }
+
+    function selectSubtitleLine(index) {
+      var selection = window.getSelection();
+      if (selection && !selection.isCollapsed) return;
+      subtitleState.activeLineIndex = Number(index) || 0;
+      subtitleState.selection = null;
+      renderSubtitleTranscript();
+      syncWmPreview();
+    }
+
+    function handleSubtitleTextSelection() {
+      var selection = window.getSelection();
+      if (!selection || selection.isCollapsed || !selection.rangeCount) return;
+      var range = selection.getRangeAt(0);
+      var lineEl = range.startContainer.parentElement && range.startContainer.parentElement.closest
+        ? range.startContainer.parentElement.closest('.subtitle-line')
+        : null;
+      if (!lineEl || !lineEl.contains(range.endContainer)) return;
+      var lineIndex = Number(lineEl.dataset.lineIndex || 0);
+      var line = makeSubtitleLines(getActiveSubtitleTask())[lineIndex];
+      if (!line) return;
+      var preRange = document.createRange();
+      preRange.selectNodeContents(lineEl);
+      preRange.setEnd(range.startContainer, range.startOffset);
+      var start = preRange.toString().length;
+      var selected = range.toString();
+      var end = Math.min(line.text.length, start + selected.length);
+      if (end <= start) return;
+      subtitleState.activeLineIndex = lineIndex;
+      subtitleState.selection = { lineIndex: lineIndex, start: start, end: end, text: line.text.slice(start, end) };
+      renderSubtitleTranscript();
+      syncWmPreview();
+    }
+
+    function captureInlineSubtitleStyle() {
+      return {
+        size: document.getElementById('inlineSubSize').value || '40',
+        color: document.getElementById('inlineSubColor').value || '#ffd166',
+        weight: document.getElementById('inlineSubWeight').value || '700',
+        effect: subtitleState.inlineEffect || 'shadow'
+      };
+    }
+
+    function applyInlineSubtitleStyle() {
+      var task = getActiveSubtitleTask();
+      if (!task || !subtitleState.selection) return toast('请先在台词中选中一句或几个字');
+      var config = getGroupWmConfig(currentWmTask);
+      var videoConfig = getVideoCustomSubtitle(config, task.id);
+      var lineKey = String(subtitleState.selection.lineIndex);
+      var ranges = (videoConfig.lines[lineKey] && videoConfig.lines[lineKey].ranges) || [];
+      var sel = subtitleState.selection;
+      ranges = ranges.filter(function(r) { return r.end <= sel.start || r.start >= sel.end; });
+      ranges.push({ start: sel.start, end: sel.end, style: captureInlineSubtitleStyle() });
+      videoConfig.lines[lineKey] = { ranges: ranges };
+      persistGroupWmConfig(currentWmTask, config);
+      renderSubtitleTranscript();
+      syncWmPreview();
+      toast('已应用到选中文字');
+    }
+
+    function clearInlineSubtitleStyle() {
+      var task = getActiveSubtitleTask();
+      if (!task) return toast('请先选择视频');
+      var config = getGroupWmConfig(currentWmTask);
+      var videoConfig = getVideoCustomSubtitle(config, task.id);
+      delete videoConfig.lines[String(subtitleState.activeLineIndex)];
+      persistGroupWmConfig(currentWmTask, config);
+      subtitleState.selection = null;
+      renderSubtitleTranscript();
+      syncWmPreview();
+      toast('已清除当前行局部样式');
+    }
+
+    function setInlineEffect(effect) {
+      subtitleState.inlineEffect = effect;
+      ['Shadow', 'Stroke', 'None'].forEach(function(name) {
+        var btn = document.getElementById('inlineEffect' + name);
+        if (btn) btn.classList.toggle('active', effect.toLowerCase() === name.toLowerCase());
+      });
+      syncWmPreview();
+    }
+
+    function saveGlobalSubtitleStyle() {
+      if (!currentWmTask) return;
+      var config = getGroupWmConfig(currentWmTask);
+      config.globalSubtitleStyle = captureSubtitleStyle();
+      persistGroupWmConfig(currentWmTask, config);
+    }
+
+    function getPreviewSubtitleHtml() {
+      if (subtitleState.mode !== 'custom') return escapeHtml(getGlobalPreviewSubtitleText());
+      var task = getActiveSubtitleTask();
+      var line = getActiveSubtitleLine();
+      if (!task || !line) return escapeHtml(getGlobalPreviewSubtitleText());
+      var ranges = getLineStyleRanges(currentWmTask, task.id, line.index).slice();
+      if (subtitleState.selection && subtitleState.selection.lineIndex === line.index) {
+        ranges = ranges.filter(function(r) { return r.end <= subtitleState.selection.start || r.start >= subtitleState.selection.end; });
+        ranges.push({ start: subtitleState.selection.start, end: subtitleState.selection.end, style: captureInlineSubtitleStyle() });
+      }
+      return renderSubtitleLineHtml(line.text, ranges);
+    }
+
+    function getGlobalPreviewSubtitleText() {
+      var task = getActiveSubtitleTask();
+      if (task && task.script) return makeSubtitleLines(task)[0].text;
+      return '字幕示例';
+    }
+
+    function getActiveSubtitleSegment() {
+      var line = getActiveSubtitleLine();
+      return line ? { id: 'line-' + line.index, text: line.text } : null;
+    }
+
+    function refreshSubtitleSegmentPanel() { renderSubtitleTranscript(); }
+    function selectSubtitleSegment(segmentId) { selectSubtitleLine(Number(String(segmentId || '').split('-').pop()) || 0); }
+    function toggleSubtitleSegmentSelect(event, segmentId) { if (event) event.stopPropagation(); selectSubtitleSegment(segmentId); }
+    function applyCurrentSubtitleStyle() { applyInlineSubtitleStyle(); }
+    function applySelectedSubtitleStyle() { applyInlineSubtitleStyle(); }
+    function clearSubtitleOverrides() { clearInlineSubtitleStyle(); }
+
+    function getWmText() {
+      return wmState.type === 'image' ? '图片水印' : (wmState.text || '添加水印');
+    }
+
+    function updateActiveButtons() {
+      var textBtn = document.getElementById('wmTypeText');
+      var imageBtn = document.getElementById('wmTypeImage');
+      if (textBtn && imageBtn) {
+        textBtn.classList.toggle('active', wmState.type === 'text');
+        imageBtn.classList.toggle('active', wmState.type === 'image');
+      }
+      ['left', 'center', 'right'].forEach(function(align) {
+        var el = document.getElementById('wmAlign' + align.charAt(0).toUpperCase() + align.slice(1));
+        if (el) el.classList.toggle('active', wmState.align === align);
+      });
+    }
+
+    function updateColorSwatches() {
+      var wmColor = document.getElementById('wmColor');
+      var subColor = document.getElementById('subColor');
+      var subBgColor = document.getElementById('subBgColor');
+      var inlineSubColor = document.getElementById('inlineSubColor');
+      var wmSwatch = document.getElementById('wmColorSwatch');
+      var subSwatch = document.getElementById('subColorSwatch');
+      var subBgSwatch = document.getElementById('subBgColorSwatch');
+      var inlineSwatch = document.getElementById('inlineSubColorSwatch');
+      if (wmSwatch && wmColor) wmSwatch.style.color = wmColor.value;
+      if (subSwatch && subColor) subSwatch.style.color = subColor.value;
+      if (subBgSwatch && subBgColor) subBgSwatch.style.color = subBgColor.value;
+      if (inlineSwatch && inlineSubColor) inlineSwatch.style.color = inlineSubColor.value;
     }
 
     function syncWmPreview() {
       var wmOn = document.getElementById('wmEnabled').checked;
       var subOn = document.getElementById('subEnabled').checked;
       var wm = document.getElementById('wmPreviewText');
+      var wmValue = document.getElementById('wmPreviewTextValue');
       var sub = document.getElementById('wmPreviewSub');
-      wm.textContent = document.getElementById('wmInput').value || '添加水印';
-      sub.textContent = document.getElementById('subInput').value || '字幕示例';
+      var stage = wm ? wm.parentElement : null;
+      var wmColor = document.getElementById('wmColor').value || '#ffffff';
+      var wmSize = Number(document.getElementById('wmSize').value) || 36;
+      var stageWidth = stage ? stage.clientWidth : 316;
+      var previewScale = stageWidth / 720;
+      wmValue.textContent = getWmText();
+      sub.innerHTML = getPreviewSubtitleHtml();
       wm.style.display = wmOn ? 'block' : 'none';
       sub.style.display = subOn ? 'block' : 'none';
       wm.style.opacity = document.getElementById('wmOpacity').value;
-      var pos = document.getElementById('wmPos').value;
-      wm.style.top = pos.indexOf('t') > -1 ? '18px' : 'auto';
-      wm.style.bottom = pos.indexOf('b') > -1 ? '76px' : 'auto';
-      wm.style.left = pos.indexOf('l') > -1 ? '14px' : 'auto';
-      wm.style.right = pos.indexOf('r') > -1 ? '14px' : 'auto';
+      wm.style.left = wmState.xPct + '%';
+      wm.style.top = wmState.yPct + '%';
+      wm.style.right = 'auto';
+      wm.style.bottom = 'auto';
+      wm.style.color = wmColor;
+      wm.style.fontFamily = document.getElementById('wmFont').value;
+      wm.style.fontWeight = document.getElementById('wmWeight').value;
+      wm.style.textAlign = wmState.align;
+      wm.style.fontSize = Math.max(10, Math.round(wmSize * previewScale)) + 'px';
+      wm.style.lineHeight = document.getElementById('wmLineHeight').value;
+      wm.style.background = wmState.type === 'image' ? 'rgba(255,255,255,0.18)' : 'rgba(255,255,255,0.12)';
+      wm.style.transform = 'scale(' + wmState.scale + ')';
+      wm.style.transformOrigin = 'left top';
+
+      var subColor = document.getElementById('subColor').value || '#ffffff';
+      var subBgColor = document.getElementById('subBgColor').value || '#111111';
+      var subSize = Number(document.getElementById('subSize').value) || 36;
+      var subDistance = Number(document.getElementById('subDistance').value) || 1000;
+      var subDistancePx = Math.max(18, Math.round(subDistance / 1280 * (stage ? stage.clientHeight : 562)));
       var subPos = document.getElementById('subPos').value;
-      sub.style.top = subPos === 'top' ? '58px' : (subPos === 'middle' ? '50%' : 'auto');
-      sub.style.bottom = subPos === 'bottom' ? '30px' : 'auto';
-      sub.style.transform = subPos === 'middle' ? 'translateY(-50%)' : 'none';
+      sub.style.color = subColor;
+      sub.style.background = hexToRgba(subBgColor, 0.72);
+      sub.style.fontFamily = document.getElementById('subFont').value;
+      sub.style.fontWeight = document.getElementById('subWeight').value;
+      sub.style.fontSize = Math.max(10, Math.round(subSize * previewScale)) + 'px';
+      sub.style.top = subPos === 'top' ? subDistancePx + 'px' : (subPos === 'middle' ? '50%' : 'auto');
+      sub.style.bottom = subPos === 'bottom' ? subDistancePx + 'px' : 'auto';
+      sub.style.transform = subPos === 'middle' ? 'translate(-50%, -50%)' : 'translateX(-50%)';
+      updateActiveButtons();
+      updateColorSwatches();
     }
 
     function resetWmConfig() {
       document.getElementById('wmEnabled').checked = true;
       document.getElementById('subEnabled').checked = true;
-      document.getElementById('wmInput').value = '投顾观点仅供参考';
-      document.getElementById('subInput').value = '字幕示例';
+      wmState.type = 'text';
+      wmState.align = 'left';
+      wmState.text = '添加水印';
+      wmState.xPct = 4;
+      wmState.yPct = 3;
+      wmState.scale = 1;
+      document.getElementById('wmFont').selectedIndex = 0;
+      document.getElementById('wmWeight').value = '700';
+      document.getElementById('wmColor').value = '#ffffff';
+      document.getElementById('wmSize').value = 36;
+      document.getElementById('wmLineHeight').value = 1;
+      document.getElementById('wmLineHeightInput').value = '1.00';
       document.getElementById('wmOpacity').value = 0.85;
-      document.getElementById('wmPos').value = 'lt';
+      document.getElementById('wmOpacityInput').value = '0.85';
+      document.getElementById('subFont').selectedIndex = 0;
+      document.getElementById('subWeight').value = '400';
+      document.getElementById('subColor').value = '#ffffff';
+      document.getElementById('subBgColor').value = '#111111';
       document.getElementById('subPos').value = 'bottom';
+      document.getElementById('subDistance').value = 1000;
+      document.getElementById('subSize').value = 36;
+      subtitleState.selection = null;
+      if (subtitleState.mode === 'custom') renderSubtitleTranscript();
       syncWmPreview();
     }
 
     function saveWmConfig() {
       var name = currentWmTask || '当前批次';
+      saveGlobalSubtitleStyle();
       closeWmConfig();
-      toast('已应用至批次：' + name);
+      toast('已应用水印字幕配置：' + name);
+    }
+
+    function setWmType(type) {
+      wmState.type = type;
+      if (type === 'image') {
+        wmState.text = '图片水印';
+        toast('图片水印上传入口可在研发对接时接入');
+      }
+      syncWmPreview();
+    }
+
+    function setWmAlign(align) {
+      wmState.align = align;
+      syncWmPreview();
+    }
+
+    function addPreviewWatermark() {
+      document.getElementById('wmEnabled').checked = true;
+      wmState.type = 'text';
+      wmState.text = '添加水印';
+      wmState.xPct = 4;
+      wmState.yPct = 3;
+      syncWmPreview();
+      var wm = document.getElementById('wmPreviewText');
+      if (wm) wm.focus();
+    }
+
+    function removePreviewWatermark(event) {
+      if (event) {
+        event.stopPropagation();
+        event.preventDefault();
+      }
+      document.getElementById('wmEnabled').checked = false;
+      syncWmPreview();
+      toast('已删除当前水印');
+    }
+
+    function saveWmTemplate() {
+      var tpl = {
+        type: wmState.type,
+        align: wmState.align,
+        text: wmState.text,
+        xPct: wmState.xPct,
+        yPct: wmState.yPct,
+        scale: wmState.scale,
+        updatedAt: new Date().toISOString()
+      };
+      try {
+        localStorage.setItem('director_wm_template_preview_v1', JSON.stringify(tpl));
+      } catch (e) {}
+      toast('水印模板已保存');
+    }
+
+    function openColorPicker(id) {
+      var el = document.getElementById(id);
+      if (el) el.click();
+    }
+
+    function stepNumber(id, delta) {
+      var el = document.getElementById(id);
+      if (!el) return;
+      var min = Number(el.min || 0);
+      var max = Number(el.max || 999);
+      var next = (Number(el.value) || 0) + delta;
+      el.value = Math.max(min, Math.min(max, next));
+      syncWmPreview();
+    }
+
+    function clearWmFontSize() {
+      document.getElementById('wmSize').value = 36;
+      syncWmPreview();
+      toast('已恢复默认字号');
+    }
+
+    function syncRangeInput(rangeId, inputId) {
+      var range = document.getElementById(rangeId);
+      var input = document.getElementById(inputId);
+      if (!range || !input) return;
+      input.value = Number(range.value).toFixed(2);
+    }
+
+    function syncInputRange(inputId, rangeId) {
+      var input = document.getElementById(inputId);
+      var range = document.getElementById(rangeId);
+      if (!range || !input) return;
+      var min = Number(range.min);
+      var max = Number(range.max);
+      var val = Number(input.value);
+      if (Number.isNaN(val)) val = Number(range.value);
+      val = Math.max(min, Math.min(max, val));
+      range.value = val;
+      input.value = val.toFixed(2);
+    }
+
+    function hexToRgba(hex, alpha) {
+      var normalized = String(hex || '#000000').replace('#', '');
+      if (normalized.length === 3) normalized = normalized.split('').map(function(c) { return c + c; }).join('');
+      var num = parseInt(normalized, 16);
+      if (Number.isNaN(num)) return 'rgba(0,0,0,' + alpha + ')';
+      var r = (num >> 16) & 255;
+      var g = (num >> 8) & 255;
+      var b = num & 255;
+      return 'rgba(' + r + ',' + g + ',' + b + ',' + alpha + ')';
+    }
+
+    function initWmDrag() {
+      var stage = document.querySelector('.wm-stage');
+      var wm = document.getElementById('wmPreviewText');
+      if (!stage || !wm || wm.dataset.dragReady === '1') return;
+      wm.dataset.dragReady = '1';
+      wm.addEventListener('dblclick', function(event) {
+        event.preventDefault();
+        var next = prompt('编辑水印文字', wmState.text || '添加水印');
+        if (next !== null) {
+          wmState.type = 'text';
+          wmState.text = next.trim() || '添加水印';
+          syncWmPreview();
+        }
+      });
+      wm.addEventListener('pointerdown', function(event) {
+        if (event.target && (event.target.classList.contains('wm-remove-dot') || event.target.classList.contains('wm-resize-handle'))) return;
+        wmState.dragging = true;
+        wm.setPointerCapture(event.pointerId);
+        wm.classList.add('is-selected');
+        moveWmByPointer(event, stage, wm);
+      });
+      wm.addEventListener('pointermove', function(event) {
+        if (wmState.resizing) {
+          resizeWmByPointer(event);
+          return;
+        }
+        if (!wmState.dragging) return;
+        moveWmByPointer(event, stage, wm);
+      });
+      wm.addEventListener('pointerup', function(event) {
+        wmState.dragging = false;
+        wmState.resizing = false;
+        try { wm.releasePointerCapture(event.pointerId); } catch (e) {}
+      });
+      wm.addEventListener('keydown', function(event) {
+        if (event.key === 'Delete' || event.key === 'Backspace') {
+          event.preventDefault();
+          removePreviewWatermark(event);
+        }
+      });
+    }
+
+    function moveWmByPointer(event, stage, wm) {
+      var rect = stage.getBoundingClientRect();
+      var x = event.clientX - rect.left - wm.offsetWidth / 2;
+      var y = event.clientY - rect.top - wm.offsetHeight / 2;
+      var maxX = Math.max(0, rect.width - wm.offsetWidth);
+      var maxY = Math.max(0, rect.height - wm.offsetHeight);
+      wmState.xPct = Math.round(Math.max(0, Math.min(maxX, x)) / rect.width * 1000) / 10;
+      wmState.yPct = Math.round(Math.max(0, Math.min(maxY, y)) / rect.height * 1000) / 10;
+      syncWmPreview();
+    }
+
+    function startWmResize(event) {
+      event.preventDefault();
+      event.stopPropagation();
+      var wm = document.getElementById('wmPreviewText');
+      if (!wm) return;
+      wmState.resizing = true;
+      wmState.dragging = false;
+      wmState.resizeStartX = event.clientX;
+      wmState.resizeBase = wmState.scale || 1;
+      try { wm.setPointerCapture(event.pointerId); } catch (e) {}
+    }
+
+    function resizeWmByPointer(event) {
+      var delta = event.clientX - wmState.resizeStartX;
+      var next = wmState.resizeBase + delta / 160;
+      wmState.scale = Math.max(0.5, Math.min(2.2, Math.round(next * 100) / 100));
+      syncWmPreview();
     }
 
     function copyError(text) {
