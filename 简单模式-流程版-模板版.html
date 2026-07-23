@@ -676,7 +676,7 @@
         <div class="section-header">
           <div class="section-icon purple">🎞️</div>
           <div class="section-name">首帧</div>
-          <span class="section-hint">逐条选择角色主图或服饰图后生成首帧</span>
+          <span class="section-hint">逐条选择角色主图或变体图后生成首帧</span>
         </div>
         <div class="ff-cards" id="ff-cards"></div>
       </div>
@@ -802,7 +802,7 @@
       <div class="role-variant-head">
         <div>
           <div class="role-variant-title" id="roleVariantTitle">选择角色形象</div>
-          <div class="role-variant-sub" id="roleVariantSub">请选择当前首帧使用的主图或服饰图</div>
+          <div class="role-variant-sub" id="roleVariantSub">请选择当前首帧使用的主图或变体图</div>
         </div>
         <button class="role-variant-close" id="roleVariantClose" type="button" onclick="closeRoleVariantPicker()" aria-label="关闭">×</button>
       </div>
@@ -1277,7 +1277,7 @@
       return {
         type: variant.type === 'outfit' ? 'outfit' : 'main',
         id: String(variant.id || ''),
-        name: String(variant.name || (variant.type === 'outfit' ? '服饰图' : '主图')),
+        name: String(variant.name || (variant.type === 'outfit' ? '变体图' : '主图')),
         img: safeRoleImageSource(variant.img),
         roleId: String(variant.roleId || '')
       };
@@ -1334,7 +1334,7 @@
       return list.slice(0, 8).filter(function(item){ return item && item.img; }).map(function(item, index){
         return {
           id: String(item.id || ('outfit-legacy-' + index)),
-          name: String(item.name || ('服饰 ' + (index + 1))),
+          name: String(item.name || ('变体 ' + (index + 1))),
           img: safeRoleImageSource(item.img),
           prompt: String(item.prompt || '')
         };
@@ -2163,7 +2163,7 @@
       });
       var cardIndex = validCards().findIndex(function(item){ return item.id === cardId; });
       document.getElementById('roleVariantTitle').textContent = '选择角色形象 · 台词 ' + (cardIndex + 1);
-      document.getElementById('roleVariantSub').textContent = '选择「' + getAvatarMeta(S.avatar).name + '」的主图或服饰图，选择本身不消耗积分';
+      document.getElementById('roleVariantSub').textContent = '选择「' + getAvatarMeta(S.avatar).name + '」的主图或变体图，选择本身不消耗积分';
       roleVariantReturnFocus = document.activeElement;
       renderRoleVariantPicker();
       document.getElementById('roleVariantOverlay').classList.add('show');
@@ -2184,7 +2184,7 @@
             : '<div class="role-variant-placeholder" aria-hidden="true">'+emoji+'</div>';
           return '<button type="button" class="role-variant-option'+(selected?' selected':'')+'" onclick="selectRoleVariantOption('+index+')" aria-pressed="'+(selected?'true':'false')+'">'+
             visual+
-            '<div class="role-variant-copy"><div class="role-variant-name">'+escapeHtml(option.name)+'</div><div class="role-variant-type">'+(option.type==='main'?'角色主图':'服饰图')+'</div></div>'+
+            '<div class="role-variant-copy"><div class="role-variant-name">'+escapeHtml(option.name)+'</div><div class="role-variant-type">'+(option.type==='main'?'角色主图':'变体图')+'</div></div>'+
           '</button>';
         }).join('');
       }
@@ -2291,11 +2291,11 @@
         h += '<div class="ff-corner-bottom">'+displayVal+' · '+f.shot+'</div>';
         if (f.status === 'pending') h += '<div class="ff-status-chip">待生成</div>';
         h += '<div class="ff-loading"><div class="ff-spin"></div>生成中…</div>';
-        h += '<div class="ff-state-overlay" role="status">'+(frameWaiting?'👗<span>先选择主图或服饰图</span>':'↻<span>形象已更换<br>请重新生成</span>')+'</div>';
+        h += '<div class="ff-state-overlay" role="status">'+(frameWaiting?'👗<span>先选择主图或变体图</span>':'↻<span>形象已更换<br>请重新生成</span>')+'</div>';
         // 失败遮罩
         h += '<div class="ff-failed-overlay"><div class="ff-failed-icon">⚠️</div><div class="ff-failed-text">生成失败</div></div>';
         h += '</div>';
-        // 角色角标点击选择当前台词的主图/服饰图
+        // 角色角标点击选择当前台词的主图/变体图
         h += '<div class="ff-minis">';
         var variantLabel = roleVariant ? roleVariant.name : '未选形象';
         h += '<button type="button" id="role-variant-trigger-'+g.id+'" class="ff-mini '+(roleVariant?'role-selected':'role-required')+'" onclick="openRoleVariantPicker('+g.id+')" title="选择该条首帧使用的角色形象">👤 '+escapeHtml(avName)+' · <span class="ff-mini-state">'+escapeHtml(variantLabel)+'</span></button>';

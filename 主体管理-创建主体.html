@@ -1469,9 +1469,9 @@
                                 <div id="roleAssetManager" style="display:none;">
                                     <div class="role-assets-head">
                                         <strong>角色形象</strong>
-                                        <span class="role-assets-count" id="roleAssetsCount">0 / 8 套服饰</span>
+                                        <span class="role-assets-count" id="roleAssetsCount">0 / 16 套变体图</span>
                                     </div>
-                                    <div class="role-assets-help">选择任意形象作为 AI 调整基图。主图只有一张，服饰图最多保存 8 张。</div>
+                                    <div class="role-assets-help">选择任意形象作为 AI 调整基图。主图只有一张，变体图最多保存 16 张。</div>
                                     <div class="role-assets-grid" id="roleAssetsGrid"></div>
                                 </div>
                                 <input id="uploadOutfitInput" type="file" accept="image/jpeg,image/png,image/webp" style="display:none;" />
@@ -1533,7 +1533,7 @@
                                             </div>
                                                 <div class="ai-result-actions">
                                                     <button type="button" class="btn-result-main" onclick="openMainSwapForAiResult()">设为主图</button>
-                                                    <button type="button" class="btn-result-outfit" id="addAiResultOutfitBtn" onclick="openAddOutfitDialog()">添加为服饰图</button>
+                                                    <button type="button" class="btn-result-outfit" id="addAiResultOutfitBtn" onclick="openAddOutfitDialog()">添加为变体图</button>
                                                 </div>
                                             </div>
                                         </div>
@@ -1586,12 +1586,12 @@
         </div>
     </div>
 
-    <!-- 服饰命名 / 重命名弹窗 -->
+    <!-- 变体图命名 / 重命名弹窗 -->
     <div class="outfit-modal-overlay" id="outfitNameModal">
         <div class="outfit-modal" role="dialog" aria-modal="true" aria-labelledby="outfitNameTitle">
-            <h3 id="outfitNameTitle">添加服饰图</h3>
-            <p id="outfitNameDesc">为这套服饰填写一个便于后续选择的名称。</p>
-            <label for="outfitNameInput">服饰名称 <span class="required">*</span></label>
+            <h3 id="outfitNameTitle">添加变体图</h3>
+            <p id="outfitNameDesc">为这套变体图填写一个便于后续选择的名称。</p>
+            <label for="outfitNameInput">变体名称 <span class="required">*</span></label>
             <input class="form-control" id="outfitNameInput" maxlength="20" placeholder="例如：深蓝商务西装" aria-describedby="outfitNameError" />
             <div class="outfit-name-error" id="outfitNameError" role="alert" aria-live="polite"></div>
             <div class="outfit-modal-actions">
@@ -1608,7 +1608,7 @@
             <p id="mainSwapDesc">请选择如何处理当前主图。新主图设置成功后，将成为该角色的默认形象。</p>
             <div class="main-swap-actions">
                 <button class="btn btn-light" type="button" onclick="confirmMainSwap(false)">替换并丢弃原主图</button>
-                <button class="btn btn-primary" id="retainMainBtn" type="button" onclick="confirmMainSwap(true)">保留原图为服饰</button>
+                <button class="btn btn-primary" id="retainMainBtn" type="button" onclick="confirmMainSwap(true)">保留原图为变体图</button>
             </div>
             <div class="outfit-modal-actions">
                 <button class="btn btn-light" type="button" onclick="closeMainSwapModal()">取消</button>
@@ -1641,7 +1641,7 @@
         let outfitNameContext = null;
         let pendingMainCandidate = null;
         let pendingOutfitUploadImg = "";
-        const maxOutfits = 8;
+        const maxOutfits = 16;
 
         const libraryKey = "subjectLibraryItems";
         const step2Key = "step2NewSubject";
@@ -1695,7 +1695,7 @@
             if (!Array.isArray(list)) return [];
             return list.slice(0, maxOutfits).map((item, index) => ({
                 id: item && item.id ? String(item.id) : "outfit-legacy-" + index + "-" + Date.now(),
-                name: item && item.name ? String(item.name).slice(0, 20) : "服饰 " + (index + 1),
+                name: item && item.name ? String(item.name).slice(0, 20) : "变体 " + (index + 1),
                 img: item && item.img ? safeImageSource(item.img) : "",
                 prompt: item && item.prompt ? String(item.prompt) : "",
                 createdAt: item && item.createdAt ? item.createdAt : new Date().toISOString()
@@ -1774,7 +1774,7 @@
                 if (item.isUpload) {
                     return '<div class="role-asset-upload" onclick="document.getElementById(\'uploadOutfitInput\').click()">' +
                         '<div class="plus">+</div>' +
-                        '<div class="upload-label">上传服饰</div>' +
+                        '<div class="upload-label">上传变体图</div>' +
                     '</div>';
                 }
                 const key = item.isMain ? "main" : "outfit:" + item.id;
@@ -1792,20 +1792,20 @@
                         '<img src="' + item.img + '" alt="' + escapeHtml(item.name) + '" />' +
                         '<div class="role-asset-card-copy">' +
                             '<div class="role-asset-card-name">' + escapeHtml(item.name) + '</div>' +
-                            '<div class="role-asset-card-type">' + (item.isMain ? "角色默认形象" : "服饰附图") + '</div>' +
+                            '<div class="role-asset-card-type">' + (item.isMain ? "角色默认形象" : "变体附图") + '</div>' +
                         '</div>' +
                     '</button>' + actions +
                 '</article>';
             }).join("");
 
             const atLimit = outfits.length >= maxOutfits;
-            roleAssetsCount.textContent = outfits.length + " / " + maxOutfits + " 套服饰" + (atLimit ? " · 已达上限，请先删除一套" : "");
+            roleAssetsCount.textContent = outfits.length + " / " + maxOutfits + " 套变体图" + (atLimit ? " · 已达上限，请先删除一套" : "");
             roleAssetsCount.classList.toggle("limit", atLimit);
             const base = getSelectedAdjustBase();
             aiAdjustBaseTip.textContent = "当前基图：" + (base ? base.name : "默认主图");
             if (addAiResultOutfitBtn) {
                 addAiResultOutfitBtn.disabled = outfits.length >= maxOutfits;
-                addAiResultOutfitBtn.title = outfits.length >= maxOutfits ? "最多保存 8 张服饰图，请先删除已有服饰" : "";
+                addAiResultOutfitBtn.title = outfits.length >= maxOutfits ? "最多保存 16 张变体图，请先删除已有变体图" : "";
             }
         }
 
@@ -1835,11 +1835,11 @@
 
         function openAddOutfitDialog() {
             if (!aiAdjustedImage) { showToast("请先生成调整图"); return; }
-            if (outfits.length >= maxOutfits) { showToast("最多保存 8 张服饰图，请先删除已有服饰"); return; }
+            if (outfits.length >= maxOutfits) { showToast("最多保存 16 张变体图，请先删除已有变体图"); return; }
             openOutfitNameModal({
                 type: "add-ai-result",
-                title: "添加为服饰图",
-                desc: "填写服饰名称后，这张图片会保留为当前角色的一套服饰。",
+                title: "添加为变体图",
+                desc: "填写变体名称后，这张图片会保留为当前角色的一套变体图。",
                 value: ""
             });
         }
@@ -1850,8 +1850,8 @@
             openOutfitNameModal({
                 type: "rename",
                 outfitId: id,
-                title: "重命名服饰",
-                desc: "名称用于主体管理和 Step 2 中识别这套服饰。",
+title: "重命名变体图",
+                desc: "名称用于主体管理和 Step 2 中识别这套变体图。",
                 value: outfit.name
             });
         }
@@ -1861,14 +1861,14 @@
             const input = document.getElementById("outfitNameInput");
             const error = document.getElementById("outfitNameError");
             const name = input.value.trim();
-            if (!name) { error.textContent = "请输入服饰名称"; input.focus(); return; }
-            if (name.length > 20) { error.textContent = "服饰名称最多 20 个字符"; input.focus(); return; }
+if (!name) { error.textContent = "请输入变体名称"; input.focus(); return; }
+            if (name.length > 20) { error.textContent = "变体名称最多 20 个字符"; input.focus(); return; }
             const exceptId = outfitNameContext.type === "rename" ? outfitNameContext.outfitId :
                 (outfitNameContext.type === "retain-main" && pendingMainCandidate && pendingMainCandidate.source === "outfit" ? pendingMainCandidate.outfitId : "");
-            if (isOutfitNameDuplicate(name, exceptId)) { error.textContent = "服饰名称不能重复"; input.focus(); return; }
+            if (isOutfitNameDuplicate(name, exceptId)) { error.textContent = "变体名称不能重复"; input.focus(); return; }
 
             if (outfitNameContext.type === "add-ai-result") {
-                if (outfits.length >= maxOutfits) { error.textContent = "最多保存 8 张服饰图"; return; }
+                if (outfits.length >= maxOutfits) { error.textContent = "最多保存 16 张变体图"; return; }
                 outfits.push({
                     id: makeOutfitId(),
                     name,
@@ -1878,10 +1878,10 @@
                 });
                 aiAdjustBaseKey = "outfit:" + outfits[outfits.length - 1].id;
                 clearAiAdjustedResult();
-                showToast("已添加服饰：" + name);
+                showToast("已添加变体图：" + name);
             } else if (outfitNameContext.type === "add-uploaded") {
-                if (!pendingOutfitUploadImg) { showToast("请先选择服饰图片"); return; }
-                if (outfits.length >= maxOutfits) { error.textContent = "最多保存 8 张服饰图"; return; }
+                if (!pendingOutfitUploadImg) { showToast("请先选择变体图片"); return; }
+                if (outfits.length >= maxOutfits) { error.textContent = "最多保存 16 张变体图"; return; }
                 outfits.push({
                     id: makeOutfitId(),
                     name,
@@ -1891,11 +1891,11 @@
                 });
                 aiAdjustBaseKey = "outfit:" + outfits[outfits.length - 1].id;
                 pendingOutfitUploadImg = "";
-                showToast("已添加服饰：" + name);
+                showToast("已添加变体图：" + name);
             } else if (outfitNameContext.type === "rename") {
                 const outfit = outfits.find((item) => item.id === outfitNameContext.outfitId);
                 if (outfit) outfit.name = name;
-                showToast("服饰名称已更新");
+                showToast("变体名称已更新");
             } else if (outfitNameContext.type === "retain-main") {
                 applyPendingMainCandidate(true, name);
             }
@@ -1907,12 +1907,12 @@
         function deleteOutfit(id) {
             const outfit = outfits.find((item) => item.id === id);
             if (!outfit) return;
-            if (!confirm("确认删除服饰「" + outfit.name + "」吗？删除后无法恢复。")) return;
+            if (!confirm("确认删除变体图「" + outfit.name + "」吗？删除后无法恢复。")) return;
             outfits = outfits.filter((item) => item.id !== id);
             if (aiAdjustBaseKey === "outfit:" + id) aiAdjustBaseKey = "main";
             markDirty();
             renderRoleAssets();
-            showToast("服饰已删除");
+            showToast("变体图已删除");
         }
 
         function updateNameCount() {
@@ -2366,11 +2366,11 @@
             const canRetain = retainsWithoutGrowth || outfits.length < maxOutfits;
             const retainBtn = document.getElementById("retainMainBtn");
             retainBtn.disabled = !canRetain;
-            retainBtn.title = canRetain ? "" : "服饰已达 8 张，请先删除一张后再保留原主图";
-            const sourceNote = candidate.source === "outfit" ? "该服饰转为主图后，将不再保留在服饰列表中。" : "";
+retainBtn.title = canRetain ? "" : "变体图已达 16 张，请先删除一张后再保留原主图";
+            const sourceNote = candidate.source === "outfit" ? "该变体图转为主图后，将不再保留在变体图列表中。" : "";
             document.getElementById("mainSwapDesc").textContent = canRetain ?
-                "请选择丢弃当前主图，或将当前主图命名后保留为一套服饰。" + sourceNote :
-                "服饰已达 8 张，当前只能直接替换主图；如需保留原图，请先删除一张服饰。";
+                "请选择丢弃当前主图，或将当前主图命名后保留为一套变体图。" + sourceNote :
+                "变体图已达 16 张，当前只能直接替换主图；如需保留原图，请先删除一张变体图。";
             document.getElementById("mainSwapModal").classList.add("active");
         }
 
@@ -2391,7 +2391,7 @@
             openOutfitNameModal({
                 type: "retain-main",
                 title: "命名原主图",
-                desc: "原主图会作为一套服饰保留，请填写便于后续选择的名称。",
+                desc: "原主图会作为一套变体图保留，请填写便于后续选择的名称。",
                 value: ""
             });
         }
@@ -2406,7 +2406,7 @@
             }
             if (retainOldMain && oldMainImage) {
                 if (candidate.source !== "outfit" && outfits.length >= maxOutfits) {
-                    showToast("服饰已达 8 张，无法保留原主图");
+                    showToast("变体图已达 16 张，无法保留原主图");
                     return;
                 }
                 outfits.push({
@@ -2425,7 +2425,7 @@
             document.getElementById("mainSwapModal").classList.remove("active");
             markDirty();
             renderRoleAssets();
-            showToast(retainOldMain ? "主图已更新，原图已保留为服饰" : "角色主图已更新");
+            showToast(retainOldMain ? "主图已更新，原图已保留为变体图" : "角色主图已更新");
         }
 
         function setType(nextType) {
@@ -2521,7 +2521,7 @@
             document.title = "编辑角色";
             document.getElementById("breadcrumbTitle").textContent = "编辑角色";
             document.getElementById("pageTitle").textContent = "编辑角色";
-            document.getElementById("pageDesc").textContent = "管理角色主图、服饰形象、音色和角色资料。";
+            document.getElementById("pageDesc").textContent = "管理角色主图、变体图形象、音色和角色资料。";
             document.getElementById("createSubjectBtn").textContent = "保存修改";
             document.getElementById("footerTip").textContent = source === "step2" ?
                 "保存后会返回 Step 2，并同步更新当前角色。" :
@@ -2631,7 +2631,7 @@
             const subject = buildSubject("done");
             const savedSubject = saveToLibrary(subject);
             if (!savedSubject) {
-                showToast("保存失败：浏览器存储空间不足，请减少服饰或图片大小");
+                showToast("保存失败：浏览器存储空间不足，请减少变体图或图片大小");
                 return;
             }
             const handoffSaved = source !== "step2" || saveStep2Handoff(savedSubject);
@@ -2745,7 +2745,7 @@
         document.getElementById("createSubjectBtn").addEventListener("click", finishCreate);
         document.getElementById("cancelBtn").addEventListener("click", navigateBack);
 
-        // 服饰图本地上传
+        // 变体图本地上传
         document.getElementById("uploadOutfitInput").addEventListener("change", (event) => {
             const file = event.target.files && event.target.files[0];
             if (!file) return;
@@ -2754,8 +2754,8 @@
                 pendingOutfitUploadImg = loadEvent.target.result;
                 openOutfitNameModal({
                     type: "add-uploaded",
-                    title: "添加服饰图",
-                    desc: "填写服饰名称后，这张图片会保存为当前角色的一套服饰。",
+                    title: "添加变体图",
+                    desc: "填写变体名称后，这张图片会保存为当前角色的一套变体图。",
                     value: ""
                 });
             };
