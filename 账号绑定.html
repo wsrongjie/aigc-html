@@ -104,6 +104,19 @@
     .page-header { margin-bottom: 24px; }
     .page-header h1 { font-size: 20px; font-weight: 700; }
     .page-header p { font-size: 13px; color: var(--text-secondary); margin-top: 4px; line-height: 1.6; }
+    .bind-overview {
+        margin-bottom: 18px; display: grid; grid-template-columns: 1.2fr 1fr; gap: 14px;
+    }
+    .overview-card, .return-banner {
+        background: var(--card-bg); border: 1px solid var(--border);
+        border-radius: var(--radius); box-shadow: var(--shadow); padding: 16px 18px;
+    }
+    .overview-title { font-size: 14px; font-weight: 700; margin-bottom: 6px; }
+    .overview-text { font-size: 12px; line-height: 1.7; color: var(--text-secondary); }
+    .return-banner { display: none; margin-bottom: 18px; border-color: #bfdbfe; background: #eff6ff; }
+    .return-banner.show { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+    .return-banner-title { font-size: 14px; font-weight: 700; color: #1e40af; margin-bottom: 4px; }
+    .return-banner-text { font-size: 12px; color: #1d4ed8; line-height: 1.6; }
 
     /* 平台卡片网格 */
     .platform-grid {
@@ -169,6 +182,20 @@
     }
     .mode-badge.redirect { background: #fef3c7; color: #92400e; }
     .mode-badge.auto { background: #dcfce7; color: #166534; }
+    .mode-badge.confirm { background: #fef3c7; color: #92400e; }
+    .platform-desc { margin-top: 8px; font-size: 12px; color: var(--text-secondary); line-height: 1.5; }
+    .platform-meta {
+        margin-top: 8px; display: flex; gap: 6px; flex-wrap: wrap;
+    }
+    .scope-chip {
+        display: inline-flex; align-items: center; height: 22px; padding: 0 8px;
+        border-radius: 999px; background: var(--bg); color: var(--text-secondary);
+        font-size: 11px; font-weight: 600;
+    }
+    .scope-chip.ok { background: var(--success-light); color: #166534; }
+    .scope-chip.warn { background: var(--warning-light); color: #92400e; }
+    .status-dot.scope_missing { background: var(--danger); }
+    .status-text.scope_missing { color: var(--danger); font-weight: 600; }
 
     .platform-actions { flex-shrink: 0; }
     .btn {
@@ -238,6 +265,8 @@
 
     @media (max-width: 768px) {
         .platform-grid { grid-template-columns: 1fr; }
+        .bind-overview { grid-template-columns: 1fr; }
+        .return-banner.show { align-items: flex-start; flex-direction: column; }
     }
 </style>
 </head>
@@ -297,10 +326,34 @@
 <main class="main">
     <div class="topbar">
         <span class="topbar-title">账号绑定</span>
-        <span class="topbar-desc">绑定外部平台账号，分发视频到各平台</span>
+        <span class="topbar-desc">绑定外部平台账号，用于创建外部平台发布任务</span>
     </div>
 
     <div class="content">
+        <div class="page-header">
+            <h1>外部账号绑定</h1>
+            <p>绑定抖音、快手等外部平台账号后，视频资产可以创建独立的发布任务。快手支持后台自动发布；抖音当前按端内投稿/手动确认处理，后台直发需平台开通后再启用。</p>
+        </div>
+
+        <div class="return-banner" id="returnBanner">
+            <div>
+                <div class="return-banner-title">授权后将返回视频分发流程</div>
+                <div class="return-banner-text" id="returnBannerText">完成授权后，会自动回到刚才选择的视频继续创建发布任务。</div>
+            </div>
+            <button class="btn btn-primary" onclick="returnToVideoShare()">返回视频资产</button>
+        </div>
+
+        <div class="bind-overview">
+            <div class="overview-card">
+                <div class="overview-title">发布能力说明</div>
+                <div class="overview-text">快手：OAuth 授权后可由后台发起上传、提交发布并同步状态。抖音：公开能力更偏端内投稿，原型中保留“需要手动确认”的任务状态，避免误导成完全静默直发。</div>
+            </div>
+            <div class="overview-card">
+                <div class="overview-title">账号状态</div>
+                <div class="overview-text" id="bindingSummary">正在读取账号授权状态...</div>
+            </div>
+        </div>
+
         <div class="platform-grid" id="platformGrid"></div>
     </div>
 </main>
@@ -313,7 +366,7 @@
             <div class="modal-desc" id="authModalDesc">即将跳转到平台进行授权认证。</div>
         <div class="modal-scope">
             <div class="modal-scope-title">授权后将允许：</div>
-            <div class="modal-scope-item"><span class="check">✓</span> 发布视频到你的 <span id="authModalScopePlatform">抖音</span> 账号</div>
+            <div class="modal-scope-item"><span class="check">✓</span> <span id="authModalPublishScope">创建平台发布任务</span></div>
             <div class="modal-scope-item"><span class="check">✓</span> 获取你的公开用户信息</div>
             <div class="modal-scope-item"><span class="check">✓</span> 查看视频发布状态</div>
         </div>
@@ -329,7 +382,7 @@
     <div class="modal" onclick="event.stopPropagation()">
         <div class="modal-icon">⚠️</div>
         <div class="modal-title">确认解绑</div>
-        <div class="modal-desc" id="unbindModalDesc">确认解除与「抖音」的绑定？解除后需要重新授权才能分发视频。</div>
+        <div class="modal-desc" id="unbindModalDesc">确认解除与「抖音」的绑定？解除后需要重新授权才能创建发布任务。</div>
         <div class="modal-actions">
             <button class="btn" onclick="closeModal('unbindModal')">再想想</button>
             <button class="btn btn-danger" id="unbindModalConfirm" onclick="confirmUnbind()">确认解绑</button>
@@ -352,8 +405,28 @@
     };
 
     var platforms = [
-        { id: 'douyin', name: '抖音', logo: LOGOS.douyin, iconCls: 'bg-douyin', desc: '发布视频到抖音', publishMode: 'redirect' },
-        { id: 'kuaishou', name: '快手', logo: LOGOS.kuaishou, iconCls: 'bg-kuaishou', desc: '发布视频到快手', publishMode: 'auto' },
+        {
+            id: 'douyin',
+            name: '抖音',
+            logo: LOGOS.douyin,
+            iconCls: 'bg-douyin',
+            desc: '支持账号授权和端内投稿确认；后台直发需平台开通正式权限后启用。',
+            publishMode: 'confirm',
+            modeLabel: '端内确认',
+            scopes: ['user_info', '投稿到抖音', '状态同步'],
+            tokenDays: 15
+        },
+        {
+            id: 'kuaishou',
+            name: '快手',
+            logo: LOGOS.kuaishou,
+            iconCls: 'bg-kuaishou',
+            desc: '授权后可创建后台发布任务，完成上传、提交发布和状态查询。',
+            publishMode: 'auto',
+            modeLabel: '后台自动发布',
+            scopes: ['user_info', 'user_video_publish', 'user_video_info'],
+            tokenDays: 2
+        },
         { id: 'xiaohongshu', name: '小红书', logo: LOGOS.xiaohongshu, iconCls: 'bg-xiaohongshu', desc: '发布笔记到小红书', comingSoon: true },
         { id: 'wechat', name: '微信视频号', logo: LOGOS.wechat, iconCls: 'bg-wechat', desc: '发布视频到视频号', comingSoon: true }
     ];
@@ -361,13 +434,15 @@
     var BINDING_KEY = 'platformBindingState';
 
     var defaultState = {
-        douyin: { status: 'unbound', userName: '', expireDate: '' },
-        kuaishou: { status: 'unbound', userName: '', expireDate: '' },
+        douyin: { status: 'unbound', userName: '', expireDate: '', scopes: [] },
+        kuaishou: { status: 'unbound', userName: '', expireDate: '', scopes: [] },
         xiaohongshu: { status: 'soon' },
         wechat: { status: 'soon' }
     };
 
     var pendingPlatform = null;
+    var shareReturnContext = parseShareReturnContext();
+    var shareAuthPrompted = false;
 
     function getState() {
         try {
@@ -385,12 +460,117 @@
         localStorage.setItem(BINDING_KEY, JSON.stringify(state));
     }
 
+    function getPlatform(id) {
+        return platforms.find(function(p) { return p.id === id; });
+    }
+
+    function parseShareReturnContext() {
+        var params = new URLSearchParams(location.search);
+        if (params.get('from') !== 'video-share') return null;
+        return {
+            platform: params.get('platform') || '',
+            videoIds: params.get('videoIds') || '',
+            mode: params.get('mode') || 'single'
+        };
+    }
+
+    function renderReturnBanner() {
+        var banner = document.getElementById('returnBanner');
+        if (!banner || !shareReturnContext) return;
+        var p = getPlatform(shareReturnContext.platform);
+        var count = shareReturnContext.videoIds ? shareReturnContext.videoIds.split(',').filter(Boolean).length : 0;
+        document.getElementById('returnBannerText').textContent =
+            '刚才选择了 ' + count + ' 条视频准备创建' + (p ? p.name : '外部平台') + '发布任务。完成授权后会自动返回视频资产并恢复选择。';
+        banner.classList.add('show');
+    }
+
+    function returnToVideoShare() {
+        if (!shareReturnContext) {
+            location.href = '视频资产.html';
+            return;
+        }
+        var params = new URLSearchParams();
+        params.set('resumeShare', '1');
+        params.set('platform', shareReturnContext.platform || '');
+        params.set('videoIds', shareReturnContext.videoIds || '');
+        params.set('mode', shareReturnContext.mode || 'single');
+        var state = getState();
+        var binding = state[shareReturnContext.platform];
+        if (binding && binding.status === 'bound') {
+            params.set('binding', shareReturnContext.platform);
+            params.set('bindingStatus', binding.status);
+            params.set('userName', binding.userName || '');
+            params.set('expireDate', binding.expireDate || '');
+            params.set('publishMode', binding.publishMode || '');
+            params.set('scopes', (binding.scopes || []).join('|'));
+        }
+        location.href = '视频资产.html?' + params.toString();
+    }
+
+    function renderBindingSummary(state) {
+        var bound = ['douyin', 'kuaishou'].filter(function(id) { return state[id] && state[id].status === 'bound' && !isExpiredDate(state[id].expireDate); }).length;
+        var expired = ['douyin', 'kuaishou'].filter(function(id) { return state[id] && (state[id].status === 'expired' || isExpiredDate(state[id].expireDate)); }).length;
+        var missing = ['douyin', 'kuaishou'].filter(function(id) { return state[id] && state[id].status === 'scope_missing'; }).length;
+        var text = '已绑定 ' + bound + ' 个平台';
+        if (expired) text += '，' + expired + ' 个授权过期';
+        if (missing) text += '，' + missing + ' 个缺少发布权限';
+        text += '。分发时会逐个平台校验授权和发布能力。';
+        document.getElementById('bindingSummary').textContent = text;
+    }
+
+    function isExpiredDate(dateStr) {
+        if (!dateStr) return false;
+        var expire = new Date(dateStr + 'T23:59:59');
+        if (isNaN(expire.getTime())) return false;
+        return expire.getTime() < Date.now();
+    }
+
+    function makeStatus(status) {
+        if (status === 'bound') return { cls: 'bound', text: '已授权，具备发布能力' };
+        if (status === 'expired') return { cls: 'expired', text: '授权已过期' };
+        if (status === 'scope_missing') return { cls: 'scope_missing', text: '缺少发布权限' };
+        if (status === 'soon') return { cls: 'soon', text: '即将开放' };
+        return { cls: 'unbound', text: '未绑定' };
+    }
+
+    function renderScopeChips(platform, binding) {
+        if (!platform.scopes) return '';
+        var granted = binding.scopes || [];
+        return platform.scopes.map(function(scope) {
+            var ok = binding.status === 'bound' && granted.indexOf(scope) >= 0;
+            return '<span class="scope-chip ' + (ok ? 'ok' : 'warn') + '">' + (ok ? '✓ ' : '待授权 ') + scope + '</span>';
+        }).join('');
+    }
+
+    function isPlatformPublishable(platform, binding) {
+        if (!platform || !binding || binding.status !== 'bound') return false;
+        if (isExpiredDate(binding.expireDate)) return false;
+        var required = platform.scopes || [];
+        var granted = binding.scopes || [];
+        if (required.length > 0 && granted.length === 0) return false;
+        return required.every(function(scope) { return granted.indexOf(scope) >= 0; });
+    }
+
+    function initShareAuthPrompt(state) {
+        if (!shareReturnContext || shareAuthPrompted) return;
+        var platform = getPlatform(shareReturnContext.platform);
+        if (!platform || platform.comingSoon) return;
+        var binding = state[platform.id] || { status: 'unbound' };
+        if (isPlatformPublishable(platform, binding)) return;
+        shareAuthPrompted = true;
+        setTimeout(function() { showAuthModal(platform); }, 260);
+    }
+
     function renderPlatforms() {
         var state = getState();
+        renderBindingSummary(state);
+        renderReturnBanner();
+        initShareAuthPrompt(state);
         var grid = document.getElementById('platformGrid');
         grid.innerHTML = '';
         platforms.forEach(function(p) {
             var s = state[p.id] || { status: 'unbound' };
+            var effectiveStatus = s.status === 'bound' && isExpiredDate(s.expireDate) ? 'expired' : s.status;
             var card = document.createElement('div');
             card.className = 'platform-card';
 
@@ -411,14 +591,36 @@
             var actions = document.createElement('div');
             actions.className = 'platform-actions';
 
+            var statusInfo = makeStatus(effectiveStatus);
+            var dot = document.createElement('span');
+            dot.className = 'status-dot ' + statusInfo.cls;
+            var stxt = document.createElement('span');
+            stxt.className = 'status-text ' + statusInfo.cls;
+            stxt.textContent = statusInfo.text;
+            statusRow.appendChild(dot);
+            statusRow.appendChild(stxt);
+
+            var badge = document.createElement('span');
+            if (!p.comingSoon) {
+                badge.className = 'mode-badge ' + p.publishMode;
+                badge.textContent = p.modeLabel;
+                statusRow.appendChild(badge);
+            }
+
+            body.appendChild(nameRow);
+            body.appendChild(statusRow);
+
+            var desc = document.createElement('div');
+            desc.className = 'platform-desc';
+            desc.textContent = p.desc;
+            body.appendChild(desc);
+
+            var meta = document.createElement('div');
+            meta.className = 'platform-meta';
+            meta.innerHTML = renderScopeChips(p, s);
+            if (meta.innerHTML) body.appendChild(meta);
+
             if (s.status === 'soon') {
-                var dot = document.createElement('span');
-                dot.className = 'status-dot soon';
-                var stxt = document.createElement('span');
-                stxt.className = 'status-text soon';
-                stxt.textContent = '即将开放';
-                statusRow.appendChild(dot);
-                statusRow.appendChild(stxt);
 
                 var btn = document.createElement('button');
                 btn.className = 'btn btn-disabled';
@@ -426,26 +628,13 @@
                 btn.disabled = true;
                 actions.appendChild(btn);
 
-            } else if (s.status === 'bound') {
-                var dot = document.createElement('span');
-                dot.className = 'status-dot bound';
-                var stxt = document.createElement('span');
-                stxt.className = 'status-text bound';
-                stxt.textContent = '已授权';
-                statusRow.appendChild(dot);
-                statusRow.appendChild(stxt);
-
+            } else if (effectiveStatus === 'bound') {
                 if (s.expireDate) {
                     var expire = document.createElement('span');
-                    expire.style.cssText = 'font-size:11px;color:var(--text-muted);margin-left:4px;';
-                    expire.textContent = '有效期至 ' + s.expireDate;
-                    statusRow.appendChild(expire);
+                    expire.className = 'platform-expire';
+                    expire.textContent = 'access token 有效期至 ' + s.expireDate;
+                    body.appendChild(expire);
                 }
-
-                var badge = document.createElement('span');
-                badge.className = 'mode-badge ' + p.publishMode;
-                badge.textContent = p.publishMode === 'redirect' ? '跳转确认' : '自动发布';
-                statusRow.appendChild(badge);
 
                 var userRow = document.createElement('div');
                 userRow.className = 'platform-user';
@@ -457,14 +646,12 @@
                 un.textContent = s.userName;
                 userRow.appendChild(ua);
                 userRow.appendChild(un);
-                body.appendChild(nameRow);
-                body.appendChild(statusRow);
                 body.appendChild(userRow);
 
                 var syncBtn = document.createElement('button');
-                syncBtn.className = 'btn btn-success';
-                syncBtn.textContent = '已授权 ✓';
-                syncBtn.onclick = function() { showToast('提示', '账号状态正常'); };
+                syncBtn.className = 'btn';
+                syncBtn.textContent = '刷新状态';
+                syncBtn.onclick = function() { refreshBindingStatus(p); };
                 actions.appendChild(syncBtn);
 
                 var unbindBtn = document.createElement('button');
@@ -474,43 +661,21 @@
                 unbindBtn.onclick = function() { showUnbindModal(p); };
                 actions.appendChild(unbindBtn);
 
-            } else if (s.status === 'expired') {
-                var dot = document.createElement('span');
-                dot.className = 'status-dot expired';
-                var stxt = document.createElement('span');
-                stxt.className = 'status-text expired';
-                stxt.textContent = '授权已过期';
-                statusRow.appendChild(dot);
-                statusRow.appendChild(stxt);
-
+            } else if (effectiveStatus === 'expired' || effectiveStatus === 'scope_missing') {
                 if (s.expireDate) {
                     var expire = document.createElement('span');
-                    expire.style.cssText = 'font-size:11px;color:var(--text-muted);margin-left:4px;';
-                    expire.textContent = '过期于 ' + s.expireDate;
-                    statusRow.appendChild(expire);
+                    expire.className = 'platform-expire';
+                    expire.textContent = (effectiveStatus === 'expired' ? '过期于 ' : '当前授权至 ') + s.expireDate;
+                    body.appendChild(expire);
                 }
-
-                body.appendChild(nameRow);
-                body.appendChild(statusRow);
 
                 var authBtn = document.createElement('button');
                 authBtn.className = 'btn btn-warning';
-                authBtn.textContent = '重新授权';
+                authBtn.textContent = effectiveStatus === 'scope_missing' ? '补充授权' : '重新授权';
                 authBtn.onclick = function() { showAuthModal(p); };
                 actions.appendChild(authBtn);
 
             } else {
-                var dot = document.createElement('span');
-                dot.className = 'status-dot unbound';
-                var stxt = document.createElement('span');
-                stxt.className = 'status-text unbound';
-                stxt.textContent = '未绑定';
-                statusRow.appendChild(dot);
-                statusRow.appendChild(stxt);
-
-                body.appendChild(nameRow);
-                body.appendChild(statusRow);
-
                 var authBtn = document.createElement('button');
                 authBtn.className = 'btn btn-primary';
                 authBtn.textContent = '去授权';
@@ -538,13 +703,15 @@
         document.getElementById('authModalIcon').style.margin = '0 auto 12px';
         document.getElementById('authModalIcon').style.border = platform.iconCls === 'bg-xiaohongshu' ? '1px solid #eee' : 'none';
         document.getElementById('authModalTitle').textContent = '授权绑定' + platform.name;
-        document.getElementById('authModalScopePlatform').textContent = platform.name;
+        document.getElementById('authModalPublishScope').textContent = platform.id === 'douyin'
+            ? '创建抖音投稿任务，并引导你在端内完成确认'
+            : '后台上传并提交发布到你的' + platform.name + '账号';
 
         var descEl = document.getElementById('authModalDesc');
-        if (platform.publishMode === 'redirect') {
-            descEl.innerHTML = '即将跳转至抖音开放平台授权。<br>发布时需跳转抖音 APP <strong>手动确认发布</strong>，你的平台无法替用户点击发布。';
+        if (platform.publishMode === 'confirm') {
+            descEl.innerHTML = '即将跳转至抖音开放平台授权。<br>当前原型按 <strong>端内投稿/手动确认</strong> 处理，后台直发需平台开通后启用。';
         } else if (platform.publishMode === 'auto') {
-            descEl.innerHTML = '即将跳转至快手开放平台授权。<br>授权后支持 <strong>静默直发</strong>，选择视频后由后台自动完成发布。';
+            descEl.innerHTML = '即将跳转至快手开放平台授权。<br>授权后支持 <strong>后台上传并提交发布</strong>，发布状态会在任务记录中同步。';
         } else {
             descEl.textContent = '即将跳转到' + platform.name + '开放平台进行授权认证。';
         }
@@ -567,23 +734,40 @@
         setTimeout(function() {
             var state = getState();
             var now = new Date();
-            var days = platform.id === 'douyin' ? 15 : 30;
+            var days = platform.tokenDays || 30;
             now.setDate(now.getDate() + days);
             var expireStr = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
             state[platform.id] = {
                 status: 'bound',
                 userName: platform.id === 'douyin' ? '抖音用户_顾霖' : '快手用户_顾霖',
-                expireDate: expireStr
+                expireDate: expireStr,
+                bindDate: new Date().toISOString().slice(0, 10),
+                publishMode: platform.publishMode,
+                scopes: platform.scopes || [],
+                openId: platform.id + '_open_20260715'
             };
             saveState(state);
             renderPlatforms();
-            showToast('绑定成功', '已成功绑定' + platform.name + '账号。发布时将默认携带 #AI生成 话题。');
+            showToast('绑定成功', '已成功绑定' + platform.name + '账号。发布时会逐个平台创建任务。');
+            if (shareReturnContext && shareReturnContext.platform === platform.id) {
+                setTimeout(returnToVideoShare, 800);
+            }
         }, 1500);
+    }
+
+    function refreshBindingStatus(platform) {
+        var state = getState();
+        var s = state[platform.id];
+        if (!s || s.status !== 'bound' || isExpiredDate(s.expireDate)) {
+            showToast('需要授权', '请先完成' + platform.name + '账号授权');
+            return;
+        }
+        showToast('授权状态正常', platform.name + '账号可用于' + platform.modeLabel + '。');
     }
 
     function showUnbindModal(platform) {
         pendingPlatform = platform;
-        document.getElementById('unbindModalDesc').textContent = '确认解除与「' + platform.name + '」的绑定？解除后需要重新授权才能分发视频。';
+        document.getElementById('unbindModalDesc').textContent = '确认解除与「' + platform.name + '」的绑定？解除后需要重新授权才能创建发布任务。';
         document.getElementById('unbindModal').classList.add('show');
     }
 
@@ -593,7 +777,7 @@
         closeModal('unbindModal');
 
         var state = getState();
-        state[platform.id] = { status: 'unbound', userName: '', expireDate: '' };
+        state[platform.id] = { status: 'unbound', userName: '', expireDate: '', scopes: [] };
         saveState(state);
         renderPlatforms();
         showToast('已解绑', '已解除与' + platform.name + '的绑定');

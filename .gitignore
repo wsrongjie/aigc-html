@@ -1,0 +1,6 @@
+node_modules/
+.claude/
+.codex/
+.edge-pinmark-test/
+.mimocode/
+*.exe

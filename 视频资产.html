@@ -884,8 +884,15 @@
 .platform-badge svg { width: 12px; height: 12px; display: block; color: #fff; }
 .platform-badge.douyin { background: #161823; }
 .platform-badge.kuaishou { background: linear-gradient(135deg,#FF6A00,#EE2D2D); }
-.platform-badge.pending { opacity: 0.5; }
+.platform-badge.pending,
+.platform-badge.uploading,
+.platform-badge.submitting,
+.platform-badge.platform_processing,
+.platform-badge.manual_confirmation_required,
+.platform-badge.retry_scheduled { opacity: 0.62; }
 .platform-badge.failed { background: var(--danger); }
+.platform-badge.platform_rejected,
+.platform-badge.auth_expired { background: var(--danger); }
 
 /* ====== 分发弹窗 ====== */
 .dist-ov {
@@ -929,6 +936,8 @@
 .dist-plat-card.selected { border-color: var(--primary); background: var(--primary-light); }
 .dist-plat-card.disabled { opacity: 0.45; cursor: not-allowed; }
 .dist-plat-card.disabled:hover { border-color: var(--border); }
+.dist-plat-card.needs-auth { opacity: 1; border-style: dashed; }
+.dist-plat-card.needs-auth:hover { border-color: var(--warning); background: var(--warning-light); }
 .dist-plat-card .plat-icon {
     width: 36px; height: 36px; border-radius: 8px;
     display: inline-flex; align-items: center; justify-content: center;
@@ -948,7 +957,7 @@
     background: var(--primary); border-color: var(--primary); color: #fff;
 }
 .dist-plat-card .plat-unbind {
-    font-size: 11px; color: var(--text-muted); margin-top: 4px; cursor: pointer;
+    font-size: 11px; color: var(--text-muted); margin-top: 4px; cursor: pointer; line-height: 1.4;
 }
 .dist-plat-card .plat-unbind:hover { color: var(--primary); }
 
@@ -981,6 +990,17 @@
     font-family: inherit; line-height: 1.5;
 }
 .dist-textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-light); }
+.dist-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.dist-select {
+    width: 100%; height: 36px; padding: 0 12px; border: 1.5px solid var(--border);
+    border-radius: 8px; font-size: 13px; color: var(--text-primary); background: #fff;
+    outline: none; font-family: inherit;
+}
+.dist-validation {
+    display: none; border: 1px solid #fed7aa; background: #fff7ed; color: #9a3412;
+    border-radius: 8px; padding: 10px 12px; font-size: 12px; line-height: 1.6;
+}
+.dist-validation.show { display: block; }
 
 /* 独立编辑 - 平台标签 */
 .dist-ind-tabs { display: flex; gap: 4px; margin-bottom: 12px; }
@@ -1043,7 +1063,35 @@
 .dist-record-status .rec-dot.success { background: var(--success); }
 .dist-record-status .rec-dot.pending { background: var(--warning); }
 .dist-record-status .rec-dot.failed { background: var(--danger); }
+.dist-record-status .rec-dot.published { background: var(--success); }
+.dist-record-status .rec-dot.uploading,
+.dist-record-status .rec-dot.submitting,
+.dist-record-status .rec-dot.platform_processing,
+.dist-record-status .rec-dot.manual_confirmation_required,
+.dist-record-status .rec-dot.retry_scheduled { background: var(--warning); }
+.dist-record-status .rec-dot.platform_rejected,
+.dist-record-status .rec-dot.auth_expired { background: var(--danger); }
+.dist-record-actions { display: flex; gap: 6px; }
+.dist-record-actions .mini-btn {
+    border: 1px solid var(--border); background: #fff; color: var(--text-secondary);
+    border-radius: 6px; height: 26px; padding: 0 8px; font-size: 11px; cursor: pointer;
+}
+.dist-record-actions .mini-btn:hover { border-color: var(--primary); color: var(--primary); }
     .dist-empty-record { font-size: 12px; color: var(--text-muted); padding: 4px 0; }
+
+/* 抖音端内确认弹窗 */
+.manual-ov {
+    display: none; position: fixed; inset: 0; z-index: 1700;
+    background: rgba(0,0,0,0.56); align-items: center; justify-content: center;
+}
+.manual-ov.show { display: flex; }
+.manual-modal {
+    width: 420px; max-width: 90vw; background: #fff; border-radius: 16px;
+    padding: 22px; box-shadow: 0 24px 80px rgba(0,0,0,0.22);
+}
+.manual-title { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+.manual-desc { font-size: 13px; color: var(--text-secondary); line-height: 1.7; margin-bottom: 16px; }
+.manual-actions { display: flex; justify-content: flex-end; gap: 10px; }
 
     /* ====== 封面配置内嵌面板 ====== */
     .cover-edit-panel { display: none; flex-direction: column; gap: 14px; }
@@ -1278,7 +1326,7 @@
             <button class="select-all-btn" id="select-all-btn" onclick="toggleSelectAll()">全选</button>
             <span class="spacer"></span>
             <button class="batch-action-btn batch-download" onclick="batchDownload()">⬇ 批量下载</button>
-            <button class="batch-action-btn batch-download" onclick="openBatchDistModal()">📤 批量分发</button>
+            <button class="batch-action-btn batch-download" onclick="openBatchDistModal()">📤 批量创建发布任务</button>
             <button class="batch-action-btn batch-delete" onclick="batchDelete()">✕ 批量删除</button>
             <button class="batch-exit" onclick="exitBatchMode()">取消</button>
         </div>
@@ -1504,7 +1552,7 @@
 <div class="dist-ov" id="dist-ov" onclick="if(event.target===this)closeDistModal()">
     <div class="dist-modal">
         <div class="dist-hd">
-            <span class="dist-title">分发到外部平台</span>
+            <span class="dist-title">创建外部平台发布任务</span>
             <button class="dist-close" onclick="closeDistModal()">✕</button>
         </div>
         <div class="dist-body">
@@ -1534,6 +1582,20 @@
                         <label>视频简介</label>
                         <textarea class="dist-textarea" id="dist-desc" placeholder="视频简介..." rows="2"></textarea>
                     </div>
+                    <div class="dist-row">
+                        <div class="dist-field">
+                            <label>可见范围</label>
+                            <select class="dist-select" id="dist-visibility">
+                                <option value="public">默认公开发布</option>
+                                <option value="private">仅自己可见</option>
+                                <option value="friends">仅好友可见</option>
+                            </select>
+                        </div>
+                        <div class="dist-field">
+                            <label>封面</label>
+                            <input class="dist-input" id="dist-cover" value="使用当前视频封面" readonly>
+                        </div>
+                    </div>
                 </div>
                 <div class="dist-fields" id="dist-fields-independent" style="display:none;"></div>
             </div>
@@ -1545,11 +1607,23 @@
                 </label>
             </div>
 
+            <div class="dist-validation" id="dist-validation"></div>
             <div class="dist-guide" id="dist-guide"></div>
         </div>
         <div class="dist-ft">
             <button class="btn btn-cancel" onclick="closeDistModal()">取消</button>
-            <button class="btn btn-primary" id="dist-confirm-btn" onclick="confirmDist()">确认分发</button>
+            <button class="btn btn-primary" id="dist-confirm-btn" onclick="confirmDist()">创建发布任务</button>
+        </div>
+    </div>
+</div>
+
+<div class="manual-ov" id="douyin-manual-ov">
+    <div class="manual-modal">
+        <div class="manual-title">抖音需要端内确认</div>
+        <div class="manual-desc" id="douyin-manual-desc">发布任务已创建。请前往抖音完成投稿确认，完成后回到这里同步状态。</div>
+        <div class="manual-actions">
+            <button class="btn btn-cancel" onclick="deferDouyinPublish()">稍后确认</button>
+            <button class="btn btn-primary" onclick="confirmDouyinPublished()">我已在抖音完成确认</button>
         </div>
     </div>
 </div>
@@ -1722,7 +1796,7 @@
                         '<div class="play-indicator"><span></span><span></span><span></span><span></span></div>' +
                         '<button class="menu-btn" onclick="event.stopPropagation();toggleMenu(' + v.id + ')">⋮</button>' +
                         '<div class="dropdown-menu" id="menu-' + v.id + '">' +
-                            '<button class="dropdown-item" onclick="event.stopPropagation();openDistModal(' + v.id + ')">📤 分发视频</button>' +
+                            '<button class="dropdown-item" onclick="event.stopPropagation();openDistModal(' + v.id + ')">📤 创建发布任务</button>' +
                             '<div class="dropdown-divider"></div>' +
                             '<button class="dropdown-item" onclick="event.stopPropagation();doDownload(' + v.id + ')">⬇ 下载视频</button>' +
                             '<div class="dropdown-divider"></div>' +
@@ -2567,15 +2641,44 @@
         kuaishou: '<svg viewBox="0 0 24 24" fill="none"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2Zm4.2 11.2-5.6 3.2a.8.8 0 0 1-1.2-.68V8.28a.8.8 0 0 1 1.2-.68l5.6 3.2a.8.8 0 0 1 0 1.37l.08.03Z" fill="currentColor"/></svg>'
     };
     var PLATFORM_CONFIG = {
-        douyin: { name: '抖音', cls: 'douyin', mode: '跳转确认', modeDesc: '需跳转抖音APP手动发布' },
-        kuaishou: { name: '快手', cls: 'kuaishou', mode: '自动发布', modeDesc: '提交后由后台自动发布' }
+        douyin: {
+            name: '抖音',
+            cls: 'douyin',
+            mode: '端内确认',
+            modeDesc: '创建任务后需要前往抖音端内确认发布',
+            requiredScopes: ['user_info', '投稿到抖音'],
+            publishType: 'manual'
+        },
+        kuaishou: {
+            name: '快手',
+            cls: 'kuaishou',
+            mode: '后台发布',
+            modeDesc: '提交后由后台上传并发布',
+            requiredScopes: ['user_info', 'user_video_publish', 'user_video_info'],
+            publishType: 'auto'
+        }
+    };
+    var DIST_STATUS_META = {
+        queued: { text: '任务已创建', dot: 'uploading' },
+        refreshing_token: { text: '刷新授权中', dot: 'uploading' },
+        uploading: { text: '上传中', dot: 'uploading' },
+        submitting: { text: '提交中', dot: 'submitting' },
+        platform_processing: { text: '平台处理中', dot: 'platform_processing' },
+        manual_confirmation_required: { text: '需要手动确认', dot: 'manual_confirmation_required' },
+        retry_scheduled: { text: '等待重试', dot: 'retry_scheduled' },
+        published: { text: '平台已发布', dot: 'published' },
+        platform_rejected: { text: '平台拒发', dot: 'platform_rejected' },
+        auth_expired: { text: '授权失效', dot: 'auth_expired' },
+        failed: { text: '发布失败', dot: 'failed' }
     };
 
     var DIST_KEY = 'videoDistState';
+    var SHARE_RESUME_KEY = 'videoShareResumeState';
     var distMode = 'unified';
     var distVideoIds = [];
     var distSelectedPlatforms = {};
     var distCurrentTab = null;
+    var douyinPendingIds = [];
 
     function getDistState() {
         try {
@@ -2591,6 +2694,158 @@
             var raw = localStorage.getItem('platformBindingState');
             return raw ? JSON.parse(raw) : {};
         } catch (e) { return {}; }
+    }
+    function normalizeDistStatus(status) {
+        if (status === 'success') return 'published';
+        if (status === 'pending') return 'platform_processing';
+        return status || 'queued';
+    }
+    function getStatusMeta(status) {
+        var normalized = normalizeDistStatus(status);
+        return DIST_STATUS_META[normalized] || DIST_STATUS_META.failed;
+    }
+    function isExpiredDate(dateStr) {
+        if (!dateStr) return false;
+        var expire = new Date(dateStr + 'T23:59:59');
+        if (isNaN(expire.getTime())) return false;
+        return expire.getTime() < Date.now();
+    }
+    function isBindingPublishable(platformId) {
+        var binding = getBindingState();
+        var b = binding[platformId] || { status: 'unbound' };
+        if (b.status !== 'bound') return false;
+        if (isExpiredDate(b.expireDate)) return false;
+        var scopes = b.scopes || [];
+        var required = PLATFORM_CONFIG[platformId].requiredScopes || [];
+        if (required.length > 0 && scopes.length === 0) return false;
+        return required.every(function(scope) { return scopes.indexOf(scope) >= 0; });
+    }
+    function getBindingProblem(platformId) {
+        var binding = getBindingState();
+        var b = binding[platformId] || { status: 'unbound' };
+        if (b.status === 'bound' && isBindingPublishable(platformId)) return '';
+        if (b.status === 'expired' || isExpiredDate(b.expireDate)) return '授权已过期，重新授权 →';
+        if (b.status === 'scope_missing') return '缺少发布权限，补充授权 →';
+        if (b.status === 'bound') return '缺少发布权限，补充授权 →';
+        return '未绑定，去绑定 →';
+    }
+    function getPublishableLabel(platformId, binding) {
+        var account = binding && binding.userName ? '发布账号：' + escapeHtml(binding.userName) + ' · ' : '';
+        return account + (platformId === 'douyin' ? '可创建端内确认任务' : '可后台发布');
+    }
+    function escapeHtml(text) {
+        return String(text == null ? '' : text).replace(/[&<>"']/g, function(ch) {
+            return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[ch];
+        });
+    }
+    function buildTaskId(videoId, platformId) {
+        return 'dist_' + platformId + '_' + videoId + '_' + Date.now();
+    }
+    function getShareDraftPayload(platformId, overrideIds) {
+        var payload = {
+            platform: platformId,
+            videoIds: (overrideIds && overrideIds.length ? overrideIds : distVideoIds).slice(),
+            mode: (overrideIds && overrideIds.length ? overrideIds.length : distVideoIds.length) > 1 ? 'batch' : 'single',
+            editMode: distMode,
+            selectedPlatforms: Object.keys(distSelectedPlatforms),
+            title: document.getElementById('dist-title') ? document.getElementById('dist-title').value : '',
+            tags: document.getElementById('dist-tags') ? document.getElementById('dist-tags').value : '',
+            desc: document.getElementById('dist-desc') ? document.getElementById('dist-desc').value : '',
+            visibility: document.getElementById('dist-visibility') ? document.getElementById('dist-visibility').value : 'public',
+            aiTag: document.getElementById('dist-ai-tag') ? document.getElementById('dist-ai-tag').checked : true
+        };
+        payload.independent = {};
+        document.querySelectorAll('.dist-ind-panel').forEach(function(panel) {
+            var key = panel.id.replace('dist-ind-panel-', '');
+            payload.independent[key] = {
+                title: (panel.querySelector('.dist-ind-title') || {}).value || '',
+                tags: (panel.querySelector('.dist-ind-tags') || {}).value || '',
+                desc: (panel.querySelector('.dist-ind-desc') || {}).value || ''
+            };
+        });
+        return payload;
+    }
+    function startPlatformBinding(platformId, overrideIds) {
+        var payload = getShareDraftPayload(platformId, overrideIds);
+        try {
+            sessionStorage.setItem(SHARE_RESUME_KEY, JSON.stringify(payload));
+            localStorage.setItem(SHARE_RESUME_KEY, JSON.stringify(payload));
+        } catch (e) {}
+        var params = new URLSearchParams();
+        params.set('from', 'video-share');
+        params.set('platform', platformId);
+        params.set('videoIds', payload.videoIds.join(','));
+        params.set('mode', payload.mode);
+        location.href = '账号绑定.html?' + params.toString();
+    }
+    function getStoredShareResumePayload() {
+        try {
+            var raw = sessionStorage.getItem(SHARE_RESUME_KEY) || localStorage.getItem(SHARE_RESUME_KEY);
+            return raw ? JSON.parse(raw) : null;
+        } catch (e) { return null; }
+    }
+    function applyReturnedBinding(params) {
+        var platformId = params.get('binding');
+        if (!platformId || !PLATFORM_CONFIG[platformId]) return;
+        var binding = getBindingState();
+        binding[platformId] = {
+            status: params.get('bindingStatus') || 'bound',
+            userName: params.get('userName') || PLATFORM_CONFIG[platformId].name + '账号',
+            expireDate: params.get('expireDate') || '',
+            publishMode: params.get('publishMode') || PLATFORM_CONFIG[platformId].publishType,
+            scopes: (params.get('scopes') || '').split('|').filter(Boolean)
+        };
+        try { localStorage.setItem('platformBindingState', JSON.stringify(binding)); } catch (e) {}
+    }
+    function restoreShareDraft(payload) {
+        if (!payload) return;
+        if (payload.title && document.getElementById('dist-title')) document.getElementById('dist-title').value = payload.title;
+        if (payload.tags && document.getElementById('dist-tags')) document.getElementById('dist-tags').value = payload.tags;
+        if (payload.desc && document.getElementById('dist-desc')) document.getElementById('dist-desc').value = payload.desc;
+        if (payload.visibility && document.getElementById('dist-visibility')) document.getElementById('dist-visibility').value = payload.visibility;
+        if (typeof payload.aiTag === 'boolean' && document.getElementById('dist-ai-tag')) document.getElementById('dist-ai-tag').checked = payload.aiTag;
+        if (payload.editMode === 'independent') {
+            setDistMode('independent');
+            if (payload.independent) {
+                Object.keys(payload.independent).forEach(function(key) {
+                    var draft = payload.independent[key] || {};
+                    var title = document.querySelector('.dist-ind-title[data-platform="' + key + '"]');
+                    var tags = document.querySelector('.dist-ind-tags[data-platform="' + key + '"]');
+                    var desc = document.querySelector('.dist-ind-desc[data-platform="' + key + '"]');
+                    if (title && draft.title) title.value = draft.title;
+                    if (tags && draft.tags) tags.value = draft.tags;
+                    if (desc && draft.desc) desc.value = draft.desc;
+                });
+            }
+        }
+        updateDistBtn();
+    }
+    function resumeShareFromBinding() {
+        var params = new URLSearchParams(location.search);
+        if (params.get('resumeShare') !== '1') return;
+        applyReturnedBinding(params);
+        var platform = params.get('platform') || '';
+        var ids = (params.get('videoIds') || '').split(',').map(function(id) { return parseInt(id, 10); }).filter(Boolean);
+        var payload = getStoredShareResumePayload();
+        if (!ids.length && platform) {
+            if (payload && payload.videoIds) ids = payload.videoIds;
+        }
+        if (!ids.length) return;
+        distVideoIds = ids;
+        distSelectedPlatforms = {};
+        if (payload && payload.selectedPlatforms) {
+            payload.selectedPlatforms.forEach(function(key) {
+                if (PLATFORM_CONFIG[key] && isBindingPublishable(key)) distSelectedPlatforms[key] = true;
+            });
+        }
+        if (platform && isBindingPublishable(platform)) distSelectedPlatforms[platform] = true;
+        distMode = 'unified';
+        openDistModalCommon();
+        restoreShareDraft(payload);
+        try { history.replaceState({}, document.title, location.pathname); } catch (e) {}
+        if (platform && PLATFORM_CONFIG[platform] && !distSelectedPlatforms[platform]) {
+            showToast(PLATFORM_CONFIG[platform].name + '仍不可发布，请检查授权状态');
+        }
     }
 
     function openDistModal(videoId) {
@@ -2621,6 +2876,7 @@
         renderDistPlatforms();
         setDistMode('unified');
         updateDistGuide();
+        bindDistFormValidation();
         updateDistBtn();
         document.getElementById('dist-ov').classList.add('show');
     }
@@ -2638,7 +2894,8 @@
         for (var key in PLATFORM_CONFIG) {
             var cfg = PLATFORM_CONFIG[key];
             var b = binding[key] || { status: 'unbound' };
-            var disabled = b.status !== 'bound' ? ' disabled' : '';
+            var publishable = isBindingPublishable(key);
+            var disabled = publishable ? '' : ' needs-auth';
             var selected = distSelectedPlatforms[key] ? ' selected' : '';
             html += '<div class="dist-plat-card' + selected + disabled + '" data-platform="' + key + '" onclick="toggleDistPlatform(\'' + key + '\')">' +
                 '<div class="plat-check">✓</div>' +
@@ -2647,7 +2904,8 @@
                 '</div>' +
                 '<div class="plat-name">' + cfg.name + '</div>' +
                 '<div class="plat-mode">' + cfg.mode + '</div>' +
-                (b.status !== 'bound' ? '<div class="plat-unbind">未绑定，去绑定 →</div>' : '') +
+                (!publishable ? '<div class="plat-unbind">' + getBindingProblem(key) + '</div>' :
+                    '<div class="plat-unbind">' + getPublishableLabel(key, b) + '</div>') +
                 '</div>';
         }
         container.innerHTML = html;
@@ -2656,8 +2914,9 @@
     function toggleDistPlatform(platformId) {
         var binding = getBindingState();
         var b = binding[platformId] || { status: 'unbound' };
-        if (b.status !== 'bound') {
-            showToast('请先在个人中心绑定' + PLATFORM_CONFIG[platformId].name + '账号');
+        if (!isBindingPublishable(platformId)) {
+            showToast(getBindingProblem(platformId).replace(' →', ''));
+            startPlatformBinding(platformId);
             return;
         }
         if (distSelectedPlatforms[platformId]) {
@@ -2667,6 +2926,7 @@
         }
         renderDistPlatforms();
         updateDistGuide();
+        if (distMode === 'independent') renderDistIndependent();
         updateDistBtn();
     }
 
@@ -2674,13 +2934,13 @@
         var guide = document.getElementById('dist-guide');
         var texts = [];
         if (distSelectedPlatforms['kuaishou']) {
-            texts.push('⚡ 快手：提交后自动后台发布，可在任务列表中查看进度。');
+            texts.push('快手：创建任务后进入后台上传、提交发布和平台处理中。');
         }
         if (distSelectedPlatforms['douyin']) {
-            texts.push('🔄 抖音：需跳转至抖音APP手动确认发布，请确保已安装抖音客户端。');
+            texts.push('抖音：创建任务后进入端内确认状态，需要用户完成投稿确认。');
         }
         if (texts.length > 0) {
-            guide.innerHTML = '📌 ' + texts.join('<br>📌 ');
+            guide.innerHTML = '发布任务会按“视频 × 平台”独立创建。<br>' + texts.join('<br>');
             guide.classList.add('show');
         } else {
             guide.classList.remove('show');
@@ -2690,7 +2950,49 @@
     function updateDistBtn() {
         var btn = document.getElementById('dist-confirm-btn');
         var count = Object.keys(distSelectedPlatforms).length;
-        btn.textContent = count > 0 ? '确认分发（' + count + ' 个平台）' : '确认分发';
+        var tasks = count * distVideoIds.length;
+        btn.textContent = count > 0 ? '创建发布任务（' + tasks + ' 个）' : '创建发布任务';
+        btn.disabled = getDistValidationErrors().length > 0;
+        renderDistValidation();
+    }
+
+    function bindDistFormValidation() {
+        ['dist-title', 'dist-tags', 'dist-desc', 'dist-visibility'].forEach(function(id) {
+            var el = document.getElementById(id);
+            if (el) el.oninput = updateDistBtn;
+            if (el) el.onchange = updateDistBtn;
+        });
+    }
+
+    function getDistValidationErrors() {
+        var errors = [];
+        if (Object.keys(distSelectedPlatforms).length === 0) errors.push('请至少选择一个发布平台。');
+        if (!distVideoIds.length) errors.push('没有可发布的视频。');
+        var title = document.getElementById('dist-title');
+        if (distMode === 'unified' && title && !title.value.trim()) errors.push('视频标题不能为空。');
+        if (distMode === 'independent') {
+            Object.keys(distSelectedPlatforms).forEach(function(platformId) {
+                var input = document.querySelector('.dist-ind-title[data-platform="' + platformId + '"]');
+                if (input && !input.value.trim()) errors.push(PLATFORM_CONFIG[platformId].name + '标题不能为空。');
+            });
+        }
+        Object.keys(distSelectedPlatforms).forEach(function(platformId) {
+            if (!isBindingPublishable(platformId)) errors.push(PLATFORM_CONFIG[platformId].name + '账号当前不可发布。');
+        });
+        return errors;
+    }
+
+    function renderDistValidation() {
+        var box = document.getElementById('dist-validation');
+        if (!box) return;
+        var errors = getDistValidationErrors();
+        if (!errors.length) {
+            box.classList.remove('show');
+            box.innerHTML = '';
+            return;
+        }
+        box.innerHTML = errors.map(function(e) { return '· ' + e; }).join('<br>');
+        box.classList.add('show');
     }
 
     function setDistMode(mode) {
@@ -2727,7 +3029,7 @@
                 var cfg = PLATFORM_CONFIG[key];
                 var v = findVideo(distVideoIds[0]);
                 panelsHtml += '<div class="dist-ind-panel' + show + '" id="dist-ind-panel-' + key + '">' +
-                    '<div class="dist-field"><label>' + cfg.name + '标题</label><input class="dist-input dist-ind-title" data-platform="' + key + '" placeholder="' + cfg.name + '标题" maxlength="50" value="' + (v ? v.title : '') + '"></div>' +
+                    '<div class="dist-field"><label>' + cfg.name + '标题</label><input class="dist-input dist-ind-title" data-platform="' + key + '" placeholder="' + cfg.name + '标题" maxlength="50" value="' + escapeHtml(v ? v.title : '') + '"></div>' +
                     '<div class="dist-field"><label>' + cfg.name + '话题</label><input class="dist-input dist-ind-tags" data-platform="' + key + '" placeholder="多个标签用空格分隔"></div>' +
                     '<div class="dist-field"><label>' + cfg.name + '简介</label><textarea class="dist-textarea dist-ind-desc" data-platform="' + key + '" placeholder="' + cfg.name + '简介..." rows="2"></textarea></div>' +
                     '</div>';
@@ -2739,6 +3041,10 @@
         }
         html = tabsHtml + panelsHtml;
         container.innerHTML = html;
+        container.querySelectorAll('input, textarea').forEach(function(el) {
+            el.oninput = updateDistBtn;
+        });
+        updateDistBtn();
     }
 
     function switchDistTab(key) {
@@ -2760,69 +3066,139 @@
 
     function confirmDist() {
         var platforms = Object.keys(distSelectedPlatforms);
-        if (platforms.length === 0) { showToast('请至少选择一个平台'); return; }
+        var validationErrors = getDistValidationErrors();
+        if (validationErrors.length) {
+            renderDistValidation();
+            showToast(validationErrors[0]);
+            return;
+        }
 
         var state = getDistState();
         var now = new Date();
         var dateStr = now.toISOString().slice(0, 10) + ' ' + now.toTimeString().slice(0, 5);
+        var submittingIds = distVideoIds.slice();
+        var submittingPlatforms = platforms.slice();
+        var title = document.getElementById('dist-title').value.trim();
+        var tags = document.getElementById('dist-tags').value.trim();
+        var desc = document.getElementById('dist-desc').value.trim();
+        var visibility = document.getElementById('dist-visibility').value;
+        var aiTag = document.getElementById('dist-ai-tag').checked;
 
-        distVideoIds.forEach(function(videoId) {
+        submittingIds.forEach(function(videoId) {
             if (!state[videoId]) state[videoId] = {};
-            platforms.forEach(function(pkey) {
-                var title;
+            submittingPlatforms.forEach(function(pkey) {
+                var taskTitle;
+                var taskTags = tags;
+                var taskCaption = desc;
                 if (distMode === 'unified') {
-                    title = document.getElementById('dist-title').value.trim() || ('视频 #' + videoId);
+                    taskTitle = title || ('视频 #' + videoId);
                 } else {
                     var inp = document.querySelector('.dist-ind-title[data-platform="' + pkey + '"]');
-                    title = inp ? inp.value.trim() || ('视频 #' + videoId) : ('视频 #' + videoId);
+                    var tagInp = document.querySelector('.dist-ind-tags[data-platform="' + pkey + '"]');
+                    var descInp = document.querySelector('.dist-ind-desc[data-platform="' + pkey + '"]');
+                    taskTitle = inp ? inp.value.trim() || ('视频 #' + videoId) : ('视频 #' + videoId);
+                    taskTags = tagInp ? tagInp.value.trim() : tags;
+                    taskCaption = descInp ? descInp.value.trim() : desc;
                 }
-                state[videoId][pkey] = { status: 'pending', date: dateStr, title: title };
+                state[videoId][pkey] = {
+                    taskId: buildTaskId(videoId, pkey),
+                    status: pkey === 'douyin' ? 'manual_confirmation_required' : 'queued',
+                    date: dateStr,
+                    title: taskTitle,
+                    caption: taskCaption,
+                    tags: taskTags,
+                    visibility: visibility,
+                    aiTag: aiTag,
+                    accountName: (getBindingState()[pkey] || {}).userName || '',
+                    errorMessage: ''
+                };
             });
         });
         saveDistState(state);
         closeDistModal();
 
         // 触发异步发布模拟
-        platforms.forEach(function(pkey) {
+        submittingPlatforms.forEach(function(pkey) {
             if (pkey === 'kuaishou') {
-                simulateKuaishouPublish(distVideoIds);
+                simulateKuaishouPublish(submittingIds);
             } else if (pkey === 'douyin') {
-                simulateDouyinPublish(distVideoIds);
+                simulateDouyinPublish(submittingIds);
             }
         });
         renderVideos();
-        showToast('已提交分发任务');
+        showToast('发布任务已创建，共 ' + (submittingIds.length * submittingPlatforms.length) + ' 个任务');
     }
 
     function simulateKuaishouPublish(ids) {
-        var delay = 2000 + Math.random() * 2000;
+        updatePlatformStatus(ids, 'kuaishou', 'uploading', '');
+        setTimeout(function() {
+            updatePlatformStatus(ids, 'kuaishou', 'submitting', '');
+        }, 900);
         setTimeout(function() {
             var state = getDistState();
             ids.forEach(function(videoId) {
                 if (state[videoId] && state[videoId]['kuaishou']) {
-                    state[videoId]['kuaishou'].status = Math.random() > 0.15 ? 'success' : 'failed';
+                    var ok = Math.random() > 0.15;
+                    state[videoId]['kuaishou'].status = ok ? 'platform_processing' : 'failed';
+                    state[videoId]['kuaishou'].errorMessage = ok ? '' : '快手返回：视频发布失败，可检查封面、标题或账号状态后重试。';
                 }
             });
             saveDistState(state);
             renderVideos();
-            showToast('✅ 快手分发完成');
-        }, delay);
+            showToast('快手任务已提交，正在同步平台处理状态');
+            setTimeout(function() {
+                var next = getDistState();
+                ids.forEach(function(videoId) {
+                    if (next[videoId] && next[videoId]['kuaishou'] && next[videoId]['kuaishou'].status === 'platform_processing') {
+                        next[videoId]['kuaishou'].status = 'published';
+                        next[videoId]['kuaishou'].platformVideoId = 'ks_' + videoId + '_' + Date.now();
+                        next[videoId]['kuaishou'].playUrl = 'https://www.kuaishou.com/short-video/mock-' + videoId;
+                    }
+                });
+                saveDistState(next);
+                renderVideos();
+                showToast('快手发布完成');
+            }, 1400);
+        }, 1800);
     }
 
     function simulateDouyinPublish(ids) {
-        // 展示跳转引导提示
-        var msg = '即将跳转至抖音APP，请在端内确认发布。\n\n发布完成后点击下方「已完成」按钮。';
-        if (confirm(msg + '\n\n是否已确认发布？')) {
-            var state = getDistState();
-            ids.forEach(function(videoId) {
-                if (state[videoId] && state[videoId]['douyin']) {
-                    state[videoId]['douyin'].status = 'success';
-                }
-            });
-            saveDistState(state);
-            renderVideos();
-            showToast('✅ 抖音分发完成');
-        }
+        douyinPendingIds = ids.slice();
+        var desc = document.getElementById('douyin-manual-desc');
+        if (desc) desc.textContent = '已创建 ' + ids.length + ' 个抖音投稿任务。请在抖音端内完成编辑和发布确认；未确认前，任务会停留在“需要手动确认”。';
+        document.getElementById('douyin-manual-ov').classList.add('show');
+    }
+
+    function updatePlatformStatus(ids, platformId, status, errorMessage) {
+        var state = getDistState();
+        ids.forEach(function(videoId) {
+            if (state[videoId] && state[videoId][platformId]) {
+                state[videoId][platformId].status = status;
+                state[videoId][platformId].errorMessage = errorMessage || '';
+            }
+        });
+        saveDistState(state);
+        renderVideos();
+    }
+
+    function confirmDouyinPublished() {
+        var state = getDistState();
+        douyinPendingIds.forEach(function(videoId) {
+            if (state[videoId] && state[videoId]['douyin']) {
+                state[videoId]['douyin'].status = 'published';
+                state[videoId]['douyin'].platformVideoId = 'dy_' + videoId + '_' + Date.now();
+                state[videoId]['douyin'].playUrl = 'https://www.douyin.com/video/mock-' + videoId;
+            }
+        });
+        saveDistState(state);
+        renderVideos();
+        document.getElementById('douyin-manual-ov').classList.remove('show');
+        showToast('已记录抖音端内确认，原型中模拟为平台已发布');
+    }
+
+    function deferDouyinPublish() {
+        document.getElementById('douyin-manual-ov').classList.remove('show');
+        showToast('抖音任务保留为需要手动确认');
     }
 
     function renderBadges() {
@@ -2833,14 +3209,10 @@
             var platforms = state[videoId];
             var html = '';
             for (var pkey in platforms) {
+                if (!PLATFORM_CONFIG[pkey] || !PLATFORM_LOGOS[pkey]) continue;
                 var info = platforms[pkey];
-                if (info.status === 'success') {
-                    html += '<div class="platform-badge ' + pkey + '" title="已分发到' + PLATFORM_CONFIG[pkey].name + '">' + PLATFORM_LOGOS[pkey] + '</div>';
-                } else if (info.status === 'pending') {
-                    html += '<div class="platform-badge ' + pkey + ' pending" title="分发中…">' + PLATFORM_LOGOS[pkey] + '</div>';
-                } else if (info.status === 'failed') {
-                    html += '<div class="platform-badge ' + pkey + ' failed" title="分发失败">' + PLATFORM_LOGOS[pkey] + '</div>';
-                }
+                var meta = getStatusMeta(info.status);
+                html += '<div class="platform-badge ' + pkey + ' ' + meta.dot + '" title="' + PLATFORM_CONFIG[pkey].name + '：' + meta.text + '">' + PLATFORM_LOGOS[pkey] + '</div>';
             }
             badges.innerHTML = html;
         }
@@ -2860,23 +3232,74 @@
             var r = records[pkey];
             var cfg = PLATFORM_CONFIG[pkey];
             if (!cfg) continue;
-            var statusText = r.status === 'success' ? '已发布' : r.status === 'pending' ? '分发中…' : '分发失败';
+            var meta = getStatusMeta(r.status);
+            var extra = r.errorMessage ? ' · ' + escapeHtml(r.errorMessage) : '';
+            var platformInfo = r.platformVideoId ? ' · 作品ID ' + escapeHtml(r.platformVideoId) : '';
+            var accountInfo = r.accountName ? ' · 账号 ' + escapeHtml(r.accountName) : '';
+            var actions = '';
+            var normalized = normalizeDistStatus(r.status);
+            if (normalized === 'failed' || normalized === 'platform_rejected') {
+                actions += '<button class="mini-btn" onclick="retryDistPublish(' + videoId + ',\'' + pkey + '\')">重试</button>';
+            }
+            if (normalized === 'auth_expired') {
+                actions += '<button class="mini-btn" onclick="startPlatformBinding(\'' + pkey + '\',[' + videoId + '])">重新授权</button>';
+            }
+            if (normalized === 'manual_confirmation_required') {
+                actions += '<button class="mini-btn" onclick="continueDouyinPublish(' + videoId + ')">继续确认</button>';
+            }
+            if (r.playUrl) {
+                actions += '<button class="mini-btn" onclick="window.open(\'' + escapeHtml(r.playUrl) + '\',\'_blank\')">查看</button>';
+            }
             html += '<div class="dist-record-item">' +
                 '<div class="dist-record-icon ' + pkey + '" style="background:' + (pkey === 'douyin' ? '#161823' : 'linear-gradient(135deg,#FF6A00,#EE2D2D)') + '">' +
                     PLATFORM_LOGOS[pkey] +
                 '</div>' +
                 '<div class="dist-record-info">' +
-                    '<div class="dist-record-name">' + (r.title || cfg.name) + '</div>' +
-                    '<div class="dist-record-status"><span class="rec-dot ' + r.status + '"></span> ' + statusText + ' · ' + r.date + '</div>' +
+                    '<div class="dist-record-name">' + escapeHtml(r.title || cfg.name) + '</div>' +
+                    '<div class="dist-record-status"><span class="rec-dot ' + meta.dot + '"></span> ' + meta.text + ' · ' + escapeHtml(r.date || '') + accountInfo + platformInfo + extra + '</div>' +
                 '</div>' +
+                (actions ? '<div class="dist-record-actions">' + actions + '</div>' : '') +
                 '</div>';
         }
         container.innerHTML = html;
     }
 
+    function retryDistPublish(videoId, platformId) {
+        if (!isBindingPublishable(platformId)) {
+            var expiredState = getDistState();
+            if (expiredState[videoId] && expiredState[videoId][platformId]) {
+                expiredState[videoId][platformId].status = 'auth_expired';
+                expiredState[videoId][platformId].errorMessage = '账号授权不可用，请重新授权后重试。';
+                saveDistState(expiredState);
+                renderVideos();
+            }
+            startPlatformBinding(platformId, [videoId]);
+            return;
+        }
+        var state = getDistState();
+        if (state[videoId] && state[videoId][platformId]) {
+            var now = new Date();
+            state[videoId][platformId].taskId = buildTaskId(videoId, platformId);
+            state[videoId][platformId].date = now.toISOString().slice(0, 10) + ' ' + now.toTimeString().slice(0, 5);
+            state[videoId][platformId].retryCount = (state[videoId][platformId].retryCount || 0) + 1;
+            state[videoId][platformId].status = platformId === 'douyin' ? 'manual_confirmation_required' : 'queued';
+            state[videoId][platformId].errorMessage = '';
+            saveDistState(state);
+            renderVideos();
+        }
+        if (platformId === 'kuaishou') simulateKuaishouPublish([videoId]);
+        if (platformId === 'douyin') simulateDouyinPublish([videoId]);
+        showToast('已重新创建' + PLATFORM_CONFIG[platformId].name + '发布任务');
+    }
+
+    function continueDouyinPublish(videoId) {
+        simulateDouyinPublish([videoId]);
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
         checkPendingJobs();
         bindFilters(); renderVideos();
+        resumeShareFromBinding();
         // 日期输入变更时同步到 advFilter（实时生效）
         var df = document.getElementById('adv-date-from');
         var dt = document.getElementById('adv-date-to');

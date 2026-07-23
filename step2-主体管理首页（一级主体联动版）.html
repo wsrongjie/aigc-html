@@ -349,6 +349,108 @@
             gap: 16px;
         }
 
+        .role-variant-panel {
+            display: none;
+            margin-top: 18px;
+            border: 1px solid #c7d2fe;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #f8fafc, #eef2ff);
+            padding: 16px;
+        }
+
+        .role-variant-panel.active {
+            display: block;
+        }
+
+        .role-variant-head {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 12px;
+        }
+
+        .role-variant-head h3 {
+            margin: 0 0 4px;
+            color: #111827;
+            font-size: 15px;
+        }
+
+        .role-variant-head p {
+            margin: 0;
+            color: #6b7280;
+            font-size: 12px;
+        }
+
+        .role-variant-required {
+            border-radius: 999px;
+            background: #fef2f2;
+            color: #dc2626;
+            padding: 5px 10px;
+            font-size: 11px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .role-variant-required.done {
+            background: #ecfdf5;
+            color: #059669;
+        }
+
+        .role-variant-grid {
+            display: grid;
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        .role-variant-card {
+            min-width: 0;
+            overflow: hidden;
+            border: 2px solid transparent;
+            border-radius: 12px;
+            background: #ffffff;
+            padding: 0;
+            text-align: left;
+            cursor: pointer;
+            transition: border-color .16s ease, box-shadow .16s ease;
+        }
+
+        .role-variant-card:hover {
+            border-color: #a5b4fc;
+        }
+
+        .role-variant-card.selected {
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, .12);
+        }
+
+        .role-variant-card img {
+            display: block;
+            width: 100%;
+            aspect-ratio: 3 / 4;
+            object-fit: cover;
+            background: #e5e7eb;
+        }
+
+        .role-variant-card-copy {
+            padding: 8px 9px 9px;
+        }
+
+        .role-variant-card-name {
+            overflow: hidden;
+            color: #111827;
+            font-size: 12px;
+            font-weight: 700;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .role-variant-card-type {
+            margin-top: 2px;
+            color: #9ca3af;
+            font-size: 10px;
+        }
+
         .subject-card {
             border: 1px solid #e5e7eb;
             border-radius: 16px;
@@ -2014,6 +2116,10 @@
         }
 
         @media (max-width: 1080px) {
+            .role-variant-grid {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+
             .edit-grid {
                 grid-template-columns: 1fr;
             }
@@ -2122,6 +2228,14 @@
         }
 
         @media (max-width: 640px) {
+            .role-variant-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .role-variant-head {
+                flex-direction: column;
+            }
+
             .topbar {
                 padding: 0 16px;
             }
@@ -2323,7 +2437,7 @@
                                     </div>
                                 </article>
 
-                                <article class="subject-card role-card" data-name="专业女主播" data-voice="专业女主播 / 中文" data-desc="表达清晰、亲和可信，适合知识科普和服务说明类短视频。" data-img="./assets/role-2.png">
+                                <article class="subject-card role-card" data-id="seed-role-2" data-name="专业女主播" data-voice="专业女主播 / 中文" data-desc="表达清晰、亲和可信，适合知识科普和服务说明类短视频。" data-img="./assets/role-2.png">
                                     <div class="cover">
                                         <img src="./assets/role-2.png" alt="专业女主播" />
                                         <div class="badge">4 视图</div>
@@ -2341,7 +2455,7 @@
                                     </div>
                                 </article>
 
-                                <article class="subject-card role-card" data-name="青年投顾顾问" data-voice="经典解说男-青年 / 中文" data-desc="年轻专业、表达自然，适合信息流转化和财经讲解视频。" data-img="./assets/role-3.png">
+                                <article class="subject-card role-card" data-id="seed-role-3" data-name="青年投顾顾问" data-voice="经典解说男-青年 / 中文" data-desc="年轻专业、表达自然，适合信息流转化和财经讲解视频。" data-img="./assets/role-3.png">
                                     <div class="cover">
                                         <img src="./assets/role-3.png" alt="青年投顾顾问" />
                                         <div class="badge">6 视图</div>
@@ -2359,6 +2473,17 @@
                                     </div>
                                 </article>
                             </div>
+                        </div>
+
+                        <div class="role-variant-panel" id="roleVariantPanel">
+                            <div class="role-variant-head">
+                                <div>
+                                    <h3>选择角色形象</h3>
+                                    <p id="roleVariantHint">请选择本次视频要使用的主图或服饰形象。</p>
+                                </div>
+                                <span class="role-variant-required" id="roleVariantStatus">必选</span>
+                            </div>
+                            <div class="role-variant-grid" id="roleVariantGrid"></div>
                         </div>
                     </section>
 
@@ -2454,6 +2579,7 @@
                             <div class="selected-info">
                                 <strong id="selectedRoleName">未选择角色</strong>
                                 <p id="selectedRoleVoice">角色音色：未选择</p>
+                                <p id="selectedRoleVariant">角色形象：未选择</p>
                             </div>
                         </div>
                     </div>
@@ -3238,6 +3364,11 @@
         const selectedRoleThumb = document.getElementById("selectedRoleThumb");
         const selectedRoleName = document.getElementById("selectedRoleName");
         const selectedRoleVoice = document.getElementById("selectedRoleVoice");
+        const selectedRoleVariantEl = document.getElementById("selectedRoleVariant");
+        const roleVariantPanel = document.getElementById("roleVariantPanel");
+        const roleVariantGrid = document.getElementById("roleVariantGrid");
+        const roleVariantHint = document.getElementById("roleVariantHint");
+        const roleVariantStatus = document.getElementById("roleVariantStatus");
 
         const selectedSceneThumb = document.getElementById("selectedSceneThumb");
         const selectedSceneName = document.getElementById("selectedSceneName");
@@ -3259,8 +3390,10 @@
         const firstFrameViewDesc = document.getElementById("firstFrameViewDesc");
         const firstFrameRegenerateBtn = document.getElementById("firstFrameRegenerateBtn");
 
+        let activeRole = null;
         let selectedRole = null;
         let selectedScene = null;
+        const roleAssetsById = new Map();
         let compositeState = "locked";
         let compositeImageData = "";
         let compositeVersion = 0;
@@ -3280,6 +3413,41 @@
         let editSceneImageChanged = false;
         let editRoleViewsRegenerated = false;
         let editSceneViewsRegenerated = false;
+
+        function createDemoRoleImage(label, jacketColor, accentColor) {
+            const safeLabel = escapeSubjectText(String(label || "角色").replace(/[<>&\"]/g, "").slice(0, 10));
+            const svg =
+                '<svg xmlns="http://www.w3.org/2000/svg" width="720" height="960" viewBox="0 0 720 960">' +
+                    '<defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#eef2ff"/><stop offset="1" stop-color="#ecfeff"/></linearGradient></defs>' +
+                    '<rect width="720" height="960" fill="url(#bg)"/>' +
+                    '<circle cx="360" cy="300" r="126" fill="#d1d5db"/>' +
+                    '<path d="M230 650c28-164 232-164 260 0l58 252H172z" fill="' + jacketColor + '"/>' +
+                    '<path d="M300 510l60 106 60-106 45 62-105 126-105-126z" fill="#f8fafc"/>' +
+                    '<rect x="44" y="42" width="210" height="52" rx="14" fill="' + accentColor + '"/>' +
+                    '<text x="68" y="77" fill="#fff" font-size="24" font-family="Microsoft YaHei,Arial">' + safeLabel + '</text>' +
+                '</svg>';
+            return "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(svg);
+        }
+
+        function safeRoleImageSource(value) {
+            const src = String(value || "").trim();
+            if (!src || /["'<>\r\n]/.test(src)) return "";
+            if (/^data:image\/(?:png|jpe?g|webp|gif|svg\+xml)(?:;[^,]*)?,/i.test(src)) return src;
+            if (/^(?:blob:|https?:\/\/)/i.test(src)) return src;
+            if (/^(?:\.\.\/|\.\/|[^:\\/]+\.(?:png|jpe?g|webp|gif|svg)(?:[?#].*)?)$/i.test(src)) return src;
+            return "";
+        }
+
+        function normalizeRoleOutfits(list) {
+            if (!Array.isArray(list)) return [];
+            return list.slice(0, 8).filter((item) => item && item.img).map((item, index) => ({
+                id: item.id || "outfit-legacy-" + index,
+                name: item.name || "服饰 " + (index + 1),
+                img: safeRoleImageSource(item.img),
+                prompt: item.prompt || "",
+                createdAt: item.createdAt || ""
+            })).filter((item) => item.img);
+        }
         const defaultSceneAngles = Array.from(
             document.querySelectorAll("#editSceneAssetPanel .edit-scene-angle-card")
         ).map((card) => card.dataset.angle).filter(Boolean);
@@ -3303,9 +3471,12 @@
         function getCurrentCompositeSourceKey() {
             if (!selectedRole || !selectedScene) return "";
             return [
+                selectedRole.id || "",
                 selectedRole.name || "",
                 selectedRole.voice || "",
                 selectedRole.img || "",
+                selectedRole.imageVariant ? selectedRole.imageVariant.type : "",
+                selectedRole.imageVariant ? selectedRole.imageVariant.id || "" : "",
                 selectedScene.name || "",
                 selectedScene.desc || "",
                 selectedScene.img || "",
@@ -3329,7 +3500,9 @@
             nextBtn.disabled = !canNext;
             nextBtn.title = canNext ? "" : "请先完成首帧合成";
 
-            if (!selectedRole || !selectedScene) {
+            if (activeRole && !selectedRole) {
+                footerTip.textContent = "Step 2 / 4：请选择本次视频使用的角色主图或服饰形象。";
+            } else if (!selectedRole || !selectedScene) {
                 footerTip.textContent = "Step 2 / 4：选择角色与场景后，需要先合成视频首帧。";
             } else if (compositeState === "generating") {
                 footerTip.textContent = "Step 2 / 4：首帧正在合成，完成后才能进入分镜管理。";
@@ -3394,6 +3567,11 @@
                 },
             }[compositeState] || {};
 
+            if (activeRole && !selectedRole && compositeState === "locked") {
+                stateMeta.hint = "角色已选择，请先确认本次视频使用的主图或服饰形象。";
+                stateMeta.empty = "等待选择角色形象。";
+            }
+
             compositeStatusBadge.textContent = stateMeta.badge || "未开始";
             compositeHint.textContent = stateMeta.hint || "";
             compositeEmptyText.textContent = stateMeta.empty || "";
@@ -3427,10 +3605,14 @@
             if (!sourceKey) {
                 compositeRequestId += 1;
                 clearCompositeTimer();
-                compositeImageData = "";
-                compositeSourceKey = "";
                 compositeStepIndex = 0;
-                setCompositeState("locked");
+                if (activeRole && !selectedRole && compositeImageData) {
+                    setCompositeState("stale");
+                } else {
+                    compositeImageData = "";
+                    compositeSourceKey = "";
+                    setCompositeState("locked");
+                }
                 return;
             }
 
@@ -3470,11 +3652,27 @@
             const roleName = escapeSubjectText(role.name || "未命名角色");
             const sceneName = escapeSubjectText(scene.name || "未命名场景");
             const roleVoice = escapeSubjectText(role.voice || "未配置音色");
+            const roleVariantName = escapeSubjectText(role.imageVariant && role.imageVariant.name ? role.imageVariant.name : "默认主图");
+            const roleImageHref = escapeSubjectText(role.img || "");
             const seed = hashText(roleName + sceneName + version);
             const accentSet = ["#4f46e5", "#0f766e", "#be123c", "#2563eb", "#7c3aed"];
             const accent = accentSet[seed % accentSet.length];
             const roleInitial = escapeSubjectText((role.name || "角").slice(0, 1));
             const sceneInitial = escapeSubjectText((scene.name || "场").slice(0, 1));
+            const roleVisual = roleImageHref ?
+                '<rect x="238" y="582" width="424" height="696" rx="38" fill="#e2e8f0"/>' +
+                '<image href="' + roleImageHref + '" x="238" y="582" width="424" height="696" preserveAspectRatio="xMidYMid slice" clip-path="url(#roleImageClip)"/>' +
+                '<rect x="258" y="602" width="210" height="42" rx="13" fill="' + accent + '" opacity=".94"/>' +
+                '<text x="280" y="631" fill="#ffffff" font-size="22" font-weight="700" font-family="Microsoft YaHei, Arial, sans-serif">' + roleVariantName + '</text>' :
+                '<path d="M318 1186 C326 1012 574 1012 582 1186 L626 1278 H274 Z" fill="#1f2937"/>' +
+                '<path d="M328 1172 C354 1072 546 1072 572 1172 L588 1278 H312 Z" fill="' + accent + '" opacity="0.92"/>' +
+                '<circle cx="450" cy="852" r="134" fill="#d1d5db"/>' +
+                '<path d="M318 822 C336 682 562 666 590 826 C530 776 376 776 318 822 Z" fill="#111827" opacity="0.86"/>' +
+                '<circle cx="402" cy="872" r="17" fill="#374151"/>' +
+                '<circle cx="498" cy="872" r="17" fill="#374151"/>' +
+                '<path d="M394 928 C430 958 470 958 506 928" fill="none" stroke="#4b5563" stroke-width="12" stroke-linecap="round"/>' +
+                '<circle cx="450" cy="1050" r="54" fill="#f8fafc"/>' +
+                '<text x="450" y="1070" text-anchor="middle" fill="' + accent + '" font-size="50" font-weight="800" font-family="Microsoft YaHei, Arial, sans-serif">' + roleInitial + '</text>';
             const svg =
                 '<svg xmlns="http://www.w3.org/2000/svg" width="900" height="1600" viewBox="0 0 900 1600">' +
                     '<defs>' +
@@ -3487,6 +3685,7 @@
                             '<stop offset="0" stop-color="#ffffff" stop-opacity="0"/>' +
                             '<stop offset="1" stop-color="#cbd5e1" stop-opacity="0.88"/>' +
                         '</linearGradient>' +
+                        '<clipPath id="roleImageClip"><rect x="238" y="582" width="424" height="696" rx="38"/></clipPath>' +
                     '</defs>' +
                     '<rect width="900" height="1600" fill="url(#bg)"/>' +
                     '<rect x="54" y="78" width="792" height="1444" rx="54" fill="#ffffff" opacity="0.84"/>' +
@@ -3498,15 +3697,7 @@
                     '<text x="148" y="474" fill="#cbd5e1" font-size="26" font-family="Microsoft YaHei, Arial, sans-serif">场景 ' + sceneInitial + ' 已融合</text>' +
                     '<ellipse cx="450" cy="1252" rx="344" ry="130" fill="#94a3b8" opacity="0.26"/>' +
                     '<rect x="0" y="900" width="900" height="700" fill="url(#floor)"/>' +
-                    '<path d="M318 1186 C326 1012 574 1012 582 1186 L626 1468 H274 Z" fill="#1f2937"/>' +
-                    '<path d="M328 1172 C354 1072 546 1072 572 1172 L598 1360 H302 Z" fill="' + accent + '" opacity="0.92"/>' +
-                    '<circle cx="450" cy="852" r="134" fill="#d1d5db"/>' +
-                    '<path d="M318 822 C336 682 562 666 590 826 C530 776 376 776 318 822 Z" fill="#111827" opacity="0.86"/>' +
-                    '<circle cx="402" cy="872" r="17" fill="#374151"/>' +
-                    '<circle cx="498" cy="872" r="17" fill="#374151"/>' +
-                    '<path d="M394 928 C430 958 470 958 506 928" fill="none" stroke="#4b5563" stroke-width="12" stroke-linecap="round"/>' +
-                    '<circle cx="450" cy="1050" r="54" fill="#f8fafc"/>' +
-                    '<text x="450" y="1070" text-anchor="middle" fill="' + accent + '" font-size="50" font-weight="800" font-family="Microsoft YaHei, Arial, sans-serif">' + roleInitial + '</text>' +
+                    roleVisual +
                     '<rect x="106" y="1294" width="688" height="146" rx="28" fill="#ffffff" opacity="0.92"/>' +
                     '<text x="144" y="1358" fill="#111827" font-size="44" font-weight="800" font-family="Microsoft YaHei, Arial, sans-serif">' + roleName + '</text>' +
                     '<text x="144" y="1410" fill="#64748b" font-size="28" font-family="Microsoft YaHei, Arial, sans-serif">' + roleVoice + '</text>' +
@@ -3562,7 +3753,10 @@
         }
 
         function updateStatus() {
-            if (canEnterStoryboard()) {
+            if (activeRole && !selectedRole) {
+                statusTip.textContent = "角色已选择，请继续选择本次视频使用的角色形象。";
+                statusTip.classList.remove("success");
+            } else if (canEnterStoryboard()) {
                 statusTip.textContent = "主体配置与首帧合成已完成，可以进入分镜管理。";
                 statusTip.classList.add("success");
             } else if (selectedRole && selectedScene && compositeState === "generating") {
@@ -3635,19 +3829,104 @@
             }
         }
 
-        function syncSelectedRoleFromCard(card) {
-            if (!selectedRole || !card.classList.contains("selected")) return;
-            selectedRole = {
-                name: card.dataset.name,
-                voice: card.dataset.voice,
-                desc: card.dataset.desc,
-                img: card.dataset.img,
+        function roleIdFromCard(card) {
+            if (!card.dataset.id) {
+                card.dataset.id = "legacy-role-" + Math.abs(hashText((card.dataset.name || "角色") + (card.dataset.voice || "")));
+            }
+            return card.dataset.id;
+        }
+
+        function roleDataFromCard(card) {
+            const id = roleIdFromCard(card);
+            const stored = roleAssetsById.get(id) || {};
+            return {
+                id,
+                name: card.dataset.name || stored.name || "未命名角色",
+                voice: card.dataset.voice || stored.voice || "未配置音色",
+                desc: card.dataset.desc || stored.desc || "暂无角色描述",
+                img: safeRoleImageSource(card.dataset.img || stored.img || getCardImage(card)),
+                outfits: normalizeRoleOutfits(stored.outfits)
             };
-            setSelectedImage(selectedRoleThumb, selectedRole.img, selectedRole.name);
+        }
+
+        function renderRoleVariants() {
+            if (!activeRole) {
+                roleVariantPanel.classList.remove("active");
+                roleVariantGrid.innerHTML = "";
+                return;
+            }
+
+            const variants = [{
+                type: "main",
+                id: "",
+                name: "默认主图",
+                img: activeRole.img
+            }].concat(activeRole.outfits.map((item) => ({
+                type: "outfit",
+                id: item.id,
+                name: item.name,
+                img: item.img
+            })));
+
+            roleVariantPanel.classList.add("active");
+            roleVariantHint.textContent = "已选择「" + activeRole.name + "」，请选择本次视频使用的角色形象。";
+            roleVariantStatus.textContent = selectedRole ? "已选择" : "必选";
+            roleVariantStatus.classList.toggle("done", Boolean(selectedRole));
+            roleVariantGrid.innerHTML = variants.map((variant) => {
+                const selected = selectedRole && selectedRole.imageVariant &&
+                    selectedRole.imageVariant.type === variant.type &&
+                    (variant.type === "main" || selectedRole.imageVariant.id === variant.id);
+                return '<button class="role-variant-card' + (selected ? ' selected' : '') + '" type="button" aria-pressed="' + (selected ? 'true' : 'false') + '" data-variant-type="' + variant.type + '" data-variant-id="' + escapeSubjectText(variant.id) + '">' +
+                    '<img src="' + variant.img + '" alt="' + escapeSubjectText(variant.name) + '" />' +
+                    '<div class="role-variant-card-copy">' +
+                        '<div class="role-variant-card-name">' + escapeSubjectText(variant.name) + '</div>' +
+                        '<div class="role-variant-card-type">' + (variant.type === "main" ? "角色默认形象" : "服饰附图") + '</div>' +
+                    '</div>' +
+                '</button>';
+            }).join("");
+
+            roleVariantGrid.querySelectorAll(".role-variant-card").forEach((button) => {
+                button.addEventListener("click", () => selectRoleVariant(button.dataset.variantType, button.dataset.variantId || ""));
+            });
+        }
+
+        function selectRoleVariant(type, id) {
+            if (!activeRole) return;
+            let variant = null;
+            if (type === "main") {
+                variant = { type: "main", id: "", name: "默认主图", img: activeRole.img };
+            } else {
+                const outfit = activeRole.outfits.find((item) => item.id === id);
+                if (outfit) variant = { type: "outfit", id: outfit.id, name: outfit.name, img: outfit.img };
+            }
+            if (!variant || !variant.img) return;
+
+            selectedRole = {
+                id: activeRole.id,
+                name: activeRole.name,
+                voice: activeRole.voice,
+                desc: activeRole.desc,
+                img: variant.img,
+                imageVariant: {
+                    type: variant.type,
+                    id: variant.id || null,
+                    name: variant.name
+                }
+            };
+            setSelectedImage(selectedRoleThumb, selectedRole.img, selectedRole.name + " - " + variant.name);
             selectedRoleName.textContent = selectedRole.name;
             selectedRoleVoice.textContent = "角色音色：" + selectedRole.voice;
+            selectedRoleVariantEl.textContent = "角色形象：" + variant.name;
+            renderRoleVariants();
             handleCompositeInputsChanged();
             updateStatus();
+        }
+
+        function syncSelectedRoleFromCard(card) {
+            if (!activeRole || !card.classList.contains("selected")) return;
+            activeRole = null;
+            selectedRole = null;
+            selectRoleCard(card);
         }
 
         function syncSelectedSceneFromCard(card) {
@@ -3736,17 +4015,19 @@
             document.querySelectorAll(".role-card").forEach((item) => item.classList.remove("selected"));
             card.classList.add("selected");
 
-            selectedRole = {
-                name: card.dataset.name,
-                voice: card.dataset.voice,
-                desc: card.dataset.desc,
-                img: card.dataset.img,
-            };
+            const nextRole = roleDataFromCard(card);
+            const sameRole = activeRole && activeRole.id === nextRole.id;
+            activeRole = nextRole;
+            if (!sameRole) selectedRole = null;
 
-            setSelectedImage(selectedRoleThumb, selectedRole.img, selectedRole.name);
-            selectedRoleName.textContent = selectedRole.name;
-            selectedRoleVoice.textContent = "角色音色：" + selectedRole.voice;
+            if (!selectedRole) {
+                selectedRoleThumb.innerHTML = "待选形象";
+                selectedRoleName.textContent = activeRole.name;
+                selectedRoleVoice.textContent = "角色音色：" + activeRole.voice;
+                selectedRoleVariantEl.textContent = "角色形象：未选择";
+            }
 
+            renderRoleVariants();
             handleCompositeInputsChanged();
             updateStatus();
         }
@@ -3820,6 +4101,10 @@
         });
 
         nextBtn.addEventListener("click", () => {
+            if (activeRole && !selectedRole) {
+                alert("请先选择本次视频使用的角色主图或服饰形象。");
+                return;
+            }
             if (!selectedRole || !selectedScene) {
                 alert("请先选择 1 个角色和 1 个场景。");
                 return;
@@ -3831,22 +4116,28 @@
             const selectedSceneAngles = selectedScene.angles && selectedScene.angles.length ?
                 selectedScene.angles :
                 defaultSceneAngles.slice();
-            sessionStorage.setItem("step2SubjectSelection", JSON.stringify({
-                role: selectedRole,
-                scene: {
-                    name: selectedScene.name,
-                    desc: selectedScene.desc,
-                    img: selectedScene.img,
-                    selectedAngles: selectedSceneAngles,
-                },
-                firstFrame: {
-                    img: compositeImageData,
-                    version: compositeVersion,
-                    sourceKey: compositeSourceKey,
-                    pose: compositeConfig.pose,
-                    shot: compositeConfig.shot,
-                },
-            }));
+            try {
+                sessionStorage.setItem("step2SubjectSelection", JSON.stringify({
+                    role: selectedRole,
+                    scene: {
+                        name: selectedScene.name,
+                        desc: selectedScene.desc,
+                        img: selectedScene.img,
+                        selectedAngles: selectedSceneAngles,
+                    },
+                    firstFrame: {
+                        img: compositeImageData,
+                        version: compositeVersion,
+                        sourceKey: compositeSourceKey,
+                        pose: compositeConfig.pose,
+                        shot: compositeConfig.shot,
+                    },
+                }));
+            } catch (error) {
+                console.warn("主体配置写入会话失败", error);
+                alert("无法保存主体配置，浏览器会话存储空间不足，请刷新页面后重试。");
+                return;
+            }
             alert("主体配置已完成，即将进入分镜管理。");
             window.location.href = "step3-分镜管理.html";
         });
@@ -4527,7 +4818,11 @@
 
                     if (btnText === "编辑") {
                         if (card.classList.contains("role-card")) {
-                            openRoleEditModal(card);
+                            if ((card.dataset.id || "").indexOf("created-") === 0) {
+                                window.location.href = "主体管理-创建主体.html?type=role&mode=edit&id=" + encodeURIComponent(card.dataset.id) + "&from=step2";
+                            } else {
+                                openRoleEditModal(card);
+                            }
                         } else if (card.classList.contains("scene-card")) {
                             openSceneEditModal(card);
                         }
@@ -4556,9 +4851,10 @@
             const isScene = subject.type === "scene";
             const name = subject.name || (isScene ? "未命名场景" : "未命名角色");
             const desc = subject.desc || (isScene ? "暂无场景描述" : "暂无角色描述");
-            const img = subject.img || "";
+            const img = safeRoleImageSource(subject.img);
             const card = document.createElement("article");
             card.className = "subject-card " + (isScene ? "scene-card" : "role-card");
+            card.dataset.id = subject.id || ("returned-" + subject.type + "-" + Date.now());
             card.dataset.name = name;
             card.dataset.desc = desc;
             card.dataset.img = img;
@@ -4568,6 +4864,14 @@
             }
             if (!isScene) {
                 card.dataset.voice = subject.voice || "未配置音色";
+                roleAssetsById.set(card.dataset.id, {
+                    id: card.dataset.id,
+                    name,
+                    voice: card.dataset.voice,
+                    desc,
+                    img,
+                    outfits: normalizeRoleOutfits(subject.outfits)
+                });
             }
 
             const typeLabel = isScene ? "场景" : "角色";
@@ -4592,9 +4896,36 @@
             return card;
         }
 
-        function insertReturnedSubjectCard(subject) {
+        function insertReturnedSubjectCard(subject, shouldSelect) {
             if (!subject || (subject.type !== "role" && subject.type !== "scene")) return;
             const isScene = subject.type === "scene";
+            const existingCard = subject.id ? document.querySelector((isScene ? ".scene-card" : ".role-card") + '[data-id="' + subject.id + '"]') : null;
+            if (existingCard) {
+                updateCardContent(existingCard, {
+                    name: subject.name || existingCard.dataset.name,
+                    desc: subject.desc || existingCard.dataset.desc,
+                    img: subject.img || existingCard.dataset.img,
+                    voice: isScene ? undefined : (subject.voice || existingCard.dataset.voice)
+                });
+                if (!isScene) {
+                    roleAssetsById.set(subject.id, {
+                        id: subject.id,
+                        name: subject.name,
+                        voice: subject.voice,
+                        desc: subject.desc,
+                        img: subject.img,
+                        outfits: normalizeRoleOutfits(subject.outfits)
+                    });
+                    if (shouldSelect !== false) {
+                        activeRole = null;
+                        selectedRole = null;
+                        selectRoleCard(existingCard);
+                    }
+                } else if (shouldSelect !== false) {
+                    selectSceneCard(existingCard);
+                }
+                return existingCard;
+            }
             const firstKnownCard = document.querySelector(isScene ? ".scene-card" : ".role-card");
             const fallbackRow = document.querySelector(isScene ? ".section:nth-of-type(2) .card-row" : ".section:first-of-type .card-row");
             const cardRow = firstKnownCard ? firstKnownCard.closest(".card-row") : fallbackRow;
@@ -4606,12 +4937,61 @@
             if (isScene) {
                 bindSceneCardSelection(card);
                 bindCreatedSubjectActions(card);
-                selectSceneCard(card);
+                if (shouldSelect !== false) selectSceneCard(card);
             } else {
                 bindRoleCardSelection(card);
                 bindCreatedSubjectActions(card);
-                selectRoleCard(card);
+                if (shouldSelect !== false) selectRoleCard(card);
             }
+            return card;
+        }
+
+        function registerDemoRoleAssets() {
+            const demoRoles = [
+                {
+                    id: "seed-role-2",
+                    img: createDemoRoleImage("默认主图", "#334155", "#4f46e5"),
+                    outfits: [
+                        { id: "seed-role-2-outfit-1", name: "深蓝商务西装", img: createDemoRoleImage("深蓝商务西装", "#1e3a8a", "#2563eb"), prompt: "换成深蓝色商务西装" },
+                        { id: "seed-role-2-outfit-2", name: "米白休闲套装", img: createDemoRoleImage("米白休闲套装", "#d6d3d1", "#b45309"), prompt: "换成米白色休闲套装" }
+                    ]
+                },
+                {
+                    id: "seed-role-3",
+                    img: createDemoRoleImage("默认主图", "#14532d", "#059669"),
+                    outfits: []
+                }
+            ];
+
+            demoRoles.forEach((demo) => {
+                const card = document.querySelector('.role-card[data-id="' + demo.id + '"]');
+                if (!card) return;
+                card.dataset.img = demo.img;
+                const cover = card.querySelector(".cover img");
+                if (cover) cover.src = demo.img;
+                roleAssetsById.set(demo.id, {
+                    id: demo.id,
+                    name: card.dataset.name,
+                    voice: card.dataset.voice,
+                    desc: card.dataset.desc,
+                    img: demo.img,
+                    outfits: normalizeRoleOutfits(demo.outfits)
+                });
+            });
+        }
+
+        function syncLibraryRoles() {
+            let list = [];
+            try {
+                const raw = localStorage.getItem("subjectLibraryItems");
+                const parsed = raw ? JSON.parse(raw) : [];
+                list = Array.isArray(parsed) ? parsed : [];
+            } catch (error) {
+                console.warn("无法读取主体资源库", error);
+            }
+            list.filter((subject) => subject && subject.type === "role").forEach((subject) => {
+                insertReturnedSubjectCard(subject, false);
+            });
         }
 
         function applyReturnedSubjectFromCreator() {
@@ -4620,7 +5000,7 @@
 
             try {
                 const subject = JSON.parse(raw);
-                insertReturnedSubjectCard(subject);
+                insertReturnedSubjectCard(subject, true);
             } catch (error) {
                 console.warn("无法读取新建主体数据", error);
             } finally {
@@ -4675,6 +5055,8 @@
         document.getElementById("openCreateRoleBtn").addEventListener("click", () => openSubjectCreator("role"));
         document.getElementById("openCreateSceneBtn").addEventListener("click", () => openSubjectCreator("scene"));
 
+        registerDemoRoleAssets();
+        syncLibraryRoles();
         applyReturnedSubjectFromCreator();
 
         // ==================== 查看弹窗逻辑 ====================
