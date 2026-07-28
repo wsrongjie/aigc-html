@@ -232,7 +232,7 @@
         }
         .drawer-overlay.show { opacity: 1; visibility: visible; }
         .drawer {
-            position: fixed; right: 0; top: 0; bottom: 0; width: 460px;
+            position: fixed; right: 0; top: 0; bottom: 0; width: 900px;
             background: var(--card-bg); z-index: 1002;
             box-shadow: -4px 0 24px rgba(0,0,0,0.12);
             transform: translateX(100%); transition: transform 0.3s ease;
@@ -383,6 +383,19 @@
         .task-metric-value { font-size:22px; font-weight:800; }
         .task-metric-label { font-size:11px; color:var(--text-muted); margin-top:2px; }
         .task-stat-metrics { grid-template-columns:repeat(6,1fr); }
+
+        /* ===== 任务视图 Tab ===== */
+        .task-view-tabs { display:flex; gap:0; margin-bottom:16px; border-bottom:2px solid var(--border); }
+        .task-view-tab { padding:8px 20px; font-size:13px; font-weight:600; color:var(--text-muted); cursor:pointer; user-select:none; border-bottom:2px solid transparent; margin-bottom:-2px; transition:all 0.15s; }
+        .task-view-tab:hover { color:var(--text-primary); }
+        .task-view-tab.active { color:var(--primary); border-bottom-color:var(--primary); }
+
+        .task-sort-controls { display:flex; align-items:center; gap:10px; padding:10px 0; border-bottom:1px solid var(--border); margin-bottom:12px; flex-wrap:wrap; }
+        .task-sort-chip { display:inline-flex; align-items:center; gap:4px; padding:4px 12px; border-radius:99px; border:1px solid var(--border); background:#fff; font-size:12px; color:var(--text-secondary); cursor:pointer; user-select:none; transition:all 0.15s; }
+        .task-sort-chip:hover { border-color:var(--primary); color:var(--primary); }
+        .task-sort-chip.active { background:var(--primary-light); color:var(--primary); border-color:var(--primary); font-weight:600; }
+        .task-sort-chip .sort-arrow { font-size:10px; }
+
         .tenant-rank-item {
             display:grid; grid-template-columns: 28px minmax(120px,1fr) 78px 78px 78px 86px;
             align-items:center; gap:10px; padding:10px 0; border-bottom:1px solid var(--border);
@@ -636,6 +649,19 @@
         }
 
         /* ===== 响应式 ===== */
+        .refund-kpi { background:#fff;border:1px solid var(--border);border-radius:10px;padding:15px 16px; }
+        .refund-kpi span { display:block;font-size:12px;color:var(--text-muted);margin-bottom:7px; }
+        .refund-kpi strong { font-size:24px;line-height:1;color:var(--text-primary); }
+        .refund-review-preview { min-height:138px;border-radius:12px;padding:18px;background:linear-gradient(135deg,#172033,#334155);color:#fff;display:flex;align-items:flex-end;position:relative;overflow:hidden;margin-bottom:16px; }
+        .refund-review-preview:after { content:'▶';position:absolute;right:20px;top:20px;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.16); }
+        .refund-review-section { border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:14px; }
+        .refund-review-section h5 { font-size:13px;margin-bottom:10px; }
+        .refund-review-line { display:flex;justify-content:space-between;gap:14px;padding:6px 0;font-size:12px;border-bottom:1px dashed #edf0f3; }
+        .refund-review-line:last-child { border-bottom:0; }
+        .refund-review-line span { color:var(--text-muted); }
+        .refund-review-actions { position:sticky;bottom:-24px;margin:18px -24px -24px;padding:14px 24px;background:#fff;border-top:1px solid var(--border); }
+        .refund-review-actions textarea { width:100%;height:76px;padding:10px;border:1px solid var(--border);border-radius:7px;resize:vertical;font:inherit;margin-bottom:10px; }
+        .refund-nav-badge { margin-left:auto;min-width:20px;height:20px;padding:0 6px;border-radius:999px;background:#fff7ed;color:#d97706;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700; }
         @media (max-width: 1440px) { .metrics-row,.card-grid4,.task-metrics,.task-stat-metrics,.mini-metrics { grid-template-columns: repeat(2, 1fr); } }
         @media (max-width: 1200px) { .card-grid2 { grid-template-columns: 1fr; } }
         @media (max-width: 1024px) { .sidebar { width: 60px; } .sidebar .brand-text,.sidebar .brand-sub,.sidebar .nav-item span:not(.nav-icon),.sidebar-user-info,.sidebar-logout span,.nav-caret { display: none; } .nav-item.sub { padding-left: 18px; } }
@@ -666,9 +692,10 @@
         </div>
         <div class="nav-item" data-view="view-tasks"><span class="nav-icon">📋</span> 任务统计</div>
         <div class="nav-item" data-view="view-billing"><span class="nav-icon">💰</span> 积分与账单</div>
+        <div class="nav-item" data-view="view-refund-review"><span class="nav-icon">↩</span> 积分退还审核 <span class="refund-nav-badge" id="refundPendingBadge">0</span></div>
         <div class="nav-item nav-parent" data-toggle="business-config"><span class="nav-icon">⚙️</span> 业务配置 <span class="nav-caret">▾</span></div>
         <div class="nav-submenu" id="businessConfigSubmenu">
-            <div class="nav-item sub" data-view="view-credit-config"><span class="nav-icon">●</span> 积分配置</div>
+            <div class="nav-item sub" data-view="view-credit-config"><span class="nav-icon">●</span> 商业化配置</div>
             <div class="nav-item sub" data-view="view-prompt-config"><span class="nav-icon">●</span> 提示词配置</div>
         </div>
         <div class="nav-item" data-view="view-audit"><span class="nav-icon">🧾</span> 操作审计</div>
@@ -779,7 +806,7 @@
                 <div class="table-toolbar">
                     <select class="filter-select" id="billTenantFilter" onchange="renderBilling()"><option value="">全部租户</option></select>
                     <select class="filter-select" id="billTypeFilter" onchange="renderBilling()">
-                        <option value="">全部类型</option><option value="充值">充值</option><option value="消费">消费</option><option value="退款">退款</option>
+                        <option value="">全部类型</option><option value="充值">充值</option><option value="消费">消费</option><option value="调整">调整</option><option value="积分退还">积分退还</option>
                     </select>
                     <input class="filter-input" type="date" id="billDateFrom" onchange="renderBilling()" style="width:auto">
                     <span style="font-size:12px;color:var(--text-muted)">至</span>
@@ -792,9 +819,36 @@
             </div>
         </div>
 
+        <!-- 视图：积分退还审核 -->
+        <div class="panel" id="view-refund-review">
+            <div class="section-title">积分退还审核</div>
+            <div class="task-metrics" style="margin-bottom:20px">
+                <div class="refund-kpi"><span>待审核</span><strong id="refundMetricPending">0</strong></div>
+                <div class="refund-kpi"><span>即将超时 / 已超时</span><strong id="refundMetricOverdue">0</strong></div>
+                <div class="refund-kpi"><span>今日通过</span><strong id="refundMetricApproved">0</strong></div>
+                <div class="refund-kpi"><span>今日退还积分</span><strong id="refundMetricPoints">0</strong></div>
+            </div>
+            <div class="table-wrap">
+                <div class="table-toolbar">
+                    <select class="filter-select" id="refundStatusFilter" onchange="renderRefundReview()"><option value="">全部状态</option><option value="pending">待审核</option><option value="approved">已通过</option><option value="rejected">已驳回</option><option value="withdrawn">已撤回</option></select>
+                    <select class="filter-select" id="refundReasonFilter" onchange="renderRefundReview()"><option value="">全部问题类型</option></select>
+                    <select class="filter-select" id="refundTenantFilter" onchange="renderRefundReview()"><option value="">全部租户</option></select>
+                    <input class="filter-input" type="date" id="refundDateFrom" onchange="renderRefundReview()" style="width:auto">
+                    <span style="font-size:12px;color:var(--text-muted)">至</span>
+                    <input class="filter-input" type="date" id="refundDateTo" onchange="renderRefundReview()" style="width:auto">
+                    <input class="filter-input" id="refundSearch" placeholder="搜索申请编号 / 任务 / 申请人" oninput="renderRefundReview()">
+                </div>
+                <table><thead><tr><th>申请时间</th><th>申请编号</th><th>视频内容</th><th>申请人</th><th>申请积分</th><th>问题类型</th><th>状态 / SLA</th><th>操作</th></tr></thead><tbody id="refundReviewTable"></tbody></table>
+            </div>
+        </div>
+
         <!-- 视图：任务统计 -->
         <div class="panel" id="view-tasks">
-            <div class="section-title">租户维度任务统计</div>
+            <div class="section-title">任务统计</div>
+            <div class="task-view-tabs" id="taskViewTabs">
+                <div class="task-view-tab active" data-task-tab="tenant">租户维度</div>
+                <div class="task-view-tab" data-task-tab="task">任务维度</div>
+            </div>
             <div class="table-wrap" style="margin-bottom:20px">
                 <div class="table-toolbar">
                     <select class="filter-select" id="taskTenantFilter" onchange="renderTasks()"><option value="">全部租户</option></select>
@@ -808,17 +862,29 @@
                 </div>
             </div>
             <div class="task-metrics task-stat-metrics" id="taskMetricsRow"></div>
-            <div class="info-card" style="margin-bottom:20px">
-                <h4>租户任务表现排行 <span class="card-tag">点击查看明细</span></h4>
-                <div id="tenantTaskRank"></div>
+
+            <!-- 租户维度 -->
+            <div id="taskTenantView">
+                <div class="info-card" style="margin-bottom:20px">
+                    <h4>租户任务表现排行 <span class="card-tag">点击查看明细</span></h4>
+                    <div id="tenantTaskRank"></div>
+                </div>
+                <div class="info-card" style="margin-bottom:20px">
+                    <h4>失败任务明细 <span class="card-tag">当前筛选范围</span></h4>
+                    <div id="taskFailureDetail"></div>
+                </div>
+                <div class="info-card" id="tenantTaskDetail">
+                    <h4>租户任务明细</h4>
+                    <div style="font-size:12px;color:var(--text-muted)">请选择一个租户查看账号下任务情况</div>
+                </div>
             </div>
-            <div class="info-card" style="margin-bottom:20px">
-                <h4>失败任务明细 <span class="card-tag">当前筛选范围</span></h4>
-                <div id="taskFailureDetail"></div>
-            </div>
-            <div class="info-card" id="tenantTaskDetail">
-                <h4>租户任务明细</h4>
-                <div style="font-size:12px;color:var(--text-muted)">请选择一个租户查看账号下任务情况</div>
+
+            <!-- 任务维度 -->
+            <div id="taskTaskView" style="display:none">
+                <div class="info-card" style="margin-bottom:20px">
+                    <h4>任务列表 <span class="card-tag">按下发时间倒序</span><span style="font-size:11px;color:var(--text-muted);margin-left:8px">点击行展开查看子任务</span></h4>
+                    <div id="taskListTable"></div>
+                </div>
             </div>
         </div>
 
@@ -867,10 +933,18 @@
             </div>
         </div>
 
-        <!-- 视图：积分配置 -->
+        <!-- 视图：商业化配置 -->
         <div class="panel" id="view-credit-config">
-            <div class="section-title">积分配置</div>
+            <div class="section-title">积分账户规则</div>
             <div class="pricing-grid" id="creditRateGrid" style="margin-bottom:24px;max-width:800px"></div>
+            <div class="section-title">并发商品配置</div>
+            <div class="table-wrap" style="margin-bottom:24px">
+                <div class="table-toolbar">
+                    <span style="font-size:12px;color:var(--text-muted)">标准商品支持用户自助购买；价格、期限和赠送积分按订单快照保存。</span>
+                    <button class="btn btn-primary btn-sm" onclick="addConcurrencyProduct()" style="margin-left:auto">+ 新增档位</button>
+                </div>
+                <table><thead><tr><th>使用时长</th><th>单位并发价格</th><th>单位赠送积分</th><th>前台默认</th><th>状态</th><th>操作</th></tr></thead><tbody id="concurrencyProductTable"></tbody></table>
+            </div>
             <div class="section-title">功能计费规则</div>
             <div class="pricing-grid" id="pricingGrid" style="margin-bottom:24px"></div>
         </div>
@@ -942,7 +1016,7 @@
             <div class="table-wrap">
                 <div class="table-toolbar">
                     <select class="filter-select" id="auditTypeFilter" onchange="renderAudit()">
-                        <option value="">全部类型</option><option value="租户">租户</option><option value="积分">积分</option><option value="任务">任务</option><option value="配置">配置</option><option value="提示词">提示词</option>
+                        <option value="">全部类型</option><option value="租户">租户</option><option value="积分">积分</option><option value="积分退还">积分退还</option><option value="任务">任务</option><option value="配置">配置</option><option value="提示词">提示词</option>
                     </select>
                     <input class="filter-input" type="text" id="auditSearch" placeholder="搜索操作人 / 对象 / 备注" oninput="renderAudit()">
                     <button class="btn btn-sm" onclick="renderAudit()" style="margin-left:auto">刷新</button>
@@ -999,7 +1073,7 @@
             <div class="form-group"><label class="kv-label">管理员手机</label><input class="filter-input" id="tfAdminPhone" style="width:100%" placeholder="手机号"></div>
             <div class="form-group"><label class="kv-label">管理员邮箱</label><input class="filter-input" id="tfAdminEmail" style="width:100%" placeholder="邮箱"></div>
             <div class="form-group"><label class="kv-label">租户等级 *</label><select class="filter-select" id="tfTenantLevel" style="width:100%"></select></div>
-            <div class="form-group"><label class="kv-label">视频最大并发数</label><input class="filter-input" id="tfConcurrency" style="width:100%" type="number" placeholder="并发数" value="5"></div>
+            <div class="form-group"><label class="kv-label">自助购买并发上限</label><input class="filter-input" id="tfConcurrency" style="width:100%" type="number" placeholder="最大可自助购买并发" value="8"><span style="font-size:11px;color:var(--text-muted);display:block;margin-top:4px">实际运行上限由基础并发与有效增购权益实时计算</span></div>
         </div>
         <input type="hidden" id="tfEditId">
         <div class="modal-footer">
@@ -1284,6 +1358,53 @@
     <div class="drawer-body" id="taskDrawerBody"></div>
 </div>
 
+<!-- Drawer：积分退还审核 -->
+<div class="drawer-overlay" id="refundReviewOverlay" onclick="closeRefundReview()"></div>
+<div class="drawer" id="refundReviewDrawer" style="width:560px">
+    <div class="drawer-header">
+        <span class="drawer-title" id="refundReviewTitle">积分退还审核</span>
+        <button class="modal-close" onclick="closeRefundReview()">×</button>
+    </div>
+    <div class="drawer-body" id="refundReviewBody"></div>
+</div>
+
+<!-- Modal：积分退还 -->
+<div class="modal-overlay" id="refundModalOverlay" style="z-index:1003">
+    <div class="modal" id="refundModal" style="width:480px">
+        <div class="modal-header">
+            <span class="modal-title">高权限人工积分退还</span>
+            <button class="modal-close" onclick="closeRefundModal()">×</button>
+        </div>
+        <div style="margin-bottom:16px">
+            <div style="background:#FAFAFA;border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 16px;margin-bottom:16px">
+                <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px">
+                    <span style="color:var(--text-secondary)">子任务</span>
+                    <span style="font-weight:600" id="refundSubTaskLabel">#0</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px">
+                    <span style="color:var(--text-secondary)">退还积分</span>
+                    <span style="font-weight:700;color:var(--orange);font-size:16px" id="refundAmountLabel">0</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;font-size:13px">
+                    <span style="color:var(--text-secondary)">所属任务</span>
+                    <span style="color:var(--text-primary)" id="refundTaskLabel">-</span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="kv-label">退还原因 <span style="color:red">*</span></label>
+                <textarea id="refundReasonInput" style="width:100%;height:100px;padding:12px;border:1px solid var(--border);border-radius:6px;font-size:13px;resize:none;line-height:1.6;outline:none" placeholder="请填写退还原因、审批单号或沟通记录..."></textarea>
+            </div>
+        </div>
+        <input type="hidden" id="refundTaskId">
+        <input type="hidden" id="refundSubId">
+        <input type="hidden" id="refundCost">
+        <div class="modal-footer">
+            <button class="btn" onclick="closeRefundModal()">取消</button>
+            <button class="btn btn-primary" onclick="confirmRefund()">确认退还</button>
+        </div>
+    </div>
+</div>
+
 <!-- Toast -->
 <div class="toast" id="toast"></div>
 
@@ -1300,6 +1421,7 @@
     </div>
 </div>
 
+<script src="../assets/points-refund-store.js"></script>
 <script>
 // ===========================
 // 默认进入后台管理页
@@ -1314,9 +1436,9 @@ function handleLogout() {
     toast('当前原型已取消登录页，默认进入后台管理页面');
 }
 
-function currentOperator() {
-    return 'ops-admin';
-}
+var CURRENT_OPERATOR = { id:'ops-admin', name:'运营管理员', role:'超级管理员', permissions:['refund_review','refund_manual_adjust'] };
+function currentOperator() { return CURRENT_OPERATOR.id; }
+function hasOperatorPermission(permission) { return CURRENT_OPERATOR.permissions.indexOf(permission) !== -1; }
 
 // ===========================
 // Toast / Confirm
@@ -1366,6 +1488,13 @@ document.querySelectorAll('.nav-item').forEach(function(item) {
     });
 });
 
+// 任务统计 Tab 切换
+document.querySelectorAll('#taskViewTabs .task-view-tab').forEach(function(tab) {
+    tab.addEventListener('click', function() {
+        switchTaskTab(tab.getAttribute('data-task-tab'));
+    });
+});
+
 function toggleBusinessMenu(forceOpen) {
     var parent = document.querySelector('.nav-parent[data-toggle="business-config"]');
     var submenu = document.getElementById('businessConfigSubmenu');
@@ -1410,8 +1539,9 @@ function switchView(viewId) {
         'view-tenant-detail':'租户管理 / 租户详情',
         'view-tasks':'任务统计',
         'view-billing':'积分与账单',
+        'view-refund-review':'积分退还审核',
         'view-voice-config':'市场配置 / 音色模板',
-        'view-credit-config':'业务配置 / 积分配置',
+        'view-credit-config':'业务配置 / 商业化配置',
         'view-prompt-config':'业务配置 / 提示词配置',
         'view-template-config':'市场配置 / 视频模板',
         'view-scene-config':'市场配置 / 场景模板',
@@ -1435,7 +1565,8 @@ function updateTopbarActions() {
         'view-template-config': '',
         'view-scene-config': '',
         'view-audit': '<button class="btn btn-sm" onclick="renderAudit()">刷新</button>',
-        'view-billing': '<button class="btn btn-sm" onclick="renderBilling()">🔄 刷新</button>'
+        'view-billing': '<button class="btn btn-sm" onclick="renderBilling()">🔄 刷新</button>',
+        'view-refund-review': '<button class="btn btn-sm" onclick="renderRefundReview()">🔄 刷新申请</button>'
     };
     el.innerHTML = map[currentView] || '<span style="font-size:12px;color:var(--text-muted)">v1.0</span>';
 }
@@ -1446,9 +1577,10 @@ function refreshView(viewId) {
     else if (viewId === 'view-tenant-detail' && currentTenantDetailId) renderTenantDetail(currentTenantDetailId);
     else if (viewId === 'view-tasks') renderTasks();
     else if (viewId === 'view-billing') renderBilling();
+    else if (viewId === 'view-refund-review') renderRefundReview();
     else if (viewId === 'view-voice-config') renderVoiceConfigs();
     else if (viewId === 'view-credit-config') renderPricing();
-    else if (viewId === 'view-scheduler-config') renderScheduler();
+    else if (viewId === 'view-scheduler-config') { AppState.tenants.forEach(refreshTenantCommercialState); renderScheduler(); }
     else if (viewId === 'view-prompt-config') renderPrompts();
     else if (viewId === 'view-template-config') renderTemplates();
     else if (viewId === 'view-scene-config') renderSceneConfigs();
@@ -1495,10 +1627,52 @@ function getDefaultTenantLevelName(tenant) {
     return '普通客户';
 }
 
+function addCommercialMonths(value, months) {
+    var d = new Date(value), day = d.getDate();
+    var target = new Date(d.getFullYear(), d.getMonth() + months, 1, d.getHours(), d.getMinutes(), d.getSeconds());
+    var last = new Date(target.getFullYear(), target.getMonth() + 1, 0).getDate();
+    target.setDate(Math.min(day, last));
+    return target;
+}
+
+function commercialTime(value) {
+    var d = value instanceof Date ? value : new Date(value);
+    function pad2(n) { return String(n).padStart(2, '0'); }
+    return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()) + ' ' + pad2(d.getHours()) + ':' + pad2(d.getMinutes());
+}
+
+function isCommercialActive(expiresAt) {
+    return !expiresAt || new Date(expiresAt.replace(' ', 'T')) > new Date();
+}
+
+function refreshTenantCommercialState(tenant) {
+    tenant.creditBatches = tenant.creditBatches || [];
+    tenant.concurrencyRights = tenant.concurrencyRights || [];
+    tenant.creditBatches.forEach(function(b) { if (b.remaining > 0 && !isCommercialActive(b.expiresAt)) b.status = '已过期'; });
+    tenant.concurrencyRights.forEach(function(r) { if (r.type !== 'base' && r.count > 0 && !isCommercialActive(r.expiresAt)) r.status = '已过期'; });
+    tenant.credits = tenant.creditBatches.filter(function(b) { return b.remaining > 0 && isCommercialActive(b.expiresAt); }).reduce(function(sum, b) { return sum + b.remaining; }, 0);
+    tenant.baseConcurrency = tenant.hasCreditRecharge ? 1 : 0;
+    tenant.purchasedConcurrency = tenant.concurrencyRights.filter(function(r) { return r.type !== 'base' && r.count > 0 && isCommercialActive(r.expiresAt); }).reduce(function(sum, r) { return sum + r.count; }, 0);
+    tenant.concurrency = tenant.baseConcurrency + tenant.purchasedConcurrency;
+    return tenant;
+}
+
 function normalizeTenants(list) {
     list = list || [];
     for (var i = 0; i < list.length; i++) {
         if (!list[i].tenantLevel) list[i].tenantLevel = getDefaultTenantLevelName(list[i]);
+        var legacyCredits = Number(list[i].credits) || 0;
+        var legacyConcurrency = Number(list[i].concurrency) || 0;
+        var hadRechargeLog = typeof AppState !== 'undefined' && (AppState.billingLogs || []).some(function(log) { return log.tenantId === list[i].id && log.type === '充值'; });
+        if (typeof list[i].hasCreditRecharge === 'undefined') list[i].hasCreditRecharge = hadRechargeLog || legacyCredits > 0 || legacyConcurrency > 0;
+        if (!list[i].creditBatches) list[i].creditBatches = legacyCredits > 0 ? [{ id:'MIG-CREDIT-' + list[i].id, source:'历史余额迁移', original:legacyCredits, remaining:legacyCredits, effectiveAt:'2026-07-27 15:00', expiresAt:'2026-08-27 15:00', status:'生效中' }] : [];
+        if (!list[i].concurrencyRights) {
+            list[i].concurrencyRights = list[i].hasCreditRecharge ? [{ id:'BASE-' + list[i].id, type:'base', source:'历史充值资格迁移', count:1, effectiveAt:list[i].openedAt + ' 00:00', expiresAt:null, status:'生效中' }] : [];
+            var migratedPurchased = Math.max(0, legacyConcurrency - (list[i].hasCreditRecharge ? 1 : 0));
+            if (migratedPurchased) list[i].concurrencyRights.push({ id:'MIG-RIGHT-' + list[i].id, type:'purchased', source:'历史并发迁移', count:migratedPurchased, effectiveAt:'2026-07-27 15:00', expiresAt:'2026-08-27 15:00', status:'生效中' });
+        }
+        if (typeof list[i].selfBuyLimit === 'undefined') list[i].selfBuyLimit = Math.max(8, list[i].concurrency || 0);
+        refreshTenantCommercialState(list[i]);
     }
     return list;
 }
@@ -1507,10 +1681,13 @@ function initData() {
     var saved = loadData();
     if (saved) {
         AppState.scheduler = normalizeScheduler(saved.scheduler || AppState.scheduler);
-        AppState.tenants = normalizeTenants(saved.tenants || AppState.tenants);
         AppState.billingLogs = saved.billingLogs || AppState.billingLogs;
+        AppState.tenants = normalizeTenants(saved.tenants || AppState.tenants);
         AppState.releaseLogs = normalizeReleaseLogs(saved.releaseLogs || AppState.releaseLogs);
         AppState.voiceConfigs = saved.voiceConfigs || AppState.voiceConfigs;
+        AppState.creditRate = saved.creditRate || AppState.creditRate;
+        AppState.creditValidityMonths = saved.creditValidityMonths || AppState.creditValidityMonths;
+        AppState.concurrencyProducts = (saved.concurrencyProducts || AppState.concurrencyProducts).map(function(p) { return { months:Math.max(1, Number(p.months) || 1), price:Math.max(1, Number(p.price) || 1), gift:Math.max(0, Number(p.gift) || 0), isDefault:!!p.isDefault, status:p.status === '停用' ? '停用' : '启用' }; });
         AppState.pricingRules = normalizePricingRules(saved.pricingRules || AppState.pricingRules);
         AppState.templateConfigs = saved.templateConfigs || AppState.templateConfigs;
         AppState.sceneConfigs = saved.sceneConfigs || AppState.sceneConfigs;
@@ -1539,16 +1716,16 @@ var AppState = {
         { id:'b002',time:'2026-01-25 10:30',tenantId:'t002',tenantName:'鑫源保险',type:'消费',amount:-200,balance:1800,operator:'system',taskId:'task_v_042',remark:'视频生成 10s' },
         { id:'b003',time:'2026-01-25 11:00',tenantId:'t001',tenantName:'雨虹投资',type:'消费',amount:-100,balance:8100,operator:'system',taskId:'task_v_043',remark:'首帧合成' },
         { id:'b004',time:'2026-01-25 14:20',tenantId:'t004',tenantName:'中诚教育',type:'消费',amount:-400,balance:2000,operator:'system',taskId:'task_v_044',remark:'视频生成 20s' },
-        { id:'b005',time:'2026-01-25 15:45',tenantId:'t003',tenantName:'汇丰投顾',type:'退款',amount:80,balance:580,operator:'system',taskId:'task_v_039',remark:'生成失败自动退款' },
+        { id:'b005',time:'2026-01-25 15:45',tenantId:'t003',tenantName:'汇丰投顾',type:'积分退还',amount:80,balance:580,operator:'system',taskId:'task_v_039',remark:'生成失败自动退还积分' },
         { id:'b006',time:'2026-01-25 16:10',tenantId:'t005',tenantName:'华泰理财',type:'充值',amount:3000,balance:8600,operator:'admin',taskId:'-',remark:'手动充值' },
         { id:'b007',time:'2026-01-24 08:30',tenantId:'t001',tenantName:'雨虹投资',type:'消费',amount:-150,balance:8300,operator:'system',taskId:'task_v_040',remark:'AI 场景图生成' },
         { id:'b008',time:'2026-01-24 09:20',tenantId:'t007',tenantName:'博学在线',type:'消费',amount:-60,balance:960,operator:'system',taskId:'task_v_041',remark:'一键超分 x12' },
         { id:'b009',time:'2026-01-24 11:00',tenantId:'t002',tenantName:'鑫源保险',type:'充值',amount:2000,balance:2000,operator:'operator',taskId:'-',remark:'季度充值' },
         { id:'b010',time:'2026-01-24 13:15',tenantId:'t004',tenantName:'中诚教育',type:'消费',amount:-250,balance:2250,operator:'system',taskId:'task_v_045',remark:'视频批量生成' },
-        { id:'b011',time:'2026-01-24 16:40',tenantId:'t006',tenantName:'安联保险经纪',type:'退款',amount:40,balance:240,operator:'system',taskId:'task_v_038',remark:'超时退款' },
+        { id:'b011',time:'2026-01-24 16:40',tenantId:'t006',tenantName:'安联保险经纪',type:'积分退还',amount:40,balance:240,operator:'system',taskId:'task_v_038',remark:'生成超时自动退还积分' },
         { id:'b012',time:'2026-01-23 10:00',tenantId:'t005',tenantName:'华泰理财',type:'消费',amount:-180,balance:5780,operator:'system',taskId:'task_v_037',remark:'视频生成 9s' },
         { id:'b013',time:'2026-01-23 14:30',tenantId:'t001',tenantName:'雨虹投资',type:'消费',amount:-80,balance:8350,operator:'system',taskId:'task_v_036',remark:'首帧合成 x8' },
-        { id:'b014',time:'2026-01-23 15:00',tenantId:'t008',tenantName:'众盈财富',type:'退款',amount:1200,balance:1200,operator:'system',taskId:'-',remark:'账户余额清零退款' },
+        { id:'b014',time:'2026-01-23 15:00',tenantId:'t008',tenantName:'众盈财富',type:'积分退还',amount:1200,balance:1200,operator:'system',taskId:'-',remark:'历史人工积分退还' },
         { id:'b015',time:'2026-01-23 17:20',tenantId:'t004',tenantName:'中诚教育',type:'充值',amount:5000,balance:2500,operator:'admin',taskId:'-',remark:'新年活动充值赠送' }
     ],
     prompts: [
@@ -1594,6 +1771,13 @@ var AppState = {
         { name:'亲和女声 E', voiceId:'cosyvoice-v3.5-warm-female-001', gender:'女', tone:'亲和', desc:'适合账户服务、新手引导等需要亲和力的场景。', voiceFile:'', used:0, status:'已停用' }
     ],
     creditRate: 10,
+    creditValidityMonths: 1,
+    concurrencyProducts: [
+        { months:1, price:10000, gift:5000, isDefault:true, status:'启用' },
+        { months:3, price:30000, gift:15000, isDefault:false, status:'启用' },
+        { months:6, price:57000, gift:30000, isDefault:false, status:'启用' },
+        { months:12, price:108000, gift:60000, isDefault:false, status:'启用' }
+    ],
     pricingRules: [
         { name:'图片生成', value:20, unit:'积分/张', scope:'按生成图片张数计费', status:'生效中' },
         { name:'视频生成', type:'group', children:[
@@ -1954,13 +2138,13 @@ function openTenantModal(editId) {
             document.getElementById('tfAdminPhone').value = t.adminPhone;
             document.getElementById('tfAdminEmail').value = t.adminEmail;
             renderTenantLevelSelectOptions(getInitialTenantLevelName(t.tenantLevel || getDefaultTenantLevelName(t)));
-            document.getElementById('tfConcurrency').value = t.concurrency;
+            document.getElementById('tfConcurrency').value = t.selfBuyLimit || 8;
         }
     } else {
         ['tfName','tfAdminName','tfAdminPhone','tfAdminEmail'].forEach(function(id) { document.getElementById(id).value = ''; });
         document.getElementById('tfIndustry').value = '';
         renderTenantLevelSelectOptions(getInitialTenantLevelName('普通客户'));
-        document.getElementById('tfConcurrency').value = '5';
+        document.getElementById('tfConcurrency').value = '8';
     }
     document.getElementById('tenantModalOverlay').classList.add('show');
 }
@@ -1975,7 +2159,7 @@ function saveTenant() {
         adminPhone: document.getElementById('tfAdminPhone').value.trim(),
         adminEmail: document.getElementById('tfAdminEmail').value.trim(),
         tenantLevel: document.getElementById('tfTenantLevel').value,
-        concurrency: parseInt(document.getElementById('tfConcurrency').value) || 5
+        selfBuyLimit: parseInt(document.getElementById('tfConcurrency').value) || 8
     };
     if (!data.name || !data.industry || !data.adminName || !data.tenantLevel) { toast('请填写租户名称、行业、管理员姓名和租户等级', 'error'); return; }
     if (!findTenantLevelConfig(data.tenantLevel)) { toast('请选择有效的租户等级', 'error'); return; }
@@ -1987,7 +2171,7 @@ function saveTenant() {
             t.name = data.name; t.industry = data.industry; t.adminName = data.adminName;
             t.adminPhone = data.adminPhone; t.adminEmail = data.adminEmail;
             t.tenantLevel = data.tenantLevel;
-            t.concurrency = data.concurrency;
+            t.selfBuyLimit = data.selfBuyLimit;
             addAuditLog('租户', data.name, before, data.name + ' / ' + t.tenantLevel + ' / ' + t.status, '编辑租户基础信息');
         }
         toast('租户信息已更新', 'success');
@@ -1996,7 +2180,9 @@ function saveTenant() {
         AppState.tenants.push({
             id: newId, name: data.name, industry: data.industry, status: data.status,
             adminName: data.adminName, adminPhone: data.adminPhone, adminEmail: data.adminEmail,
-            tenantLevel: data.tenantLevel, dailyQuota: 500, dailyUsed: 0, concurrency: data.concurrency,
+            tenantLevel: data.tenantLevel, dailyQuota: 500, dailyUsed: 0, concurrency: 0,
+            hasCreditRecharge: false, baseConcurrency: 0, purchasedConcurrency: 0, selfBuyLimit: data.selfBuyLimit,
+            creditBatches: [], concurrencyRights: [],
             modelLevel: '标准', credits: 0,
             openedAt: new Date().toISOString().slice(0,10), features: ['视频生成']
         });
@@ -2056,21 +2242,29 @@ function confirmRecharge() {
 
     var t = AppState.tenants.find(function(x) { return x.id === tenantId; });
     if (!t) return;
-    t.credits += pts;
+    var firstRecharge = !t.hasCreditRecharge;
+    var beforeCredits = t.credits;
+    var effectiveAt = new Date(), expiresAt = addCommercialMonths(effectiveAt, AppState.creditValidityMonths);
+    t.creditBatches.push({ id:'CB-' + Date.now(), source:'后台积分充值', original:pts, remaining:pts, effectiveAt:commercialTime(effectiveAt), expiresAt:commercialTime(expiresAt), status:'生效中' });
+    t.hasCreditRecharge = true;
+    if (firstRecharge) {
+        t.concurrencyRights.push({ id:'BASE-' + t.id, type:'base', source:'首次积分充值解锁', count:1, effectiveAt:commercialTime(effectiveAt), expiresAt:null, status:'生效中' });
+    }
+    refreshTenantCommercialState(t);
 
     AppState.billingLogs.unshift({
         id: 'b' + String(Date.now()),
-        time: new Date().toISOString().replace('T',' ').slice(0,16),
+        time: commercialTime(effectiveAt),
         tenantId: t.id, tenantName: t.name, type: '充值',
         amount: pts, balance: t.credits,
         operator: currentOperator(),
-        taskId: '-', remark: remark
+        taskId: '-', remark: remark + '；独立积分批次，有效期' + AppState.creditValidityMonths + '个自然月' + (firstRecharge ? '；永久解锁基础并发1' : '')
     });
-    addAuditLog('积分', t.name, (t.credits - pts).toLocaleString(), t.credits.toLocaleString(), remark);
+    addAuditLog('积分', t.name, beforeCredits.toLocaleString(), t.credits.toLocaleString(), remark);
 
     saveData(); closeRechargeModal(); refreshView(currentView);
     if (currentTenantDetailId) renderTenantDetail(currentTenantDetailId);
-    toast('已为「' + t.name + '」充值 ' + pts.toLocaleString() + ' 积分', 'success');
+    toast('已为「' + t.name + '」充值 ' + pts.toLocaleString() + ' 积分' + (firstRecharge ? '，并解锁基础并发1' : ''), 'success');
 }
 
 // ===========================
@@ -2095,8 +2289,8 @@ function renderBilling() {
     for (var i = 0; i < list.length; i++) {
         var b = list[i];
         var sign = b.amount > 0 ? '+' : '';
-        var color = b.amount > 0 ? 'color:var(--green)' : (b.type === '退款' ? 'color:var(--orange)' : 'color:var(--red)');
-        var typeCls = b.type === '充值' ? 'status-active' : (b.type === '退款' ? 'status-trial' : 'status-warning');
+        var color = b.amount > 0 ? 'color:var(--green)' : (b.type === '积分退还' ? 'color:var(--orange)' : 'color:var(--red)');
+        var typeCls = b.type === '充值' ? 'status-active' : (b.type === '积分退还' ? 'status-trial' : 'status-warning');
         html += '<tr>' +
             '<td style="font-size:12px">' + b.time + '</td>' +
             '<td>' + b.tenantName + '</td>' +
@@ -2110,6 +2304,150 @@ function renderBilling() {
     }
     document.getElementById('billingTable').innerHTML = html || '<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--text-muted)">暂无匹配的流水记录</td></tr>';
 
+}
+
+// ===========================
+// 积分退还审核
+// ===========================
+var currentRefundReviewId = null;
+
+function refundStatusClass(status) {
+    return status === 'approved' ? 'status-active' : status === 'rejected' ? 'status-failed' : status === 'pending' ? 'status-warning' : 'status-stopped';
+}
+
+function refundSlaText(application) {
+    if (application.status !== 'pending') return XingzaoRefundStore.formatDateTime(application.reviewedAt || application.withdrawnAt);
+    var diff = new Date(application.dueAt) - new Date();
+    if (diff < 0) return '<span style="color:var(--red);font-weight:700">已超时</span>';
+    if (diff <= 4 * 60 * 60 * 1000) return '<span style="color:var(--orange);font-weight:700">即将超时</span>';
+    return XingzaoRefundStore.formatDateTime(application.dueAt) + ' 前';
+}
+
+function syncRefundBillingLogs() {
+    if (!window.XingzaoRefundStore) return;
+    XingzaoRefundStore.load().applications.filter(function(a) { return a.status === 'approved'; }).forEach(function(a) {
+        if (AppState.billingLogs.some(function(log) { return log.id === 'quality_' + a.id; })) return;
+        var tenant = AppState.tenants.find(function(item) { return item.id === a.tenantId; });
+        if (tenant) {
+            tenant.creditBatches = tenant.creditBatches || [];
+            (a.refundTransactions || []).forEach(function(tx) {
+                if (tenant.creditBatches.some(function(batch) { return batch.sourceApplicationId === a.id && batch.id === tx.batchId; })) return;
+                tenant.creditBatches.push({ id:tx.batchId, source:tx.type === 'compensation' ? '质量退还补偿' : '原积分批次恢复', original:Number(tx.points), remaining:Number(tx.points), effectiveAt:XingzaoRefundStore.formatDateTime(a.reviewedAt), expiresAt:tx.expiresAt, status:isCommercialActive(tx.expiresAt) ? '生效中' : '已过期', sourceApplicationId:a.id, transactionId:tx.id });
+            });
+            refreshTenantCommercialState(tenant);
+        }
+        AppState.billingLogs.unshift({
+            id:'quality_' + a.id,
+            time:XingzaoRefundStore.formatDateTime(a.reviewedAt),
+            tenantId:a.tenantId,
+            tenantName:a.tenantName,
+            type:'积分退还',
+            amount:a.requestedPoints,
+            balance:tenant ? tenant.credits : '-',
+            operator:a.reviewer || '运营管理员',
+            taskId:a.sourceTaskId,
+            remark:'质量积分退还；申请 ' + a.id + '；流水 ' + (a.refundTransactions || []).map(function(tx){return tx.id;}).join('、') + '；' + a.reviewNote
+        });
+    });
+}
+
+function renderRefundReview() {
+    if (!window.XingzaoRefundStore) return;
+    var storeState = XingzaoRefundStore.load();
+    var applications = storeState.applications;
+    var now = new Date();
+    var today = now.toISOString().slice(0,10);
+    var pending = applications.filter(function(a) { return a.status === 'pending'; });
+    var urgent = pending.filter(function(a) { return new Date(a.dueAt) - now <= 4 * 60 * 60 * 1000; });
+    var approvedToday = applications.filter(function(a) { return a.status === 'approved' && String(a.reviewedAt || '').slice(0,10) === today; });
+    document.getElementById('refundMetricPending').textContent = pending.length;
+    document.getElementById('refundMetricOverdue').textContent = urgent.length;
+    document.getElementById('refundMetricApproved').textContent = approvedToday.length;
+    document.getElementById('refundMetricPoints').textContent = approvedToday.reduce(function(sum,a) { return sum + Number(a.requestedPoints || 0); },0).toLocaleString();
+    document.getElementById('refundPendingBadge').textContent = pending.length;
+
+    var reasonFilter = document.getElementById('refundReasonFilter');
+    if (reasonFilter.options.length === 1) XingzaoRefundStore.REASONS.forEach(function(reason) { reasonFilter.add(new Option(reason.label, reason.code)); });
+    var tenantFilter = document.getElementById('refundTenantFilter');
+    if (tenantFilter.options.length === 1) applications.forEach(function(application) {
+        if (!Array.from(tenantFilter.options).some(function(option) { return option.value === application.tenantId; })) tenantFilter.add(new Option(application.tenantName, application.tenantId));
+    });
+    var status = document.getElementById('refundStatusFilter').value;
+    var reason = reasonFilter.value;
+    var tenantId = tenantFilter.value;
+    var dateFrom = document.getElementById('refundDateFrom').value;
+    var dateTo = document.getElementById('refundDateTo').value;
+    var keyword = document.getElementById('refundSearch').value.trim().toLowerCase();
+    var rows = applications.filter(function(a) {
+        if (status && a.status !== status) return false;
+        if (reason && a.reasonCode !== reason) return false;
+        if (tenantId && a.tenantId !== tenantId) return false;
+        if (dateFrom && String(a.submittedAt).slice(0,10) < dateFrom) return false;
+        if (dateTo && String(a.submittedAt).slice(0,10) > dateTo) return false;
+        if (keyword && [a.id,a.sourceTaskId,a.taskTitle,a.videoTitle,a.applicantName,a.tenantName].join(' ').toLowerCase().indexOf(keyword) < 0) return false;
+        return true;
+    });
+    document.getElementById('refundReviewTable').innerHTML = rows.map(function(a) {
+        var meta = XingzaoRefundStore.getStatusMeta(a.status);
+        return '<tr>' +
+            '<td style="font-size:12px">' + XingzaoRefundStore.formatDateTime(a.submittedAt) + '</td>' +
+            '<td style="font-family:monospace;font-size:12px">' + a.id + '</td>' +
+            '<td><div style="font-weight:600">' + escapeHtml(a.videoTitle) + '</div><div style="font-size:11px;color:var(--text-muted)">' + escapeHtml(a.taskTitle) + '</div></td>' +
+            '<td>' + escapeHtml(a.applicantName) + '<div style="font-size:11px;color:var(--text-muted)">' + escapeHtml(a.tenantName) + '</div></td>' +
+            '<td style="font-weight:700;color:var(--orange)">' + Number(a.requestedPoints).toLocaleString() + '</td>' +
+            '<td>' + escapeHtml(a.reasonLabel) + '</td>' +
+            '<td><span class="status ' + refundStatusClass(a.status) + '">' + meta.label + '</span><div style="font-size:11px;margin-top:5px;color:var(--text-muted)">' + refundSlaText(a) + '</div></td>' +
+            '<td><button class="btn btn-xs" onclick="openRefundReview(\'' + a.id + '\')">' + (a.status === 'pending' ? '审核' : '查看') + '</button></td></tr>';
+    }).join('') || '<tr><td colspan="8" style="padding:40px;text-align:center;color:var(--text-muted)">暂无匹配申请</td></tr>';
+}
+
+function refundReviewLine(label, value) {
+    return '<div class="refund-review-line"><span>' + label + '</span><strong>' + value + '</strong></div>';
+}
+
+function openRefundReview(id) {
+    if (!hasOperatorPermission('refund_review')) { toast('当前账号无积分退还审核权限', 'error'); return; }
+    var application = XingzaoRefundStore.getApplication(id);
+    if (!application) { toast('申请不存在或已被删除', 'error'); return; }
+    currentRefundReviewId = id;
+    var meta = XingzaoRefundStore.getStatusMeta(application.status);
+    var deliveries = XingzaoRefundStore.getDeliveryRecords(application.videoKey);
+    var body = '<div class="refund-review-preview"><div><div style="font-size:11px;opacity:.7;margin-bottom:6px">原视频预览 · ' + escapeHtml(application.taskTitle) + '</div><div style="font-size:15px;font-weight:700;max-width:400px;line-height:1.5">' + escapeHtml(application.videoTitle) + '</div></div></div>';
+    body += '<div class="refund-review-section"><h5>申请信息</h5>' + refundReviewLine('申请编号',application.id) + refundReviewLine('租户 / 申请人',escapeHtml(application.tenantName + ' / ' + application.applicantName)) + refundReviewLine('状态','<span class="status ' + refundStatusClass(application.status) + '">' + meta.label + '</span>') + refundReviewLine('提交时间',XingzaoRefundStore.formatDateTime(application.submittedAt)) + refundReviewLine('处理时限',refundSlaText(application)) + refundReviewLine('问题类型',escapeHtml(application.reasonLabel)) + refundReviewLine('问题时间点',escapeHtml(application.issueTime || '未填写')) + '<div style="font-size:12px;color:var(--text-secondary);line-height:1.7;margin-top:10px"><strong>用户说明：</strong>' + escapeHtml(application.description) + '</div></div>';
+    body += '<div class="refund-review-section"><h5>实际扣费组件 · ' + Number(application.requestedPoints).toLocaleString() + ' 积分</h5><div style="font-size:11px;color:var(--text-muted);margin-bottom:8px">语音合成免费，不参与积分退还</div>' + (application.chargeSnapshot || []).map(function(component) {
+        var batches = (component.deductions || []).map(function(split) { return split.batchId + ' / ' + split.points + '积分 / ' + XingzaoRefundStore.formatDateTime(split.originalExpiresAt) + '到期'; }).join('；');
+        return refundReviewLine(escapeHtml(component.label),Number(component.refundablePoints).toLocaleString() + ' 积分<div style="font-size:10px;color:var(--text-muted);margin-top:3px">' + escapeHtml(batches) + '</div>');
+    }).join('') + '</div>';
+    body += '<div class="refund-review-section"><h5>交付记录</h5>' + (deliveries.length ? deliveries.map(function(record) { return refundReviewLine(record.type === 'download' ? '下载' : '外部发布',escapeHtml(record.actorName) + ' · ' + XingzaoRefundStore.formatDateTime(record.time)); }).join('') : '<div style="font-size:12px;color:var(--green)">未发现下载或外部发布记录</div>') + '</div>';
+    if (application.reviewNote) body += '<div class="refund-review-section"><h5>审核结果</h5>' + refundReviewLine('审核人',escapeHtml(application.reviewer || '—')) + refundReviewLine('审核时间',XingzaoRefundStore.formatDateTime(application.reviewedAt)) + '<div style="font-size:12px;line-height:1.7;margin-top:8px"><strong>处理说明：</strong>' + escapeHtml(application.reviewNote) + '</div>' + ((application.refundTransactions || []).length ? '<div style="font-size:12px;line-height:1.7;margin-top:8px"><strong>退还批次：</strong>' + application.refundTransactions.map(function(tx) { return escapeHtml(tx.batchId) + '（' + tx.points + '积分，' + escapeHtml(tx.expiresAt) + '到期）'; }).join('；') + '</div>' : '') + '</div>';
+    if (application.status === 'pending') body += '<div class="refund-review-actions"><textarea id="refundReviewNote" placeholder="批准和驳回均需填写处理说明"></textarea><div style="display:flex;justify-content:flex-end;gap:8px"><button class="btn" onclick="decideRefundReview(\'rejected\')">驳回申请</button><button class="btn btn-primary" onclick="decideRefundReview(\'approved\')">批准并退还积分</button></div></div>';
+    document.getElementById('refundReviewTitle').textContent = '积分退还审核 · ' + application.id;
+    document.getElementById('refundReviewBody').innerHTML = body;
+    document.getElementById('refundReviewOverlay').classList.add('show');
+    document.getElementById('refundReviewDrawer').classList.add('show');
+}
+
+function closeRefundReview() {
+    currentRefundReviewId = null;
+    document.getElementById('refundReviewOverlay').classList.remove('show');
+    document.getElementById('refundReviewDrawer').classList.remove('show');
+}
+
+function decideRefundReview(decision) {
+    if (!hasOperatorPermission('refund_review')) { toast('当前账号无积分退还审核权限', 'error'); return; }
+    if (!currentRefundReviewId) return;
+    var note = (document.getElementById('refundReviewNote') || {}).value || '';
+    if (!note.trim()) { toast('请填写处理说明', 'error'); return; }
+    var label = decision === 'approved' ? '批准并退还积分' : '驳回申请';
+    if (!confirm('确认' + label + '？该操作提交后不可撤销。')) return;
+    var result = XingzaoRefundStore.reviewApplication(currentRefundReviewId, decision, note, currentOperator());
+    if (!result.ok) { toast(result.message, 'error'); return; }
+    syncRefundBillingLogs();
+    addAuditLog('积分退还', result.application.tenantName + '·' + result.application.id, '待审核', decision === 'approved' ? '已通过' : '已驳回', note);
+    saveData();
+    closeRefundReview();
+    renderRefundReview();
+    toast(decision === 'approved' ? '审核通过，积分已按批次规则退还' : '申请已驳回，视频交付权限已恢复', 'success');
 }
 
 // ===========================
@@ -2162,6 +2500,15 @@ function renderTenantDetail(id) {
             '<td style="font-size:12px">' + task.createdAt + '</td>' +
             '</tr>';
     }
+    refreshTenantCommercialState(t);
+    var creditBatchHtml = (t.creditBatches || []).map(function(batch) {
+        var active = batch.remaining > 0 && isCommercialActive(batch.expiresAt);
+        return '<tr><td>' + batch.source + '<div style="font-size:10px;color:var(--text-muted)">' + batch.id + '</div></td><td><strong>' + batch.remaining.toLocaleString() + '</strong></td><td>' + batch.expiresAt + '</td><td><span class="status ' + (active ? 'status-active' : 'status-stopped') + '">' + (active ? '生效中' : '已失效') + '</span></td></tr>';
+    }).join('');
+    var concurrencyRightHtml = (t.concurrencyRights || []).map(function(right) {
+        var active = right.type === 'base' || (right.count > 0 && isCommercialActive(right.expiresAt));
+        return '<tr><td>' + right.source + '<div style="font-size:10px;color:var(--text-muted)">' + right.id + '</div></td><td>' + right.count + '</td><td>' + (right.expiresAt || '永久有效') + '</td><td><span class="status ' + (active ? 'status-active' : 'status-stopped') + '">' + (active ? '生效中' : '已失效') + '</span></td></tr>';
+    }).join('');
 
     document.getElementById('tenantDetailContent').innerHTML =
         '<div class="card-grid2" style="margin-bottom:20px">' +
@@ -2176,7 +2523,8 @@ function renderTenantDetail(id) {
         '<div class="kv-item"><span class="kv-label">手机</span><span class="kv-value">' + t.adminPhone + '</span></div>' +
         '<div class="kv-item"><span class="kv-label">邮箱</span><span class="kv-value">' + t.adminEmail + '</span></div>' +
         '<div class="kv-item"><span class="kv-label">开通时间</span><span class="kv-value">' + t.openedAt + '</span></div>' +
-        '<div class="kv-item"><span class="kv-label">最大并发</span><span class="kv-value">' + t.concurrency + '</span></div>' +
+        '<div class="kv-item"><span class="kv-label">有效并发上限</span><span class="kv-value">' + t.concurrency + '（基础 ' + t.baseConcurrency + ' + 增购 ' + t.purchasedConcurrency + '）</span></div>' +
+        '<div class="kv-item"><span class="kv-label">自助购买上限</span><span class="kv-value">' + t.selfBuyLimit + '</span></div>' +
         '<div class="kv-item"><span class="kv-label">模型等级</span><span class="kv-value">' + t.modelLevel + '</span></div>' +
         '</div></div>' +
         '<div class="info-card">' +
@@ -2190,6 +2538,10 @@ function renderTenantDetail(id) {
         '<div class="kv-item"><span class="kv-label">积分余额</span><span class="kv-value" style="font-size:20px;font-weight:800;color:var(--primary)">' + t.credits.toLocaleString() + '</span></div>' +
         '</div>' +
         '</div></div>' +
+        '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px"><div class="section-title" style="margin:0">账户权益</div><div style="display:flex;gap:8px"><button class="btn btn-sm" onclick="manualAdjustCredit(\'' + t.id + '\')">人工调整积分</button><button class="btn btn-sm" onclick="manualAdjustConcurrency(\'' + t.id + '\')">人工调整并发</button><button class="btn btn-primary btn-sm" onclick="createBusinessOrder(\'' + t.id + '\')">创建商务订单</button></div></div>' +
+        '<div class="card-grid2" style="margin-bottom:20px">' +
+        '<div class="info-card"><h4>积分批次</h4><table style="font-size:12px"><thead><tr><th>来源</th><th>剩余</th><th>到期时间</th><th>状态</th></tr></thead><tbody>' + (creditBatchHtml || '<tr><td colspan="4">暂无积分批次</td></tr>') + '</tbody></table><div style="font-size:11px;color:var(--text-muted);margin-top:10px">系统消费时优先扣除最早到期的有效批次。</div></div>' +
+        '<div class="info-card"><h4>并发权益</h4><table style="font-size:12px"><thead><tr><th>权益</th><th>数量</th><th>到期时间</th><th>状态</th></tr></thead><tbody>' + (concurrencyRightHtml || '<tr><td colspan="4">尚未解锁并发</td></tr>') + '</tbody></table><div style="font-size:11px;color:var(--text-muted);margin-top:10px">到期不抢占运行任务，只限制后续新任务调度。</div></div></div>' +
         '<div class="section-title">最近积分流水</div>' +
         '<div class="table-wrap" style="margin-bottom:20px">' +
         '<table style="font-size:12px"><thead><tr><th>时间</th><th>类型</th><th>变动</th><th>备注</th></tr></thead><tbody>' + (logHtml || '<tr><td colspan="4" style="color:var(--text-muted);text-align:center;padding:20px">暂无流水</td></tr>') + '</tbody></table>' +
@@ -2198,6 +2550,80 @@ function renderTenantDetail(id) {
         '<div class="table-wrap">' +
         '<table style="font-size:12px"><thead><tr><th>任务 ID</th><th>任务名称</th><th>状态</th><th>视频数</th><th>消耗积分</th><th>创建时间</th></tr></thead><tbody>' + (taskHtml || '<tr><td colspan="6" style="color:var(--text-muted);text-align:center;padding:20px">暂无任务</td></tr>') + '</tbody></table>' +
         '</div>';
+}
+
+function manualAdjustCredit(tenantId) {
+    var t = AppState.tenants.find(function(x) { return x.id === tenantId; });
+    if (!t) return;
+    var amount = parseInt(prompt('请输入积分调整数量（增加填正数，扣减填负数）', '1000'));
+    if (!amount || t.credits + amount < 0) { toast('积分调整数量无效或扣减后余额不足', 'error'); return; }
+    var reason = prompt('请输入调整原因、审批单号或沟通记录');
+    if (!reason) { toast('必须填写调整原因', 'error'); return; }
+    var before = t.credits;
+    if (!confirm('确认将「' + t.name + '」积分调整 ' + (amount > 0 ? '+' : '') + amount + '？该操作将生成业务流水与审计记录。')) return;
+    if (amount > 0) {
+        var creditStart = new Date();
+        t.creditBatches.push({ id:'MAN-CB-' + Date.now(), source:'人工调整', original:amount, remaining:amount, effectiveAt:commercialTime(creditStart), expiresAt:commercialTime(addCommercialMonths(creditStart, AppState.creditValidityMonths)), status:'生效中' });
+    } else {
+        var need = Math.abs(amount);
+        t.creditBatches.filter(function(b) { return b.remaining > 0 && isCommercialActive(b.expiresAt); }).sort(function(a,b) { return new Date(a.expiresAt) - new Date(b.expiresAt); }).forEach(function(b) {
+            if (!need) return;
+            var used = Math.min(need, b.remaining); b.remaining -= used; need -= used;
+            if (!b.remaining) b.status = '已用完';
+        });
+    }
+    refreshTenantCommercialState(t);
+    AppState.billingLogs.unshift({ id:'manual_' + Date.now(), time:new Date().toLocaleString('zh-CN',{hour12:false}), tenantId:t.id, tenantName:t.name, type:'调整', amount:amount, balance:t.credits, operator:'admin', taskId:'-', remark:reason + '；有效期' + AppState.creditValidityMonths + '个自然月' });
+    addAuditLog('积分', t.name, before.toLocaleString(), t.credits.toLocaleString(), reason);
+    saveData(); renderTenantDetail(tenantId); toast('积分调整已完成并生成流水', 'success');
+}
+
+function manualAdjustConcurrency(tenantId) {
+    var t = AppState.tenants.find(function(x) { return x.id === tenantId; });
+    if (!t) return;
+    var delta = parseInt(prompt('请输入增购并发调整数量（增加填正数，减少填负数）', '1'));
+    if (!delta || t.purchasedConcurrency + delta < 0) { toast('并发调整数量无效', 'error'); return; }
+    var months = parseInt(prompt('请输入权益有效期（月）', '1'));
+    var reason = prompt('请输入调整原因、审批单号或沟通记录');
+    if (!Number.isFinite(months) || months <= 0 || !reason) { toast('必须填写有效的正数期限和调整原因', 'error'); return; }
+    var before = t.concurrency;
+    if (!confirm('确认将「' + t.name + '」增购并发调整 ' + (delta > 0 ? '+' : '') + delta + '？到期或降额不会中断运行任务。')) return;
+    if (delta > 0) {
+        var rightStart = new Date();
+        t.concurrencyRights.push({ id:'MAN-RIGHT-' + Date.now(), type:'manual', source:'人工调整', count:delta, effectiveAt:commercialTime(rightStart), expiresAt:commercialTime(addCommercialMonths(rightStart, months)), status:'生效中' });
+    } else {
+        var reduce = Math.abs(delta);
+        t.concurrencyRights.filter(function(r) { return r.type !== 'base' && r.count > 0 && isCommercialActive(r.expiresAt); }).sort(function(a,b) { return new Date(a.expiresAt) - new Date(b.expiresAt); }).forEach(function(r) {
+            if (!reduce) return;
+            var cut = Math.min(reduce, r.count); r.count -= cut; reduce -= cut;
+            if (!r.count) r.status = '已调整完';
+        });
+    }
+    refreshTenantCommercialState(t);
+    addAuditLog('租户', t.name + '并发权益', before + '个', t.concurrency + '个', reason + '；有效期' + months + '个自然月；到期不抢占运行任务');
+    saveData(); renderTenantDetail(tenantId); toast('并发权益已调整', 'success');
+}
+
+function createBusinessOrder(tenantId) {
+    var t = AppState.tenants.find(function(x) { return x.id === tenantId; });
+    if (!t) return;
+    if (!t.hasCreditRecharge) { toast('该租户尚未完成积分充值，不允许购买额外并发', 'error'); return; }
+    var quantity = parseInt(prompt('请输入并发数量', '1'));
+    var months = parseInt(prompt('请输入使用时长（月）', '1'));
+    var amount = parseInt(prompt('请输入商务订单金额（元）', '10000'));
+    var gift = parseInt(prompt('请输入赠送积分', '5000'));
+    var reason = prompt('请输入合同号、审批单号或商务说明');
+    if (!Number.isFinite(quantity) || quantity <= 0 || !Number.isFinite(months) || months <= 0 || !Number.isFinite(amount) || amount <= 0 || !Number.isFinite(gift) || gift < 0 || !reason) { toast('请完整填写有效的商务订单信息', 'error'); return; }
+    var before = t.concurrency;
+    var orderId = 'BIZ' + Date.now();
+    if (!confirm('确认创建商务订单 ' + orderId + '：+' + quantity + '并发/' + months + '个月，金额¥' + amount + '，赠送' + gift + '积分？')) return;
+    var bizStart = new Date();
+    t.concurrencyRights.push({ id:'BIZ-RIGHT-' + orderId, type:'business', source:'商务订单 ' + orderId, count:quantity, effectiveAt:commercialTime(bizStart), expiresAt:commercialTime(addCommercialMonths(bizStart, months)), status:'生效中', orderSnapshot:{ amount:amount, months:months, gift:gift } });
+    if (gift > 0) t.creditBatches.push({ id:'BIZ-GIFT-' + orderId, source:'并发购买赠送', original:gift, remaining:gift, effectiveAt:commercialTime(bizStart), expiresAt:commercialTime(addCommercialMonths(bizStart, AppState.creditValidityMonths)), status:'生效中', sourceOrderId:orderId });
+    refreshTenantCommercialState(t);
+    AppState.billingLogs.unshift({ id:orderId, time:new Date().toLocaleString('zh-CN',{hour12:false}), tenantId:t.id, tenantName:t.name, type:'充值', amount:gift, balance:t.credits, operator:'admin', taskId:orderId, remark:'商务并发订单：+' + quantity + '并发/' + months + '个月，金额¥' + amount + '，赠送积分' + gift });
+    addAuditLog('租户', t.name + '商务订单', before + '个并发', t.concurrency + '个并发', reason + '；订单' + orderId);
+    saveData(); renderTenantDetail(tenantId); toast('商务订单已创建，权益与赠送积分已到账', 'success');
 }
 
 // ===========================
@@ -2286,6 +2712,17 @@ function inferModelTypeByNode(node) {
 // ===========================
 // 任务统计
 // ===========================
+var _taskViewMode = 'tenant';
+
+function switchTaskTab(mode) {
+    _taskViewMode = mode;
+    window._selectedTaskTenantId = null;
+    document.querySelectorAll('#taskViewTabs .task-view-tab').forEach(function(t) { t.classList.toggle('active', t.getAttribute('data-task-tab') === mode); });
+    document.getElementById('taskTenantView').style.display = mode === 'tenant' ? '' : 'none';
+    document.getElementById('taskTaskView').style.display = mode === 'task' ? '' : 'none';
+    renderTasks();
+}
+
 function getTaskStatusLabel(status) {
     var map = { queued:'排队中',generating:'生成中',completed:'已完成',failed:'已失败',partial:'部分完成' };
     return map[status] || status;
@@ -2460,18 +2897,23 @@ function getFilteredTasks() {
 function renderTasks() {
     updateTaskTenantFilter();
     var list = getFilteredTasks();
-    var selectedTenantId = window._selectedTaskTenantId;
-    var tenantList = getTenantTaskStatsList(list);
-    if (!selectedTenantId && tenantList.length) selectedTenantId = tenantList[0].tenantId;
-    if (selectedTenantId && !tenantList.some(function(t) { return t.tenantId === selectedTenantId; })) {
-        selectedTenantId = tenantList.length ? tenantList[0].tenantId : '';
-    }
-    window._selectedTaskTenantId = selectedTenantId;
-
     renderTaskMetrics(list);
-    renderTenantTaskRank(list);
-    renderFailureDetail(selectedTenantId, list);
-    renderTenantTaskDetail(selectedTenantId, list);
+
+    if (_taskViewMode === 'tenant') {
+        var selectedTenantId = window._selectedTaskTenantId;
+        var tenantList = getTenantTaskStatsList(list);
+        if (!selectedTenantId && tenantList.length) selectedTenantId = tenantList[0].tenantId;
+        if (selectedTenantId && !tenantList.some(function(t) { return t.tenantId === selectedTenantId; })) {
+            selectedTenantId = tenantList.length ? tenantList[0].tenantId : '';
+        }
+        window._selectedTaskTenantId = selectedTenantId;
+
+        renderTenantTaskRank(list);
+        renderFailureDetail(selectedTenantId, list);
+        renderTenantTaskDetail(selectedTenantId, list);
+    } else {
+        renderTaskDimensionList(list);
+    }
 }
 
 function renderTenantTaskRank(tasks) {
@@ -2588,6 +3030,72 @@ function renderTenantTaskDetail(tenantId, tasks) {
         '</table></div>';
 }
 
+function renderTaskDimensionList(tasks) {
+    var list = tasks.slice().sort(function(a, b) { return b.createdAt.localeCompare(a.createdAt); });
+    var html = '';
+    if (list.length === 0) {
+        html = '<div style="text-align:center;padding:40px;color:var(--text-muted)">暂无匹配任务</div>';
+    } else {
+        html = '<table><thead><tr><th style="width:32px"></th><th>任务ID</th><th>任务名称</th><th>租户</th><th>视频数</th><th>状态</th><th>进度</th><th>消耗积分</th><th>下发时间</th><th>开始时间</th><th>完成时间</th><th>操作</th></tr></thead><tbody>';
+        for (var i = 0; i < list.length; i++) {
+            var t = list[i];
+            var stCls = getTaskStatusClass(t.status);
+            var stIcon = getTaskStatusIcon(t.status);
+            var stLabel = getTaskStatusLabel(t.status);
+            var pct = t.progress || 0;
+            var barCls = pct === 100 ? '' : ' warn';
+            var rowId = 'task_row_' + t.taskId;
+            var subId = 'task_sub_' + t.taskId;
+            html += '<tr class="expand-row" id="' + rowId + '" onclick="toggleTaskDimensionExpand(\'' + t.taskId + '\')">' +
+                '<td style="text-align:center;font-size:12px"><span class="expand-icon" id="expand_icon_' + t.taskId + '">▶</span></td>' +
+                '<td><code style="font-size:12px;background:#F0F0F3;padding:2px 6px;border-radius:4px">' + t.taskId + '</code></td>' +
+                '<td><strong>' + escapeHtml(t.taskName) + '</strong></td>' +
+                '<td><span class="chip chip-blue">' + escapeHtml(t.tenantName) + '</span></td>' +
+                '<td style="text-align:center">' + getTaskSubTaskCount(t) + '</td>' +
+                '<td><span class="status ' + stCls + '">' + stIcon + ' ' + stLabel + '</span></td>' +
+                '<td><div class="bar" style="min-width:60px;display:inline-flex;vertical-align:middle"><div class="bar-fill' + barCls + '" style="width:' + pct + '%"></div></div><span style="font-size:11px;color:var(--text-muted);margin-left:4px">' + pct + '%</span></td>' +
+                '<td style="font-weight:600">' + (t.totalCost || 0).toLocaleString() + '</td>' +
+                '<td style="font-size:12px;white-space:nowrap">' + t.createdAt + '</td>' +
+                '<td style="font-size:12px;white-space:nowrap;color:var(--text-secondary)">' + (t.startedAt || '-') + '</td>' +
+                '<td style="font-size:12px;white-space:nowrap;color:var(--text-secondary)">' + (t.completedAt || '-') + '</td>' +
+                '<td style="white-space:nowrap">' +
+                    '<button class="btn btn-xs" onclick="event.stopPropagation();openTaskDetail(\'' + t.taskId + '\')">详情</button>' +
+                '</td></tr>';
+
+            var subTasks = t.subTasks || [];
+            html += '<tr id="' + subId + '" style="display:none"><td colspan="12" style="padding:0 18px"><div class="subtask-wrap" style="padding:0">' +
+                '<table class="subtask-table"><thead><tr><th>#</th><th>台词</th><th>状态</th><th>视频时长</th><th>消耗积分</th><th>错误信息</th></tr></thead><tbody>';
+            for (var s = 0; s < subTasks.length; s++) {
+                var st = subTasks[s];
+                var sstCls = getTaskStatusClass(st.status);
+                var sstIcon = getTaskStatusIcon(st.status);
+                var sstLabel = getTaskStatusLabel(st.status);
+                html += '<tr>' +
+                    '<td style="font-size:12px;font-weight:600">#' + st.id + '</td>' +
+                    '<td style="font-size:12px;max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="' + escapeHtml(st.script) + '">' + escapeHtml(st.script) + '</td>' +
+                    '<td><span class="status ' + sstCls + '" style="font-size:10px">' + sstIcon + ' ' + sstLabel + '</span></td>' +
+                    '<td style="font-size:12px">' + (st.duration > 0 ? st.duration + 's' : '-') + '</td>' +
+                    '<td style="font-size:12px">' + (st.cost > 0 ? st.cost : '-') + '</td>' +
+                    '<td style="font-size:11px;color:var(--red)">' + (st.error || '-') + '</td>' +
+                    '</tr>';
+            }
+            html += '</tbody></table></div></td></tr>';
+        }
+        html += '</tbody></table>';
+    }
+    document.getElementById('taskListTable').innerHTML = html;
+}
+
+function toggleTaskDimensionExpand(taskId) {
+    var subRow = document.getElementById('task_sub_' + taskId);
+    var icon = document.getElementById('expand_icon_' + taskId);
+    if (!subRow || !icon) return;
+    var isOpen = subRow.style.display !== 'none';
+    subRow.style.display = isOpen ? 'none' : '';
+    icon.classList.toggle('open', !isOpen);
+    icon.textContent = isOpen ? '▶' : '▼';
+}
+
 function cancelTask(taskId) {
     var t = AppState.opsTasks.find(function(x) { return x.taskId === taskId; });
     if (!t) return;
@@ -2648,6 +3156,26 @@ function renderTenantTasksDrawer(tenantId) {
     return html;
 }
 
+function backendRefundAction(task, subTask) {
+    if (subTask.refunded) return '<span class="status status-active">已人工退还</span>';
+    var application = null;
+    if (window.XingzaoRefundStore) {
+        application = XingzaoRefundStore.load().applications.find(function(item) {
+            return Number(item.sourceSubTaskId) === Number(subTask.id) &&
+                (item.sourceTaskId === task.taskId || item.taskTitle === task.taskName);
+        }) || null;
+    }
+    if (application) {
+        var meta = XingzaoRefundStore.getStatusMeta(application.status);
+        var viewButton = '<button class="btn btn-xs" onclick="openRefundReview(\'' + application.id + '\')">' + (application.status === 'pending' ? '审核申请' : meta.label) + '</button>';
+        if ((application.status === 'rejected' || application.status === 'withdrawn') && hasOperatorPermission('refund_manual_adjust')) {
+            return viewButton + ' <button class="btn btn-xs" onclick="refundSubTaskCredits(\'' + task.taskId + '\',' + subTask.id + ',' + subTask.cost + ',\'' + application.id + '\')">异常退还</button>';
+        }
+        return viewButton;
+    }
+    return subTask.cost > 0 ? '<button class="btn btn-xs" onclick="refundSubTaskCredits(\'' + task.taskId + '\',' + subTask.id + ',' + subTask.cost + ')">人工退还</button>' : '<span style="color:var(--text-muted);font-size:11px">—</span>';
+}
+
 function openTaskDetail(taskId) {
     var t = AppState.opsTasks.find(function(x) { return x.taskId === taskId; });
     if (!t) return;
@@ -2656,53 +3184,164 @@ function openTaskDetail(taskId) {
     var stCls = getTaskStatusClass(t.status);
     var stIcon = getTaskStatusIcon(t.status);
     var stLabel = getTaskStatusLabel(t.status);
+    var videoCount = t.subTasks ? t.subTasks.length : (t.videoCount || 0);
 
+    // 基本信息 - 仿截图表格布局
+    var basicHtml =
+        '<div style="margin-bottom:20px">' +
+        '<div style="font-size:14px;font-weight:700;margin-bottom:12px;color:var(--text-primary)">基本信息</div>' +
+        '<div style="background:#FAFAFA;border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden">' +
+        '<table style="width:100%;border-collapse:collapse;font-size:13px">' +
+        '<tr>' +
+            '<td style="padding:10px 14px;width:100px;background:#F5F5F7;color:var(--text-secondary);font-weight:500;border-bottom:1px solid var(--border);border-right:1px solid var(--border)">任务 ID</td>' +
+            '<td style="padding:10px 14px;border-bottom:1px solid var(--border)"><code style="font-size:12px;background:#fff;padding:2px 8px;border-radius:4px;border:1px solid var(--border)">' + t.taskId + '</code></td>' +
+            '<td style="padding:10px 14px;width:100px;background:#F5F5F7;color:var(--text-secondary);font-weight:500;border-bottom:1px solid var(--border);border-right:1px solid var(--border)">任务名称</td>' +
+            '<td style="padding:10px 14px;border-bottom:1px solid var(--border);font-weight:600">' + escapeHtml(t.taskName) + '</td>' +
+        '</tr>' +
+        '<tr>' +
+            '<td style="padding:10px 14px;background:#F5F5F7;color:var(--text-secondary);font-weight:500;border-bottom:1px solid var(--border);border-right:1px solid var(--border)">状态</td>' +
+            '<td style="padding:10px 14px;border-bottom:1px solid var(--border)"><span class="status ' + stCls + '">' + stIcon + ' ' + stLabel + '</span></td>' +
+            '<td style="padding:10px 14px;background:#F5F5F7;color:var(--text-secondary);font-weight:500;border-bottom:1px solid var(--border);border-right:1px solid var(--border)">进度</td>' +
+            '<td style="padding:10px 14px;border-bottom:1px solid var(--border)">' + (t.progress || 0) + '%</td>' +
+        '</tr>' +
+        '<tr>' +
+            '<td style="padding:10px 14px;background:#F5F5F7;color:var(--text-secondary);font-weight:500;border-bottom:1px solid var(--border);border-right:1px solid var(--border)">创建时间</td>' +
+            '<td style="padding:10px 14px;border-bottom:1px solid var(--border);font-size:12px">' + t.createdAt + '</td>' +
+            '<td style="padding:10px 14px;background:#F5F5F7;color:var(--text-secondary);font-weight:500;border-bottom:1px solid var(--border);border-right:1px solid var(--border)">所属租户</td>' +
+            '<td style="padding:10px 14px;border-bottom:1px solid var(--border)"><span class="chip chip-blue">' + escapeHtml(t.tenantName) + '</span></td>' +
+        '</tr>' +
+        '<tr>' +
+            '<td style="padding:10px 14px;background:#F5F5F7;color:var(--text-secondary);font-weight:500;border-right:1px solid var(--border)">视频数</td>' +
+            '<td style="padding:10px 14px">' + videoCount + '</td>' +
+            '<td style="padding:10px 14px;background:#F5F5F7;color:var(--text-secondary);font-weight:500;border-right:1px solid var(--border)">消耗积分</td>' +
+            '<td style="padding:10px 14px"><strong style="color:var(--primary)">' + (t.totalCost || 0).toLocaleString() + '</strong></td>' +
+        '</tr>' +
+        '</table></div></div>';
+
+    // 子任务列表 - 仿截图列布局
     var subHtml = '';
-    if (t.subTasks) {
+    if (t.subTasks && t.subTasks.length) {
         for (var i = 0; i < t.subTasks.length; i++) {
             var st = t.subTasks[i];
             var sstCls = getTaskStatusClass(st.status);
             var sstIcon = getTaskStatusIcon(st.status);
             var sstLabel = getTaskStatusLabel(st.status);
+            var subTaskId = t.taskId.slice(0, -1) + String(st.id).padStart(2, '0');
             subHtml += '<tr>' +
-                '<td style="font-size:12px">#' + st.id + '</td>' +
-                '<td style="font-size:12px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="' + escapeHtml(st.script) + '">' + escapeHtml(st.script) + '</td>' +
-                '<td><span class="status ' + sstCls + '" style="font-size:10px">' + sstIcon + ' ' + sstLabel + '</span></td>' +
-                '<td style="font-size:12px">' + (st.duration > 0 ? st.duration + 's' : '-') + '</td>' +
-                '<td style="font-size:12px">' + (st.cost > 0 ? st.cost : '-') + '</td>' +
-                '<td style="font-size:11px;color:var(--red)">' + (st.error || '-') + '</td>' +
+                '<td style="padding:10px 14px;vertical-align:top">' +
+                    '<div style="font-weight:600;font-size:13px">' + escapeHtml(st.script ? st.script.slice(0, 30) + (st.script.length > 30 ? '...' : '') : '子任务 #' + st.id) + '</div>' +
+                    '<div style="font-size:11px;color:var(--text-muted);margin-top:3px;font-family:monospace">' + subTaskId + '</div>' +
+                '</td>' +
+                '<td style="padding:10px 14px;vertical-align:middle;text-align:center"><a href="javascript:void(0)" style="color:var(--primary);font-size:12px;font-weight:500" onclick="previewSubTask(\'' + t.taskId + '\',' + st.id + ')">预览</a></td>' +
+                '<td style="padding:10px 14px;vertical-align:middle;text-align:center"><span class="status ' + sstCls + '" style="font-size:11px">' + sstIcon + ' ' + sstLabel + '</span></td>' +
+                '<td style="padding:10px 14px;vertical-align:middle;text-align:center;font-size:13px">' + (st.duration > 0 ? st.duration + 's' : '-') + '</td>' +
+                '<td style="padding:10px 14px;vertical-align:middle;text-align:center;font-size:13px;font-weight:600">' + (st.cost > 0 ? st.cost : '-') + '</td>' +
+                '<td style="padding:10px 14px;vertical-align:middle;font-size:12px;white-space:nowrap">' + (st.startedAt || t.startedAt || '-') + '</td>' +
+                '<td style="padding:10px 14px;vertical-align:middle;font-size:12px;white-space:nowrap">' + (st.completedAt || t.completedAt || '-') + '</td>' +
+                '<td style="padding:10px 14px;vertical-align:middle;font-size:12px;color:var(--red);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="' + escapeHtml(st.error || '') + '">' + (st.error || '-') + '</td>' +
+                '<td style="padding:10px 14px;vertical-align:middle;text-align:center;white-space:nowrap">' +
+                    backendRefundAction(t, st) +
+                '</td>' +
                 '</tr>';
         }
     }
 
-    var taskLogs = AppState.auditLogs.filter(function(a) { return a.type === '任务' && a.target === t.taskName; }).slice(0, 5);
-    var logHtml = '';
-    for (var j = 0; j < taskLogs.length; j++) {
-        var al = taskLogs[j];
-        logHtml += '<div class="timeline-item"><div class="timeline-time">' + al.time + ' <span class="chip" style="font-size:10px">' + al.operator + '</span></div><div class="timeline-title" style="font-size:12px">' + al.remark + '</div><div class="timeline-desc" style="font-size:11px">' + al.before + ' → ' + al.after + '</div></div>';
-    }
-
     document.getElementById('taskDrawerBody').innerHTML =
-        '<div class="section-title">基本信息</div>' +
-        '<div class="kv-grid" style="margin-bottom:20px">' +
-        '<div class="kv-item"><span class="kv-label">任务 ID</span><span class="kv-value">' + t.taskId + '</span></div>' +
-        '<div class="kv-item"><span class="kv-label">所属租户</span><span class="kv-value"><span class="chip chip-blue">' + t.tenantName + '</span></span></div>' +
-        '<div class="kv-item"><span class="kv-label">状态</span><span class="kv-value"><span class="status ' + stCls + '">' + stIcon + ' ' + stLabel + '</span></span></div>' +
-        '<div class="kv-item"><span class="kv-label">进度</span><span class="kv-value">' + t.progress + '%</span></div>' +
-        '<div class="kv-item"><span class="kv-label">创建时间</span><span class="kv-value">' + t.createdAt + '</span></div>' +
-        '<div class="kv-item"><span class="kv-label">开始时间</span><span class="kv-value">' + (t.startedAt || '-') + '</span></div>' +
-        '<div class="kv-item"><span class="kv-label">完成时间</span><span class="kv-value">' + (t.completedAt || '-') + '</span></div>' +
-        '<div class="kv-item"><span class="kv-label">消耗积分</span><span class="kv-value"><strong>' + t.totalCost.toLocaleString() + '</strong></span></div>' +
-        '</div>' +
-        '<div class="section-title">子任务列表</div>' +
-        '<div style="margin-bottom:20px;overflow-x:auto">' +
-        '<table class="subtask-table" style="font-size:12px"><thead><tr><th>#</th><th>台词</th><th>状态</th><th>时长</th><th>积分</th><th>错误信息</th></tr></thead><tbody>' + (subHtml || '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:20px">无子任务</td></tr>') + '</tbody></table>' +
-        '</div>' +
-        '<div class="section-title">操作日志</div>' +
-        '<div class="timeline" id="taskTimeline">' + (logHtml || '<div style="font-size:12px;color:var(--text-muted)">暂无操作记录</div>') + '</div>';
+        basicHtml +
+        '<div style="margin-bottom:12px">' +
+        '<div style="font-size:14px;font-weight:700;margin-bottom:12px;color:var(--text-primary)">子任务列表</div>' +
+        '<div style="overflow-x:auto">' +
+        '<table style="width:100%;border-collapse:collapse;font-size:13px">' +
+        '<thead><tr style="background:#F5F5F7">' +
+            '<th style="padding:8px 14px;text-align:left;font-size:12px;color:var(--text-secondary);font-weight:600;border-bottom:1px solid var(--border);min-width:160px">任务名称</th>' +
+            '<th style="padding:8px 14px;text-align:center;font-size:12px;color:var(--text-secondary);font-weight:600;border-bottom:1px solid var(--border);width:60px">视频预览</th>' +
+            '<th style="padding:8px 14px;text-align:center;font-size:12px;color:var(--text-secondary);font-weight:600;border-bottom:1px solid var(--border);width:80px">状态</th>' +
+            '<th style="padding:8px 14px;text-align:center;font-size:12px;color:var(--text-secondary);font-weight:600;border-bottom:1px solid var(--border);width:70px">视频时长</th>' +
+            '<th style="padding:8px 14px;text-align:center;font-size:12px;color:var(--text-secondary);font-weight:600;border-bottom:1px solid var(--border);width:70px">消耗积分</th>' +
+            '<th style="padding:8px 14px;text-align:left;font-size:12px;color:var(--text-secondary);font-weight:600;border-bottom:1px solid var(--border);white-space:nowrap">开始时间</th>' +
+            '<th style="padding:8px 14px;text-align:left;font-size:12px;color:var(--text-secondary);font-weight:600;border-bottom:1px solid var(--border);white-space:nowrap">完成时间</th>' +
+            '<th style="padding:8px 14px;text-align:left;font-size:12px;color:var(--text-secondary);font-weight:600;border-bottom:1px solid var(--border)">错误信息</th>' +
+            '<th style="padding:8px 14px;text-align:center;font-size:12px;color:var(--text-secondary);font-weight:600;border-bottom:1px solid var(--border);width:80px">操作</th>' +
+        '</tr></thead>' +
+        '<tbody>' + (subHtml || '<tr><td colspan="9" style="text-align:center;color:var(--text-muted);padding:24px">暂无子任务</td></tr>') + '</tbody>' +
+        '</table></div></div>';
 
     document.getElementById('taskDrawerOverlay').classList.add('show');
     document.getElementById('taskDrawer').classList.add('show');
+}
+
+var manualRefundApplicationId = '';
+function refundSubTaskCredits(taskId, subId, cost, applicationId) {
+    if (!hasOperatorPermission('refund_manual_adjust')) { toast('当前账号无高权限人工退还权限', 'error'); return; }
+    var t = AppState.opsTasks.find(function(x) { return x.taskId === taskId; });
+    if (!t) return;
+    var st = t.subTasks ? t.subTasks.find(function(x) { return x.id === subId; }) : null;
+    if (!st) return;
+    if (st.refunded) { toast('该子任务已退还积分，不可重复操作', 'error'); return; }
+    if ((cost || st.cost || 0) <= 0) { toast('该子任务无可退还积分', 'error'); return; }
+
+    document.getElementById('refundTaskId').value = taskId;
+    document.getElementById('refundSubId').value = subId;
+    document.getElementById('refundCost').value = cost || st.cost || 0;
+    document.getElementById('refundSubTaskLabel').textContent = '#' + subId;
+    document.getElementById('refundAmountLabel').textContent = (cost || st.cost || 0).toLocaleString() + ' 积分';
+    document.getElementById('refundTaskLabel').textContent = taskId + ' · ' + t.taskName;
+    document.getElementById('refundReasonInput').value = '';
+    manualRefundApplicationId = applicationId || '';
+    document.getElementById('refundModalOverlay').classList.add('show');
+}
+
+function closeRefundModal() {
+    manualRefundApplicationId = '';
+    document.getElementById('refundModalOverlay').classList.remove('show');
+}
+
+function confirmRefund() {
+    if (!hasOperatorPermission('refund_manual_adjust')) { toast('当前账号无高权限人工退还权限', 'error'); return; }
+    var taskId = document.getElementById('refundTaskId').value;
+    var subId = parseInt(document.getElementById('refundSubId').value);
+    var cost = parseInt(document.getElementById('refundCost').value) || 0;
+    var reason = document.getElementById('refundReasonInput').value.trim();
+    if (!reason) { toast('请填写退还原因', 'error'); return; }
+
+    var t = AppState.opsTasks.find(function(x) { return x.taskId === taskId; });
+    if (!t) return;
+    var st = t.subTasks ? t.subTasks.find(function(x) { return x.id === subId; }) : null;
+    if (!st) return;
+
+    var tenant = AppState.tenants.find(function(item) { return item.id === t.tenantId; });
+    if (!tenant) { toast('未找到任务所属租户积分账户，无法退还', 'error'); return; }
+    var approvedAt = new Date();
+    var expiresAt = new Date(approvedAt.getTime() + 7 * 24 * 60 * 60 * 1000);
+    var transactionId = 'MRF-' + Date.now();
+    tenant.creditBatches = tenant.creditBatches || [];
+    tenant.creditBatches.push({ id:'MAN-' + transactionId, source:'异常人工退还', original:cost, remaining:cost, effectiveAt:commercialTime(approvedAt), expiresAt:commercialTime(expiresAt), status:'生效中', transactionId:transactionId, sourceApplicationId:manualRefundApplicationId || '' });
+    refreshTenantCommercialState(tenant);
+    st.refunded = true;
+
+    AppState.billingLogs.unshift({
+        id: 'refund_' + Date.now(),
+        time: new Date().toLocaleString('zh-CN',{hour12:false}),
+        tenantId: t.tenantId,
+        tenantName: t.tenantName,
+        type: '积分退还',
+        amount: cost,
+        balance: tenant.credits,
+        operator: currentOperator(),
+        taskId: taskId,
+        remark: reason + '；子任务 #' + subId + '；流水 ' + transactionId + (manualRefundApplicationId ? '；原申请 ' + manualRefundApplicationId : '') + '；7天有效'
+    });
+
+    addAuditLog('积分', t.tenantName + '·' + taskId + '#' + subId, cost + '积分', '已退还', reason);
+
+    saveData();
+    closeRefundModal();
+    openTaskDetail(taskId);
+    toast('子任务 #' + subId + ' 已退还 ' + cost + ' 积分', 'success');
+}
+
+function previewSubTask(taskId, subId) {
+    toast(' 预览功能开发中 — 任务 ' + taskId + ' 子任务 #' + subId);
 }
 
 function closeTaskDrawer() {
@@ -2824,8 +3463,30 @@ function syncSchedulerPreview(scheduler) {
     var cards = scheduler.gpuCards || [];
     var schedulableCards = cards.filter(function(card) { return card.status !== 'maintenance' && card.status !== 'fault'; });
     var taskPool = scheduler.taskPool && scheduler.taskPool.length ? scheduler.taskPool : [];
-    var vipTasks = taskPool.filter(function(t) { return t.queueId === 'vip'; });
-    var normalTasks = taskPool.filter(function(t) { return t.queueId === 'normal'; });
+    var allVipTasks = taskPool.filter(function(t) { return t.queueId === 'vip'; });
+    var allNormalTasks = taskPool.filter(function(t) { return t.queueId === 'normal'; });
+    var previousRunningIds = {};
+    (scheduler.queueTasks || []).forEach(function(task) {
+        if (task.status === 'running') previousRunningIds[task.taskId] = true;
+    });
+    function runningFirst(a, b) {
+        return Number(!!previousRunningIds[b.taskId]) - Number(!!previousRunningIds[a.taskId]);
+    }
+    allVipTasks.sort(runningFirst);
+    allNormalTasks.sort(runningFirst);
+    var tenantAssigned = {};
+    function withinCommercialCap(task) {
+        var tenant = AppState.tenants.find(function(t) { return t.name === task.tenant; });
+        var wasRunning = !!previousRunningIds[task.taskId];
+        if (!tenant) return wasRunning;
+        refreshTenantCommercialState(tenant);
+        var used = tenantAssigned[tenant.id] || 0;
+        if (!wasRunning && used >= tenant.concurrency) return false;
+        tenantAssigned[tenant.id] = used + 1;
+        return true;
+    }
+    var vipTasks = allVipTasks.filter(withinCommercialCap);
+    var normalTasks = allNormalTasks.filter(withinCommercialCap);
     for (var i = 0; i < cards.length; i++) {
         var card = cards[i];
         card.tenant = ''; card.taskId = ''; card.runningTime = ''; card.borrowed = false;
@@ -2871,9 +3532,9 @@ function syncSchedulerPreview(scheduler) {
     normal.borrowedOut = borrowed;
     vip.running = vipOwnRunning + borrowed;
     normal.running = normalRunningLimit;
-    vip.waiting = Math.max(0, vipTasks.length - vip.running);
-    normal.waiting = Math.max(0, normalTasks.length - normal.running);
-    rebuildSchedulerTasksFromCards(scheduler, vipTasks, normalTasks);
+    vip.waiting = Math.max(0, allVipTasks.length - vip.running);
+    normal.waiting = Math.max(0, allNormalTasks.length - normal.running);
+    rebuildSchedulerTasksFromCards(scheduler, allVipTasks, allNormalTasks);
 }
 
 function applyGpuUsage(card, task, borrowed) {
@@ -3220,6 +3881,13 @@ function renderSchedulerTasks(scheduler) {
     var runningTasks = tasks.filter(function(t) { return t.status === 'running'; });
     var waitingTasks = tasks.filter(function(t) { return t.status === 'waiting'; }).sort(function(a, b) { return (a.priority || 0) - (b.priority || 0); });
     var html = '';
+    function tenantConcurrencyMeta(name) {
+        var tenant = AppState.tenants.find(function(t) { return t.name === name; });
+        if (!tenant) return { running:0, max:'-', label:'0/-' };
+        refreshTenantCommercialState(tenant);
+        var running = runningTasks.filter(function(task) { return task.tenant === name; }).length;
+        return { running:running, max:tenant.concurrency, label:running + '/' + tenant.concurrency };
+    }
 
     html += '<div class="table-wrap">';
     html += '<div class="table-toolbar">';
@@ -3238,7 +3906,7 @@ function renderSchedulerTasks(scheduler) {
     if (tasks.length === 0) {
         html += '<div style="text-align:center;padding:24px;color:var(--text-muted);font-size:13px">暂无任务</div>';
     } else {
-        html += '<table><thead><tr><th>任务 ID</th><th>视频名称</th><th>视频时长</th><th>租户</th><th>等级</th><th>用户</th><th>状态</th><th>占用 GPU</th><th>任务创建时间</th><th>等待/运行</th><th>排队号</th><th>操作</th></tr></thead><tbody>';
+        html += '<table><thead><tr><th>任务 ID</th><th>视频名称</th><th>视频时长</th><th>租户</th><th>租户并发</th><th>等待原因</th><th>等级</th><th>用户</th><th>状态</th><th>占用 GPU</th><th>任务创建时间</th><th>等待/运行</th><th>排队号</th><th>操作</th></tr></thead><tbody>';
 
         for (var r = 0; r < runningTasks.length; r++) {
             var rt = runningTasks[r];
@@ -3247,6 +3915,8 @@ function renderSchedulerTasks(scheduler) {
                 '<td style="font-size:12px">' + (rt.videoName || '-') + '</td>' +
                 '<td style="font-size:12px">' + (rt.videoDuration ? rt.videoDuration + '秒' : '-') + '</td>' +
                 '<td>' + rt.tenant + '</td>' +
+                '<td><strong>' + tenantConcurrencyMeta(rt.tenant).label + '</strong></td>' +
+                '<td style="color:var(--text-muted)">—</td>' +
                 '<td><span class="chip ' + (rt.queueName === 'VIP队列' ? 'chip-blue' : 'chip-green') + '">' + rt.level + '</span></td>' +
                 '<td>' + (rt.user || '-') + '</td>' +
                 '<td><span class="status ' + getQueueTaskStatusClass(rt.status) + '">' + getQueueTaskStatusLabel(rt.status) + '</span></td>' +
@@ -3268,6 +3938,8 @@ function renderSchedulerTasks(scheduler) {
                 '<td style="font-size:12px">' + (wt.videoName || '-') + '</td>' +
                 '<td style="font-size:12px">' + (wt.videoDuration ? wt.videoDuration + '秒' : '-') + '</td>' +
                 '<td>' + wt.tenant + '</td>' +
+                '<td><strong>' + tenantConcurrencyMeta(wt.tenant).label + '</strong></td>' +
+                '<td style="font-size:12px;color:var(--orange)">' + (tenantConcurrencyMeta(wt.tenant).running >= tenantConcurrencyMeta(wt.tenant).max ? '租户并发已达上限' : '等待轮询中') + '</td>' +
                 '<td><span class="chip ' + (wt.queueName === 'VIP队列' ? 'chip-blue' : 'chip-green') + '">' + wt.level + '</span></td>' +
                 '<td>' + (wt.user || '-') + '</td>' +
                 '<td><span class="status ' + getQueueTaskStatusClass(wt.status) + '">' + getQueueTaskStatusLabel(wt.status) + '</span></td>' +
@@ -3542,7 +4214,20 @@ function renderCreditRate() {
             '</span>' +
             '</div>';
     }
+    html += '<div class="pricing-item">' +
+        '<span><span class="pricing-name">积分统一有效期</span><br><span style="font-size:11px;color:var(--text-muted)">所有新到账积分按该期限生成独立批次；修改后不追溯历史批次</span></span>' +
+        '<span style="display:flex;align-items:center;gap:8px"><input class="filter-input" id="creditValidityInput" type="number" min="1" value="' + AppState.creditValidityMonths + '" style="width:72px;text-align:center"><span class="pricing-unit">个自然月</span><button class="btn btn-xs" onclick="saveCreditValidity()">保存</button></span></div>';
     document.getElementById('creditRateGrid').innerHTML = html;
+}
+
+function saveCreditValidity() {
+    var val = parseInt(document.getElementById('creditValidityInput').value);
+    if (!val || val < 1) { toast('有效期至少为1个自然月', 'error'); return; }
+    var old = AppState.creditValidityMonths + '个自然月';
+    AppState.creditValidityMonths = val;
+    addAuditLog('配置', '积分统一有效期', old, val + '个自然月', '仅影响后续到账积分，不追溯历史批次');
+    saveData();
+    toast('积分有效期已更新，仅影响后续到账积分', 'success');
 }
 
 function editCreditRate() {
@@ -3556,9 +4241,9 @@ function saveCreditRate() {
     var old = AppState.creditRate + ' 积分/元';
     AppState.creditRate = val;
     creditRateEditing = false;
-    saveData();
     renderCreditRate();
     addAuditLog('配置', '积分汇率', old, val + ' 积分/元', '调整人民币兑积分比例');
+    saveData();
     toast('积分汇率已调整为 1元 = ' + val + ' 积分', 'success');
 }
 
@@ -3569,6 +4254,7 @@ function cancelCreditRate() {
 
 function renderPricing() {
     renderCreditRate();
+    renderConcurrencyProducts();
     var html = '';
     for (var i = 0; i < AppState.pricingRules.length; i++) {
         var r = AppState.pricingRules[i];
@@ -3609,6 +4295,51 @@ function renderPricing() {
         }
     }
     document.getElementById('pricingGrid').innerHTML = html;
+}
+
+function renderConcurrencyProducts() {
+    var body = document.getElementById('concurrencyProductTable');
+    if (!body) return;
+    body.innerHTML = AppState.concurrencyProducts.map(function(p, index) {
+        return '<tr><td><strong>' + p.months + '个月</strong></td><td>¥' + p.price.toLocaleString() + ' / 个</td><td>' + p.gift.toLocaleString() + '积分 / 个</td>' +
+            '<td>' + (p.isDefault ? '<span class="status status-active">默认</span>' : '<button class="btn btn-xs" onclick="setDefaultConcurrencyProduct(' + index + ')">设为默认</button>') + '</td>' +
+            '<td><span class="status ' + (p.status === '启用' ? 'status-active' : 'status-stopped') + '">' + p.status + '</span></td>' +
+            '<td><button class="btn btn-xs" onclick="editConcurrencyProduct(' + index + ')">编辑</button> <button class="btn btn-xs" onclick="toggleConcurrencyProduct(' + index + ')">' + (p.status === '启用' ? '停用' : '启用') + '</button></td></tr>';
+    }).join('');
+}
+
+function addConcurrencyProduct() {
+    var months = parseInt(prompt('请输入使用时长（月）', '1'));
+    var price = parseInt(prompt('请输入单位并发价格（元）', '10000'));
+    var gift = parseInt(prompt('请输入单位赠送积分', '5000'));
+    if (!Number.isFinite(months) || months <= 0 || !Number.isFinite(price) || price <= 0 || !Number.isFinite(gift) || gift < 0) { toast('请输入有效的商品配置', 'error'); return; }
+    AppState.concurrencyProducts.push({ months:months, price:price, gift:gift, isDefault:false, status:'启用' });
+    addAuditLog('配置', '并发商品', '-', months + '个月 / ¥' + price + ' / 赠' + gift + '积分', '新增并发商品档位');
+    saveData(); renderConcurrencyProducts();
+}
+
+function editConcurrencyProduct(index) {
+    var p = AppState.concurrencyProducts[index];
+    var price = parseInt(prompt('单位并发价格（元）', p.price));
+    var gift = parseInt(prompt('单位赠送积分', p.gift));
+    if (!Number.isFinite(price) || price <= 0 || !Number.isFinite(gift) || gift < 0) { toast('请输入有效的价格与赠送积分', 'error'); return; }
+    var before = p.months + '个月 / ¥' + p.price + ' / 赠' + p.gift;
+    p.price = price; p.gift = gift;
+    addAuditLog('配置', '并发商品', before, p.months + '个月 / ¥' + price + ' / 赠' + gift, '调整并发商品档位，仅影响后续订单');
+    saveData(); renderConcurrencyProducts();
+}
+
+function setDefaultConcurrencyProduct(index) {
+    AppState.concurrencyProducts.forEach(function(p, i) { p.isDefault = i === index; });
+    addAuditLog('配置', '并发默认档位', '-', AppState.concurrencyProducts[index].months + '个月', '调整前台默认期限');
+    saveData(); renderConcurrencyProducts();
+}
+
+function toggleConcurrencyProduct(index) {
+    var p = AppState.concurrencyProducts[index], before = p.status;
+    p.status = p.status === '启用' ? '停用' : '启用';
+    addAuditLog('配置', '并发商品 ' + p.months + '个月', before, p.status, '调整商品可售状态');
+    saveData(); renderConcurrencyProducts();
 }
 
 function editPricingRule(key) {
@@ -4325,7 +5056,7 @@ function escapeHtml(str) {
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
         closeTenantLevelModal(); closeTenantModal(); closeRechargeModal(); closeVoiceModal(); closePromptModal();
-        closeDiffModal(); closeDrawer(); closeTaskDrawer(); closeConfirm();
+        closeDiffModal(); closeDrawer(); closeTaskDrawer(); closeRefundReview(); closeConfirm();
     }
 });
 
@@ -4336,8 +5067,20 @@ document.getElementById('voiceModalOverlay').addEventListener('click', function(
 document.getElementById('promptModalOverlay').addEventListener('click', function(e) { if (e.target === this) closePromptModal(); });
 document.getElementById('diffModalOverlay').addEventListener('click', function(e) { if (e.target === this) closeDiffModal(); });
 document.getElementById('taskDrawerOverlay').addEventListener('click', function(e) { if (e.target === this) closeTaskDrawer(); });
+document.getElementById('refundReviewOverlay').addEventListener('click', function(e) { if (e.target === this) closeRefundReview(); });
 
-switchView('view-dashboard');
+window.addEventListener('xingzao-refund-change', function() {
+    syncRefundBillingLogs();
+    if (currentView === 'view-refund-review') renderRefundReview();
+    if (currentView === 'view-billing') renderBilling();
+});
+
+AppState.billingLogs.forEach(function(log) { if (log.type === '退款') log.type = '积分退还'; });
+syncRefundBillingLogs();
+saveData();
+renderRefundReview();
+var initialView = location.hash ? location.hash.slice(1) : 'view-dashboard';
+switchView(document.getElementById(initialView) ? initialView : 'view-dashboard');
 </script>
 </body>
 </html>

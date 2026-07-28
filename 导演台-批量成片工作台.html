@@ -2261,6 +2261,27 @@
       .group-actions { grid-column: 1 / -1; }
       th:nth-child(5), td:nth-child(5), th:nth-child(6), td:nth-child(6), th:nth-child(7), td:nth-child(7) { display: none; }
     }
+    .tg-op-btn.refund { color:#d97706; }
+    .tg-op-btn.refund:hover:not(:disabled) { background:#fff7ed; }
+    .refund-summary { display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px; }
+    .refund-summary-card { padding:12px;border:1px solid #e5e7eb;border-radius:10px;background:#f8fafc; }
+    .refund-summary-card span { display:block;font-size:11px;color:#6b7280;margin-bottom:5px; }
+    .refund-summary-card strong { font-size:14px;color:#111827; }
+    .refund-video-preview { min-height:116px;border-radius:12px;padding:18px;background:linear-gradient(135deg,#111827,#334155);color:#fff;display:flex;align-items:flex-end;position:relative;overflow:hidden;margin-bottom:16px; }
+    .refund-video-preview:after { content:'▶';position:absolute;right:20px;top:22px;width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.16);font-size:15px; }
+    .refund-video-preview-title { max-width:78%;font-size:14px;font-weight:750;line-height:1.55; }
+    .refund-charge-list { border:1px solid #e5e7eb;border-radius:10px;overflow:hidden;margin-bottom:16px; }
+    .refund-charge-row { display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-bottom:1px solid #eef0f3;font-size:13px; }
+    .refund-charge-row:last-child { border-bottom:0; }
+    .refund-charge-row.total { background:#fff7ed;color:#9a4c08;font-weight:800; }
+    .refund-form-grid { display:grid;grid-template-columns:1fr 120px;gap:12px; }
+    .refund-form-grid .full { grid-column:1/-1; }
+    .refund-field label { display:block;font-size:12px;font-weight:700;color:#374151;margin-bottom:7px; }
+    .refund-field select,.refund-field input,.refund-field textarea { width:100%;border:1px solid #dfe3e8;border-radius:8px;padding:10px 11px;font:inherit;background:#fff;outline:none; }
+    .refund-field textarea { min-height:96px;resize:vertical;line-height:1.6; }
+    .refund-policy { margin-top:14px;padding:11px 13px;border-radius:9px;background:#eff6ff;color:#315b9d;font-size:12px;line-height:1.65; }
+    .refund-status-panel { padding:14px;border:1px solid #e5e7eb;border-radius:10px;background:#fafafa;font-size:13px;line-height:1.7; }
+    @media (max-width:720px) { .refund-summary,.refund-form-grid { grid-template-columns:1fr; }.refund-form-grid .full { grid-column:auto; } }
   </style>
 </head>
 <body>
@@ -2825,12 +2846,29 @@
     </div>
   </div>
 
+  <!-- 单条视频积分退还申请 -->
+  <div class="overlay" id="refundApplicationOverlay" onclick="if(event.target===this)closeRefundApplication()">
+    <div class="modal" style="width:620px;max-width:94vw;">
+      <div class="modal-hd">
+        <div><div class="modal-title" id="refundApplicationTitle">申请积分退还</div><div style="font-size:12px;color:#6b7280;margin-top:4px" id="refundApplicationSub">单条成片视频</div></div>
+        <button class="close-btn" type="button" onclick="closeRefundApplication()">×</button>
+      </div>
+      <div class="modal-body" id="refundApplicationBody" style="padding:20px;max-height:68vh;overflow:auto"></div>
+      <div class="modal-actions" id="refundApplicationActions">
+        <button class="btn btn-secondary" type="button" onclick="closeRefundApplication()">关闭</button>
+        <button class="btn btn-primary" type="button" id="refundSubmitBtn" onclick="submitRefundApplication()">提交申请</button>
+      </div>
+    </div>
+  </div>
+
   <div class="toast" id="toast"></div>
 
+  <script src="assets/points-refund-store.js"></script>
   <script>
     var STORAGE_KEY = 'director_batch_workbench_tasks_v2';
     var COVER_KEY = 'director_batch_workbench_cover_configs_v1';
     var WM_CONFIG_KEY = 'director_batch_workbench_wm_configs_v1';
+    var refundContext = null;
     var selectedGroups = new Set();
     var currentFilter = 'all';
     var currentTaskView = 'list';
@@ -3362,6 +3400,8 @@
       var canPreview = task.status === 'completed';
       var canDownload = task.status === 'completed';
       var canCover = task.status === 'completed';
+      var refundDelivery = window.XingzaoRefundStore ? XingzaoRefundStore.canDeliver('director:' + task.id) : { allowed:true };
+      if (!refundDelivery.allowed) canDownload = false;
       var statusHtml = '';
       var progressHtml = '';
       if (task.status === 'draft') {
@@ -3406,7 +3446,8 @@
         actionHtml += '<button class="tg-op-btn" ' + (canCancel ? 'onclick="subtaskCancel(' + task.id + ')"' : 'disabled') + '>关闭</button>';
         actionHtml += '<button class="tg-op-btn cover" ' + (canCover ? 'onclick="openVideoCoverConfig(' + task.id + ')"' : 'disabled') + '>' + getVideoCoverLabel(task) + '</button>';
         actionHtml += '<button class="tg-op-btn retry" ' + (canPreview ? 'onclick="openPreview(' + task.id + ')"' : 'disabled') + '>预览</button>';
-        actionHtml += '<button class="tg-op-btn download" ' + (canDownload ? 'onclick="downloadVideo(' + task.id + ')"' : 'disabled') + '>下载</button>';
+        actionHtml += '<button class="tg-op-btn download" ' + (canDownload ? 'onclick="downloadVideo(' + task.id + ')"' : 'disabled title="' + escapeHtml(refundDelivery.message || '') + '"') + '>下载</button>';
+        actionHtml += refundActionHtml(task);
         actionHtml += '</div>';
       }
       var shortScript = task.script && task.script.length > 25 ? task.script.substring(0, 25) + '...' : (task.script || '');
@@ -3481,6 +3522,8 @@
       var canDownload = task.status === 'completed';
       var canCover = task.status === 'completed';
       var canRetry = task.status === 'failed' || task.status === 'cancelled';
+      var refundDelivery = window.XingzaoRefundStore ? XingzaoRefundStore.canDeliver('director:' + task.id) : { allowed:true };
+      if (!refundDelivery.allowed) canDownload = false;
       var status = getVideoCardStatus(task);
       var overlay = getVideoCardOverlay(task);
       var coverBadge = getCoverBadge(task);
@@ -3509,7 +3552,8 @@
       html += '<button class="tg-op-btn warn" ' + (canRetry ? 'onclick="retryTask(' + task.id + ')"' : 'disabled') + '>重试</button>';
       html += '<button class="tg-op-btn cover" ' + (canCover ? 'onclick="openVideoCoverConfig(' + task.id + ')"' : 'disabled') + '>' + getVideoCoverLabel(task) + '</button>';
       html += '<button class="tg-op-btn retry" ' + (canPreview ? 'onclick="openPreview(' + task.id + ')"' : 'disabled') + '>预览</button>';
-      html += '<button class="tg-op-btn download" ' + (canDownload ? 'onclick="downloadVideo(' + task.id + ')"' : 'disabled') + '>下载</button>';
+      html += '<button class="tg-op-btn download" ' + (canDownload ? 'onclick="downloadVideo(' + task.id + ')"' : 'disabled title="' + escapeHtml(refundDelivery.message || '') + '"') + '>下载</button>';
+      html += refundActionHtml(task);
       html += '</div></div></article>';
       return html;
     }
@@ -3620,6 +3664,125 @@
       return loadTasks().find(function(t) { return t.id === id; });
     }
 
+    function toRefundVideo(task) {
+      return {
+        key: 'director:' + task.id,
+        id: task.id,
+        subTaskId: task.id,
+        taskId: task.taskName,
+        taskName: task.taskName,
+        title: task.script || ('子任务 #' + task.id),
+        script: task.script || '',
+        status: task.status,
+        cost: Number(task.cost) || 0,
+        creatorId: task.creatorId || XingzaoRefundStore.CURRENT_USER.id,
+        creatorName: task.creatorName || XingzaoRefundStore.CURRENT_USER.name
+      };
+    }
+
+    function refundActionHtml(task) {
+      if (!window.XingzaoRefundStore || task.status !== 'completed') return '';
+      var eligibility = XingzaoRefundStore.getEligibility(toRefundVideo(task), XingzaoRefundStore.CURRENT_USER);
+      var app = eligibility.application;
+      if (eligibility.eligible) return '<button class="tg-op-btn refund" onclick="openRefundApplication(' + task.id + ')">退积分</button>';
+      if (app) {
+        var meta = XingzaoRefundStore.getStatusMeta(app.status);
+        return '<button class="tg-op-btn refund" onclick="openRefundApplication(' + task.id + ')">' + meta.label + '</button>';
+      }
+      return '<button class="tg-op-btn refund" disabled title="' + escapeHtml(eligibility.message) + '">不可申请</button>';
+    }
+
+    function refundChargeRows(charges, total) {
+      var html = '<div class="refund-charge-list">';
+      (charges || []).forEach(function(item) {
+        html += '<div class="refund-charge-row"><span>' + escapeHtml(item.label) + '</span><strong>' + Number(item.refundablePoints || item.points || 0).toLocaleString() + ' 积分</strong></div>';
+      });
+      html += '<div class="refund-charge-row total"><span>预计退还合计</span><strong>' + Number(total || 0).toLocaleString() + ' 积分</strong></div></div>';
+      return html;
+    }
+
+    function openRefundApplication(id) {
+      var task = getTaskById(id);
+      if (!task || !window.XingzaoRefundStore) return;
+      var video = toRefundVideo(task);
+      var eligibility = XingzaoRefundStore.getEligibility(video, XingzaoRefundStore.CURRENT_USER);
+      var app = eligibility.application;
+      var body = '<div class="refund-video-preview"><div><div style="font-size:11px;opacity:.68;margin-bottom:6px">视频预览 · ' + escapeHtml(task.taskName) + '</div><div class="refund-video-preview-title">' + escapeHtml(video.title) + '</div></div></div>';
+      document.getElementById('refundApplicationSub').textContent = task.taskName + ' · 子任务 #' + task.id;
+
+      if (app) {
+        var meta = XingzaoRefundStore.getStatusMeta(app.status);
+        document.getElementById('refundApplicationTitle').textContent = '积分退还申请 · ' + meta.label;
+        body += '<div class="refund-summary">' +
+          '<div class="refund-summary-card"><span>申请编号</span><strong>' + app.id + '</strong></div>' +
+          '<div class="refund-summary-card"><span>申请积分</span><strong>' + Number(app.requestedPoints).toLocaleString() + '</strong></div>' +
+          '<div class="refund-summary-card"><span>当前状态</span><strong>' + meta.label + '</strong></div></div>';
+        body += refundChargeRows(app.chargeSnapshot, app.requestedPoints);
+        body += '<div class="refund-status-panel"><div><strong>问题类型：</strong>' + escapeHtml(app.reasonLabel) + (app.issueTime ? ' · ' + escapeHtml(app.issueTime) : '') + '</div>' +
+          '<div><strong>申请说明：</strong>' + escapeHtml(app.description) + '</div>' +
+          '<div><strong>提交时间：</strong>' + XingzaoRefundStore.formatDateTime(app.submittedAt) + '</div>' +
+          (app.status === 'pending' ? '<div><strong>承诺处理：</strong>' + XingzaoRefundStore.formatDateTime(app.dueAt) + ' 前</div>' : '') +
+          (app.reviewNote ? '<div><strong>处理说明：</strong>' + escapeHtml(app.reviewNote) + '</div>' : '') +
+          (app.reviewedAt ? '<div><strong>处理时间：</strong>' + XingzaoRefundStore.formatDateTime(app.reviewedAt) + ' · ' + escapeHtml(app.reviewer || '') + '</div>' : '') + '</div>';
+        document.getElementById('refundApplicationActions').innerHTML = '<button class="btn btn-secondary" type="button" onclick="closeRefundApplication()">关闭</button>' +
+          (app.status === 'pending' ? '<button class="btn btn-secondary" type="button" onclick="withdrawRefundApplication(\'' + app.id + '\')">撤回申请</button>' : '');
+        refundContext = { taskId: id, video: video, application: app };
+      } else if (eligibility.eligible) {
+        var charges = XingzaoRefundStore.buildChargeSnapshot(video);
+        var total = charges.reduce(function(sum, item) { return sum + Number(item.refundablePoints || 0); }, 0);
+        document.getElementById('refundApplicationTitle').textContent = '申请积分退还';
+        body += refundChargeRows(charges, total);
+        body += '<div class="refund-form-grid"><div class="refund-field"><label>问题类型 *</label><select id="refundReasonCode">' + XingzaoRefundStore.REASONS.map(function(item) { return '<option value="' + item.code + '">' + item.label + '</option>'; }).join('') + '</select></div>' +
+          '<div class="refund-field"><label>问题时间点</label><input id="refundIssueTime" placeholder="如 00:12"></div>' +
+          '<div class="refund-field full"><label>具体说明 *</label><textarea id="refundDescription" placeholder="请说明视频中出现的问题，帮助审核人员快速判断"></textarea></div></div>' +
+          '<div class="refund-policy">语音合成免费，不参与积分退还。提交后将锁定该视频的下载和外部发布；审核通过后退还该视频实际扣除的首帧与视频生成积分，审核驳回后恢复交付。每条视频仅有一次申请机会，预计 1 个工作日内完成审核。</div>';
+        document.getElementById('refundApplicationActions').innerHTML = '<button class="btn btn-secondary" type="button" onclick="closeRefundApplication()">取消</button><button class="btn btn-primary" type="button" onclick="submitRefundApplication()">提交申请</button>';
+        refundContext = { taskId: id, video: video, charges: charges };
+      } else {
+        document.getElementById('refundApplicationTitle').textContent = '当前不可申请';
+        body += '<div class="refund-status-panel"><strong>' + escapeHtml(eligibility.message) + '</strong><div style="color:#6b7280;margin-top:6px">已下载或已发布的视频不支持积分退还申请。</div></div>';
+        document.getElementById('refundApplicationActions').innerHTML = '<button class="btn btn-secondary" type="button" onclick="closeRefundApplication()">关闭</button>';
+        refundContext = null;
+      }
+      document.getElementById('refundApplicationBody').innerHTML = body;
+      document.getElementById('refundApplicationOverlay').classList.add('show');
+    }
+
+    function closeRefundApplication() {
+      document.getElementById('refundApplicationOverlay').classList.remove('show');
+      refundContext = null;
+    }
+
+    function submitRefundApplication() {
+      if (!refundContext || !refundContext.video) return;
+      var reasonSelect = document.getElementById('refundReasonCode');
+      var description = document.getElementById('refundDescription').value.trim();
+      if (!description) { toast('请填写具体问题说明'); return; }
+      var reason = XingzaoRefundStore.REASONS.find(function(item) { return item.code === reasonSelect.value; });
+      var result = XingzaoRefundStore.submitApplication({
+        video: refundContext.video,
+        applicant: XingzaoRefundStore.CURRENT_USER,
+        reasonCode: reason.code,
+        reasonLabel: reason.label,
+        description: description,
+        issueTime: document.getElementById('refundIssueTime').value,
+        chargeSnapshot: refundContext.charges
+      });
+      if (!result.ok) { toast(result.message); return; }
+      closeRefundApplication();
+      render();
+      toast('申请已提交，预计 1 个工作日内处理');
+    }
+
+    function withdrawRefundApplication(applicationId) {
+      if (!confirm('撤回后将恢复下载和发布，但该视频不能再次申请积分退还。确认撤回？')) return;
+      var result = XingzaoRefundStore.withdrawApplication(applicationId, XingzaoRefundStore.CURRENT_USER);
+      if (!result.ok) { toast(result.message); return; }
+      closeRefundApplication();
+      render();
+      toast('申请已撤回，下载和发布权限已恢复');
+    }
+
     function updateTask(id, updater) {
       var tasks = loadTasks();
       tasks = tasks.map(function(t) {
@@ -3671,7 +3834,12 @@
 
     function downloadRow(id) {
       var row = getTaskById(id);
-      toast(row ? '开始下载：' + row.taskName : '开始下载');
+      if (!row) { toast('视频不存在'); return; }
+      if (window.XingzaoRefundStore) {
+        var delivery = XingzaoRefundStore.recordDelivery('director:' + id, 'download', XingzaoRefundStore.CURRENT_USER);
+        if (!delivery.ok) { toast(delivery.message); return; }
+      }
+      toast('开始下载：' + row.taskName);
     }
 
     function downloadVideo(id) {
@@ -3679,7 +3847,7 @@
     }
 
     function downloadGroup(name) {
-      toast('开始打包下载：' + name);
+      downloadTaskVideos(name);
     }
 
     function downloadTaskVideos(taskName) {
@@ -3688,11 +3856,25 @@
         toast('该任务没有已完成的视频');
         return;
       }
-      toast('已下载「' + taskName + '」的 ' + rows.length + ' 条视频');
+      var allowed = 0;
+      var blocked = 0;
+      rows.forEach(function(row) {
+        var result = window.XingzaoRefundStore ? XingzaoRefundStore.recordDelivery('director:' + row.id, 'download', XingzaoRefundStore.CURRENT_USER) : { ok:true };
+        if (result.ok) allowed += 1; else blocked += 1;
+      });
+      if (!allowed) { toast('所选视频均因积分退还状态不可下载'); return; }
+      toast('已下载「' + taskName + '」的 ' + allowed + ' 条视频' + (blocked ? '，跳过 ' + blocked + ' 条退还申请视频' : ''));
     }
 
     function batchDownload() {
-      toast('开始批量下载 ' + selectedGroups.size + ' 个批次');
+      if (!selectedGroups.size) { toast('请先选择任务批次'); return; }
+      var rows = loadTasks().filter(function(t) { return selectedGroups.has(t.taskName) && t.status === 'completed'; });
+      var allowed = 0, blocked = 0;
+      rows.forEach(function(row) {
+        var result = window.XingzaoRefundStore ? XingzaoRefundStore.recordDelivery('director:' + row.id, 'download', XingzaoRefundStore.CURRENT_USER) : { ok:true };
+        if (result.ok) allowed += 1; else blocked += 1;
+      });
+      toast(allowed ? '开始下载 ' + allowed + ' 条视频' + (blocked ? '，已跳过 ' + blocked + ' 条' : '') : '所选视频均不可下载');
     }
 
     function batchDownloadAllTasks() {
@@ -4989,9 +5171,11 @@
         closeWmConfig();
         closeExecuteNowModal();
         closeCreditInsufficientModal();
+        closeRefundApplication();
       }
     });
 
+    window.addEventListener('xingzao-refund-change', function() { render(); });
     receiveCreatedTasks();
     render();
   </script>

@@ -1164,6 +1164,8 @@
     .cover-actions .btn-cancel:hover { background: #eee; }
     .cover-actions .btn-apply { background: var(--primary); color: #fff; }
     .cover-actions .btn-apply:hover { background: var(--primary-dark); }
+    .refund-delivery-badge { position:absolute;left:10px;top:10px;z-index:4;padding:5px 9px;border-radius:999px;background:rgba(217,119,6,.94);color:#fff;font-size:11px;font-weight:700;box-shadow:0 4px 12px rgba(15,23,42,.2); }
+    .refund-delivery-badge.approved { background:rgba(22,163,74,.94); }
 </style>
 </head>
 <body>
@@ -1543,7 +1545,7 @@
         </div>
         <div class="detail-modal-ft">
             <button class="btn btn-sec" onclick="closeDetail()">关闭</button>
-            <button class="btn btn-pri" onclick="showToast('⬇ 开始下载视频');closeDetail()">⬇ 下载视频</button>
+            <button class="btn btn-pri" id="detailDownloadBtn" onclick="downloadDetailVideo()">⬇ 下载视频</button>
         </div>
     </div>
 </div>
@@ -1630,11 +1632,12 @@
 
 <div class="toast" id="toast"></div>
 
+<script src="assets/points-refund-store.js"></script>
 <script>
     var videoData = [
-        { id: 1, title: '5月A股策略展望', desc: '震荡市中的结构性机会，重点关注科技消费两条主线。策略研报口播，适合专业投资者观看。', script: '大家好，我是投顾小王。今天我们来聊聊5月A股市场的策略展望。震荡市中，结构性机会值得关注，重点关注科技和消费两条主线。', duration: '03:24', scope: 'team', gradient: 'linear-gradient(135deg,#667eea,#764ba2)', coverThumb: 'finance-chart', creator: '王小明', date: '2026-05-22', character: '投顾小王', scene: '办公室', hasWatermark: true, hasSubtitle: true },
-        { id: 2, title: '新能源赛道周报', desc: '锂电产业链最新跟踪，上游锂矿到下游电池全链分析。', script: '各位投资者朋友好，我是李教授。本周新能源赛道有哪些新变化？锂电产业链从上游锂矿到下游电池，全链分析来了。', duration: '02:18', scope: 'team', gradient: 'linear-gradient(135deg,#a8edea,#fed6e3)', coverThumb: 'energy-solar', creator: '王小明', date: '2026-05-21', character: '李教授', scene: '演播室', hasWatermark: true, hasSubtitle: false },
-        { id: 3, title: '科技股投资框架', desc: '从算力到应用的产业链梳理，AI芯片到终端应用的投资逻辑。', script: '大家好，我是张分析师。今天我们来梳理一下科技股的投资框架，从算力到应用，AI芯片到终端应用的投资逻辑一一道来。', duration: '05:42', scope: 'private', gradient: 'linear-gradient(135deg,#fbc2eb,#a6c1ee)', coverThumb: 'tech-chip', creator: '李总', date: '2026-05-20', character: '张分析师', scene: '办公室', hasWatermark: false, hasSubtitle: true },
+        { id: 1, refundKey:'director:5', title: '重大疾病保险保额建议', desc: '批量成片任务中的单条投顾口播视频。', script: '重大疾病保险的保额建议设置为年收入的3-5倍，才能有效覆盖风险。', duration: '00:09', scope: 'team', gradient: 'linear-gradient(135deg,#667eea,#764ba2)', coverThumb: 'finance-chart', creator: '王晓明', date: '2026-07-27', character: '可靠中年', scene: '居家', hasWatermark: true, hasSubtitle: true },
+        { id: 2, refundKey:'director:6', title: '养老金规划越早越好', desc: '已完成质量积分退还的历史视频。', script: '养老金规划越早开始越好，复利效应是长期积累的核心动力。', duration: '00:07', scope: 'team', gradient: 'linear-gradient(135deg,#a8edea,#fed6e3)', coverThumb: 'energy-solar', creator: '王晓明', date: '2026-07-26', character: '知性女性', scene: '办公室', hasWatermark: true, hasSubtitle: false },
+        { id: 3, refundKey:'director:7', title: '个人养老金税收优惠', desc: '积分退还申请已驳回，交付权限已恢复。', script: '目前国家推行的个人养老金制度每年可享受最高12000元的税收优惠。', duration: '00:06', scope: 'private', gradient: 'linear-gradient(135deg,#fbc2eb,#a6c1ee)', coverThumb: 'tech-chip', creator: '王晓明', date: '2026-07-25', character: '知性女性', scene: '办公室', hasWatermark: false, hasSubtitle: true },
         { id: 4, title: '每日复盘', desc: '三大指数涨跌分析，板块轮动节奏判断。日更内容。', script: '大家好，我是女主播小艾。今天是每日复盘时间，我们来看看三大指数的涨跌分析和板块轮动的节奏判断。', duration: '01:56', scope: 'team', gradient: 'linear-gradient(135deg,#ffecd2,#fcb69f)', coverThumb: 'market-review', creator: '王小明', date: '2026-05-19', character: '女主播小艾', scene: '纯色背景', hasWatermark: false, hasSubtitle: false },
         { id: 5, title: '消费行业深度', desc: '白酒板块估值回归，消费复苏逻辑下的投资机会。', script: '大家好，我是投顾小王。今天我们来深入分析消费行业，白酒板块估值回归，消费复苏逻辑下的投资机会值得关注。', duration: '04:30', scope: 'private', gradient: 'linear-gradient(135deg,#a1c4fd,#c2e9fb)', coverThumb: 'consumer-goods', creator: '王小明', date: '2026-05-18', character: '投顾小王', scene: '书房', hasWatermark: true, hasSubtitle: true },
         { id: 6, title: 'AI+金融应用', desc: '大模型在投顾场景的应用，智能投研和智能客服实践。', script: '大家好，我是张分析师。大模型在投顾场景的应用越来越广泛，今天我们聊聊智能投研和智能客服的实践案例。', duration: '06:15', scope: 'team', gradient: 'linear-gradient(135deg,#d4fc79,#96e6a1)', coverThumb: 'ai-robot', creator: '张总', date: '2026-05-17', character: '张分析师', scene: '纯色背景', hasWatermark: false, hasSubtitle: true },
@@ -1658,6 +1661,17 @@
     var playingCardId = null;
     var playTimer = null;
     var advOpen = false;
+
+    function assetRefundKey(video) {
+        return video && video.refundKey ? video.refundKey : 'asset:' + (video ? video.id : 'unknown');
+    }
+
+    function getAssetRefundBadge(video) {
+        if (!window.XingzaoRefundStore) return '';
+        var app = XingzaoRefundStore.getApplicationByVideo(assetRefundKey(video));
+        if (!app || (app.status !== 'pending' && app.status !== 'approved')) return '';
+        return '<span class="refund-delivery-badge ' + (app.status === 'approved' ? 'approved' : '') + '">' + (app.status === 'pending' ? '退还审核中' : '积分已退还') + '</span>';
+    }
 
     // 批量选择
     var batchMode = false;
@@ -1787,18 +1801,22 @@
                     '</div>' +
                 '</div>';
             } else {
+                var refundBadge = getAssetRefundBadge(v);
+                var deliveryGuard = window.XingzaoRefundStore ? XingzaoRefundStore.canDeliver(assetRefundKey(v)) : { allowed:true, message:'' };
+                var deliveryDisabled = deliveryGuard.allowed ? '' : ' disabled title="' + escapeHtml(deliveryGuard.message) + '"';
                 html += '<div class="video-card' + selectedClass + '" data-id="' + v.id + '" onclick="handleCardClick(' + v.id + ', event)">' +
                     '<div class="card-checkbox" onclick="event.stopPropagation();toggleSelect(' + v.id + ')">✓</div>' +
                     '<div class="video-cover" onmouseenter="startPreview(this,' + v.id + ')" onmouseleave="stopPreview(this)" onclick="event.stopPropagation();openDetail(' + v.id + ')">' +
                         '<img src="' + coverURL + '" style="width:100%;height:100%;object-fit:cover;display:block;" alt="' + v.title + '">' +
+                        refundBadge +
                         '<span class="duration-badge">' + v.duration + '</span>' +
                         '<div class="play-overlay"><div class="play-circle"></div></div>' +
                         '<div class="play-indicator"><span></span><span></span><span></span><span></span></div>' +
                         '<button class="menu-btn" onclick="event.stopPropagation();toggleMenu(' + v.id + ')">⋮</button>' +
                         '<div class="dropdown-menu" id="menu-' + v.id + '">' +
-                            '<button class="dropdown-item" onclick="event.stopPropagation();openDistModal(' + v.id + ')">📤 创建发布任务</button>' +
+                            '<button class="dropdown-item"' + deliveryDisabled + ' onclick="event.stopPropagation();openDistModal(' + v.id + ')">📤 创建发布任务</button>' +
                             '<div class="dropdown-divider"></div>' +
-                            '<button class="dropdown-item" onclick="event.stopPropagation();doDownload(' + v.id + ')">⬇ 下载视频</button>' +
+                            '<button class="dropdown-item"' + deliveryDisabled + ' onclick="event.stopPropagation();doDownload(' + v.id + ')">⬇ 下载视频</button>' +
                             '<div class="dropdown-divider"></div>' +
                             '<button class="dropdown-item danger" onclick="event.stopPropagation();requestDelete(' + v.id + ',\'' + v.title.replace(/'/g,"\\'") + '\')">✕ 删除视频</button>' +
                         '</div>' +
@@ -1844,6 +1862,15 @@
         }
         if (!v) return;
         detailVideo = v;
+
+        var detailGuard = window.XingzaoRefundStore
+            ? XingzaoRefundStore.canDeliver(assetRefundKey(v))
+            : { allowed: true, message: '' };
+        var detailDownloadBtn = document.getElementById('detailDownloadBtn');
+        if (detailDownloadBtn) {
+            detailDownloadBtn.disabled = !detailGuard.allowed;
+            detailDownloadBtn.title = detailGuard.message || '';
+        }
 
         // 重置播放器状态
         clearInterval(playerState.timer);
@@ -2187,7 +2214,21 @@
         }
     });
 
-    function doDownload(id) { showToast('⬇ 开始下载视频 #' + id); closeAllMenus(); }
+    function doDownload(id) {
+        var video = findVideo(id);
+        if (!video) return;
+        var result = window.XingzaoRefundStore ? XingzaoRefundStore.recordDelivery(assetRefundKey(video), 'download', XingzaoRefundStore.CURRENT_USER) : { ok:true };
+        if (!result.ok) { showToast(result.message); closeAllMenus(); return; }
+        showToast('⬇ 开始下载：' + video.title);
+        closeAllMenus();
+    }
+    function downloadDetailVideo() {
+        if (!detailVideo) return;
+        var id = detailVideo.id;
+        doDownload(id);
+        var guard = window.XingzaoRefundStore ? XingzaoRefundStore.canDeliver(assetRefundKey(detailVideo)) : { allowed:true };
+        if (guard.allowed) closeDetail();
+    }
     function closeAllMenus() {
         if (openMenuId) {
             var menu = document.getElementById('menu-' + openMenuId);
@@ -2437,7 +2478,14 @@
 
     function batchDownload() {
         if (selectedIds.length === 0) { showToast('请先选择视频'); return; }
-        showToast('⬇ 开始下载 ' + selectedIds.length + ' 个视频');
+        var allowed = 0, blocked = 0;
+        selectedIds.forEach(function(id) {
+            var video = findVideo(id);
+            if (!video) return;
+            var result = window.XingzaoRefundStore ? XingzaoRefundStore.recordDelivery(assetRefundKey(video), 'download', XingzaoRefundStore.CURRENT_USER) : { ok:true };
+            if (result.ok) allowed += 1; else blocked += 1;
+        });
+        showToast(allowed ? '⬇ 开始下载 ' + allowed + ' 个视频' + (blocked ? '，跳过 ' + blocked + ' 个退还申请视频' : '') : '所选视频均因积分退还状态不可下载');
     }
 
     function batchDelete() {
@@ -2849,6 +2897,9 @@
     }
 
     function openDistModal(videoId) {
+        var video = findVideo(videoId);
+        var guard = video && window.XingzaoRefundStore ? XingzaoRefundStore.canDeliver(assetRefundKey(video)) : { allowed:true };
+        if (!guard.allowed) { showToast(guard.message); return; }
         distVideoIds = [videoId];
         distSelectedPlatforms = {};
         distMode = 'unified';
@@ -2856,7 +2907,15 @@
     }
     function openBatchDistModal() {
         if (selectedIds.length === 0) { showToast('请先选择视频'); return; }
-        distVideoIds = selectedIds.slice();
+        var blocked = 0;
+        distVideoIds = selectedIds.filter(function(id) {
+            var video = findVideo(id);
+            var guard = video && window.XingzaoRefundStore ? XingzaoRefundStore.canDeliver(assetRefundKey(video)) : { allowed:true };
+            if (!guard.allowed) blocked += 1;
+            return guard.allowed;
+        });
+        if (!distVideoIds.length) { showToast('所选视频均因积分退还状态不可发布'); return; }
+        if (blocked) showToast('已跳过 ' + blocked + ' 个退还申请视频');
         distSelectedPlatforms = {};
         distMode = 'unified';
         openDistModalCommon();
@@ -3076,7 +3135,12 @@
         var state = getDistState();
         var now = new Date();
         var dateStr = now.toISOString().slice(0, 10) + ' ' + now.toTimeString().slice(0, 5);
-        var submittingIds = distVideoIds.slice();
+        var submittingIds = distVideoIds.slice().filter(function(videoId) {
+            var video = findVideo(videoId);
+            var result = video && window.XingzaoRefundStore ? XingzaoRefundStore.recordDelivery(assetRefundKey(video), 'publish', XingzaoRefundStore.CURRENT_USER) : { ok:true };
+            return result.ok;
+        });
+        if (!submittingIds.length) { showToast('视频状态已变化，当前不可创建发布任务'); closeDistModal(); return; }
         var submittingPlatforms = platforms.slice();
         var title = document.getElementById('dist-title').value.trim();
         var tags = document.getElementById('dist-tags').value.trim();
@@ -3276,6 +3340,14 @@
             startPlatformBinding(platformId, [videoId]);
             return;
         }
+        var retryVideo = findVideo(videoId);
+        var retryGuard = retryVideo && window.XingzaoRefundStore
+            ? XingzaoRefundStore.recordDelivery(assetRefundKey(retryVideo), 'publish', XingzaoRefundStore.CURRENT_USER)
+            : { ok: true };
+        if (!retryGuard.ok) {
+            showToast(retryGuard.message);
+            return;
+        }
         var state = getDistState();
         if (state[videoId] && state[videoId][platformId]) {
             var now = new Date();
@@ -3293,9 +3365,18 @@
     }
 
     function continueDouyinPublish(videoId) {
+        var continueVideo = findVideo(videoId);
+        var continueGuard = continueVideo && window.XingzaoRefundStore
+            ? XingzaoRefundStore.recordDelivery(assetRefundKey(continueVideo), 'publish', XingzaoRefundStore.CURRENT_USER)
+            : { ok: true };
+        if (!continueGuard.ok) {
+            showToast(continueGuard.message);
+            return;
+        }
         simulateDouyinPublish([videoId]);
     }
 
+    window.addEventListener('xingzao-refund-change', function() { renderVideos(); });
     document.addEventListener('DOMContentLoaded', function() {
         checkPendingJobs();
         bindFilters(); renderVideos();
