@@ -2274,14 +2274,31 @@
     .refund-charge-row { display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-bottom:1px solid #eef0f3;font-size:13px; }
     .refund-charge-row:last-child { border-bottom:0; }
     .refund-charge-row.total { background:#fff7ed;color:#9a4c08;font-weight:800; }
-    .refund-form-grid { display:grid;grid-template-columns:1fr 120px;gap:12px; }
+    .refund-form-grid { display:grid;grid-template-columns:1fr;gap:14px; }
     .refund-form-grid .full { grid-column:1/-1; }
     .refund-field label { display:block;font-size:12px;font-weight:700;color:#374151;margin-bottom:7px; }
     .refund-field select,.refund-field input,.refund-field textarea { width:100%;border:1px solid #dfe3e8;border-radius:8px;padding:10px 11px;font:inherit;background:#fff;outline:none; }
     .refund-field textarea { min-height:96px;resize:vertical;line-height:1.6; }
+    .refund-field-meta { display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:7px; }
+    .refund-field-meta label { margin-bottom:0; }
+    .refund-optional { color:#9ca3af;font-size:11px;font-weight:500; }
+    .refund-upload-box { border:1px dashed #cbd5e1;border-radius:10px;background:#f8fafc;padding:12px; }
+    .refund-upload-head { display:flex;align-items:center;gap:10px;flex-wrap:wrap; }
+    .refund-upload-btn { display:inline-flex;align-items:center;gap:6px;border:1px solid #d7dce3;background:#fff;color:#334155;border-radius:8px;padding:8px 11px;font:inherit;font-size:12px;font-weight:700;cursor:pointer; }
+    .refund-upload-btn:hover:not(:disabled) { border-color:#2f6bff;color:#2f6bff;background:#f8fbff; }
+    .refund-upload-btn:disabled { opacity:.45;cursor:not-allowed; }
+    .refund-upload-help { color:#6b7280;font-size:11px;line-height:1.55; }
+    .refund-attachment-grid { display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin-top:11px; }
+    .refund-attachment { position:relative;border:1px solid #e2e8f0;border-radius:9px;background:#fff;overflow:hidden; }
+    .refund-attachment img { display:block;width:100%;aspect-ratio:4/3;object-fit:cover;background:#eef2f7;cursor:zoom-in; }
+    .refund-attachment-info { padding:7px 8px;min-width:0; }
+    .refund-attachment-name { display:block;font-size:11px;font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#334155; }
+    .refund-attachment-size { display:block;font-size:10px;color:#94a3b8;margin-top:2px; }
+    .refund-attachment-remove { position:absolute;right:5px;top:5px;width:24px;height:24px;border:0;border-radius:50%;background:rgba(15,23,42,.72);color:#fff;display:grid;place-items:center;cursor:pointer;font-size:15px;line-height:1; }
+    .refund-attachment-empty { grid-column:1/-1;padding:6px 0 1px;color:#94a3b8;font-size:11px; }
     .refund-policy { margin-top:14px;padding:11px 13px;border-radius:9px;background:#eff6ff;color:#315b9d;font-size:12px;line-height:1.65; }
     .refund-status-panel { padding:14px;border:1px solid #e5e7eb;border-radius:10px;background:#fafafa;font-size:13px;line-height:1.7; }
-    @media (max-width:720px) { .refund-summary,.refund-form-grid { grid-template-columns:1fr; }.refund-form-grid .full { grid-column:auto; } }
+    @media (max-width:720px) { .refund-summary,.refund-form-grid { grid-template-columns:1fr; }.refund-form-grid .full { grid-column:auto; }.refund-attachment-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
   </style>
 </head>
 <body>
@@ -2869,6 +2886,9 @@
     var COVER_KEY = 'director_batch_workbench_cover_configs_v1';
     var WM_CONFIG_KEY = 'director_batch_workbench_wm_configs_v1';
     var refundContext = null;
+    var refundAttachments = [];
+    var refundAttachmentSession = 0;
+    var refundAttachmentProcessing = 0;
     var selectedGroups = new Set();
     var currentFilter = 'all';
     var currentTaskView = 'list';
@@ -3701,7 +3721,124 @@
       return html;
     }
 
+    function refundAttachmentSize(bytes) {
+      var size = Number(bytes) || 0;
+      if (size < 1024) return size + ' B';
+      if (size < 1024 * 1024) return Math.round(size / 1024) + ' KB';
+      return (size / 1024 / 1024).toFixed(1) + ' MB';
+    }
+
+    function refundAttachmentCards(items, removable) {
+      var attachments = items || [];
+      if (!attachments.length) return '<div class="refund-attachment-empty">未上传问题截图</div>';
+      return attachments.map(function(item) {
+        var source = item.dataUrl || item.assetPath || '';
+        return '<div class="refund-attachment">' +
+          '<img src="' + source + '" alt="' + escapeHtml(item.name) + '" title="点击查看原图" onclick="openRefundAttachmentPreview(this.src)">' +
+          (removable ? '<button class="refund-attachment-remove" type="button" aria-label="删除截图" onclick="removeRefundAttachment(\'' + item.id + '\')">×</button>' : '') +
+          '<div class="refund-attachment-info"><span class="refund-attachment-name" title="' + escapeHtml(item.name) + '">' + escapeHtml(item.name) + '</span><span class="refund-attachment-size">' + refundAttachmentSize(item.size) + '</span></div></div>';
+      }).join('');
+    }
+
+    function openRefundAttachmentPreview(src) {
+      var preview = window.open('', '_blank');
+      if (!preview) { toast('浏览器阻止了图片预览窗口'); return; }
+      preview.document.write('<!doctype html><html><head><title>问题截图</title><style>html,body{margin:0;min-height:100%;background:#111827;display:grid;place-items:center}img{max-width:96vw;max-height:96vh;object-fit:contain}</style></head><body><img src="' + src + '"></body></html>');
+      preview.document.close();
+    }
+
+    function renderRefundAttachmentDrafts() {
+      var list = document.getElementById('refundAttachmentList');
+      var count = document.getElementById('refundAttachmentCount');
+      var button = document.getElementById('refundUploadButton');
+      var submitButton = document.getElementById('refundSubmitApplicationBtn');
+      if (list) list.innerHTML = refundAttachmentCards(refundAttachments, true);
+      if (count) count.textContent = refundAttachments.length + ' / 3 张' + (refundAttachmentProcessing ? ' · 正在处理' : '');
+      if (button) button.disabled = refundAttachments.length + refundAttachmentProcessing >= 3;
+      if (submitButton) submitButton.disabled = refundAttachmentProcessing > 0;
+    }
+
+    function removeRefundAttachment(id) {
+      refundAttachments = refundAttachments.filter(function(item) { return item.id !== id; });
+      renderRefundAttachmentDrafts();
+    }
+
+    function compressRefundAttachment(file) {
+      return new Promise(function(resolve, reject) {
+        if (['image/jpeg','image/png','image/webp'].indexOf(file.type) < 0) { reject(new Error('仅支持 JPG、PNG、WebP 图片')); return; }
+        if (file.size > 5 * 1024 * 1024) { reject(new Error('单张图片不能超过 5MB')); return; }
+        var reader = new FileReader();
+        reader.onerror = function() { reject(new Error('图片读取失败')); };
+        reader.onload = function() {
+          var image = new Image();
+          image.onerror = function() { reject(new Error('图片内容无法识别')); };
+          image.onload = function() {
+            var maxSide = 1600;
+            var scale = Math.min(1, maxSide / Math.max(image.width, image.height));
+            var canvas = document.createElement('canvas');
+            canvas.width = Math.max(1, Math.round(image.width * scale));
+            canvas.height = Math.max(1, Math.round(image.height * scale));
+            var context = canvas.getContext('2d');
+            context.drawImage(image, 0, 0, canvas.width, canvas.height);
+            var dataUrl = canvas.toDataURL('image/jpeg', .82);
+            if (dataUrl.length > 500000) {
+              var shrink = Math.min(1, 1200 / Math.max(canvas.width, canvas.height));
+              canvas.width = Math.max(1, Math.round(canvas.width * shrink));
+              canvas.height = Math.max(1, Math.round(canvas.height * shrink));
+              canvas.getContext('2d').drawImage(image, 0, 0, canvas.width, canvas.height);
+              dataUrl = canvas.toDataURL('image/jpeg', .72);
+            }
+            if (dataUrl.length > 500000) {
+              var shrinkAgain = Math.min(1, 900 / Math.max(canvas.width, canvas.height));
+              canvas.width = Math.max(1, Math.round(canvas.width * shrinkAgain));
+              canvas.height = Math.max(1, Math.round(canvas.height * shrinkAgain));
+              canvas.getContext('2d').drawImage(image, 0, 0, canvas.width, canvas.height);
+              dataUrl = canvas.toDataURL('image/jpeg', .64);
+            }
+            if (dataUrl.length > 500000) {
+              var shrinkFinal = Math.min(1, 720 / Math.max(canvas.width, canvas.height));
+              canvas.width = Math.max(1, Math.round(canvas.width * shrinkFinal));
+              canvas.height = Math.max(1, Math.round(canvas.height * shrinkFinal));
+              canvas.getContext('2d').drawImage(image, 0, 0, canvas.width, canvas.height);
+              dataUrl = canvas.toDataURL('image/jpeg', .6);
+            }
+            if (dataUrl.length > 500000) { reject(new Error('图片压缩后仍过大，请更换尺寸更小的截图')); return; }
+            resolve({ id:'ATT-' + Date.now() + Math.floor(Math.random() * 1000), name:file.name, type:'image/jpeg', size:Math.round((dataUrl.length - dataUrl.indexOf(',') - 1) * .75), originalType:file.type, originalSize:file.size, dataUrl:dataUrl });
+          };
+          image.src = reader.result;
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function handleRefundAttachmentFiles(input) {
+      var session = refundAttachmentSession;
+      var available = 3 - refundAttachments.length - refundAttachmentProcessing;
+      var files = Array.prototype.slice.call(input.files || []);
+      input.value = '';
+      if (!available) { toast('最多上传 3 张问题截图'); return; }
+      if (files.length > available) { files = files.slice(0, available); toast('最多上传 3 张，已保留前 ' + available + ' 张'); }
+      refundAttachmentProcessing += files.length;
+      renderRefundAttachmentDrafts();
+      Promise.all(files.map(function(file) {
+        return compressRefundAttachment(file).then(function(item) { return { item:item }; }).catch(function(error) { return { error:error.message }; });
+      })).then(function(results) {
+        if (session !== refundAttachmentSession) return;
+        refundAttachmentProcessing = Math.max(0, refundAttachmentProcessing - files.length);
+        var errors = [];
+        results.forEach(function(result) {
+          if (result.item && refundAttachments.length < 3) refundAttachments.push(result.item);
+          if (result.error) errors.push(result.error);
+        });
+        renderRefundAttachmentDrafts();
+        if (errors.length) toast(errors[0]);
+      });
+    }
+
     function openRefundApplication(id) {
+      refundAttachmentSession += 1;
+      refundAttachmentProcessing = 0;
+      refundAttachments = [];
       var task = getTaskById(id);
       if (!task || !window.XingzaoRefundStore) return;
       var video = toRefundVideo(task);
@@ -3718,12 +3855,12 @@
           '<div class="refund-summary-card"><span>申请积分</span><strong>' + Number(app.requestedPoints).toLocaleString() + '</strong></div>' +
           '<div class="refund-summary-card"><span>当前状态</span><strong>' + meta.label + '</strong></div></div>';
         body += refundChargeRows(app.chargeSnapshot, app.requestedPoints);
-        body += '<div class="refund-status-panel"><div><strong>问题类型：</strong>' + escapeHtml(app.reasonLabel) + (app.issueTime ? ' · ' + escapeHtml(app.issueTime) : '') + '</div>' +
-          '<div><strong>申请说明：</strong>' + escapeHtml(app.description) + '</div>' +
+        body += '<div class="refund-status-panel"><div><strong>问题描述：</strong>' + escapeHtml(app.description) + '</div>' +
           '<div><strong>提交时间：</strong>' + XingzaoRefundStore.formatDateTime(app.submittedAt) + '</div>' +
           (app.status === 'pending' ? '<div><strong>承诺处理：</strong>' + XingzaoRefundStore.formatDateTime(app.dueAt) + ' 前</div>' : '') +
           (app.reviewNote ? '<div><strong>处理说明：</strong>' + escapeHtml(app.reviewNote) + '</div>' : '') +
-          (app.reviewedAt ? '<div><strong>处理时间：</strong>' + XingzaoRefundStore.formatDateTime(app.reviewedAt) + ' · ' + escapeHtml(app.reviewer || '') + '</div>' : '') + '</div>';
+          (app.reviewedAt ? '<div><strong>处理时间：</strong>' + XingzaoRefundStore.formatDateTime(app.reviewedAt) + ' · ' + escapeHtml(app.reviewer || '') + '</div>' : '') + '</div>' +
+          '<div class="refund-field" style="margin-top:14px"><div class="refund-field-meta"><label>问题截图</label><span class="refund-optional">' + (app.attachments || []).length + ' 张</span></div><div class="refund-attachment-grid">' + refundAttachmentCards(app.attachments, false) + '</div></div>';
         document.getElementById('refundApplicationActions').innerHTML = '<button class="btn btn-secondary" type="button" onclick="closeRefundApplication()">关闭</button>' +
           (app.status === 'pending' ? '<button class="btn btn-secondary" type="button" onclick="withdrawRefundApplication(\'' + app.id + '\')">撤回申请</button>' : '');
         refundContext = { taskId: id, video: video, application: app };
@@ -3732,11 +3869,10 @@
         var total = charges.reduce(function(sum, item) { return sum + Number(item.refundablePoints || 0); }, 0);
         document.getElementById('refundApplicationTitle').textContent = '申请积分退还';
         body += refundChargeRows(charges, total);
-        body += '<div class="refund-form-grid"><div class="refund-field"><label>问题类型 *</label><select id="refundReasonCode">' + XingzaoRefundStore.REASONS.map(function(item) { return '<option value="' + item.code + '">' + item.label + '</option>'; }).join('') + '</select></div>' +
-          '<div class="refund-field"><label>问题时间点</label><input id="refundIssueTime" placeholder="如 00:12"></div>' +
-          '<div class="refund-field full"><label>具体说明 *</label><textarea id="refundDescription" placeholder="请说明视频中出现的问题，帮助审核人员快速判断"></textarea></div></div>' +
+        body += '<div class="refund-form-grid"><div class="refund-field full"><div class="refund-field-meta"><label>问题描述 *</label><span class="refund-optional">请尽量说明异常表现和所在画面</span></div><textarea id="refundDescription" maxlength="1000" placeholder="请描述视频中出现的具体问题，例如人物动作异常、口型不同步、画面与配置不符等"></textarea></div>' +
+          '<div class="refund-field full"><div class="refund-field-meta"><label>问题截图</label><span class="refund-optional" id="refundAttachmentCount">0 / 3 张</span></div><div class="refund-upload-box"><div class="refund-upload-head"><input id="refundAttachmentInput" type="file" accept="image/jpeg,image/png,image/webp" multiple hidden onchange="handleRefundAttachmentFiles(this)"><button class="refund-upload-btn" id="refundUploadButton" type="button" onclick="document.getElementById(\'refundAttachmentInput\').click()">＋ 上传截图</button><span class="refund-upload-help">选填，支持 JPG、PNG、WebP，单张不超过 5MB</span></div><div class="refund-attachment-grid" id="refundAttachmentList"><div class="refund-attachment-empty">可上传问题画面作为审核参考</div></div></div></div></div>' +
           '<div class="refund-policy">语音合成免费，不参与积分退还。提交后将锁定该视频的下载和外部发布；审核通过后退还该视频实际扣除的首帧与视频生成积分，审核驳回后恢复交付。每条视频仅有一次申请机会，预计 1 个工作日内完成审核。</div>';
-        document.getElementById('refundApplicationActions').innerHTML = '<button class="btn btn-secondary" type="button" onclick="closeRefundApplication()">取消</button><button class="btn btn-primary" type="button" onclick="submitRefundApplication()">提交申请</button>';
+        document.getElementById('refundApplicationActions').innerHTML = '<button class="btn btn-secondary" type="button" onclick="closeRefundApplication()">取消</button><button class="btn btn-primary" id="refundSubmitApplicationBtn" type="button" onclick="submitRefundApplication()">提交申请</button>';
         refundContext = { taskId: id, video: video, charges: charges };
       } else {
         document.getElementById('refundApplicationTitle').textContent = '当前不可申请';
@@ -3746,28 +3882,35 @@
       }
       document.getElementById('refundApplicationBody').innerHTML = body;
       document.getElementById('refundApplicationOverlay').classList.add('show');
+      if (!app && eligibility.eligible) renderRefundAttachmentDrafts();
     }
 
     function closeRefundApplication() {
       document.getElementById('refundApplicationOverlay').classList.remove('show');
+      refundAttachmentSession += 1;
+      refundAttachmentProcessing = 0;
       refundContext = null;
+      refundAttachments = [];
     }
 
     function submitRefundApplication() {
       if (!refundContext || !refundContext.video) return;
-      var reasonSelect = document.getElementById('refundReasonCode');
+      if (refundAttachmentProcessing > 0) { toast('截图正在处理中，请稍候再提交'); return; }
       var description = document.getElementById('refundDescription').value.trim();
-      if (!description) { toast('请填写具体问题说明'); return; }
-      var reason = XingzaoRefundStore.REASONS.find(function(item) { return item.code === reasonSelect.value; });
-      var result = XingzaoRefundStore.submitApplication({
-        video: refundContext.video,
-        applicant: XingzaoRefundStore.CURRENT_USER,
-        reasonCode: reason.code,
-        reasonLabel: reason.label,
-        description: description,
-        issueTime: document.getElementById('refundIssueTime').value,
-        chargeSnapshot: refundContext.charges
-      });
+      if (!description) { toast('请填写问题描述'); return; }
+      var result;
+      try {
+        result = XingzaoRefundStore.submitApplication({
+          video: refundContext.video,
+          applicant: XingzaoRefundStore.CURRENT_USER,
+          description: description,
+          attachments: refundAttachments,
+          chargeSnapshot: refundContext.charges
+        });
+      } catch (error) {
+        toast('附件保存失败，请减少图片数量或更换尺寸更小的截图');
+        return;
+      }
       if (!result.ok) { toast(result.message); return; }
       closeRefundApplication();
       render();
