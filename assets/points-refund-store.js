@@ -108,7 +108,6 @@
       reviewedAt: null,
       reviewer: null,
       reviewNote: '',
-      withdrawnAt: null,
       refundTransactions: [],
       attachments: demoAttachments(),
       version: 1
@@ -151,6 +150,9 @@
   function normalizeState(state) {
     if (!state || state.version !== 1) return defaultState();
     state.applications = Array.isArray(state.applications) ? state.applications : [];
+    state.applications = state.applications.filter(function(application) {
+      return application.status !== 'withdrawn';
+    });
     state.applications.forEach(function(application) {
       application.chargeSnapshot = (application.chargeSnapshot || []).filter(function(component) {
         return component.type !== 'voice' && component.label !== '语音合成';
@@ -217,11 +219,10 @@
     if (video.status !== 'completed') return { eligible: false, code: 'not_completed', message: '仅已完成的视频可申请积分退还', application: existing };
     if (video.creatorId !== actor.id) return { eligible: false, code: 'not_creator', message: '仅任务创建人可申请积分退还', application: existing };
     if (existing) {
-      var text = { pending: '申请审核中', approved: '积分已退还', rejected: '申请已驳回，不可再次申请', withdrawn: '申请已撤回，不可再次申请' };
+      var text = { pending: '申请审核中', approved: '积分已退还', rejected: '申请已驳回，不可再次申请' };
       return { eligible: false, code: existing.status, message: text[existing.status] || '该视频已有退还申请', application: clone(existing) };
     }
     var deliveries = getDeliveryRecords(video.key, state);
-    if (deliveries.some(function (item) { return item.type === 'download'; })) return { eligible: false, code: 'downloaded', message: '该视频已下载，不可申请积分退还', application: null };
     if (deliveries.some(function (item) { return item.type === 'publish'; })) return { eligible: false, code: 'published', message: '该视频已发起外部发布，不可申请积分退还', application: null };
     return { eligible: true, code: 'eligible', message: '可申请积分退还', application: null };
   }
@@ -280,26 +281,11 @@
       description: String(payload.description).trim(), attachments: attachments,
       requestedPoints: requestedPoints,
       chargeSnapshot: charges, deliverySnapshot: getDeliveryRecords(video.key, state), status: 'pending', submittedAt: submittedAt,
-      dueAt: addBusinessDay(submittedAt).toISOString(), reviewedAt: null, reviewer: null, reviewNote: '', withdrawnAt: null,
+      dueAt: addBusinessDay(submittedAt).toISOString(), reviewedAt: null, reviewer: null, reviewNote: '',
       refundTransactions: [], version: 1
     };
     state.applications.unshift(application);
     state.auditLogs.unshift({ id: makeId('AUD-'), applicationId: application.id, action: 'submit', operator: actor.name, time: submittedAt, note: application.description });
-    save(state);
-    return { ok: true, application: clone(application) };
-  }
-
-  function withdrawApplication(id, user) {
-    var state = load();
-    var actor = user || CURRENT_USER;
-    var application = getApplication(id, state);
-    if (!application) return { ok: false, message: '申请不存在' };
-    if (application.applicantId !== actor.id) return { ok: false, message: '仅申请人可撤回' };
-    if (application.status !== 'pending') return { ok: false, message: '当前状态不可撤回' };
-    application.status = 'withdrawn';
-    application.withdrawnAt = nowIso();
-    application.version += 1;
-    state.auditLogs.unshift({ id: makeId('AUD-'), applicationId: id, action: 'withdraw', operator: actor.name, time: application.withdrawnAt, note: '用户主动撤回申请' });
     save(state);
     return { ok: true, application: clone(application) };
   }
@@ -429,7 +415,7 @@
   function getStatusMeta(status) {
     return {
       pending: { label: '待审核', tone: 'orange' }, approved: { label: '已通过', tone: 'green' },
-      rejected: { label: '已驳回', tone: 'red' }, withdrawn: { label: '已撤回', tone: 'gray' }
+      rejected: { label: '已驳回', tone: 'red' }
     }[status] || { label: status || '未知', tone: 'gray' };
   }
 
@@ -455,7 +441,6 @@
     getEligibility: getEligibility,
     buildChargeSnapshot: buildChargeSnapshot,
     submitApplication: submitApplication,
-    withdrawApplication: withdrawApplication,
     canDeliver: canDeliver,
     recordDelivery: recordDelivery,
     reviewApplication: reviewApplication,

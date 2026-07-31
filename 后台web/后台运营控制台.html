@@ -652,19 +652,59 @@
         .refund-kpi { background:#fff;border:1px solid var(--border);border-radius:10px;padding:15px 16px; }
         .refund-kpi span { display:block;font-size:12px;color:var(--text-muted);margin-bottom:7px; }
         .refund-kpi strong { font-size:24px;line-height:1;color:var(--text-primary); }
-        .refund-review-preview { min-height:138px;border-radius:12px;padding:18px;background:linear-gradient(135deg,#172033,#334155);color:#fff;display:flex;align-items:flex-end;position:relative;overflow:hidden;margin-bottom:16px; }
-        .refund-review-preview:after { content:'▶';position:absolute;right:20px;top:20px;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.16); }
         .refund-review-section { border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:14px; }
         .refund-review-section h5 { font-size:13px;margin-bottom:10px; }
         .refund-proof-grid { display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px; }
         .refund-proof-grid img { width:100%;aspect-ratio:4/3;object-fit:cover;border:1px solid var(--border);border-radius:8px;background:#f3f4f6;cursor:zoom-in; }
         .refund-proof-name { display:block;font-size:10px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:4px; }
-        @media (max-width:600px) { #refundReviewDrawer { width:100vw !important;max-width:100vw; }.refund-proof-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+        @media (max-width:600px) { .refund-proof-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
         .refund-review-line { display:flex;justify-content:space-between;gap:14px;padding:6px 0;font-size:12px;border-bottom:1px dashed #edf0f3; }
         .refund-review-line:last-child { border-bottom:0; }
         .refund-review-line span { color:var(--text-muted); }
         .refund-review-actions { position:sticky;bottom:-24px;margin:18px -24px -24px;padding:14px 24px;background:#fff;border-top:1px solid var(--border); }
         .refund-review-actions textarea { width:100%;height:76px;padding:10px;border:1px solid var(--border);border-radius:7px;resize:vertical;font:inherit;margin-bottom:10px; }
+
+        /* ===== 退款审核弹窗 ===== */
+        .refund-modal { width:min(1100px,94vw);max-width:94vw;max-height:90vh;overflow-y:auto;padding:0;box-shadow:0 24px 80px rgba(0,0,0,0.22); }
+        .refund-modal .modal-header { padding:18px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--card-bg);z-index:10; }
+        .refund-modal-body { display:grid;grid-template-columns:300px 1fr; }
+        .refund-modal-left { background:#0f172a;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 20px;gap:16px; }
+        .refund-video-stage {
+            width:220px;aspect-ratio:9/16;border-radius:16px;position:relative;overflow:hidden;
+            display:flex;align-items:center;justify-content:center;
+            box-shadow:0 16px 40px rgba(0,0,0,0.3);
+            background:linear-gradient(135deg,#667eea,#764ba2);
+        }
+        .refund-video-stage-person { font-size:64px;filter:drop-shadow(0 8px 16px rgba(0,0,0,0.3));position:relative;z-index:2; }
+        .refund-video-stage-tag {
+            position:absolute;left:12px;top:14px;right:12px;padding:5px 8px;border-radius:8px;
+            background:rgba(0,0,0,0.42);color:#fff;font-size:11px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;z-index:3;
+        }
+        .refund-video-stage-subtitle {
+            position:absolute;left:14px;right:14px;bottom:28px;padding:6px 8px;border-radius:8px;
+            background:rgba(0,0,0,0.48);color:#fff;text-align:center;font-size:11px;line-height:1.4;z-index:3;
+        }
+        .refund-video-play-btn {
+            position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+            width:48px;height:48px;border-radius:50%;background:rgba(15,23,42,0.58);color:#fff;
+            border:none;font-size:16px;display:flex;align-items:center;justify-content:center;
+            backdrop-filter:blur(6px);cursor:pointer;transition:0.15s ease;z-index:4;
+        }
+        .refund-video-play-btn:hover { background:rgba(47,107,255,0.9);transform:translate(-50%,-50%) scale(1.08); }
+        .refund-video-info { width:100%;color:#cbd5e1;font-size:12px;text-align:center; }
+        .refund-video-info-title { font-size:13px;font-weight:700;color:#fff;margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; }
+        .refund-video-info-meta { font-size:11px;color:#94a3b8; }
+        .refund-modal-right { padding:20px 24px 32px; }
+        .refund-modal-right .refund-review-section { margin-bottom:12px; }
+        .refund-modal-right .refund-review-actions { margin-top:16px;padding-top:14px;border-top:1px solid var(--border); }
+        .refund-modal-right .refund-review-actions textarea { width:100%;height:76px;padding:10px;border:1px solid var(--border);border-radius:7px;resize:vertical;font:inherit;margin-bottom:10px; }
+        .refund-adjust-row { display:flex;align-items:center;gap:10px;margin-top:10px; }
+        .refund-adjust-label { font-size:12px;color:var(--text-secondary);font-weight:600;white-space:nowrap; }
+        .refund-adjust-input { width:100px;height:34px;border:1px solid var(--border);border-radius:7px;padding:0 10px;font:inherit;font-size:13px;font-weight:700;text-align:center;outline:none; }
+        .refund-adjust-input:focus { border-color:var(--primary);box-shadow:0 0 0 3px rgba(99,102,241,0.1); }
+        .refund-adjust-hint { font-size:11px;color:var(--text-muted); }
+        .refund-adjust-total { font-size:13px;font-weight:700;color:var(--orange);margin-top:8px; }
+        @media (max-width:900px) { .refund-modal-body { grid-template-columns:1fr; } .refund-modal-left { padding:16px; } .refund-video-stage { width:180px; } }
         .refund-nav-badge { margin-left:auto;min-width:20px;height:20px;padding:0 6px;border-radius:999px;background:#fff7ed;color:#d97706;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700; }
         @media (max-width: 1440px) { .metrics-row,.card-grid4,.task-metrics,.task-stat-metrics,.mini-metrics { grid-template-columns: repeat(2, 1fr); } }
         @media (max-width: 1200px) { .card-grid2 { grid-template-columns: 1fr; } }
@@ -834,7 +874,7 @@
             </div>
             <div class="table-wrap">
                 <div class="table-toolbar">
-                    <select class="filter-select" id="refundStatusFilter" onchange="renderRefundReview()"><option value="">全部状态</option><option value="pending">待审核</option><option value="approved">已通过</option><option value="rejected">已驳回</option><option value="withdrawn">已撤回</option></select>
+                    <select class="filter-select" id="refundStatusFilter" onchange="renderRefundReview()"><option value="">全部状态</option><option value="pending">待审核</option><option value="approved">已通过</option><option value="rejected">已驳回</option></select>
                     <select class="filter-select" id="refundTenantFilter" onchange="renderRefundReview()"><option value="">全部租户</option></select>
                     <input class="filter-input" type="date" id="refundDateFrom" onchange="renderRefundReview()" style="width:auto">
                     <span style="font-size:12px;color:var(--text-muted)">至</span>
@@ -1361,14 +1401,15 @@
     <div class="drawer-body" id="taskDrawerBody"></div>
 </div>
 
-<!-- Drawer：积分退还审核 -->
-<div class="drawer-overlay" id="refundReviewOverlay" onclick="closeRefundReview()"></div>
-<div class="drawer" id="refundReviewDrawer" style="width:560px">
-    <div class="drawer-header">
-        <span class="drawer-title" id="refundReviewTitle">积分退还审核</span>
-        <button class="modal-close" onclick="closeRefundReview()">×</button>
+<!-- Modal：积分退还审核 -->
+<div class="modal-overlay" id="refundReviewOverlay" onclick="if(event.target===this)closeRefundReview()">
+    <div class="modal refund-modal" id="refundReviewModal">
+        <div class="modal-header">
+            <span class="modal-title" id="refundReviewTitle">积分退还审核</span>
+            <button class="modal-close" onclick="closeRefundReview()">×</button>
+        </div>
+        <div class="refund-modal-body" id="refundReviewBody"></div>
     </div>
-    <div class="drawer-body" id="refundReviewBody"></div>
 </div>
 
 <!-- Modal：积分退还 -->
@@ -1569,7 +1610,7 @@ function updateTopbarActions() {
         'view-scene-config': '',
         'view-audit': '<button class="btn btn-sm" onclick="renderAudit()">刷新</button>',
         'view-billing': '<button class="btn btn-sm" onclick="renderBilling()">🔄 刷新</button>',
-        'view-refund-review': '<button class="btn btn-sm" onclick="renderRefundReview()">🔄 刷新申请</button>'
+        'view-refund-review': '<button class="btn btn-sm" onclick="resetRefundSeed()">🔄 重置数据</button><button class="btn btn-sm" onclick="renderRefundReview()">🔄 刷新申请</button>'
     };
     el.innerHTML = map[currentView] || '<span style="font-size:12px;color:var(--text-muted)">v1.0</span>';
 }
@@ -2319,7 +2360,7 @@ function refundStatusClass(status) {
 }
 
 function refundSlaText(application) {
-    if (application.status !== 'pending') return XingzaoRefundStore.formatDateTime(application.reviewedAt || application.withdrawnAt);
+    if (application.status !== 'pending') return XingzaoRefundStore.formatDateTime(application.reviewedAt);
     var diff = new Date(application.dueAt) - new Date();
     if (diff < 0) return '<span style="color:var(--red);font-weight:700">已超时</span>';
     if (diff <= 4 * 60 * 60 * 1000) return '<span style="color:var(--orange);font-weight:700">即将超时</span>';
@@ -2410,27 +2451,106 @@ function openRefundReview(id) {
     if (!application) { toast('申请不存在或已被删除', 'error'); return; }
     currentRefundReviewId = id;
     var meta = XingzaoRefundStore.getStatusMeta(application.status);
-    var deliveries = XingzaoRefundStore.getDeliveryRecords(application.videoKey);
-    var body = '<div class="refund-review-preview"><div><div style="font-size:11px;opacity:.7;margin-bottom:6px">原视频预览 · ' + escapeHtml(application.taskTitle) + '</div><div style="font-size:15px;font-weight:700;max-width:400px;line-height:1.5">' + escapeHtml(application.videoTitle) + '</div></div></div>';
-    body += '<div class="refund-review-section"><h5>申请信息</h5>' + refundReviewLine('申请编号',application.id) + refundReviewLine('租户 / 申请人',escapeHtml(application.tenantName + ' / ' + application.applicantName)) + refundReviewLine('状态','<span class="status ' + refundStatusClass(application.status) + '">' + meta.label + '</span>') + refundReviewLine('提交时间',XingzaoRefundStore.formatDateTime(application.submittedAt)) + refundReviewLine('处理时限',refundSlaText(application)) + '<div style="font-size:12px;color:var(--text-secondary);line-height:1.7;margin-top:10px"><strong>问题描述：</strong>' + escapeHtml(application.description) + '</div></div>';
-    body += '<div class="refund-review-section"><h5>问题截图 · ' + (application.attachments || []).length + ' 张</h5>' + ((application.attachments || []).length ? '<div class="refund-proof-grid">' + application.attachments.map(function(attachment) { var source = attachment.dataUrl || ('../' + attachment.assetPath); return '<div><img src="' + source + '" alt="' + escapeHtml(attachment.name) + '" onclick="window.open(this.src,\'_blank\')"><span class="refund-proof-name" title="' + escapeHtml(attachment.name) + '">' + escapeHtml(attachment.name) + '</span></div>'; }).join('') + '</div>' : '<div style="font-size:12px;color:var(--text-muted)">用户未上传问题截图，本次申请仅包含文字描述。</div>') + '</div>';
-    body += '<div class="refund-review-section"><h5>实际扣费组件 · ' + Number(application.requestedPoints).toLocaleString() + ' 积分</h5><div style="font-size:11px;color:var(--text-muted);margin-bottom:8px">语音合成免费，不参与积分退还</div>' + (application.chargeSnapshot || []).map(function(component) {
-        var batches = (component.deductions || []).map(function(split) { return split.batchId + ' / ' + split.points + '积分 / ' + XingzaoRefundStore.formatDateTime(split.originalExpiresAt) + '到期'; }).join('；');
-        return refundReviewLine(escapeHtml(component.label),Number(component.refundablePoints).toLocaleString() + ' 积分<div style="font-size:10px;color:var(--text-muted);margin-top:3px">' + escapeHtml(batches) + '</div>');
-    }).join('') + '</div>';
-    body += '<div class="refund-review-section"><h5>交付记录</h5>' + (deliveries.length ? deliveries.map(function(record) { return refundReviewLine(record.type === 'download' ? '下载' : '外部发布',escapeHtml(record.actorName) + ' · ' + XingzaoRefundStore.formatDateTime(record.time)); }).join('') : '<div style="font-size:12px;color:var(--green)">未发现下载或外部发布记录</div>') + '</div>';
-    if (application.reviewNote) body += '<div class="refund-review-section"><h5>审核结果</h5>' + refundReviewLine('审核人',escapeHtml(application.reviewer || '—')) + refundReviewLine('审核时间',XingzaoRefundStore.formatDateTime(application.reviewedAt)) + '<div style="font-size:12px;line-height:1.7;margin-top:8px"><strong>处理说明：</strong>' + escapeHtml(application.reviewNote) + '</div>' + ((application.refundTransactions || []).length ? '<div style="font-size:12px;line-height:1.7;margin-top:8px"><strong>退还批次：</strong>' + application.refundTransactions.map(function(tx) { return escapeHtml(tx.batchId) + '（' + tx.points + '积分，' + escapeHtml(tx.expiresAt) + '到期）'; }).join('；') + '</div>' : '') + '</div>';
-    if (application.status === 'pending') body += '<div class="refund-review-actions"><textarea id="refundReviewNote" placeholder="批准和驳回均需填写处理说明"></textarea><div style="display:flex;justify-content:flex-end;gap:8px"><button class="btn" onclick="decideRefundReview(\'rejected\')">驳回申请</button><button class="btn btn-primary" onclick="decideRefundReview(\'approved\')">批准并退还积分</button></div></div>';
+
+    // 计算最大可退积分
+    var maxRefundable = 0;
+    (application.chargeSnapshot || []).forEach(function(c) { maxRefundable += Number(c.refundablePoints) || 0; });
+
+    // 左侧：9:16 视频预览
+    var leftHtml = '<div class="refund-video-stage">' +
+        '<div class="refund-video-stage-tag">' + escapeHtml(application.taskTitle || '') + '</div>' +
+        '<div class="refund-video-stage-person">👤</div>' +
+        '<div class="refund-video-stage-subtitle">' + escapeHtml(application.videoTitle || application.description || '') + '</div>' +
+        '<button class="refund-video-play-btn" type="button" onclick="toast(\'预览播放\')">▶</button>' +
+    '</div>' +
+    '<div class="refund-video-info">' +
+        '<div class="refund-video-info-title">' + escapeHtml(application.videoTitle || '视频预览') + '</div>' +
+        '<div class="refund-video-info-meta">申请编号 ' + escapeHtml(application.id) + '</div>' +
+    '</div>';
+
+    // 右侧：申请信息
+    var rightHtml = '<div class="refund-review-section"><h5>申请信息</h5>' +
+        refundReviewLine('申请编号', application.id) +
+        refundReviewLine('租户 / 申请人', escapeHtml(application.tenantName + ' / ' + application.applicantName)) +
+        refundReviewLine('状态', '<span class="status ' + refundStatusClass(application.status) + '">' + meta.label + '</span>') +
+        refundReviewLine('提交时间', XingzaoRefundStore.formatDateTime(application.submittedAt)) +
+        refundReviewLine('处理时限', refundSlaText(application)) +
+        '<div style="font-size:12px;color:var(--text-secondary);line-height:1.7;margin-top:10px"><strong>问题描述：</strong>' + escapeHtml(application.description) + '</div>' +
+    '</div>';
+
+    rightHtml += '<div class="refund-review-section"><h5>问题截图 · ' + (application.attachments || []).length + ' 张</h5>' +
+        ((application.attachments || []).length
+            ? '<div class="refund-proof-grid">' + application.attachments.map(function(attachment) {
+                var source = attachment.dataUrl || ('../' + attachment.assetPath);
+                return '<div><img src="' + source + '" alt="' + escapeHtml(attachment.name) + '" onclick="window.open(this.src,\'_blank\')"><span class="refund-proof-name" title="' + escapeHtml(attachment.name) + '">' + escapeHtml(attachment.name) + '</span></div>';
+            }).join('') + '</div>'
+            : '<div style="font-size:12px;color:var(--text-muted)">用户未上传问题截图，本次申请仅包含文字描述。</div>') +
+    '</div>';
+
+    rightHtml += '<div class="refund-review-section"><h5>实际扣费组件 · ' + Number(application.requestedPoints).toLocaleString() + ' 积分</h5>' +
+        '<div style="font-size:11px;color:var(--text-muted);margin-bottom:8px">语音合成免费，不参与积分退还</div>' +
+        (application.chargeSnapshot || []).map(function(component) {
+            var batches = (component.deductions || []).map(function(split) {
+                return split.batchId + ' / ' + split.points + '积分 / ' + XingzaoRefundStore.formatDateTime(split.originalExpiresAt) + '到期';
+            }).join('；');
+            return refundReviewLine(escapeHtml(component.label), Number(component.refundablePoints).toLocaleString() + ' 积分<div style="font-size:10px;color:var(--text-muted);margin-top:3px">' + escapeHtml(batches) + '</div>');
+        }).join('') +
+    '</div>';
+
+    // 已审核状态显示结果
+    if (application.reviewNote) {
+        rightHtml += '<div class="refund-review-section"><h5>审核结果</h5>' +
+            refundReviewLine('审核人', escapeHtml(application.reviewer || '—')) +
+            refundReviewLine('审核时间', XingzaoRefundStore.formatDateTime(application.reviewedAt)) +
+            '<div style="font-size:12px;line-height:1.7;margin-top:8px"><strong>处理说明：</strong>' + escapeHtml(application.reviewNote) + '</div>' +
+            ((application.refundTransactions || []).length
+                ? '<div style="font-size:12px;line-height:1.7;margin-top:8px"><strong>退还批次：</strong>' + application.refundTransactions.map(function(tx) {
+                    return escapeHtml(tx.batchId) + '（' + tx.points + '积分，' + escapeHtml(tx.expiresAt) + '到期）';
+                }).join('；') + '</div>'
+                : '') +
+        '</div>';
+    }
+
+    // 待审核状态：积分调整 + 审核操作
+    if (application.status === 'pending') {
+        rightHtml += '<div class="refund-review-section"><h5>退还积分调整</h5>' +
+            '<div style="font-size:12px;color:var(--text-muted);margin-bottom:8px">用户申请退还 <strong style="color:var(--orange)">' + Number(application.requestedPoints).toLocaleString() + '</strong> 积分，运营人员可手动调整实际退还额度</div>' +
+            '<div class="refund-adjust-row">' +
+                '<span class="refund-adjust-label">实际退还</span>' +
+                '<input class="refund-adjust-input" id="refundAdjustPoints" type="number" min="1" max="' + maxRefundable + '" value="' + Math.min(Number(application.requestedPoints) || maxRefundable, maxRefundable) + '" oninput="clampRefundAdjust(this,' + maxRefundable + ')">' +
+                '<span class="refund-adjust-hint">积分</span>' +
+            '</div>' +
+            '<div class="refund-adjust-hint" style="margin-top:6px">范围：1 ~ ' + maxRefundable + '（当前任务最大可退）</div>' +
+            '<div class="refund-adjust-total">实际退还：<span id="refundAdjustDisplay">' + (Math.min(Number(application.requestedPoints) || maxRefundable, maxRefundable)) + '</span> 积分</div>' +
+        '</div>';
+
+        rightHtml += '<div class="refund-review-actions">' +
+            '<textarea id="refundReviewNote" placeholder="批准和驳回均需填写处理说明"></textarea>' +
+            '<div style="display:flex;justify-content:flex-end;gap:8px">' +
+                '<button class="btn" onclick="decideRefundReview(\'rejected\')">驳回申请</button>' +
+                '<button class="btn btn-primary" onclick="decideRefundReview(\'approved\')">批准并退还积分</button>' +
+            '</div>' +
+        '</div>';
+    }
+
     document.getElementById('refundReviewTitle').textContent = '积分退还审核 · ' + application.id;
-    document.getElementById('refundReviewBody').innerHTML = body;
+    document.getElementById('refundReviewBody').innerHTML =
+        '<div class="refund-modal-left">' + leftHtml + '</div>' +
+        '<div class="refund-modal-right">' + rightHtml + '</div>';
     document.getElementById('refundReviewOverlay').classList.add('show');
-    document.getElementById('refundReviewDrawer').classList.add('show');
 }
 
 function closeRefundReview() {
     currentRefundReviewId = null;
     document.getElementById('refundReviewOverlay').classList.remove('show');
-    document.getElementById('refundReviewDrawer').classList.remove('show');
+}
+
+function clampRefundAdjust(input, maxVal) {
+    var v = parseInt(input.value, 10);
+    if (isNaN(v) || v < 1) { input.value = 1; v = 1; }
+    if (v > maxVal) { input.value = maxVal; v = maxVal; }
+    var display = document.getElementById('refundAdjustDisplay');
+    if (display) display.textContent = v;
 }
 
 function decideRefundReview(decision) {
@@ -2438,8 +2558,27 @@ function decideRefundReview(decision) {
     if (!currentRefundReviewId) return;
     var note = (document.getElementById('refundReviewNote') || {}).value || '';
     if (!note.trim()) { toast('请填写处理说明', 'error'); return; }
+
+    var adjustedPoints = null;
+    if (decision === 'approved') {
+        var adjustInput = document.getElementById('refundAdjustPoints');
+        if (adjustInput) {
+            adjustedPoints = parseInt(adjustInput.value, 10);
+            if (isNaN(adjustedPoints) || adjustedPoints < 1) { toast('退还积分必须大于等于1', 'error'); return; }
+            var application = XingzaoRefundStore.getApplication(currentRefundReviewId);
+            var maxRefundable = 0;
+            (application.chargeSnapshot || []).forEach(function(c) { maxRefundable += Number(c.refundablePoints) || 0; });
+            if (adjustedPoints > maxRefundable) { toast('退还积分不能超过最大可退 ' + maxRefundable + ' 积分', 'error'); return; }
+        }
+    }
+
     var label = decision === 'approved' ? '批准并退还积分' : '驳回申请';
-    if (!confirm('确认' + label + '？该操作提交后不可撤销。')) return;
+    var confirmMsg = '确认' + label + '？该操作提交后不可撤销。';
+    if (decision === 'approved' && adjustedPoints !== null) {
+        confirmMsg = '确认批准并退还 ' + adjustedPoints + ' 积分？该操作提交后不可撤销。';
+    }
+    if (!confirm(confirmMsg)) return;
+
     var result;
     try {
         result = XingzaoRefundStore.reviewApplication(currentRefundReviewId, decision, note, currentOperator());
@@ -2453,7 +2592,14 @@ function decideRefundReview(decision) {
     saveData();
     closeRefundReview();
     renderRefundReview();
-    toast(decision === 'approved' ? '审核通过，积分已按批次规则退还' : '申请已驳回，视频交付权限已恢复', 'success');
+    toast(decision === 'approved' ? '审核通过，积分已按调整后额度退还（' + adjustedPoints + ' 积分）' : '申请已驳回，视频交付权限已恢复', 'success');
+}
+
+function resetRefundSeed() {
+    if (!window.XingzaoRefundStore) return;
+    try { localStorage.removeItem('xingzao_points_refund_prototype_v1'); } catch(e) {}
+    renderRefundReview();
+    toast('退款审核数据已重置');
 }
 
 // ===========================
@@ -3174,7 +3320,7 @@ function backendRefundAction(task, subTask) {
     if (application) {
         var meta = XingzaoRefundStore.getStatusMeta(application.status);
         var viewButton = '<button class="btn btn-xs" onclick="openRefundReview(\'' + application.id + '\')">' + (application.status === 'pending' ? '审核申请' : meta.label) + '</button>';
-        if ((application.status === 'rejected' || application.status === 'withdrawn') && hasOperatorPermission('refund_manual_adjust')) {
+        if (application.status === 'rejected' && hasOperatorPermission('refund_manual_adjust')) {
             return viewButton + ' <button class="btn btn-xs" onclick="refundSubTaskCredits(\'' + task.taskId + '\',' + subTask.id + ',' + subTask.cost + ',\'' + application.id + '\')">异常退还</button>';
         }
         return viewButton;

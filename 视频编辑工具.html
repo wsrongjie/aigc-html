@@ -2476,6 +2476,46 @@
             }
         });
 
+        // 接收来自导演台的视频数据
+        (function() {
+            try {
+                var raw = localStorage.getItem('videoEditorIncomingTask');
+                if (!raw) return;
+                var data = JSON.parse(raw);
+                localStorage.removeItem('videoEditorIncomingTask');
+                if (!data || !data.taskName) return;
+
+                // 更新页面标题
+                document.title = '视频剪辑 - ' + escapeHtml(data.taskName);
+                var titleEl = document.querySelector('.topbar-title');
+                if (titleEl) titleEl.textContent = data.taskName;
+                var subtitleEl = document.querySelector('.topbar-subtitle');
+                if (subtitleEl) subtitleEl.textContent = '来自导演台 · 子任务 #' + data.id;
+
+                // 自动添加视频到轨道
+                var clip = {
+                    id: 'vc_' + Date.now(),
+                    name: data.taskName,
+                    person: data.person || { name: '角色', emoji: '👤', gradient: 'linear-gradient(135deg,#667eea,#764ba2)' },
+                    bg: data.bg || { name: '场景', gradient: 'linear-gradient(135deg,#667eea,#764ba2)' },
+                    script: data.script || '',
+                    fullDuration: data.duration || 10,
+                    trimStart: 0,
+                    trimEnd: data.duration || 10,
+                    duration: data.duration || 10,
+                    start: 0
+                };
+                videoClips = [clip];
+                totalDuration = clip.duration;
+                recalcVideoPositions();
+                renderTimeline();
+                updatePlayUI();
+                updatePreview();
+                updateProjectSummary();
+                showToast('已从导演台加载视频：' + data.taskName);
+            } catch(e) {}
+        })();
+
         renderTimeline();
         updatePlayUI();
     </script>

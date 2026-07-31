@@ -2281,6 +2281,26 @@
     .refund-field textarea { min-height:96px;resize:vertical;line-height:1.6; }
     .refund-field-meta { display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:7px; }
     .refund-field-meta label { margin-bottom:0; }
+    .refund-problem-tags { display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px; }
+    .refund-problem-tag {
+      height:28px;
+      padding:0 12px;
+      border-radius:14px;
+      border:1px solid #e5e7eb;
+      background:#fff;
+      color:#475569;
+      font-size:12px;
+      font-weight:600;
+      cursor:pointer;
+      transition:all 0.15s;
+      white-space:nowrap;
+      display:inline-flex;
+      align-items:center;
+      gap:4px;
+    }
+    .refund-problem-tag:hover { border-color:#2f6bff;color:#2f6bff;background:#f0f5ff; }
+    .refund-problem-tag.active { border-color:#2f6bff;color:#fff;background:#2f6bff; }
+    .refund-problem-tag .tag-ico { font-size:13px; }
     .refund-optional { color:#9ca3af;font-size:11px;font-weight:500; }
     .refund-upload-box { border:1px dashed #cbd5e1;border-radius:10px;background:#f8fafc;padding:12px; }
     .refund-upload-head { display:flex;align-items:center;gap:10px;flex-wrap:wrap; }
@@ -3455,6 +3475,7 @@
         actionHtml += '<button class="tg-op-btn cover" ' + (canCover ? 'onclick="openVideoCoverConfig(' + task.id + ')"' : 'disabled') + '>' + getVideoCoverLabel(task) + '</button>';
         actionHtml += '<button class="tg-op-btn retry" ' + (canPreview ? 'onclick="openPreview(' + task.id + ')"' : 'disabled') + '>预览</button>';
         actionHtml += '<button class="tg-op-btn download" ' + (canDownload ? 'onclick="downloadVideo(' + task.id + ')"' : 'disabled title="' + escapeHtml(refundDelivery.message || '') + '"') + '>下载</button>';
+        actionHtml += '<button class="tg-op-btn cover" ' + (canPreview ? 'onclick="openVideoEditor(' + task.id + ')"' : 'disabled') + '>视频编辑</button>';
         actionHtml += refundActionHtml(task);
         actionHtml += '</div>';
       }
@@ -3561,6 +3582,7 @@
       html += '<button class="tg-op-btn cover" ' + (canCover ? 'onclick="openVideoCoverConfig(' + task.id + ')"' : 'disabled') + '>' + getVideoCoverLabel(task) + '</button>';
       html += '<button class="tg-op-btn retry" ' + (canPreview ? 'onclick="openPreview(' + task.id + ')"' : 'disabled') + '>预览</button>';
       html += '<button class="tg-op-btn download" ' + (canDownload ? 'onclick="downloadVideo(' + task.id + ')"' : 'disabled title="' + escapeHtml(refundDelivery.message || '') + '"') + '>下载</button>';
+      html += '<button class="tg-op-btn cover" ' + (canPreview ? 'onclick="openVideoEditor(' + task.id + ')"' : 'disabled') + '>视频编辑</button>';
       html += refundActionHtml(task);
       html += '</div></div></article>';
       return html;
@@ -3865,15 +3887,26 @@
           (app.reviewNote ? '<div><strong>处理说明：</strong>' + escapeHtml(app.reviewNote) + '</div>' : '') +
           (app.reviewedAt ? '<div><strong>处理时间：</strong>' + XingzaoRefundStore.formatDateTime(app.reviewedAt) + ' · ' + escapeHtml(app.reviewer || '') + '</div>' : '') + '</div>' +
           '<div class="refund-field" style="margin-top:14px"><div class="refund-field-meta"><label>问题截图</label><span class="refund-optional">' + (app.attachments || []).length + ' 张</span></div><div class="refund-attachment-grid">' + refundAttachmentCards(app.attachments, false) + '</div></div>';
-        document.getElementById('refundApplicationActions').innerHTML = '<button class="btn btn-secondary" type="button" onclick="closeRefundApplication()">关闭</button>' +
-          (app.status === 'pending' ? '<button class="btn btn-secondary" type="button" onclick="withdrawRefundApplication(\'' + app.id + '\')">撤回申请</button>' : '');
+        document.getElementById('refundApplicationActions').innerHTML = '<button class="btn btn-secondary" type="button" onclick="closeRefundApplication()">关闭</button>';
         refundContext = { taskId: id, video: video, application: app };
       } else if (eligibility.eligible) {
         var charges = XingzaoRefundStore.buildChargeSnapshot(video);
         var total = charges.reduce(function(sum, item) { return sum + Number(item.refundablePoints || 0); }, 0);
         document.getElementById('refundApplicationTitle').textContent = '申请积分退还';
         rightHtml += refundChargeRows(charges, total);
-        rightHtml += '<div class="refund-form-grid"><div class="refund-field full"><div class="refund-field-meta"><label>问题描述 *</label><span class="refund-optional">请尽量说明异常表现和所在画面</span></div><textarea id="refundDescription" maxlength="1000" placeholder="请描述视频中出现的具体问题，例如人物动作异常、口型不同步、画面与配置不符等"></textarea></div>' +
+        rightHtml += '<div class="refund-form-grid"><div class="refund-field full"><div class="refund-field-meta"><label>问题类型</label><span class="refund-optional">可多选</span></div>' +
+          '<div class="refund-problem-tags">' +
+            '<button class="refund-problem-tag" type="button" onclick="fillProblemTag(this,\'口型不同步\')"><span class="tag-ico">👄</span>口型不同步</button>' +
+            '<button class="refund-problem-tag" type="button" onclick="fillProblemTag(this,\'表情异常\')"><span class="tag-ico">😶</span>表情异常</button>' +
+            '<button class="refund-problem-tag" type="button" onclick="fillProblemTag(this,\'动作异常\')"><span class="tag-ico">🤸</span>动作异常</button>' +
+            '<button class="refund-problem-tag" type="button" onclick="fillProblemTag(this,\'画面闪烁\')"><span class="tag-ico">📺</span>画面闪烁</button>' +
+            '<button class="refund-problem-tag" type="button" onclick="fillProblemTag(this,\'背景异常\')"><span class="tag-ico">🖼</span>背景异常</button>' +
+            '<button class="refund-problem-tag" type="button" onclick="fillProblemTag(this,\'画质问题\')"><span class="tag-ico">🔍</span>画质问题</button>' +
+            '<button class="refund-problem-tag" type="button" onclick="fillProblemTag(this,\'字幕错误\')"><span class="tag-ico">📝</span>字幕错误</button>' +
+            '<button class="refund-problem-tag" type="button" onclick="fillProblemTag(this,\'音频问题\')"><span class="tag-ico">🔊</span>音频问题</button>' +
+          '</div>' +
+          '<div style="margin-top:4px;margin-bottom:7px;"><label style="font-size:12px;font-weight:700;color:#374151;">补充说明</label><span class="refund-optional">选填</span></div>' +
+          '<textarea id="refundDescription" maxlength="1000" placeholder="请描述视频中出现的具体问题，例如人物动作异常、口型不同步、画面与配置不符等"></textarea></div>' +
           '<div class="refund-field full"><div class="refund-field-meta"><label>问题截图</label><span class="refund-optional" id="refundAttachmentCount">0 / 3 张</span></div><div class="refund-upload-box"><div class="refund-upload-head"><input id="refundAttachmentInput" type="file" accept="image/jpeg,image/png,image/webp" multiple hidden onchange="handleRefundAttachmentFiles(this)"><button class="refund-upload-btn" id="refundUploadButton" type="button" onclick="document.getElementById(\'refundAttachmentInput\').click()">＋ 上传截图</button><span class="refund-upload-help">选填，支持 JPG、PNG、WebP，单张不超过 5MB</span></div><div class="refund-attachment-grid" id="refundAttachmentList"><div class="refund-attachment-empty">可上传问题画面作为审核参考</div></div></div></div></div>' +
           '<div class="refund-policy">语音合成免费，不参与积分退还。提交后将锁定该视频的下载和外部发布；审核通过后退还该视频实际扣除的首帧与视频生成积分，审核驳回后恢复交付。每条视频仅有一次申请机会，预计 1 个工作日内完成审核。</div>';
         document.getElementById('refundApplicationActions').innerHTML = '<button class="btn btn-secondary" type="button" onclick="closeRefundApplication()">取消</button><button class="btn btn-primary" id="refundSubmitApplicationBtn" type="button" onclick="submitRefundApplication()">提交申请</button>';
@@ -3902,8 +3935,16 @@
     function submitRefundApplication() {
       if (!refundContext || !refundContext.video) return;
       if (refundAttachmentProcessing > 0) { toast('截图正在处理中，请稍候再提交'); return; }
-      var description = document.getElementById('refundDescription').value.trim();
-      if (!description) { toast('请填写问题描述'); return; }
+      var selectedTags = [];
+      var tagBtns = document.querySelectorAll('.refund-problem-tag.active');
+      for (var i = 0; i < tagBtns.length; i++) {
+        selectedTags.push(tagBtns[i].textContent.trim());
+      }
+      var userDesc = document.getElementById('refundDescription').value.trim();
+      if (!selectedTags.length && !userDesc) { toast('请选择问题类型或填写问题描述'); return; }
+      var description = '';
+      if (selectedTags.length) description += '【问题类型】' + selectedTags.join('、');
+      if (userDesc) description += (description ? '\n' : '') + '【详细说明】' + userDesc;
       var result;
       try {
         result = XingzaoRefundStore.submitApplication({
@@ -3921,15 +3962,6 @@
       closeRefundApplication();
       render();
       toast('申请已提交，预计 1 个工作日内处理');
-    }
-
-    function withdrawRefundApplication(applicationId) {
-      if (!confirm('撤回后将恢复下载和发布，但该视频不能再次申请积分退还。确认撤回？')) return;
-      var result = XingzaoRefundStore.withdrawApplication(applicationId, XingzaoRefundStore.CURRENT_USER);
-      if (!result.ok) { toast(result.message); return; }
-      closeRefundApplication();
-      render();
-      toast('申请已撤回，下载和发布权限已恢复');
     }
 
     function updateTask(id, updater) {
@@ -3993,6 +4025,25 @@
 
     function downloadVideo(id) {
       downloadRow(id);
+    }
+
+    function openVideoEditor(id) {
+      var task = getTaskById(id);
+      if (!task) return;
+      var editorData = {
+        id: task.id,
+        taskName: task.taskName,
+        script: task.script,
+        duration: task.duration,
+        cost: task.cost,
+        person: task.person,
+        bg: task.bg,
+        status: task.status,
+        createdAt: task.createdAt,
+        completedAt: task.completedAt
+      };
+      try { localStorage.setItem('videoEditorIncomingTask', JSON.stringify(editorData)); } catch(e) {}
+      window.location.href = '视频编辑工具.html?from=director&taskId=' + id;
     }
 
     function downloadGroup(name) {
@@ -5328,6 +5379,11 @@
         closeRefundApplication();
       }
     });
+
+    function fillProblemTag(btn, tag) {
+      btn.classList.toggle('active');
+      document.getElementById('refundDescription').focus();
+    }
 
     window.addEventListener('xingzao-refund-change', function() { render(); });
     receiveCreatedTasks();
