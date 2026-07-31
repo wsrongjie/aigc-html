@@ -2298,7 +2298,19 @@
     .refund-attachment-empty { grid-column:1/-1;padding:6px 0 1px;color:#94a3b8;font-size:11px; }
     .refund-policy { margin-top:14px;padding:11px 13px;border-radius:9px;background:#eff6ff;color:#315b9d;font-size:12px;line-height:1.65; }
     .refund-status-panel { padding:14px;border:1px solid #e5e7eb;border-radius:10px;background:#fafafa;font-size:13px;line-height:1.7; }
-    @media (max-width:720px) { .refund-summary,.refund-form-grid { grid-template-columns:1fr; }.refund-form-grid .full { grid-column:auto; }.refund-attachment-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+    .refund-body-layout { display:grid;grid-template-columns:280px 1fr;gap:0;min-height:520px; }
+    .refund-left-preview { background:#0f172a;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 20px;gap:16px; }
+    .refund-video-stage { width:220px;aspect-ratio:9/16;border-radius:16px;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;box-shadow:0 16px 40px rgba(0,0,0,0.3); }
+    .refund-video-stage-person { font-size:64px;filter:drop-shadow(0 8px 16px rgba(0,0,0,0.3));position:relative;z-index:2; }
+    .refund-video-stage-tag { position:absolute;left:12px;top:14px;right:12px;padding:5px 8px;border-radius:8px;background:rgba(0,0,0,0.42);color:#fff;font-size:11px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;z-index:3; }
+    .refund-video-stage-subtitle { position:absolute;left:14px;right:14px;bottom:28px;padding:6px 8px;border-radius:8px;background:rgba(0,0,0,0.48);color:#fff;text-align:center;font-size:11px;line-height:1.4;z-index:3; }
+    .refund-video-play-btn { position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:48px;height:48px;border-radius:50%;background:rgba(15,23,42,0.58);color:#fff;border:none;font-size:16px;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(6px);cursor:pointer;transition:0.15s ease;z-index:4; }
+    .refund-video-play-btn:hover { background:rgba(47,107,255,0.9);transform:translate(-50%,-50%) scale(1.08); }
+    .refund-video-info { width:100%;color:#cbd5e1;font-size:12px;text-align:center; }
+    .refund-video-info-title { font-size:13px;font-weight:700;color:#fff;margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; }
+    .refund-video-info-meta { font-size:11px;color:#94a3b8; }
+    .refund-right-content { padding:20px;overflow-y:auto;max-height:68vh; }
+    @media (max-width:720px) { .refund-summary,.refund-form-grid { grid-template-columns:1fr; }.refund-form-grid .full { grid-column:auto; }.refund-attachment-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }.refund-body-layout { grid-template-columns:1fr; }.refund-left-preview { padding:16px; }.refund-video-stage { width:180px; } }
   </style>
 </head>
 <body>
@@ -2407,46 +2419,22 @@
         </div>
         <div class="preview-right">
           <div class="config-panel">
-            <div class="panel-title">封面</div>
+            <div class="panel-title">视频信息</div>
             <div class="cfg-row">
-              <span class="cfg-label">截帧</span>
-              <input class="cfg-input" type="range" min="0" max="100" value="28" oninput="toast('已切换封面截帧')">
+              <span class="cfg-label">台词</span>
+              <div style="flex:1;color:#374151;font-size:13px;line-height:1.6;" id="previewScriptText">养老金规划越早开始越好，复利效应是长期积累的核心动力。</div>
             </div>
             <div class="cfg-row">
-              <span class="cfg-label">本地上传</span>
-              <button class="btn btn-secondary" type="button" onclick="toast('此处可接入封面上传')">选择图片</button>
-            </div>
-          </div>
-          <div class="config-panel">
-            <div class="panel-title">水印</div>
-            <div class="cfg-row">
-              <span class="cfg-label">文字</span>
-              <input class="cfg-input" id="previewWmText" type="text" value="投顾观点仅供参考" oninput="syncPreviewText()">
+              <span class="cfg-label">时长</span>
+              <div style="flex:1;color:#374151;font-size:13px;" id="previewDurationText">12s</div>
             </div>
             <div class="cfg-row">
-              <span class="cfg-label">位置</span>
-              <select class="cfg-select" onchange="toast('水印位置已更新')">
-                <option>左上</option>
-                <option>右上</option>
-                <option>左下</option>
-                <option>右下</option>
-              </select>
+              <span class="cfg-label">消耗</span>
+              <div style="flex:1;color:#374151;font-size:13px;" id="previewCostText">14 🪙</div>
             </div>
           </div>
-          <div class="config-panel">
-            <div class="panel-title">字幕</div>
-            <div class="cfg-row">
-              <span class="cfg-label">内容</span>
-              <textarea class="cfg-textarea" id="previewSubText" oninput="syncPreviewText()">养老金规划越早开始越好，复利效应是长期积累的核心动力。</textarea>
-            </div>
-            <div class="cfg-row">
-              <span class="cfg-label">字号</span>
-              <input class="cfg-input" type="range" min="12" max="28" value="16" oninput="toast('字幕字号已更新')">
-            </div>
-          </div>
-          <div style="display:flex;gap:8px;justify-content:flex-end;">
-            <button class="btn btn-secondary" type="button" onclick="toast('字幕水印版合成中')">合成字幕水印版</button>
-            <button class="btn btn-primary" type="button" onclick="toast('开始下载原片')">下载原片</button>
+          <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:20px;">
+            <button class="btn btn-secondary" type="button" onclick="toast('开始下载原片')">下载原片</button>
           </div>
         </div>
       </div>
@@ -2865,12 +2853,12 @@
 
   <!-- 单条视频积分退还申请 -->
   <div class="overlay" id="refundApplicationOverlay" onclick="if(event.target===this)closeRefundApplication()">
-    <div class="modal" style="width:620px;max-width:94vw;">
+    <div class="modal" style="width:min(920px,94vw);max-width:94vw;">
       <div class="modal-hd">
         <div><div class="modal-title" id="refundApplicationTitle">申请积分退还</div><div style="font-size:12px;color:#6b7280;margin-top:4px" id="refundApplicationSub">单条成片视频</div></div>
         <button class="close-btn" type="button" onclick="closeRefundApplication()">×</button>
       </div>
-      <div class="modal-body" id="refundApplicationBody" style="padding:20px;max-height:68vh;overflow:auto"></div>
+      <div class="modal-body" id="refundApplicationBody" style="padding:0;max-height:68vh;overflow:hidden"></div>
       <div class="modal-actions" id="refundApplicationActions">
         <button class="btn btn-secondary" type="button" onclick="closeRefundApplication()">关闭</button>
         <button class="btn btn-primary" type="button" id="refundSubmitBtn" onclick="submitRefundApplication()">提交申请</button>
@@ -3844,18 +3832,34 @@
       var video = toRefundVideo(task);
       var eligibility = XingzaoRefundStore.getEligibility(video, XingzaoRefundStore.CURRENT_USER);
       var app = eligibility.application;
-      var body = '<div class="refund-video-preview"><div><div style="font-size:11px;opacity:.68;margin-bottom:6px">视频预览 · ' + escapeHtml(task.taskName) + '</div><div class="refund-video-preview-title">' + escapeHtml(video.title) + '</div></div></div>';
+      var person = task.person || { emoji: '👤', name: '角色' };
+      var bg = task.bg || { name: '场景', gradient: 'linear-gradient(135deg,#667eea,#764ba2)' };
+      var canPreview = task.status === 'completed';
+      var playBtnHtml = canPreview ? '<button class="refund-video-play-btn" type="button">▶</button>' : '';
+      var leftHtml = '<div class="refund-left-preview">' +
+        '<div class="refund-video-stage" style="' + getCoverBackgroundStyle(task) + '">' +
+          '<div class="refund-video-stage-tag">' + escapeHtml(bg.name) + ' · ' + escapeHtml(person.name) + '</div>' +
+          '<div class="refund-video-stage-person">' + (getEffectiveCoverConfig(task) && getEffectiveCoverConfig(task).type === 'upload' ? '' : escapeHtml(person.emoji)) + '</div>' +
+          '<div class="refund-video-stage-subtitle">' + escapeHtml(task.script || video.title) + '</div>' +
+          playBtnHtml +
+        '</div>' +
+        '<div class="refund-video-info">' +
+          '<div class="refund-video-info-title">' + escapeHtml(task.taskName) + '</div>' +
+          '<div class="refund-video-info-meta">子任务 #' + task.id + ' · ' + (task.duration || 0) + 's' + (canPreview ? ' · 点击播放预览' : '') + '</div>' +
+        '</div>' +
+      '</div>';
+      var rightHtml = '<div class="refund-right-content">';
       document.getElementById('refundApplicationSub').textContent = task.taskName + ' · 子任务 #' + task.id;
 
       if (app) {
         var meta = XingzaoRefundStore.getStatusMeta(app.status);
         document.getElementById('refundApplicationTitle').textContent = '积分退还申请 · ' + meta.label;
-        body += '<div class="refund-summary">' +
+        rightHtml += '<div class="refund-summary">' +
           '<div class="refund-summary-card"><span>申请编号</span><strong>' + app.id + '</strong></div>' +
           '<div class="refund-summary-card"><span>申请积分</span><strong>' + Number(app.requestedPoints).toLocaleString() + '</strong></div>' +
           '<div class="refund-summary-card"><span>当前状态</span><strong>' + meta.label + '</strong></div></div>';
-        body += refundChargeRows(app.chargeSnapshot, app.requestedPoints);
-        body += '<div class="refund-status-panel"><div><strong>问题描述：</strong>' + escapeHtml(app.description) + '</div>' +
+        rightHtml += refundChargeRows(app.chargeSnapshot, app.requestedPoints);
+        rightHtml += '<div class="refund-status-panel"><div><strong>问题描述：</strong>' + escapeHtml(app.description) + '</div>' +
           '<div><strong>提交时间：</strong>' + XingzaoRefundStore.formatDateTime(app.submittedAt) + '</div>' +
           (app.status === 'pending' ? '<div><strong>承诺处理：</strong>' + XingzaoRefundStore.formatDateTime(app.dueAt) + ' 前</div>' : '') +
           (app.reviewNote ? '<div><strong>处理说明：</strong>' + escapeHtml(app.reviewNote) + '</div>' : '') +
@@ -3868,18 +3872,20 @@
         var charges = XingzaoRefundStore.buildChargeSnapshot(video);
         var total = charges.reduce(function(sum, item) { return sum + Number(item.refundablePoints || 0); }, 0);
         document.getElementById('refundApplicationTitle').textContent = '申请积分退还';
-        body += refundChargeRows(charges, total);
-        body += '<div class="refund-form-grid"><div class="refund-field full"><div class="refund-field-meta"><label>问题描述 *</label><span class="refund-optional">请尽量说明异常表现和所在画面</span></div><textarea id="refundDescription" maxlength="1000" placeholder="请描述视频中出现的具体问题，例如人物动作异常、口型不同步、画面与配置不符等"></textarea></div>' +
+        rightHtml += refundChargeRows(charges, total);
+        rightHtml += '<div class="refund-form-grid"><div class="refund-field full"><div class="refund-field-meta"><label>问题描述 *</label><span class="refund-optional">请尽量说明异常表现和所在画面</span></div><textarea id="refundDescription" maxlength="1000" placeholder="请描述视频中出现的具体问题，例如人物动作异常、口型不同步、画面与配置不符等"></textarea></div>' +
           '<div class="refund-field full"><div class="refund-field-meta"><label>问题截图</label><span class="refund-optional" id="refundAttachmentCount">0 / 3 张</span></div><div class="refund-upload-box"><div class="refund-upload-head"><input id="refundAttachmentInput" type="file" accept="image/jpeg,image/png,image/webp" multiple hidden onchange="handleRefundAttachmentFiles(this)"><button class="refund-upload-btn" id="refundUploadButton" type="button" onclick="document.getElementById(\'refundAttachmentInput\').click()">＋ 上传截图</button><span class="refund-upload-help">选填，支持 JPG、PNG、WebP，单张不超过 5MB</span></div><div class="refund-attachment-grid" id="refundAttachmentList"><div class="refund-attachment-empty">可上传问题画面作为审核参考</div></div></div></div></div>' +
           '<div class="refund-policy">语音合成免费，不参与积分退还。提交后将锁定该视频的下载和外部发布；审核通过后退还该视频实际扣除的首帧与视频生成积分，审核驳回后恢复交付。每条视频仅有一次申请机会，预计 1 个工作日内完成审核。</div>';
         document.getElementById('refundApplicationActions').innerHTML = '<button class="btn btn-secondary" type="button" onclick="closeRefundApplication()">取消</button><button class="btn btn-primary" id="refundSubmitApplicationBtn" type="button" onclick="submitRefundApplication()">提交申请</button>';
         refundContext = { taskId: id, video: video, charges: charges };
       } else {
         document.getElementById('refundApplicationTitle').textContent = '当前不可申请';
-        body += '<div class="refund-status-panel"><strong>' + escapeHtml(eligibility.message) + '</strong><div style="color:#6b7280;margin-top:6px">已下载或已发布的视频不支持积分退还申请。</div></div>';
+        rightHtml += '<div class="refund-status-panel"><strong>' + escapeHtml(eligibility.message) + '</strong><div style="color:#6b7280;margin-top:6px">已下载或已发布的视频不支持积分退还申请。</div></div>';
         document.getElementById('refundApplicationActions').innerHTML = '<button class="btn btn-secondary" type="button" onclick="closeRefundApplication()">关闭</button>';
         refundContext = null;
       }
+      rightHtml += '</div>';
+      var body = '<div class="refund-body-layout">' + leftHtml + rightHtml + '</div>';
       document.getElementById('refundApplicationBody').innerHTML = body;
       document.getElementById('refundApplicationOverlay').classList.add('show');
       if (!app && eligibility.eligible) renderRefundAttachmentDrafts();
@@ -4107,7 +4113,12 @@
       }
       document.getElementById('phoneTag').textContent = rowBg.name + ' · ' + rowPerson.name;
       document.getElementById('phoneSubtitle').textContent = row.script;
-      document.getElementById('previewSubText').value = row.script;
+      var scriptEl = document.getElementById('previewScriptText');
+      if (scriptEl) scriptEl.textContent = row.script || '—';
+      var durationEl = document.getElementById('previewDurationText');
+      if (durationEl) durationEl.textContent = (row.duration || 0) + 's';
+      var costEl = document.getElementById('previewCostText');
+      if (costEl) costEl.textContent = (row.cost || 0) + ' 🪙';
       document.getElementById('previewOverlay').classList.add('show');
       previewProgress = 0;
       previewPlaying = false;
