@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>一稿多版</title>
+  <title>台词改写</title>
   <style>
     :root {
       --blue: #2f6bff; --blue-deep: #1746b8; --blue-soft: #edf3ff;
@@ -77,6 +77,26 @@
     .quick-topics { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
     .quick-chip { border: 1px solid #e2e7ef; border-radius: 999px; padding: 6px 12px; background: #fff; color: #687286; font-size: 11px; cursor: pointer; transition: .15s; }
     .quick-chip:hover { color: var(--blue); border-color: #a9c0ff; background: var(--blue-soft); }
+    .dir-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+    .dir-chip { border: 1px solid #e2e7ef; border-radius: 999px; padding: 5px 11px; background: #fff; color: #687286; font-size: 11px; cursor: pointer; transition: .15s; user-select: none; }
+    .dir-chip:hover { color: var(--blue); border-color: #a9c0ff; background: var(--blue-soft); }
+    .dir-chip.on { color: #fff; border-color: var(--blue); background: var(--blue); }
+.dir-custom-input { margin-top: 8px; min-height: 58px; font-size: 12px; }
+.dir-custom-input.err { border-color: #e5484d; }
+    .dir-hint { margin-top: 6px; color: #8a93a6; font-size: 11px; }
+    .source-meta { margin-top: 6px; color: #8a93a6; font-size: 11px; text-align: right; }
+    .source-meta strong { color: #4b566a; }
+
+    .confirm-overlay { position: fixed; inset: 0; z-index: 120; background: rgba(15,20,35,.38); display: flex; align-items: center; justify-content: center; }
+    .confirm-modal { width: 320px; background: #fff; border-radius: 14px; padding: 20px; box-shadow: 0 24px 64px rgba(0,0,0,.18); }
+    .confirm-title { font-size: 14px; font-weight: 800; margin-bottom: 6px; }
+    .confirm-desc { font-size: 12px; color: var(--muted); line-height: 1.6; }
+    .confirm-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
+    .confirm-actions button { height: 32px; padding: 0 16px; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; }
+    .confirm-cancel { border: 1px solid #dce1ea; background: #fff; color: #4b566a; }
+    .confirm-cancel:hover { border-color: #aec2fb; color: var(--blue); }
+    .confirm-ok { border: 0; background: #e5484d; color: #fff; }
+    .confirm-ok:hover { background: #d13438; }
     .counter { height: 38px; display: grid; grid-template-columns: 38px 1fr 38px; border: 1px solid #dce1ea; border-radius: 10px; overflow: hidden; }
     .counter button { border: 0; background: #f7f8fa; cursor: pointer; font-size: 17px; }
     .counter button:hover { color: var(--blue); background: var(--blue-soft); }
@@ -119,7 +139,7 @@
     .draft-card-title-input:focus { background: #fff; border-radius: 4px; box-shadow: 0 0 0 2px rgba(47,107,255,.15); }
     .draft-card-status { padding: 3px 7px; border-radius: 999px; font-size: 9px; font-weight: 700; flex-shrink: 0; background: #f0f2f6; color: #727b8c; }
     .draft-card-status.attention { background: var(--amber-soft); color: #a36600; }
-    .draft-card-status.clear { background: var(--mint-soft); color: #087b6a; }
+    .draft-card-status.clear { background: #0aa78f; color: #fff; box-shadow: 0 2px 6px rgba(10,167,143,.35); }
     .draft-card-status.checking { background: var(--blue-soft); color: var(--blue-deep); }
     .draft-card-status.stale { background: #f1f3f6; color: #687286; }
     .draft-card-body-wrap { min-height: 124px; height: 124px; resize: vertical; overflow-x: hidden; overflow-y: auto; }
@@ -141,17 +161,6 @@
       background: #fff; color: #5e687b; font-size: 10px; cursor: pointer; font-family: inherit;
     }
     .card-action-btn:hover { color: var(--blue); border-color: #aec2fb; background: var(--blue-soft); }
-    .card-more-btn {
-      width: 24px; height: 24px; border: 0; border-radius: 5px; background: transparent; color: #8d95a5;
-      font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-    }
-    .card-more-btn:hover { background: #eef1f6; color: var(--blue); }
-    .draft-popover {
-      position: fixed; z-index: 35; min-width: 170px; padding: 6px;
-      background: #fff; border: 1px solid #e5e9f1; border-radius: 10px; box-shadow: 0 14px 36px rgba(22,34,58,.14);
-    }
-    .draft-popover button { display: block; width: 100%; padding: 8px 10px; border: 0; border-radius: 7px; background: transparent; font-size: 11px; text-align: left; cursor: pointer; color: var(--ink); }
-    .draft-popover button:hover { background: var(--blue-soft); color: var(--blue); }
 
     .empty-state { flex: 1; display: grid; place-items: center; padding: 32px; text-align: center; }
     .empty-visual { position: relative; width: 118px; height: 98px; margin: 0 auto 20px; }
@@ -185,19 +194,6 @@
     .hb-body span { display: block; margin-top: 2px; color: var(--muted); font-size: 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .hb-close { border: 0; background: transparent; color: #98a0af; cursor: pointer; font-size: 14px; padding: 2px; }
 
-    .batch-bar {
-      position: fixed; left: 50%; bottom: 72px; z-index: 90; transform: translate(-50%, 16px);
-      display: flex; align-items: center; gap: 10px; padding: 9px 14px;
-      background: #172033; color: #fff; border-radius: 12px; box-shadow: 0 16px 38px rgba(22,34,58,.3);
-      opacity: 0; pointer-events: none; transition: .22s ease;
-    }
-    .batch-bar.show { opacity: 1; transform: translate(-50%, 0); pointer-events: auto; }
-    .batch-count { font-size: 12px; font-weight: 800; }
-    .batch-btn { height: 28px; padding: 0 12px; border: 0; border-radius: 8px; background: var(--blue); color: #fff; font-size: 11px; font-weight: 700; cursor: pointer; }
-    .batch-btn:hover { background: #245de6; }
-    .batch-btn.ghost { background: rgba(255,255,255,.12); }
-    .batch-btn.ghost:hover { background: rgba(255,255,255,.2); }
-
     .crumb { margin-bottom: 9px; font-size: 11px; color: #98a0af; }
     .crumb a { color: #687286; text-decoration: none; }
     .crumb a:hover { color: var(--blue); text-decoration: underline; }
@@ -208,26 +204,6 @@
     .expand-btn { border: 0; background: transparent; color: #98a0af; font-size: 10px; cursor: pointer; padding: 0 4px; font-family: inherit; }
     .expand-btn:hover { color: var(--blue); }
     .draft-card-body-wrap.expanded { height: 320px; }
-
-    .compare-overlay { position: fixed; inset: 0; z-index: 105; background: rgba(15,20,35,.38); }
-    .compare-modal {
-      position: fixed; z-index: 106; top: 50%; left: 50%; transform: translate(-50%, -50%);
-      width: 920px; max-width: 94vw; max-height: 82vh; background: #fff; border-radius: 14px;
-      box-shadow: 0 24px 64px rgba(0,0,0,.18); display: flex; flex-direction: column; overflow: hidden;
-    }
-    .compare-header { display: flex; align-items: center; gap: 14px; padding: 13px 18px; border-bottom: 1px solid #eff2f6; background: #fafbfc; }
-    .compare-header strong { font-size: 14px; flex-shrink: 0; }
-    .compare-selects { flex: 1; display: flex; align-items: center; gap: 8px; min-width: 0; }
-    .compare-selects select { flex: 1; min-width: 0; height: 32px; border: 1px solid #dce1ea; border-radius: 8px; padding: 0 8px; font-size: 11px; background: #fff; outline: none; }
-    .compare-selects span { color: #98a0af; font-size: 11px; flex-shrink: 0; }
-    .compare-body { flex: 1; min-height: 0; display: grid; grid-template-columns: 1fr 1fr; }
-    .compare-col { padding: 14px 16px; overflow-y: auto; }
-    .compare-col + .compare-col { border-left: 1px solid #eff2f6; }
-    .compare-col-title { margin-bottom: 10px; font-size: 11px; font-weight: 800; color: var(--muted); }
-    .compare-text { font-size: 13px; line-height: 1.9; color: #202a3d; white-space: pre-wrap; word-break: break-word; }
-    .compare-text mark.compare-diff { background: #fdecc8; color: #7a5200; border-radius: 2px; padding: 0 1px; }
-    .compare-foot { padding: 10px 18px; border-top: 1px solid #eff2f6; font-size: 11px; color: var(--muted); display: flex; gap: 18px; background: #fafbfc; }
-    .compare-foot strong { color: #4b566a; }
 
     @media (max-width: 900px) {
       .page-head { align-items: flex-start; flex-direction: column; }
@@ -254,16 +230,16 @@
       <div class="topbar-right"><span class="prototype-tag">静态原型演示</span><div class="avatar">W</div></div>
     </header>
     <section class="page-head">
-      <div><div class="crumb"><a href="全部工具.html">全部工具</a> / <span>一稿多版</span></div><div class="eyebrow">SCRIPT TOOL · VARIATIONS</div><h1>一稿多版</h1><p class="page-desc">锁定原稿事实与行动引导，批量衍生多个不同钩子的表达版本。</p></div>
-      <div class="head-note">支持从爆款拆解导入基础台词，衍生表达均已通过合规预检，可直接使用</div>
+      <div><div class="crumb"><a href="全部工具.html">全部工具</a> / <span>台词改写</span></div><div class="eyebrow">SCRIPT TOOL · REWRITE</div><h1>台词改写</h1></div>
     </section>
     <section class="workspace">
       <aside class="panel control-panel">
         <div class="control-scroll">
-          <div class="section-title">基于一稿批量衍生</div>
+          <div class="section-title">基于一稿批量改写</div>
           <div class="field">
             <label class="field-label" for="derive-source">基础台词 <span>必填</span></label>
-            <textarea class="text-area" id="derive-source" style="min-height:180px" placeholder="粘贴作为衍生依据的完整台词"></textarea>
+            <textarea class="text-area" id="derive-source" style="min-height:180px" placeholder="粘贴作为改写依据的完整台词" oninput="updateSourceMeta()"></textarea>
+                        <div class="source-meta" id="source-meta">0 字</div>
             <div class="quick-topics"><button class="quick-chip" onclick="fillDeriveDemo()">填入示例</button></div>
           </div>
           <div class="field">
@@ -274,58 +250,76 @@
             <summary>高级设置</summary>
             <div class="advanced-body">
               <div class="field"><label class="field-label">预计时长</label><select class="select" id="derive-duration"><option value="30">30 秒</option><option value="60" selected>60 秒</option><option value="90">90 秒</option></select></div>
-              <div class="field"><label class="field-label">表达力度</label><select class="select" id="derive-style"><option>强钩子</option><option selected>均衡转化</option><option>稳健克制</option></select></div>
+              <div class="field">
+                <label class="field-label">改写方向</label>
+                <div class="dir-chips" id="direction-chips"></div>
+                <textarea class="text-area dir-custom-input" id="direction-custom" style="display:none" oninput="onCustomDirectionInput()" placeholder="参考：弱化营销感，用平实口吻讲清方法与风险，多用“建议”“可以关注”这类克制表达，避免夸张和承诺式话术"></textarea>
+                <div class="dir-hint" id="direction-hint"></div>
+              </div>
             </div>
           </details>
-          <button class="primary-btn" id="derive-btn" onclick="generateVariations()">生成衍生台词</button>
-          <div class="helper">原型使用本地模拟内容，不会调用真实大模型 · Ctrl+⏎ 快速生成</div>
+          <button class="primary-btn" id="derive-btn" onclick="generateVariations()">生成改写台词</button>
         </div>
       </aside>
       <section class="panel editor-panel">
         <div class="editor-top">
-          <div><div class="editor-heading">衍生结果</div><div class="editor-sub" id="result-summary">尚未生成衍生版本</div></div>
+          <div><div class="editor-heading">改写结果</div><div class="editor-sub" id="result-summary">尚未生成改写版本</div></div>
           <div class="global-actions">
-            <button class="ghost-btn" id="compare-btn" onclick="openCompare()" disabled>版本对比</button>
+            <button class="ghost-btn" id="add-batch-btn" onclick="batchSendToBatch()" disabled>加入批量成片</button>
+            <button class="ghost-btn" id="select-all-btn" onclick="toggleSelectAll()" disabled>全选</button>
             <button class="ghost-btn" id="copy-all-btn" onclick="copyAll()" disabled>复制全部</button>
             <button class="ghost-btn" id="txt-btn" onclick="exportTxt()" disabled>导出 TXT</button>
             <button class="ghost-btn" id="csv-btn" onclick="exportCsv()" disabled>导出 CSV</button>
           </div>
         </div>
         <div class="empty-state" id="empty-state">
-          <div><div class="empty-visual"><div class="paper"></div><div class="spark">AI</div></div><h2>粘贴基础台词开始衍生</h2><p>在左侧粘贴一段基础台词，一键生成多个不同表达角度的衍生版本。</p></div>
+          <div><div class="empty-visual"><div class="paper"></div><div class="spark">AI</div></div><h2>粘贴基础台词开始改写</h2><p>在左侧粘贴一段基础台词，一键生成多个不同表达角度的改写版本。</p></div>
         </div>
         <div class="loading-state" id="loading-state"><div><div class="loader-ring"></div><div class="loading-title" id="loading-title">正在生成同主题表达版本</div><div class="loading-copy" id="loading-copy">组织结构、生成表达，并进行初步合规扫描…</div></div></div>
-        <div class="draft-popover" id="draft-popover" style="display:none">
-          <button onclick="reuseAsSource(_popoverDraftId);document.getElementById('draft-popover').style.display='none'">设为基础稿</button>
-        </div>
-        <div class="compare-overlay" id="compare-overlay" style="display:none" onclick="closeCompare()"></div>
-        <div class="compare-modal" id="compare-modal" style="display:none">
-          <div class="compare-header">
-            <strong>版本对比</strong>
-            <div class="compare-selects">
-              <select id="compare-a" onchange="renderCompare()"></select>
-              <span>vs</span>
-              <select id="compare-b" onchange="renderCompare()"></select>
-            </div>
-            <button class="preview-close" style="width:28px;height:28px;border:0;border-radius:8px;background:transparent;font-size:18px;cursor:pointer;color:#8d95a5" onclick="closeCompare()">&times;</button>
-          </div>
-          <div class="compare-body">
-            <div class="compare-col"><div class="compare-col-title" id="compare-a-title"></div><div class="compare-text" id="compare-a-text"></div></div>
-            <div class="compare-col"><div class="compare-col-title" id="compare-b-title"></div><div class="compare-text" id="compare-b-text"></div></div>
-          </div>
-          <div class="compare-foot" id="compare-foot"></div>
-        </div>
         <div class="drafts-list" id="drafts-list"></div>
       </section>
     </section>
   </main>
   <div class="toast" id="toast"><span id="toast-msg"></span><button class="toast-action" id="toast-action" style="display:none"></button></div>
   <div class="handoff-banner" id="handoff-banner"><div class="hb-icon">📄</div><div class="hb-body"><strong id="hb-title"></strong><span id="hb-sub"></span></div><button class="hb-close" onclick="dismissHandoffBanner()">✕</button></div>
-  <div class="batch-bar" id="batch-bar"><span class="batch-count" id="batch-count"></span><button class="batch-btn" onclick="batchSendToBatch()">加入批量成片</button><button class="batch-btn ghost" onclick="exportTxt()">导出 TXT</button><button class="batch-btn ghost" onclick="exportCsv()">导出 CSV</button><button class="batch-btn ghost" onclick="clearBatchSelection()">取消选择</button></div>
+  <div class="confirm-overlay" id="confirm-overlay" style="display:none" onclick="if(event.target===this)closeConfirm()">
+    <div class="confirm-modal">
+      <div class="confirm-title" id="confirm-title"></div>
+      <div class="confirm-desc" id="confirm-desc"></div>
+      <div class="confirm-actions">
+        <button class="confirm-cancel" onclick="closeConfirm()">取消</button>
+        <button class="confirm-ok" onclick="confirmAction()">删除</button>
+      </div>
+    </div>
+  </div>
   <script>
     var TOOL_HANDOFF_KEY = 'script-tool-handoff';
-    var state = { drafts: [], activeId: null, selectedIds: [], count: 3, loading: false, nextId: 1 };
-    var _popoverDraftId = null;
+    var DIRECTION_MODES = ['强钩子', '均衡转化', '稳健克制', '自定义'];
+    var DIRECTION_HINTS = {
+      '强钩子': '优先使用疑问、反差类强开场，抓注意力更快',
+      '均衡转化': '兼顾开场吸引与转化引导，措辞适中（默认）',
+      '稳健克制': '弱化营销感，措辞更保守，贴近合规表达',
+      '自定义': '按您填写的方向要求进行改写'
+    };
+    var state = { drafts: [], activeId: null, selectedIds: [], count: 3, loading: false, nextId: 1, directionMode: '均衡转化' };
+
+    function renderDirectionChips() {
+      var wrap = document.getElementById('direction-chips');
+      wrap.innerHTML = DIRECTION_MODES.map(function(dir){
+        var on = state.directionMode === dir;
+        return '<button type="button" class="dir-chip' + (on ? ' on' : '') + '" onclick="toggleDirection(\'' + dir + '\')">' + dir + '</button>';
+      }).join('');
+      document.getElementById('direction-custom').style.display = state.directionMode === '自定义' ? '' : 'none';
+      document.getElementById('direction-hint').textContent = DIRECTION_HINTS[state.directionMode] || '';
+    }
+    function toggleDirection(dir) {
+      if (state.loading) { toast('当前任务处理中，请稍候'); return; }
+      state.directionMode = dir;
+      renderDirectionChips();
+      if (dir === '自定义') document.getElementById('direction-custom').focus();
+    }
+    function onCustomDirectionInput() { document.getElementById('direction-custom').classList.remove('err'); }
+    function getCustomDirection() { return document.getElementById('direction-custom').value.trim(); }
 
     function escapeHtml(value) {
       return String(value == null ? '' : value).replace(/[&<>'"]/g, function(ch) {
@@ -357,41 +351,22 @@
     }
     function dismissHandoffBanner() { document.getElementById('handoff-banner').classList.remove('show'); }
 
-    function updateBatchBar() {
-      var n = validSelectedIds(state.drafts).length;
-      var bar = document.getElementById('batch-bar');
-      if (n) { document.getElementById('batch-count').textContent = '已选 ' + n + ' 篇'; bar.classList.add('show'); }
-      else bar.classList.remove('show');
-    }
-    function clearBatchSelection() {
-      state.selectedIds = [];
-      document.querySelectorAll('#drafts-list .draft-select').forEach(function(cb){ cb.checked = false; });
-      updateExportControls(state.drafts);
-    }
-
     function sendToTool(target, text, title, extra) {
-      try { localStorage.setItem(TOOL_HANDOFF_KEY, JSON.stringify(Object.assign({ target: target, from: '一稿多版', title: title || '', text: text, at: Date.now() }, extra || {}))); } catch (e) {}
+      try { localStorage.setItem(TOOL_HANDOFF_KEY, JSON.stringify(Object.assign({ target: target, from: '台词改写', title: title || '', text: text, at: Date.now() }, extra || {}))); } catch (e) {}
       window.location.href = target;
     }
     function sendToBatchTask(texts, summaryTitle) {
       var list = (texts || []).filter(function(t){ return t && t.trim(); });
       if (!list.length) { toast('没有可添加的台词'); return; }
-      try { localStorage.setItem(TOOL_HANDOFF_KEY, JSON.stringify({ target: '简单模式-流程版-模板版.html', from: '一稿多版', title: summaryTitle || '', texts: list, at: Date.now() })); } catch (e) {}
+      try { localStorage.setItem(TOOL_HANDOFF_KEY, JSON.stringify({ target: '简单模式-流程版-模板版.html', from: '台词改写', title: summaryTitle || '', texts: list, at: Date.now() })); } catch (e) {}
       window.location.href = '简单模式-流程版-模板版.html?returnTo=directorWorkbench';
-    }
-    function sendDraftToBatch(draftId) {
-      var draft = findDraftById(draftId);
-      document.getElementById('draft-popover').style.display = 'none';
-      if (!draft || !draft.text.trim()) { toast('台词为空'); return; }
-      sendToBatchTask([draft.text], draft.title);
     }
     function batchSendToBatch() {
       var entries = currentExportEntries(); if (!entries.length) return;
-      sendToBatchTask(entries.map(function(e){ return e.draft.text; }), '已选 ' + entries.length + ' 篇衍生稿');
+      sendToBatchTask(entries.map(function(e){ return e.draft.text; }), '已选 ' + entries.length + ' 篇改写稿');
     }
     function sendDraftToCheck(draftId) {
       var draft = findDraftById(draftId);
-      document.getElementById('draft-popover').style.display = 'none';
       if (!draft || !draft.text.trim()) { toast('台词为空'); return; }
       sendToTool('合规检查.html', draft.text, draft.title, { autoCheck: true });
     }
@@ -400,7 +375,7 @@
         var raw = localStorage.getItem(TOOL_HANDOFF_KEY);
         if (!raw) return null;
         var data = JSON.parse(raw);
-        if (data && data.target === '一稿多版.html' && data.text != null) {
+        if (data && data.target === '台词改写.html' && data.text != null) {
           localStorage.removeItem(TOOL_HANDOFF_KEY);
           return data;
         }
@@ -425,18 +400,23 @@
     }
     function fillDeriveDemo() {
       document.getElementById('derive-source').value = '市场震荡时，短线投资者最容易被盘中涨跌打乱节奏。我们每天盘前整理公开市场信息、观察方向和风险提示，帮助你建立自己的判断清单。如果你想了解这套盘前复盘方法，可以点击视频下方链接查看。以上内容仅供参考，不构成具体投资建议。投资有风险，决策需谨慎。';
+      updateSourceMeta();
     }
     function getSetting() {
       return {
         duration: Number(document.getElementById('derive-duration').value),
-        audience: '短线投资者',
-        style: document.getElementById('derive-style').value
+        audience: '短线投资者'
       };
     }
 
     function generateVariations() {
       var source = document.getElementById('derive-source').value.trim();
       if (!source) { toast('请先粘贴基础台词'); return; }
+      if (state.directionMode === '自定义' && !getCustomDirection()) {
+        var customInput = document.getElementById('direction-custom');
+        customInput.classList.add('err'); customInput.focus();
+        toast('请填写自定义改写方向'); return;
+      }
       var setting = getSetting();
       var previousDrafts = state.drafts.length ? state.drafts.slice() : null;
       state.loading = true;
@@ -453,8 +433,14 @@
       setTimeout(function(){
         stageTimers.forEach(clearTimeout);
         var items = createSameThemeScripts(source, setting);
-        var selected = pickDistinctVariations(items, state.count);
-        var drafts = selected.map(function(item, index){ return makeDraft(item.title || ('衍生版本 ' + (index + 1)), item.text, setting.duration); });
+        var selected = pickByStyle(items, state.count);
+        selected.forEach(function(item){ item.text = applyDirectionTone(item.text, state.directionMode); });
+        var customLabel = state.directionMode === '自定义' ? getCustomDirection().replace(/\s+/g, ' ').slice(0, 12) : '';
+        var drafts = selected.map(function(item, index){
+          var title = item.title || ('改写版本 ' + (index + 1));
+          if (customLabel) title = String(title).split('｜')[0] + '｜' + customLabel + (selected.length > 1 ? ' ' + (index + 1) : '');
+          return makeDraft(title, item.text, setting.duration);
+        });
         state.selectedIds = [];
         state.drafts = drafts;
         state.activeId = drafts.length ? drafts[0].id : null;
@@ -462,7 +448,7 @@
         document.getElementById('loading-state').classList.remove('show');
         document.getElementById('drafts-list').style.display = '';
         document.querySelectorAll('.control-panel button, .control-panel select, .control-panel textarea').forEach(function(c){ c.disabled = false; });
-        btn.textContent = '生成衍生台词';
+        btn.textContent = '生成改写台词';
         renderWorkspace();
         drafts.forEach(function(draft){ draft.status = 'checking'; });
         renderWorkspace();
@@ -471,7 +457,7 @@
           renderWorkspace();
           toast('台词已生成，表达已通过合规预检，可直接使用', previousDrafts ? { label: '撤销', onClick: function(){
             state.drafts = previousDrafts; state.activeId = previousDrafts.length ? previousDrafts[0].id : null;
-            renderWorkspace(); toast('已恢复上一次的衍生结果');
+            renderWorkspace(); toast('已恢复上一次的改写结果');
           } } : null);
         }, 520);
       }, 1500);
@@ -483,8 +469,6 @@
       var parts = main.split('[[CTA]]');
       var body = parts[0].trim();
       var cta = (parts[1] || '如果你想了解完整方法，可以点击视频下方链接查看。').trim();
-      if (setting.style === '强钩子') body = body.replace(/值得关注/g, '一定要先看清').replace(/可以先/g, '先别急着行动，可以');
-      if (setting.style === '稳健克制') body = body.replace(/注意了/g, '可以关注').replace(/别再/g, '不妨减少').replace(/最容易/g, '比较容易').replace(/一定要/g, '建议');
       var targetChars = Math.max(90, setting.duration * 4 - disclosure.length - cta.length);
       var ei = 0;
       while (body.length < targetChars * .78 && ei < 3) { body += ['使用这类信息时，先核对公开来源、适用日期和服务边界。','你也可以把"' + subject + '"拆成信息、判断、执行和复盘四个环节。','市场环境和个人资金安排都会变化，任何方法都需要结合自身风险承受能力审慎判断。'][ei]; ei++; }
@@ -555,6 +539,7 @@
       return selected;
     }
     function createSameThemeScripts(source, setting) {
+      var ANGLES = ['痛点钩子', '人群筛选', '反常识钩子', '机会观察', '问题切入', '数据说话', '场景代入', '风险先行', '案例拆解', '清单对照'];
       var parts = extractConversionParts(source);
       var sentences = parts.sentences;
       var core = sentences.join('。') + '。';
@@ -571,7 +556,40 @@
         { title:buildDraftTitle(parts.subject, '风险先行版'), text:'在关注机会之前，先看看可能忽略的风险点。' + reversed + '方法的价值不在于一次判断，而在于帮你少踩重复的坑。[[CTA]]' + parts.cta },
         { title:buildDraftTitle(parts.subject, '案例拆解版'), text:'拿一个常见场景来说：盘面变化快的时候，很多人会凭感觉立刻操作。但真正有效的做法是：' + core + '把情绪和判断分开，每一步都有依据。[[CTA]]' + parts.cta },
         { title:buildDraftTitle(parts.subject, '清单对照版'), text:'不妨试一下这个方法：把你当前最关心的一个问题写下来，然后对照信息来源、适用条件和风险边界三步检查。这就是我们服务的逻辑：' + rotated + '先把方法学会，再谈具体怎么做。[[CTA]]' + parts.cta }
-      ].map(function(item){ item.text = applyGenerationSettings(item.text, setting, '原稿核心观点'); return item; });
+      ].map(function(item, i){ item.angle = ANGLES[i]; item.text = applyGenerationSettings(item.text, setting, '原稿核心观点'); return item; });
+    }
+
+    var STRONG_HOOK_ORDER = ['痛点钩子', '反常识钩子', '问题切入', '人群筛选', '场景代入'];
+    var CALM_ORDER = ['风险先行', '清单对照', '数据说话', '机会观察', '案例拆解'];
+    function pickByStyle(items, count) {
+      if (state.directionMode === '强钩子') return pickByAngleOrder(items, count, STRONG_HOOK_ORDER);
+      if (state.directionMode === '稳健克制') return pickByAngleOrder(items, count, CALM_ORDER);
+      return pickDistinctVariations(items, count);
+    }
+    function pickByAngleOrder(items, count, preferred) {
+      var matched = items.filter(function(item){ return preferred.indexOf(item.angle) >= 0; });
+      matched.sort(function(a, b){ return preferred.indexOf(a.angle) - preferred.indexOf(b.angle); });
+      if (matched.length >= count) return matched.slice(0, count);
+      var rest = items.filter(function(item){ return matched.indexOf(item) < 0; });
+      return matched.concat(pickMoreDistinct(rest, matched, count - matched.length));
+    }
+    function applyDirectionTone(text, mode) {
+      if (mode === '稳健克制') return text.replace(/注意了/g, '可以关注').replace(/别再/g, '不妨减少').replace(/最容易/g, '比较容易').replace(/一定要/g, '建议');
+      if (mode === '强钩子') return text.replace(/值得关注/g, '一定要先看清').replace(/可以先/g, '先别急着行动，可以');
+      return text;
+    }
+    function pickMoreDistinct(pool, already, need) {
+      var remaining = pool.slice(), selected = [];
+      while (selected.length < need && remaining.length) {
+        var base = already.concat(selected);
+        var bestIndex = 0, bestScore = Infinity;
+        remaining.forEach(function(candidate, index){
+          var score = base.length ? Math.max.apply(null, base.map(function(chosen){ return variationSimilarity(candidate.text, chosen.text); })) : 0;
+          if (score < bestScore) { bestScore = score; bestIndex = index; }
+        });
+        selected.push(remaining.splice(bestIndex, 1)[0]);
+      }
+      return selected;
     }
 
     function runDraftCheck(draft) {
@@ -640,16 +658,14 @@
           '<span class="draft-card-num">#' + (index + 1) + '</span>' +
           '<input class="draft-card-title-input" value="' + escapeAttr(draft.title) + '" oninput="updateCardTitle(' + draft.id + ',this.value)" onclick="event.stopPropagation()">' +
           '<span class="draft-card-status ' + draft.status + '">' + statusLabel(draft.status) + '</span>' +
-          '<button class="card-more-btn" onclick="showDraftPopover(event,' + draft.id + ')">⋮</button>' +
           '</div>' +
           '<div class="draft-card-body-wrap"><div class="draft-card-body" contenteditable="true" data-draft-id="' + draft.id + '" oninput="onCardBodyInput(this)" onclick="selectDraft(' + draft.id + ')">' + buildHighlightedHtml(draft) + '</div></div>' +
           '<div class="draft-card-foot">' +
           '<span class="draft-card-meta"><strong>' + countChars(draft.text) + '</strong> 字 · 约 <strong>' + estimateSeconds(draft.text) + '</strong> 秒<button class="expand-btn" onclick="event.stopPropagation();toggleCardExpand(this)">展开 ⌄</button></span>' +
           '<div class="draft-card-actions">' +
           (draft.status === 'stale' ? '<button class="card-action-btn primary recheck-btn" onclick="event.stopPropagation();sendDraftToCheck(' + draft.id + ')">复检合规 ↗</button>' : '') +
-          '<button class="card-action-btn primary" onclick="event.stopPropagation();sendDraftToBatch(' + draft.id + ')">加入批量成片</button>' +
           '<button class="card-action-btn" onclick="event.stopPropagation();copyDraft(' + draft.id + ')">复制</button>' +
-          '<button class="card-action-btn" onclick="event.stopPropagation();clearDraft(' + draft.id + ')" style="color:#ad5360">清空</button>' +
+          '<button class="card-action-btn" onclick="event.stopPropagation();deleteDraft(' + draft.id + ')" style="color:#ad5360">删除</button>' +
           '</div></div></div>';
       }).join('');
     }
@@ -659,39 +675,6 @@
       var wrap = card.querySelector('.draft-card-body-wrap'); if (!wrap) return;
       var expanded = wrap.classList.toggle('expanded');
       btn.textContent = expanded ? '收起 ⌃' : '展开 ⌄';
-    }
-
-    function openCompare() {
-      if (state.drafts.length < 2) { toast('至少需要两个版本才能对比'); return; }
-      var selA = document.getElementById('compare-a'), selB = document.getElementById('compare-b');
-      var opts = state.drafts.map(function(d, i){ return '<option value="' + d.id + '">#' + (i + 1) + ' ' + escapeHtml(d.title) + '</option>'; }).join('');
-      selA.innerHTML = opts; selB.innerHTML = opts;
-      selA.value = String(state.drafts[0].id);
-      selB.value = String(state.drafts[1].id);
-      renderCompare();
-      document.getElementById('compare-overlay').style.display = 'block';
-      document.getElementById('compare-modal').style.display = 'flex';
-    }
-    function closeCompare() {
-      document.getElementById('compare-overlay').style.display = 'none';
-      document.getElementById('compare-modal').style.display = 'none';
-    }
-    function renderCompare() {
-      var a = findDraftById(Number(document.getElementById('compare-a').value));
-      var b = findDraftById(Number(document.getElementById('compare-b').value));
-      if (!a || !b) return;
-      var aSents = a.text.match(/[^。！？!?\n]+[。！？!?]?/g) || [];
-      var bSents = b.text.match(/[^。！？!?\n]+[。！？!?]?/g) || [];
-      var aSet = {}; aSents.forEach(function(s){ aSet[s.trim()] = true; });
-      var bSet = {}; bSents.forEach(function(s){ bSet[s.trim()] = true; });
-      document.getElementById('compare-a-title').textContent = '版本 A · ' + a.title;
-      document.getElementById('compare-b-title').textContent = '版本 B · ' + b.title;
-      document.getElementById('compare-a-text').innerHTML = aSents.map(function(s){ return bSet[s.trim()] ? escapeHtml(s) : '<mark class="compare-diff">' + escapeHtml(s) + '</mark>'; }).join('');
-      document.getElementById('compare-b-text').innerHTML = bSents.map(function(s){ return aSet[s.trim()] ? escapeHtml(s) : '<mark class="compare-diff">' + escapeHtml(s) + '</mark>'; }).join('');
-      var aDiff = aSents.filter(function(s){ return !bSet[s.trim()]; }).length;
-      var bDiff = bSents.filter(function(s){ return !aSet[s.trim()]; }).length;
-      var sim = Math.round(variationSimilarity(a.text, b.text) * 100);
-      document.getElementById('compare-foot').innerHTML = '整体相似度 <strong>' + sim + '%</strong><span>· 版本 A 独有句 ' + aDiff + '</span><span>· 版本 B 独有句 ' + bDiff + '</span><span>· 高亮为仅一版出现的表达</span>';
     }
 
     function buildHighlightedHtml(draft) {
@@ -774,20 +757,38 @@
     }
     function updateCardTitle(draftId, value) { var draft = findDraftById(draftId); if (draft) draft.title = value || '未命名台词'; }
     function copyDraft(draftId) { var draft = findDraftById(draftId); if (draft) copyText(draft.text, '已复制'); }
-    function reuseAsSource(draftId) {
-      var draft = findDraftById(draftId); if (!draft || !draft.text.trim()) { toast('台词为空'); return; }
-      document.getElementById('derive-source').value = draft.text;
-      toast('已设为基础台词，可重新生成衍生版本');
+    function deleteDraft(draftId) {
+      var index = state.drafts.findIndex(function(d){ return d.id === draftId; });
+      if (index < 0) return;
+      var removed = state.drafts[index];
+      askConfirm('删除这个改写版本？', '《' + removed.title + '》将从结果列表中移除，删除后可在 5 秒内通过“撤销”恢复。', function(){
+        var idx = state.drafts.findIndex(function(d){ return d.id === removed.id; });
+        if (idx < 0) return;
+        state.drafts.splice(idx, 1);
+        state.selectedIds = state.selectedIds.filter(function(id){ return id !== removed.id; });
+        if (state.activeId === removed.id) state.activeId = state.drafts.length ? state.drafts[0].id : null;
+        renderWorkspace();
+        toast('已删除该版本', { label: '撤销', onClick: function(){
+          state.drafts.splice(Math.min(idx, state.drafts.length), 0, removed);
+          renderWorkspace(); toast('已恢复删除的版本');
+        } });
+      });
     }
-    function clearDraft(draftId) {
-      var draft = findDraftById(draftId); if (!draft) return;
-      var snapshot = { text: draft.text, title: draft.title, status: draft.status, findings: draft.findings };
-      draft.text = ''; draft.status = 'unchecked'; draft.findings = [];
-      renderWorkspace();
-      toast('已清空', { label: '撤销', onClick: function(){
-        draft.text = snapshot.text; draft.title = snapshot.title; draft.status = snapshot.status; draft.findings = snapshot.findings;
-        renderWorkspace(); toast('已恢复稿件内容');
-      } });
+    var _confirmCallback = null;
+    function askConfirm(title, desc, onOk) {
+      document.getElementById('confirm-title').textContent = title;
+      document.getElementById('confirm-desc').textContent = desc;
+      _confirmCallback = onOk;
+      document.getElementById('confirm-overlay').style.display = 'flex';
+    }
+    function closeConfirm() {
+      document.getElementById('confirm-overlay').style.display = 'none';
+      _confirmCallback = null;
+    }
+    function confirmAction() {
+      var cb = _confirmCallback;
+      closeConfirm();
+      if (cb) cb();
     }
 
     function selectDraft(id) {
@@ -808,14 +809,30 @@
       var hasDrafts = drafts.length > 0;
       var selected = validSelectedIds(drafts);
       state.selectedIds = selected;
-      document.getElementById('result-summary').textContent = hasDrafts ? ('共 ' + drafts.length + ' 篇' + (selected.length ? ' · 已选 ' + selected.length + ' 篇' : '')) : '尚未生成衍生版本';
+      document.getElementById('result-summary').textContent = hasDrafts ? ('共 ' + drafts.length + ' 篇' + (selected.length ? ' · 已选 ' + selected.length + ' 篇' : '')) : '尚未生成改写版本';
       document.getElementById('copy-all-btn').disabled = !hasDrafts;
+      document.getElementById('add-batch-btn').disabled = !selected.length;
+      document.getElementById('add-batch-btn').textContent = selected.length ? ('加入批量成片（' + selected.length + '）') : '加入批量成片';
+      document.getElementById('select-all-btn').disabled = !hasDrafts;
+      document.getElementById('select-all-btn').textContent = (hasDrafts && selected.length === drafts.length) ? '取消全选' : '全选';
       document.getElementById('txt-btn').disabled = !hasDrafts;
       document.getElementById('csv-btn').disabled = !hasDrafts;
       document.getElementById('txt-btn').textContent = selected.length ? ('导出 TXT（' + selected.length + '）') : '导出 TXT';
       document.getElementById('csv-btn').textContent = selected.length ? ('导出 CSV（' + selected.length + '）') : '导出 CSV';
-      document.getElementById('compare-btn').disabled = drafts.length < 2;
-      updateBatchBar();
+    }
+    function toggleSelectAll() {
+      if (!state.drafts.length) return;
+      var allSelected = validSelectedIds(state.drafts).length === state.drafts.length;
+      state.selectedIds = allSelected ? [] : state.drafts.map(function(d){ return d.id; });
+      document.querySelectorAll('#drafts-list .draft-select').forEach(function(cb){ cb.checked = !allSelected; });
+      updateExportControls(state.drafts);
+    }
+    function updateSourceMeta() {
+      var text = document.getElementById('derive-source').value;
+      var chars = countChars(text);
+      document.getElementById('source-meta').innerHTML = chars
+        ? '<strong>' + chars + '</strong> 字 · 约 <strong>' + estimateSeconds(text) + '</strong> 秒'
+        : '0 字';
     }
     function toggleDraftSelection(event, draftId) {
       event.stopPropagation();
@@ -827,18 +844,6 @@
       updateExportControls(state.drafts);
     }
 
-    function showDraftPopover(event, draftId) {
-      event.stopPropagation(); _popoverDraftId = draftId;
-      var popover = document.getElementById('draft-popover');
-      var bRect = event.currentTarget.getBoundingClientRect();
-      popover.style.display = 'block'; popover.style.position = 'fixed';
-      popover.style.left = Math.max(0, bRect.right - 170) + 'px';
-      popover.style.top = (bRect.bottom + 4) + 'px';
-    }
-    document.addEventListener('click', function(e) {
-      var popover = document.getElementById('draft-popover');
-      if (popover && popover.style.display !== 'none' && !popover.contains(e.target)) { popover.style.display = 'none'; _popoverDraftId = null; }
-    });
     document.getElementById('drafts-list').addEventListener('click', function(e) {
       var mark = e.target.closest('mark'); if (!mark || !mark.dataset.findingIndex) return;
       e.stopPropagation();
@@ -884,7 +889,7 @@
     }
     function exportTxt() {
       var entries = currentExportEntries(); if (!entries.length) return;
-      downloadFile('一稿多版-导出.txt', entriesText(entries), 'text/plain');
+      downloadFile('台词改写-导出.txt', entriesText(entries), 'text/plain');
       toast(exportMessage('TXT', entries));
     }
     function csvSafeValue(value) { var text = String(value == null ? '' : value); if (/^[\u0000-\u0020]*[=+\-@]/.test(text)) text = "'" + text; return text; }
@@ -895,13 +900,13 @@
       entries.forEach(function(entry){
         rows.push([entry.index + 1, entry.draft.title, entry.draft.text, countChars(entry.draft.text), estimateSeconds(entry.draft.text), statusLabel(entry.draft.status)]);
       });
-      downloadFile('一稿多版-导出.csv', rows.map(function(row){ return row.map(csvCell).join(','); }).join('\r\n'), 'text/csv');
+      downloadFile('台词改写-导出.csv', rows.map(function(row){ return row.map(csvCell).join(','); }).join('\r\n'), 'text/csv');
       toast(exportMessage('CSV', entries));
     }
 
     function countChars(text) { return String(text || '').replace(/\s/g, '').length; }
     function estimateSeconds(text) { return Math.max(1, Math.ceil(countChars(text) / 4)); }
-    function statusLabel(status) { return { unchecked:'待检查', checking:'检查中', attention:'存在待关注项', clear:'检查通过', stale:'已修改·待复检' }[status] || '待检查'; }
+    function statusLabel(status) { return { unchecked:'待检查', checking:'检查中', attention:'存在待关注项', clear:'✓ 合规检查已通过', stale:'已修改·待复检' }[status] || '待检查'; }
 
     document.addEventListener('keydown', function(e){
       if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
@@ -914,8 +919,10 @@
       var handoff = consumeHandoff();
       if (handoff) {
         document.getElementById('derive-source').value = handoff.text;
+        updateSourceMeta();
         setTimeout(function(){ showHandoffBanner(handoff.from, handoff.title, countChars(handoff.text)); }, 100);
       }
+      renderDirectionChips();
       renderWorkspace();
     })();
   </script>
