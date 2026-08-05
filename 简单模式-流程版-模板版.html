@@ -2856,7 +2856,19 @@
       renderTemplatePanel();
       renderAvatarList();
       renderBgList();
-      addScriptCard();
+      var importedFromTool = (function(){
+        try {
+          var raw = localStorage.getItem('script-tool-handoff');
+          if (!raw) return false;
+          var data = JSON.parse(raw);
+          if (!data || data.target !== '简单模式-流程版-模板版.html' || !data.texts || !data.texts.length) return false;
+          localStorage.removeItem('script-tool-handoff');
+          data.texts.forEach(function(t){ addScriptCard(String(t || '')); });
+          toast('已从「' + (data.from || '工具页') + '」添加 ' + data.texts.length + ' 条台词到批量成片');
+          return true;
+        } catch (e) { return false; }
+      })();
+      if (!importedFromTool) addScriptCard();
     }
     updGlobalLabel();
     updFooter();

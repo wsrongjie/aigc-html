@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>一稿多版</title>
+  <style>
+    :root {
+      --blue: #2f6bff; --blue-deep: #1746b8; --blue-soft: #edf3ff;
+      --ink: #172033; --muted: #7b8497; --line: #e5e9f1; --panel: #ffffff; --canvas: #f3f5f8;
+      --mint: #0aa78f; --mint-soft: #e6f8f4; --amber: #d98600; --amber-soft: #fff5df;
+      --red: #d83b4a; --red-soft: #fff0f1;
+      --shadow: 0 12px 32px rgba(22, 34, 58, 0.08);
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; }
+    body {
+      color: var(--ink);
+      background: radial-gradient(circle at 72% 0%, rgba(47,107,255,.07), transparent 32%), var(--canvas);
+      font-family: "Microsoft YaHei", "PingFang SC", sans-serif; font-size: 14px;
+    }
+    button, input, textarea, select { font: inherit; }
+    button { color: inherit; }
+
+    .sidebar {
+      position: fixed; inset: 0 auto 0 0; width: 56px; z-index: 20;
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+      padding: 16px 0; background: #fff; border-right: 1px solid #e8e8e8;
+    }
+    .logo { width: 32px; height: 32px; margin-bottom: 16px; display: grid; place-items: center; }
+    .logo svg { width: 28px; height: 28px; }
+    .sidebar-item {
+      width: 40px; height: 40px; border-radius: 10px;
+      display: flex; flex-direction: column; gap: 4px; align-items: center; justify-content: center;
+      color: #999; text-decoration: none; font-size: 9px; transition: .18s ease;
+    }
+    .sidebar-item .icon { font-size: 16px; line-height: 1; }
+    .sidebar-item:hover { color: #0066ff; background: #f5f5f5; }
+    .sidebar-item.active { color: #0066ff; background: #eef4ff; }
+    .sidebar-divider { width: 24px; height: 1px; margin: 8px 0; background: #e8e8e8; }
+
+    .main { margin-left: 56px; min-height: 100vh; }
+    .topbar {
+      height: 48px; padding: 0 32px; display: flex; align-items: center; justify-content: space-between;
+      background: #fff; border-bottom: 1px solid #e8e8e8; position: sticky; top: 0; z-index: 15;
+    }
+    .topbar-brand { font-size: 13px; font-weight: 600; letter-spacing: 1px; }
+    .topbar-right { display: flex; align-items: center; gap: 14px; color: var(--muted); font-size: 12px; }
+    .prototype-tag { padding: 5px 9px; border-radius: 999px; background: #eef1f5; color: #697386; }
+    .avatar { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; color: #fff; font-size: 11px; font-weight: 700; background: linear-gradient(135deg,#334155,#64748b); }
+
+    .page-head { padding: 22px 26px 18px; display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; }
+    .eyebrow { margin-bottom: 7px; color: var(--blue); font-size: 11px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
+    h1 { margin: 0; font-family: "Songti SC", "STSong", serif; font-size: 27px; letter-spacing: -.02em; }
+    .page-desc { margin: 7px 0 0; color: var(--muted); font-size: 13px; }
+    .head-note { max-width: 310px; color: #6d778a; font-size: 11px; line-height: 1.6; text-align: right; }
+
+    .workspace {
+      padding: 0 26px 26px; display: grid; grid-template-columns: 300px minmax(440px, 1fr);
+      gap: 16px; height: calc(100vh - 152px); min-height: 560px;
+    }
+    .panel { background: var(--panel); border: 1px solid #e8ebf0; border-radius: 14px; box-shadow: 0 2px 12px rgba(22,34,58,.03); min-height: 0; }
+
+    .control-panel { display: flex; flex-direction: column; overflow: hidden; }
+    .control-scroll { padding: 18px; overflow-y: auto; flex: 1; }
+    .section-title { margin: 0 0 16px; font-size: 16px; font-weight: 800; }
+    .field { margin-bottom: 16px; }
+    .field-label { display: flex; justify-content: space-between; align-items: center; margin-bottom: 7px; font-size: 12px; font-weight: 700; }
+    .field-label span { color: #a0a7b5; font-size: 10px; font-weight: 500; }
+    .text-area, .select {
+      width: 100%; border: 1px solid #dce1ea; border-radius: 10px; background: #fff; color: var(--ink); outline: none;
+      transition: border-color .16s, box-shadow .16s;
+    }
+    .text-area { min-height: 112px; padding: 11px 12px; resize: vertical; line-height: 1.65; }
+    .select { height: 38px; padding: 0 11px; }
+    .text-area:focus, .select:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(47,107,255,.09); }
+    .quick-topics { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+    .quick-chip { border: 1px solid #e2e7ef; border-radius: 999px; padding: 6px 12px; background: #fff; color: #687286; font-size: 11px; cursor: pointer; transition: .15s; }
+    .quick-chip:hover { color: var(--blue); border-color: #a9c0ff; background: var(--blue-soft); }
+    .counter { height: 38px; display: grid; grid-template-columns: 38px 1fr 38px; border: 1px solid #dce1ea; border-radius: 10px; overflow: hidden; }
+    .counter button { border: 0; background: #f7f8fa; cursor: pointer; font-size: 17px; }
+    .counter button:hover { color: var(--blue); background: var(--blue-soft); }
+    .counter strong { display: grid; place-items: center; border-left: 1px solid #e8ebf1; border-right: 1px solid #e8ebf1; }
+    details.advanced { margin: 4px 0 17px; border: 1px solid #e2e6ed; border-radius: 10px; background: #fafbfc; }
+    details.advanced summary { padding: 11px 12px; cursor: pointer; font-size: 11px; font-weight: 700; list-style: none; }
+    details.advanced summary::-webkit-details-marker { display: none; }
+    details.advanced summary::after { content: "+"; float: right; color: #929aaa; }
+    details.advanced[open] summary::after { content: "\2212"; }
+    .advanced-body { padding: 0 12px 2px; }
+    .advanced-body .field { margin-bottom: 12px; }
+    .advanced-body .field-label { font-size: 11px; }
+    .advanced-body .select { height: 34px; font-size: 11px; }
+    .primary-btn { width: 100%; height: 42px; border: 0; border-radius: 10px; background: var(--blue); color: #fff; font-weight: 800; cursor: pointer; box-shadow: 0 8px 18px rgba(47,107,255,.2); transition: .18s ease; }
+    .primary-btn:hover { background: #245de6; transform: translateY(-1px); }
+    .primary-btn:disabled { background: #aebbd9; box-shadow: none; cursor: wait; transform: none; }
+    .ghost-btn { height: 31px; padding: 0 10px; border: 1px solid #dfe4ec; border-radius: 8px; background: #fff; color: #5e687b; font-size: 10px; font-weight: 700; cursor: pointer; }
+    .ghost-btn:hover:not(:disabled) { color: var(--blue); border-color: #aec2fb; background: var(--blue-soft); }
+    .ghost-btn:disabled { opacity: .4; cursor: not-allowed; }
+    .helper { margin-top: 10px; color: #98a0af; font-size: 10px; line-height: 1.55; text-align: center; }
+
+    .editor-panel { display: flex; flex-direction: column; min-width: 0; overflow: hidden; }
+    .editor-top { min-height: 57px; padding: 12px 15px; display: flex; align-items: center; justify-content: space-between; gap: 12px; border-bottom: 1px solid var(--line); }
+    .editor-heading { font-weight: 800; }
+    .editor-sub { margin-top: 3px; color: var(--muted); font-size: 10px; }
+    .global-actions { display: flex; gap: 6px; }
+
+    .drafts-list { flex: 1; min-width: 0; min-height: 0; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 12px; }
+    .draft-card { border: 1px solid #e8ebf0; border-radius: 12px; flex: 0 0 auto; background: #fff; overflow: hidden; transition: border-color .18s, box-shadow .18s; }
+    .draft-card:hover { border-color: #cdd4e0; }
+    .draft-card.active { border-color: #8eaeff; box-shadow: 0 0 0 2px rgba(47,107,255,.1), 0 4px 16px rgba(47,107,255,.06); }
+    .draft-card-header { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; background: #fafbfc; border-bottom: 1px solid #eff2f6; gap: 6px; }
+    .draft-select { width: 15px; height: 15px; margin: 0 2px 0 0; accent-color: var(--blue); cursor: pointer; flex-shrink: 0; }
+    .draft-card-num { font-size: 11px; font-weight: 800; color: var(--muted); flex-shrink: 0; }
+    .draft-card-title-input {
+      flex: 1; min-width: 0; border: 0; outline: 0; background: transparent;
+      font-size: 12px; font-weight: 700; color: var(--ink);
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: inherit;
+    }
+    .draft-card-title-input:focus { background: #fff; border-radius: 4px; box-shadow: 0 0 0 2px rgba(47,107,255,.15); }
+    .draft-card-status { padding: 3px 7px; border-radius: 999px; font-size: 9px; font-weight: 700; flex-shrink: 0; background: #f0f2f6; color: #727b8c; }
+    .draft-card-status.attention { background: var(--amber-soft); color: #a36600; }
+    .draft-card-status.clear { background: var(--mint-soft); color: #087b6a; }
+    .draft-card-status.checking { background: var(--blue-soft); color: var(--blue-deep); }
+    .draft-card-status.stale { background: #f1f3f6; color: #687286; }
+    .draft-card-body-wrap { min-height: 124px; height: 124px; resize: vertical; overflow-x: hidden; overflow-y: auto; }
+    .draft-card-body-wrap::-webkit-resizer { display: block; }
+    .draft-card-body {
+      padding: 12px 14px; font-size: 14px; line-height: 1.85; color: #202a3d;
+      white-space: pre-wrap; word-break: break-word; min-height: 100%; box-sizing: border-box; outline: none;
+    }
+    .draft-card-body mark { border-radius: 2px; padding: 0 1px; cursor: pointer; }
+    .draft-card-body mark.risk-high { background: #fdd8dc; color: #7f1d2a; }
+    .draft-card-body mark.risk-medium { background: #fdecc8; color: #7a5200; }
+    .draft-card-body mark.risk-low { background: #e9ecf2; color: #4a5466; }
+    .draft-card-foot { padding: 6px 10px; border-top: 1px solid #eff2f6; display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+    .draft-card-meta { font-size: 10px; color: #8c94a4; }
+    .draft-card-meta strong { color: #4b566a; }
+    .draft-card-actions { display: flex; gap: 4px; }
+    .card-action-btn {
+      height: 24px; padding: 0 8px; border: 1px solid #dfe4ec; border-radius: 6px;
+      background: #fff; color: #5e687b; font-size: 10px; cursor: pointer; font-family: inherit;
+    }
+    .card-action-btn:hover { color: var(--blue); border-color: #aec2fb; background: var(--blue-soft); }
+    .card-more-btn {
+      width: 24px; height: 24px; border: 0; border-radius: 5px; background: transparent; color: #8d95a5;
+      font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .card-more-btn:hover { background: #eef1f6; color: var(--blue); }
+    .draft-popover {
+      position: fixed; z-index: 35; min-width: 170px; padding: 6px;
+      background: #fff; border: 1px solid #e5e9f1; border-radius: 10px; box-shadow: 0 14px 36px rgba(22,34,58,.14);
+    }
+    .draft-popover button { display: block; width: 100%; padding: 8px 10px; border: 0; border-radius: 7px; background: transparent; font-size: 11px; text-align: left; cursor: pointer; color: var(--ink); }
+    .draft-popover button:hover { background: var(--blue-soft); color: var(--blue); }
+
+    .empty-state { flex: 1; display: grid; place-items: center; padding: 32px; text-align: center; }
+    .empty-visual { position: relative; width: 118px; height: 98px; margin: 0 auto 20px; }
+    .paper { position: absolute; width: 74px; height: 92px; left: 21px; top: 2px; border: 1px solid #d9e0eb; border-radius: 10px; background: #fff; box-shadow: var(--shadow); transform: rotate(-3deg); }
+    .paper::before { content: ""; position: absolute; left: 15px; right: 15px; top: 23px; height: 3px; border-radius: 3px; background: #7da0ff; box-shadow: 0 14px 0 #d9dfea, 0 28px 0 #d9dfea, 0 42px 0 #e8ebf1; }
+    .spark { position: absolute; right: 1px; top: 4px; width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; color: #fff; background: linear-gradient(135deg,#2f6bff,#0aa78f); box-shadow: 0 8px 18px rgba(47,107,255,.24); font-weight: 800; font-size: 11px; }
+    .empty-state h2 { margin: 0 0 8px; font-family: "Songti SC", "STSong", serif; font-size: 20px; }
+    .empty-state p { max-width: 360px; margin: 0; color: var(--muted); font-size: 12px; line-height: 1.7; }
+    .loading-state { display: none; flex: 1; place-items: center; text-align: center; }
+    .loading-state.show { display: grid; }
+    .loader-ring { width: 42px; height: 42px; margin: 0 auto 14px; border: 3px solid #e5ebf8; border-top-color: var(--blue); border-radius: 50%; animation: spin .8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-title { font-weight: 800; }
+    .loading-copy { margin-top: 6px; color: var(--muted); font-size: 11px; }
+
+    .toast { position: fixed; left: 50%; bottom: 30px; z-index: 100; transform: translate(-50%, 18px); display: flex; align-items: center; gap: 14px; padding: 10px 16px; border-radius: 9px; background: #172033; color: #fff; opacity: 0; pointer-events: none; transition: .22s ease; box-shadow: var(--shadow); font-size: 11px; max-width: 80vw; }
+    .toast.show { opacity: 1; transform: translate(-50%, 0); pointer-events: auto; }
+    .toast-action { border: 0; background: transparent; color: #7da0ff; font-weight: 800; font-size: 11px; cursor: pointer; padding: 0; font-family: inherit; }
+    .toast-action:hover { text-decoration: underline; }
+
+    .handoff-banner {
+      position: fixed; top: 60px; right: 26px; z-index: 95; width: 300px;
+      display: flex; align-items: center; gap: 10px; padding: 11px 12px;
+      background: #fff; border: 1px solid #d9e5ff; border-radius: 12px; box-shadow: 0 14px 34px rgba(22,34,58,.14);
+      opacity: 0; transform: translateY(-8px); transition: .25s ease; pointer-events: none;
+    }
+    .handoff-banner.show { opacity: 1; transform: translateY(0); pointer-events: auto; }
+    .hb-icon { width: 34px; height: 34px; border-radius: 9px; background: var(--blue-soft); display: grid; place-items: center; font-size: 15px; flex-shrink: 0; }
+    .hb-body { flex: 1; min-width: 0; }
+    .hb-body strong { display: block; font-size: 11px; }
+    .hb-body span { display: block; margin-top: 2px; color: var(--muted); font-size: 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .hb-close { border: 0; background: transparent; color: #98a0af; cursor: pointer; font-size: 14px; padding: 2px; }
+
+    .batch-bar {
+      position: fixed; left: 50%; bottom: 72px; z-index: 90; transform: translate(-50%, 16px);
+      display: flex; align-items: center; gap: 10px; padding: 9px 14px;
+      background: #172033; color: #fff; border-radius: 12px; box-shadow: 0 16px 38px rgba(22,34,58,.3);
+      opacity: 0; pointer-events: none; transition: .22s ease;
+    }
+    .batch-bar.show { opacity: 1; transform: translate(-50%, 0); pointer-events: auto; }
+    .batch-count { font-size: 12px; font-weight: 800; }
+    .batch-btn { height: 28px; padding: 0 12px; border: 0; border-radius: 8px; background: var(--blue); color: #fff; font-size: 11px; font-weight: 700; cursor: pointer; }
+    .batch-btn:hover { background: #245de6; }
+    .batch-btn.ghost { background: rgba(255,255,255,.12); }
+    .batch-btn.ghost:hover { background: rgba(255,255,255,.2); }
+
+    .crumb { margin-bottom: 9px; font-size: 11px; color: #98a0af; }
+    .crumb a { color: #687286; text-decoration: none; }
+    .crumb a:hover { color: var(--blue); text-decoration: underline; }
+    .crumb span { color: #4b566a; font-weight: 700; }
+
+    .card-action-btn.primary { background: var(--blue); border-color: var(--blue); color: #fff; }
+    .card-action-btn.primary:hover { background: #245de6; border-color: #245de6; color: #fff; }
+    .expand-btn { border: 0; background: transparent; color: #98a0af; font-size: 10px; cursor: pointer; padding: 0 4px; font-family: inherit; }
+    .expand-btn:hover { color: var(--blue); }
+    .draft-card-body-wrap.expanded { height: 320px; }
+
+    .compare-overlay { position: fixed; inset: 0; z-index: 105; background: rgba(15,20,35,.38); }
+    .compare-modal {
+      position: fixed; z-index: 106; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      width: 920px; max-width: 94vw; max-height: 82vh; background: #fff; border-radius: 14px;
+      box-shadow: 0 24px 64px rgba(0,0,0,.18); display: flex; flex-direction: column; overflow: hidden;
+    }
+    .compare-header { display: flex; align-items: center; gap: 14px; padding: 13px 18px; border-bottom: 1px solid #eff2f6; background: #fafbfc; }
+    .compare-header strong { font-size: 14px; flex-shrink: 0; }
+    .compare-selects { flex: 1; display: flex; align-items: center; gap: 8px; min-width: 0; }
+    .compare-selects select { flex: 1; min-width: 0; height: 32px; border: 1px solid #dce1ea; border-radius: 8px; padding: 0 8px; font-size: 11px; background: #fff; outline: none; }
+    .compare-selects span { color: #98a0af; font-size: 11px; flex-shrink: 0; }
+    .compare-body { flex: 1; min-height: 0; display: grid; grid-template-columns: 1fr 1fr; }
+    .compare-col { padding: 14px 16px; overflow-y: auto; }
+    .compare-col + .compare-col { border-left: 1px solid #eff2f6; }
+    .compare-col-title { margin-bottom: 10px; font-size: 11px; font-weight: 800; color: var(--muted); }
+    .compare-text { font-size: 13px; line-height: 1.9; color: #202a3d; white-space: pre-wrap; word-break: break-word; }
+    .compare-text mark.compare-diff { background: #fdecc8; color: #7a5200; border-radius: 2px; padding: 0 1px; }
+    .compare-foot { padding: 10px 18px; border-top: 1px solid #eff2f6; font-size: 11px; color: var(--muted); display: flex; gap: 18px; background: #fafbfc; }
+    .compare-foot strong { color: #4b566a; }
+
+    @media (max-width: 900px) {
+      .page-head { align-items: flex-start; flex-direction: column; }
+      .head-note { text-align: left; }
+      .workspace { height: auto; grid-template-columns: minmax(0,1fr); }
+      .control-panel { min-height: 460px; }
+      .editor-panel { height: clamp(560px, 72vh, 760px); min-height: 0; }
+      .editor-top { align-items: flex-start; flex-direction: column; }
+      .global-actions { flex-wrap: wrap; }
+    }
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="logo"><svg viewBox="0 0 24 24" fill="none" stroke="#1a1a2e" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg></div>
+    <a class="sidebar-item" href="index.html"><span class="icon">📦</span><span class="label">资源</span></a>
+    <a class="sidebar-item" href="导演台首页.html"><span class="icon">🎬</span><span class="label">导演台</span></a>
+    <div class="sidebar-divider"></div>
+    <a class="sidebar-item active" href="全部工具.html"><span class="icon"></span><span class="label">全部工具</span></a>
+  </aside>
+  <main class="main">
+    <header class="topbar">
+      <div class="topbar-brand">智造</div>
+      <div class="topbar-right"><span class="prototype-tag">静态原型演示</span><div class="avatar">W</div></div>
+    </header>
+    <section class="page-head">
+      <div><div class="crumb"><a href="全部工具.html">全部工具</a> / <span>一稿多版</span></div><div class="eyebrow">SCRIPT TOOL · VARIATIONS</div><h1>一稿多版</h1><p class="page-desc">锁定原稿事实与行动引导，批量衍生多个不同钩子的表达版本。</p></div>
+      <div class="head-note">支持从爆款拆解导入基础台词，衍生表达均已通过合规预检，可直接使用</div>
+    </section>
+    <section class="workspace">
+      <aside class="panel control-panel">
+        <div class="control-scroll">
+          <div class="section-title">基于一稿批量衍生</div>
+          <div class="field">
+            <label class="field-label" for="derive-source">基础台词 <span>必填</span></label>
+            <textarea class="text-area" id="derive-source" style="min-height:180px" placeholder="粘贴作为衍生依据的完整台词"></textarea>
+            <div class="quick-topics"><button class="quick-chip" onclick="fillDeriveDemo()">填入示例</button></div>
+          </div>
+          <div class="field">
+            <label class="field-label">生成篇数 <span>1–10 篇</span></label>
+            <div class="counter"><button onclick="adjustCount(-1)">−</button><strong id="derive-count">3</strong><button onclick="adjustCount(1)">＋</button></div>
+          </div>
+          <details class="advanced">
+            <summary>高级设置</summary>
+            <div class="advanced-body">
+              <div class="field"><label class="field-label">预计时长</label><select class="select" id="derive-duration"><option value="30">30 秒</option><option value="60" selected>60 秒</option><option value="90">90 秒</option></select></div>
+              <div class="field"><label class="field-label">表达力度</label><select class="select" id="derive-style"><option>强钩子</option><option selected>均衡转化</option><option>稳健克制</option></select></div>
+            </div>
+          </details>
+          <button class="primary-btn" id="derive-btn" onclick="generateVariations()">生成衍生台词</button>
+          <div class="helper">原型使用本地模拟内容，不会调用真实大模型 · Ctrl+⏎ 快速生成</div>
+        </div>
+      </aside>
+      <section class="panel editor-panel">
+        <div class="editor-top">
+          <div><div class="editor-heading">衍生结果</div><div class="editor-sub" id="result-summary">尚未生成衍生版本</div></div>
+          <div class="global-actions">
+            <button class="ghost-btn" id="compare-btn" onclick="openCompare()" disabled>版本对比</button>
+            <button class="ghost-btn" id="copy-all-btn" onclick="copyAll()" disabled>复制全部</button>
+            <button class="ghost-btn" id="txt-btn" onclick="exportTxt()" disabled>导出 TXT</button>
+            <button class="ghost-btn" id="csv-btn" onclick="exportCsv()" disabled>导出 CSV</button>
+          </div>
+        </div>
+        <div class="empty-state" id="empty-state">
+          <div><div class="empty-visual"><div class="paper"></div><div class="spark">AI</div></div><h2>粘贴基础台词开始衍生</h2><p>在左侧粘贴一段基础台词，一键生成多个不同表达角度的衍生版本。</p></div>
+        </div>
+        <div class="loading-state" id="loading-state"><div><div class="loader-ring"></div><div class="loading-title" id="loading-title">正在生成同主题表达版本</div><div class="loading-copy" id="loading-copy">组织结构、生成表达，并进行初步合规扫描…</div></div></div>
+        <div class="draft-popover" id="draft-popover" style="display:none">
+          <button onclick="reuseAsSource(_popoverDraftId);document.getElementById('draft-popover').style.display='none'">设为基础稿</button>
+        </div>
+        <div class="compare-overlay" id="compare-overlay" style="display:none" onclick="closeCompare()"></div>
+        <div class="compare-modal" id="compare-modal" style="display:none">
+          <div class="compare-header">
+            <strong>版本对比</strong>
+            <div class="compare-selects">
+              <select id="compare-a" onchange="renderCompare()"></select>
+              <span>vs</span>
+              <select id="compare-b" onchange="renderCompare()"></select>
+            </div>
+            <button class="preview-close" style="width:28px;height:28px;border:0;border-radius:8px;background:transparent;font-size:18px;cursor:pointer;color:#8d95a5" onclick="closeCompare()">&times;</button>
+          </div>
+          <div class="compare-body">
+            <div class="compare-col"><div class="compare-col-title" id="compare-a-title"></div><div class="compare-text" id="compare-a-text"></div></div>
+            <div class="compare-col"><div class="compare-col-title" id="compare-b-title"></div><div class="compare-text" id="compare-b-text"></div></div>
+          </div>
+          <div class="compare-foot" id="compare-foot"></div>
+        </div>
+        <div class="drafts-list" id="drafts-list"></div>
+      </section>
+    </section>
+  </main>
+  <div class="toast" id="toast"><span id="toast-msg"></span><button class="toast-action" id="toast-action" style="display:none"></button></div>
+  <div class="handoff-banner" id="handoff-banner"><div class="hb-icon">📄</div><div class="hb-body"><strong id="hb-title"></strong><span id="hb-sub"></span></div><button class="hb-close" onclick="dismissHandoffBanner()">✕</button></div>
+  <div class="batch-bar" id="batch-bar"><span class="batch-count" id="batch-count"></span><button class="batch-btn" onclick="batchSendToBatch()">加入批量成片</button><button class="batch-btn ghost" onclick="exportTxt()">导出 TXT</button><button class="batch-btn ghost" onclick="exportCsv()">导出 CSV</button><button class="batch-btn ghost" onclick="clearBatchSelection()">取消选择</button></div>
+  <script>
+    var TOOL_HANDOFF_KEY = 'script-tool-handoff';
+    var state = { drafts: [], activeId: null, selectedIds: [], count: 3, loading: false, nextId: 1 };
+    var _popoverDraftId = null;
+
+    function escapeHtml(value) {
+      return String(value == null ? '' : value).replace(/[&<>'"]/g, function(ch) {
+        return { '&':'&amp;', '<':'&lt;', '>':'&gt;', "'":'&#39;', '"':'&quot;' }[ch];
+      });
+    }
+    function escapeAttr(value) { return escapeHtml(value); }
+
+    function toast(message, action) {
+      var el = document.getElementById('toast');
+      document.getElementById('toast-msg').textContent = message;
+      var act = document.getElementById('toast-action');
+      if (action) {
+        act.textContent = action.label; act.style.display = '';
+        act.onclick = function(){ action.onClick(); el.classList.remove('show'); };
+      } else { act.style.display = 'none'; act.onclick = null; }
+      el.classList.add('show');
+      clearTimeout(toast.timer);
+      toast.timer = setTimeout(function(){ el.classList.remove('show'); }, action ? 5000 : 1900);
+    }
+
+    function showHandoffBanner(from, title, chars) {
+      document.getElementById('hb-title').textContent = '已从「' + (from || '其他工具') + '」载入基础台词';
+      document.getElementById('hb-sub').textContent = (title ? '《' + title + '》 · ' : '') + chars + ' 字';
+      var el = document.getElementById('handoff-banner');
+      el.classList.add('show');
+      clearTimeout(showHandoffBanner.timer);
+      showHandoffBanner.timer = setTimeout(dismissHandoffBanner, 6000);
+    }
+    function dismissHandoffBanner() { document.getElementById('handoff-banner').classList.remove('show'); }
+
+    function updateBatchBar() {
+      var n = validSelectedIds(state.drafts).length;
+      var bar = document.getElementById('batch-bar');
+      if (n) { document.getElementById('batch-count').textContent = '已选 ' + n + ' 篇'; bar.classList.add('show'); }
+      else bar.classList.remove('show');
+    }
+    function clearBatchSelection() {
+      state.selectedIds = [];
+      document.querySelectorAll('#drafts-list .draft-select').forEach(function(cb){ cb.checked = false; });
+      updateExportControls(state.drafts);
+    }
+
+    function sendToTool(target, text, title, extra) {
+      try { localStorage.setItem(TOOL_HANDOFF_KEY, JSON.stringify(Object.assign({ target: target, from: '一稿多版', title: title || '', text: text, at: Date.now() }, extra || {}))); } catch (e) {}
+      window.location.href = target;
+    }
+    function sendToBatchTask(texts, summaryTitle) {
+      var list = (texts || []).filter(function(t){ return t && t.trim(); });
+      if (!list.length) { toast('没有可添加的台词'); return; }
+      try { localStorage.setItem(TOOL_HANDOFF_KEY, JSON.stringify({ target: '简单模式-流程版-模板版.html', from: '一稿多版', title: summaryTitle || '', texts: list, at: Date.now() })); } catch (e) {}
+      window.location.href = '简单模式-流程版-模板版.html?returnTo=directorWorkbench';
+    }
+    function sendDraftToBatch(draftId) {
+      var draft = findDraftById(draftId);
+      document.getElementById('draft-popover').style.display = 'none';
+      if (!draft || !draft.text.trim()) { toast('台词为空'); return; }
+      sendToBatchTask([draft.text], draft.title);
+    }
+    function batchSendToBatch() {
+      var entries = currentExportEntries(); if (!entries.length) return;
+      sendToBatchTask(entries.map(function(e){ return e.draft.text; }), '已选 ' + entries.length + ' 篇衍生稿');
+    }
+    function sendDraftToCheck(draftId) {
+      var draft = findDraftById(draftId);
+      document.getElementById('draft-popover').style.display = 'none';
+      if (!draft || !draft.text.trim()) { toast('台词为空'); return; }
+      sendToTool('合规检查.html', draft.text, draft.title, { autoCheck: true });
+    }
+    function consumeHandoff() {
+      try {
+        var raw = localStorage.getItem(TOOL_HANDOFF_KEY);
+        if (!raw) return null;
+        var data = JSON.parse(raw);
+        if (data && data.target === '一稿多版.html' && data.text != null) {
+          localStorage.removeItem(TOOL_HANDOFF_KEY);
+          return data;
+        }
+      } catch (e) {}
+      return null;
+    }
+
+    function currentDraft() {
+      return state.drafts.find(function(item){ return item.id === state.activeId; }) || null;
+    }
+    function findDraftById(id) {
+      return state.drafts.find(function(d){ return d.id === id; }) || null;
+    }
+    function makeDraft(title, text, targetDuration) {
+      return { id: state.nextId++, title: title, text: text, targetDuration: targetDuration || 60, status: 'unchecked', findings: [] };
+    }
+
+    function adjustCount(delta) {
+      if (state.loading) { toast('当前任务处理中，请稍候'); return; }
+      state.count = Math.max(1, Math.min(10, state.count + delta));
+      document.getElementById('derive-count').textContent = state.count;
+    }
+    function fillDeriveDemo() {
+      document.getElementById('derive-source').value = '市场震荡时，短线投资者最容易被盘中涨跌打乱节奏。我们每天盘前整理公开市场信息、观察方向和风险提示，帮助你建立自己的判断清单。如果你想了解这套盘前复盘方法，可以点击视频下方链接查看。以上内容仅供参考，不构成具体投资建议。投资有风险，决策需谨慎。';
+    }
+    function getSetting() {
+      return {
+        duration: Number(document.getElementById('derive-duration').value),
+        audience: '短线投资者',
+        style: document.getElementById('derive-style').value
+      };
+    }
+
+    function generateVariations() {
+      var source = document.getElementById('derive-source').value.trim();
+      if (!source) { toast('请先粘贴基础台词'); return; }
+      var setting = getSetting();
+      var previousDrafts = state.drafts.length ? state.drafts.slice() : null;
+      state.loading = true;
+      document.getElementById('empty-state').style.display = 'none';
+      document.getElementById('drafts-list').style.display = 'none';
+      document.getElementById('loading-state').classList.add('show');
+      var stages = ['拆解原稿结构，锁定事实与行动引导…', '生成多个钩子角度的表达版本…', '挑选差异最大的版本，进行合规扫描…'];
+      var stageTimers = stages.map(function(text, i){
+        return setTimeout(function(){ document.getElementById('loading-copy').textContent = text; }, i * 500);
+      });
+      document.querySelectorAll('.control-panel button, .control-panel select, .control-panel textarea').forEach(function(c){ c.disabled = true; });
+      var btn = document.getElementById('derive-btn');
+      btn.textContent = '处理中…';
+      setTimeout(function(){
+        stageTimers.forEach(clearTimeout);
+        var items = createSameThemeScripts(source, setting);
+        var selected = pickDistinctVariations(items, state.count);
+        var drafts = selected.map(function(item, index){ return makeDraft(item.title || ('衍生版本 ' + (index + 1)), item.text, setting.duration); });
+        state.selectedIds = [];
+        state.drafts = drafts;
+        state.activeId = drafts.length ? drafts[0].id : null;
+        state.loading = false;
+        document.getElementById('loading-state').classList.remove('show');
+        document.getElementById('drafts-list').style.display = '';
+        document.querySelectorAll('.control-panel button, .control-panel select, .control-panel textarea').forEach(function(c){ c.disabled = false; });
+        btn.textContent = '生成衍生台词';
+        renderWorkspace();
+        drafts.forEach(function(draft){ draft.status = 'checking'; });
+        renderWorkspace();
+        setTimeout(function(){
+          drafts.forEach(function(draft){ runDraftCheck(draft); });
+          renderWorkspace();
+          toast('台词已生成，表达已通过合规预检，可直接使用', previousDrafts ? { label: '撤销', onClick: function(){
+            state.drafts = previousDrafts; state.activeId = previousDrafts.length ? previousDrafts[0].id : null;
+            renderWorkspace(); toast('已恢复上一次的衍生结果');
+          } } : null);
+        }, 520);
+      }, 1500);
+    }
+
+    function applyGenerationSettings(text, setting, subject) {
+      var disclosure = '以上内容仅供参考，不构成具体投资建议。投资有风险，决策需谨慎。';
+      var main = text.replace(/以上内容仅供参考[，,]?不构成(?:具体)?投资建议[。！]?/g, '').replace(/投资有风险[，,]?决策需谨慎[。！]?/g, '').trim();
+      var parts = main.split('[[CTA]]');
+      var body = parts[0].trim();
+      var cta = (parts[1] || '如果你想了解完整方法，可以点击视频下方链接查看。').trim();
+      if (setting.style === '强钩子') body = body.replace(/值得关注/g, '一定要先看清').replace(/可以先/g, '先别急着行动，可以');
+      if (setting.style === '稳健克制') body = body.replace(/注意了/g, '可以关注').replace(/别再/g, '不妨减少').replace(/最容易/g, '比较容易').replace(/一定要/g, '建议');
+      var targetChars = Math.max(90, setting.duration * 4 - disclosure.length - cta.length);
+      var ei = 0;
+      while (body.length < targetChars * .78 && ei < 3) { body += ['使用这类信息时，先核对公开来源、适用日期和服务边界。','你也可以把"' + subject + '"拆成信息、判断、执行和复盘四个环节。','市场环境和个人资金安排都会变化，任何方法都需要结合自身风险承受能力审慎判断。'][ei]; ei++; }
+      if (body.length > targetChars * 1.06) {
+        var pieces = body.match(/[^。！？]+[。！？]?/g) || [body];
+        var trimmed = '';
+        pieces.some(function(piece){
+          if (trimmed && (trimmed + piece).length > targetChars) return true;
+          if (!trimmed && piece.length > targetChars) {
+            var clipped = piece.slice(0, targetChars);
+            var comma = Math.max(clipped.lastIndexOf('，'), clipped.lastIndexOf('；'));
+            trimmed = (comma > 55 ? clipped.slice(0, comma) : clipped).replace(/[，；、]?$/, '。');
+            return true;
+          }
+          trimmed += piece; return false;
+        });
+        body = trimmed;
+      }
+      return body + cta + disclosure;
+    }
+
+    function buildDraftTitle(subject, angle) {
+      var keyword = String(subject || '').replace(/[""''？！！。，、；：\s]/g, '').slice(0, 10) || '金融口播';
+      return keyword + '｜' + angle;
+    }
+
+    function cleanSource(text) { return text.replace(/\s+/g, ' ').trim(); }
+    function extractConversionParts(source) {
+      var clean = cleanSource(source).replace(/以上内容仅供参考[，,]?不构成(?:具体)?投资建议[。！]?/g, '').replace(/投资有风险[，,]?决策需谨慎[。！]?/g, '').trim();
+      var pieces = clean.match(/[^。！？]+[。！？]?/g) || [clean];
+      var ctaPattern = /(点击|链接|领取|加入|查看|了解更多|体验|咨询|关注|私信|评论区|回复|扫码|二维码|添加微信|加群|进群)/;
+      var ctaPieces = [];
+      for (var i = pieces.length - 1; i >= Math.max(0, pieces.length - 2); i--) {
+        if (!ctaPattern.test(pieces[i])) break;
+        ctaPieces.unshift(pieces[i]);
+      }
+      var contentPieces = ctaPieces.length ? pieces.slice(0, pieces.length - ctaPieces.length) : pieces.slice();
+      if (!contentPieces.length) contentPieces = ['原稿仅包含行动引导，建议补充核心内容和服务价值。'];
+      var subject = contentPieces[0].replace(/[。！？]+$/, '').trim().slice(0, 12) || '原稿主题';
+      return {
+        sentences: contentPieces.map(function(item){ return item.replace(/[。！？]+$/, '').trim(); }).filter(Boolean),
+        cta: ctaPieces.length ? ctaPieces.join('') : '如果你想了解完整内容，可以点击视频下方链接查看。',
+        subject: subject
+      };
+    }
+    function textNgrams(text) {
+      var clean = text.replace(/[^\u4e00-\u9fa5A-Za-z0-9]/g, ''), grams = {};
+      for (var i = 0; i <= clean.length - 4; i++) grams[clean.slice(i, i + 4)] = true;
+      return grams;
+    }
+    function variationSimilarity(a, b) {
+      var left = textNgrams(a), right = textNgrams(b), same = 0, total = 0;
+      Object.keys(left).forEach(function(key){ total++; if (right[key]) same++; });
+      Object.keys(right).forEach(function(key){ if (!left[key]) total++; });
+      return total ? same / total : 0;
+    }
+    function pickDistinctVariations(items, count) {
+      if (items.length <= 1) return items.slice(0, count);
+      var remaining = items.slice(), selected = [remaining.shift()];
+      while (selected.length < count && remaining.length) {
+        var bestIndex = 0, bestScore = Infinity;
+        remaining.forEach(function(candidate, index){
+          var score = Math.max.apply(null, selected.map(function(chosen){ return variationSimilarity(candidate.text, chosen.text); }));
+          if (score < bestScore) { bestScore = score; bestIndex = index; }
+        });
+        selected.push(remaining.splice(bestIndex, 1)[0]);
+      }
+      return selected;
+    }
+    function createSameThemeScripts(source, setting) {
+      var parts = extractConversionParts(source);
+      var sentences = parts.sentences;
+      var core = sentences.join('。') + '。';
+      var reversed = sentences.slice(1).concat(sentences[0]).join('。') + '。';
+      var rotated = sentences.slice(-1).concat(sentences.slice(0, -1)).join('。') + '。';
+      return [
+        { title:buildDraftTitle(parts.subject, '痛点钩子版'), text:'盘中一有波动，就容易打乱原来的判断？' + core + '先把信息和步骤看清楚，再决定是否适合自己。[[CTA]]' + parts.cta },
+        { title:buildDraftTitle(parts.subject, '人群筛选版'), text:'正在关注短线机会的朋友，这段内容可以先看完。' + rotated + '使用前请核对信息来源、适用日期和自身风险承受能力。[[CTA]]' + parts.cta },
+        { title:buildDraftTitle(parts.subject, '反常识钩子版'), text:'很多人以为缺的是一条明确答案，其实更需要的是稳定的判断过程。' + reversed + '方法可以参考，但不能替代个人决策。[[CTA]]' + parts.cta },
+        { title:buildDraftTitle(parts.subject, '机会观察版'), text:'市场机会每天都在变化，先看依据，再看是否适合自己。' + core + '不要把观察方向直接当成买卖结论。[[CTA]]' + parts.cta },
+        { title:buildDraftTitle(parts.subject, '问题切入版'), text:'为什么面对同样的信息，有人能保持节奏，有人却容易追着涨跌行动？' + rotated + '答案往往藏在信息筛选和复盘流程里。[[CTA]]' + parts.cta },
+        { title:buildDraftTitle(parts.subject, '数据说话版'), text:'做判断最重要的是依据，而不是感觉。' + core + '把公开数据的逻辑过一遍，方向会更清楚。[[CTA]]' + parts.cta },
+        { title:buildDraftTitle(parts.subject, '场景代入版'), text:'如果你正在犹豫该不该行动，不妨先把这个问题拆开来看。' + rotated + '拆成信息、判断、执行三步，焦虑自然就少了。[[CTA]]' + parts.cta },
+        { title:buildDraftTitle(parts.subject, '风险先行版'), text:'在关注机会之前，先看看可能忽略的风险点。' + reversed + '方法的价值不在于一次判断，而在于帮你少踩重复的坑。[[CTA]]' + parts.cta },
+        { title:buildDraftTitle(parts.subject, '案例拆解版'), text:'拿一个常见场景来说：盘面变化快的时候，很多人会凭感觉立刻操作。但真正有效的做法是：' + core + '把情绪和判断分开，每一步都有依据。[[CTA]]' + parts.cta },
+        { title:buildDraftTitle(parts.subject, '清单对照版'), text:'不妨试一下这个方法：把你当前最关心的一个问题写下来，然后对照信息来源、适用条件和风险边界三步检查。这就是我们服务的逻辑：' + rotated + '先把方法学会，再谈具体怎么做。[[CTA]]' + parts.cta }
+      ].map(function(item){ item.text = applyGenerationSettings(item.text, setting, '原稿核心观点'); return item; });
+    }
+
+    function runDraftCheck(draft) {
+      draft.findings = findComplianceRisks(draft.text);
+      draft.status = draft.findings.length ? 'attention' : 'clear';
+    }
+
+    function isNegatedRisk(text, index) {
+      var before = text.slice(Math.max(0, index - 14), index);
+      if (/(?:不|并不|并非|不能|不会|无意|无需|切勿|严禁)\s*$/.test(before) || /(?:不建议|不要|避免|不应|谨慎|谨防|警惕|不是|不等于)[^，。；！？]{0,8}$/.test(before)) return true;
+      var sentenceStart = Math.max(text.lastIndexOf('。', index - 1), text.lastIndexOf('！', index - 1), text.lastIndexOf('？', index - 1), text.lastIndexOf('!', index - 1), text.lastIndexOf('?', index - 1), text.lastIndexOf('\n', index - 1)) + 1;
+      var sentencePrefix = text.slice(sentenceStart, index);
+      var startsAsWarning = /^\s*(?:不要|切勿|严禁|谨防|警惕|避免)/.test(sentencePrefix);
+      var turnsPositive = /(?:但是|但|不过|然而|，|；)\s*(?:请|可以|欢迎|建议|立即|马上|添加|加|联系|扫码|识别|私信|进群|进入|加入|回复)/.test(sentencePrefix + text.slice(index, index + 6));
+      return startsAsWarning && !turnsPositive;
+    }
+    function findComplianceRisks(text) {
+      var actionPattern = /(?:现在就是|这是|当前是)?(?:(?:立即|马上|赶紧)\s*)?(强烈推荐|推荐|建议重点|建议配置|建议关注|优先配置|重点配置|重点关注|值得布局|调仓|放弃[^，。；！？]{0,10}|专做短线|只做短线|快进快出|打板|满仓|清仓|重仓|仓位|加仓|减仓|增持|减持|建仓|抄底|低吸|止盈|止损|目标价|最佳买点|必涨|一定会涨|看好|买入|卖出|持有|申购|赎回)(?:[^，。；！？\s]{0,12})/g;
+      var privateLeadPattern = /(?:扫码(?:添加|联系)?|识别二维码|(?:添加|加|联系)(?:我|(?:官方)?客服|助理|老师|顾问|工作人员)?(?:微信|企微|V|联系方式)|联系(?:(?:官方)?客服|助理|老师|顾问|工作人员)|加群|进(?:入)?(?:粉丝|内部|VIP|交流)?群|加入[^，。；！？]{0,8}群|私信(?:我|老师|顾问|(?:官方)?客服|助理)?|评论区(?:回复|留言)|回复关键词)/g;
+      var personalizedServicePattern = /(?:免费诊股|诊断持仓|领取[^，。；！？]{0,10}(?:牛股|金股|股票|个股|名单)|(?:牛股|金股|股票|个股)名单|盘中指导|实盘指导|跟单|带单|老师带你操作|(?:一对一|免费)?(?:分析|诊断|解读)(?:持仓|个股|股票)|(?:老师)?手把手指导(?:操作|交易)|(?:指导|陪同)(?:操作|交易))/g;
+      var rules = [
+        { severity:'high', type:'收益承诺', regex:/(稳赚不赔|稳赚|保本(?:保收益)?|保收益|保证收益|本金(?:安全|无忧)|收益(?:有保障|兜底)|锁定收益|零风险|绝对赚钱|必赚|翻倍收益)/g },
+        { severity:'high', type:'具体行动或确定性建议', regex:actionPattern, skipNegative:true },
+        { severity:'high', type:'非公开信息暗示', regex:/(内幕消息|内部消息|庄家消息|确定消息|独家消息)/g },
+        { severity:'high', type:'站外导流或私域招揽', regex:privateLeadPattern, skipNegative:true },
+        { severity:'high', type:'具体标的或诊股服务招揽', regex:personalizedServicePattern, skipNegative:true },
+        { severity:'high', type:'回本解套效果承诺', regex:/(带你[^，。；！？]{0,8}(?:回本|解套|扭亏)|帮你[^，。；！？]{0,8}(?:回本|解套|扭亏)|快速(?:回本|解套|扭亏)|实现(?:回本|解套|扭亏))/g },
+        { severity:'medium', type:'隐性效果暗示', regex:/(准到吓人|快速提升(?:投资)?效果|不会让(?:你|您)失望|脱颖而出|拉开差距|成功翻身|抓住主线|走出主线)/g },
+        { severity:'medium', type:'紧迫性营销', regex:/(再不[^，。；！？]{0,10}就来不及|来不及了|抓紧(?:时间)?|赶紧|立即暂停|只说一次|千万盯紧|紧盯|马上领取|行情来了)/g, skipNegative:true },
+        { severity:'medium', type:'稀缺名额营销', regex:/(限时名额|名额有限|仅限\s*\d+\s*名|前\s*\d+\s*名|最后\s*\d+\s*个名额)/g },
+        { severity:'medium', type:'依据与能力声明待核实', regex:/(专业(?:投顾|投资顾问)?团队|大数据(?:筛选|选股)?|老股民自用|老师(?:每天)?分享|刚出的研报|研报直接告诉|跟踪主力|筛选出潜力)/g },
+        { severity:'medium', type:'服务与隐私承诺待核实', regex:/(不用|无需)(?:下载|注册|留手机号|输入(?:您的|你的)?手机号)|不收录(?:您的|你的)?手机号码/g },
+        { severity:'medium', type:'夸大或误导表达', regex:/(唯一|最强|顶级|100%|绝对不会|闭眼买|可怕的(?:炒股)?方法|最聪明)/g },
+        { severity:'medium', type:'数据依据待核实', regex:/((?:收益(?:率)?|涨幅|回报(?:率)?|成功率|命中率)(?:达到|为|超过|高达)?\d+(?:\.\d+)?%|\d+(?:\.\d+)?%|\d+(?:\.\d+)?倍|持仓(?:超过|达到|不低于)?\s*\d+(?:\.\d+)?万|\d{3,}(?:多|余)?只(?:股票|个股)?|不超过\s*\d+只)/g },
+        { severity:'medium', type:'历史业绩展示', regex:/(历史业绩|过往业绩|曾经收益|策略收益|客户收益|实盘收益)/g },
+        { severity:'medium', type:'时效信息待核实', regex:/(今日|今天|本周|目前|最新|截至现在)/g },
+        { severity:'medium', type:'政策与日期待核实', regex:/((?:截至)?\d{4}[-/.年]\d{1,2}(?:[-/.月]\d{1,2}日?)?|\d{4}年新规|最新政策|监管新规|政策新规|最新监管口径)/g }
+      ];
+      var findings = [];
+      rules.forEach(function(rule){
+        var match; rule.regex.lastIndex = 0;
+        while ((match = rule.regex.exec(text)) !== null) {
+          if (rule.skipNegative && isNegatedRisk(text, match.index)) continue;
+          if (rule.skipNegative && /(持有期限|买入成本|卖出机制|推荐阅读|推荐了解)/.test(match[0])) continue;
+          findings.push({ severity:rule.severity, type:rule.type, excerpt:match[0], sourceIndex:match.index });
+          if (match[0].length === 0) rule.regex.lastIndex++;
+        }
+      });
+      return findings;
+    }
+
+    function renderWorkspace() {
+      var drafts = state.drafts; var draft = currentDraft(); var hasDrafts = drafts.length > 0;
+      updateExportControls(drafts);
+      document.getElementById('empty-state').style.display = !state.loading && !hasDrafts ? 'grid' : 'none';
+      document.getElementById('drafts-list').style.display = !state.loading ? '' : 'none';
+      renderDraftCards(drafts, draft);
+    }
+
+    function renderDraftCards(drafts, active) {
+      var list = document.getElementById('drafts-list');
+      list.innerHTML = drafts.map(function(draft, index){
+        return '<div class="draft-card' + (active && draft.id === active.id ? ' active' : '') + '" data-draft-id="' + draft.id + '" onclick="selectDraft(' + draft.id + ')">' +
+          '<div class="draft-card-header">' +
+          '<input class="draft-select" type="checkbox" aria-label="选择第 ' + (index + 1) + ' 篇稿件"' + (isDraftSelected(draft.id) ? ' checked' : '') + ' onclick="event.stopPropagation()" onchange="toggleDraftSelection(event,' + draft.id + ')">' +
+          '<span class="draft-card-num">#' + (index + 1) + '</span>' +
+          '<input class="draft-card-title-input" value="' + escapeAttr(draft.title) + '" oninput="updateCardTitle(' + draft.id + ',this.value)" onclick="event.stopPropagation()">' +
+          '<span class="draft-card-status ' + draft.status + '">' + statusLabel(draft.status) + '</span>' +
+          '<button class="card-more-btn" onclick="showDraftPopover(event,' + draft.id + ')">⋮</button>' +
+          '</div>' +
+          '<div class="draft-card-body-wrap"><div class="draft-card-body" contenteditable="true" data-draft-id="' + draft.id + '" oninput="onCardBodyInput(this)" onclick="selectDraft(' + draft.id + ')">' + buildHighlightedHtml(draft) + '</div></div>' +
+          '<div class="draft-card-foot">' +
+          '<span class="draft-card-meta"><strong>' + countChars(draft.text) + '</strong> 字 · 约 <strong>' + estimateSeconds(draft.text) + '</strong> 秒<button class="expand-btn" onclick="event.stopPropagation();toggleCardExpand(this)">展开 ⌄</button></span>' +
+          '<div class="draft-card-actions">' +
+          (draft.status === 'stale' ? '<button class="card-action-btn primary recheck-btn" onclick="event.stopPropagation();sendDraftToCheck(' + draft.id + ')">复检合规 ↗</button>' : '') +
+          '<button class="card-action-btn primary" onclick="event.stopPropagation();sendDraftToBatch(' + draft.id + ')">加入批量成片</button>' +
+          '<button class="card-action-btn" onclick="event.stopPropagation();copyDraft(' + draft.id + ')">复制</button>' +
+          '<button class="card-action-btn" onclick="event.stopPropagation();clearDraft(' + draft.id + ')" style="color:#ad5360">清空</button>' +
+          '</div></div></div>';
+      }).join('');
+    }
+
+    function toggleCardExpand(btn) {
+      var card = btn.closest('.draft-card'); if (!card) return;
+      var wrap = card.querySelector('.draft-card-body-wrap'); if (!wrap) return;
+      var expanded = wrap.classList.toggle('expanded');
+      btn.textContent = expanded ? '收起 ⌃' : '展开 ⌄';
+    }
+
+    function openCompare() {
+      if (state.drafts.length < 2) { toast('至少需要两个版本才能对比'); return; }
+      var selA = document.getElementById('compare-a'), selB = document.getElementById('compare-b');
+      var opts = state.drafts.map(function(d, i){ return '<option value="' + d.id + '">#' + (i + 1) + ' ' + escapeHtml(d.title) + '</option>'; }).join('');
+      selA.innerHTML = opts; selB.innerHTML = opts;
+      selA.value = String(state.drafts[0].id);
+      selB.value = String(state.drafts[1].id);
+      renderCompare();
+      document.getElementById('compare-overlay').style.display = 'block';
+      document.getElementById('compare-modal').style.display = 'flex';
+    }
+    function closeCompare() {
+      document.getElementById('compare-overlay').style.display = 'none';
+      document.getElementById('compare-modal').style.display = 'none';
+    }
+    function renderCompare() {
+      var a = findDraftById(Number(document.getElementById('compare-a').value));
+      var b = findDraftById(Number(document.getElementById('compare-b').value));
+      if (!a || !b) return;
+      var aSents = a.text.match(/[^。！？!?\n]+[。！？!?]?/g) || [];
+      var bSents = b.text.match(/[^。！？!?\n]+[。！？!?]?/g) || [];
+      var aSet = {}; aSents.forEach(function(s){ aSet[s.trim()] = true; });
+      var bSet = {}; bSents.forEach(function(s){ bSet[s.trim()] = true; });
+      document.getElementById('compare-a-title').textContent = '版本 A · ' + a.title;
+      document.getElementById('compare-b-title').textContent = '版本 B · ' + b.title;
+      document.getElementById('compare-a-text').innerHTML = aSents.map(function(s){ return bSet[s.trim()] ? escapeHtml(s) : '<mark class="compare-diff">' + escapeHtml(s) + '</mark>'; }).join('');
+      document.getElementById('compare-b-text').innerHTML = bSents.map(function(s){ return aSet[s.trim()] ? escapeHtml(s) : '<mark class="compare-diff">' + escapeHtml(s) + '</mark>'; }).join('');
+      var aDiff = aSents.filter(function(s){ return !bSet[s.trim()]; }).length;
+      var bDiff = bSents.filter(function(s){ return !aSet[s.trim()]; }).length;
+      var sim = Math.round(variationSimilarity(a.text, b.text) * 100);
+      document.getElementById('compare-foot').innerHTML = '整体相似度 <strong>' + sim + '%</strong><span>· 版本 A 独有句 ' + aDiff + '</span><span>· 版本 B 独有句 ' + bDiff + '</span><span>· 高亮为仅一版出现的表达</span>';
+    }
+
+    function buildHighlightedHtml(draft) {
+      var text = draft.text; if (!text) return '';
+      if (draft.status === 'stale' || draft.status === 'unchecked' || draft.status === 'checking' || !draft.findings || !draft.findings.length) return escapeHtml(text);
+      var marks = [];
+      draft.findings.forEach(function(f, i) {
+        if (!f.excerpt) return;
+        var idx = Number.isFinite(f.sourceIndex) ? f.sourceIndex : text.indexOf(f.excerpt);
+        if (idx < 0) return;
+        marks.push({ start: idx, end: idx + f.excerpt.length, severity: f.severity, findingIndex: i });
+      });
+      marks.sort(function(a, b) { return a.start - b.start; });
+      var filtered = [];
+      marks.forEach(function(m) { if (!filtered.length || m.start >= filtered[filtered.length - 1].end) filtered.push(m); });
+      var html = '', last = 0;
+      filtered.forEach(function(m) {
+        html += escapeHtml(text.slice(last, m.start));
+        html += '<mark class="risk-' + m.severity + '" data-finding-index="' + m.findingIndex + '">' + escapeHtml(text.slice(m.start, m.end)) + '</mark>';
+        last = m.end;
+      });
+      html += escapeHtml(text.slice(last));
+      return html;
+    }
+
+    function caretOffsetInText(root, sel) {
+      if (!sel || !sel.rangeCount) return 0;
+      var range = sel.getRangeAt(0).cloneRange();
+      range.selectNodeContents(root);
+      range.setEnd(sel.getRangeAt(0).startContainer, sel.getRangeAt(0).startOffset);
+      return range.toString().length;
+    }
+    function restoreCaretOffset(root, offset) {
+      var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+      var remaining = offset, node;
+      while ((node = walker.nextNode())) {
+        if (remaining <= node.length) {
+          var range = document.createRange();
+          range.setStart(node, remaining); range.collapse(true);
+          var sel = window.getSelection();
+          sel.removeAllRanges(); sel.addRange(range);
+          return;
+        }
+        remaining -= node.length;
+      }
+    }
+
+    function onCardBodyInput(body) {
+      var draftId = parseInt(body.dataset.draftId, 10); var draft = findDraftById(draftId); if (!draft) return;
+      if (body.querySelector('mark')) {
+        var offset = caretOffsetInText(body, window.getSelection());
+        body.textContent = body.textContent;
+        restoreCaretOffset(body, offset);
+      }
+      draft.text = body.textContent;
+      if (draft.status !== 'unchecked') draft.status = 'stale';
+      updateCardMeta(draft);
+      syncRecheckButton(draft);
+    }
+    function syncRecheckButton(draft) {
+      var card = document.querySelector('.draft-card[data-draft-id="' + draft.id + '"]'); if (!card) return;
+      var actions = card.querySelector('.draft-card-actions'); if (!actions) return;
+      var existing = actions.querySelector('.recheck-btn');
+      if (draft.status === 'stale') {
+        if (!existing) {
+          var btn = document.createElement('button');
+          btn.className = 'card-action-btn primary recheck-btn';
+          btn.textContent = '复检合规 ↗';
+          btn.onclick = function(event){ event.stopPropagation(); sendDraftToCheck(draft.id); };
+          actions.insertBefore(btn, actions.firstChild);
+        }
+      } else if (existing) { existing.remove(); }
+    }
+    function updateCardMeta(draft) {
+      var card = document.querySelector('.draft-card[data-draft-id="' + draft.id + '"]'); if (!card) return;
+      var metaEl = card.querySelector('.draft-card-meta');
+      if (metaEl) metaEl.innerHTML = '<strong>' + countChars(draft.text) + '</strong> 字 · 约 <strong>' + estimateSeconds(draft.text) + '</strong> 秒';
+      var statusEl = card.querySelector('.draft-card-status');
+      if (statusEl) { statusEl.textContent = statusLabel(draft.status); statusEl.className = 'draft-card-status ' + draft.status; }
+    }
+    function updateCardTitle(draftId, value) { var draft = findDraftById(draftId); if (draft) draft.title = value || '未命名台词'; }
+    function copyDraft(draftId) { var draft = findDraftById(draftId); if (draft) copyText(draft.text, '已复制'); }
+    function reuseAsSource(draftId) {
+      var draft = findDraftById(draftId); if (!draft || !draft.text.trim()) { toast('台词为空'); return; }
+      document.getElementById('derive-source').value = draft.text;
+      toast('已设为基础台词，可重新生成衍生版本');
+    }
+    function clearDraft(draftId) {
+      var draft = findDraftById(draftId); if (!draft) return;
+      var snapshot = { text: draft.text, title: draft.title, status: draft.status, findings: draft.findings };
+      draft.text = ''; draft.status = 'unchecked'; draft.findings = [];
+      renderWorkspace();
+      toast('已清空', { label: '撤销', onClick: function(){
+        draft.text = snapshot.text; draft.title = snapshot.title; draft.status = snapshot.status; draft.findings = snapshot.findings;
+        renderWorkspace(); toast('已恢复稿件内容');
+      } });
+    }
+
+    function selectDraft(id) {
+      if (state.activeId === id) return;
+      state.activeId = id;
+      document.querySelectorAll('#drafts-list .draft-card').forEach(function(card){
+        card.classList.toggle('active', Number(card.dataset.draftId) === id);
+      });
+    }
+
+    function isDraftSelected(id) { return state.selectedIds.indexOf(id) !== -1; }
+    function validSelectedIds(drafts) {
+      var available = {};
+      drafts.forEach(function(draft){ available[draft.id] = true; });
+      return state.selectedIds.filter(function(id){ return available[id]; });
+    }
+    function updateExportControls(drafts) {
+      var hasDrafts = drafts.length > 0;
+      var selected = validSelectedIds(drafts);
+      state.selectedIds = selected;
+      document.getElementById('result-summary').textContent = hasDrafts ? ('共 ' + drafts.length + ' 篇' + (selected.length ? ' · 已选 ' + selected.length + ' 篇' : '')) : '尚未生成衍生版本';
+      document.getElementById('copy-all-btn').disabled = !hasDrafts;
+      document.getElementById('txt-btn').disabled = !hasDrafts;
+      document.getElementById('csv-btn').disabled = !hasDrafts;
+      document.getElementById('txt-btn').textContent = selected.length ? ('导出 TXT（' + selected.length + '）') : '导出 TXT';
+      document.getElementById('csv-btn').textContent = selected.length ? ('导出 CSV（' + selected.length + '）') : '导出 CSV';
+      document.getElementById('compare-btn').disabled = drafts.length < 2;
+      updateBatchBar();
+    }
+    function toggleDraftSelection(event, draftId) {
+      event.stopPropagation();
+      if (event.currentTarget.checked) {
+        if (state.selectedIds.indexOf(draftId) === -1) state.selectedIds.push(draftId);
+      } else {
+        state.selectedIds = state.selectedIds.filter(function(id){ return id !== draftId; });
+      }
+      updateExportControls(state.drafts);
+    }
+
+    function showDraftPopover(event, draftId) {
+      event.stopPropagation(); _popoverDraftId = draftId;
+      var popover = document.getElementById('draft-popover');
+      var bRect = event.currentTarget.getBoundingClientRect();
+      popover.style.display = 'block'; popover.style.position = 'fixed';
+      popover.style.left = Math.max(0, bRect.right - 170) + 'px';
+      popover.style.top = (bRect.bottom + 4) + 'px';
+    }
+    document.addEventListener('click', function(e) {
+      var popover = document.getElementById('draft-popover');
+      if (popover && popover.style.display !== 'none' && !popover.contains(e.target)) { popover.style.display = 'none'; _popoverDraftId = null; }
+    });
+    document.getElementById('drafts-list').addEventListener('click', function(e) {
+      var mark = e.target.closest('mark'); if (!mark || !mark.dataset.findingIndex) return;
+      e.stopPropagation();
+      var draft = currentDraft(); if (!draft) return;
+      var finding = draft.findings[parseInt(mark.dataset.findingIndex, 10)];
+      if (finding) toast('「' + finding.excerpt + '」（' + finding.type + '）可能存在合规风险，请手动调整表达');
+    });
+
+    function fallbackCopy(text) {
+      var area = document.createElement('textarea'); area.value = text; area.style.position = 'fixed'; area.style.opacity = '0';
+      document.body.appendChild(area); area.focus(); area.select();
+      var ok = false; try { ok = document.execCommand('copy'); } catch (error) { ok = false; }
+      area.remove(); if (!ok) throw new Error('copy failed');
+    }
+    function copyText(text, successMessage) {
+      if (!text) { toast('没有可复制的内容'); return; }
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(function(){ toast(successMessage); }).catch(function(){
+          try { fallbackCopy(text); toast(successMessage); } catch (error) { toast('复制失败'); }
+        });
+      } else { try { fallbackCopy(text); toast(successMessage); } catch (error) { toast('复制失败'); } }
+    }
+
+    function currentDraftEntries() { return state.drafts.map(function(draft, index){ return { draft:draft, index:index }; }); }
+    function currentExportEntries() {
+      var selected = validSelectedIds(state.drafts);
+      if (!selected.length) return currentDraftEntries();
+      var selectedMap = {}; selected.forEach(function(id){ selectedMap[id] = true; });
+      return currentDraftEntries().filter(function(entry){ return selectedMap[entry.draft.id]; });
+    }
+    function entriesText(entries) { return entries.map(function(entry){ return '【' + (entry.index + 1) + '. ' + entry.draft.title + '】\n' + entry.draft.text; }).join('\n\n--------------------\n\n'); }
+    function copyAll() { copyText(entriesText(currentDraftEntries()), '已复制全部台词'); }
+    function exportMessage(type, entries) {
+      var selectedCount = validSelectedIds(state.drafts).length;
+      return type + ' 已导出' + (selectedCount ? ('选中的 ' + entries.length + ' 篇台词') : ('全部 ' + entries.length + ' 篇台词'));
+    }
+    function downloadFile(name, content, type) {
+      var blob = new Blob(['\ufeff' + content], { type: type + ';charset=utf-8' });
+      var url = URL.createObjectURL(blob);
+      var link = document.createElement('a'); link.href = url; link.download = name;
+      document.body.appendChild(link); link.click(); link.remove();
+      setTimeout(function(){ URL.revokeObjectURL(url); }, 500);
+    }
+    function exportTxt() {
+      var entries = currentExportEntries(); if (!entries.length) return;
+      downloadFile('一稿多版-导出.txt', entriesText(entries), 'text/plain');
+      toast(exportMessage('TXT', entries));
+    }
+    function csvSafeValue(value) { var text = String(value == null ? '' : value); if (/^[\u0000-\u0020]*[=+\-@]/.test(text)) text = "'" + text; return text; }
+    function csvCell(value) { return '"' + csvSafeValue(value).replace(/"/g, '""') + '"'; }
+    function exportCsv() {
+      var entries = currentExportEntries(); if (!entries.length) return;
+      var rows = [['序号','标题','台词正文','字数','预计时长（秒）','合规状态']];
+      entries.forEach(function(entry){
+        rows.push([entry.index + 1, entry.draft.title, entry.draft.text, countChars(entry.draft.text), estimateSeconds(entry.draft.text), statusLabel(entry.draft.status)]);
+      });
+      downloadFile('一稿多版-导出.csv', rows.map(function(row){ return row.map(csvCell).join(','); }).join('\r\n'), 'text/csv');
+      toast(exportMessage('CSV', entries));
+    }
+
+    function countChars(text) { return String(text || '').replace(/\s/g, '').length; }
+    function estimateSeconds(text) { return Math.max(1, Math.ceil(countChars(text) / 4)); }
+    function statusLabel(status) { return { unchecked:'待检查', checking:'检查中', attention:'存在待关注项', clear:'检查通过', stale:'已修改·待复检' }[status] || '待检查'; }
+
+    document.addEventListener('keydown', function(e){
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        e.preventDefault();
+        if (!state.loading) generateVariations();
+      }
+    });
+
+    (function init(){
+      var handoff = consumeHandoff();
+      if (handoff) {
+        document.getElementById('derive-source').value = handoff.text;
+        setTimeout(function(){ showHandoffBanner(handoff.from, handoff.title, countChars(handoff.text)); }, 100);
+      }
+      renderWorkspace();
+    })();
+  </script>
+</body>
+</html>

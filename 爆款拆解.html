@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>爆款拆解</title>
+  <style>
+    :root {
+      --blue: #2f6bff; --blue-deep: #1746b8; --blue-soft: #edf3ff;
+      --ink: #172033; --muted: #7b8497; --line: #e5e9f1; --panel: #ffffff; --canvas: #f3f5f8;
+      --shadow: 0 12px 32px rgba(22, 34, 58, 0.08);
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; }
+    body {
+      color: var(--ink);
+      background: radial-gradient(circle at 72% 0%, rgba(47,107,255,.07), transparent 32%), var(--canvas);
+      font-family: "Microsoft YaHei", "PingFang SC", sans-serif; font-size: 14px;
+    }
+    button, input, textarea, select { font: inherit; }
+    button { color: inherit; }
+
+    .sidebar {
+      position: fixed; inset: 0 auto 0 0; width: 56px; z-index: 20;
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+      padding: 16px 0; background: #fff; border-right: 1px solid #e8e8e8;
+    }
+    .logo { width: 32px; height: 32px; margin-bottom: 16px; display: grid; place-items: center; }
+    .logo svg { width: 28px; height: 28px; }
+    .sidebar-item {
+      width: 40px; height: 40px; border-radius: 10px;
+      display: flex; flex-direction: column; gap: 4px; align-items: center; justify-content: center;
+      color: #999; text-decoration: none; font-size: 9px; transition: .18s ease;
+    }
+    .sidebar-item .icon { font-size: 16px; line-height: 1; }
+    .sidebar-item:hover { color: #0066ff; background: #f5f5f5; }
+    .sidebar-item.active { color: #0066ff; background: #eef4ff; }
+    .sidebar-divider { width: 24px; height: 1px; margin: 8px 0; background: #e8e8e8; }
+
+    .main { margin-left: 56px; min-height: 100vh; }
+    .topbar {
+      height: 48px; padding: 0 32px; display: flex; align-items: center; justify-content: space-between;
+      background: #fff; border-bottom: 1px solid #e8e8e8; position: sticky; top: 0; z-index: 15;
+    }
+    .topbar-brand { font-size: 13px; font-weight: 600; letter-spacing: 1px; }
+    .topbar-right { display: flex; align-items: center; gap: 14px; color: var(--muted); font-size: 12px; }
+    .prototype-tag { padding: 5px 9px; border-radius: 999px; background: #eef1f5; color: #697386; }
+    .avatar { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; color: #fff; font-size: 11px; font-weight: 700; background: linear-gradient(135deg,#334155,#64748b); }
+
+    .page-head { padding: 22px 26px 18px; display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; }
+    .eyebrow { margin-bottom: 7px; color: var(--blue); font-size: 11px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
+    h1 { margin: 0; font-family: "Songti SC", "STSong", serif; font-size: 27px; letter-spacing: -.02em; }
+    .page-desc { margin: 7px 0 0; color: var(--muted); font-size: 13px; }
+    .head-note { max-width: 310px; color: #6d778a; font-size: 11px; line-height: 1.6; text-align: right; }
+
+    .workspace {
+      padding: 0 26px 26px; display: grid; grid-template-columns: 300px minmax(440px, 1fr);
+      gap: 16px; height: calc(100vh - 152px); min-height: 560px;
+    }
+    .panel { background: var(--panel); border: 1px solid #e8ebf0; border-radius: 14px; box-shadow: 0 2px 12px rgba(22,34,58,.03); min-height: 0; }
+
+    .control-panel { display: flex; flex-direction: column; overflow: hidden; }
+    .control-scroll { padding: 18px; overflow-y: auto; flex: 1; }
+    .section-title { margin: 0 0 16px; font-size: 16px; font-weight: 800; }
+    .field { margin-bottom: 16px; }
+    .field-label { display: flex; justify-content: space-between; align-items: center; margin-bottom: 7px; font-size: 12px; font-weight: 700; }
+    .field-label span { color: #a0a7b5; font-size: 10px; font-weight: 500; }
+    .text-input {
+      width: 100%; border: 1px solid #dce1ea; border-radius: 10px; background: #fff; color: var(--ink); outline: none;
+      transition: border-color .16s, box-shadow .16s; height: 38px; padding: 0 11px;
+    }
+    .text-input:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(47,107,255,.09); }
+    .field-sep { margin: 12px 0; display: flex; align-items: center; gap: 10px; color: #b0b9c7; font-size: 10px; }
+    .field-sep::before, .field-sep::after { content: ""; flex: 1; height: 1px; background: #e5e9f1; }
+    .input-row { display: flex; gap: 6px; }
+    .input-row .text-input { flex: 1; border-radius: 10px; line-height: 1.65; }
+    .input-row .ghost-btn { flex-shrink: 0; }
+    .primary-btn { width: 100%; height: 42px; border: 0; border-radius: 10px; background: var(--blue); color: #fff; font-weight: 800; cursor: pointer; box-shadow: 0 8px 18px rgba(47,107,255,.2); transition: .18s ease; }
+    .primary-btn:hover { background: #245de6; transform: translateY(-1px); }
+    .primary-btn:disabled { background: #aebbd9; box-shadow: none; cursor: wait; transform: none; }
+    .ghost-btn { height: 31px; padding: 0 10px; border: 1px solid #dfe4ec; border-radius: 8px; background: #fff; color: #5e687b; font-size: 10px; font-weight: 700; cursor: pointer; }
+    .ghost-btn:hover:not(:disabled) { color: var(--blue); border-color: #aec2fb; background: var(--blue-soft); }
+    .ghost-btn:disabled { opacity: .4; cursor: not-allowed; }
+    .helper { margin-top: 10px; color: #98a0af; font-size: 10px; line-height: 1.55; text-align: center; }
+
+    .breakdown-list { margin-top: 14px; display: flex; flex-direction: column; gap: 6px; }
+    .breakdown-item {
+      display: flex; align-items: center; gap: 6px; padding: 8px 10px;
+      border: 1px solid #e8ebf0; border-radius: 10px; background: #fff; font-size: 11px;
+    }
+    .breakdown-item-thumb {
+      width: 40px; height: 28px; border-radius: 5px; background: #1a1d24;
+      flex-shrink: 0; display: grid; place-items: center; color: rgba(255,255,255,.5); font-size: 12px;
+    }
+    .breakdown-item-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--ink); font-weight: 600; font-size: 11px; }
+    .breakdown-item-actions { display: flex; gap: 4px; flex-shrink: 0; }
+    .breakdown-item-btn {
+      height: 24px; padding: 0 7px; border: 1px solid #dfe4ec; border-radius: 6px;
+      background: #fff; color: #5e687b; font-size: 10px; cursor: pointer; font-family: inherit;
+    }
+    .breakdown-item-btn:hover { color: var(--blue); border-color: #aec2fb; background: var(--blue-soft); }
+    .breakdown-item-btn.remove:hover { color: #d83b4a; border-color: #f5c6cd; background: #fff0f1; }
+    .breakdown-actions { margin-top: 14px; }
+
+    .editor-panel { display: flex; flex-direction: column; min-width: 0; overflow: hidden; }
+    .editor-top { min-height: 57px; padding: 12px 15px; display: flex; align-items: center; justify-content: space-between; gap: 12px; border-bottom: 1px solid var(--line); }
+    .editor-heading { font-weight: 800; }
+    .editor-sub { margin-top: 3px; color: var(--muted); font-size: 10px; }
+    .global-actions { display: flex; gap: 6px; }
+
+    .drafts-list { flex: 1; min-width: 0; min-height: 0; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 12px; }
+    .draft-card { border: 1px solid #e8ebf0; border-radius: 12px; flex: 0 0 auto; background: #fff; overflow: hidden; transition: border-color .18s, box-shadow .18s; }
+    .draft-card:hover { border-color: #cdd4e0; }
+    .draft-card.active { border-color: #8eaeff; box-shadow: 0 0 0 2px rgba(47,107,255,.1), 0 4px 16px rgba(47,107,255,.06); }
+    .draft-card-header { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; background: #fafbfc; border-bottom: 1px solid #eff2f6; gap: 6px; }
+    .draft-select { width: 15px; height: 15px; margin: 0 2px 0 0; accent-color: var(--blue); cursor: pointer; flex-shrink: 0; }
+    .draft-card-num { font-size: 11px; font-weight: 800; color: var(--muted); flex-shrink: 0; }
+    .draft-card-title-input {
+      flex: 1; min-width: 0; border: 0; outline: 0; background: transparent;
+      font-size: 12px; font-weight: 700; color: var(--ink);
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: inherit;
+    }
+    .draft-card-title-input:focus { background: #fff; border-radius: 4px; box-shadow: 0 0 0 2px rgba(47,107,255,.15); }
+    .draft-card-status { padding: 3px 7px; border-radius: 999px; font-size: 9px; font-weight: 700; flex-shrink: 0; background: #f0f2f6; color: #727b8c; }
+    .draft-card-body-wrap { min-height: 124px; height: 124px; resize: vertical; overflow-x: hidden; overflow-y: auto; }
+    .draft-card-body-wrap::-webkit-resizer { display: block; }
+    .draft-card-body {
+      padding: 12px 14px; font-size: 14px; line-height: 1.85; color: #202a3d;
+      white-space: pre-wrap; word-break: break-word; min-height: 100%; box-sizing: border-box; outline: none;
+    }
+    .draft-card-foot { padding: 6px 10px; border-top: 1px solid #eff2f6; display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+    .draft-card-meta { font-size: 10px; color: #8c94a4; }
+    .draft-card-meta strong { color: #4b566a; }
+    .draft-card-actions { display: flex; gap: 4px; }
+    .card-action-btn {
+      height: 24px; padding: 0 8px; border: 1px solid #dfe4ec; border-radius: 6px;
+      background: #fff; color: #5e687b; font-size: 10px; cursor: pointer; font-family: inherit;
+    }
+    .card-action-btn:hover { color: var(--blue); border-color: #aec2fb; background: var(--blue-soft); }
+    .card-more-btn {
+      width: 24px; height: 24px; border: 0; border-radius: 5px; background: transparent; color: #8d95a5;
+      font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .card-more-btn:hover { background: #eef1f6; color: var(--blue); }
+    .draft-popover {
+      position: fixed; z-index: 35; min-width: 170px; padding: 6px;
+      background: #fff; border: 1px solid #e5e9f1; border-radius: 10px; box-shadow: 0 14px 36px rgba(22,34,58,.14);
+    }
+    .draft-popover button { display: block; width: 100%; padding: 8px 10px; border: 0; border-radius: 7px; background: transparent; font-size: 11px; text-align: left; cursor: pointer; color: var(--ink); }
+    .draft-popover button:hover { background: var(--blue-soft); color: var(--blue); }
+
+    .preview-overlay { position: fixed; inset: 0; z-index: 45; background: rgba(0,0,0,.25); }
+    .preview-modal {
+      position: fixed; z-index: 46; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      width: 520px; max-width: 90vw; max-height: 72vh; background: #fff; border-radius: 14px;
+      box-shadow: 0 24px 64px rgba(0,0,0,.16); display: flex; flex-direction: column; overflow: hidden;
+    }
+    .preview-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border-bottom: 1px solid #eff2f6; cursor: move; user-select: none; background: #fafbfc; }
+    .preview-title { font-size: 14px; font-weight: 800; }
+    .preview-close { width: 28px; height: 28px; border: 0; border-radius: 8px; background: transparent; font-size: 18px; cursor: pointer; color: #8d95a5; display: grid; place-items: center; }
+    .preview-close:hover { background: #f0f2f6; color: #333; }
+    .preview-video-box { padding: 20px; display: flex; align-items: center; justify-content: center; }
+    .preview-video-placeholder {
+      width: 100%; aspect-ratio: 16/9; max-height: 340px; background: #1a1d24; border-radius: 10px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; color: rgba(255,255,255,.7);
+    }
+    .preview-play-icon { width: 56px; height: 56px; border-radius: 50%; background: rgba(255,255,255,.15); display: grid; place-items: center; font-size: 20px; color: #fff; cursor: pointer; }
+    .preview-play-icon:hover { background: rgba(255,255,255,.25); }
+    .preview-meta { font-size: 12px; text-align: center; line-height: 1.6; }
+    .preview-structure { padding: 0 20px 18px; overflow-y: auto; }
+    .preview-structure-title { margin-bottom: 8px; font-size: 11px; font-weight: 800; color: #4b566a; }
+    .structure-bar { height: 14px; border-radius: 7px; overflow: hidden; display: flex; margin-bottom: 10px; box-shadow: inset 0 0 0 1px rgba(22,34,58,.05); }
+    .structure-seg { height: 100%; display: grid; place-items: center; color: #fff; font-size: 9px; font-weight: 700; white-space: nowrap; overflow: hidden; }
+    .structure-rows { display: flex; flex-direction: column; gap: 7px; }
+    .structure-row { display: flex; gap: 8px; align-items: flex-start; font-size: 11px; line-height: 1.55; }
+    .structure-tag { flex-shrink: 0; padding: 2px 8px; border-radius: 999px; color: #fff; font-size: 10px; font-weight: 700; }
+    .structure-time { flex-shrink: 0; color: #98a0af; font-size: 10px; min-width: 48px; padding-top: 2px; }
+    .structure-text { color: #3e495c; }
+
+    .empty-state { flex: 1; display: grid; place-items: center; padding: 32px; text-align: center; }
+    .empty-visual { position: relative; width: 118px; height: 98px; margin: 0 auto 20px; }
+    .paper { position: absolute; width: 74px; height: 92px; left: 21px; top: 2px; border: 1px solid #d9e0eb; border-radius: 10px; background: #fff; box-shadow: var(--shadow); transform: rotate(-3deg); }
+    .paper::before { content: ""; position: absolute; left: 15px; right: 15px; top: 23px; height: 3px; border-radius: 3px; background: #7da0ff; box-shadow: 0 14px 0 #d9dfea, 0 28px 0 #d9dfea, 0 42px 0 #e8ebf1; }
+    .spark { position: absolute; right: 1px; top: 4px; width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; color: #fff; background: linear-gradient(135deg,#2f6bff,#0aa78f); box-shadow: 0 8px 18px rgba(47,107,255,.24); font-weight: 800; font-size: 11px; }
+    .empty-state h2 { margin: 0 0 8px; font-family: "Songti SC", "STSong", serif; font-size: 20px; }
+    .empty-state p { max-width: 360px; margin: 0; color: var(--muted); font-size: 12px; line-height: 1.7; }
+    .loading-state { display: none; flex: 1; place-items: center; text-align: center; }
+    .loading-state.show { display: grid; }
+    .loader-ring { width: 42px; height: 42px; margin: 0 auto 14px; border: 3px solid #e5ebf8; border-top-color: var(--blue); border-radius: 50%; animation: spin .8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-title { font-weight: 800; }
+    .loading-copy { margin-top: 6px; color: var(--muted); font-size: 11px; }
+
+    .toast { position: fixed; left: 50%; bottom: 30px; z-index: 100; transform: translate(-50%, 18px); display: flex; align-items: center; gap: 14px; padding: 10px 16px; border-radius: 9px; background: #172033; color: #fff; opacity: 0; pointer-events: none; transition: .22s ease; box-shadow: var(--shadow); font-size: 11px; max-width: 80vw; }
+    .toast.show { opacity: 1; transform: translate(-50%, 0); pointer-events: auto; }
+    .toast-action { border: 0; background: transparent; color: #7da0ff; font-weight: 800; font-size: 11px; cursor: pointer; padding: 0; font-family: inherit; }
+    .toast-action:hover { text-decoration: underline; }
+
+    .handoff-banner {
+      position: fixed; top: 60px; right: 26px; z-index: 95; width: 300px;
+      display: flex; align-items: center; gap: 10px; padding: 11px 12px;
+      background: #fff; border: 1px solid #d9e5ff; border-radius: 12px; box-shadow: 0 14px 34px rgba(22,34,58,.14);
+      opacity: 0; transform: translateY(-8px); transition: .25s ease; pointer-events: none;
+    }
+    .handoff-banner.show { opacity: 1; transform: translateY(0); pointer-events: auto; }
+    .hb-icon { width: 34px; height: 34px; border-radius: 9px; background: var(--blue-soft); display: grid; place-items: center; font-size: 15px; flex-shrink: 0; }
+    .hb-body { flex: 1; min-width: 0; }
+    .hb-body strong { display: block; font-size: 11px; }
+    .hb-body span { display: block; margin-top: 2px; color: var(--muted); font-size: 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .hb-close { border: 0; background: transparent; color: #98a0af; cursor: pointer; font-size: 14px; padding: 2px; }
+
+    .batch-bar {
+      position: fixed; left: 50%; bottom: 72px; z-index: 90; transform: translate(-50%, 16px);
+      display: flex; align-items: center; gap: 10px; padding: 9px 14px;
+      background: #172033; color: #fff; border-radius: 12px; box-shadow: 0 16px 38px rgba(22,34,58,.3);
+      opacity: 0; pointer-events: none; transition: .22s ease;
+    }
+    .batch-bar.show { opacity: 1; transform: translate(-50%, 0); pointer-events: auto; }
+    .batch-count { font-size: 12px; font-weight: 800; }
+    .batch-btn { height: 28px; padding: 0 12px; border: 0; border-radius: 8px; background: var(--blue); color: #fff; font-size: 11px; font-weight: 700; cursor: pointer; }
+    .batch-btn:hover { background: #245de6; }
+    .batch-btn.ghost { background: rgba(255,255,255,.12); }
+    .batch-btn.ghost:hover { background: rgba(255,255,255,.2); }
+
+    .crumb { margin-bottom: 9px; font-size: 11px; color: #98a0af; }
+    .crumb a { color: #687286; text-decoration: none; }
+    .crumb a:hover { color: var(--blue); text-decoration: underline; }
+    .crumb span { color: #4b566a; font-weight: 700; }
+
+    .card-action-btn.primary { background: var(--blue); border-color: var(--blue); color: #fff; }
+    .card-action-btn.primary:hover { background: #245de6; border-color: #245de6; color: #fff; }
+    .expand-btn { border: 0; background: transparent; color: #98a0af; font-size: 10px; cursor: pointer; padding: 0 4px; font-family: inherit; }
+    .expand-btn:hover { color: var(--blue); }
+    .draft-card-body-wrap.expanded { height: 320px; }
+
+    @media (max-width: 900px) {
+      .page-head { align-items: flex-start; flex-direction: column; }
+      .head-note { text-align: left; }
+      .workspace { height: auto; grid-template-columns: minmax(0,1fr); }
+      .control-panel { min-height: 420px; }
+      .editor-panel { height: clamp(560px, 72vh, 760px); min-height: 0; }
+      .editor-top { align-items: flex-start; flex-direction: column; }
+      .global-actions { flex-wrap: wrap; }
+    }
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="logo"><svg viewBox="0 0 24 24" fill="none" stroke="#1a1a2e" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg></div>
+    <a class="sidebar-item" href="index.html"><span class="icon">📦</span><span class="label">资源</span></a>
+    <a class="sidebar-item" href="导演台首页.html"><span class="icon">🎬</span><span class="label">导演台</span></a>
+    <div class="sidebar-divider"></div>
+    <a class="sidebar-item active" href="全部工具.html"><span class="icon"></span><span class="label">全部工具</span></a>
+  </aside>
+  <main class="main">
+    <header class="topbar">
+      <div class="topbar-brand">智造</div>
+      <div class="topbar-right"><span class="prototype-tag">静态原型演示</span><div class="avatar">W</div></div>
+    </header>
+    <section class="page-head">
+      <div><div class="crumb"><a href="全部工具.html">全部工具</a> / <span>爆款拆解</span></div><div class="eyebrow">SCRIPT TOOL · BREAKDOWN</div><h1>爆款拆解</h1><p class="page-desc">粘贴视频链接或上传文件，提取爆款视频的台词文案。</p></div>
+      <div class="head-note">提取结果可一键导入一稿多版或合规检查工具继续处理</div>
+    </section>
+    <section class="workspace">
+      <aside class="panel control-panel">
+        <div class="control-scroll">
+          <div class="section-title">添加视频素材</div>
+          <div class="field">
+            <label class="field-label">视频链接</label>
+            <div class="input-row">
+              <textarea class="text-input" id="breakdown-url" style="min-height:58px;height:auto;resize:none;padding:9px 11px" placeholder="每行一个视频链接&#10;粘贴抖音 / 快手 / 视频号等链接"></textarea>
+              <button class="ghost-btn" onclick="addBreakdownUrls()">添加链接</button>
+            </div>
+          </div>
+          <div class="field-sep"></div>
+          <div class="field">
+            <label class="field-label">本地上传</label>
+            <div class="input-row">
+              <input type="file" id="breakdown-file" accept="video/*" multiple onchange="handleFileUpload(this)" style="display:none">
+              <button class="ghost-btn" onclick="document.getElementById('breakdown-file').click()" style="flex:1">选择视频文件</button>
+            </div>
+          </div>
+          <div class="breakdown-list" id="breakdown-list"></div>
+          <div class="breakdown-actions" id="breakdown-actions" style="display:none">
+            <button class="primary-btn" id="breakdown-btn" onclick="startBreakdown()">开始拆解</button>
+            <div class="helper">模拟台词提取，不真实调用语音识别 · Ctrl+⏎ 快速拆解</div>
+          </div>
+        </div>
+      </aside>
+      <section class="panel editor-panel">
+        <div class="editor-top">
+          <div><div class="editor-heading">拆解结果</div><div class="editor-sub" id="result-summary">尚未拆解台词</div></div>
+          <div class="global-actions">
+            <button class="ghost-btn" id="copy-all-btn" onclick="copyAll()" disabled>复制全部</button>
+            <button class="ghost-btn" id="txt-btn" onclick="exportTxt()" disabled>导出 TXT</button>
+            <button class="ghost-btn" id="csv-btn" onclick="exportCsv()" disabled>导出 CSV</button>
+          </div>
+        </div>
+        <div class="empty-state" id="empty-state">
+          <div><div class="empty-visual"><div class="paper"></div><div class="spark">AI</div></div><h2>添加视频开始拆解</h2><p>在左侧粘贴视频链接或上传视频文件，提取爆款台词后可一键导入其他工具继续创作。</p></div>
+        </div>
+        <div class="loading-state" id="loading-state"><div><div class="loader-ring"></div><div class="loading-title" id="loading-title">正在提取台词…</div><div class="loading-copy" id="loading-copy">识别语音、整理文案…</div></div></div>
+        <div class="draft-popover" id="draft-popover" style="display:none">
+          <button onclick="sendDraftToTool(_popoverDraftId,'一稿多版.html')">以此篇导入一稿多版</button>
+          <button onclick="sendDraftToTool(_popoverDraftId,'合规检查.html')">以此篇导入合规检查</button>
+        </div>
+        <div class="preview-overlay" id="preview-overlay" style="display:none" onclick="closePreview()"></div>
+        <div class="preview-modal" id="preview-modal" style="display:none">
+          <div class="preview-header" id="preview-header">
+            <div class="preview-title" id="preview-draft-title">视频预览</div>
+            <button class="preview-close" onclick="closePreview()">&times;</button>
+          </div>
+          <div class="preview-video-box">
+            <div class="preview-video-placeholder">
+              <div class="preview-play-icon">&#9654;</div>
+              <div class="preview-meta" id="preview-meta"></div>
+            </div>
+          </div>
+          <div class="preview-structure" id="preview-structure"></div>
+        </div>
+        <div class="drafts-list" id="drafts-list"></div>
+      </section>
+    </section>
+  </main>
+  <div class="toast" id="toast"><span id="toast-msg"></span><button class="toast-action" id="toast-action" style="display:none"></button></div>
+  <div class="handoff-banner" id="handoff-banner"><div class="hb-icon">📄</div><div class="hb-body"><strong id="hb-title"></strong><span id="hb-sub"></span></div><button class="hb-close" onclick="dismissHandoffBanner()">✕</button></div>
+  <div class="batch-bar" id="batch-bar"><span class="batch-count" id="batch-count"></span><button class="batch-btn" onclick="batchSendToBatch()">加入批量成片</button><button class="batch-btn ghost" onclick="batchImportDerive()">导入一稿多版</button><button class="batch-btn ghost" onclick="batchExportTxt()">导出 TXT</button><button class="batch-btn ghost" onclick="clearBatchSelection()">取消选择</button></div>
+  <script>
+    var TOOL_HANDOFF_KEY = 'script-tool-handoff';
+    var state = { drafts: [], activeId: null, selectedIds: [], loading: false, nextId: 1 };
+    var _popoverDraftId = null;
+
+    function escapeHtml(value) {
+      return String(value == null ? '' : value).replace(/[&<>'"]/g, function(ch) {
+        return { '&':'&amp;', '<':'&lt;', '>':'&gt;', "'":'&#39;', '"':'&quot;' }[ch];
+      });
+    }
+    function escapeAttr(value) { return escapeHtml(value); }
+
+    function toast(message, action) {
+      var el = document.getElementById('toast');
+      document.getElementById('toast-msg').textContent = message;
+      var act = document.getElementById('toast-action');
+      if (action) {
+        act.textContent = action.label; act.style.display = '';
+        act.onclick = function(){ action.onClick(); el.classList.remove('show'); };
+      } else { act.style.display = 'none'; act.onclick = null; }
+      el.classList.add('show');
+      clearTimeout(toast.timer);
+      toast.timer = setTimeout(function(){ el.classList.remove('show'); }, action ? 5000 : 1900);
+    }
+
+    function showHandoffBanner(from, title, chars) {
+      document.getElementById('hb-title').textContent = '已从「' + (from || '其他工具') + '」载入台词';
+      document.getElementById('hb-sub').textContent = (title ? '《' + title + '》 · ' : '') + chars + ' 字';
+      var el = document.getElementById('handoff-banner');
+      el.classList.add('show');
+      clearTimeout(showHandoffBanner.timer);
+      showHandoffBanner.timer = setTimeout(dismissHandoffBanner, 6000);
+    }
+    function dismissHandoffBanner() { document.getElementById('handoff-banner').classList.remove('show'); }
+
+    function updateBatchBar() {
+      var n = validSelectedIds(state.drafts).length;
+      var bar = document.getElementById('batch-bar');
+      if (n) { document.getElementById('batch-count').textContent = '已选 ' + n + ' 篇'; bar.classList.add('show'); }
+      else bar.classList.remove('show');
+    }
+    function batchImportDerive() {
+      var entries = currentExportEntries(); if (!entries.length) return;
+      var text = entries.map(function(e){ return e.draft.text; }).join('\n\n');
+      sendToTool('一稿多版.html', text, entries.length + ' 篇拆解稿合集');
+    }
+    function batchExportTxt() { exportTxt(); }
+    function clearBatchSelection() {
+      state.selectedIds = [];
+      document.querySelectorAll('#drafts-list .draft-select').forEach(function(cb){ cb.checked = false; });
+      updateExportControls(state.drafts);
+    }
+
+    function sendToTool(target, text, title) {
+      try { localStorage.setItem(TOOL_HANDOFF_KEY, JSON.stringify({ target: target, from: '爆款拆解', title: title || '', text: text, at: Date.now() })); } catch (e) {}
+      window.location.href = target;
+    }
+    function sendToBatchTask(texts, summaryTitle) {
+      var list = (texts || []).filter(function(t){ return t && t.trim(); });
+      if (!list.length) { toast('没有可添加的台词'); return; }
+      try { localStorage.setItem(TOOL_HANDOFF_KEY, JSON.stringify({ target: '简单模式-流程版-模板版.html', from: '爆款拆解', title: summaryTitle || '', texts: list, at: Date.now() })); } catch (e) {}
+      window.location.href = '简单模式-流程版-模板版.html?returnTo=directorWorkbench';
+    }
+    function sendDraftToBatch(draftId) {
+      var draft = findDraftById(draftId);
+      document.getElementById('draft-popover').style.display = 'none';
+      if (!draft || !draft.text.trim()) { toast('台词为空'); return; }
+      sendToBatchTask([draft.text], draft.title);
+    }
+    function batchSendToBatch() {
+      var entries = currentExportEntries(); if (!entries.length) return;
+      sendToBatchTask(entries.map(function(e){ return e.draft.text; }), '已选 ' + entries.length + ' 篇拆解稿');
+    }
+    function sendDraftToTool(draftId, target) {
+      var draft = findDraftById(draftId);
+      document.getElementById('draft-popover').style.display = 'none';
+      if (!draft || !draft.text.trim()) { toast('台词为空'); return; }
+      sendToTool(target, draft.text, draft.title);
+    }
+
+    function currentDraft() {
+      return state.drafts.find(function(item){ return item.id === state.activeId; }) || null;
+    }
+    function findDraftById(id) {
+      return state.drafts.find(function(d){ return d.id === id; }) || null;
+    }
+    function makeDraft(title, text) {
+      return { id: state.nextId++, title: title, text: text, targetDuration: 60, status: 'unchecked', findings: [] };
+    }
+
+    var _breakdownItems = [];
+    function handleFileUpload(input) {
+      if (!input.files || !input.files.length) return;
+      for (var i = 0; i < input.files.length; i++) {
+        _breakdownItems.push({ type: 'file', name: input.files[i].name, source: input.files[i].name });
+      }
+      input.value = ''; renderBreakdownList();
+    }
+    function addBreakdownUrls() {
+      var text = document.getElementById('breakdown-url').value.trim();
+      if (!text) return;
+      text.split('\n').forEach(function(line){
+        var s = line.trim(); if (!s) return;
+        _breakdownItems.push({ type: 'url', name: s.length > 50 ? s.slice(0, 50) + '…' : s, source: s });
+      });
+      document.getElementById('breakdown-url').value = '';
+      renderBreakdownList();
+    }
+    function removeBreakdownItem(index) { _breakdownItems.splice(index, 1); renderBreakdownList(); }
+    function previewBreakdownItem(index) {
+      var item = _breakdownItems[index]; if (!item) return;
+      document.getElementById('preview-draft-title').textContent = item.name;
+      document.getElementById('preview-meta').innerHTML = '来源：' + escapeHtml(item.source.slice(0, 80)) + '<br>类型：' + (item.type === 'url' ? '在线视频' : '本地文件') + ' · 模拟时长 42 秒';
+      document.getElementById('preview-structure').innerHTML = buildPreviewStructure();
+      var modal = document.getElementById('preview-modal');
+      modal.style.display = 'flex';
+      modal.style.top = '50%'; modal.style.left = '50%'; modal.style.transform = 'translate(-50%, -50%)';
+      document.getElementById('preview-overlay').style.display = 'block';
+    }
+    function renderBreakdownList() {
+      var el = document.getElementById('breakdown-list');
+      var actions = document.getElementById('breakdown-actions');
+      if (!_breakdownItems.length) { el.innerHTML = ''; actions.style.display = 'none'; return; }
+      actions.style.display = '';
+      el.innerHTML = _breakdownItems.map(function(item, idx){
+        return '<div class="breakdown-item">' +
+          '<div class="breakdown-item-thumb">' + (item.type === 'url' ? '🔗' : '🎬') + '</div>' +
+          '<div class="breakdown-item-name" title="' + escapeAttr(item.source) + '">' + escapeHtml(item.name) + '</div>' +
+          '<div class="breakdown-item-actions">' +
+          '<button class="breakdown-item-btn" onclick="previewBreakdownItem(' + idx + ')">预览</button>' +
+          '<button class="breakdown-item-btn remove" onclick="removeBreakdownItem(' + idx + ')">×</button>' +
+          '</div></div>';
+      }).join('');
+    }
+
+    function buildPreviewStructure() {
+      var segs = [
+        { name: '钩子', range: '0–3s', width: '10%', color: '#ff6b3d', text: '用反差提问开场，3 秒内抛出让用户停下的冲突点，制造“想知道答案”的缺口。' },
+        { name: '正文', range: '3–35s', width: '72%', color: '#2f6bff', text: '用“三个问题 / 三步方法”等编号结构承载核心信息，每点一句结论，穿插场景共鸣维持看完率。' },
+        { name: '行动引导', range: '35–42s', width: '18%', color: '#0aa78f', text: '先给合规免责口播降低戒备，再用明确路径（点击链接 / 查看评论区）收尾转化。' }
+      ];
+      return '<div class="preview-structure-title">口播结构拆解（模拟标注）</div>' +
+        '<div class="structure-bar">' + segs.map(function(s){ return '<div class="structure-seg" style="width:' + s.width + ';background:' + s.color + '">' + s.name + '</div>'; }).join('') + '</div>' +
+        '<div class="structure-rows">' + segs.map(function(s){ return '<div class="structure-row"><span class="structure-tag" style="background:' + s.color + '">' + s.name + '</span><span class="structure-time">' + s.range + '</span><span class="structure-text">' + s.text + '</span></div>'; }).join('') + '</div>';
+    }
+
+    var _previewDrag = null;
+    function closePreview() {
+      document.getElementById('preview-modal').style.display = 'none';
+      document.getElementById('preview-overlay').style.display = 'none';
+      _previewDrag = null;
+    }
+    (function initPreviewDrag(){
+      var header = document.getElementById('preview-header');
+      header.addEventListener('mousedown', function(e){
+        if (e.target.closest('.preview-close')) return;
+        var modal = document.getElementById('preview-modal');
+        var rect = modal.getBoundingClientRect();
+        _previewDrag = { startX: e.clientX, startY: e.clientY, left: rect.left, top: rect.top };
+        e.preventDefault();
+      });
+      document.addEventListener('mousemove', function(e){
+        if (!_previewDrag) return;
+        var modal = document.getElementById('preview-modal');
+        modal.style.top = (_previewDrag.top + (e.clientY - _previewDrag.startY)) + 'px';
+        modal.style.left = (_previewDrag.left + (e.clientX - _previewDrag.startX)) + 'px';
+        modal.style.transform = 'none';
+      });
+      document.addEventListener('mouseup', function(){ _previewDrag = null; });
+    })();
+
+    function startBreakdown() {
+      if (!_breakdownItems.length) { toast('请先添加视频链接或上传文件'); return; }
+      state.loading = true;
+      var previousDrafts = state.drafts.length ? state.drafts.slice() : null;
+      document.getElementById('empty-state').style.display = 'none';
+      document.getElementById('drafts-list').style.display = 'none';
+      document.getElementById('loading-state').classList.add('show');
+      document.getElementById('loading-title').textContent = '正在拆解 ' + _breakdownItems.length + ' 个视频';
+      var stages = ['解析视频链接，获取基础信息…', '识别语音，提取口播文案…', '整理文案结构，生成拆解稿…'];
+      var stageTimers = stages.map(function(text, i){
+        return setTimeout(function(){ document.getElementById('loading-copy').textContent = text; }, i * 450);
+      });
+      document.querySelectorAll('.control-panel button, .control-panel textarea').forEach(function(c){ c.disabled = true; });
+      var btn = document.getElementById('breakdown-btn');
+      btn.textContent = '处理中…';
+      var sources = _breakdownItems; var batchHash = 0;
+      for (var i = 0; i < sources.length; i++) {
+        for (var j = 0; j < sources[i].source.length; j++) { batchHash = ((batchHash << 5) - batchHash) + sources[i].source.charCodeAt(j); batchHash |= 0; }
+      }
+      var drafts = sources.map(function(item, idx){
+        var template = createBreakdownScript(item.source, Math.abs(batchHash + idx));
+        return makeDraft(template.title + '｜' + item.name, template.text);
+      });
+      setTimeout(function(){
+        stageTimers.forEach(clearTimeout);
+        state.selectedIds = [];
+        state.drafts = drafts;
+        state.activeId = drafts.length ? drafts[0].id : null;
+        state.loading = false;
+        document.getElementById('loading-state').classList.remove('show');
+        document.getElementById('drafts-list').style.display = '';
+        document.querySelectorAll('.control-panel button, .control-panel textarea').forEach(function(c){ c.disabled = false; });
+        btn.textContent = '开始拆解';
+        renderWorkspace();
+        toast('已提取 ' + drafts.length + ' 篇台词', previousDrafts ? { label: '撤销', onClick: function(){
+          state.drafts = previousDrafts; state.activeId = previousDrafts.length ? previousDrafts[0].id : null;
+          renderWorkspace(); toast('已恢复上一次的拆解结果');
+        } } : null);
+      }, 1400);
+    }
+
+    function createBreakdownScript(source, hash) {
+      var templates = [
+        { title: '拆解稿', text: '很多人炒股之所以亏钱，不是因为看不懂K线，而是因为缺乏系统的信息整理方法。我们团队每天盘前会做三件事：第一，筛选公开市场信息——不止看涨跌，还看驱动因素；第二，整理观察方向——不是推荐股票，而是帮你建立判断框架；第三，制定风险边界——什么情况该坚持，什么情况该止损。这套方法不是为了预测市场，而是帮你在变化中保持冷静。如果你想了解具体怎么做，可以点击下方链接查看完整内容。以上内容仅供参考，不构成具体投资建议。投资有风险，决策需谨慎。' },
+        { title: '拆解稿', text: '最近有朋友问我：现在市场震荡，短线到底能不能做？我的回答是：先问自己三个问题。第一，你的信息来源是什么？是公开数据还是道听途说？第二，你的判断依据是什么？是技术指标还是情绪驱动？第三，你的风险承受能力是多少？亏了能扛吗？这三个问题想清楚之前，任何操作都是赌。我们的服务就是帮你把这三个问题拆开，逐个分析，建立属于自己的交易纪律。而不是告诉你买哪只、卖哪只。如果你想学习这套方法，视频下方有链接。以上内容仅供参考，不构成具体投资建议。投资有风险，决策需谨慎。' },
+        { title: '拆解稿', text: '大部分散户做短线都有一个共同的问题：追涨杀跌。今天涨停就追进去，明天低开就割肉，反复循环，本金越做越少。其实问题不在技术，而在方法。我总结了三个短线的底层逻辑：一，不要迷恋消息面——公开信息面前人人平等，你看到的"重磅利好"可能已经是第三手了；二，建立复盘机制——每天盘后花20分钟记录为什么买、为什么卖、判断对错；三，控制仓位——永远不要满仓一支股票，给自己留后路。这三条看起来简单，真正做到的人很少。我们的服务就是围绕这三条逻辑，帮你建立可持续的复盘习惯。以上内容仅供参考，不构成具体投资建议。投资有风险，决策需谨慎。' }
+      ];
+      return templates[Math.abs(hash) % templates.length];
+    }
+
+    function renderWorkspace() {
+      var drafts = state.drafts; var draft = currentDraft(); var hasDrafts = drafts.length > 0;
+      updateExportControls(drafts);
+      document.getElementById('empty-state').style.display = !state.loading && !hasDrafts ? 'grid' : 'none';
+      document.getElementById('drafts-list').style.display = !state.loading ? '' : 'none';
+      renderDraftCards(drafts, draft);
+    }
+
+    function renderDraftCards(drafts, active) {
+      var list = document.getElementById('drafts-list');
+      list.innerHTML = drafts.map(function(draft, index){
+        return '<div class="draft-card' + (active && draft.id === active.id ? ' active' : '') + '" data-draft-id="' + draft.id + '" onclick="selectDraft(' + draft.id + ')">' +
+          '<div class="draft-card-header">' +
+          '<input class="draft-select" type="checkbox" aria-label="选择第 ' + (index + 1) + ' 篇稿件"' + (isDraftSelected(draft.id) ? ' checked' : '') + ' onclick="event.stopPropagation()" onchange="toggleDraftSelection(event,' + draft.id + ')">' +
+          '<span class="draft-card-num">#' + (index + 1) + '</span>' +
+          '<input class="draft-card-title-input" value="' + escapeAttr(draft.title) + '" oninput="updateCardTitle(' + draft.id + ',this.value)" onclick="event.stopPropagation()">' +
+          '<span class="draft-card-status">已提取</span>' +
+          '<button class="card-more-btn" onclick="showDraftPopover(event,' + draft.id + ')">⋮</button>' +
+          '</div>' +
+          '<div class="draft-card-body-wrap"><div class="draft-card-body" contenteditable="true" data-draft-id="' + draft.id + '" oninput="onCardBodyInput(this)" onclick="selectDraft(' + draft.id + ')">' + escapeHtml(draft.text) + '</div></div>' +
+          '<div class="draft-card-foot">' +
+          '<span class="draft-card-meta"><strong>' + countChars(draft.text) + '</strong> 字 · 约 <strong>' + estimateSeconds(draft.text) + '</strong> 秒<button class="expand-btn" onclick="event.stopPropagation();toggleCardExpand(this)">展开 ⌄</button></span>' +
+          '<div class="draft-card-actions">' +
+          '<button class="card-action-btn" onclick="event.stopPropagation();copyDraft(' + draft.id + ')">复制</button>' +
+          '<button class="card-action-btn primary" onclick="event.stopPropagation();sendDraftToBatch(' + draft.id + ')">加入批量成片</button>' +
+          '<button class="card-action-btn" onclick="event.stopPropagation();sendDraftToTool(' + draft.id + ',\'一稿多版.html\')">导入一稿多版</button>' +
+          '<button class="card-action-btn" onclick="event.stopPropagation();sendDraftToTool(' + draft.id + ',\'合规检查.html\')">导入合规检查</button>' +
+          '</div></div></div>';
+      }).join('');
+    }
+
+    function toggleCardExpand(btn) {
+      var card = btn.closest('.draft-card'); if (!card) return;
+      var wrap = card.querySelector('.draft-card-body-wrap'); if (!wrap) return;
+      var expanded = wrap.classList.toggle('expanded');
+      btn.textContent = expanded ? '收起 ⌃' : '展开 ⌄';
+    }
+
+    function caretOffsetInText(root, sel) {
+      if (!sel || !sel.rangeCount) return 0;
+      var range = sel.getRangeAt(0).cloneRange();
+      range.selectNodeContents(root);
+      range.setEnd(sel.getRangeAt(0).startContainer, sel.getRangeAt(0).startOffset);
+      return range.toString().length;
+    }
+    function restoreCaretOffset(root, offset) {
+      var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+      var remaining = offset, node;
+      while ((node = walker.nextNode())) {
+        if (remaining <= node.length) {
+          var range = document.createRange();
+          range.setStart(node, remaining); range.collapse(true);
+          var sel = window.getSelection();
+          sel.removeAllRanges(); sel.addRange(range);
+          return;
+        }
+        remaining -= node.length;
+      }
+    }
+
+    function onCardBodyInput(body) {
+      var draftId = parseInt(body.dataset.draftId, 10); var draft = findDraftById(draftId); if (!draft) return;
+      draft.text = body.textContent;
+      updateCardMeta(draft);
+    }
+    function updateCardMeta(draft) {
+      var card = document.querySelector('.draft-card[data-draft-id="' + draft.id + '"]'); if (!card) return;
+      var metaEl = card.querySelector('.draft-card-meta');
+      if (metaEl) metaEl.innerHTML = '<strong>' + countChars(draft.text) + '</strong> 字 · 约 <strong>' + estimateSeconds(draft.text) + '</strong> 秒';
+    }
+    function updateCardTitle(draftId, value) { var draft = findDraftById(draftId); if (draft) draft.title = value || '未命名台词'; }
+    function copyDraft(draftId) { var draft = findDraftById(draftId); if (draft) copyText(draft.text, '已复制'); }
+
+    function selectDraft(id) {
+      if (state.activeId === id) return;
+      state.activeId = id;
+      document.querySelectorAll('#drafts-list .draft-card').forEach(function(card){
+        card.classList.toggle('active', Number(card.dataset.draftId) === id);
+      });
+    }
+
+    function isDraftSelected(id) { return state.selectedIds.indexOf(id) !== -1; }
+    function validSelectedIds(drafts) {
+      var available = {};
+      drafts.forEach(function(draft){ available[draft.id] = true; });
+      return state.selectedIds.filter(function(id){ return available[id]; });
+    }
+    function updateExportControls(drafts) {
+      var hasDrafts = drafts.length > 0;
+      var selected = validSelectedIds(drafts);
+      state.selectedIds = selected;
+      document.getElementById('result-summary').textContent = hasDrafts ? ('共 ' + drafts.length + ' 篇' + (selected.length ? ' · 已选 ' + selected.length + ' 篇' : '')) : '尚未拆解台词';
+      document.getElementById('copy-all-btn').disabled = !hasDrafts;
+      document.getElementById('txt-btn').disabled = !hasDrafts;
+      document.getElementById('csv-btn').disabled = !hasDrafts;
+      document.getElementById('txt-btn').textContent = selected.length ? ('导出 TXT（' + selected.length + '）') : '导出 TXT';
+      document.getElementById('csv-btn').textContent = selected.length ? ('导出 CSV（' + selected.length + '）') : '导出 CSV';
+      updateBatchBar();
+    }
+    function toggleDraftSelection(event, draftId) {
+      event.stopPropagation();
+      if (event.currentTarget.checked) {
+        if (state.selectedIds.indexOf(draftId) === -1) state.selectedIds.push(draftId);
+      } else {
+        state.selectedIds = state.selectedIds.filter(function(id){ return id !== draftId; });
+      }
+      updateExportControls(state.drafts);
+    }
+
+    function showDraftPopover(event, draftId) {
+      event.stopPropagation(); _popoverDraftId = draftId;
+      var popover = document.getElementById('draft-popover');
+      var bRect = event.currentTarget.getBoundingClientRect();
+      popover.style.display = 'block'; popover.style.position = 'fixed';
+      popover.style.left = Math.max(0, bRect.right - 170) + 'px';
+      popover.style.top = (bRect.bottom + 4) + 'px';
+    }
+    document.addEventListener('click', function(e) {
+      var popover = document.getElementById('draft-popover');
+      if (popover && popover.style.display !== 'none' && !popover.contains(e.target)) { popover.style.display = 'none'; _popoverDraftId = null; }
+    });
+
+    function fallbackCopy(text) {
+      var area = document.createElement('textarea'); area.value = text; area.style.position = 'fixed'; area.style.opacity = '0';
+      document.body.appendChild(area); area.focus(); area.select();
+      var ok = false; try { ok = document.execCommand('copy'); } catch (error) { ok = false; }
+      area.remove(); if (!ok) throw new Error('copy failed');
+    }
+    function copyText(text, successMessage) {
+      if (!text) { toast('没有可复制的内容'); return; }
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(function(){ toast(successMessage); }).catch(function(){
+          try { fallbackCopy(text); toast(successMessage); } catch (error) { toast('复制失败'); }
+        });
+      } else { try { fallbackCopy(text); toast(successMessage); } catch (error) { toast('复制失败'); } }
+    }
+
+    function currentDraftEntries() { return state.drafts.map(function(draft, index){ return { draft:draft, index:index }; }); }
+    function currentExportEntries() {
+      var selected = validSelectedIds(state.drafts);
+      if (!selected.length) return currentDraftEntries();
+      var selectedMap = {}; selected.forEach(function(id){ selectedMap[id] = true; });
+      return currentDraftEntries().filter(function(entry){ return selectedMap[entry.draft.id]; });
+    }
+    function entriesText(entries) { return entries.map(function(entry){ return '【' + (entry.index + 1) + '. ' + entry.draft.title + '】\n' + entry.draft.text; }).join('\n\n--------------------\n\n'); }
+    function copyAll() { copyText(entriesText(currentDraftEntries()), '已复制全部台词'); }
+    function exportMessage(type, entries) {
+      var selectedCount = validSelectedIds(state.drafts).length;
+      return type + ' 已导出' + (selectedCount ? ('选中的 ' + entries.length + ' 篇台词') : ('全部 ' + entries.length + ' 篇台词'));
+    }
+    function downloadFile(name, content, type) {
+      var blob = new Blob(['\ufeff' + content], { type: type + ';charset=utf-8' });
+      var url = URL.createObjectURL(blob);
+      var link = document.createElement('a'); link.href = url; link.download = name;
+      document.body.appendChild(link); link.click(); link.remove();
+      setTimeout(function(){ URL.revokeObjectURL(url); }, 500);
+    }
+    function exportTxt() {
+      var entries = currentExportEntries(); if (!entries.length) return;
+      downloadFile('爆款拆解-导出.txt', entriesText(entries), 'text/plain');
+      toast(exportMessage('TXT', entries));
+    }
+    function csvSafeValue(value) { var text = String(value == null ? '' : value); if (/^[\u0000-\u0020]*[=+\-@]/.test(text)) text = "'" + text; return text; }
+    function csvCell(value) { return '"' + csvSafeValue(value).replace(/"/g, '""') + '"'; }
+    function exportCsv() {
+      var entries = currentExportEntries(); if (!entries.length) return;
+      var rows = [['序号','标题','台词正文','字数','预计时长（秒）']];
+      entries.forEach(function(entry){
+        rows.push([entry.index + 1, entry.draft.title, entry.draft.text, countChars(entry.draft.text), estimateSeconds(entry.draft.text)]);
+      });
+      downloadFile('爆款拆解-导出.csv', rows.map(function(row){ return row.map(csvCell).join(','); }).join('\r\n'), 'text/csv');
+      toast(exportMessage('CSV', entries));
+    }
+
+    function countChars(text) { return String(text || '').replace(/\s/g, '').length; }
+    function estimateSeconds(text) { return Math.max(1, Math.ceil(countChars(text) / 4)); }
+
+    document.addEventListener('keydown', function(e){
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        e.preventDefault();
+        if (!state.loading && _breakdownItems.length) startBreakdown();
+      }
+    });
+
+    renderWorkspace();
+  </script>
+</body>
+</html>
