@@ -90,6 +90,20 @@
     .source-tab-content { display: none; }
     .source-tab-content.active { display: block; }
 
+    .upload-drop-zone {
+      border: 2px dashed #dce1ea; border-radius: 12px;
+      padding: 36px 16px; text-align: center; cursor: pointer;
+      color: #8c94a4; font-size: 12px; transition: .18s;
+      display: flex; flex-direction: column; align-items: center; gap: 10px;
+    }
+    .upload-drop-zone:hover { border-color: var(--blue); background: var(--blue-soft); color: var(--blue); }
+    .upload-drop-zone input[type="file"] { display: none; }
+    .upload-drop-zone.filled { border-style: solid; border-color: var(--blue); background: var(--blue-soft); color: var(--blue); }
+    .upload-drop-zone .upload-icon { font-size: 30px; line-height: 1; }
+    .link-input-wrap textarea { min-height: 120px; border-radius: 12px; background: #f9fafb; font-size: 13px; padding: 14px 16px; line-height: 1.7; }
+    .link-input-wrap textarea:focus { background: #fff; }
+    .link-add-btn { margin-top: 8px; width: 100%; }
+
     .breakdown-list { margin-top: 14px; display: flex; flex-direction: column; gap: 6px; }
     .breakdown-item {
       display: flex; align-items: center; gap: 6px; padding: 8px 10px;
@@ -273,16 +287,13 @@
         <div class="control-scroll">
           <div class="section-title">添加视频素材</div>
           <div class="source-tabs">
-            <button class="source-tab active" onclick="switchSourceTab('link')">视频链接</button>
-            <button class="source-tab" onclick="switchSourceTab('file')">本地上传</button>
+            <button class="source-tab active" onclick="switchSourceTab('link')">🔗 视频链接</button>
+            <button class="source-tab" onclick="switchSourceTab('file')">📁 本地上传</button>
           </div>
           <div class="source-tab-content active" id="source-tab-link">
-            <div class="field">
-              <label class="field-label">视频链接</label>
-              <div class="input-row">
-                <textarea class="text-input" id="breakdown-url" style="min-height:58px;height:auto;resize:none;padding:9px 11px" placeholder="每行一个视频链接&#10;粘贴抖音 / 快手 / 视频号等链接"></textarea>
-                <button class="ghost-btn" onclick="addBreakdownUrls()">添加链接</button>
-              </div>
+            <div class="link-input-wrap">
+              <textarea class="text-input" id="breakdown-url" placeholder="在此粘贴视频链接，每行一个&#10;支持抖音 / 快手 / 视频号等平台链接"></textarea>
+              <button class="primary-btn link-add-btn" onclick="addBreakdownUrls()">添加到列表</button>
             </div>
             <div class="breakdown-list" id="breakdown-list-link"></div>
             <div class="breakdown-actions" id="breakdown-actions-link" style="display:none">
@@ -290,12 +301,10 @@
             </div>
           </div>
           <div class="source-tab-content" id="source-tab-file">
-            <div class="field">
-              <label class="field-label">本地上传</label>
-              <div class="input-row">
-                <input type="file" id="breakdown-file" accept="video/*" multiple onchange="handleFileUpload(this)" style="display:none">
-                <button class="ghost-btn" onclick="document.getElementById('breakdown-file').click()" style="flex:1">选择视频文件</button>
-              </div>
+            <div class="upload-drop-zone" id="upload-drop-zone" onclick="document.getElementById('breakdown-file').click()">
+              <span class="upload-icon">📂</span>
+              <span>点击或拖拽视频文件到此处</span>
+              <input type="file" id="breakdown-file" accept="video/*" multiple onchange="handleFileUpload(this)">
             </div>
             <div class="breakdown-list" id="breakdown-list-file"></div>
             <div class="breakdown-actions" id="breakdown-actions-file" style="display:none">
@@ -418,6 +427,21 @@
         _fileItems.push({ type: 'file', name: input.files[i].name, source: input.files[i].name });
       }
       input.value = ''; renderBreakdownList('file');
+      updateUploadZone();
+    }
+    function updateUploadZone() {
+      var zone = document.getElementById('upload-drop-zone');
+      var span = zone.querySelector('span:last-child');
+      var icon = zone.querySelector('.upload-icon');
+      if (_fileItems.length) {
+        zone.classList.add('filled');
+        if (span) span.textContent = '已选择 ' + _fileItems.length + ' 个文件';
+        if (icon) icon.textContent = '✅';
+      } else {
+        zone.classList.remove('filled');
+        if (span) span.textContent = '点击或拖拽视频文件到此处';
+        if (icon) icon.textContent = '📂';
+      }
     }
     function addBreakdownUrls() {
       var text = document.getElementById('breakdown-url').value.trim();
@@ -433,6 +457,7 @@
       if (tab === 'link') _linkItems.splice(index, 1);
       else _fileItems.splice(index, 1);
       renderBreakdownList(tab);
+      if (tab === 'file') updateUploadZone();
     }
     function previewBreakdownItem(tab, index) {
       var items = tab === 'link' ? _linkItems : _fileItems;
@@ -527,7 +552,23 @@
         document.getElementById('loading-state').classList.remove('show');
         document.getElementById('drafts-list').style.display = '';
         document.querySelectorAll('.control-panel button, .control-panel textarea').forEach(function(c){ c.disabled = false; });
-        renderWorkspace();
+    function initDropZone() {
+      var zone = document.getElementById('upload-drop-zone');
+      if (!zone) return;
+      zone.addEventListener('dragover', function(e) { e.preventDefault(); zone.style.borderColor = 'var(--blue)'; zone.style.background = 'var(--blue-soft)'; });
+      zone.addEventListener('dragleave', function(e) { e.preventDefault(); zone.style.borderColor = ''; zone.style.background = ''; });
+      zone.addEventListener('drop', function(e) {
+        e.preventDefault();
+        zone.style.borderColor = ''; zone.style.background = '';
+        if (!e.dataTransfer || !e.dataTransfer.files.length) return;
+        for (var i = 0; i < e.dataTransfer.files.length; i++) {
+          _fileItems.push({ type: 'file', name: e.dataTransfer.files[i].name, source: e.dataTransfer.files[i].name });
+        }
+        renderBreakdownList('file'); updateUploadZone();
+      });
+    }
+
+    renderWorkspace();
         toast('已提取 ' + drafts.length + ' 篇台词', previousDrafts ? { label: '撤销', onClick: function(){
           state.drafts = previousDrafts; state.activeId = previousDrafts.length ? previousDrafts[0].id : null;
           renderWorkspace(); toast('已恢复上一次的拆解结果');
@@ -742,6 +783,7 @@
     });
 
     renderWorkspace();
+    initDropZone();
   </script>
 </body>
 </html>
