@@ -56,7 +56,7 @@
     .head-note { max-width: 310px; color: #6d778a; font-size: 11px; line-height: 1.6; text-align: right; }
 
     .workspace {
-      padding: 0 26px 26px; display: grid; grid-template-columns: minmax(440px, 1fr) 338px;
+      padding: 0 26px 26px; display: grid;       grid-template-columns: 338px minmax(440px, 1fr);
       gap: 16px; height: calc(100vh - 152px); min-height: 560px;
     }
     .panel { background: var(--panel); border: 1px solid #e8ebf0; border-radius: 14px; box-shadow: 0 2px 12px rgba(22,34,58,.03); min-height: 0; }
@@ -180,6 +180,12 @@
     .risk-reason { color: #798293; font-size: 12px; line-height: 1.65; }
     .risk-suggestion { margin-top: 7px; color: #355a8b; font-size: 12px; line-height: 1.65; }
     .apply-btn { width: 100%; height: 31px; margin-top: 9px; border: 1px solid #b7c9f8; border-radius: 7px; background: var(--blue-soft); color: var(--blue-deep); font-size: 10px; font-weight: 800; cursor: pointer; }
+    .risk-card.adopted { border-left: 3px solid var(--mint); background: #f4fbf9; }
+    .risk-card.adopted .risk-quote { background: #e7f5f1; color: #1f5a4e; }
+    .adopted-box { margin-bottom: 10px; }
+    .adopted-box .risk-card:last-child { margin-bottom: 0; }
+    .undo-btn { width: 100%; height: 31px; margin-top: 9px; border: 1px solid #e0e4ea; border-radius: 7px; background: #fff; color: #5e687b; font-size: 10px; font-weight: 700; cursor: pointer; }
+    .undo-btn:hover { color: var(--blue); border-color: #aec2fb; background: var(--blue-soft); }
     .compliance-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin-bottom: 12px; }
     .compliance-actions button { height: 32px; border: 1px solid #dce2ec; border-radius: 8px; background: #fff; color: #566175; font-size: 10px; font-weight: 700; cursor: pointer; }
     .compliance-actions button.primary { border-color: #9db8ff; color: var(--blue-deep); background: var(--blue-soft); }
@@ -249,6 +255,17 @@
     .diff-confirm-btn { height: 34px; padding: 0 16px; border: 0; border-radius: 8px; background: var(--blue); color: #fff; font-size: 12px; font-weight: 700; cursor: pointer; }
     .diff-confirm-btn:hover { background: #245de6; }
 
+    .confirm-overlay { position: fixed; inset: 0; z-index: 120; background: rgba(15,20,35,.38); display: flex; align-items: center; justify-content: center; }
+    .confirm-modal { width: 320px; background: #fff; border-radius: 14px; padding: 20px; box-shadow: 0 24px 64px rgba(0,0,0,.18); }
+    .confirm-title { font-size: 14px; font-weight: 800; margin-bottom: 6px; }
+    .confirm-desc { font-size: 12px; color: var(--muted); line-height: 1.6; }
+    .confirm-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
+    .confirm-actions button { height: 32px; padding: 0 16px; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; }
+    .confirm-cancel { border: 1px solid #dce1ea; background: #fff; color: #4b566a; }
+    .confirm-cancel:hover { border-color: #aec2fb; color: var(--blue); }
+    .confirm-ok { border: 0; background: #e5484d; color: #fff; }
+    .confirm-ok:hover { background: #d13438; }
+
     @media (max-width: 1100px) {
       .workspace { height: auto; grid-template-columns: minmax(0,1fr); }
       .editor-panel { height: clamp(560px, 72vh, 760px); min-height: 0; }
@@ -280,32 +297,9 @@
     </header>
     <section class="page-head">
       <div><div class="crumb"><a href="全部工具.html">全部工具</a> / <span>合规检查</span></div><div class="eyebrow">SCRIPT TOOL · COMPLIANCE</div><h1>合规检查</h1><p class="page-desc">定位台词中的表达风险，提供逐条替换与全文优化建议。</p></div>
-      <div class="head-note">面向证券投顾口播场景 · 检查结果仅作内容合规提示，不代表正式合规审核结论</div>
+      <div></div>
     </section>
     <section class="workspace">
-      <section class="panel editor-panel">
-        <div class="editor-top">
-          <div><div class="editor-heading">稿件工作区</div><div class="editor-sub" id="result-summary">尚未进行合规检查</div></div>
-          <div class="global-actions">
-            <button class="ghost-btn" id="copy-all-btn" onclick="copyAll()" disabled>复制全部</button>
-            <button class="ghost-btn" id="txt-btn" onclick="exportTxt()" disabled>导出 TXT</button>
-            <button class="ghost-btn" id="csv-btn" onclick="exportCsv()" disabled>导出 CSV</button>
-          </div>
-        </div>
-        <div class="check-inline-panel">
-          <div class="check-inline-copy"><strong>合规检查</strong><span>直接编辑当前稿件，完成后检查风险表达与修改建议 · Ctrl+⏎ 快速检查</span></div>
-          <div class="check-actions">
-            <button class="quick-chip" onclick="addComplianceDraft()">＋ 新增台词</button>
-            <button class="quick-chip" onclick="fillRiskDemo()">填入合规示例</button>
-            <button class="primary-btn" id="check-btn" onclick="startExistingCheck()">开始合规检查</button>
-          </div>
-        </div>
-        <div class="loading-state" id="loading-state"><div><div class="loader-ring"></div><div class="loading-title" id="loading-title">正在检查合规风险</div><div class="loading-copy" id="loading-copy">定位风险表达、整理修改建议…</div></div></div>
-        <div class="draft-popover" id="draft-popover" style="display:none">
-          <button onclick="sendDraftToDerive(_popoverDraftId)">导入一稿多版</button>
-        </div>
-        <div class="drafts-list" id="drafts-list"></div>
-      </section>
       <aside class="panel insight-panel">
         <div class="insight-tabs">
           <button class="insight-tab active" data-insight="quality" onclick="setInsight('quality')">内容诊断</button>
@@ -317,29 +311,45 @@
         </div>
         <div class="disclaimer"><strong>发布前须知：</strong>本页仅演示 AI 辅助合规识别。发布前须由所属机构按制度审核，核验信息来源和日期，确认机构与人员身份资质披露，并保留稿件、引用来源、修改及审核记录。</div>
       </aside>
+      <section class="panel editor-panel">
+        <div class="editor-top">
+          <div><div class="editor-heading">稿件工作区</div><div class="editor-sub" id="result-summary">尚未进行合规检查</div></div>
+          <div class="global-actions">
+            <button class="ghost-btn" id="select-all-btn" onclick="selectAll()" disabled>全选</button>
+            <button class="ghost-btn" id="add-batch-btn" onclick="sendSelectedToBatch()" disabled>加入批量成片</button>
+            <button class="ghost-btn" id="copy-all-btn" onclick="copyAll()" disabled>复制全部</button>
+            <button class="ghost-btn" id="txt-btn" onclick="exportTxt()" disabled>导出 TXT</button>
+            <button class="ghost-btn" id="csv-btn" onclick="exportCsv()" disabled>导出 CSV</button>
+          </div>
+        </div>
+        <div class="check-inline-panel">
+          <div class="check-inline-copy"><strong>合规检查</strong></div>
+          <div class="check-actions">
+            <button class="quick-chip" onclick="addComplianceDraft()">＋ 新增台词</button>
+            <button class="quick-chip" onclick="fillRiskDemo()">填入合规示例</button>
+            <button class="primary-btn" id="check-btn" onclick="startExistingCheck()">开始合规检查</button>
+          </div>
+        </div>
+        <div class="loading-state" id="loading-state"><div><div class="loader-ring"></div><div class="loading-title" id="loading-title">正在检查合规风险</div><div class="loading-copy" id="loading-copy">定位风险表达、整理修改建议…</div></div></div>
+        <div class="drafts-list" id="drafts-list"></div>
+      </section>
     </section>
   </main>
-  <div class="modal-overlay" id="diff-modal" style="display:none">
-    <div class="diff-dialog">
-      <div class="diff-header"><strong>确认修改</strong><button class="diff-close" onclick="closeDiffModal()">&times;</button></div>
-      <div class="diff-body">
-        <div class="diff-label">原文</div><div class="diff-original" id="diff-original"></div>
-        <div class="diff-label">替换为</div><div class="diff-replacement" id="diff-replacement"></div>
-      </div>
-      <div class="diff-footer">
-        <button class="diff-cancel-btn" onclick="closeDiffModal()">取消</button>
-        <button class="diff-confirm-btn" onclick="confirmDiffApply()">确认替换</button>
+  <div class="toast" id="toast"><span id="toast-msg"></span><button class="toast-action" id="toast-action" style="display:none"></button></div>
+  <div class="handoff-banner" id="handoff-banner"><div class="hb-icon">📄</div><div class="hb-body"><strong id="hb-title"></strong><span id="hb-sub"></span></div><button class="hb-close" onclick="dismissHandoffBanner()">✕</button></div>
+  <div class="confirm-overlay" id="confirm-overlay" style="display:none" onclick="if(event.target===this)closeConfirm()">
+    <div class="confirm-modal">
+      <div class="confirm-title" id="confirm-title"></div>
+      <div class="confirm-desc" id="confirm-desc"></div>
+      <div class="confirm-actions">
+        <button class="confirm-cancel" onclick="closeConfirm()">取消</button>
+        <button class="confirm-ok" id="confirm-ok" onclick="confirmAction()">清空</button>
       </div>
     </div>
   </div>
-  <div class="toast" id="toast"><span id="toast-msg"></span><button class="toast-action" id="toast-action" style="display:none"></button></div>
-  <div class="handoff-banner" id="handoff-banner"><div class="hb-icon">📄</div><div class="hb-body"><strong id="hb-title"></strong><span id="hb-sub"></span></div><button class="hb-close" onclick="dismissHandoffBanner()">✕</button></div>
-  <div class="batch-bar" id="batch-bar"><span class="batch-count" id="batch-count"></span><button class="batch-btn" onclick="startExistingCheck()">批量合规检查</button><button class="batch-btn ghost" onclick="batchSendToBatch()">加入批量成片</button><button class="batch-btn ghost" onclick="exportTxt()">导出 TXT</button><button class="batch-btn ghost" onclick="clearBatchSelection()">取消选择</button></div>
   <script>
     var TOOL_HANDOFF_KEY = 'script-tool-handoff';
     var state = { insight: 'compliance', drafts: [], activeId: null, selectedIds: [], loading: false, nextId: 1 };
-    var _popoverDraftId = null;
-    var _pendingApplyIndex = null;
 
     function escapeHtml(value) {
       return String(value == null ? '' : value).replace(/[&<>'"]/g, function(ch) {
@@ -371,43 +381,32 @@
     }
     function dismissHandoffBanner() { document.getElementById('handoff-banner').classList.remove('show'); }
 
-    function updateBatchBar() {
-      var n = validSelectedIds(state.drafts).length;
-      var bar = document.getElementById('batch-bar');
-      if (n) { document.getElementById('batch-count').textContent = '已选 ' + n + ' 篇'; bar.classList.add('show'); }
-      else bar.classList.remove('show');
+    var _confirmCallback = null;
+    function askConfirm(title, desc, onOk, okLabel) {
+      document.getElementById('confirm-title').textContent = title;
+      document.getElementById('confirm-desc').textContent = desc;
+      document.getElementById('confirm-ok').textContent = okLabel || '确认';
+      _confirmCallback = onOk;
+      document.getElementById('confirm-overlay').style.display = 'flex';
     }
-    function clearBatchSelection() {
-      state.selectedIds = [];
-      document.querySelectorAll('#drafts-list .draft-select').forEach(function(cb){ cb.checked = false; });
-      updateExportControls(state.drafts);
+    function closeConfirm() {
+      document.getElementById('confirm-overlay').style.display = 'none';
+      _confirmCallback = null;
+    }
+    function confirmAction() {
+      var cb = _confirmCallback;
+      closeConfirm();
+      if (cb) cb();
     }
 
     function sendToTool(target, text, title) {
       try { localStorage.setItem(TOOL_HANDOFF_KEY, JSON.stringify({ target: target, from: '合规检查', title: title || '', text: text, at: Date.now() })); } catch (e) {}
       window.location.href = target;
     }
-    function sendToBatchTask(texts, summaryTitle) {
-      var list = (texts || []).filter(function(t){ return t && t.trim(); });
-      if (!list.length) { toast('没有可添加的台词'); return; }
-      try { localStorage.setItem(TOOL_HANDOFF_KEY, JSON.stringify({ target: '简单模式-流程版-模板版.html', from: '合规检查', title: summaryTitle || '', texts: list, at: Date.now() })); } catch (e) {}
-      window.location.href = '简单模式-流程版-模板版.html?returnTo=directorWorkbench';
-    }
-    function sendDraftToBatch(draftId) {
-      var draft = findDraftById(draftId);
-      document.getElementById('draft-popover').style.display = 'none';
-      if (!draft || !draft.text.trim()) { toast('台词为空'); return; }
-      sendToBatchTask([draft.text], draft.title);
-    }
-    function batchSendToBatch() {
-      var entries = currentExportEntries(); if (!entries.length) return;
-      sendToBatchTask(entries.map(function(e){ return e.draft.text; }), '已选 ' + entries.length + ' 篇台词');
-    }
     function sendDraftToDerive(draftId) {
       var draft = findDraftById(draftId);
-      document.getElementById('draft-popover').style.display = 'none';
       if (!draft || !draft.text.trim()) { toast('台词为空'); return; }
-      sendToTool('一稿多版.html', draft.text, draft.title);
+      sendToTool('台词改写.html', draft.text, draft.title);
     }
     function consumeHandoff() {
       try {
@@ -455,7 +454,7 @@
     }
 
     function fillRiskDemo() {
-      var demo = '立即暂停！持仓超过8万的朋友赶紧调仓，再不调仓就来不及了。我们用大数据从5000多只股票里筛选机会，这套短线方法准到吓人，可以快速提升投资效果。无需下载、无需注册，也不用留手机号，点击视频下方链接马上领取。';
+      var demo = '朋友们注意了，持仓超过8万还深套的，赶紧调仓！再不调仓就来不及了。我们专业投顾团队用大数据，从5000多只股票里筛选机会，这套短线方法准到吓人，跟着操作快速回本。名额仅限前50名，无需下载、无需注册，也不用留手机号，点击视频下方链接马上领取。';
       var clone = makeDraft('合规检查示例', demo, 60);
       state.drafts = [clone];
       state.selectedIds = [];
@@ -512,6 +511,7 @@
     function runDraftCheck(draft) {
       draft.findings = findComplianceRisks(draft.text);
       draft.quality = diagnoseQuality(draft.text, draft.targetDuration);
+      draft.checkedText = draft.text;
       draft.status = draft.findings.length ? 'attention' : 'clear';
     }
 
@@ -530,16 +530,17 @@
       var personalizedServicePattern = /(?:免费诊股|诊断持仓|领取[^，。；！？]{0,10}(?:牛股|金股|股票|个股|名单)|(?:牛股|金股|股票|个股)名单|盘中指导|实盘指导|跟单|带单|老师带你操作|(?:一对一|免费)?(?:分析|诊断|解读)(?:持仓|个股|股票)|(?:老师)?手把手指导(?:操作|交易)|(?:指导|陪同)(?:操作|交易))/g;
       var rules = [
         { severity:'high', type:'收益承诺', regex:/(稳赚不赔|稳赚|保本(?:保收益)?|保收益|保证收益|本金(?:安全|无忧)|收益(?:有保障|兜底)|锁定收益|零风险|绝对赚钱|必赚|翻倍收益)/g, reason:'可能构成对本金安全或投资收益的承诺、保证或暗示。', suggestion:'删除确定性收益承诺，说明投资结果受市场等因素影响。', replacement:'投资结果受市场等多重因素影响，不存在确定收益。' },
-        { severity:'high', type:'具体行动或确定性建议', regex:actionPattern, skipNegative:true, reason:'涉及具体买卖、仓位、目标价或带有强诱导性的行动表达。', suggestion:'改为介绍公开依据和一般判断方法。', replacement:'相关信息仅用于说明判断方法，请结合公开依据和自身风险承受能力审慎决策。' },
+        { severity:'high', type:'具体行动或确定性建议', regex:actionPattern, skipNegative:true, reason:'涉及具体买卖、仓位、目标价或带有强诱导性的行动表达。', suggestion:'改为介绍公开依据和一般判断方法，不直接给出买卖、调仓指令。', replacement:'可结合自身情况与公开信息理性决策，文中内容仅为方法介绍，不构成任何买卖建议。' },
         { severity:'high', type:'非公开信息暗示', regex:/(内幕消息|内部消息|庄家消息|确定消息|独家消息)/g, reason:'暗示掌握非公开或确定性消息。', suggestion:'仅引用可核验的公开信息，并明确来源与发布日期。', replacement:'相关判断仅基于可核验的公开信息，请核对来源与发布日期。' },
         { severity:'high', type:'站外导流或私域招揽', regex:privateLeadPattern, skipNegative:true, reason:'涉及站外导流、私域群聊或个人联系方式。', suggestion:'发布前核验机构官方渠道、服务资质、留痕要求和隐私说明。' },
         { severity:'high', type:'具体标的或诊股服务招揽', regex:personalizedServicePattern, skipNegative:true, reason:'可能涉及具体标的推荐、个性化诊断或跟单指导。', suggestion:'不要以具体标的、诊股或跟单作为获客诱因。' },
+        { severity:'medium', type:'具体交易方法营销', regex:/(短线方法|短线技巧|打板方法|快进快出(?:的)?(?:方法|技巧)|独家(?:战法|方法))/g, reason:'将具体交易方法包装为可复制的获利路径，容易误导用户。', suggestion:'说明方法仅供学习参考，不暗示可稳定获利。', replacement:'以下方法仅为思路分享，实际操作请结合自身风险承受能力谨慎决策。' },
         { severity:'high', type:'回本解套效果承诺', regex:/(带你[^，。；！？]{0,8}(?:回本|解套|扭亏)|帮你[^，。；！？]{0,8}(?:回本|解套|扭亏)|快速(?:回本|解套|扭亏)|实现(?:回本|解套|扭亏))/g, reason:'暗示服务能够帮助用户挽回损失。', suggestion:'删除回本、解套或扭亏承诺。', replacement:'服务仅用于辅助整理公开信息和判断过程，不承诺挽回投资损失。' },
         { severity:'medium', type:'隐性效果暗示', regex:/(准到吓人|快速提升(?:投资)?效果|不会让(?:你|您)失望|脱颖而出|拉开差距|成功翻身|抓住主线|走出主线)/g, reason:'可能通过结果暗示影响用户判断。', suggestion:'改为客观说明服务内容，不暗示确定效果。', replacement:'服务用于辅助整理公开信息和判断过程，实际效果因市场环境及个人情况而异。' },
-        { severity:'medium', type:'紧迫性营销', regex:/(再不[^，。；！？]{0,10}就来不及|来不及了|抓紧(?:时间)?|赶紧|立即暂停|只说一次|千万盯紧|紧盯|马上领取|行情来了)/g, skipNegative:true, reason:'通过时间压力推动用户立即行动。', suggestion:'去除时间压力，提醒用户先核验信息与服务说明。', replacement:'请先核对信息来源、适用日期和服务说明。' },
-        { severity:'medium', type:'稀缺名额营销', regex:/(限时名额|名额有限|仅限\s*\d+\s*名|前\s*\d+\s*名|最后\s*\d+\s*个名额)/g, reason:'通过虚构或未核实的稀缺性推动用户决策。', suggestion:'如确有名额限制，请说明活动规则和有效期；否则删除稀缺性表达。' },
-        { severity:'medium', type:'依据与能力声明待核实', regex:/(专业(?:投顾|投资顾问)?团队|大数据(?:筛选|选股)?|老股民自用|老师(?:每天)?分享|刚出的研报|研报直接告诉|跟踪主力|筛选出潜力)/g, reason:'涉及团队资质、数据能力或研究依据。', suggestion:'请注明具体服务主体、公开信息来源、方法边界及对应日期。' },
-        { severity:'medium', type:'服务与隐私承诺待核实', regex:/(不用|无需)(?:下载|注册|留手机号|输入(?:您的|你的)?手机号)|不收录(?:您的|你的)?手机号码/g, reason:'涉及注册流程、个人信息收集承诺。', suggestion:'改为提示用户查看真实服务流程和隐私说明。', replacement:'具体使用流程和个人信息处理方式，请以实际服务页面及隐私说明为准。' },
+        { severity:'medium', type:'紧迫性营销', regex:/(再不[^，。；！？]{0,10}就?(来不及了|来不及)|抓紧(?:时间)?|赶紧|立即暂停|只说一次|千万盯紧|紧盯|马上领取|马上报名|行情来了)/g, skipNegative:true, severityHighWhen:2, reason:'通过时间压力推动用户立即行动。', suggestion:'去除时间压力，提醒用户先核验信息与服务说明。', replacement:'请先核对信息来源、适用日期和服务说明，再结合自身情况决定。' },
+        { severity:'medium', type:'稀缺名额营销', regex:/(限时名额|名额有限|名额仅限[^，。；！？]{0,8}|仅限\s*\d+\s*名|仅限前\s*\d+\s*名|前\s*\d+\s*名|最后\s*\d+\s*个名额)/g, reason:'通过虚构或未核实的稀缺性推动用户决策。', suggestion:'如确有名额限制，请说明活动规则和有效期；否则删除稀缺性表达。', replacement:'服务面向符合条件的用户开放，具体规则以官方页面说明为准。' },
+        { severity:'medium', type:'依据与能力声明待核实', regex:/(专业(?:投顾|投资顾问)?团队|大数据(?:筛选|选股)?|老股民自用|老师(?:每天)?分享|刚出的研报|研报直接告诉|跟踪主力|筛选出潜力)/g, reason:'涉及团队资质、数据能力或研究依据。', suggestion:'请注明具体服务主体、公开信息来源、方法边界及对应日期。', replacement:'内容由本机构研究团队基于公开信息整理，具体方法与数据来源见文末说明。' },
+        { severity:'medium', type:'服务与隐私承诺待核实', regex:/((?:不用|无需)(?:下载|注册|留手机号|输入(?:您的|你的)?手机号)(?:、(?:不用|无需)(?:下载|注册|留手机号))?|不收录(?:您的|你的)?手机号码)/g, reason:'涉及注册流程、个人信息收集承诺。', suggestion:'改为提示用户查看真实服务流程和隐私说明。', replacement:'具体使用流程和个人信息处理方式，请以实际服务页面及隐私说明为准。' },
         { severity:'medium', type:'夸大或误导表达', regex:/(唯一|最强|顶级|100%|绝对不会|闭眼买|可怕的(?:炒股)?方法|最聪明)/g, reason:'绝对化或夸张表述可能放大能力、效果或确定性。', suggestion:'在可核验的服务范围和适用条件内客观表述。' },
         { severity:'medium', type:'数据依据待核实', regex:/((?:收益(?:率)?|涨幅|回报(?:率)?|成功率|命中率)(?:达到|为|超过|高达)?\d+(?:\.\d+)?%|\d+(?:\.\d+)?%|\d+(?:\.\d+)?倍|持仓(?:超过|达到|不低于)?\s*\d+(?:\.\d+)?万|\d{3,}(?:多|余)?只(?:股票|个股)?|不超过\s*\d+只)/g, reason:'涉及比例、金额、样本规模或筛选数量。', suggestion:'请补充可核验的数据来源、统计口径和对应日期。' },
         { severity:'medium', type:'历史业绩展示', regex:/(历史业绩|过往业绩|曾经收益|策略收益|客户收益|实盘收益)/g, reason:'历史表现需要核验展示口径与必要提示。', suggestion:'核验展示口径，并明确历史表现不代表未来结果。', replacement:'经核验的历史信息仅供参考，不代表未来表现。' },
@@ -552,7 +553,9 @@
         while ((match = rule.regex.exec(text)) !== null) {
           if (rule.skipNegative && isNegatedRisk(text, match.index)) continue;
           if (rule.skipNegative && /(持有期限|买入成本|卖出机制|推荐阅读|推荐了解)/.test(match[0])) continue;
-          findings.push({ id:'risk-' + findings.length, severity:rule.severity, type:rule.type, excerpt:match[0], sourceIndex:match.index, reason:rule.reason, suggestion:rule.suggestion, replacement:rule.replacement || '', append:false });
+          var severity = rule.severity;
+          if (rule.severityHighWhen && match[rule.severityHighWhen]) severity = 'high';
+          findings.push({ id:'risk-' + findings.length, severity:severity, type:rule.type, excerpt:match[0], sourceIndex:match.index, reason:rule.reason, suggestion:rule.suggestion, replacement:rule.replacement || '', append:false });
           if (match[0].length === 0) rule.regex.lastIndex++;
         }
       });
@@ -581,7 +584,23 @@
         if (missingIdentity.length) findings.push({ id:'risk-' + findings.length, severity:'medium', type:'身份与资质披露待确认', excerpt:'未识别到' + missingIdentity.join('、'), reason:'公开传播涉及证券建议或投顾服务营销时，应由所属机构确认身份、资质及披露要求。', suggestion:'发布前请补充并核验机构名称、人员身份及执业登记信息。', replacement:'', append:false });
         if (!/(来源|研究报告|公司公告|公开信息|财报|根据[^，。；]{0,12}(报告|公告|数据))/.test(text)) findings.push({ id:'risk-' + findings.length, severity:'medium', type:'合理依据待确认', excerpt:'未识别到可核验的公开依据', reason:'投资观点、建议或选股服务声明应具有合理依据。', suggestion:'请补充可核验的公开依据、来源与发布日期。', replacement:'', append:false });
       }
-      return findings;
+      var sevWeight = { high:3, medium:2, low:1 };
+      findings.sort(function(a, b){
+        var ia = Number.isFinite(a.sourceIndex) ? a.sourceIndex : Number.MAX_VALUE;
+        var ib = Number.isFinite(b.sourceIndex) ? b.sourceIndex : Number.MAX_VALUE;
+        return ia - ib || sevWeight[b.severity] - sevWeight[a.severity] || b.excerpt.length - a.excerpt.length;
+      });
+      var merged = [];
+      findings.forEach(function(f){
+        if (!Number.isFinite(f.sourceIndex)) { merged.push(f); return; }
+        var overlapped = merged.some(function(m){
+          if (!Number.isFinite(m.sourceIndex)) return false;
+          return f.sourceIndex < m.sourceIndex + m.excerpt.length && m.sourceIndex < f.sourceIndex + f.excerpt.length;
+        });
+        if (!overlapped) merged.push(f);
+      });
+      merged.forEach(function(f, i){ f.id = 'risk-' + i; });
+      return merged;
     }
 
     function diagnoseQuality(text, targetDuration) {
@@ -628,15 +647,13 @@
           '<span class="draft-card-num">#' + (index + 1) + '</span>' +
           '<input class="draft-card-title-input" value="' + escapeAttr(draft.title) + '" oninput="updateCardTitle(' + draft.id + ',this.value)" onclick="event.stopPropagation()">' +
           '<span class="draft-card-status ' + draft.status + '">' + statusLabel(draft.status) + '</span>' +
-          '<button class="card-more-btn" onclick="showDraftPopover(event,' + draft.id + ')">⋮</button>' +
           '</div>' +
           '<div class="draft-card-body-wrap"><div class="draft-card-body" contenteditable="true" data-draft-id="' + draft.id + '" oninput="onCardBodyInput(this)" onclick="selectDraft(' + draft.id + ')">' + buildHighlightedHtml(draft) + '</div></div>' +
           '<div class="draft-card-foot">' +
           '<span class="draft-card-meta"><strong>' + countChars(draft.text) + '</strong> 字 · 约 <strong>' + estimateSeconds(draft.text) + '</strong> 秒<button class="expand-btn" onclick="event.stopPropagation();toggleCardExpand(this)">展开 ⌄</button></span>' +
           '<div class="draft-card-actions">' +
           '<button class="card-action-btn" onclick="event.stopPropagation();copyDraft(' + draft.id + ')">复制</button>' +
-          '<button class="card-action-btn primary" onclick="event.stopPropagation();sendDraftToBatch(' + draft.id + ')">加入批量成片</button>' +
-          '<button class="card-action-btn" onclick="event.stopPropagation();sendDraftToDerive(' + draft.id + ')">导入一稿多版</button>' +
+          '<button class="card-action-btn primary" onclick="event.stopPropagation();sendDraftToDerive(' + draft.id + ')">导入台词改写</button>' +
           '<button class="card-action-btn" onclick="event.stopPropagation();clearDraft(' + draft.id + ')" style="color:#ad5360">清空</button>' +
           '</div></div></div>';
       }).join('');
@@ -718,13 +735,15 @@
     function copyDraft(draftId) { var draft = findDraftById(draftId); if (draft) copyText(draft.text, '已复制'); }
     function clearDraft(draftId) {
       var draft = findDraftById(draftId); if (!draft) return;
-      var snapshot = { text: draft.text, title: draft.title, status: draft.status, findings: draft.findings, quality: draft.quality };
-      draft.text = ''; draft.status = 'unchecked'; draft.findings = []; draft.quality = [];
-      renderWorkspace();
-      toast('已清空', { label: '撤销', onClick: function(){
-        draft.text = snapshot.text; draft.title = snapshot.title; draft.status = snapshot.status; draft.findings = snapshot.findings; draft.quality = snapshot.quality;
-        renderWorkspace(); toast('已恢复稿件内容');
-      } });
+      askConfirm('清空稿件', '确定要清空"' + (draft.title || '未命名') + '"的稿件内容吗？清空后可通过撤销恢复。', function() {
+        var snapshot = { text: draft.text, title: draft.title, status: draft.status, findings: draft.findings, quality: draft.quality };
+        draft.text = ''; draft.status = 'unchecked'; draft.findings = []; draft.quality = [];
+        renderWorkspace();
+        toast('已清空', { label: '撤销', onClick: function(){
+          draft.text = snapshot.text; draft.title = snapshot.title; draft.status = snapshot.status; draft.findings = snapshot.findings; draft.quality = snapshot.quality;
+          renderWorkspace(); toast('已恢复稿件内容');
+        } });
+      }, '清空');
     }
 
     function selectDraft(id) {
@@ -747,12 +766,41 @@
       var selected = validSelectedIds(drafts);
       state.selectedIds = selected;
       document.getElementById('result-summary').textContent = hasDrafts ? ('共 ' + drafts.length + ' 篇' + (selected.length ? ' · 已选 ' + selected.length + ' 篇' : '')) : '尚未进行合规检查';
+      document.getElementById('select-all-btn').disabled = !hasDrafts;
+      document.getElementById('select-all-btn').textContent = selected.length === drafts.length ? '取消全选' : '全选';
+      document.getElementById('add-batch-btn').disabled = selected.length === 0;
+      document.getElementById('add-batch-btn').textContent = selected.length ? ('加入批量成片（' + selected.length + '）') : '加入批量成片';
       document.getElementById('copy-all-btn').disabled = !hasDrafts;
       document.getElementById('txt-btn').disabled = !hasDrafts;
       document.getElementById('csv-btn').disabled = !hasDrafts;
       document.getElementById('txt-btn').textContent = selected.length ? ('导出 TXT（' + selected.length + '）') : '导出 TXT';
       document.getElementById('csv-btn').textContent = selected.length ? ('导出 CSV（' + selected.length + '）') : '导出 CSV';
-      updateBatchBar();
+    }
+    function selectAll() {
+      var drafts = state.drafts;
+      var selected = validSelectedIds(drafts);
+      if (selected.length === drafts.length) {
+        state.selectedIds = [];
+      } else {
+        state.selectedIds = drafts.map(function(d){ return d.id; });
+      }
+      document.querySelectorAll('#drafts-list .draft-select').forEach(function(cb, i){
+        cb.checked = state.selectedIds.indexOf(drafts[i].id) !== -1;
+      });
+      updateExportControls(drafts);
+    }
+    function sendSelectedToBatch() {
+      var selected = validSelectedIds(state.drafts);
+      if (!selected.length) return;
+      var texts = [];
+      for (var i = 0; i < state.drafts.length; i++) {
+        if (selected.indexOf(state.drafts[i].id) !== -1 && state.drafts[i].text.trim()) {
+          texts.push(state.drafts[i].text);
+        }
+      }
+      if (!texts.length) { toast('台词为空'); return; }
+      try { localStorage.setItem(TOOL_HANDOFF_KEY, JSON.stringify({ target: '简单模式-流程版-模板版.html', from: '合规检查', title: '已选 ' + texts.length + ' 篇台词', texts: texts, at: Date.now() })); } catch (e) {}
+      window.location.href = '简单模式-流程版-模板版.html?returnTo=directorWorkbench';
     }
     function toggleDraftSelection(event, draftId) {
       event.stopPropagation();
@@ -764,18 +812,6 @@
       updateExportControls(state.drafts);
     }
 
-    function showDraftPopover(event, draftId) {
-      event.stopPropagation(); _popoverDraftId = draftId;
-      var popover = document.getElementById('draft-popover');
-      var bRect = event.currentTarget.getBoundingClientRect();
-      popover.style.display = 'block'; popover.style.position = 'fixed';
-      popover.style.left = Math.max(0, bRect.right - 170) + 'px';
-      popover.style.top = (bRect.bottom + 4) + 'px';
-    }
-    document.addEventListener('click', function(e) {
-      var popover = document.getElementById('draft-popover');
-      if (popover && popover.style.display !== 'none' && !popover.contains(e.target)) { popover.style.display = 'none'; _popoverDraftId = null; }
-    });
     document.getElementById('drafts-list').addEventListener('click', function(e) {
       var mark = e.target.closest('mark'); if (!mark || !mark.dataset.findingIndex) return;
       e.stopPropagation(); var idx = parseInt(mark.dataset.findingIndex, 10);
@@ -800,6 +836,7 @@
     function renderQuality(draft) {
       var el = document.getElementById('quality-content');
       if (!draft) { el.innerHTML = '<div class="insight-empty">生成或载入一篇台词后，<br>这里会展示可操作的内容诊断。</div>'; return; }
+      if (draft.status === 'unchecked' || draft.status === 'checking') { el.innerHTML = '<div class="insight-empty">尚未进行合规检查，<br>完成检查后同步展示内容诊断结果。</div>'; return; }
       var quality = draft.quality.length ? draft.quality : diagnoseQuality(draft.text, draft.targetDuration);
       var pending = quality.filter(function(item){ return !item.ok; }), passed = quality.filter(function(item){ return item.ok; });
       var ordered = pending.concat(passed);
@@ -814,14 +851,17 @@
       if (!draft) { el.innerHTML = '<div class="insight-empty">合规检查结果会定位到具体表达，<br>并提供修改原因和替换建议。</div>'; return; }
       if (draft.status === 'checking') { el.innerHTML = '<div class="insight-empty"><div class="loader-ring" style="width:30px;height:30px"></div>正在检查表达合规问题…</div>'; return; }
       if (draft.status === 'stale') {
-        el.innerHTML = '<div class="insight-head"><div><div class="insight-title">检查结果已过期</div><div class="insight-desc">正文已发生修改，需要重新执行检查。</div></div></div><div class="stale-box">旧结果不再代表当前文本。</div><div class="compliance-actions" style="margin-top:10px"><button class="primary" onclick="recheckCurrent()">重新检查</button></div>';
+        var adoptedStale = draft.findings.filter(function(item){ return item.adopted; }).map(function(item){
+          var originalIndex = draft.findings.indexOf(item);
+          return '<div class="risk-card adopted"><div class="risk-top"><div class="risk-type">' + escapeHtml(item.type) + '</div><span class="risk-level" style="color:var(--mint);background:var(--mint-soft)">✓ 已采纳替换</span></div><div class="risk-quote">已替换为：' + escapeHtml(item.replacement) + '</div><button class="undo-btn" onclick="event.stopPropagation();undoAdopt(' + originalIndex + ')">撤销此次修改</button></div>';
+        }).join('');
+        el.innerHTML = '<div class="insight-head"><div><div class="insight-title">检查结果已过期</div><div class="insight-desc">正文已发生修改，需要重新执行检查。</div></div><button class="quick-chip" onclick="recheckCurrent()">重新检查</button></div>' + (adoptedStale ? '<div class="adopted-box">' + adoptedStale + '</div>' : '') + '<div class="stale-box">旧结果不再代表当前文本。</div>';
         return;
       }
-      var counts = { high:0, medium:0, low:0 }; draft.findings.forEach(function(item){ counts[item.severity]++; });
-      var html = '<div class="insight-head"><div><div class="insight-title">AI 合规提示</div><div class="insight-desc">仅检查表达，不提供合规结论。</div></div></div>';
+      var counts = { high:0, medium:0, low:0 }; draft.findings.forEach(function(item){ if (!item.adopted) counts[item.severity]++; });
+      var adoptedCount = draft.findings.filter(function(item){ return item.adopted; }).length;
+      var html = '<div class="insight-head"><div><div class="insight-title">AI 合规提示</div><div class="insight-desc">仅检查表达，不提供合规结论。' + (adoptedCount ? '已采纳替换 ' + adoptedCount + ' 项。' : '') + '</div></div><button class="quick-chip" onclick="recheckCurrent()">重新检查</button></div>';
       html += '<div class="risk-summary"><div class="risk-count high"><strong>' + counts.high + '</strong><span>高风险</span></div><div class="risk-count medium"><strong>' + counts.medium + '</strong><span>中风险</span></div><div class="risk-count low"><strong>' + counts.low + '</strong><span>低风险</span></div></div>';
-      var actionableCount = draft.findings.filter(function(item){ return canApplyFinding(draft.text, item); }).length;
-      html += '<div class="compliance-actions"><button class="primary" onclick="recheckCurrent()">重新检查</button><button onclick="optimizeWhole()"' + (actionableCount ? '' : ' disabled') + '>生成修改参考</button></div>';
       if (!draft.findings.length) {
         if (draft.status === 'unchecked') {
           html += '<div class="clear-box">尚未执行检查。<br>输入台词后点击「开始合规检查」。</div>';
@@ -831,10 +871,12 @@
       } else {
         html += draft.findings.map(function(item, index){
           var levelText = item.severity === 'high' ? '高风险' : item.severity === 'medium' ? '中风险' : '低风险';
-          var applicable = canApplyFinding(draft.text, item);
-          var reference = applicable && !item.append ? '<div class="risk-suggestion"><strong>参考文案：</strong>' + escapeHtml(item.replacement) + '</div>' : '';
-          var applyButton = applicable ? '<button class="apply-btn" onclick="applyFinding(' + index + ')">采用替换文案</button>' : '';
-          return '<div class="risk-card ' + item.severity + '" onclick="scrollEditorToRisk(window._currentComplianceDraft.findings[' + index + '])"><div class="risk-top"><div class="risk-type">' + escapeHtml(item.type) + '</div><span class="risk-level ' + item.severity + '">' + levelText + '</span></div><div class="risk-quote">\u201C' + escapeHtml(item.excerpt) + '\u201D</div><div class="risk-reason">' + escapeHtml(item.reason) + '</div><div class="risk-suggestion"><strong>建议：</strong>' + escapeHtml(item.suggestion) + '</div>' + reference + applyButton + '</div>';
+          if (item.adopted) {
+            return '<div class="risk-card adopted"><div class="risk-top"><div class="risk-type">' + escapeHtml(item.type) + '</div><span class="risk-level" style="color:var(--mint);background:var(--mint-soft)">✓ 已采纳替换</span></div><div class="risk-quote">已替换为：' + escapeHtml(item.replacement) + '</div><button class="undo-btn" onclick="event.stopPropagation();undoAdopt(' + index + ')">撤销此次修改</button></div>';
+          }
+          var hasReplacement = item.replacement && !item.append;
+          var adoptBtn = hasReplacement ? '<button class="apply-btn" onclick="event.stopPropagation();adoptSuggestion(' + index + ')">采纳建议</button>' : '';
+          return '<div class="risk-card ' + item.severity + '" onclick="scrollEditorToRisk(window._currentComplianceDraft.findings[' + index + '])"><div class="risk-top"><div class="risk-type">' + escapeHtml(item.type) + '</div><span class="risk-level ' + item.severity + '">' + levelText + '</span></div><div class="risk-quote">\u201C' + escapeHtml(item.excerpt) + '\u201D</div><div class="risk-reason">' + escapeHtml(item.reason) + '</div><div class="risk-suggestion"><strong>建议：</strong>' + escapeHtml(item.suggestion) + '</div>' + adoptBtn + '</div>';
         }).join('');
       }
       el.innerHTML = html;
@@ -865,74 +907,43 @@
       }, 520);
     }
 
-    function riskSentenceBounds(text, finding) {
-      if (finding.append || !finding.excerpt) return null;
-      var index = Number.isFinite(finding.sourceIndex) ? finding.sourceIndex : text.indexOf(finding.excerpt);
-      if (index < 0 || text.slice(index, index + finding.excerpt.length) !== finding.excerpt) index = text.indexOf(finding.excerpt);
-      if (index < 0) return null;
-      var separators = '。！？!?\n', start = index;
-      while (start > 0 && separators.indexOf(text[start - 1]) === -1) start--;
-      var end = index + finding.excerpt.length;
-      while (end < text.length && separators.indexOf(text[end]) === -1) end++;
-      if (end < text.length) end++;
-      return { start:start, end:end, length:end - start };
-    }
-    function canApplyFinding(text, finding) {
-      if (!finding.replacement) return false;
-      if (finding.append) return true;
-      var bounds = riskSentenceBounds(text, finding);
-      return !!bounds && bounds.length <= 140;
-    }
-    function replaceRiskExpression(text, finding) {
-      var bounds = riskSentenceBounds(text, finding);
-      if (!bounds || bounds.length > 140) return text;
-      return text.slice(0, bounds.start) + finding.replacement + text.slice(bounds.end);
-    }
-
-    function closeDiffModal() { document.getElementById('diff-modal').style.display = 'none'; _pendingApplyIndex = null; }
-    function confirmDiffApply() {
-      if (_pendingApplyIndex == null) return;
-      var index = _pendingApplyIndex; _pendingApplyIndex = null; closeDiffModal();
-      executeApplyFinding(index);
-    }
-    function executeApplyFinding(index) {
+    function adoptSuggestion(index) {
       var draft = currentDraft(); if (!draft || !draft.findings[index]) return;
       var finding = draft.findings[index];
-      if (!canApplyFinding(draft.text, finding)) { toast('该问题需要人工补充或核验'); return; }
-      if (finding.append) draft.text = draft.text.replace(/\s+$/, '') + '\n\n' + finding.replacement;
-      else draft.text = replaceRiskExpression(draft.text, finding);
-      draft.quality = diagnoseQuality(draft.text, draft.targetDuration); draft.status = 'stale';
-      renderWorkspace(); setInsight('compliance'); toast('已应用修改');
+      if (!finding.replacement || finding.append || finding.adopted) return;
+      var idx = draft.text.indexOf(finding.excerpt);
+      if (idx < 0) { toast('未找到匹配文本，请手动修改'); return; }
+      finding.snapshotText = draft.text;
+      finding.adopted = true;
+      draft.text = draft.text.slice(0, idx) + finding.replacement + draft.text.slice(idx + finding.excerpt.length);
+      repositionFindings(draft);
+      draft.quality = diagnoseQuality(draft.text, draft.targetDuration);
+      syncDraftStatusAfterAdopt(draft);
+      renderWorkspace(); setInsight('compliance');
+      toast('已替换该违规项，其余违规项保持高亮');
     }
-    function applyFinding(index) {
+    function undoAdopt(index) {
       var draft = currentDraft(); if (!draft || !draft.findings[index]) return;
       var finding = draft.findings[index];
-      if (!canApplyFinding(draft.text, finding)) { toast('该问题需要人工补充或核验'); return; }
-      var originalText, replacementText;
-      if (finding.append) { originalText = '（在文稿末尾追加）'; replacementText = finding.replacement; }
-      else { var bounds = riskSentenceBounds(draft.text, finding); originalText = bounds ? draft.text.slice(bounds.start, bounds.end) : finding.excerpt; replacementText = finding.replacement; }
-      document.getElementById('diff-original').textContent = originalText;
-      document.getElementById('diff-replacement').textContent = replacementText;
-      _pendingApplyIndex = index; document.getElementById('diff-modal').style.display = 'flex';
+      if (!finding.adopted) return;
+      var idx = draft.text.indexOf(finding.replacement);
+      if (idx >= 0) {
+        draft.text = draft.text.slice(0, idx) + finding.excerpt + draft.text.slice(idx + finding.replacement.length);
+      } else if (finding.snapshotText != null) {
+        draft.text = finding.snapshotText;
+      } else { return; }
+      finding.adopted = false; finding.snapshotText = null;
+      repositionFindings(draft);
+      draft.quality = diagnoseQuality(draft.text, draft.targetDuration);
+      syncDraftStatusAfterAdopt(draft);
+      renderWorkspace(); setInsight('compliance');
+      toast('已撤销该风险点的替换');
     }
-    function optimizeWhole() {
-      var draft = currentDraft(); if (!draft || !draft.findings.some(function(item){ return canApplyFinding(draft.text, item); })) return;
-      var nextText = draft.text, sentenceGroups = {}, appendTexts = [];
-      draft.findings.forEach(function(finding){
-        if (!canApplyFinding(draft.text, finding)) return;
-        if (finding.append) { if (appendTexts.indexOf(finding.replacement) === -1) appendTexts.push(finding.replacement); return; }
-        var bounds = riskSentenceBounds(draft.text, finding);
-        var key = bounds.start + ':' + bounds.end;
-        var rank = finding.severity === 'high' ? 2 : finding.severity === 'medium' ? 1 : 0;
-        if (!sentenceGroups[key] || rank > sentenceGroups[key].rank) sentenceGroups[key] = { bounds:bounds, finding:finding, rank:rank };
-      });
-      Object.keys(sentenceGroups).map(function(key){ return sentenceGroups[key]; }).sort(function(a,b){ return b.bounds.start - a.bounds.start; }).forEach(function(group){
-        nextText = nextText.slice(0, group.bounds.start) + group.finding.replacement + nextText.slice(group.bounds.end);
-      });
-      appendTexts.forEach(function(replacement){ if (nextText.indexOf(replacement) === -1) nextText = nextText.replace(/\s+$/, '') + '\n\n' + replacement; });
-      nextText = nextText.replace(/([。！？])\1+/g, '$1').replace(/\s+([，。；！？])/g, '$1');
-      draft.text = nextText; draft.quality = diagnoseQuality(draft.text, draft.targetDuration); draft.status = 'stale';
-      renderWorkspace(); setInsight('compliance'); toast('已生成全文优化版本');
+    function repositionFindings(draft) {
+      draft.findings.forEach(function(f){ f.sourceIndex = (f.adopted || f.append || !f.excerpt) ? null : draft.text.indexOf(f.excerpt); });
+    }
+    function syncDraftStatusAfterAdopt(draft) {
+      draft.status = draft.findings.some(function(f){ return !f.adopted; }) ? 'attention' : 'clear';
     }
 
     function fallbackCopy(text) {

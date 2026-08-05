@@ -709,6 +709,67 @@
         @media (max-width: 1440px) { .metrics-row,.card-grid4,.task-metrics,.task-stat-metrics,.mini-metrics { grid-template-columns: repeat(2, 1fr); } }
         @media (max-width: 1200px) { .card-grid2 { grid-template-columns: 1fr; } }
         @media (max-width: 1024px) { .sidebar { width: 60px; } .sidebar .brand-text,.sidebar .brand-sub,.sidebar .nav-item span:not(.nav-icon),.sidebar-user-info,.sidebar-logout span,.nav-caret { display: none; } .nav-item.sub { padding-left: 18px; } }
+
+        /* ===== 工作流模板 Modal 布局 ===== */
+        .workflow-modal { width: min(1020px, 96vw); max-width: 96vw; max-height: 88vh; display: flex; flex-direction: column; padding: 0; overflow: hidden; }
+        .workflow-modal .modal-header { padding: 18px 24px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+        .workflow-modal-body { display: grid; grid-template-columns: 1fr 1fr; gap: 0; flex: 1; overflow: hidden; min-height: 0; }
+        .workflow-modal-left { padding: 18px 20px; overflow: hidden; border-right: 1px solid var(--border); display: flex; flex-direction: column; gap: 14px; }
+        .workflow-modal-right { padding: 18px 20px; overflow: hidden; display: flex; flex-direction: column; gap: 10px; min-height: 0; }
+        @media (max-width: 800px) { .workflow-modal-body { grid-template-columns: 1fr; } .workflow-modal-left { border-right: none; border-bottom: 1px solid var(--border); max-height: 42vh; } .workflow-modal-right { max-height: 42vh; } }
+
+        /* ===== JSON 树 ===== */
+        .json-tree-wrap { background: #f9fafb; border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; display: flex; flex-direction: column; flex: 1; min-height: 0; }
+        .json-tree-wrap .tree-header { padding: 8px 14px; background: #f0f0f3; border-bottom: 1px solid var(--border); font-size: 11px; color: var(--text-muted); font-weight: 600; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+        .json-tree-inner { flex: 1; min-height: 0; overflow: auto; padding: 8px 0; font-family: 'SF Mono','Menlo','Consolas',monospace; font-size: 12px; line-height: 1.65; }
+        .json-tree-row { display: flex; align-items: flex-start; gap: 2px; padding: 1px 10px; border-radius: 2px; cursor: default; white-space: nowrap; }
+        .json-tree-row.leaf { cursor: pointer; }
+        .json-tree-row.leaf:hover { background: var(--primary-light); }
+        .json-tree-row.leaf.mapped { background: #fffbeb; }
+        .json-tree-row.leaf.mapped:hover { background: #fef3c7; }
+        .json-tree-indent { display: inline-block; flex-shrink: 0; }
+        .json-key { color: #2563eb; }
+        .json-str { color: #059669; }
+        .json-num { color: #d97706; }
+        .json-bool { color: #7c3aed; }
+        .json-null { color: var(--text-muted); }
+        .json-punct { color: var(--text-muted); }
+        .json-ph-token { display: inline-block; background: #fff7ed; color: #c2410c; border: 1px solid #fed7aa; border-radius: 3px; padding: 0 4px; font-weight: 700; font-size: 11px; }
+
+        /* ===== 变量映射卡片 ===== */
+        .var-mapping-list { display: flex; flex-direction: column; gap: 8px; flex: 1; min-height: 0; overflow-y: auto; }
+        .var-mapping-card { border: 1px solid var(--border); border-radius: var(--radius-sm); background: #fff; overflow: hidden; flex-shrink: 0; }
+        .var-mapping-card-head { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: #fafafa; border-bottom: 1px solid var(--border); }
+        .var-mapping-card-body { padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; }
+        .var-mapping-path { font-family: 'SF Mono','Menlo','Consolas',monospace; font-size: 11px; color: var(--text-muted); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .var-type-badge { display: inline-flex; align-items: center; gap: 3px; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.02em; flex-shrink: 0; }
+        .var-type-badge.image { background: #eff6ff; color: #3b82f6; }
+        .var-type-badge.audio { background: #f5f3ff; color: #7c3aed; }
+        .var-type-badge.text  { background: #fefce8; color: #a16207; }
+        .var-type-badge.video { background: #fff7ed; color: #ea580c; }
+        .var-field-row { display: flex; align-items: center; gap: 8px; }
+        .var-field-row label { font-size: 11px; color: var(--text-muted); font-weight: 600; white-space: nowrap; min-width: 52px; }
+        .var-field-row input, .var-field-row select { flex: 1; height: 28px; padding: 0 8px; border: 1px solid var(--border); border-radius: 5px; font-size: 12px; outline: none; background: #fff; color: var(--text-primary); }
+        .var-field-row input:focus, .var-field-row select:focus { border-color: var(--primary); }
+        .var-remove-btn { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 14px; padding: 2px 4px; border-radius: 4px; line-height: 1; flex-shrink: 0; }
+        .var-remove-btn:hover { color: var(--red); background: var(--red-bg); }
+
+        /* ===== 视频模板变量默认值 ===== */
+        .var-default-section { border-top: 1px solid var(--border); margin-top: 14px; padding-top: 14px; }
+        .var-default-section h5 { font-size: 13px; font-weight: 700; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+        .var-default-item { border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px; background: #fafafa; margin-bottom: 8px; }
+        .var-default-item .vd-head { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+        .var-default-item .vd-label { font-size: 13px; font-weight: 600; }
+        .var-default-item .vd-path { font-family: 'SF Mono','Menlo','Consolas',monospace; font-size: 10px; color: var(--text-muted); display: block; margin-top: 2px; }
+        .var-default-item textarea { width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 12px; font-family: inherit; resize: vertical; line-height: 1.5; outline: none; }
+        .var-default-item textarea:focus { border-color: var(--primary); }
+        .var-default-item .vd-upload { display: flex; align-items: center; gap: 8px; }
+        .var-default-item .vd-upload label { cursor: pointer; }
+        .var-default-item .vd-upload input[type="file"] { display: none; }
+        .var-default-item .vd-file-name { font-size: 11px; color: var(--text-muted); }
+        .var-default-item .vd-upload-row { display: flex; gap: 8px; align-items: flex-end; flex-wrap: wrap; }
+        .var-default-item .vd-upload-row textarea { flex: 1; min-width: 200px; }
+        .empty-workflow-hint { text-align: center; padding: 24px; color: var(--text-muted); font-size: 12px; }
     </style>
 </head>
 <body>
@@ -733,6 +794,7 @@
             <div class="nav-item sub" data-view="view-template-config"><span class="nav-icon">●</span> 视频模板</div>
             <div class="nav-item sub" data-view="view-voice-config"><span class="nav-icon">●</span> 音色模板</div>
             <div class="nav-item sub" data-view="view-scene-config"><span class="nav-icon">●</span> 场景模板</div>
+            <div class="nav-item sub" data-view="view-workflow-config"><span class="nav-icon">●</span> 工作流模板</div>
         </div>
         <div class="nav-item" data-view="view-tasks"><span class="nav-icon">📋</span> 任务统计</div>
         <div class="nav-item" data-view="view-billing"><span class="nav-icon">💰</span> 积分与账单</div>
@@ -940,7 +1002,7 @@
                     <button class="btn btn-primary btn-sm" onclick="openTemplateModal()" style="margin-left:auto">+ 新增模板</button>
                 </div>
                 <table>
-                    <thead><tr><th>模板名称</th><th>标签</th><th>适用行业</th><th>工作流</th><th>状态</th><th>使用次数</th><th>操作</th></tr></thead>
+                    <thead><tr><th>模板名称</th><th>标签</th><th>适用行业</th><th>关联工作流模板</th><th>工作流</th><th>状态</th><th>使用次数</th><th>操作</th></tr></thead>
                     <tbody id="templateConfigTable"></tbody>
                 </table>
             </div>
@@ -972,6 +1034,21 @@
                 <table>
                     <thead><tr><th style="min-width:120px">场景名称</th><th>行业</th><th>画幅</th><th>场所</th><th>状态</th><th>使用次数</th><th>操作</th></tr></thead>
                     <tbody id="sceneConfigTable"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 视图：工作流模板 -->
+        <div class="panel" id="view-workflow-config">
+            <div class="section-title">工作流模板</div>
+            <div class="table-wrap">
+                <div class="table-toolbar">
+                    <span style="font-weight:600;font-size:13px">工作流模板管理</span>
+                    <button class="btn btn-primary btn-sm" onclick="openWorkflowModal()" style="margin-left:auto">+ 新增工作流模板</button>
+                </div>
+                <table>
+                    <thead><tr><th>模板名称</th><th>关联工作流</th><th>变量数量</th><th>状态</th><th>创建时间</th><th>操作</th></tr></thead>
+                    <tbody id="workflowConfigTable"></tbody>
                 </table>
             </div>
         </div>
@@ -1172,6 +1249,16 @@
                     <option value="portrait_talking">口播视频创作</option>
                 </select>
             </div>
+            <div class="form-group">
+                <label class="kv-label">关联工作流模板</label>
+                <select class="filter-select" id="tmplWorkflowTemplate" style="width:100%" onchange="onTemplateWorkflowChange()">
+                    <option value="">不关联（无变量配置）</option>
+                </select>
+            </div>
+        </div>
+        <div id="tmplVariableDefaults" class="var-default-section" style="display:none">
+            <h5>📎 变量默认值配置 <span style="font-size:11px;font-weight:400;color:var(--text-muted)">配置后作为该模板的默认参数</span></h5>
+            <div id="tmplVariableDefaultsList"></div>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
             <div class="form-group">
@@ -1381,6 +1468,58 @@
     </div>
 </div>
 
+<!-- Modal：工作流模板编辑 -->
+<div class="modal-overlay" id="workflowModalOverlay">
+    <div class="modal workflow-modal" id="workflowModal">
+        <div class="modal-header">
+            <span class="modal-title" id="workflowModalTitle">新增工作流模板</span>
+            <button class="modal-close" onclick="closeWorkflowModal()">×</button>
+        </div>
+        <div class="workflow-modal-body">
+            <div class="workflow-modal-left">
+                <div class="form-group">
+                    <label class="kv-label" style="margin-bottom:4px;display:block">模板名称 <span style="color:red">*</span></label>
+                    <input class="filter-input" id="wfName" style="width:100%" placeholder="如：口播视频工作流">
+                </div>
+                <div class="form-group">
+                    <label class="kv-label" style="margin-bottom:4px;display:block">描述</label>
+                    <input class="filter-input" id="wfDesc" style="width:100%" placeholder="描述该工作流模板的用途">
+                </div>
+                <div class="form-group">
+                    <label class="kv-label" style="margin-bottom:4px;display:block">工作流 JSON 文件</label>
+                    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+                        <label class="btn btn-sm" style="cursor:pointer;display:inline-flex;align-items:center;gap:6px">
+                            📁 选择文件
+                            <input type="file" id="wfJsonFile" accept=".json" style="display:none" onchange="onWorkflowJsonChange()">
+                        </label>
+                        <span id="wfJsonFileName" style="font-size:12px;color:var(--text-muted)">未选择文件</span>
+                    </div>
+                </div>
+                <div class="json-tree-wrap" id="jsonTreeContainer" style="display:none">
+                    <div class="tree-header">
+                        <span id="jsonTreeTitle">工作流 JSON</span>
+                        <span style="font-size:10px;color:var(--text-muted)">点击叶子节点标记为变量</span>
+                    </div>
+                    <div class="json-tree-inner" id="workflowJsonTree"></div>
+                </div>
+            </div>
+            <div class="workflow-modal-right">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+                    <span style="font-weight:700;font-size:13px">变量映射配置</span>
+                    <button class="btn btn-xs" onclick="clearWorkflowVariables()" style="font-size:11px">清空全部</button>
+                </div>
+                <div class="var-mapping-list" id="workflowVariableList">
+                    <div class="empty-workflow-hint">尚未标记变量<br>请在左侧 JSON 树中点击叶子节点标记为变量</div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer" style="padding:14px 24px;border-top:1px solid var(--border)">
+            <button class="btn" onclick="closeWorkflowModal()">取消</button>
+            <button class="btn btn-primary" onclick="saveWorkflowConfig()">保存</button>
+        </div>
+    </div>
+</div>
+
 <!-- Drawer：租户详情 -->
 <div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
 <div class="drawer" id="tenantDrawer">
@@ -1566,7 +1705,7 @@ function switchView(viewId) {
         document.querySelector('.nav-parent[data-toggle="business-config"]').classList.add('active');
         toggleBusinessMenu(true);
     }
-    var marketViews = ['view-template-config','view-voice-config','view-scene-config'];
+    var marketViews = ['view-template-config','view-voice-config','view-scene-config','view-workflow-config'];
     var inMarket = marketViews.indexOf(viewId) !== -1;
     if (inMarket) {
         document.querySelector('.nav-parent[data-toggle="market-config"]').classList.add('active');
@@ -1589,6 +1728,7 @@ function switchView(viewId) {
         'view-prompt-config':'业务配置 / 提示词配置',
         'view-template-config':'市场配置 / 视频模板',
         'view-scene-config':'市场配置 / 场景模板',
+        'view-workflow-config':'市场配置 / 工作流模板',
         'view-audit':'操作审计'
     };
     document.getElementById('topbarSection').textContent = titles[viewId] || '';
@@ -1628,6 +1768,7 @@ function refreshView(viewId) {
     else if (viewId === 'view-prompt-config') renderPrompts();
     else if (viewId === 'view-template-config') renderTemplates();
     else if (viewId === 'view-scene-config') renderSceneConfigs();
+    else if (viewId === 'view-workflow-config') renderWorkflowConfigs();
     else if (viewId === 'view-audit') renderAudit();
 }
 
@@ -1735,6 +1876,7 @@ function initData() {
         AppState.pricingRules = normalizePricingRules(saved.pricingRules || AppState.pricingRules);
         AppState.templateConfigs = saved.templateConfigs || AppState.templateConfigs;
         AppState.sceneConfigs = saved.sceneConfigs || AppState.sceneConfigs;
+        AppState.workflowTemplates = saved.workflowTemplates || AppState.workflowTemplates;
         AppState.prompts = mergePromptDefaults(saved.prompts || []);
         AppState.opsTasks = saved.opsTasks || AppState.opsTasks;
         AppState.auditLogs = normalizeAuditLogs(saved.auditLogs || AppState.auditLogs);
@@ -1771,6 +1913,22 @@ var AppState = {
         { id:'b013',time:'2026-01-23 14:30',tenantId:'t001',tenantName:'雨虹投资',type:'消费',amount:-80,balance:8350,operator:'system',taskId:'task_v_036',remark:'首帧合成 x8' },
         { id:'b014',time:'2026-01-23 15:00',tenantId:'t008',tenantName:'众盈财富',type:'积分退还',amount:1200,balance:1200,operator:'system',taskId:'-',remark:'历史人工积分退还' },
         { id:'b015',time:'2026-01-23 17:20',tenantId:'t004',tenantName:'中诚教育',type:'充值',amount:5000,balance:2500,operator:'admin',taskId:'-',remark:'新年活动充值赠送' }
+    ],
+    workflowTemplates: [
+        { id:'wft_001',name:'口播视频工作流',desc:'图+音驱动的口播视频生成工作流，适用于单人正面对镜口播场景',status:'启用',createdAt:'2026-07-20',
+            flowJson:{
+                "3":{"class_type":"LoadImage","inputs":{"image":"character_first_frame.png"}},
+                "10":{"class_type":"LoadAudio","inputs":{"audio":"dialogue.wav"}},
+                "15":{"class_type":"CLIPTextEncode","inputs":{"text":"A woman speaking emotionally, cinematic lighting"}},
+                "22":{"class_type":"ImageToVideo","inputs":{"image":["3",0],"audio":["10",0],"prompt":["15",0],"duration":8,"fps":24}},
+                "30":{"class_type":"SaveVideo","inputs":{"filename_prefix":"output/talking_head"}}
+            },
+            variables:[
+                { id:'v_img01',jsonPath:'3.inputs.image',placeholder:'<<image_01>>',type:'image',label:'角色/首帧图片',description:'上传或选择角色的首帧图片' },
+                { id:'v_aud01',jsonPath:'10.inputs.audio',placeholder:'<<audio_01>>',type:'audio',label:'台词音频',description:'上传音频文件或输入台词生成TTS语音' },
+                { id:'v_txt01',jsonPath:'15.inputs.text',placeholder:'<<text_01>>',type:'text',label:'画面提示词',description:'描述画面风格、人物动作、场景氛围的提示词' }
+            ]
+        }
     ],
     prompts: [
         // ===== 导演台 =====
@@ -4541,10 +4699,15 @@ function renderTemplates() {
         var tagsHtml = (t.tags || '').split(',').filter(function(x){return x.trim()}).map(function(x){return '<span class="chip">' + x.trim() + '</span> '}).join('');
         var workflowMap = { 'portrait_talking':'口播视频创作' };
         var workflowLabel = workflowMap[t.workflow] || t.workflow || '<span style="color:var(--text-muted)">-</span>';
+        var wfTemplateName = t.workflowTemplateId ? (function() {
+            var wft = (AppState.workflowTemplates || []).find(function(w) { return w.id === t.workflowTemplateId; });
+            return wft ? '<span class="chip chip-blue">' + escapeHtml(wft.name) + '</span>' : '<span style="color:var(--text-muted)">已删除</span>';
+        })() : '<span style="color:var(--text-muted)">-</span>';
         html += '<tr>' +
             '<td><strong>' + t.name + '</strong></td>' +
             '<td>' + (tagsHtml || '<span style="color:var(--text-muted)">-</span>') + '</td>' +
             '<td>' + t.industry + '</td>' +
+            '<td>' + wfTemplateName + '</td>' +
             '<td style="font-size:12px">' + workflowLabel + '</td>' +
             '<td><span class="status ' + stCls + '">' + statusLabel + '</span></td>' +
             '<td><strong>' + (t.used || 0).toLocaleString() + '</strong></td>' +
@@ -4611,11 +4774,19 @@ function openTemplatePreview(index) {
     var video = document.getElementById('templatePreviewVideo');
     video.src = '';
     video.load();
+    var wfName = '-';
+    var varCount = 0;
+    if (t.workflowTemplateId) {
+        var wft = (AppState.workflowTemplates || []).find(function(w) { return w.id === t.workflowTemplateId; });
+        if (wft) { wfName = wft.name; varCount = (wft.variables || []).length; }
+    }
     var infoHtml = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px 24px">' +
         '<span>模板名称：<strong>' + t.name + '</strong></span>' +
         '<span>适用行业：<strong>' + t.industry + '</strong></span>' +
         '<span>标签：<strong>' + t.tags + '</strong></span>' +
         '<span>使用次数：<strong>' + (t.used || 0).toLocaleString() + '</strong></span>' +
+        '<span>关联工作流模板：<strong>' + wfName + '</strong></span>' +
+        '<span>已配置变量：<strong>' + varCount + ' 个</strong></span>' +
         '</div>';
     document.getElementById('templatePreviewInfo').innerHTML = infoHtml;
     document.getElementById('templatePreviewOverlay').classList.add('show');
@@ -4642,6 +4813,9 @@ function openTemplateModal(editIndex) {
     var isEdit = typeof editIndex === 'number';
     document.getElementById('templateModalTitle').textContent = isEdit ? '编辑模板' : '新增模板';
     document.getElementById('tmplEditIndex').value = isEdit ? editIndex : '';
+
+    populateWorkflowTemplateSelect();
+
     if (isEdit) {
         var t = AppState.templateConfigs[editIndex];
         document.getElementById('tmplName').value = t.name || '';
@@ -4653,6 +4827,8 @@ function openTemplateModal(editIndex) {
         document.getElementById('tmplPromptConfig').value = t.promptConfig || '';
         document.getElementById('tmplFileName').textContent = t.templateFile ? '📄 ' + t.templateFile : '未选择文件';
         document.getElementById('tmplFirstFrameName').textContent = t.firstFrameFile ? '🖼️ ' + t.firstFrameFile : '未选择';
+        document.getElementById('tmplWorkflowTemplate').value = t.workflowTemplateId || '';
+        _tmplEditIndex = editIndex;
     } else {
         document.getElementById('tmplName').value = '';
         document.getElementById('tmplIndustry').value = '';
@@ -4665,12 +4841,103 @@ function openTemplateModal(editIndex) {
         document.getElementById('tmplFirstFrameName').textContent = '未选择';
         document.getElementById('tmplFile').value = '';
         document.getElementById('tmplFirstFrame').value = '';
+        document.getElementById('tmplWorkflowTemplate').value = '';
+        _tmplEditIndex = -1;
     }
+    onTemplateWorkflowChange();
     document.getElementById('templateModalOverlay').classList.add('show');
+}
+
+var _tmplEditIndex = -1;
+var _tmplVarDefaults = {};
+
+function populateWorkflowTemplateSelect() {
+    var sel = document.getElementById('tmplWorkflowTemplate');
+    var list = (AppState.workflowTemplates || []).filter(function(w) { return w.status === '启用'; });
+    var html = '<option value="">不关联（无变量配置）</option>';
+    for (var i = 0; i < list.length; i++) {
+        html += '<option value="' + list[i].id + '">' + escapeHtml(list[i].name) + '</option>';
+    }
+    sel.innerHTML = html;
+}
+
+function onTemplateWorkflowChange() {
+    var wfId = document.getElementById('tmplWorkflowTemplate').value;
+    var container = document.getElementById('tmplVariableDefaults');
+    var listEl = document.getElementById('tmplVariableDefaultsList');
+    if (!wfId) {
+        container.style.display = 'none';
+        _tmplVarDefaults = {};
+        return;
+    }
+    var wf = (AppState.workflowTemplates || []).find(function(w) { return w.id === wfId; });
+    if (!wf || !wf.variables || !wf.variables.length) {
+        container.style.display = 'none';
+        _tmplVarDefaults = {};
+        return;
+    }
+    container.style.display = 'block';
+    var index = document.getElementById('tmplEditIndex').value;
+    if (index !== '') {
+        var t = AppState.templateConfigs[parseInt(index)];
+        _tmplVarDefaults = t.variableDefaults || {};
+    } else {
+        _tmplVarDefaults = {};
+    }
+    var html = '';
+    for (var i = 0; i < wf.variables.length; i++) {
+        var v = wf.variables[i];
+        var curVal = (_tmplVarDefaults[v.placeholder] && _tmplVarDefaults[v.placeholder].value) || '';
+        var curName = (_tmplVarDefaults[v.placeholder] && _tmplVarDefaults[v.placeholder].name) || '';
+        var typeLabel = (TYPE_OPTIONS.find(function(o){return o.value===v.type;}) || {label:v.type}).label;
+        html += '<div class="var-default-item">' +
+            '<div class="vd-head">' +
+                '<span class="vd-label">' + escapeHtml(v.label) + '</span>' +
+                '<span class="var-type-badge ' + v.type + '">' + escapeHtml(typeLabel) + '</span>' +
+            '</div>' +
+            '<div class="vd-path">占位符: ' + escapeHtml(v.placeholder) + ' · 路径: ' + escapeHtml(v.jsonPath) + '</div>';
+
+        if (v.type === 'text') {
+            html += '<textarea rows="3" data-var-ph="' + escapeHtml(v.placeholder) + '" data-var-type="' + v.type + '" onchange="updateTmplVarDefault(this)" oninput="updateTmplVarDefault(this)" placeholder="输入默认文本内容...">' + escapeHtml(curVal) + '</textarea>';
+        } else if (v.type === 'image' || v.type === 'video') {
+            html += '<div class="vd-upload-row">' +
+                '<div class="vd-upload">' +
+                    '<label class="btn btn-sm" style="cursor:pointer;display:inline-flex;align-items:center;gap:6px">📁 选择文件<input type="file" accept="' + (v.type === 'image' ? 'image/*' : 'video/*') + '" style="display:none" data-var-ph="' + escapeHtml(v.placeholder) + '" data-var-type="' + v.type + '" onchange="updateTmplVarFile(this)"></label>' +
+                    '<span class="vd-file-name" data-var-file-name="' + escapeHtml(v.placeholder) + '">' + (curName || '未选择') + '</span>' +
+                '</div>' +
+            '</div>';
+        } else if (v.type === 'audio') {
+            html += '<div class="vd-upload-row">' +
+                '<textarea rows="2" data-var-ph="' + escapeHtml(v.placeholder) + '" data-var-type="' + v.type + '" onchange="updateTmplVarDefault(this)" oninput="updateTmplVarDefault(this)" placeholder="输入台词文本以生成 TTS 语音...">' + escapeHtml(curVal) + '</textarea>' +
+                '<div class="vd-upload">' +
+                    '<label class="btn btn-sm" style="cursor:pointer;display:inline-flex;align-items:center;gap:6px">📁 上传<input type="file" accept="audio/*" style="display:none" data-var-ph="' + escapeHtml(v.placeholder) + '" data-var-type="' + v.type + '" onchange="updateTmplVarFile(this)"></label>' +
+                    '<span class="vd-file-name" data-var-file-name="' + escapeHtml(v.placeholder) + '">' + (curName || '或上传音频') + '</span>' +
+                '</div>' +
+            '</div>';
+        }
+        html += '</div>';
+    }
+    listEl.innerHTML = html;
+}
+
+function updateTmplVarDefault(el) {
+    var ph = el.getAttribute('data-var-ph');
+    _tmplVarDefaults[ph] = { value: el.value, name: el.value ? 'text_input' : '' };
+}
+
+function updateTmplVarFile(input) {
+    var ph = input.getAttribute('data-var-ph');
+    var nameEl = document.querySelector('[data-var-file-name="' + ph + '"]');
+    if (input.files && input.files[0]) {
+        var f = input.files[0];
+        _tmplVarDefaults[ph] = { value: 'oss://' + f.name, name: f.name };
+        if (nameEl) nameEl.textContent = f.name;
+    }
 }
 
 function closeTemplateModal() {
     document.getElementById('templateModalOverlay').classList.remove('show');
+    _tmplVarDefaults = {};
 }
 
 function saveTemplateConfig() {
@@ -4680,6 +4947,7 @@ function saveTemplateConfig() {
     var tags = document.getElementById('tmplTags').value.trim();
     var workflow = document.getElementById('tmplWorkflow').value;
     var promptConfig = document.getElementById('tmplPromptConfig').value.trim();
+    var workflowTemplateId = document.getElementById('tmplWorkflowTemplate').value;
     if (!name || !industry || !tags || !workflow) {
         toast('请填写模板名称、适用行业、标签和工作流', 'error');
         return;
@@ -4702,6 +4970,8 @@ function saveTemplateConfig() {
         t.remark = document.getElementById('tmplRemark').value.trim();
         t.workflow = workflow;
         t.promptConfig = promptConfig;
+        t.workflowTemplateId = workflowTemplateId || undefined;
+        t.variableDefaults = _tmplVarDefaults || {};
         if (templateFile) t.templateFile = templateFile.name;
         if (firstFrameFile) t.firstFrameFile = firstFrameFile.name;
         addAuditLog('配置', t.name, '-', '-', '编辑模板');
@@ -4715,6 +4985,8 @@ function saveTemplateConfig() {
             remark: document.getElementById('tmplRemark').value.trim(),
             workflow: workflow,
             promptConfig: promptConfig,
+            workflowTemplateId: workflowTemplateId || undefined,
+            variableDefaults: _tmplVarDefaults || {},
             templateFile: templateFile ? templateFile.name : '',
             firstFrameFile: firstFrameFile ? firstFrameFile.name : ''
         });
@@ -4888,6 +5160,443 @@ function deleteScene(index) {
             toast('场景「' + s.name + '」已删除', 'success');
         }
     );
+}
+
+// ===========================
+// 工作流模板配置
+// ===========================
+var _wfEditIndex = -1;
+var _wfVariables = [];
+
+function renderWorkflowConfigs() {
+    var list = AppState.workflowTemplates || [];
+    var html = '';
+    for (var i = 0; i < list.length; i++) {
+        var w = list[i];
+        var stCls = w.status === '启用' ? 'status-active' : 'status-stopped';
+        var stLabel = w.status === '启用' ? '已上架' : '已下架';
+        html += '<tr>' +
+            '<td><strong>' + escapeHtml(w.name) + '</strong></td>' +
+            '<td style="font-size:12px">' + escapeHtml(w.desc ? w.desc.substring(0,30)+(w.desc.length>30?'...':'') : '-') + '</td>' +
+            '<td><span class="chip chip-blue">' + ((w.variables || []).length) + ' 个变量</span></td>' +
+            '<td><span class="status ' + stCls + '">' + stLabel + '</span></td>' +
+            '<td style="font-size:12px;color:var(--text-secondary)">' + (w.createdAt || '-') + '</td>' +
+            '<td>' +
+                '<button class="btn btn-xs" onclick="openWorkflowModal(' + i + ')">编辑</button> ' +
+                '<button class="btn btn-xs ' + (w.status === '启用' ? '' : 'btn-primary') + '" onclick="toggleWorkflowStatus(' + i + ')">' + (w.status === '启用' ? '下架' : '上架') + '</button> ' +
+                '<button class="btn btn-xs btn-danger" onclick="confirmDeleteWorkflow(' + i + ')">删除</button>' +
+            '</td>' +
+            '</tr>';
+    }
+    document.getElementById('workflowConfigTable').innerHTML = html || '<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--text-muted)">暂无工作流模板，点击上方按钮新增</td></tr>';
+}
+
+function openWorkflowModal(editIndex) {
+    var isEdit = typeof editIndex === 'number';
+    _wfEditIndex = isEdit ? editIndex : -1;
+    document.getElementById('workflowModalTitle').textContent = isEdit ? '编辑工作流模板' : '新增工作流模板';
+
+    if (isEdit) {
+        var w = AppState.workflowTemplates[editIndex];
+        document.getElementById('wfName').value = w.name || '';
+        document.getElementById('wfDesc').value = w.desc || '';
+        _wfVariables = JSON.parse(JSON.stringify(w.variables || []));
+        if (w.flowJson) {
+            document.getElementById('wfJsonFileName').textContent = '已加载: ' + (w.name || '工作流') + '.json';
+            document.getElementById('jsonTreeContainer').style.display = 'block';
+            document.getElementById('jsonTreeTitle').textContent = w.name || '工作流 JSON';
+            renderWorkflowJsonTree(w.flowJson, _wfVariables);
+        } else {
+            document.getElementById('wfJsonFileName').textContent = '未选择文件';
+            document.getElementById('jsonTreeContainer').style.display = 'none';
+        }
+    } else {
+        document.getElementById('wfName').value = '';
+        document.getElementById('wfDesc').value = '';
+        _wfVariables = [];
+        document.getElementById('wfJsonFile').value = '';
+        document.getElementById('wfJsonFileName').textContent = '未选择文件';
+        document.getElementById('jsonTreeContainer').style.display = 'none';
+        document.getElementById('workflowJsonTree').innerHTML = '';
+    }
+    renderWorkflowVariableList();
+    document.getElementById('workflowModalOverlay').classList.add('show');
+}
+
+function closeWorkflowModal() {
+    document.getElementById('workflowModalOverlay').classList.remove('show');
+    _wfEditIndex = -1;
+    _wfVariables = [];
+}
+
+var _wfCurrentJson = null;
+function onWorkflowJsonChange() {
+    var file = document.getElementById('wfJsonFile').files[0];
+    if (!file) return;
+    document.getElementById('wfJsonFileName').textContent = '📄 ' + file.name;
+    var reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            _wfCurrentJson = JSON.parse(e.target.result);
+            _wfVariables = [];
+            document.getElementById('jsonTreeContainer').style.display = 'block';
+            document.getElementById('jsonTreeTitle').textContent = file.name;
+            renderWorkflowJsonTree(_wfCurrentJson, _wfVariables);
+            renderWorkflowVariableList();
+            toast('JSON 解析成功，请在树中点击叶子节点标记变量', 'success');
+        } catch(ex) {
+            toast('JSON 解析失败，请检查文件格式', 'error');
+        }
+    };
+    reader.readAsText(file);
+}
+
+function renderWorkflowJsonTree(jsonObj, variables) {
+    var container = document.getElementById('workflowJsonTree');
+    container.innerHTML = '';
+    var frag = document.createDocumentFragment();
+    walkJsonTree(jsonObj, '', 0, frag, variables);
+    container.appendChild(frag);
+}
+
+function walkJsonTree(node, path, depth, parentEl, variables) {
+    if (node === null || node === undefined) {
+        appendJsonLine(parentEl, depth, 'null', 'json-null', false, false, '', '');
+    } else if (typeof node === 'object' && !Array.isArray(node)) {
+        appendJsonLine(parentEl, depth, '{', 'json-punct', false, false, '', '');
+        var keys = Object.keys(node);
+        for (var i = 0; i < keys.length; i++) {
+            var key = keys[i];
+            var val = node[key];
+            var childPath = path ? path + '.' + key : key;
+            var isLast = i === keys.length - 1;
+            if (val !== null && typeof val === 'object') {
+                appendJsonKeyOpen(parentEl, depth + 1, key, Array.isArray(val) ? '[' : '{');
+                walkJsonTree(val, childPath, depth + 1, parentEl, variables);
+                appendJsonLine(parentEl, depth + 1, (Array.isArray(val) ? ']' : '}') + (isLast ? '' : ','), 'json-punct', false, false, '', '');
+            } else {
+                appendJsonLeaf(parentEl, depth + 1, key, val, childPath, !isLast, variables);
+            }
+        }
+        appendJsonLine(parentEl, depth, '}', 'json-punct', false, false, '', '');
+    } else if (Array.isArray(node)) {
+        appendJsonLine(parentEl, depth, '[', 'json-punct', false, false, '', '');
+        for (var j = 0; j < node.length; j++) {
+            var childPath2 = path ? path + '.' + j : String(j);
+            var isLast2 = j === node.length - 1;
+            var item = node[j];
+            if (item !== null && typeof item === 'object') {
+                walkJsonTree(item, childPath2, depth + 1, parentEl, variables);
+                if (isLast2) appendJsonLine(parentEl, depth + 1, '', 'json-punct', false, false, '', '');
+            } else {
+                appendJsonLeaf(parentEl, depth + 1, null, item, childPath2, !isLast2, variables);
+            }
+        }
+        appendJsonLine(parentEl, depth, ']', 'json-punct', false, false, '', '');
+    } else {
+        appendJsonLeaf(parentEl, depth, null, node, path, false, variables);
+    }
+}
+
+function appendJsonLine(parent, depth, text, cls, leaf, mapped, path, comma) {
+    var row = document.createElement('div');
+    row.className = 'json-tree-row' + (leaf ? ' leaf' : '') + (mapped ? ' mapped' : '');
+    var indent = document.createElement('span');
+    indent.className = 'json-tree-indent';
+    indent.style.width = (depth * 14) + 'px';
+    row.appendChild(indent);
+    var span = document.createElement('span');
+    span.className = cls;
+    span.textContent = text;
+    row.appendChild(span);
+    if (comma) {
+        var c = document.createElement('span');
+        c.className = 'json-punct';
+        c.textContent = ',';
+        row.appendChild(c);
+    }
+    parent.appendChild(row);
+    return row;
+}
+
+function appendJsonKeyOpen(parent, depth, key, openSymbol) {
+    var row = document.createElement('div');
+    row.className = 'json-tree-row';
+    var indent = document.createElement('span');
+    indent.className = 'json-tree-indent';
+    indent.style.width = (depth * 14) + 'px';
+    row.appendChild(indent);
+    var keySpan = document.createElement('span');
+    keySpan.className = 'json-key';
+    keySpan.textContent = '"' + key + '"';
+    row.appendChild(keySpan);
+    var colon = document.createElement('span');
+    colon.className = 'json-punct';
+    colon.textContent = ': ' + openSymbol;
+    row.appendChild(colon);
+    parent.appendChild(row);
+}
+
+function appendJsonLeaf(parent, depth, key, value, path, hasComma, variables) {
+    var isReplaceable = value !== null && value !== undefined && !(typeof value === 'object') && typeof value !== 'number' && typeof value !== 'boolean';
+    var mapping = variables.find(function(v) { return v.jsonPath === path; });
+    var isLeaf = isReplaceable || mapping;
+    var row = document.createElement('div');
+    row.className = 'json-tree-row leaf' + (mapping ? ' mapped' : '');
+
+    var indent = document.createElement('span');
+    indent.className = 'json-tree-indent';
+    indent.style.width = (depth * 14) + 'px';
+    row.appendChild(indent);
+
+    if (key !== null && key !== undefined) {
+        var keySpan = document.createElement('span');
+        keySpan.className = 'json-key';
+        keySpan.textContent = '"' + key + '"';
+        row.appendChild(keySpan);
+        var colon2 = document.createElement('span');
+        colon2.className = 'json-punct';
+        colon2.textContent = ': ';
+        row.appendChild(colon2);
+    }
+
+    if (mapping) {
+        var ph = document.createElement('span');
+        ph.className = 'json-ph-token';
+        ph.textContent = mapping.placeholder;
+        row.appendChild(ph);
+    } else {
+        var valSpan = document.createElement('span');
+        if (value === null || value === undefined) {
+            valSpan.className = 'json-null'; valSpan.textContent = 'null';
+        } else if (typeof value === 'string') {
+            valSpan.className = 'json-str'; valSpan.textContent = '"' + value + '"';
+        } else if (typeof value === 'number') {
+            valSpan.className = 'json-num'; valSpan.textContent = String(value);
+        } else if (typeof value === 'boolean') {
+            valSpan.className = 'json-bool'; valSpan.textContent = String(value);
+        } else {
+            valSpan.className = 'json-punct'; valSpan.textContent = String(value);
+        }
+        row.appendChild(valSpan);
+    }
+
+    if (hasComma) {
+        var c2 = document.createElement('span');
+        c2.className = 'json-punct';
+        c2.textContent = ',';
+        row.appendChild(c2);
+    }
+
+    if (isReplaceable || mapping) {
+        row.title = mapping ? '点击取消标记' : '点击标记为变量';
+        row.addEventListener('click', function(e) {
+            e.stopPropagation();
+            toggleWorkflowVariable(path, value);
+        });
+    }
+    parent.appendChild(row);
+}
+
+function guessVariableType(path, value) {
+    var p = path.toLowerCase();
+    if (typeof value === 'string') {
+        if (/\.(png|jpg|jpeg|webp|gif)$/i.test(value) || p.includes('image')) return 'image';
+        if (/\.(wav|mp3|flac|ogg)$/i.test(value) || p.includes('audio') || p.includes('voice') || p.includes('bgm')) return 'audio';
+        if (/\.(mp4|mov|webm)$/i.test(value) || p.includes('video')) return 'video';
+    }
+    if (typeof value === 'string' && (p.includes('text') || p.includes('prompt'))) return 'text';
+    return 'text';
+}
+
+function defaultVariableLabelFor(path, type) {
+    var last = path.split('.').pop();
+    if (last === 'image') return '角色/首帧图片';
+    if (last === 'audio') return '台词音频';
+    if (last === 'text' || last === 'prompt') return '画面提示词';
+    if (last === 'bgm') return '背景音乐';
+    if (last === 'voice') return '人声音频';
+    var map = { image:'图片素材', audio:'音频素材', text:'文本内容', video:'视频素材' };
+    return map[type] || last || '变量';
+}
+
+function toggleWorkflowVariable(path, currentValue) {
+    var existing = _wfVariables.findIndex(function(v) { return v.jsonPath === path; });
+    if (existing >= 0) {
+        _wfVariables.splice(existing, 1);
+    } else {
+        var type = guessVariableType(path, currentValue);
+        var id = 'v_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6);
+        var phCounter = {};
+        _wfVariables.forEach(function(v) { phCounter[v.type] = (phCounter[v.type] || 0) + 1; });
+        phCounter[type] = (phCounter[type] || 0) + 1;
+        _wfVariables.push({
+            id: id,
+            jsonPath: path,
+            placeholder: '<<' + type + '_' + (String(phCounter[type]).padStart(2,'0')) + '>>',
+            type: type,
+            label: defaultVariableLabelFor(path, type),
+            description: ''
+        });
+    }
+    renderWorkflowJsonTree(_wfCurrentJson || (AppState.workflowTemplates[_wfEditIndex] && AppState.workflowTemplates[_wfEditIndex].flowJson) || {}, _wfVariables);
+    renderWorkflowVariableList();
+}
+
+function clearWorkflowVariables() {
+    _wfVariables = [];
+    renderWorkflowJsonTree(_wfCurrentJson || (AppState.workflowTemplates[_wfEditIndex] && AppState.workflowTemplates[_wfEditIndex].flowJson) || {}, _wfVariables);
+    renderWorkflowVariableList();
+}
+
+var TYPE_OPTIONS = [
+    { value:'image', label:'图片文件' },
+    { value:'audio', label:'语音' },
+    { value:'text', label:'文本' },
+    { value:'video', label:'视频' }
+];
+
+function renderWorkflowVariableList() {
+    var list = document.getElementById('workflowVariableList');
+    if (!_wfVariables || !_wfVariables.length) {
+        list.innerHTML = '<div class="empty-workflow-hint">尚未标记变量<br>请在左侧 JSON 树中点击叶子节点标记为变量</div>';
+        return;
+    }
+    var html = '';
+    for (var i = 0; i < _wfVariables.length; i++) {
+        var v = _wfVariables[i];
+        html += buildVariableCardHTML(v);
+    }
+    list.innerHTML = html;
+}
+
+function buildVariableCardHTML(v) {
+    var typeOptions = '';
+    for (var t = 0; t < TYPE_OPTIONS.length; t++) {
+        typeOptions += '<option value="' + TYPE_OPTIONS[t].value + '"' + (v.type === TYPE_OPTIONS[t].value ? ' selected' : '') + '>' + TYPE_OPTIONS[t].label + '</option>';
+    }
+    var typeLabel = (TYPE_OPTIONS.find(function(o){return o.value===v.type;}) || {label:v.type}).label;
+    return '<div class="var-mapping-card" data-var-id="' + v.id + '">' +
+        '<div class="var-mapping-card-head">' +
+            '<span class="json-ph-token" data-ph="' + v.id + '">' + escapeHtml(v.placeholder) + '</span>' +
+            '<span class="var-type-badge ' + v.type + '" data-badge="' + v.id + '">' + escapeHtml(typeLabel) + '</span>' +
+            '<button class="var-remove-btn" onclick="removeWorkflowVariable(\'' + v.id + '\')" title="移除变量">✕</button>' +
+        '</div>' +
+        '<div class="var-mapping-card-body">' +
+            '<div class="var-mapping-path">路径: ' + escapeHtml(v.jsonPath) + '</div>' +
+            '<div class="var-field-row">' +
+                '<label>类型</label>' +
+                '<select data-field="type" data-var-id="' + v.id + '" onchange="onVarFieldChange(this)">' + typeOptions + '</select>' +
+            '</div>' +
+            '<div class="var-field-row">' +
+                '<label>展示名称</label>' +
+                '<input data-field="label" data-var-id="' + v.id + '" value="' + escapeHtml(v.label || '') + '" oninput="onVarFieldInput(this)" placeholder="输入前端展示名称">' +
+            '</div>' +
+            '<div class="var-field-row">' +
+                '<label>说明</label>' +
+                '<input data-field="description" data-var-id="' + v.id + '" value="' + escapeHtml(v.description || '') + '" oninput="onVarFieldInput(this)" placeholder="输入前端展示说明...">' +
+            '</div>' +
+        '</div>' +
+        '</div>';
+}
+
+function onVarFieldInput(el) {
+    var id = el.getAttribute('data-var-id');
+    var field = el.getAttribute('data-field');
+    var v = _wfVariables.find(function(x) { return x.id === id; });
+    if (v) v[field] = el.value;
+}
+
+function onVarFieldChange(el) {
+    var id = el.getAttribute('data-var-id');
+    var field = el.getAttribute('data-field');
+    var value = el.value;
+    var v = _wfVariables.find(function(x) { return x.id === id; });
+    if (!v) return;
+    v[field] = value;
+    if (field === 'type') {
+        var phMatch = v.placeholder.match(/^<<(\w+)_(\d+)>>$/);
+        if (phMatch) {
+            var counter = 1;
+            _wfVariables.forEach(function(x) {
+                if (x.id !== v.id && x.type === value) {
+                    var m = x.placeholder.match(/^<<\w+_(\d+)>>$/);
+                    if (m) counter = Math.max(counter, parseInt(m[1]) + 1);
+                }
+            });
+            v.placeholder = '<<' + value + '_' + String(counter).padStart(2,'0') + '>>';
+        }
+        var typeLabel = (TYPE_OPTIONS.find(function(o){return o.value===value;}) || {label:value}).label;
+        var card = document.querySelector('.var-mapping-card[data-var-id="' + id + '"]');
+        if (card) {
+            var phEl = card.querySelector('[data-ph="' + id + '"]');
+            var badgeEl = card.querySelector('[data-badge="' + id + '"]');
+            if (phEl) { phEl.textContent = v.placeholder; }
+            if (badgeEl) { badgeEl.className = 'var-type-badge ' + value; badgeEl.textContent = typeLabel; }
+        }
+        var flowJson = _wfCurrentJson || (AppState.workflowTemplates[_wfEditIndex] && AppState.workflowTemplates[_wfEditIndex].flowJson);
+        renderWorkflowJsonTree(flowJson || {}, _wfVariables);
+    }
+}
+
+function removeWorkflowVariable(varId) {
+    _wfVariables = _wfVariables.filter(function(v) { return v.id !== varId; });
+    var flowJson = _wfCurrentJson || (AppState.workflowTemplates[_wfEditIndex] && AppState.workflowTemplates[_wfEditIndex].flowJson);
+    renderWorkflowJsonTree(flowJson || {}, _wfVariables);
+    renderWorkflowVariableList();
+}
+
+function saveWorkflowConfig() {
+    var name = document.getElementById('wfName').value.trim();
+    if (!name) { toast('请填写模板名称', 'error'); return; }
+    var flowJson = _wfCurrentJson || (AppState.workflowTemplates[_wfEditIndex] && AppState.workflowTemplates[_wfEditIndex].flowJson);
+    if (!flowJson) { toast('请上传工作流 JSON 文件', 'error'); return; }
+    if (!_wfVariables.length) { toast('请至少标记一个变量', 'error'); return; }
+
+    var now = new Date();
+    var dateStr = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0');
+    var data = {
+        id: _wfEditIndex >= 0 ? AppState.workflowTemplates[_wfEditIndex].id : ('wft_' + Date.now()),
+        name: name,
+        desc: document.getElementById('wfDesc').value.trim(),
+        flowJson: flowJson,
+        variables: JSON.parse(JSON.stringify(_wfVariables)),
+        status: _wfEditIndex >= 0 ? AppState.workflowTemplates[_wfEditIndex].status : '启用',
+        createdAt: _wfEditIndex >= 0 ? AppState.workflowTemplates[_wfEditIndex].createdAt : dateStr
+    };
+
+    if (_wfEditIndex >= 0) {
+        AppState.workflowTemplates[_wfEditIndex] = data;
+        addAuditLog('配置', name, '-', '-', '编辑工作流模板');
+    } else {
+        AppState.workflowTemplates.push(data);
+        addAuditLog('配置', name, '-', '-', '新增工作流模板');
+    }
+    saveData();
+    closeWorkflowModal();
+    renderWorkflowConfigs();
+    toast('工作流模板「' + name + '」已' + (_wfEditIndex >= 0 ? '更新' : '创建'), 'success');
+}
+
+function toggleWorkflowStatus(index) {
+    var w = AppState.workflowTemplates[index];
+    if (!w) return;
+    w.status = w.status === '启用' ? '停用' : '启用';
+    saveData();
+    renderWorkflowConfigs();
+    toast('工作流模板「' + w.name + '」已' + (w.status === '启用' ? '上架' : '下架'), 'success');
+}
+
+function confirmDeleteWorkflow(index) {
+    var w = AppState.workflowTemplates[index];
+    if (!w) return;
+    showConfirm('删除工作流模板', '确定要删除工作流模板「' + w.name + '」吗？此操作不可撤销。', '⚠️', function() {
+        AppState.workflowTemplates.splice(index, 1);
+        addAuditLog('配置', w.name, '-', '-', '删除工作流模板');
+        saveData();
+        renderWorkflowConfigs();
+        toast('工作流模板「' + w.name + '」已删除', 'success');
+    });
 }
 
 function buildSceneVisual() {

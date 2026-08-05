@@ -83,6 +83,13 @@
     .ghost-btn:disabled { opacity: .4; cursor: not-allowed; }
     .helper { margin-top: 10px; color: #98a0af; font-size: 10px; line-height: 1.55; text-align: center; }
 
+    .source-tabs { display: flex; gap: 0; border: 1px solid #e5e9f1; border-radius: 10px; overflow: hidden; margin-bottom: 18px; }
+    .source-tab { flex: 1; height: 34px; border: 0; background: #f8f9fb; color: #6d778a; font-size: 12px; font-weight: 700; cursor: pointer; transition: .15s ease; font-family: inherit; }
+    .source-tab:hover { background: #eef1f6; color: #4b566a; }
+    .source-tab.active { background: var(--blue); color: #fff; }
+    .source-tab-content { display: none; }
+    .source-tab-content.active { display: block; }
+
     .breakdown-list { margin-top: 14px; display: flex; flex-direction: column; gap: 6px; }
     .breakdown-item {
       display: flex; align-items: center; gap: 6px; padding: 8px 10px;
@@ -259,31 +266,41 @@
     </header>
     <section class="page-head">
       <div><div class="crumb"><a href="全部工具.html">全部工具</a> / <span>爆款拆解</span></div><div class="eyebrow">SCRIPT TOOL · BREAKDOWN</div><h1>爆款拆解</h1><p class="page-desc">粘贴视频链接或上传文件，提取爆款视频的台词文案。</p></div>
-      <div class="head-note">提取结果可一键导入一稿多版或合规检查工具继续处理</div>
+      <div class="head-note">提取结果可一键导入台词改写或合规检查工具继续处理</div>
     </section>
     <section class="workspace">
       <aside class="panel control-panel">
         <div class="control-scroll">
           <div class="section-title">添加视频素材</div>
-          <div class="field">
-            <label class="field-label">视频链接</label>
-            <div class="input-row">
-              <textarea class="text-input" id="breakdown-url" style="min-height:58px;height:auto;resize:none;padding:9px 11px" placeholder="每行一个视频链接&#10;粘贴抖音 / 快手 / 视频号等链接"></textarea>
-              <button class="ghost-btn" onclick="addBreakdownUrls()">添加链接</button>
+          <div class="source-tabs">
+            <button class="source-tab active" onclick="switchSourceTab('link')">视频链接</button>
+            <button class="source-tab" onclick="switchSourceTab('file')">本地上传</button>
+          </div>
+          <div class="source-tab-content active" id="source-tab-link">
+            <div class="field">
+              <label class="field-label">视频链接</label>
+              <div class="input-row">
+                <textarea class="text-input" id="breakdown-url" style="min-height:58px;height:auto;resize:none;padding:9px 11px" placeholder="每行一个视频链接&#10;粘贴抖音 / 快手 / 视频号等链接"></textarea>
+                <button class="ghost-btn" onclick="addBreakdownUrls()">添加链接</button>
+              </div>
+            </div>
+            <div class="breakdown-list" id="breakdown-list-link"></div>
+            <div class="breakdown-actions" id="breakdown-actions-link" style="display:none">
+              <button class="primary-btn" onclick="startBreakdown()">开始拆解</button>
             </div>
           </div>
-          <div class="field-sep"></div>
-          <div class="field">
-            <label class="field-label">本地上传</label>
-            <div class="input-row">
-              <input type="file" id="breakdown-file" accept="video/*" multiple onchange="handleFileUpload(this)" style="display:none">
-              <button class="ghost-btn" onclick="document.getElementById('breakdown-file').click()" style="flex:1">选择视频文件</button>
+          <div class="source-tab-content" id="source-tab-file">
+            <div class="field">
+              <label class="field-label">本地上传</label>
+              <div class="input-row">
+                <input type="file" id="breakdown-file" accept="video/*" multiple onchange="handleFileUpload(this)" style="display:none">
+                <button class="ghost-btn" onclick="document.getElementById('breakdown-file').click()" style="flex:1">选择视频文件</button>
+              </div>
             </div>
-          </div>
-          <div class="breakdown-list" id="breakdown-list"></div>
-          <div class="breakdown-actions" id="breakdown-actions" style="display:none">
-            <button class="primary-btn" id="breakdown-btn" onclick="startBreakdown()">开始拆解</button>
-            <div class="helper">模拟台词提取，不真实调用语音识别 · Ctrl+⏎ 快速拆解</div>
+            <div class="breakdown-list" id="breakdown-list-file"></div>
+            <div class="breakdown-actions" id="breakdown-actions-file" style="display:none">
+              <button class="primary-btn" onclick="startBreakdown()">开始拆解</button>
+            </div>
           </div>
         </div>
       </aside>
@@ -291,6 +308,8 @@
         <div class="editor-top">
           <div><div class="editor-heading">拆解结果</div><div class="editor-sub" id="result-summary">尚未拆解台词</div></div>
           <div class="global-actions">
+            <button class="ghost-btn" id="select-all-btn" onclick="selectAll()" disabled>全选</button>
+            <button class="ghost-btn" id="add-batch-btn" onclick="sendCardToBatch()" disabled>加入批量成片</button>
             <button class="ghost-btn" id="copy-all-btn" onclick="copyAll()" disabled>复制全部</button>
             <button class="ghost-btn" id="txt-btn" onclick="exportTxt()" disabled>导出 TXT</button>
             <button class="ghost-btn" id="csv-btn" onclick="exportCsv()" disabled>导出 CSV</button>
@@ -300,10 +319,6 @@
           <div><div class="empty-visual"><div class="paper"></div><div class="spark">AI</div></div><h2>添加视频开始拆解</h2><p>在左侧粘贴视频链接或上传视频文件，提取爆款台词后可一键导入其他工具继续创作。</p></div>
         </div>
         <div class="loading-state" id="loading-state"><div><div class="loader-ring"></div><div class="loading-title" id="loading-title">正在提取台词…</div><div class="loading-copy" id="loading-copy">识别语音、整理文案…</div></div></div>
-        <div class="draft-popover" id="draft-popover" style="display:none">
-          <button onclick="sendDraftToTool(_popoverDraftId,'一稿多版.html')">以此篇导入一稿多版</button>
-          <button onclick="sendDraftToTool(_popoverDraftId,'合规检查.html')">以此篇导入合规检查</button>
-        </div>
         <div class="preview-overlay" id="preview-overlay" style="display:none" onclick="closePreview()"></div>
         <div class="preview-modal" id="preview-modal" style="display:none">
           <div class="preview-header" id="preview-header">
@@ -324,11 +339,9 @@
   </main>
   <div class="toast" id="toast"><span id="toast-msg"></span><button class="toast-action" id="toast-action" style="display:none"></button></div>
   <div class="handoff-banner" id="handoff-banner"><div class="hb-icon">📄</div><div class="hb-body"><strong id="hb-title"></strong><span id="hb-sub"></span></div><button class="hb-close" onclick="dismissHandoffBanner()">✕</button></div>
-  <div class="batch-bar" id="batch-bar"><span class="batch-count" id="batch-count"></span><button class="batch-btn" onclick="batchSendToBatch()">加入批量成片</button><button class="batch-btn ghost" onclick="batchImportDerive()">导入一稿多版</button><button class="batch-btn ghost" onclick="batchExportTxt()">导出 TXT</button><button class="batch-btn ghost" onclick="clearBatchSelection()">取消选择</button></div>
   <script>
     var TOOL_HANDOFF_KEY = 'script-tool-handoff';
     var state = { drafts: [], activeId: null, selectedIds: [], loading: false, nextId: 1 };
-    var _popoverDraftId = null;
 
     function escapeHtml(value) {
       return String(value == null ? '' : value).replace(/[&<>'"]/g, function(ch) {
@@ -336,6 +349,15 @@
       });
     }
     function escapeAttr(value) { return escapeHtml(value); }
+
+    function switchSourceTab(name) {
+      document.querySelectorAll('.source-tab').forEach(function(t){ t.classList.remove('active'); });
+      document.querySelectorAll('.source-tab-content').forEach(function(c){ c.classList.remove('active'); });
+      var tabBtn = document.querySelector('.source-tab[onclick*="' + name + '"]');
+      if (tabBtn) tabBtn.classList.add('active');
+      var content = document.getElementById('source-tab-' + name);
+      if (content) content.classList.add('active');
+    }
 
     function toast(message, action) {
       var el = document.getElementById('toast');
@@ -360,47 +382,19 @@
     }
     function dismissHandoffBanner() { document.getElementById('handoff-banner').classList.remove('show'); }
 
-    function updateBatchBar() {
-      var n = validSelectedIds(state.drafts).length;
-      var bar = document.getElementById('batch-bar');
-      if (n) { document.getElementById('batch-count').textContent = '已选 ' + n + ' 篇'; bar.classList.add('show'); }
-      else bar.classList.remove('show');
-    }
-    function batchImportDerive() {
-      var entries = currentExportEntries(); if (!entries.length) return;
-      var text = entries.map(function(e){ return e.draft.text; }).join('\n\n');
-      sendToTool('一稿多版.html', text, entries.length + ' 篇拆解稿合集');
-    }
-    function batchExportTxt() { exportTxt(); }
-    function clearBatchSelection() {
-      state.selectedIds = [];
-      document.querySelectorAll('#drafts-list .draft-select').forEach(function(cb){ cb.checked = false; });
-      updateExportControls(state.drafts);
-    }
-
     function sendToTool(target, text, title) {
       try { localStorage.setItem(TOOL_HANDOFF_KEY, JSON.stringify({ target: target, from: '爆款拆解', title: title || '', text: text, at: Date.now() })); } catch (e) {}
       window.location.href = target;
     }
-    function sendToBatchTask(texts, summaryTitle) {
-      var list = (texts || []).filter(function(t){ return t && t.trim(); });
-      if (!list.length) { toast('没有可添加的台词'); return; }
-      try { localStorage.setItem(TOOL_HANDOFF_KEY, JSON.stringify({ target: '简单模式-流程版-模板版.html', from: '爆款拆解', title: summaryTitle || '', texts: list, at: Date.now() })); } catch (e) {}
-      window.location.href = '简单模式-流程版-模板版.html?returnTo=directorWorkbench';
-    }
     function sendDraftToBatch(draftId) {
       var draft = findDraftById(draftId);
-      document.getElementById('draft-popover').style.display = 'none';
       if (!draft || !draft.text.trim()) { toast('台词为空'); return; }
-      sendToBatchTask([draft.text], draft.title);
-    }
-    function batchSendToBatch() {
-      var entries = currentExportEntries(); if (!entries.length) return;
-      sendToBatchTask(entries.map(function(e){ return e.draft.text; }), '已选 ' + entries.length + ' 篇拆解稿');
+      var list = [draft.text];
+      try { localStorage.setItem(TOOL_HANDOFF_KEY, JSON.stringify({ target: '简单模式-流程版-模板版.html', from: '爆款拆解', title: draft.title || '', texts: list, at: Date.now() })); } catch (e) {}
+      window.location.href = '简单模式-流程版-模板版.html?returnTo=directorWorkbench';
     }
     function sendDraftToTool(draftId, target) {
       var draft = findDraftById(draftId);
-      document.getElementById('draft-popover').style.display = 'none';
       if (!draft || !draft.text.trim()) { toast('台词为空'); return; }
       sendToTool(target, draft.text, draft.title);
     }
@@ -415,27 +409,34 @@
       return { id: state.nextId++, title: title, text: text, targetDuration: 60, status: 'unchecked', findings: [] };
     }
 
-    var _breakdownItems = [];
+    var _linkItems = [];
+    var _fileItems = [];
+    function activeBreakdownItems() { return _linkItems.concat(_fileItems); }
     function handleFileUpload(input) {
       if (!input.files || !input.files.length) return;
       for (var i = 0; i < input.files.length; i++) {
-        _breakdownItems.push({ type: 'file', name: input.files[i].name, source: input.files[i].name });
+        _fileItems.push({ type: 'file', name: input.files[i].name, source: input.files[i].name });
       }
-      input.value = ''; renderBreakdownList();
+      input.value = ''; renderBreakdownList('file');
     }
     function addBreakdownUrls() {
       var text = document.getElementById('breakdown-url').value.trim();
       if (!text) return;
       text.split('\n').forEach(function(line){
         var s = line.trim(); if (!s) return;
-        _breakdownItems.push({ type: 'url', name: s.length > 50 ? s.slice(0, 50) + '…' : s, source: s });
+        _linkItems.push({ type: 'url', name: s.length > 50 ? s.slice(0, 50) + '…' : s, source: s });
       });
       document.getElementById('breakdown-url').value = '';
-      renderBreakdownList();
+      renderBreakdownList('link');
     }
-    function removeBreakdownItem(index) { _breakdownItems.splice(index, 1); renderBreakdownList(); }
-    function previewBreakdownItem(index) {
-      var item = _breakdownItems[index]; if (!item) return;
+    function removeBreakdownItem(tab, index) {
+      if (tab === 'link') _linkItems.splice(index, 1);
+      else _fileItems.splice(index, 1);
+      renderBreakdownList(tab);
+    }
+    function previewBreakdownItem(tab, index) {
+      var items = tab === 'link' ? _linkItems : _fileItems;
+      var item = items[index]; if (!item) return;
       document.getElementById('preview-draft-title').textContent = item.name;
       document.getElementById('preview-meta').innerHTML = '来源：' + escapeHtml(item.source.slice(0, 80)) + '<br>类型：' + (item.type === 'url' ? '在线视频' : '本地文件') + ' · 模拟时长 42 秒';
       document.getElementById('preview-structure').innerHTML = buildPreviewStructure();
@@ -444,18 +445,19 @@
       modal.style.top = '50%'; modal.style.left = '50%'; modal.style.transform = 'translate(-50%, -50%)';
       document.getElementById('preview-overlay').style.display = 'block';
     }
-    function renderBreakdownList() {
-      var el = document.getElementById('breakdown-list');
-      var actions = document.getElementById('breakdown-actions');
-      if (!_breakdownItems.length) { el.innerHTML = ''; actions.style.display = 'none'; return; }
+    function renderBreakdownList(tab) {
+      var items = tab === 'link' ? _linkItems : _fileItems;
+      var listEl = document.getElementById('breakdown-list-' + tab);
+      var actions = document.getElementById('breakdown-actions-' + tab);
+      if (!items.length) { listEl.innerHTML = ''; actions.style.display = 'none'; return; }
       actions.style.display = '';
-      el.innerHTML = _breakdownItems.map(function(item, idx){
+      listEl.innerHTML = items.map(function(item, idx){
         return '<div class="breakdown-item">' +
           '<div class="breakdown-item-thumb">' + (item.type === 'url' ? '🔗' : '🎬') + '</div>' +
           '<div class="breakdown-item-name" title="' + escapeAttr(item.source) + '">' + escapeHtml(item.name) + '</div>' +
           '<div class="breakdown-item-actions">' +
-          '<button class="breakdown-item-btn" onclick="previewBreakdownItem(' + idx + ')">预览</button>' +
-          '<button class="breakdown-item-btn remove" onclick="removeBreakdownItem(' + idx + ')">×</button>' +
+          '<button class="breakdown-item-btn" onclick="previewBreakdownItem(\'' + tab + '\',' + idx + ')">预览</button>' +
+          '<button class="breakdown-item-btn remove" onclick="removeBreakdownItem(\'' + tab + '\',' + idx + ')">×</button>' +
           '</div></div>';
       }).join('');
     }
@@ -497,24 +499,21 @@
     })();
 
     function startBreakdown() {
-      if (!_breakdownItems.length) { toast('请先添加视频链接或上传文件'); return; }
+      var items = activeBreakdownItems();
+      if (!items.length) { toast('请先添加视频链接或上传文件'); return; }
       state.loading = true;
       var previousDrafts = state.drafts.length ? state.drafts.slice() : null;
       document.getElementById('empty-state').style.display = 'none';
       document.getElementById('drafts-list').style.display = 'none';
       document.getElementById('loading-state').classList.add('show');
-      document.getElementById('loading-title').textContent = '正在拆解 ' + _breakdownItems.length + ' 个视频';
+      document.getElementById('loading-title').textContent = '正在拆解 ' + items.length + ' 个视频';
       var stages = ['解析视频链接，获取基础信息…', '识别语音，提取口播文案…', '整理文案结构，生成拆解稿…'];
       var stageTimers = stages.map(function(text, i){
         return setTimeout(function(){ document.getElementById('loading-copy').textContent = text; }, i * 450);
       });
       document.querySelectorAll('.control-panel button, .control-panel textarea').forEach(function(c){ c.disabled = true; });
-      var btn = document.getElementById('breakdown-btn');
-      btn.textContent = '处理中…';
-      var sources = _breakdownItems; var batchHash = 0;
-      for (var i = 0; i < sources.length; i++) {
-        for (var j = 0; j < sources[i].source.length; j++) { batchHash = ((batchHash << 5) - batchHash) + sources[i].source.charCodeAt(j); batchHash |= 0; }
-      }
+      var sources = items; var batchHash = 0;
+      for (var i = 0; i < sources.length; i++) { for (var j = 0; j < sources[i].source.length; j++) { batchHash = ((batchHash << 5) - batchHash) + sources[i].source.charCodeAt(j); batchHash |= 0; } }
       var drafts = sources.map(function(item, idx){
         var template = createBreakdownScript(item.source, Math.abs(batchHash + idx));
         return makeDraft(template.title + '｜' + item.name, template.text);
@@ -528,7 +527,6 @@
         document.getElementById('loading-state').classList.remove('show');
         document.getElementById('drafts-list').style.display = '';
         document.querySelectorAll('.control-panel button, .control-panel textarea').forEach(function(c){ c.disabled = false; });
-        btn.textContent = '开始拆解';
         renderWorkspace();
         toast('已提取 ' + drafts.length + ' 篇台词', previousDrafts ? { label: '撤销', onClick: function(){
           state.drafts = previousDrafts; state.activeId = previousDrafts.length ? previousDrafts[0].id : null;
@@ -562,17 +560,13 @@
           '<input class="draft-select" type="checkbox" aria-label="选择第 ' + (index + 1) + ' 篇稿件"' + (isDraftSelected(draft.id) ? ' checked' : '') + ' onclick="event.stopPropagation()" onchange="toggleDraftSelection(event,' + draft.id + ')">' +
           '<span class="draft-card-num">#' + (index + 1) + '</span>' +
           '<input class="draft-card-title-input" value="' + escapeAttr(draft.title) + '" oninput="updateCardTitle(' + draft.id + ',this.value)" onclick="event.stopPropagation()">' +
-          '<span class="draft-card-status">已提取</span>' +
-          '<button class="card-more-btn" onclick="showDraftPopover(event,' + draft.id + ')">⋮</button>' +
           '</div>' +
           '<div class="draft-card-body-wrap"><div class="draft-card-body" contenteditable="true" data-draft-id="' + draft.id + '" oninput="onCardBodyInput(this)" onclick="selectDraft(' + draft.id + ')">' + escapeHtml(draft.text) + '</div></div>' +
           '<div class="draft-card-foot">' +
           '<span class="draft-card-meta"><strong>' + countChars(draft.text) + '</strong> 字 · 约 <strong>' + estimateSeconds(draft.text) + '</strong> 秒<button class="expand-btn" onclick="event.stopPropagation();toggleCardExpand(this)">展开 ⌄</button></span>' +
           '<div class="draft-card-actions">' +
           '<button class="card-action-btn" onclick="event.stopPropagation();copyDraft(' + draft.id + ')">复制</button>' +
-          '<button class="card-action-btn primary" onclick="event.stopPropagation();sendDraftToBatch(' + draft.id + ')">加入批量成片</button>' +
-          '<button class="card-action-btn" onclick="event.stopPropagation();sendDraftToTool(' + draft.id + ',\'一稿多版.html\')">导入一稿多版</button>' +
-          '<button class="card-action-btn" onclick="event.stopPropagation();sendDraftToTool(' + draft.id + ',\'合规检查.html\')">导入合规检查</button>' +
+          '<button class="card-action-btn primary" onclick="event.stopPropagation();sendDraftToTool(' + draft.id + ',\'台词改写.html\')">导入台词改写</button>' +
           '</div></div></div>';
       }).join('');
     }
@@ -625,6 +619,7 @@
       document.querySelectorAll('#drafts-list .draft-card').forEach(function(card){
         card.classList.toggle('active', Number(card.dataset.draftId) === id);
       });
+      updateExportControls(state.drafts);
     }
 
     function isDraftSelected(id) { return state.selectedIds.indexOf(id) !== -1; }
@@ -638,12 +633,41 @@
       var selected = validSelectedIds(drafts);
       state.selectedIds = selected;
       document.getElementById('result-summary').textContent = hasDrafts ? ('共 ' + drafts.length + ' 篇' + (selected.length ? ' · 已选 ' + selected.length + ' 篇' : '')) : '尚未拆解台词';
+      document.getElementById('select-all-btn').disabled = !hasDrafts;
+      document.getElementById('select-all-btn').textContent = selected.length === drafts.length ? '取消全选' : '全选';
+      document.getElementById('add-batch-btn').disabled = selected.length === 0;
+      document.getElementById('add-batch-btn').textContent = selected.length ? ('加入批量成片（' + selected.length + '）') : '加入批量成片';
       document.getElementById('copy-all-btn').disabled = !hasDrafts;
       document.getElementById('txt-btn').disabled = !hasDrafts;
       document.getElementById('csv-btn').disabled = !hasDrafts;
       document.getElementById('txt-btn').textContent = selected.length ? ('导出 TXT（' + selected.length + '）') : '导出 TXT';
       document.getElementById('csv-btn').textContent = selected.length ? ('导出 CSV（' + selected.length + '）') : '导出 CSV';
-      updateBatchBar();
+    }
+    function selectAll() {
+      var drafts = state.drafts;
+      var selected = validSelectedIds(drafts);
+      if (selected.length === drafts.length) {
+        state.selectedIds = [];
+      } else {
+        state.selectedIds = drafts.map(function(d){ return d.id; });
+      }
+      document.querySelectorAll('#drafts-list .draft-select').forEach(function(cb, i){
+        cb.checked = state.selectedIds.indexOf(drafts[i].id) !== -1;
+      });
+      updateExportControls(drafts);
+    }
+    function sendCardToBatch() {
+      var selected = validSelectedIds(state.drafts);
+      if (!selected.length) { toast('请先选中拆解结果'); return; }
+      var texts = [];
+      for (var i = 0; i < state.drafts.length; i++) {
+        if (selected.indexOf(state.drafts[i].id) !== -1 && state.drafts[i].text.trim()) {
+          texts.push(state.drafts[i].text);
+        }
+      }
+      if (!texts.length) { toast('台词为空'); return; }
+      try { localStorage.setItem(TOOL_HANDOFF_KEY, JSON.stringify({ target: '简单模式-流程版-模板版.html', from: '爆款拆解', title: '已选 ' + texts.length + ' 篇拆解稿', texts: texts, at: Date.now() })); } catch (e) {}
+      window.location.href = '简单模式-流程版-模板版.html?returnTo=directorWorkbench';
     }
     function toggleDraftSelection(event, draftId) {
       event.stopPropagation();
@@ -654,19 +678,6 @@
       }
       updateExportControls(state.drafts);
     }
-
-    function showDraftPopover(event, draftId) {
-      event.stopPropagation(); _popoverDraftId = draftId;
-      var popover = document.getElementById('draft-popover');
-      var bRect = event.currentTarget.getBoundingClientRect();
-      popover.style.display = 'block'; popover.style.position = 'fixed';
-      popover.style.left = Math.max(0, bRect.right - 170) + 'px';
-      popover.style.top = (bRect.bottom + 4) + 'px';
-    }
-    document.addEventListener('click', function(e) {
-      var popover = document.getElementById('draft-popover');
-      if (popover && popover.style.display !== 'none' && !popover.contains(e.target)) { popover.style.display = 'none'; _popoverDraftId = null; }
-    });
 
     function fallbackCopy(text) {
       var area = document.createElement('textarea'); area.value = text; area.style.position = 'fixed'; area.style.opacity = '0';
@@ -726,7 +737,7 @@
     document.addEventListener('keydown', function(e){
       if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
         e.preventDefault();
-        if (!state.loading && _breakdownItems.length) startBreakdown();
+        if (!state.loading && activeBreakdownItems().length) startBreakdown();
       }
     });
 
