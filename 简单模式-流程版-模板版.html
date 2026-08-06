@@ -188,6 +188,7 @@
     .ff-preview.stale .ff-state-overlay { display: flex; }
     .ff-preview.stale .ff-state-overlay { color: #6d28d9; background: rgba(245,243,255,.92); }
     .ff-status-chip { position: absolute; top: 5px; right: 5px; z-index: 4; border-radius: 999px; padding: 2px 6px; background: #fff7ed; color: #b45309; font-size: 8px; font-weight: 800; box-shadow: 0 1px 4px rgba(0,0,0,.1); }
+        .ff-preview .ff-ai-badge { position: absolute; top: 5px; right: 5px; z-index: 4; display: inline-flex; align-items: center; gap: 2px; border-radius: 999px; padding: 2px 6px; background: linear-gradient(135deg,#e0eaff,#f0e8ff); color: #4f46e5; border: 1px solid rgba(79,70,229,.18); font-size: 8px; font-weight: 800; box-shadow: 0 1px 4px rgba(0,0,0,.08); white-space: nowrap; }
     .ff-failed-icon { font-size: 28px; }
     .ff-failed-text { font-size: 10px; color: #ef4444; font-weight: 600; }
     /* TTS 失败状态 */
@@ -207,6 +208,16 @@
     .ff-mini.role-required { color: #b45309; background: #fffbeb; border-color: #fcd34d; }
     .ff-mini.role-selected { color: #4f46e5; background: #eef2ff; border-color: #a5b4fc; }
     .ff-mini .ff-mini-state { font-weight: 700; }
+    /* 多变体角色：持久化视觉标识（虚线边框 + 展开箭头 + 数量徽标） */
+    .ff-mini.has-variants { position: relative; border-style: dashed; border-color: #a78bfa; background: #f5f3ff; color: #6d28d9; cursor: pointer; padding-right: 22px; }
+    .ff-mini.has-variants::after { content: '▾'; position: absolute; right: 7px; top: 50%; transform: translateY(-50%); font-size: 10px; color: #7c3aed; pointer-events: none; }
+    .ff-mini.has-variants:hover { border-color: #7c3aed; background: #ede9fe; }
+    .ff-variant-count { margin-left: 4px; padding: 2px 7px; border-radius: 10px; background: #7c3aed; color: #fff; font-size: 11px; font-weight: 800; line-height: 1.4; }
+    /* 顶部变体提示条 */
+    .variant-hint-bar { display: flex; align-items: center; gap: 12px; padding: 10px 16px; margin-bottom: 14px; background: linear-gradient(135deg, #f5f3ff, #ede9fe); border: 1px solid #c4b5fd; border-radius: 10px; font-size: 13px; color: #5b21b6; }
+    .variant-hint-bar .hint-text { flex: 1; line-height: 1.5; }
+    .variant-hint-bar .hint-close { padding: 4px 14px; border: 1px solid #c4b5fd; border-radius: 6px; background: #fff; color: #6d28d9; font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap; transition: all 0.15s; }
+    .variant-hint-bar .hint-close:hover { background: #7c3aed; color: #fff; border-color: #7c3aed; }
     /* 标签 chips */
     .ff-tags { display: flex; flex-direction: column; gap: 6px; }
     .ff-tag-group { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
@@ -676,7 +687,7 @@
         <div class="section-header">
           <div class="section-icon purple">🎞️</div>
           <div class="section-name">首帧</div>
-          <span class="section-hint">逐条选择角色主图或变体图后生成首帧</span>
+          <span class="section-hint">AI 已根据场景图自动匹配形象并合成首帧，不满意可更换形象/姿态/景别后重新生成</span>
         </div>
         <div class="ff-cards" id="ff-cards"></div>
       </div>
@@ -958,14 +969,21 @@
     ];
 
     var avList = [
-      { key: '知性女性', name: '角色 A', tag: '女 · 知性' },
-      { key: '商务男性', name: '角色 B', tag: '男 · 商务' },
+      { key: '知性女性', name: '角色 A', tag: '女 · 知性', img: 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="200" height="260"><rect width="200" height="260" fill="#f5f0eb"/><ellipse cx="100" cy="65" rx="42" ry="48" fill="#d4a574"/><rect x="55" y="120" width="90" height="70" rx="18" fill="#4f46e5"/></svg>'), outfits: [
+        { id:'outfit-a1', name:'职业西装', img: 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="200" height="260"><rect width="200" height="260" fill="#f0ebe3"/><ellipse cx="100" cy="65" rx="42" ry="48" fill="#d4a574"/><rect x="55" y="120" width="90" height="70" rx="18" fill="#1e3a8a"/></svg>') },
+        { id:'outfit-a2', name:'休闲衬衫', img: 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="200" height="260"><rect width="200" height="260" fill="#f8fafc"/><ellipse cx="100" cy="65" rx="42" ry="48" fill="#d4a574"/><rect x="55" y="120" width="90" height="70" rx="18" fill="#38bdf8"/></svg>') },
+        { id:'outfit-a3', name:'连衣裙', img: 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="200" height="260"><rect width="200" height="260" fill="#fdf2f8"/><ellipse cx="100" cy="65" rx="42" ry="48" fill="#d4a574"/><rect x="50" y="115" width="100" height="85" rx="22" fill="#ec4899"/></svg>') }] },
+      { key: '商务男性', name: '角色 B', tag: '男 · 商务', img: 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="200" height="260"><rect width="200" height="260" fill="#f1f5f9"/><ellipse cx="100" cy="65" rx="42" ry="48" fill="#c4956a"/><rect x="55" y="120" width="90" height="70" rx="18" fill="#334155"/></svg>'), outfits: [
+        { id:'outfit-b1', name:'深色西装', img: 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="200" height="260"><rect width="200" height="260" fill="#e2e8f0"/><ellipse cx="100" cy="65" rx="42" ry="48" fill="#c4956a"/><rect x="55" y="120" width="90" height="70" rx="18" fill="#1e293b"/></svg>') },
+        { id:'outfit-b2', name:'商务休闲', img: 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="200" height="260"><rect width="200" height="260" fill="#f8fafc"/><ellipse cx="100" cy="65" rx="42" ry="48" fill="#c4956a"/><rect x="55" y="120" width="90" height="70" rx="18" fill="#0f766e"/></svg>') }] },
       { key: '活泼女性', name: '角色 C', tag: '女 · 活泼' },
       { key: '青年男声', name: '角色 D', tag: '男 · 阳光' },
       { key: '成熟女性', name: '角色 E', tag: '女 · 优雅' },
       { key: '老年男性', name: '角色 F', tag: '男 · 沉稳' },
       { key: '儿童女孩', name: '角色 G', tag: '女 · 可爱' },
-      { key: '新闻主播', name: '角色 H', tag: '女 · 专业' },
+      { key: '新闻主播', name: '角色 H', tag: '女 · 专业', img: 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="200" height="260"><rect width="200" height="260" fill="#faf5ff"/><ellipse cx="100" cy="65" rx="42" ry="48" fill="#e8c4a2"/><rect x="55" y="120" width="90" height="70" rx="18" fill="#7c3aed"/></svg>'), outfits: [
+        { id:'outfit-h1', name:'主播正装', img: 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="200" height="260"><rect width="200" height="260" fill="#f5f3ff"/><ellipse cx="100" cy="65" rx="42" ry="48" fill="#e8c4a2"/><rect x="55" y="120" width="90" height="70" rx="18" fill="#5b21b6"/></svg>') },
+        { id:'outfit-h2', name:'播报套装', img: 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="200" height="260"><rect width="200" height="260" fill="#eff6ff"/><ellipse cx="100" cy="65" rx="42" ry="48" fill="#e8c4a2"/><rect x="55" y="120" width="90" height="70" rx="18" fill="#2563eb"/></svg>') }] },
       { key: '科技达人', name: '角色 I', tag: '男 · 科技感' },
       { key: '医疗顾问', name: '角色 J', tag: '男 · 医学' },
       { key: '教育讲师', name: '角色 K', tag: '女 · 教学' },
@@ -1155,6 +1173,7 @@
             action: c.frame.action || '',
             shot: c.frame.shot,
             status: c.frame.status,
+            autoMatched: !!c.frame.autoMatched,
             roleVariant: serializeRoleVariantRef(c.frame.roleVariant)
           } : null;
           return { id: c.id, content: c.content, frame: frame, tts: { custom: c.tts.custom, speed: c.tts.speed, pitch: c.tts.pitch, volume: c.tts.volume, instruction: c.tts.instruction, breaks: c.tts.breaks } };
@@ -1205,6 +1224,7 @@
               action: restoredAction,
               shot: restoredShot,
               status: restoredVariant ? storedFrameStatus : 'awaiting_variant',
+              autoMatched: !!(c.frame.autoMatched && restoredVariant),
               roleVariant: copyRoleVariant(restoredVariant),
               generationToken: 0
             } : null;
@@ -2027,7 +2047,7 @@
           info.textContent = '⚠️ ' + parts.join('；');
         } else {
           next.classList.remove('disabled');
-          info.textContent = '已生成 ' + validCards().length + ' 张首帧并合成语音（台词只读，可试听/下载）';
+          info.textContent = '🤖 AI 已自动匹配形象并生成 ' + validCards().length + ' 张首帧，语音已合成；不满意可更换形象/姿态/景别后重新生成';
         }
       } else {
         next.classList.remove('disabled');
@@ -2116,6 +2136,7 @@
     function enterStep2() {
       var g = getGlobalTts();
       var activeBgs = getActiveBgNames();
+      var variants = getRoleVariants();
       S.cards.forEach(function(card) {
         if (!card.content.trim()) { card.frame = null; return; }
         // 首帧
@@ -2133,9 +2154,14 @@
           String(previousVariant.name || '') !== String(resolvedVariant.name || '')
         ));
         card.frame.roleVariant = copyRoleVariant(resolvedVariant);
+        // AI 自动匹配：尚无形象时，多模态大模型识别场景图后自动挑选一张变体
+        if (!card.frame.roleVariant && variants.length > 0) {
+          card.frame.roleVariant = copyRoleVariant(pick(variants));
+          card.frame.autoMatched = true;
+        }
         if (!card.frame.roleVariant) card.frame.status = 'awaiting_variant';
         else if (variantAssetChanged && (card.frame.status === 'ready' || card.frame.status === 'failed')) card.frame.status = 'stale';
-        else if (!card.frame.status || card.frame.status === 'awaiting_variant') card.frame.status = 'pending';
+        else if (!card.frame.status || card.frame.status === 'awaiting_variant' || card.frame.status === 'pending') card.frame.status = 'generating';
         // 语音：默认用全局配置合成初版（未单独覆盖的）
         if (!card.tts) card.tts = defaultTts();
         if (!card.tts.custom) { card.tts.speed=g.speed; card.tts.pitch=g.pitch; card.tts.volume=g.volume; card.tts.instruction=g.instruction; }
@@ -2144,12 +2170,58 @@
       var meta = S.avatar ? getAvatarMeta(S.avatar) : null;
       document.getElementById('voice-name-hint').textContent = meta ? ('· 音色跟随「'+meta.name+'」') : '';
       renderFirstFrames();
+      autoGenerateFrames();
+    }
+
+    /* AI 自动合成首帧：模拟多模态大模型识别场景图、自动匹配形象与姿态景别（首次自动合成不消耗积分） */
+    var autoGenTimer = null;
+    function autoGenerateFrames() {
+      var targets = validCards().filter(function(card){
+        return card.frame && card.frame.roleVariant && card.frame.status === 'generating';
+      });
+      if (targets.length === 0) return;
+      var requests = targets.map(function(card){
+        var token = (card.frame.generationToken || 0) + 1;
+        card.frame.generationToken = token;
+        return { id: card.id, token: token, sourceKey: frameSourceKey(card) };
+      });
+      renderFirstFrames();
+      requests.forEach(function(req){ var p = document.getElementById('ff-prev-'+req.id); if (p) p.classList.add('gen'); });
+      updFooter();
+      if (autoGenTimer) clearTimeout(autoGenTimer);
+      autoGenTimer = setTimeout(function(){
+        autoGenTimer = null;
+        var okCount = 0, failedCount = 0;
+        requests.forEach(function(req){
+          var g = S.cards.find(function(x){ return x.id === req.id; });
+          if (!g || !g.frame || g.frame.generationToken !== req.token) return;
+          if (frameSourceKey(g) !== req.sourceKey) { invalidateFrameGeneration(g, 'stale'); return; }
+          // 模拟生成：~12% 概率失败，失败后走手动重试
+          if (Math.random() < 0.12) { g.frame.status = 'failed'; failedCount++; }
+          else { g.frame.status = 'ready'; okCount++; }
+        });
+        renderFirstFrames();
+        if (okCount + failedCount > 0) {
+          var msg = '🤖 AI 已自动合成 ' + okCount + ' 张首帧';
+          if (failedCount > 0) msg += '，⚠️ ' + failedCount + ' 张失败，点「生成首帧」重试';
+          if (getRoleVariants().length > 1) msg += '；点击角色角标可切换形象变体';
+          toast(msg);
+        }
+        updFooter();
+        saveDraft();
+      }, 1400);
     }
 
     var variantPickerCardId = null;
     var variantPickerOptions = [];
     var variantPickerSelectedIndex = -1;
     var roleVariantReturnFocus = null;
+
+    function dismissVariantHint() {
+      sessionStorage.setItem('aigc_variant_hint_dismissed', '1');
+      var bar = document.getElementById('variant-hint-bar');
+      if (bar) bar.remove();
+    }
 
     function openRoleVariantPicker(cardId) {
       var card = S.cards.find(function(item){ return item.id === cardId; });
@@ -2217,6 +2289,7 @@
       if (beforeKey === afterKey) return false;
       var hadGeneratedFrame = card.frame.status === 'ready' || card.frame.status === 'failed' || card.frame.status === 'stale' || card.frame.status === 'generating';
       card.frame.roleVariant = copyRoleVariant(variant);
+      card.frame.autoMatched = false; // 手动更换形象后不再属于 AI 自动匹配
       invalidateFrameGeneration(card, hadGeneratedFrame ? 'stale' : 'pending');
       return true;
     }
@@ -2259,9 +2332,14 @@
       var c = document.getElementById('ff-cards');
       var h = '';
       var allCards = validCards();
+      var variantCount = getRoleVariants().length;
       var missingVariantCount = allCards.filter(function(card){ return !card.frame || !card.frame.roleVariant; }).length;
       var generatingCount = allCards.filter(function(card){ return card.frame && card.frame.status === 'generating'; }).length;
       var hasGeneratedFrame = allCards.some(function(card){ return card.frame && (card.frame.status === 'ready' || card.frame.status === 'failed' || card.frame.status === 'stale'); });
+      // 多变体提示条
+      if (variantCount > 1 && !sessionStorage.getItem('aigc_variant_hint_dismissed')) {
+        h += '<div class="variant-hint-bar" id="variant-hint-bar"><span class="hint-text">🎨 该角色含 <strong>'+variantCount+'</strong> 张形象图，点击角色标签可切换不同形象后重新生成</span><button class="hint-close" onclick="dismissVariantHint()">知道了</button></div>';
+      }
       // 全部生成按钮 - 左列顶部
       h += '<div class="ff-batch-bar" style="display:flex;gap:16px;margin-bottom:14px;"><div class="ff-batch-slot" style="width:200px;flex-shrink:0;display:flex;justify-content:center;">';
       var regenAllCost = 10 * allCards.length;
@@ -2290,15 +2368,17 @@
         var displayVal = f.pose + (f.action ? ' · ' + f.action : '');
         h += '<div class="ff-corner-bottom">'+displayVal+' · '+f.shot+'</div>';
         if (f.status === 'pending') h += '<div class="ff-status-chip">待生成</div>';
-        h += '<div class="ff-loading"><div class="ff-spin"></div>生成中…</div>';
-        h += '<div class="ff-state-overlay" role="status">'+(frameWaiting?'👗<span>先选择主图或变体图</span>':'↻<span>形象已更换<br>请重新生成</span>')+'</div>';
+        if (f.autoMatched && f.status !== 'pending' && f.roleVariant) h += '<div class="ff-ai-badge" title="多模态大模型已识别场景图，自动匹配了形象与姿态景别">🤖 AI 自动</div>';
+        h += '<div class="ff-loading"><div class="ff-spin"></div>'+((f.autoMatched && f.status === 'generating') ? 'AI 识别场景 · 自动合成中…' : '生成中…')+'</div>';
+        h += '<div class="ff-state-overlay" role="status">'+(frameWaiting?'👗<span>先选择主图或变体图</span>':'↻<span>配置已变更<br>请重新生成</span>')+'</div>';
         // 失败遮罩
         h += '<div class="ff-failed-overlay"><div class="ff-failed-icon">⚠️</div><div class="ff-failed-text">生成失败</div></div>';
         h += '</div>';
         // 角色角标点击选择当前台词的主图/变体图
         h += '<div class="ff-minis">';
         var variantLabel = roleVariant ? roleVariant.name : '未选形象';
-        h += '<button type="button" id="role-variant-trigger-'+g.id+'" class="ff-mini '+(roleVariant?'role-selected':'role-required')+'" onclick="openRoleVariantPicker('+g.id+')" title="选择该条首帧使用的角色形象">👤 '+escapeHtml(avName)+' · <span class="ff-mini-state">'+escapeHtml(variantLabel)+'</span></button>';
+        var hasVariants = variantCount > 1;
+        h += '<button type="button" id="role-variant-trigger-'+g.id+'" class="ff-mini '+((roleVariant?'role-selected':'role-required')+(hasVariants?' has-variants':''))+'" onclick="openRoleVariantPicker('+g.id+')" title="'+(hasVariants?'该角色有 '+variantCount+' 张形象图，点击切换':'选择该条首帧使用的角色形象')+'">👤 '+escapeHtml(avName)+' · <span class="ff-mini-state">'+escapeHtml(variantLabel)+'</span>'+(hasVariants?'<span class="ff-variant-count">'+variantCount+'张</span>':'')+'</button>';
         h += '<span class="ff-mini" onmouseenter="showSceneTip(event,decodeURIComponent(\''+encodeURIComponent(bgGrad)+'\'),decodeURIComponent(\''+encodeURIComponent(f.bg)+'\'))" onmouseleave="hideTip()">🖼️ '+escapeHtml(f.bg)+'</span>';
         h += '</div>';
         // 姿态/动作并列 + 景别 + 重新生成
@@ -2343,6 +2423,14 @@
         h += '</div>'; // ff-card
       });
       c.innerHTML = h;
+      // 多变体提示条 5 秒后自动消失
+      if (variantCount > 1 && !sessionStorage.getItem('aigc_variant_hint_dismissed')) {
+        setTimeout(function(){
+          var bar = document.getElementById('variant-hint-bar');
+          if (bar) { bar.style.transition = 'opacity 0.4s'; bar.style.opacity = '0'; setTimeout(function(){ if (bar.parentNode) bar.remove(); }, 400); }
+          sessionStorage.setItem('aigc_variant_hint_dismissed', '1');
+        }, 8000);
+      }
       // 渲染 Step2 只读编辑器中的停顿标签
       S.cards.forEach(function(g) {
         var el = document.getElementById('ff-editor-'+g.id);
@@ -2366,7 +2454,7 @@
         g.frame.shot = val;
       }
       if (!changed) return;
-      if (g.frame.status === 'ready' || g.frame.status === 'failed' || g.frame.status === 'generating') invalidateFrameGeneration(g, 'stale');
+      // 已合成的首帧继续保留展示，不做状态变化，用户需要时点「重新生成首帧」即可
       renderFirstFrames();
       updFooter();
       saveDraft();
@@ -2381,14 +2469,12 @@
       }
       if (g.frame.action === val) {
         g.frame.action = '';
-        if (g.frame.status === 'ready' || g.frame.status === 'failed' || g.frame.status === 'generating') invalidateFrameGeneration(g, 'stale');
         renderFirstFrames();
         updFooter();
         saveDraft();
-        toast('已取消动作配置');
+        toast('已取消动作配置，点「重新生成首帧」应用');
       } else {
         g.frame.action = val;
-        if (g.frame.status === 'ready' || g.frame.status === 'failed' || g.frame.status === 'generating') invalidateFrameGeneration(g, 'stale');
         renderFirstFrames();
         updFooter();
         saveDraft();
@@ -2442,6 +2528,7 @@
           g.frame.status = 'ready';
           toast('首帧已生成');
         }
+        g.frame.autoMatched = false; // 手动重新生成后不再展示 AI 自动标识
         renderFirstFrames();
         updFooter();
         saveDraft();
@@ -2471,6 +2558,7 @@
           completedCount++;
           if (Math.random() < 0.15) { g.frame.status = 'failed'; failedCount++; }
           else g.frame.status = 'ready';
+          g.frame.autoMatched = false; // 手动重新生成后不再展示 AI 自动标识
         });
         renderFirstFrames();
         var msg = '已生成 '+completedCount+' 张首帧';
