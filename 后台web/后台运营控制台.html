@@ -189,6 +189,15 @@
         .chip-blue { background: var(--primary-light); color: var(--primary); }
         .chip-green { background: var(--green-bg); color: var(--green); }
 
+        /* ===== 移动端开关 ===== */
+        .switch { position: relative; display: inline-block; width: 36px; height: 20px; vertical-align: middle; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .switch-slider { position: absolute; inset: 0; background: #d4d4d8; border-radius: 99px; transition: all 0.2s; cursor: pointer; }
+        .switch-slider::before { content: ''; position: absolute; left: 2px; top: 2px; width: 16px; height: 16px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.2); transition: all 0.2s; }
+        .switch input:checked + .switch-slider { background: linear-gradient(135deg, #f97316, #ef4444); }
+        .switch input:checked + .switch-slider::before { transform: translateX(16px); }
+        .switch input:disabled + .switch-slider { opacity: 0.5; cursor: not-allowed; }
+
         .bar {
             height: 6px; background: #E4E4E7; border-radius: 3px; overflow: hidden;
             min-width: 60px;
@@ -999,10 +1008,11 @@
             <div class="table-wrap">
                 <div class="table-toolbar">
                     <span style="font-weight:600;font-size:13px">业务内置视频模板</span>
+                    <span style="font-size:12px;color:var(--text-muted)">↑↓ 调整即维护前台展示顺序，移动后即时保存生效</span>
                     <button class="btn btn-primary btn-sm" onclick="openTemplateModal()" style="margin-left:auto">+ 新增模板</button>
                 </div>
                 <table>
-                    <thead><tr><th>模板名称</th><th>标签</th><th>适用行业</th><th>关联工作流模板</th><th>工作流</th><th>状态</th><th>使用次数</th><th>操作</th></tr></thead>
+                    <thead><tr><th>模板名称</th><th>标签</th><th>适用行业</th><th>关联工作流模板</th><th>工作流</th><th>状态</th><th>使用次数</th><th style="width:70px;text-align:center" title="点击开关开启/关闭 hot 标签">🔥标签</th><th>操作</th></tr></thead>
                     <tbody id="templateConfigTable"></tbody>
                 </table>
             </div>
@@ -1925,7 +1935,7 @@ var AppState = {
             },
             variables:[
                 { id:'v_img01',jsonPath:'3.inputs.image',placeholder:'<<image_01>>',type:'image',label:'角色/首帧图片',description:'上传或选择角色的首帧图片' },
-                { id:'v_aud01',jsonPath:'10.inputs.audio',placeholder:'<<audio_01>>',type:'audio',label:'台词音频',description:'上传音频文件或输入台词生成TTS语音' },
+                { id:'v_aud01',jsonPath:'10.inputs.audio',placeholder:'<<audio_01>>',type:'audio',label:'台词音频',description:'上传音频文件或输入台词生成TTS语音',linkedImageVarId:'v_img01' },
                 { id:'v_txt01',jsonPath:'15.inputs.text',placeholder:'<<text_01>>',type:'text',label:'画面提示词',description:'描述画面风格、人物动作、场景氛围的提示词' }
             ]
         }
@@ -1992,8 +2002,8 @@ var AppState = {
         ]}
     ],
     templateConfigs: [
-        { name:'市场收评模板', tags:'收盘解读,市场复盘', industry:'金融投顾', used:2456, status:'启用', remark:'', workflow:'portrait_talking', promptConfig:'你是金融投顾视频台词优化助手，根据收盘数据和市场信息生成收评内容。', templateFile:'market_review_v3.zip', firstFrameFile:'market_first_frame.png' },
-        { name:'基金定投科普模板', tags:'基金知识,定投教育', industry:'金融投顾', used:1876, status:'启用', remark:'', workflow:'portrait_talking', promptConfig:'你是基金投教专家，将复杂基金知识转化为通俗易懂的口播内容。', templateFile:'fund_edu_v2.zip', firstFrameFile:'fund_first_frame.png' },
+        { name:'市场收评模板', tags:'收盘解读,市场复盘', industry:'金融投顾', used:2456, status:'启用', hot:true, remark:'', workflow:'portrait_talking', promptConfig:'你是金融投顾视频台词优化助手，根据收盘数据和市场信息生成收评内容。', templateFile:'market_review_v3.zip', firstFrameFile:'market_first_frame.png' },
+        { name:'基金定投科普模板', tags:'基金知识,定投教育', industry:'金融投顾', used:1876, status:'启用', hot:true, remark:'', workflow:'portrait_talking', promptConfig:'你是基金投教专家，将复杂基金知识转化为通俗易懂的口播内容。', templateFile:'fund_edu_v2.zip', firstFrameFile:'fund_first_frame.png' },
         { name:'风险提示模板', tags:'风险揭示,合规提示', industry:'金融投顾', used:1123, status:'启用', remark:'', workflow:'portrait_talking', promptConfig:'你是合规风控专家，生成风险提示内容，语言严谨专业。', templateFile:'risk_notice_v1.zip', firstFrameFile:'' },
         { name:'热点快评模板', tags:'热点事件,快讯点评', industry:'金融投顾', used:678, status:'启用', remark:'', workflow:'portrait_talking', promptConfig:'你是财经快讯评论员，对热点事件进行快速点评分析。', templateFile:'hotspot_comment_v2.zip', firstFrameFile:'hotspot_first_frame.png' },
         { name:'服务引导模板', tags:'客户服务,操作引导', industry:'通用', used:0, status:'停用', remark:'', workflow:'portrait_talking', promptConfig:'', templateFile:'', firstFrameFile:'' }
@@ -4711,7 +4721,10 @@ function renderTemplates() {
             '<td style="font-size:12px">' + workflowLabel + '</td>' +
             '<td><span class="status ' + stCls + '">' + statusLabel + '</span></td>' +
             '<td><strong>' + (t.used || 0).toLocaleString() + '</strong></td>' +
+            '<td style="text-align:center"><label class="switch" title="点击开启/关闭 hot 标签"><input type="checkbox" ' + (t.hot === true ? 'checked' : '') + ' onchange="toggleTemplateHot(' + i + ', this)"><span class="switch-slider"></span></label></td>' +
             '<td class="template-actions">' +
+                (i > 0 ? '<button class="btn btn-xs" onclick="moveTemplate(' + i + ', -1)" title="上移">↑</button> ' : '') +
+                (i < AppState.templateConfigs.length - 1 ? '<button class="btn btn-xs" onclick="moveTemplate(' + i + ', 1)" title="下移">↓</button> ' : '') +
                 '<button class="btn btn-xs btn-primary" onclick="openTemplatePreview(' + i + ')" title="预览">▶ 预览</button> ' +
                 '<button class="btn btn-xs" onclick="openTemplateModal(' + i + ')">编辑</button> ' +
                 '<button class="btn btn-xs ' + (t.status === '启用' ? '' : 'btn-primary') + '" onclick="confirmToggleTemplate(' + i + ')">' + (t.status === '启用' ? '下架' : '上架') + '</button> ' +
@@ -4720,6 +4733,31 @@ function renderTemplates() {
             '</tr>';
     }
     document.getElementById('templateConfigTable').innerHTML = html;
+}
+
+function moveTemplate(index, dir) {
+    var list = AppState.templateConfigs;
+    var target = index + dir;
+    if (target < 0 || target >= list.length) return;
+    var t = list[index];
+    if (!t) return;
+    list.splice(index, 1);
+    list.splice(target, 0, t);
+    addAuditLog('配置', t.name, '第' + (index + 1) + '位', '第' + (target + 1) + '位', '调整模板排序');
+    saveData();
+    renderTemplates();
+    toast('模板「' + t.name + '」已' + (dir < 0 ? '上移' : '下移'), 'success');
+}
+
+function toggleTemplateHot(index, el) {
+    var t = AppState.templateConfigs[index];
+    if (!t) return;
+    var on = !!el.checked;
+    if (on === (t.hot === true)) return;
+    t.hot = on;
+    addAuditLog('配置', t.name, on ? '关闭' : '开启', on ? '开启' : '关闭', '调整 hot 标签');
+    saveData();
+    toast('模板「' + t.name + '」已' + (on ? '开启' : '关闭') + ' hot 标签', 'success');
 }
 
 function confirmToggleTemplate(index) {
@@ -5488,6 +5526,7 @@ function buildVariableCardHTML(v) {
                 '<label>类型</label>' +
                 '<select data-field="type" data-var-id="' + v.id + '" onchange="onVarFieldChange(this)">' + typeOptions + '</select>' +
             '</div>' +
+            (v.type === 'audio' ? buildLinkedImageRowHTML(v) : '') +
             '<div class="var-field-row">' +
                 '<label>展示名称</label>' +
                 '<input data-field="label" data-var-id="' + v.id + '" value="' + escapeHtml(v.label || '') + '" oninput="onVarFieldInput(this)" placeholder="输入前端展示名称">' +
@@ -5500,11 +5539,36 @@ function buildVariableCardHTML(v) {
         '</div>';
 }
 
+// 语音变量关联图片变量：按变量名称直接关联
+function linkedImageOptionText(imgVar) {
+    return (imgVar.label || '未命名') + ' (' + imgVar.placeholder + ')';
+}
+
+function buildLinkedImageRowHTML(v) {
+    var imgVars = _wfVariables.filter(function(x) { return x.type === 'image' && x.id !== v.id; });
+    var options = '<option value="">不关联</option>';
+    for (var i = 0; i < imgVars.length; i++) {
+        options += '<option value="' + imgVars[i].id + '"' + (v.linkedImageVarId === imgVars[i].id ? ' selected' : '') + '>' + escapeHtml(linkedImageOptionText(imgVars[i])) + '</option>';
+    }
+    return '<div class="var-field-row">' +
+        '<label>关联角色</label>' +
+        '<select data-field="linkedImageVarId" data-var-id="' + v.id + '" onchange="onVarFieldChange(this)" title="语音变量关联的图片变量，按变量名称直接关联">' + options + '</select>' +
+        '</div>';
+}
+
 function onVarFieldInput(el) {
     var id = el.getAttribute('data-var-id');
     var field = el.getAttribute('data-field');
     var v = _wfVariables.find(function(x) { return x.id === id; });
-    if (v) v[field] = el.value;
+    if (!v) return;
+    v[field] = el.value;
+    // 图片变量改名时，同步更新语音变量关联下拉中的名称展示
+    if (field === 'label' && v.type === 'image') {
+        var optText = linkedImageOptionText(v);
+        document.querySelectorAll('select[data-field="linkedImageVarId"] option[value="' + id + '"]').forEach(function(opt) {
+            opt.textContent = optText;
+        });
+    }
 }
 
 function onVarFieldChange(el) {
@@ -5534,13 +5598,18 @@ function onVarFieldChange(el) {
             if (phEl) { phEl.textContent = v.placeholder; }
             if (badgeEl) { badgeEl.className = 'var-type-badge ' + value; badgeEl.textContent = typeLabel; }
         }
+        if (value !== 'audio') v.linkedImageVarId = '';
         var flowJson = _wfCurrentJson || (AppState.workflowTemplates[_wfEditIndex] && AppState.workflowTemplates[_wfEditIndex].flowJson);
         renderWorkflowJsonTree(flowJson || {}, _wfVariables);
+        renderWorkflowVariableList();
+        return;
     }
 }
 
 function removeWorkflowVariable(varId) {
     _wfVariables = _wfVariables.filter(function(v) { return v.id !== varId; });
+    // 被关联的图片变量移除后，清空语音变量上的关联
+    _wfVariables.forEach(function(v) { if (v.linkedImageVarId === varId) v.linkedImageVarId = ''; });
     var flowJson = _wfCurrentJson || (AppState.workflowTemplates[_wfEditIndex] && AppState.workflowTemplates[_wfEditIndex].flowJson);
     renderWorkflowJsonTree(flowJson || {}, _wfVariables);
     renderWorkflowVariableList();
