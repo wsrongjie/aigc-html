@@ -1,0 +1,1358 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>画布工作流 - 投顾视频平台</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --primary: #2f6bff;
+            --primary-soft: #e8efff;
+            --sidebar-bg: #1C1C1E;
+            --sidebar-text: #A1A1AA;
+            --border: #E4E4E7;
+            --text-primary: #18181B;
+            --text-secondary: #71717A;
+            --text-muted: #A1A1AA;
+            --bg: #F7F7F8;
+            --card: #FFFFFF;
+            --success: #059669;
+            --warning: #d97706;
+            --danger: #dc2626;
+            --radius: 12px;
+            --shadow: 0 1px 3px rgba(0,0,0,0.08);
+            --shadow-md: 0 14px 32px rgba(15,23,42,0.10);
+        }
+        body {
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            background: var(--bg);
+            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+            font-size: 14px;
+        }
+        button, input, select { font: inherit; }
+        button { cursor: pointer; border: 0; }
+        a { color: inherit; text-decoration: none; }
+
+        .sidebar {
+            width: 220px;
+            height: 100vh;
+            background: var(--sidebar-bg);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+        .sidebar-logo { padding: 24px 20px 20px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+        .logo-mark { display: flex; align-items: center; gap: 10px; }
+        .logo-icon {
+            width: 32px; height: 32px; border-radius: 8px; background: var(--primary);
+            display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 800;
+        }
+        .logo-text { color: #fff; font-weight: 700; font-size: 15px; }
+        .logo-sub { color: var(--sidebar-text); font-size: 11px; margin-top: 2px; }
+        .sidebar-nav { flex: 1; padding: 12px 0; overflow-y: auto; }
+        .nav-section { padding: 8px 0; }
+        .nav-section-title {
+            padding: 6px 20px;
+            color: var(--sidebar-text);
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            transition: all .15s;
+        }
+        .nav-section-title:hover { color: #E4E4E7; background: rgba(255,255,255,0.04); }
+        .nav-section-title.active {
+            color: #fff;
+            background: rgba(47,107,255,0.15);
+            border-left: 3px solid var(--primary);
+        }
+        .nav-section-title .collapse-icon { font-size: 10px; transition: transform 0.2s; }
+        .nav-section-title.collapsed .collapse-icon { transform: rotate(-90deg); }
+        .nav-icon { width: 18px; text-align: center; font-size: 15px; }
+        .nav-section-children { display: flex; flex-direction: column; }
+        .nav-sub-item {
+            display: flex; align-items: center; gap: 10px; padding: 9px 20px 9px 36px;
+            color: var(--sidebar-text); border-left: 3px solid transparent; font-size: 13px;
+        }
+        .nav-sub-item:hover { color: #E4E4E7; background: rgba(255,255,255,0.04); }
+        .sidebar-bottom { padding: 16px 20px; border-top: 1px solid rgba(255,255,255,0.06); }
+        .user-info { display: flex; align-items: center; gap: 10px; }
+        .user-avatar {
+            width: 32px; height: 32px; border-radius: 50%; background: var(--primary);
+            color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700;
+        }
+        .user-name { color: #E4E4E7; font-size: 13px; }
+        .user-role { color: var(--sidebar-text); font-size: 11px; }
+        .sidebar-credits {
+            margin-top: 12px; padding: 10px 12px; background: rgba(255,255,255,0.04);
+            border-radius: 8px; display: flex; align-items: center; gap: 8px; color: #fff;
+        }
+        .sidebar-credits .sc-label { color: var(--sidebar-text); font-size: 11px; }
+        .sidebar-credits .sc-value { margin-left: auto; font-weight: 800; }
+
+        .main { flex: 1; min-width: 0; height: 100vh; display: flex; flex-direction: column; }
+        .topbar {
+            height: 56px; background: #fff; border-bottom: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: space-between; padding: 0 20px;
+            gap: 14px; flex-shrink: 0;
+        }
+        .topbar-left { display: flex; align-items: center; gap: 12px; min-width: 0; }
+        .topbar-title { font-size: 16px; font-weight: 800; white-space: nowrap; }
+        .topbar-meta { font-size: 12px; font-weight: 700; color: var(--text-muted); white-space: nowrap; }
+        .topbar-dot {
+            width: 8px; height: 8px; border-radius: 50%; background: #22c55e; flex-shrink: 0;
+            box-shadow: 0 0 0 3px rgba(34,197,94,.15); animation: wfDotBreath 2.4s ease-in-out infinite;
+        }
+        @keyframes wfDotBreath { 0%,100% { box-shadow: 0 0 0 3px rgba(34,197,94,.15); } 50% { box-shadow: 0 0 0 6px rgba(34,197,94,.08); } }
+        .topbar-tag {
+            font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 999px;
+            background: #f0fdf4; color: #059669; white-space: nowrap; flex-shrink: 0;
+        }
+        .btn {
+            height: 36px; padding: 0 14px; border-radius: 9px; border: 1px solid var(--border);
+            background: #fff; color: var(--text-primary); display: inline-flex; align-items: center;
+            justify-content: center; gap: 8px; font-weight: 700; font-size: 13px; flex-shrink: 0;
+        }
+        .btn:hover { border-color: var(--primary); color: var(--primary); }
+        .btn-primary { border-color: var(--primary); background: var(--primary); color: #fff; }
+        .btn-primary:hover { background: #1d4ed8; color: #fff; }
+
+        /* ====== 画布工作流（五节点顺序配置） ====== */
+        .wf-page { flex: 1; min-height: 0; display: flex; }
+        .wf-canvas {
+            flex: 1; position: relative; overflow: auto;
+            background-color: #f2f2f7;
+            background-image: radial-gradient(circle, #e0e1ea 1px, transparent 1.1px);
+            background-size: 22px 22px;
+            box-shadow: inset 0 8px 14px -12px rgba(15,23,42,.12);
+        }
+        .wf-canvas-inner {
+            position: relative;
+        }
+        .wf-svg-layer {
+            position: absolute; top: 0; left: 0; pointer-events: none; z-index: 1;
+        }
+        .wf-node-group {
+            position: absolute; z-index: 2;
+            width: 340px;
+        }
+        .wf-node-group.enter { animation: wfNodeIn .5s cubic-bezier(.22,.7,.3,1.08) both; }
+        @keyframes wfNodeIn { from { opacity: 0; transform: translateY(16px); } }
+        .wf-card {
+            width: 340px; height: 560px; background: #fff; border-radius: 18px;
+            border: 1px solid rgba(15,23,42,.05);
+            box-shadow: 0 2px 6px rgba(15,23,42,.04), 0 20px 48px -20px rgba(15,23,42,.18);
+            display: flex; flex-direction: column; padding: 16px 14px 14px; position: relative;
+        }
+        .wf-card-head { display: flex; align-items: flex-start; gap: 10px; padding: 2px 4px 12px; }
+        .wf-card-icon {
+            width: 34px; height: 34px; border-radius: 10px; background: #17171b; color: #fff;
+            display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0;
+        }
+        .wf-card-name { font-size: 14px; font-weight: 900; }
+        .wf-card-desc { font-size: 11px; color: var(--text-secondary); line-height: 1.55; margin-top: 3px; }
+        .wf-card-stage {
+            flex: 1; min-height: 0; background: #ededf2; border-radius: 14px;
+            display: flex; flex-direction: column; padding: 12px; overflow-y: auto;
+        }
+        .wf-card-empty {
+            flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            gap: 6px; text-align: center; color: var(--text-muted);
+        }
+        .wf-card-empty-icon { font-size: 28px; opacity: .4; }
+        .wf-card-empty-title { font-size: 12px; font-weight: 800; color: var(--text-secondary); }
+        .wf-card-empty-desc { font-size: 11px; line-height: 1.6; max-width: 230px; }
+        .wf-card-subcards { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .wf-card-subcard {
+            background: #fff; border: 1px solid rgba(15,23,42,.04); border-radius: 12px;
+            padding: 14px 8px 12px; text-align: center; cursor: pointer;
+            transition: transform .15s ease, box-shadow .15s ease;
+        }
+        .wf-card-subcard:hover { transform: translateY(-2px); box-shadow: 0 8px 18px -8px rgba(15,23,42,.18); }
+        .wf-subcard-icon {
+            width: 32px; height: 32px; border-radius: 10px; margin: 0 auto 8px;
+            display: flex; align-items: center; justify-content: center; font-size: 14px;
+        }
+        .wf-subcard-icon.indigo { background: #e0e7ff; }
+        .wf-subcard-icon.violet { background: #ede9fe; }
+        .wf-subcard-name { font-size: 12px; font-weight: 800; }
+        .wf-subcard-meta { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
+        .wf-card-hint { text-align: center; font-size: 10px; color: var(--text-muted); padding-top: 10px; }
+        .wf-card-action {
+            margin-top: 12px; height: 40px; border: none; border-radius: 12px; flex-shrink: 0;
+            background: #17171b; color: #fff; font-size: 12px; font-weight: 800;
+            display: flex; align-items: center; justify-content: center; gap: 6px;
+            cursor: pointer; transition: background .15s ease, transform .15s ease;
+        }
+        .wf-card-action:hover { background: #2c2c33; transform: translateY(-1px); }
+        .wf-card-action.ready { background: #059669; }
+        .wf-card-action.ready:hover { background: #047857; }
+        .wf-card-port {
+            position: absolute; top: 50%; width: 8px; height: 8px; border-radius: 50%;
+            background: #8b93a5; transform: translateY(-50%); z-index: 3;
+            box-shadow: 0 0 0 3px #f2f2f7;
+        }
+        .wf-card-port.in { left: -4px; }
+        .wf-card-port.out { right: -4px; }
+        .wf-edge-label {
+            position: absolute; z-index: 1; transform: translate(-50%, -50%);
+            background: #fff; border: 1px solid #e3e5ec; border-radius: 6px;
+            color: #8a919e; font-size: 10px; font-weight: 700; padding: 2px 8px;
+            box-shadow: 0 1px 4px rgba(15,23,42,.08);
+        }
+
+        /* ====== 弹窗系统 ====== */
+        .wf-modal-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,.35); z-index: 100;
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; pointer-events: none; transition: opacity .2s;
+        }
+        .wf-modal-overlay.show { opacity: 1; pointer-events: auto; }
+        .wf-modal {
+            background: #fff; border-radius: 16px; box-shadow: 0 20px 64px rgba(15,23,42,.28);
+            width: 620px; max-height: 74vh; display: flex; flex-direction: column;
+            transform: translateY(8px); transition: transform .2s;
+        }
+        .wf-modal-overlay.show .wf-modal { transform: translateY(0); }
+        .wf-modal-header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 18px 20px; border-bottom: 1px solid var(--border); flex-shrink: 0;
+        }
+        .wf-modal-title { font-size: 15px; font-weight: 800; }
+        .wf-modal-close {
+            width: 28px; height: 28px; border-radius: 8px; border: 0; background: transparent;
+            font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+            color: var(--text-muted);
+        }
+        .wf-modal-close:hover { background: var(--bg); color: var(--text-primary); }
+        .wf-modal-body { flex: 1; overflow-y: auto; padding: 16px 20px; }
+        .wf-modal-footer {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 14px 20px; border-top: 1px solid var(--border); flex-shrink: 0;
+        }
+        .wf-modal-search {
+            width: 100%; height: 38px; padding: 0 14px; border: 1px solid var(--border);
+            border-radius: 10px; font-size: 13px; outline: none; margin-bottom: 14px;
+        }
+        .wf-modal-search:focus { border-color: var(--primary); }
+
+        /* ====== 角色列表（卡片内） ====== */
+        .wf-role-list { display: flex; flex-direction: column; gap: 8px; }
+        .wf-role-item {
+            display: flex; align-items: center; gap: 10px; padding: 10px;
+            background: #fff; border-radius: 10px; border: 1px solid rgba(15,23,42,.06);
+            transition: border-color .15s, background .15s;
+        }
+        .wf-role-item:hover { border-color: var(--primary-soft); }
+        .wf-role-item.replaced { border-color: #bbf7d0; background: #f0fdf4; }
+        .wf-role-avatar {
+            width: 42px; height: 42px; border-radius: 10px; overflow: hidden;
+            background: #17171b; display: flex; align-items: center; justify-content: center;
+            color: #fff; font-size: 18px; flex-shrink: 0;
+        }
+        .wf-role-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .wf-role-info { flex: 1; min-width: 0; }
+        .wf-role-name { font-size: 12px; font-weight: 800; display: flex; align-items: center; gap: 6px; }
+        .wf-role-voice { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
+        .wf-role-badge {
+            font-size: 9px; font-weight: 800; padding: 1px 6px; border-radius: 999px;
+            background: #f0fdf4; color: #059669;
+        }
+        .wf-role-actions { display: flex; gap: 6px; flex-shrink: 0; }
+        .wf-role-btn {
+            height: 28px; padding: 0 10px; border-radius: 7px; border: 1px solid var(--border);
+            background: #fff; font-size: 11px; font-weight: 700; cursor: pointer;
+            color: var(--text-primary); white-space: nowrap;
+        }
+        .wf-role-btn:hover { border-color: var(--primary); color: var(--primary); }
+        .wf-role-btn.audition { width: 28px; padding: 0; }
+        .wf-role-btn.audition.playing { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+        /* ====== 主体选择器网格 ====== */
+        .wf-picker-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+        .wf-picker-item {
+            padding: 14px 10px; border-radius: 12px; border: 2px solid transparent;
+            background: var(--bg); cursor: pointer; text-align: center;
+            transition: border-color .15s, box-shadow .15s, background .15s;
+        }
+        .wf-picker-item:hover { border-color: var(--primary-soft); box-shadow: 0 2px 8px rgba(0,0,0,.06); }
+        .wf-picker-item.active { border-color: var(--primary); background: #e8efff; }
+        .wf-picker-item .pi-avatar {
+            width: 52px; height: 52px; border-radius: 12px; margin: 0 auto 8px;
+            background: #17171b; color: #fff; display: flex; align-items: center;
+            justify-content: center; font-size: 22px; overflow: hidden;
+        }
+        .wf-picker-item .pi-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .wf-picker-item .pi-name { font-size: 12px; font-weight: 800; }
+        .wf-picker-item .pi-voice { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
+        .wf-picker-empty {
+            grid-column: 1 / -1; text-align: center; padding: 36px 16px; color: var(--text-muted);
+        }
+        .wf-picker-empty-icon { font-size: 36px; margin-bottom: 8px; opacity: .4; }
+        .wf-picker-empty-text { font-size: 12px; font-weight: 700; }
+
+        .wf-card-action:disabled { background: #e5e7eb; color: #9ca3af; cursor: not-allowed; }
+        .wf-card-action:disabled:hover { background: #e5e7eb; transform: none; }
+
+        /* ====== 场景预览（左列表+右预览） ====== */
+        .wf-scene-layout { display: flex; gap: 8px; flex: 1; min-height: 0; }
+        .wf-scene-list {
+            width: 72px; display: flex; flex-direction: column; gap: 6px;
+            overflow-y: auto; flex-shrink: 0;
+        }
+        .wf-scene-list-item {
+            padding: 8px 4px; border-radius: 8px; border: 2px solid transparent;
+            background: #fff; cursor: pointer; text-align: center;
+            transition: border-color .15s, background .15s;
+        }
+        .wf-scene-list-item:hover { border-color: var(--primary-soft); }
+        .wf-scene-list-item.active { border-color: var(--primary); background: #e8efff; }
+        .wf-sl-icon { font-size: 20px; display: block; margin-bottom: 2px; }
+        .wf-sl-name { font-size: 10px; font-weight: 700; color: var(--text-secondary); line-height: 1.3; word-break: break-all; }
+        .wf-scene-preview-area { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+        .wf-scene-preview-img {
+            flex: 1; border-radius: 10px; overflow: hidden; min-height: 0;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            display: flex; align-items: center; justify-content: center;
+        }
+        .wf-scene-preview-placeholder { text-align: center; color: rgba(255,255,255,.5); }
+        .wf-scene-preview-placeholder .sp-icon { font-size: 44px; display: block; margin-bottom: 8px; opacity: .7; }
+        .wf-scene-preview-placeholder .sp-label { font-size: 11px; font-weight: 700; }
+        .wf-scene-preview-name { font-size: 11px; font-weight: 800; text-align: center; padding: 6px 0 2px; color: var(--text-secondary); }
+
+        /* ====== 生成中动画 ====== */
+        .wf-generating-overlay {
+            flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            gap: 12px; color: var(--text-secondary);
+        }
+        .wf-spinner {
+            width: 36px; height: 36px; border: 3px solid #e5e7eb; border-top-color: var(--primary);
+            border-radius: 50%; animation: wfSpin .7s linear infinite;
+        }
+        @keyframes wfSpin { to { transform: rotate(360deg); } }
+        .wf-generating-text { font-size: 12px; font-weight: 700; }
+        .wf-spinner-sm {
+            display: inline-block; width: 16px; height: 16px; vertical-align: middle;
+            border: 2px solid rgba(255,255,255,.3); border-top-color: #fff;
+            border-radius: 50%; animation: wfSpin .7s linear infinite;
+        }
+
+        /* ====== 首帧图布局（左列表+右预览） ====== */
+        .wf-frame-layout { display: flex; gap: 8px; flex: 1; min-height: 0; }
+        .wf-frame-list {
+            width: 72px; display: flex; flex-direction: column; gap: 6px;
+            overflow-y: auto; flex-shrink: 0;
+        }
+        .wf-frame-list-item {
+            padding: 6px 4px; border-radius: 8px; border: 2px solid transparent;
+            background: #fff; cursor: pointer; text-align: center;
+            transition: border-color .15s, background .15s; position: relative;
+        }
+        .wf-frame-list-item:hover { border-color: var(--primary-soft); }
+        .wf-frame-list-item.active { border-color: var(--primary); background: #e8efff; }
+        .wf-frame-list-item .fl-thumb {
+            width: 100%; height: 40px; border-radius: 6px; margin-bottom: 4px;
+        }
+        .wf-frame-list-item .fl-name { font-size: 10px; font-weight: 700; color: var(--text-secondary); }
+        .wf-frame-list-item .fl-regen {
+            position: absolute; top: -4px; right: -4px; width: 18px; height: 18px;
+            border-radius: 50%; background: #fff; border: 1px solid var(--border);
+            font-size: 10px; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; color: var(--text-muted); line-height: 1; z-index: 1;
+        }
+        .wf-frame-list-item .fl-regen:hover { color: var(--primary); border-color: var(--primary); }
+        .wf-frame-preview-area { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+        .wf-frame-preview-img {
+            flex: 1; border-radius: 10px; overflow: hidden; min-height: 0;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .wf-frame-preview-placeholder { text-align: center; color: rgba(255,255,255,.7); }
+        .wf-frame-preview-placeholder .fp-icon { font-size: 44px; display: block; margin-bottom: 8px; opacity: .8; }
+        .wf-frame-preview-placeholder .fp-label { font-size: 12px; font-weight: 700; }
+        .wf-frame-preview-name { font-size: 11px; font-weight: 800; text-align: center; padding: 6px 0 2px; color: var(--text-secondary); }
+        .wf-frame-preview-desc { font-size: 10px; color: var(--text-muted); text-align: center; }
+
+        /* ====== 台词编辑布局（左列表+右编辑） ====== */
+        .wf-script-layout { display: flex; gap: 8px; flex: 1; min-height: 0; }
+        .wf-script-list {
+            width: 52px; display: flex; flex-direction: column; gap: 6px;
+            overflow-y: auto; flex-shrink: 0;
+        }
+        .wf-script-list-item {
+            padding: 10px 4px; border-radius: 8px; border: 2px solid transparent;
+            background: #fff; cursor: pointer; text-align: center; transition: border-color .15s, background .15s; position: relative;
+        }
+        .wf-script-list-item:hover { border-color: var(--primary-soft); }
+        .wf-script-list-item.active { border-color: var(--primary); background: #e8efff; }
+        .wf-script-list-item.active .ss-name { color: var(--primary); }
+        .wf-script-list-item .ss-dot {
+            position: absolute; top: 4px; right: 4px; width: 6px; height: 6px; border-radius: 50%;
+        }
+        .wf-script-list-item .ss-dot.done { background: #059669; }
+        .wf-script-list-item .ss-dot.idle { background: #d1d5db; }
+        .wf-script-list-item .ss-name { font-size: 11px; font-weight: 800; display: block; color: var(--text-secondary); }
+        .wf-script-list-item .ss-desc { font-size: 9px; color: var(--text-muted); display: block; margin-top: 2px; line-height: 1.3; }
+        .wf-script-editor { flex: 1; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+        .wf-script-textarea {
+            flex: 1; min-height: 80px; padding: 8px 10px; border: 1px solid var(--border);
+            border-radius: 8px; font-size: 11px; line-height: 1.65; resize: none;
+            outline: none; font-family: inherit; background: #fff;
+        }
+        .wf-script-textarea:focus { border-color: var(--primary); }
+        .wf-script-row { display: flex; align-items: center; gap: 6px; }
+        .wf-script-row-label { font-size: 10px; font-weight: 700; color: var(--text-muted); white-space: nowrap; }
+        .wf-script-role-select {
+            flex: 1; height: 26px; padding: 0 6px; border: 1px solid var(--border); border-radius: 6px;
+            font-size: 10px; outline: none; background: #fff; min-width: 0;
+        }
+        .wf-script-role-select:focus { border-color: var(--primary); }
+        .wf-script-speed {
+            display: flex; align-items: center; gap: 6px;
+        }
+        .wf-script-speed input[type=range] {
+            flex: 1; height: 4px; -webkit-appearance: none; appearance: none;
+            background: #e5e7eb; border-radius: 2px; outline: none; min-width: 0;
+        }
+        .wf-script-speed input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none; appearance: none; width: 14px; height: 14px;
+            border-radius: 50%; background: var(--primary); cursor: pointer;
+        }
+        .wf-script-speed-val { font-size: 10px; font-weight: 800; color: var(--primary); white-space: nowrap; }
+        .wf-script-actions { display: flex; gap: 6px; }
+        .wf-script-btn {
+            flex: 1; height: 30px; border-radius: 7px; border: 1px solid var(--border);
+            background: #fff; font-size: 11px; font-weight: 700; cursor: pointer;
+            color: var(--text-primary); display: flex; align-items: center; justify-content: center; gap: 4px;
+        }
+        .wf-script-btn:hover { border-color: var(--primary); color: var(--primary); }
+        .wf-script-btn.synth { background: #17171b; color: #fff; border-color: #17171b; }
+        .wf-script-btn.synth:hover { background: #2c2c33; }
+        .wf-script-btn.synth.done { background: #059669; border-color: #059669; }
+        .wf-script-btn.synth.done:hover { background: #047857; }
+        .wf-script-btn.synth:disabled { background: #d1d5db; border-color: #d1d5db; color: #9ca3af; cursor: not-allowed; }
+        .wf-script-btn.audition:disabled { color: #d1d5db; border-color: #e5e7eb; cursor: not-allowed; }
+        .wf-script-btn.audition:disabled:hover { border-color: #e5e7eb; color: #d1d5db; }
+
+        /* ====== 视频预览 ====== */
+        .wf-video-preview { flex: 1; display: flex; flex-direction: column; }
+        .wf-video-player {
+            flex: 1; border-radius: 10px; overflow: hidden; min-height: 0;
+            position: relative; cursor: pointer;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            display: flex; align-items: center; justify-content: center;
+        }
+        .wf-video-player .vp-overlay {
+            position: absolute; inset: 0; background: rgba(0,0,0,.25);
+            display: flex; align-items: center; justify-content: center;
+        }
+        .wf-video-player .vp-play-btn {
+            width: 48px; height: 48px; border-radius: 50%; background: rgba(255,255,255,.92);
+            display: flex; align-items: center; justify-content: center; font-size: 18px;
+            color: var(--primary); box-shadow: 0 4px 18px rgba(0,0,0,.3);
+            transition: transform .15s;
+        }
+        .wf-video-player:hover .vp-play-btn { transform: scale(1.1); }
+        .wf-video-duration { font-size: 11px; font-weight: 700; text-align: center; padding: 6px 0 2px; color: var(--text-secondary); }
+
+        /* ====== 预览弹窗 ====== */
+        .wf-preview-modal .wf-modal { width: 400px; }
+        .wf-preview-content { text-align: center; }
+        .wf-preview-img {
+            max-width: 100%; max-height: 46vh; border-radius: 14px; object-fit: contain;
+        }
+        .wf-preview-info { margin-top: 14px; }
+        .wf-preview-name { font-size: 15px; font-weight: 800; }
+        .wf-preview-voice { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
+
+        .toast {
+            position: fixed;
+            right: 24px;
+            bottom: 24px;
+            min-width: 220px;
+            max-width: 360px;
+            padding: 13px 16px;
+            border-radius: 12px;
+            background: #111827;
+            color: #fff;
+            box-shadow: 0 18px 44px rgba(15,23,42,.28);
+            opacity: 0;
+            transform: translateY(12px);
+            transition: all .2s;
+            pointer-events: none;
+            z-index: 90;
+        }
+        .toast.show { opacity: 1; transform: translateY(0); }
+        .toast strong { display: block; margin-bottom: 4px; }
+        .toast span { color: rgba(255,255,255,.76); font-size: 12px; line-height: 1.5; }
+
+        @media (max-width: 980px) {
+            body { display: block; overflow: auto; height: auto; }
+            .sidebar { display: none; }
+            .main { height: auto; min-height: 100vh; }
+            .wf-page { min-height: calc(100vh - 56px); }
+        }
+    </style>
+</head>
+<body>
+<aside class="sidebar">
+    <div class="sidebar-logo">
+        <a class="logo-mark" href="index.html">
+            <div class="logo-icon">AI</div>
+            <div>
+                <div class="logo-text">投顾视频平台</div>
+                <div class="logo-sub">AIGC · 短视频制作</div>
+            </div>
+        </a>
+    </div>
+    <nav class="sidebar-nav">
+        <div class="nav-section">
+            <a class="nav-section-title" href="index.html" style="text-decoration:none;"><span class="nav-icon">🏠</span> 首页</a>
+        </div>
+        <div class="nav-section">
+            <a class="nav-section-title active" href="市场.html" style="text-decoration:none;"><span class="nav-icon">🏪</span> 市场</a>
+        </div>
+        <div class="nav-section">
+            <div class="nav-section-title" onclick="toggleSection(this)">
+                <span class="nav-icon">📦</span> 资产 <span class="collapse-icon">▾</span>
+            </div>
+            <div class="nav-section-children">
+                <a class="nav-sub-item" href="主体管理-首页.html"><span class="nav-icon">👤</span> 主体</a>
+                <a class="nav-sub-item" href="语音首页.html"><span class="nav-icon">🎙</span> 音频</a>
+                <a class="nav-sub-item" href="视频资产.html"><span class="nav-icon">🎬</span> 视频</a>
+            </div>
+        </div>
+        <div class="nav-section">
+            <a class="nav-section-title" href="导演台首页.html" style="text-decoration:none;"><span class="nav-icon">🎬</span> 导演台</a>
+        </div>
+        <div class="nav-section">
+            <a class="nav-section-title" href="全部工具.html" style="text-decoration:none;"><span class="nav-icon">🛠</span> 全部工具</a>
+        </div>
+        <div class="nav-section">
+            <div class="nav-section-title" onclick="toggleSection(this)">
+                <span class="nav-icon">👤</span> 个人中心 <span class="collapse-icon">▾</span>
+            </div>
+            <div class="nav-section-children">
+                <a class="nav-sub-item" href="个人信息.html"><span class="nav-icon">👤</span> 个人信息</a>
+                <a class="nav-sub-item" href="账号绑定.html"><span class="nav-icon">🔗</span> 账号绑定</a>
+                <a class="nav-sub-item" href="团队管理.html"><span class="nav-icon">👥</span> 团队管理</a>
+                <a class="nav-sub-item" href="套餐与支付.html"><span class="nav-icon">💳</span> 积分与并发</a>
+                <a class="nav-sub-item" href="消费账单.html"><span class="nav-icon">🧾</span> 消费账单</a>
+            </div>
+        </div>
+    </nav>
+    <div style="border-top:1px solid rgba(255,255,255,0.06);padding:12px 20px;">
+        <a href="后台web/后台运营控制台.html" style="display:flex;align-items:center;gap:10px;padding:10px 0;color:var(--sidebar-text);font-size:14px;font-weight:600;">
+            <span>⚙️</span> 后台管理
+        </a>
+    </div>
+    <div class="sidebar-bottom">
+        <div class="user-info">
+            <div class="user-avatar">顾</div>
+            <div><div class="user-name">管理员</div><div class="user-role">内容运营</div></div>
+        </div>
+        <div class="sidebar-credits">
+            <span>🪙</span><span class="sc-label">剩余积分</span><span class="sc-value">5,000</span>
+        </div>
+    </div>
+</aside>
+
+<main class="main">
+    <div class="topbar">
+        <div class="topbar-left">
+            <button class="btn" onclick="backToMarket()">← 返回市场</button>
+            <div class="topbar-dot"></div>
+            <span class="topbar-title" id="wfTitle">画布工作流</span>
+            <span class="topbar-tag">画布工作流</span>
+            <span class="topbar-meta" id="wfMeta">1080P · 9:16</span>
+        </div>
+        <button class="btn btn-primary" id="topGenerateBtn" onclick="generateVideo()">🚀 生成视频</button>
+    </div>
+
+    <div class="wf-page">
+        <div class="wf-canvas" id="wfCanvas">
+            <div class="wf-canvas-inner" id="wfCanvasInner"></div>
+            <svg class="wf-svg-layer" id="wfSvgLayer"></svg>
+        </div>
+    </div>
+</main>
+
+<div class="toast" id="toast"><strong id="toastTitle"></strong><span id="toastText"></span></div>
+
+<!-- 角色选择弹窗 -->
+<div class="wf-modal-overlay" id="rolePickerOverlay">
+    <div class="wf-modal">
+        <div class="wf-modal-header">
+            <span class="wf-modal-title" id="rolePickerTitle">选择角色</span>
+            <button class="wf-modal-close" onclick="closeRolePicker()">✕</button>
+        </div>
+        <div class="wf-modal-body">
+            <input class="wf-modal-search" id="rolePickerSearch" placeholder="搜索主体名称或音色…" oninput="renderRolePickerList()">
+            <div id="rolePickerList"></div>
+        </div>
+        <div class="wf-modal-footer">
+            <span style="font-size:12px;color:var(--text-muted);" id="rolePickerSelection">未选择</span>
+            <div style="display:flex;gap:8px;">
+                <button class="btn" onclick="closeRolePicker()">取消</button>
+                <button class="btn btn-primary" id="rolePickerConfirm" onclick="confirmRoleReplace()" disabled>确认替换</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 角色预览弹窗 -->
+<div class="wf-modal-overlay wf-preview-modal" id="rolePreviewOverlay">
+    <div class="wf-modal">
+        <div class="wf-modal-header">
+            <span class="wf-modal-title">角色预览</span>
+            <button class="wf-modal-close" onclick="closeRolePreview()">✕</button>
+        </div>
+        <div class="wf-modal-body">
+            <div class="wf-preview-content" id="rolePreviewContent"></div>
+        </div>
+        <div class="wf-modal-footer">
+            <button class="btn" onclick="closeRolePreview()">关闭</button>
+        </div>
+    </div>
+</div>
+
+<!-- 视频预览弹窗 -->
+<div class="wf-modal-overlay wf-preview-modal" id="videoPreviewOverlay">
+    <div class="wf-modal">
+        <div class="wf-modal-header">
+            <span class="wf-modal-title">成片预览</span>
+            <button class="wf-modal-close" onclick="closeVideoPreview()">✕</button>
+        </div>
+        <div class="wf-modal-body">
+            <div class="wf-preview-content" id="videoPreviewContent"></div>
+        </div>
+        <div class="wf-modal-footer">
+            <button class="btn" onclick="closeVideoPreview()">关闭</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    function toggleSection(el) {
+        el.classList.toggle('collapsed');
+        const children = el.parentElement.querySelector('.nav-section-children');
+        if (children) children.classList.toggle('hidden');
+    }
+
+    const SUBJECT_LIBRARY_KEY = "subjectLibraryItems";
+
+    const WF_TEMPLATES = {
+        "tpl-multi-segment": {
+            title: "多段口播工作流模板",
+            resolution: "1080P",
+            ratio: "9:16",
+            roles: [
+                { id: "tpl-role-main", name: "财经分析师", avatar: "👨‍💼", voice: "沉稳财经男声 / 中文" },
+                { id: "tpl-role-co", name: "理财顾问", avatar: "👩‍💼", voice: "专业女主播 / 中文" }
+            ],
+            defaultScenes: [
+                { id: "scene-1", name: "财经演播厅", icon: "🏢" },
+                { id: "scene-2", name: "交易大厅", icon: "📊" },
+                { id: "scene-3", name: "虚拟直播间", icon: "📡" }
+            ],
+            scripts: [
+                { id: "seg-1", name: "片段 1", desc: "开场白，引入正片", text: "各位投资者朋友大家好，欢迎收看今天的财经早报。我是今天的财经分析师，首先为您带来今日大盘综述。", defaultRoleId: "tpl-role-main" },
+                { id: "seg-2", name: "片段 2", desc: "热点解读，给出建议", text: "接下来为您解读今日热点板块。从行业表现来看，科技和新能源板块表现强劲，消费板块有所回调。我的理财建议是保持仓位灵活，关注低估值蓝筹。", defaultRoleId: "tpl-role-co" }
+            ]
+        }
+    };
+
+    function getWFTemplate() {
+        const tplId = new URLSearchParams(location.search).get("tpl") || "tpl-multi-segment";
+        return WF_TEMPLATES[tplId] || WF_TEMPLATES["tpl-multi-segment"];
+    }
+
+    function backToMarket() {
+        location.href = "市场.html";
+    }
+
+    function readList(key) {
+        try {
+            const raw = localStorage.getItem(key);
+            const list = raw ? JSON.parse(raw) : [];
+            return Array.isArray(list) ? list : [];
+        } catch (e) {
+            return [];
+        }
+    }
+
+    let toastTimer = null;
+    function showToast(title, text) {
+        document.getElementById("toastTitle").textContent = title;
+        document.getElementById("toastText").textContent = text || "";
+        document.getElementById("toast").classList.add("show");
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => document.getElementById("toast").classList.remove("show"), 2600);
+    }
+
+    /* ====== 画布工作流（五节点顺序配置） ====== */
+    let wfEntrance = true;
+
+    const WF_NODE_W = 340;
+    const WF_NODE_H = 560;
+    const WF_START_X = 60;
+    const WF_STEP_X = 450;
+    const WF_YS = [24, 110, 24, 110, 24];
+
+    const wfState = {
+        roleMap: {},
+        selectedSceneIndex: 0,
+        frames: [],
+        frameStatus: 'idle',
+        selectedFrameIndex: 0,
+        scriptSegments: {},
+        selectedScriptIndex: 0,
+        videoStatus: 'idle' // 'idle' | 'generating' | 'done'
+    };
+
+    function getWFCanvasSize() {
+        return {
+            w: WF_START_X * 2 + WF_NODE_W + WF_STEP_X * 4,
+            h: Math.max.apply(null, WF_YS) + WF_NODE_H + 48
+        };
+    }
+
+    function getWFNodeDefs() {
+        const createdRoles = readList(SUBJECT_LIBRARY_KEY).filter(item => item && item.type === "role").length;
+        return [
+            {
+                key: "role", icon: "👤", name: "角色",
+                desc: "从主体库关联已有角色，替换模板中的默认角色形象与音色。",
+                emptyIcon: "👤", emptyTitle: "尚未关联角色", emptyDesc: "点击下方按钮从主体库选择，或快速创建新角色。",
+                subCards: true, createdRoles: createdRoles,
+                hint: "关联角色后，方可解锁后续节点",
+                action: "✨ 从主体库选择", tip: "「角色」节点配置项设计中，敬请期待"
+            },
+            {
+                key: "scene", icon: "🎬", name: "场景",
+                desc: "当前仅支持视频模板默认场景，自定义场景功能即将开放。",
+                emptyIcon: "✦", emptyTitle: "尚未添加场景模板", emptyDesc: "点击下方按钮从模板库选择，系统会根据角色自动构图。",
+                action: "添加", tip: "「场景」节点配置项设计中，敬请期待"
+            },
+            {
+                key: "frame", icon: "🖼️", name: "首帧图",
+                desc: "基于角色与场景生成首帧构图，作为视频生成的起始画面。",
+                emptyIcon: "🖼️", emptyTitle: "尚未生成首帧图", emptyDesc: "完成角色与场景配置后，可生成首帧构图预览。",
+                action: "🎨 生成首帧图", tip: "「首帧图」节点配置项设计中，敬请期待"
+            },
+            {
+                key: "script", icon: "📝", name: "台词",
+                desc: "录入口播台词，系统自动估算配音时长与视频节奏。",
+                emptyIcon: "📝", emptyTitle: "尚未录入口播台词", emptyDesc: "支持手动输入或从台词库导入，录入后可试听配音。",
+                action: "✍️ 录入口播台词", tip: "「台词」节点配置项设计中，敬请期待"
+            },
+            {
+                key: "video", icon: "🚀", name: "生成视频",
+                desc: "前置节点全部就绪后，一键合成最终成片。",
+                emptyIcon: "🚀", emptyTitle: "等待前置节点", emptyDesc: "角色、场景、首帧图与台词全部就绪后，即可生成视频。",
+                action: "🚀 生成视频", tip: "请先完成前置节点配置（配置项设计中）"
+            }
+        ];
+    }
+
+    function renderWFCanvas() {
+        const defs = getWFNodeDefs();
+        const size = getWFCanvasSize();
+        const tplRoles = getWFTemplate().roles || [];
+        const inner = document.getElementById("wfCanvasInner");
+        inner.style.width = size.w + "px";
+        inner.style.height = size.h + "px";
+
+        let html = "";
+        defs.forEach((n, i) => {
+            const x = WF_START_X + i * WF_STEP_X;
+            const y = WF_YS[i];
+            html += '<div class="wf-node-group' + (wfEntrance ? ' enter" style="left:' + x + 'px;top:' + y + 'px;animation-delay:' + (i * 80) + 'ms;' : '" style="left:' + x + 'px;top:' + y + 'px;') + '" data-wf-key="' + n.key + '">';
+            html += '<div class="wf-card">';
+            html += '<div class="wf-card-head"><div class="wf-card-icon">' + n.icon + '</div>' +
+                '<div style="flex:1;min-width:0;"><div class="wf-card-name">' + n.name + '</div>' +
+                '<div class="wf-card-desc">' + n.desc + '</div></div></div>';
+            html += '<div class="wf-card-stage">';
+
+            if (n.key === 'role' && tplRoles.length > 0) {
+                html += '<div class="wf-role-list">';
+                tplRoles.forEach(r => {
+                    const replaced = wfState.roleMap[r.id];
+                    const displayName = replaced ? replaced.name : r.name;
+                    const displayVoice = replaced ? (replaced.voice || '未设置音色') : r.voice;
+                    const displayImg = replaced ? replaced.img : null;
+                    const replacedClass = replaced ? ' replaced' : '';
+                    const badgeHtml = replaced ? '<span class="wf-role-badge">已替换</span>' : '';
+                    const avatarHtml = displayImg
+                        ? '<img src="' + displayImg + '" alt="' + displayName + '">'
+                        : r.avatar;
+                    html += '<div class="wf-role-item' + replacedClass + '" data-role-id="' + r.id + '">';
+                    html += '<div class="wf-role-avatar"' + (replaced ? ' onclick="event.stopPropagation();previewRole(\'' + r.id + '\')" style="cursor:pointer;" title="点击预览大图"' : '') + '>' + avatarHtml + '</div>';
+                    html += '<div class="wf-role-info">';
+                    html += '<div class="wf-role-name">' + displayName + badgeHtml + '</div>';
+                    html += '<div class="wf-role-voice">' + displayVoice + '</div>';
+                    html += '</div>';
+                    html += '<div class="wf-role-actions">';
+                    html += '<button class="wf-role-btn" onclick="event.stopPropagation();openRolePicker(\'' + r.id + '\')">' + (replaced ? '更换' : '替换') + '</button>';
+                    html += '<button class="wf-role-btn audition" onclick="event.stopPropagation();auditionVoice(\'' + r.id + '\')" title="试听音色">▶</button>';
+                    html += '</div>';
+                    html += '</div>';
+                });
+                html += '</div>';
+            } else if (n.key === 'scene') {
+                const defScenes = getWFTemplate().defaultScenes || [{ id: "s0", name: "默认场景", icon: "🏢" }];
+                const selIdx = wfState.selectedSceneIndex || 0;
+                const selScene = defScenes[Math.min(selIdx, defScenes.length - 1)] || defScenes[0];
+                html += '<div class="wf-scene-layout">';
+                html += '<div class="wf-scene-list">';
+                defScenes.forEach((s, si) => {
+                    html += '<div class="wf-scene-list-item' + (si === selIdx ? ' active' : '') + '" onclick="selectScene(' + si + ')"><span class="wf-sl-icon">' + (s.icon || '🏢') + '</span><span class="wf-sl-name">' + s.name + '</span></div>';
+                });
+                html += '</div>';
+                html += '<div class="wf-scene-preview-area">';
+                html += '<div class="wf-scene-preview-img"><div class="wf-scene-preview-placeholder"><span class="sp-icon">' + (selScene.icon || '🏢') + '</span><span class="sp-label">' + selScene.name + '</span></div></div>';
+                html += '<div class="wf-scene-preview-name">' + selScene.name + '</div>';
+                html += '</div>';
+                html += '</div>';
+            } else if (n.key === 'frame') {
+                if (wfState.frameStatus === 'generating') {
+                    html += '<div class="wf-generating-overlay"><div class="wf-spinner"></div><div class="wf-generating-text">正在生成首帧图…</div></div>';
+                } else if (wfState.frameStatus === 'done' && wfState.frames.length > 0) {
+                    const frames = wfState.frames;
+                    const selIdx = wfState.selectedFrameIndex || 0;
+                    const selFrame = frames[Math.min(selIdx, frames.length - 1)] || frames[0];
+                    html += '<div class="wf-frame-layout">';
+                    html += '<div class="wf-frame-list">';
+                    frames.forEach((f, fi) => {
+                        html += '<div class="wf-frame-list-item' + (fi === selIdx ? ' active' : '') + '" onclick="selectFrame(' + fi + ')">';
+                        html += '<div class="fl-regen" onclick="event.stopPropagation();regenFrame(' + fi + ')" title="重新生成">↻</div>';
+                        html += '<div class="fl-thumb" style="background:' + f.color + ';"></div>';
+                        html += '<div class="fl-name">' + f.name + '</div>';
+                        html += '</div>';
+                    });
+                    html += '</div>';
+                    html += '<div class="wf-frame-preview-area">';
+                    html += '<div class="wf-frame-preview-img" style="background:' + selFrame.color + ';"><div class="wf-frame-preview-placeholder"><span class="fp-icon">🖼️</span><span class="fp-label">' + selFrame.name + '</span></div></div>';
+                    html += '<div class="wf-frame-preview-name">' + selFrame.name + '</div>';
+                    html += '<div class="wf-frame-preview-desc">' + selFrame.desc + '</div>';
+                    html += '</div>';
+                    html += '</div>';
+                } else {
+                    html += '<div class="wf-card-empty"><div class="wf-card-empty-icon">' + n.emptyIcon + '</div>' +
+                        '<div class="wf-card-empty-title">' + n.emptyTitle + '</div>' +
+                        '<div class="wf-card-empty-desc">' + n.emptyDesc + '</div></div>';
+                }
+            } else if (n.key === 'script') {
+                const tplScripts = getWFTemplate().scripts || [];
+                if (tplScripts.length > 0) {
+                    tplScripts.forEach(function(s) {
+                        if (!wfState.scriptSegments[s.id]) {
+                            wfState.scriptSegments[s.id] = { text: s.text, roleId: s.defaultRoleId || '', speed: 1.2, synthStatus: 'idle' };
+                        }
+                    });
+                    var selIdx = wfState.selectedScriptIndex || 0;
+                    var selScript = tplScripts[Math.min(selIdx, tplScripts.length - 1)] || tplScripts[0];
+                    var segState = wfState.scriptSegments[selScript.id] || {};
+                    var scriptRoles = getWFTemplate().roles || [];
+                    var roleOptions = scriptRoles.map(function(r) {
+                        var replaced = wfState.roleMap[r.id];
+                        return { id: r.id, name: replaced ? replaced.name : r.name, replaced: !!replaced };
+                    });
+                    html += '<div class="wf-script-layout">';
+                    html += '<div class="wf-script-list">';
+                    tplScripts.forEach(function(s, si) {
+                        var ss = wfState.scriptSegments[s.id] || {};
+                        var dotClass = ss.synthStatus === 'done' ? 'done' : 'idle';
+                        html += '<div class="wf-script-list-item' + (si === selIdx ? ' active' : '') + '" onclick="selectScript(' + si + ')"><span class="ss-dot ' + dotClass + '"></span><span class="ss-name">' + s.name + '</span><span class="ss-desc">' + (s.desc || '') + '</span></div>';
+                    });
+                    html += '</div>';
+                    html += '<div class="wf-script-editor">';
+                    html += '<textarea class="wf-script-textarea" oninput="updateCurrentScriptText(this.value)" placeholder="输入口播台词…">' + (segState.text || '') + '</textarea>';
+                    html += '<div class="wf-script-row"><span class="wf-script-row-label">关联角色</span>';
+                    html += '<select class="wf-script-role-select" onchange="updateCurrentScriptRole(this.value)">';
+                    html += '<option value="">选择角色…</option>';
+                    roleOptions.forEach(function(ro) {
+                        html += '<option value="' + ro.id + '"' + (segState.roleId === ro.id ? ' selected' : '') + '>' + ro.name + (ro.replaced ? ' (已替换)' : '') + '</option>';
+                    });
+                    html += '</select></div>';
+                    html += '<div class="wf-script-speed"><span class="wf-script-row-label">语速</span>';
+                    html += '<input type="range" min="0.5" max="2.0" step="0.1" value="' + (segState.speed || 1.2) + '" oninput="updateCurrentScriptSpeed(this.value)">';
+                    html += '<span class="wf-script-speed-val" id="scriptSpeedVal">' + (segState.speed || 1.2) + 'x</span></div>';
+                    html += '<div class="wf-script-actions">';
+                    var isSynthing = segState.synthStatus === 'synthing';
+                    var isDone = segState.synthStatus === 'done';
+                    html += '<button class="wf-script-btn synth' + (isDone ? ' done' : '') + '" ' + (isSynthing ? 'disabled' : '') + ' onclick="synthCurrentScript()">';
+                    html += isSynthing ? '<span class="wf-spinner-sm"></span> 合成中…' : (isDone ? '🔄 重新合成' : '🔊 合成语音');
+                    html += '</button>';
+                    html += '<button class="wf-script-btn audition" ' + (!isDone ? 'disabled' : '') + ' onclick="auditionCurrentScript()">▶ 试听</button>';
+                    html += '</div></div></div>';
+                } else {
+                    html += '<div class="wf-card-empty"><div class="wf-card-empty-icon">' + n.emptyIcon + '</div>' +
+                        '<div class="wf-card-empty-title">' + n.emptyTitle + '</div>' +
+                        '<div class="wf-card-empty-desc">' + n.emptyDesc + '</div></div>';
+                }
+            } else if (n.key === 'video') {
+                if (wfState.videoStatus === 'generating') {
+                    html += '<div class="wf-generating-overlay"><div class="wf-spinner"></div><div class="wf-generating-text">正在生成视频…</div></div>';
+                } else if (wfState.videoStatus === 'done') {
+                    html += '<div class="wf-video-preview"><div class="wf-video-player" onclick="previewVideo()">';
+                    html += '<div class="vp-overlay"><span class="vp-play-btn">▶</span></div></div>';
+                    html += '<div class="wf-video-duration">成片预览 · 15s</div></div>';
+                } else {
+                    html += '<div class="wf-card-empty"><div class="wf-card-empty-icon">' + n.emptyIcon + '</div>' +
+                        '<div class="wf-card-empty-title">' + n.emptyTitle + '</div>' +
+                        '<div class="wf-card-empty-desc">' + n.emptyDesc + '</div></div>';
+                }
+            } else {
+                html += '<div class="wf-card-empty"><div class="wf-card-empty-icon">' + n.emptyIcon + '</div>' +
+                    '<div class="wf-card-empty-title">' + n.emptyTitle + '</div>' +
+                    '<div class="wf-card-empty-desc">' + n.emptyDesc + '</div></div>';
+            }
+
+            if (n.subCards && n.key !== 'role') {
+                html += '<div class="wf-card-subcards">' +
+                    '<div class="wf-card-subcard" onclick="wfRoleAction()"><div class="wf-subcard-icon indigo">🕘</div><div class="wf-subcard-name">历史角色</div><div class="wf-subcard-meta">内置预设角色</div></div>' +
+                    '<div class="wf-card-subcard" onclick="wfRoleAction()"><div class="wf-subcard-icon violet">👥</div><div class="wf-subcard-name">制作角色</div><div class="wf-subcard-meta">' + n.createdRoles + ' 位已创建</div></div>' +
+                    '</div>';
+            }
+            if (n.hint) html += '<div class="wf-card-hint">' + n.hint + '</div>';
+            html += '</div>';
+
+            if (n.key === 'role' && tplRoles.length > 0) {
+            } else if (n.key === 'scene') {
+                html += '<button class="wf-card-action" disabled>添加</button>';
+            } else if (n.key === 'frame') {
+                if (wfState.frameStatus === 'generating') {
+                    html += '<button class="wf-card-action" disabled><span class="wf-spinner-sm" style="margin-right:6px;"></span>生成中…</button>';
+                } else if (wfState.frameStatus === 'done') {
+                    html += '<button class="wf-card-action" onclick="generateAllFrames()">🔄 全部重新生成</button>';
+                } else {
+                    html += '<button class="wf-card-action" onclick="generateAllFrames()">' + n.action + '</button>';
+                }
+            } else if (n.key === 'script') {
+                const tplScripts2 = getWFTemplate().scripts || [];
+                if (tplScripts2.length > 0) {
+                    const allDone = tplScripts2.every(function(s) {
+                        return wfState.scriptSegments[s.id] && wfState.scriptSegments[s.id].synthStatus === 'done';
+                    });
+                    html += '<button class="wf-card-action' + (allDone ? ' ready' : '') + '" onclick="synthAllScripts()">' + (allDone ? '✓ 全部已合成' : '🎙 全部合成') + '</button>';
+                } else {
+                    html += '<button class="wf-card-action" onclick="wfNodeAction(\'' + n.key + '\')">' + n.action + '</button>';
+                }
+            } else if (n.key === 'video') {
+                if (wfState.videoStatus === 'generating') {
+                    html += '<button class="wf-card-action" disabled><span class="wf-spinner-sm" style="margin-right:6px;"></span>生成中…</button>';
+                } else if (wfState.videoStatus === 'done') {
+                    html += '<button class="wf-card-action" onclick="location.href=\'视频资产.html?openWmEditor=1\'">✏️ 配置水印字幕</button>';
+                } else {
+                    html += '<button class="wf-card-action" onclick="generateVideo()">' + n.action + '</button>';
+                }
+            } else {
+                html += '<button class="wf-card-action" onclick="wfNodeAction(\'' + n.key + '\')">' + n.action + '</button>';
+            }
+
+            if (i > 0) html += '<span class="wf-card-port in"></span>';
+            if (i < defs.length - 1) html += '<span class="wf-card-port out"></span>';
+            html += '</div></div>';
+            if (i < defs.length - 1) {
+                const mx = (x + WF_NODE_W + WF_START_X + (i + 1) * WF_STEP_X) / 2;
+                const my = (y + WF_YS[i + 1]) / 2 + WF_NODE_H / 2;
+                html += '<div class="wf-edge-label" style="left:' + mx + 'px;top:' + my + 'px;">依赖</div>';
+            }
+        });
+        inner.innerHTML = html;
+        wfEntrance = false;
+        drawWFConnections();
+    }
+
+    function drawWFConnections() {
+        const svg = document.getElementById("wfSvgLayer");
+        if (!svg) return;
+        const size = getWFCanvasSize();
+        svg.style.width = size.w + "px";
+        svg.style.height = size.h + "px";
+        let paths = '<defs><marker id="wfArrowSlate" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L7,3.5 L0,7 Z" fill="#64748b" /></marker></defs>';
+        for (let i = 0; i < 4; i++) {
+            const x1 = WF_START_X + i * WF_STEP_X + WF_NODE_W;
+            const y1 = WF_YS[i] + WF_NODE_H / 2;
+            const x2 = WF_START_X + (i + 1) * WF_STEP_X;
+            const y2 = WF_YS[i + 1] + WF_NODE_H / 2;
+            const dx = Math.abs(x2 - x1) * 0.5;
+            const d = 'M' + x1 + ',' + y1 + ' C' + (x1 + dx) + ',' + y1 + ' ' + (x2 - dx) + ',' + y2 + ' ' + x2 + ',' + y2;
+            paths += '<path d="' + d + '" fill="none" stroke="#64748b" stroke-width="2" stroke-linecap="round" opacity=".8" marker-end="url(#wfArrowSlate)" />';
+        }
+        svg.innerHTML = paths;
+    }
+
+    function wfNodeAction(key) {
+        const def = getWFNodeDefs().find(n => n.key === key);
+        showToast("即将上线", def ? def.tip : "节点配置项设计中，敬请期待");
+    }
+
+    function selectScene(index) {
+        wfState.selectedSceneIndex = index;
+        renderWFCanvas();
+    }
+
+    /* ====== 首帧图生成逻辑 ====== */
+    const FRAME_COLORS = [
+        { name: "首帧 1", color: "linear-gradient(135deg, #1e3a5f 0%, #2d5a87 50%, #1a3a5c 100%)", desc: "标准构图 · 正面中景" },
+        { name: "首帧 2", color: "linear-gradient(135deg, #1a3a2a 0%, #2d6b4f 50%, #1a4a3a 100%)", desc: "广角构图 · 全身远景" },
+        { name: "首帧 3", color: "linear-gradient(135deg, #5c3a1e 0%, #8b5e3c 50%, #4a2e1a 100%)", desc: "近景特写 · 半身镜头" }
+    ];
+
+    const REGEN_COLORS = [
+        "linear-gradient(135deg, #4a1e5c 0%, #7b3d8e 50%, #3a1a4a 100%)",
+        "linear-gradient(135deg, #1e4a5c 0%, #3d7b8e 50%, #1a3a4a 100%)",
+        "linear-gradient(135deg, #5c4a1e 0%, #8e7b3d 50%, #4a3a1a 100%)",
+        "linear-gradient(135deg, #5c1e2e 0%, #8e3d5a 50%, #4a1a2a 100%)"
+    ];
+
+    function generateAllFrames() {
+        wfState.frameStatus = 'generating';
+        wfState.frames = [];
+        renderWFCanvas();
+        setTimeout(function() {
+            wfState.frames = FRAME_COLORS.map(function(c, i) {
+                return { id: "f" + (i + 1), name: c.name, color: c.color, desc: c.desc };
+            });
+            wfState.frameStatus = 'done';
+            wfState.selectedFrameIndex = 0;
+            renderWFCanvas();
+            showToast('首帧图已生成', '共生成 3 张首帧构图，点击左侧列表切换预览');
+        }, 2200);
+    }
+
+    function selectFrame(index) {
+        wfState.selectedFrameIndex = index;
+        renderWFCanvas();
+    }
+
+    function regenFrame(index) {
+        var frames = wfState.frames;
+        if (!frames || !frames[index]) return;
+        var f = frames[index];
+        var colorIdx = Math.floor(Math.random() * REGEN_COLORS.length);
+        f.color = REGEN_COLORS[colorIdx];
+        f.desc = '重新生成 · ' + f.name;
+        renderWFCanvas();
+        showToast('重新生成完成', '「' + f.name + '」构图已更新');
+    }
+
+    /* ====== 台词编辑与合成逻辑 ====== */
+    function selectScript(index) {
+        wfState.selectedScriptIndex = index;
+        renderWFCanvas();
+    }
+
+    function updateCurrentScriptText(value) {
+        var tplScripts = getWFTemplate().scripts || [];
+        var segId = tplScripts[wfState.selectedScriptIndex] && tplScripts[wfState.selectedScriptIndex].id;
+        if (segId && wfState.scriptSegments[segId]) {
+            wfState.scriptSegments[segId].text = value;
+            wfState.scriptSegments[segId].synthStatus = 'idle';
+        }
+    }
+
+    function updateCurrentScriptRole(roleId) {
+        var tplScripts = getWFTemplate().scripts || [];
+        var segId = tplScripts[wfState.selectedScriptIndex] && tplScripts[wfState.selectedScriptIndex].id;
+        if (segId && wfState.scriptSegments[segId]) {
+            wfState.scriptSegments[segId].roleId = roleId;
+            wfState.scriptSegments[segId].synthStatus = 'idle';
+            renderWFCanvas();
+        }
+    }
+
+    function updateCurrentScriptSpeed(value) {
+        var tplScripts = getWFTemplate().scripts || [];
+        var segId = tplScripts[wfState.selectedScriptIndex] && tplScripts[wfState.selectedScriptIndex].id;
+        var speed = parseFloat(value);
+        if (segId && wfState.scriptSegments[segId]) {
+            wfState.scriptSegments[segId].speed = speed;
+            wfState.scriptSegments[segId].synthStatus = 'idle';
+        }
+        var label = document.getElementById('scriptSpeedVal');
+        if (label) label.textContent = speed.toFixed(1) + 'x';
+    }
+
+    function synthCurrentScript() {
+        var tplScripts = getWFTemplate().scripts || [];
+        var segId = tplScripts[wfState.selectedScriptIndex] && tplScripts[wfState.selectedScriptIndex].id;
+        if (!segId || !wfState.scriptSegments[segId]) return;
+        if (wfState.scriptSegments[segId].synthStatus === 'synthing') return;
+        if (!wfState.scriptSegments[segId].roleId) {
+            showToast('请先关联角色', '合成语音前需要选择一个角色');
+            return;
+        }
+        wfState.scriptSegments[segId].synthStatus = 'synthing';
+        renderWFCanvas();
+        setTimeout(function() {
+            if (wfState.scriptSegments[segId]) wfState.scriptSegments[segId].synthStatus = 'done';
+            renderWFCanvas();
+            showToast('语音合成完成', '点击「▶ 试听」按钮即可试听');
+        }, 1800);
+    }
+
+    function auditionCurrentScript() {
+        var tplScripts = getWFTemplate().scripts || [];
+        var segId = tplScripts[wfState.selectedScriptIndex] && tplScripts[wfState.selectedScriptIndex].id;
+        var segState = segId ? wfState.scriptSegments[segId] : null;
+        if (!segState || segState.synthStatus !== 'done') return;
+        var text = segState.text || '';
+        var roleId = segState.roleId || '';
+        var speed = segState.speed || 1.2;
+        var tplRoles = getWFTemplate().roles || [];
+        var tplRole = tplRoles.find(function(r) { return r.id === roleId; });
+        var replaced = wfState.roleMap[roleId];
+        var voiceName = replaced ? replaced.voice : (tplRole ? tplRole.voice : '');
+        if (!text || !window.speechSynthesis) return;
+        window.speechSynthesis.cancel();
+        var isEnglish = (voiceName || '').toLowerCase().indexOf('english') >= 0;
+        var utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = isEnglish ? 'en-US' : 'zh-CN';
+        utterance.rate = speed;
+        utterance.pitch = (voiceName || '').indexOf('女') >= 0 ? 1.08 : 0.92;
+        var voices = window.speechSynthesis.getVoices();
+        if (voices.length > 0) {
+            var langPrefix = isEnglish ? 'en' : 'zh';
+            var preferFemale = (voiceName || '').indexOf('女') >= 0;
+            var matched = voices.find(function(v) { return v.lang.toLowerCase().startsWith(langPrefix) && (preferFemale ? v.name.toLowerCase().includes('female') : !v.name.toLowerCase().includes('female')); });
+            if (!matched) matched = voices.find(function(v) { return v.lang.toLowerCase().startsWith(langPrefix); });
+            if (matched) utterance.voice = matched;
+        }
+        var btn = document.querySelector('.wf-script-btn.audition');
+        if (btn) btn.classList.add('playing');
+        utterance.onend = utterance.onerror = function() { if (btn) btn.classList.remove('playing'); };
+        window.speechSynthesis.speak(utterance);
+    }
+
+    function synthAllScripts() {
+        var tplScripts = getWFTemplate().scripts || [];
+        tplScripts.forEach(function(s) {
+            if (wfState.scriptSegments[s.id]) {
+                if (!wfState.scriptSegments[s.id].roleId) {
+                    wfState.scriptSegments[s.id].roleId = s.defaultRoleId || '';
+                }
+                wfState.scriptSegments[s.id].synthStatus = 'synthing';
+            }
+        });
+        renderWFCanvas();
+        setTimeout(function() {
+            tplScripts.forEach(function(s) {
+                if (wfState.scriptSegments[s.id]) wfState.scriptSegments[s.id].synthStatus = 'done';
+            });
+            renderWFCanvas();
+            showToast('全部合成完成', '所有台词片段语音已合成，可逐段试听');
+        }, 2500);
+    }
+
+    /* ====== 视频生成与预览 ====== */
+    function generateVideo() {
+        if (wfState.videoStatus === 'generating') return;
+        wfState.videoStatus = 'generating';
+        renderWFCanvas();
+        updateTopBtn();
+        setTimeout(function() {
+            wfState.videoStatus = 'done';
+            renderWFCanvas();
+            updateTopBtn();
+            showToast('视频生成完成', '点击「预览成片」查看最终效果');
+        }, 5000);
+    }
+
+    function previewVideo() {
+        var content = document.getElementById('videoPreviewContent');
+        content.innerHTML = '<div style="background:linear-gradient(135deg,#0f0c29,#302b63,#24243e);border-radius:14px;padding:32px 20px;text-align:center;color:rgba(255,255,255,.7);">' +
+            '<div style="font-size:56px;margin-bottom:16px;">🎬</div>' +
+            '<div style="font-size:16px;font-weight:800;margin-bottom:8px;">成片预览</div>' +
+            '<div style="font-size:12px;">1080P · 9:16 · 15秒</div>' +
+            '<div style="margin-top:16px;padding:8px 16px;background:rgba(255,255,255,.1);border-radius:8px;font-size:11px;line-height:1.6;">' +
+            '多段口播工作流模板 · 已关联角色与场景<br>首帧已生成 · 台词已合成</div></div>';
+        document.getElementById('videoPreviewOverlay').classList.add('show');
+    }
+
+    function closeVideoPreview() {
+        document.getElementById('videoPreviewOverlay').classList.remove('show');
+    }
+
+    function updateTopBtn() {
+        var btn = document.getElementById('topGenerateBtn');
+        if (!btn) return;
+        if (wfState.videoStatus === 'generating') {
+            btn.disabled = true;
+            btn.innerHTML = '<span class="wf-spinner-sm" style="margin-right:6px;"></span>生成中…';
+        } else if (wfState.videoStatus === 'done') {
+            btn.disabled = false;
+            btn.innerHTML = '🎬 预览成片';
+            btn.onclick = previewVideo;
+        } else {
+            btn.disabled = false;
+            btn.innerHTML = '🚀 生成视频';
+            btn.onclick = generateVideo;
+        }
+    }
+
+    /* ====== 角色替换逻辑 ====== */
+    let rolePickerTarget = null;
+    let rolePickerSelected = null;
+
+    function wfRoleAction() {
+        const tplRoles = getWFTemplate().roles || [];
+        const unreplaced = tplRoles.find(r => !wfState.roleMap[r.id]);
+        if (unreplaced) {
+            openRolePicker(unreplaced.id);
+        } else if (tplRoles.length > 0) {
+            showToast('角色已就绪', '所有角色均已配置完成');
+        }
+    }
+
+    function openRolePicker(roleId) {
+        rolePickerTarget = roleId;
+        rolePickerSelected = null;
+        const tpl = getWFTemplate();
+        const role = (tpl.roles || []).find(r => r.id === roleId);
+        document.getElementById('rolePickerTitle').textContent = '选择角色 — 替换「' + (role ? role.name : '') + '」';
+        document.getElementById('rolePickerSearch').value = '';
+        document.getElementById('rolePickerSelection').textContent = '未选择';
+        document.getElementById('rolePickerConfirm').disabled = true;
+        renderRolePickerList();
+        document.getElementById('rolePickerOverlay').classList.add('show');
+    }
+
+    function renderRolePickerList() {
+        const query = (document.getElementById('rolePickerSearch').value || '').toLowerCase();
+        const allSubjects = readList(SUBJECT_LIBRARY_KEY);
+        const roles = allSubjects.filter(s => s && s.type === 'role');
+        const filtered = query ? roles.filter(r => {
+            const text = [r.name, r.voice, r.desc].join(' ').toLowerCase();
+            return text.includes(query);
+        }) : roles;
+
+        const listEl = document.getElementById('rolePickerList');
+        if (filtered.length === 0) {
+            listEl.innerHTML = '<div class="wf-picker-grid"><div class="wf-picker-empty"><div class="wf-picker-empty-icon">📭</div><div class="wf-picker-empty-text">暂无可用角色<br>请先在「主体管理」中创建角色</div></div></div>';
+            return;
+        }
+
+        let html = '<div class="wf-picker-grid">';
+        filtered.forEach(r => {
+            const activeClass = rolePickerSelected && rolePickerSelected.id === r.id ? ' active' : '';
+            html += '<div class="wf-picker-item' + activeClass + '" onclick="selectPickerRole(\'' + r.id + '\')" data-subject-id="' + r.id + '">';
+            html += '<div class="pi-avatar">' + (r.img ? '<img src="' + r.img + '" alt="' + r.name + '">' : r.name.charAt(0)) + '</div>';
+            html += '<div class="pi-name">' + r.name + '</div>';
+            html += '<div class="pi-voice">' + (r.voice || '未设置音色') + '</div>';
+            html += '</div>';
+        });
+        html += '</div>';
+        listEl.innerHTML = html;
+    }
+
+    function selectPickerRole(subjectId) {
+        const allSubjects = readList(SUBJECT_LIBRARY_KEY);
+        rolePickerSelected = allSubjects.find(s => s.id === subjectId) || null;
+
+        document.getElementById('rolePickerList').querySelectorAll('.wf-picker-item').forEach(el => {
+            el.classList.toggle('active', el.dataset.subjectId === subjectId);
+        });
+
+        document.getElementById('rolePickerSelection').textContent = rolePickerSelected ? '已选：' + rolePickerSelected.name : '未选择';
+        document.getElementById('rolePickerConfirm').disabled = !rolePickerSelected;
+    }
+
+    function confirmRoleReplace() {
+        if (!rolePickerTarget || !rolePickerSelected) return;
+        wfState.roleMap[rolePickerTarget] = rolePickerSelected;
+        closeRolePicker();
+        renderWFCanvas();
+        showToast('角色已替换', '「' + rolePickerSelected.name + '」已关联至当前模板');
+    }
+
+    function closeRolePicker() {
+        document.getElementById('rolePickerOverlay').classList.remove('show');
+        rolePickerTarget = null;
+        rolePickerSelected = null;
+    }
+
+    function previewRole(roleId) {
+        const subject = wfState.roleMap[roleId];
+        if (!subject) return;
+        const content = document.getElementById('rolePreviewContent');
+        let html = '';
+        if (subject.img) {
+            html += '<img class="wf-preview-img" src="' + subject.img + '" alt="' + subject.name + '">';
+        } else {
+            html += '<div style="width:120px;height:120px;border-radius:16px;background:#17171b;color:#fff;display:flex;align-items:center;justify-content:center;font-size:48px;margin:0 auto;">' + subject.name.charAt(0) + '</div>';
+        }
+        html += '<div class="wf-preview-info"><div class="wf-preview-name">' + subject.name + '</div>';
+        html += '<div class="wf-preview-voice"><span style="font-size:10px;color:var(--text-muted);">音色：</span>' + (subject.voice || '未设置') + '</div></div>';
+        content.innerHTML = html;
+        document.getElementById('rolePreviewOverlay').classList.add('show');
+    }
+
+    function closeRolePreview() {
+        document.getElementById('rolePreviewOverlay').classList.remove('show');
+    }
+
+    function auditionVoice(roleId) {
+        const tpl = getWFTemplate();
+        const tplRole = (tpl.roles || []).find(r => r.id === roleId);
+        const replaced = wfState.roleMap[roleId];
+        const voiceName = replaced ? replaced.voice : (tplRole ? tplRole.voice : '');
+
+        if (!voiceName || !window.speechSynthesis) {
+            showToast('试听失败', '浏览器不支持语音合成或未设置音色');
+            return;
+        }
+
+        window.speechSynthesis.cancel();
+
+        const isEnglish = voiceName.toLowerCase().indexOf('english') >= 0;
+        const utterance = new SpeechSynthesisUtterance(
+            isEnglish ? 'Hello, this is a short preview of the selected voice.'
+                      : '您好，这是当前角色音色的试听效果。'
+        );
+        utterance.lang = isEnglish ? 'en-US' : 'zh-CN';
+        utterance.rate = 0.95;
+        utterance.pitch = voiceName.indexOf('女') >= 0 ? 1.08 : 0.92;
+
+        const voices = window.speechSynthesis.getVoices();
+        if (voices.length > 0) {
+            const langPrefix = isEnglish ? 'en' : 'zh';
+            const preferFemale = voiceName.indexOf('女') >= 0;
+            let matched = voices.find(v => v.lang.toLowerCase().startsWith(langPrefix) && (preferFemale ? v.name.toLowerCase().includes('female') : !v.name.toLowerCase().includes('female')));
+            if (!matched) matched = voices.find(v => v.lang.toLowerCase().startsWith(langPrefix));
+            if (matched) utterance.voice = matched;
+        }
+
+        const btn = document.querySelector('.wf-role-item[data-role-id="' + roleId + '"] .wf-role-btn.audition');
+        if (btn) btn.classList.add('playing');
+        utterance.onend = utterance.onerror = function() {
+            if (btn) btn.classList.remove('playing');
+        };
+
+        window.speechSynthesis.speak(utterance);
+    }
+
+    document.addEventListener('click', function(e) {
+        if (e.target === document.getElementById('rolePickerOverlay')) closeRolePicker();
+        if (e.target === document.getElementById('rolePreviewOverlay')) closeRolePreview();
+        if (e.target === document.getElementById('videoPreviewOverlay')) closeVideoPreview();
+    });
+
+    (function init() {
+        const tpl = getWFTemplate();
+        document.getElementById("wfTitle").textContent = tpl.title;
+        document.getElementById("wfMeta").textContent = (tpl.resolution || "1080P") + " · " + (tpl.ratio || "9:16");
+        document.title = tpl.title + " - 画布工作流";
+        renderWFCanvas();
+        document.getElementById("wfCanvas").scrollLeft = 0;
+        if (window.speechSynthesis) window.speechSynthesis.getVoices();
+    })();
+</script>
+</body>
+</html>

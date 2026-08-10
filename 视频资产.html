@@ -3381,6 +3381,14 @@
         checkPendingJobs();
         bindFilters(); renderVideos();
         resumeShareFromBinding();
+        // 从画布工作流跳转：自动打开水印字幕编辑器
+        if (new URLSearchParams(location.search).get('openWmEditor') === '1') {
+            var wfVideo = videoData.find(function(v) { return v.id === 1; }) || videoData[0];
+            if (wfVideo) {
+                setTimeout(function() { openDetail(wfVideo.id); }, 300);
+                setTimeout(function() { openWmEditor(); }, 600);
+            }
+        }
         // 日期输入变更时同步到 advFilter（实时生效）
         var df = document.getElementById('adv-date-from');
         var dt = document.getElementById('adv-date-to');
