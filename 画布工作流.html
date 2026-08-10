@@ -273,6 +273,19 @@
         .wf-role-btn.audition { width: 28px; padding: 0; }
         .wf-role-btn.audition.playing { background: var(--primary); color: #fff; border-color: var(--primary); }
 
+        /* ====== 角色全屏预览（单角色模板） ====== */
+        .wf-role-full-preview { flex: 1; display: flex; flex-direction: column; }
+        .wf-role-full-img {
+            height: 330px; border-radius: 10px; overflow: hidden; flex-shrink: 0;
+            background: #ededf2; display: flex; align-items: center; justify-content: center;
+        }
+        .wf-role-full-img img { width: 100%; height: 100%; object-fit: cover; }
+        .wf-role-full-placeholder { font-size: 64px; opacity: .3; }
+        .wf-role-full-name { font-size: 12px; font-weight: 800; text-align: center; padding: 6px 0 2px; color: var(--text-primary); }
+        .wf-role-full-voice { font-size: 10px; color: var(--text-muted); text-align: center; }
+        .wf-role-full-actions { display: flex; gap: 6px; margin-top: 8px; }
+        .wf-role-full-actions .wf-role-btn { flex: 1; height: 30px; }
+
         /* ====== 主体选择器网格 ====== */
         .wf-picker-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
         .wf-picker-item {
@@ -458,6 +471,15 @@
         }
         .wf-video-player:hover .vp-play-btn { transform: scale(1.1); }
         .wf-video-duration { font-size: 11px; font-weight: 700; text-align: center; padding: 6px 0 2px; color: var(--text-secondary); }
+        .wf-card-actions-row { display: flex; gap: 8px; margin-top: 12px; }
+        .wf-card-actions-row .btn-sm {
+            flex: 1; height: 36px; border-radius: 9px; font-size: 12px; font-weight: 700;
+            display: flex; align-items: center; justify-content: center; gap: 4px;
+            border: 1px solid var(--border); background: #fff; color: var(--text-primary); cursor: pointer;
+        }
+        .wf-card-actions-row .btn-sm:hover { border-color: var(--primary); color: var(--primary); }
+        .wf-card-actions-row .btn-sm.primary { background: var(--primary); color: #fff; border-color: var(--primary); }
+        .wf-card-actions-row .btn-sm.primary:hover { background: #1d4ed8; color: #fff; }
 
         /* ====== 预览弹窗 ====== */
         .wf-preview-modal .wf-modal { width: 400px; }
@@ -650,6 +672,7 @@
             title: "多段口播工作流模板",
             resolution: "1080P",
             ratio: "9:16",
+            frameCount: 3,
             roles: [
                 { id: "tpl-role-main", name: "财经分析师", avatar: "👨‍💼", voice: "沉稳财经男声 / 中文" },
                 { id: "tpl-role-co", name: "理财顾问", avatar: "👩‍💼", voice: "专业女主播 / 中文" }
@@ -662,6 +685,21 @@
             scripts: [
                 { id: "seg-1", name: "片段 1", desc: "开场白，引入正片", text: "各位投资者朋友大家好，欢迎收看今天的财经早报。我是今天的财经分析师，首先为您带来今日大盘综述。", defaultRoleId: "tpl-role-main" },
                 { id: "seg-2", name: "片段 2", desc: "热点解读，给出建议", text: "接下来为您解读今日热点板块。从行业表现来看，科技和新能源板块表现强劲，消费板块有所回调。我的理财建议是保持仓位灵活，关注低估值蓝筹。", defaultRoleId: "tpl-role-co" }
+            ]
+        },
+        "tpl-hotspot": {
+            title: "热点快评模板",
+            resolution: "720P",
+            ratio: "9:16",
+            frameCount: 1,
+            roles: [
+                { id: "tpl-role-host", name: "快评主持人", avatar: "🎤", voice: "快讯男声 F / 中文" }
+            ],
+            defaultScenes: [
+                { id: "scene-h1", name: "现代演播室", icon: "🎙" }
+            ],
+            scripts: [
+                { id: "seg-h1", name: "片段 1", desc: "热点事件点评", text: "今天这个热点背后，真正值得关注的是它对市场预期和风险偏好的影响，而不是单日涨跌本身。", defaultRoleId: "tpl-role-host" }
             ]
         }
     };
@@ -779,68 +817,110 @@
             html += '<div class="wf-card-stage">';
 
             if (n.key === 'role' && tplRoles.length > 0) {
-                html += '<div class="wf-role-list">';
-                tplRoles.forEach(r => {
-                    const replaced = wfState.roleMap[r.id];
-                    const displayName = replaced ? replaced.name : r.name;
-                    const displayVoice = replaced ? (replaced.voice || '未设置音色') : r.voice;
-                    const displayImg = replaced ? replaced.img : null;
-                    const replacedClass = replaced ? ' replaced' : '';
-                    const badgeHtml = replaced ? '<span class="wf-role-badge">已替换</span>' : '';
-                    const avatarHtml = displayImg
-                        ? '<img src="' + displayImg + '" alt="' + displayName + '">'
-                        : r.avatar;
-                    html += '<div class="wf-role-item' + replacedClass + '" data-role-id="' + r.id + '">';
-                    html += '<div class="wf-role-avatar"' + (replaced ? ' onclick="event.stopPropagation();previewRole(\'' + r.id + '\')" style="cursor:pointer;" title="点击预览大图"' : '') + '>' + avatarHtml + '</div>';
-                    html += '<div class="wf-role-info">';
-                    html += '<div class="wf-role-name">' + displayName + badgeHtml + '</div>';
-                    html += '<div class="wf-role-voice">' + displayVoice + '</div>';
+                if (tplRoles.length > 1) {
+                    html += '<div class="wf-role-list">';
+                    tplRoles.forEach(function(r) {
+                        var replaced = wfState.roleMap[r.id];
+                        var displayName = replaced ? replaced.name : r.name;
+                        var displayVoice = replaced ? (replaced.voice || '未设置音色') : r.voice;
+                        var displayImg = replaced ? replaced.img : null;
+                        var replacedClass = replaced ? ' replaced' : '';
+                        var badgeHtml = replaced ? '<span class="wf-role-badge">已替换</span>' : '';
+                        var avatarHtml = displayImg
+                            ? '<img src="' + displayImg + '" alt="' + displayName + '">'
+                            : r.avatar;
+                        html += '<div class="wf-role-item' + replacedClass + '" data-role-id="' + r.id + '">';
+                        html += '<div class="wf-role-avatar"' + (replaced ? ' onclick="event.stopPropagation();previewRole(\'' + r.id + '\')" style="cursor:pointer;" title="点击预览大图"' : '') + '>' + avatarHtml + '</div>';
+                        html += '<div class="wf-role-info">';
+                        html += '<div class="wf-role-name">' + displayName + badgeHtml + '</div>';
+                        html += '<div class="wf-role-voice">' + displayVoice + '</div>';
+                        html += '</div>';
+                        html += '<div class="wf-role-actions">';
+                        html += '<button class="wf-role-btn" onclick="event.stopPropagation();openRolePicker(\'' + r.id + '\')">' + (replaced ? '更换' : '替换') + '</button>';
+                        html += '<button class="wf-role-btn audition" onclick="event.stopPropagation();auditionVoice(\'' + r.id + '\')" title="试听音色">▶</button>';
+                        html += '</div>';
+                        html += '</div>';
+                    });
                     html += '</div>';
-                    html += '<div class="wf-role-actions">';
-                    html += '<button class="wf-role-btn" onclick="event.stopPropagation();openRolePicker(\'' + r.id + '\')">' + (replaced ? '更换' : '替换') + '</button>';
-                    html += '<button class="wf-role-btn audition" onclick="event.stopPropagation();auditionVoice(\'' + r.id + '\')" title="试听音色">▶</button>';
-                    html += '</div>';
-                    html += '</div>';
-                });
-                html += '</div>';
+                } else {
+                    var addedRoles = tplRoles.filter(function(r) { return wfState.roleMap[r.id]; });
+                    if (addedRoles.length > 0) {
+                        var subject = wfState.roleMap[addedRoles[0].id];
+                        var displayName = subject.name;
+                        var displayVoice = subject.voice || '未设置音色';
+                        var displayImg = subject.img;
+                        html += '<div class="wf-role-full-preview">';
+                        html += '<div class="wf-role-full-img">';
+                        html += displayImg ? '<img src="' + displayImg + '" alt="' + displayName + '">' : '<span class="wf-role-full-placeholder">👤</span>';
+                        html += '</div>';
+                        html += '<div class="wf-role-full-name">' + displayName + '</div>';
+                        html += '<div class="wf-role-full-voice">' + displayVoice + '</div>';
+                        html += '<div class="wf-role-full-actions">';
+                        html += '<button class="wf-role-btn audition" onclick="auditionVoice(\'' + addedRoles[0].id + '\')" title="试听音色">▶ 试听</button>';
+                        html += '<button class="wf-role-btn" onclick="openRolePicker(\'' + addedRoles[0].id + '\')" title="更换角色">更换</button>';
+                        html += '</div>';
+                        html += '</div>';
+                    } else {
+                        html += '<div class="wf-card-empty"><div class="wf-card-empty-icon">' + n.emptyIcon + '</div>' +
+                            '<div class="wf-card-empty-title">尚未添加角色</div>' +
+                            '<div class="wf-card-empty-desc">从角色资产库中选择角色</div></div>';
+                    }
+                }
             } else if (n.key === 'scene') {
                 const defScenes = getWFTemplate().defaultScenes || [{ id: "s0", name: "默认场景", icon: "🏢" }];
-                const selIdx = wfState.selectedSceneIndex || 0;
-                const selScene = defScenes[Math.min(selIdx, defScenes.length - 1)] || defScenes[0];
-                html += '<div class="wf-scene-layout">';
-                html += '<div class="wf-scene-list">';
-                defScenes.forEach((s, si) => {
-                    html += '<div class="wf-scene-list-item' + (si === selIdx ? ' active' : '') + '" onclick="selectScene(' + si + ')"><span class="wf-sl-icon">' + (s.icon || '🏢') + '</span><span class="wf-sl-name">' + s.name + '</span></div>';
-                });
-                html += '</div>';
-                html += '<div class="wf-scene-preview-area">';
-                html += '<div class="wf-scene-preview-img"><div class="wf-scene-preview-placeholder"><span class="sp-icon">' + (selScene.icon || '🏢') + '</span><span class="sp-label">' + selScene.name + '</span></div></div>';
-                html += '<div class="wf-scene-preview-name">' + selScene.name + '</div>';
-                html += '</div>';
-                html += '</div>';
+                if (defScenes.length > 1) {
+                    const selIdx = wfState.selectedSceneIndex || 0;
+                    const selScene = defScenes[Math.min(selIdx, defScenes.length - 1)] || defScenes[0];
+                    html += '<div class="wf-scene-layout">';
+                    html += '<div class="wf-scene-list">';
+                    defScenes.forEach((s, si) => {
+                        html += '<div class="wf-scene-list-item' + (si === selIdx ? ' active' : '') + '" onclick="selectScene(' + si + ')"><span class="wf-sl-icon">' + (s.icon || '🏢') + '</span><span class="wf-sl-name">' + s.name + '</span></div>';
+                    });
+                    html += '</div>';
+                    html += '<div class="wf-scene-preview-area">';
+                    html += '<div class="wf-scene-preview-img"><div class="wf-scene-preview-placeholder"><span class="sp-icon">' + (selScene.icon || '🏢') + '</span><span class="sp-label">' + selScene.name + '</span></div></div>';
+                    html += '<div class="wf-scene-preview-name">' + selScene.name + '</div>';
+                    html += '</div>';
+                    html += '</div>';
+                } else {
+                    const selScene = defScenes[0];
+                    html += '<div class="wf-scene-preview-area" style="flex:1;">';
+                    html += '<div class="wf-scene-preview-img"><div class="wf-scene-preview-placeholder"><span class="sp-icon">' + (selScene.icon || '🏢') + '</span><span class="sp-label">' + selScene.name + '</span></div></div>';
+                    html += '<div class="wf-scene-preview-name">' + selScene.name + '</div>';
+                    html += '</div>';
+                }
             } else if (n.key === 'frame') {
                 if (wfState.frameStatus === 'generating') {
                     html += '<div class="wf-generating-overlay"><div class="wf-spinner"></div><div class="wf-generating-text">正在生成首帧图…</div></div>';
                 } else if (wfState.frameStatus === 'done' && wfState.frames.length > 0) {
                     const frames = wfState.frames;
-                    const selIdx = wfState.selectedFrameIndex || 0;
-                    const selFrame = frames[Math.min(selIdx, frames.length - 1)] || frames[0];
-                    html += '<div class="wf-frame-layout">';
-                    html += '<div class="wf-frame-list">';
-                    frames.forEach((f, fi) => {
-                        html += '<div class="wf-frame-list-item' + (fi === selIdx ? ' active' : '') + '" onclick="selectFrame(' + fi + ')">';
-                        html += '<div class="fl-regen" onclick="event.stopPropagation();regenFrame(' + fi + ')" title="重新生成">↻</div>';
-                        html += '<div class="fl-thumb" style="background:' + f.color + ';"></div>';
-                        html += '<div class="fl-name">' + f.name + '</div>';
+                    if (frames.length > 1) {
+                        const selIdx = wfState.selectedFrameIndex || 0;
+                        const selFrame = frames[Math.min(selIdx, frames.length - 1)] || frames[0];
+                        html += '<div class="wf-frame-layout">';
+                        html += '<div class="wf-frame-list">';
+                        frames.forEach((f, fi) => {
+                            html += '<div class="wf-frame-list-item' + (fi === selIdx ? ' active' : '') + '" onclick="selectFrame(' + fi + ')">';
+                            html += '<div class="fl-regen" onclick="event.stopPropagation();regenFrame(' + fi + ')" title="重新生成">↻</div>';
+                            html += '<div class="fl-thumb" style="background:' + f.color + ';"></div>';
+                            html += '<div class="fl-name">' + f.name + '</div>';
+                            html += '</div>';
+                        });
                         html += '</div>';
-                    });
-                    html += '</div>';
-                    html += '<div class="wf-frame-preview-area">';
-                    html += '<div class="wf-frame-preview-img" style="background:' + selFrame.color + ';"><div class="wf-frame-preview-placeholder"><span class="fp-icon">🖼️</span><span class="fp-label">' + selFrame.name + '</span></div></div>';
-                    html += '<div class="wf-frame-preview-name">' + selFrame.name + '</div>';
-                    html += '<div class="wf-frame-preview-desc">' + selFrame.desc + '</div>';
-                    html += '</div>';
-                    html += '</div>';
+                        html += '<div class="wf-frame-preview-area">';
+                        html += '<div class="wf-frame-preview-img" style="background:' + selFrame.color + ';"><div class="wf-frame-preview-placeholder"><span class="fp-icon">🖼️</span><span class="fp-label">' + selFrame.name + '</span></div></div>';
+                        html += '<div class="wf-frame-preview-name">' + selFrame.name + '</div>';
+                        html += '<div class="wf-frame-preview-desc">' + selFrame.desc + '</div>';
+                        html += '</div>';
+                        html += '</div>';
+                    } else {
+                        const selFrame = frames[0];
+                        html += '<div class="wf-frame-preview-area" style="flex:1;">';
+                        html += '<div class="wf-frame-preview-img" style="background:' + selFrame.color + ';"><div class="wf-frame-preview-placeholder"><span class="fp-icon">🖼️</span><span class="fp-label">' + selFrame.name + '</span></div></div>';
+                        html += '<div class="wf-frame-preview-name">' + selFrame.name + '</div>';
+                        html += '<div class="wf-frame-preview-desc">' + selFrame.desc + '</div>';
+                        html += '</div>';
+                    }
                 } else {
                     html += '<div class="wf-card-empty"><div class="wf-card-empty-icon">' + n.emptyIcon + '</div>' +
                         '<div class="wf-card-empty-title">' + n.emptyTitle + '</div>' +
@@ -849,36 +929,45 @@
             } else if (n.key === 'script') {
                 const tplScripts = getWFTemplate().scripts || [];
                 if (tplScripts.length > 0) {
+                    var scriptRoles = getWFTemplate().roles || [];
                     tplScripts.forEach(function(s) {
                         if (!wfState.scriptSegments[s.id]) {
                             wfState.scriptSegments[s.id] = { text: s.text, roleId: s.defaultRoleId || '', speed: 1.2, synthStatus: 'idle' };
+                        }
+                        if (scriptRoles.length === 1 && !wfState.scriptSegments[s.id].roleId) {
+                            wfState.scriptSegments[s.id].roleId = scriptRoles[0].id;
                         }
                     });
                     var selIdx = wfState.selectedScriptIndex || 0;
                     var selScript = tplScripts[Math.min(selIdx, tplScripts.length - 1)] || tplScripts[0];
                     var segState = wfState.scriptSegments[selScript.id] || {};
-                    var scriptRoles = getWFTemplate().roles || [];
                     var roleOptions = scriptRoles.map(function(r) {
                         var replaced = wfState.roleMap[r.id];
                         return { id: r.id, name: replaced ? replaced.name : r.name, replaced: !!replaced };
                     });
-                    html += '<div class="wf-script-layout">';
-                    html += '<div class="wf-script-list">';
-                    tplScripts.forEach(function(s, si) {
-                        var ss = wfState.scriptSegments[s.id] || {};
-                        var dotClass = ss.synthStatus === 'done' ? 'done' : 'idle';
-                        html += '<div class="wf-script-list-item' + (si === selIdx ? ' active' : '') + '" onclick="selectScript(' + si + ')"><span class="ss-dot ' + dotClass + '"></span><span class="ss-name">' + s.name + '</span><span class="ss-desc">' + (s.desc || '') + '</span></div>';
-                    });
-                    html += '</div>';
-                    html += '<div class="wf-script-editor">';
+                    if (tplScripts.length > 1) {
+                        html += '<div class="wf-script-layout">';
+                        html += '<div class="wf-script-list">';
+                        tplScripts.forEach(function(s, si) {
+                            var ss = wfState.scriptSegments[s.id] || {};
+                            var dotClass = ss.synthStatus === 'done' ? 'done' : 'idle';
+                            html += '<div class="wf-script-list-item' + (si === selIdx ? ' active' : '') + '" onclick="selectScript(' + si + ')"><span class="ss-dot ' + dotClass + '"></span><span class="ss-name">' + s.name + '</span><span class="ss-desc">' + (s.desc || '') + '</span></div>';
+                        });
+                        html += '</div>';
+                        html += '<div class="wf-script-editor">';
+                    } else {
+                        html += '<div class="wf-script-editor" style="flex:1;">';
+                    }
                     html += '<textarea class="wf-script-textarea" oninput="updateCurrentScriptText(this.value)" placeholder="输入口播台词…">' + (segState.text || '') + '</textarea>';
-                    html += '<div class="wf-script-row"><span class="wf-script-row-label">关联角色</span>';
-                    html += '<select class="wf-script-role-select" onchange="updateCurrentScriptRole(this.value)">';
-                    html += '<option value="">选择角色…</option>';
-                    roleOptions.forEach(function(ro) {
-                        html += '<option value="' + ro.id + '"' + (segState.roleId === ro.id ? ' selected' : '') + '>' + ro.name + (ro.replaced ? ' (已替换)' : '') + '</option>';
-                    });
-                    html += '</select></div>';
+                    if (scriptRoles.length > 1) {
+                        html += '<div class="wf-script-row"><span class="wf-script-row-label">关联角色</span>';
+                        html += '<select class="wf-script-role-select" onchange="updateCurrentScriptRole(this.value)">';
+                        html += '<option value="">选择角色…</option>';
+                        roleOptions.forEach(function(ro) {
+                            html += '<option value="' + ro.id + '"' + (segState.roleId === ro.id ? ' selected' : '') + '>' + ro.name + (ro.replaced ? ' (已替换)' : '') + '</option>';
+                        });
+                        html += '</select></div>';
+                    }
                     html += '<div class="wf-script-speed"><span class="wf-script-row-label">语速</span>';
                     html += '<input type="range" min="0.5" max="2.0" step="0.1" value="' + (segState.speed || 1.2) + '" oninput="updateCurrentScriptSpeed(this.value)">';
                     html += '<span class="wf-script-speed-val" id="scriptSpeedVal">' + (segState.speed || 1.2) + 'x</span></div>';
@@ -889,7 +978,8 @@
                     html += isSynthing ? '<span class="wf-spinner-sm"></span> 合成中…' : (isDone ? '🔄 重新合成' : '🔊 合成语音');
                     html += '</button>';
                     html += '<button class="wf-script-btn audition" ' + (!isDone ? 'disabled' : '') + ' onclick="auditionCurrentScript()">▶ 试听</button>';
-                    html += '</div></div></div>';
+                    html += '</div></div>';
+                    if (tplScripts.length > 1) html += '</div>';
                 } else {
                     html += '<div class="wf-card-empty"><div class="wf-card-empty-icon">' + n.emptyIcon + '</div>' +
                         '<div class="wf-card-empty-title">' + n.emptyTitle + '</div>' +
@@ -923,31 +1013,39 @@
             html += '</div>';
 
             if (n.key === 'role' && tplRoles.length > 0) {
+                if (tplRoles.length > 1) {
+                } else {
+                    var allFilled = tplRoles.every(function(r) { return wfState.roleMap[r.id]; });
+                    if (!allFilled) {
+                        html += '<button class="wf-card-action" onclick="wfRoleAction()">+ 从角色资产添加</button>';
+                    }
+                }
             } else if (n.key === 'scene') {
                 html += '<button class="wf-card-action" disabled>添加</button>';
             } else if (n.key === 'frame') {
                 if (wfState.frameStatus === 'generating') {
                     html += '<button class="wf-card-action" disabled><span class="wf-spinner-sm" style="margin-right:6px;"></span>生成中…</button>';
                 } else if (wfState.frameStatus === 'done') {
-                    html += '<button class="wf-card-action" onclick="generateAllFrames()">🔄 全部重新生成</button>';
+                    html += '<button class="wf-card-action" onclick="generateAllFrames()">' + (wfState.frames.length > 1 ? '🔄 全部重新生成' : '🔄 重新生成') + '</button>';
                 } else {
                     html += '<button class="wf-card-action" onclick="generateAllFrames()">' + n.action + '</button>';
                 }
             } else if (n.key === 'script') {
                 const tplScripts2 = getWFTemplate().scripts || [];
-                if (tplScripts2.length > 0) {
+                if (tplScripts2.length > 1) {
                     const allDone = tplScripts2.every(function(s) {
                         return wfState.scriptSegments[s.id] && wfState.scriptSegments[s.id].synthStatus === 'done';
                     });
                     html += '<button class="wf-card-action' + (allDone ? ' ready' : '') + '" onclick="synthAllScripts()">' + (allDone ? '✓ 全部已合成' : '🎙 全部合成') + '</button>';
-                } else {
-                    html += '<button class="wf-card-action" onclick="wfNodeAction(\'' + n.key + '\')">' + n.action + '</button>';
                 }
             } else if (n.key === 'video') {
                 if (wfState.videoStatus === 'generating') {
                     html += '<button class="wf-card-action" disabled><span class="wf-spinner-sm" style="margin-right:6px;"></span>生成中…</button>';
                 } else if (wfState.videoStatus === 'done') {
-                    html += '<button class="wf-card-action" onclick="location.href=\'视频资产.html?openWmEditor=1\'">✏️ 配置水印字幕</button>';
+                    html += '<div class="wf-card-actions-row">';
+                    html += '<button class="btn-sm" onclick="location.href=\'视频资产.html?openWmEditor=1\'">✏️ 水印字幕</button>';
+                    html += '<button class="btn-sm primary" onclick="location.href=\'视频编辑工具.html\'">🎬 视频编辑</button>';
+                    html += '</div>';
                 } else {
                     html += '<button class="wf-card-action" onclick="generateVideo()">' + n.action + '</button>';
                 }
@@ -1017,13 +1115,15 @@
         wfState.frames = [];
         renderWFCanvas();
         setTimeout(function() {
-            wfState.frames = FRAME_COLORS.map(function(c, i) {
+            var count = getWFTemplate().frameCount || 1;
+            var selected = FRAME_COLORS.slice(0, count);
+            wfState.frames = selected.map(function(c, i) {
                 return { id: "f" + (i + 1), name: c.name, color: c.color, desc: c.desc };
             });
             wfState.frameStatus = 'done';
             wfState.selectedFrameIndex = 0;
             renderWFCanvas();
-            showToast('首帧图已生成', '共生成 3 张首帧构图，点击左侧列表切换预览');
+            showToast('首帧图已生成', count > 1 ? '共生成 ' + count + ' 张首帧构图' : '首帧构图已生成');
         }, 2200);
     }
 
@@ -1211,12 +1311,18 @@
         }
     }
 
+    function removeRole(roleId) {
+        delete wfState.roleMap[roleId];
+        renderWFCanvas();
+        showToast('已移除', '角色已从当前模板中移除');
+    }
+
     function openRolePicker(roleId) {
         rolePickerTarget = roleId;
         rolePickerSelected = null;
         const tpl = getWFTemplate();
         const role = (tpl.roles || []).find(r => r.id === roleId);
-        document.getElementById('rolePickerTitle').textContent = '选择角色 — 替换「' + (role ? role.name : '') + '」';
+        document.getElementById('rolePickerTitle').textContent = tpl.roles.length > 1 ? '选择角色 — 替换「' + (role ? role.name : '') + '」' : '从角色资产添加';
         document.getElementById('rolePickerSearch').value = '';
         document.getElementById('rolePickerSelection').textContent = '未选择';
         document.getElementById('rolePickerConfirm').disabled = true;
