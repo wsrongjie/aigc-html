@@ -4714,11 +4714,7 @@ function renderTemplates() {
             return wft ? '<span class="chip chip-blue">' + escapeHtml(wft.name) + '</span>' : '<span style="color:var(--text-muted)">已删除</span>';
         })() : '<span style="color:var(--text-muted)">-</span>';
         html += '<tr>' +
-            '<td style="white-space:nowrap">' +
-                '<strong>' + t.name + '</strong> ' +
-                (i > 0 ? '<button class="btn btn-xs" onclick="moveTemplate(' + i + ', -1)" title="上移">↑</button> ' : '') +
-                (i < AppState.templateConfigs.length - 1 ? '<button class="btn btn-xs" onclick="moveTemplate(' + i + ', 1)" title="下移">↓</button> ' : '') +
-            '</td>' +
+            '<td><strong>' + t.name + '</strong></td>' +
             '<td>' + (tagsHtml || '<span style="color:var(--text-muted)">-</span>') + '</td>' +
             '<td>' + t.industry + '</td>' +
             '<td>' + wfTemplateName + '</td>' +
@@ -4727,6 +4723,8 @@ function renderTemplates() {
             '<td><strong>' + (t.used || 0).toLocaleString() + '</strong></td>' +
             '<td style="text-align:center"><label class="switch" title="点击开启/关闭 hot 标签"><input type="checkbox" ' + (t.hot === true ? 'checked' : '') + ' onchange="toggleTemplateHot(' + i + ', this)"><span class="switch-slider"></span></label></td>' +
             '<td class="template-actions">' +
+                (i > 0 ? '<button class="btn btn-xs" onclick="moveTemplate(' + i + ', -1)" title="上移">↑</button> ' : '') +
+                (i < AppState.templateConfigs.length - 1 ? '<button class="btn btn-xs" onclick="moveTemplate(' + i + ', 1)" title="下移">↓</button> ' : '') +
                 '<button class="btn btn-xs btn-primary" onclick="openTemplatePreview(' + i + ')" title="预览">▶ 预览</button> ' +
                 '<button class="btn btn-xs" onclick="openTemplateModal(' + i + ')">编辑</button> ' +
                 '<button class="btn btn-xs ' + (t.status === '启用' ? '' : 'btn-primary') + '" onclick="confirmToggleTemplate(' + i + ')">' + (t.status === '启用' ? '下架' : '上架') + '</button> ' +
