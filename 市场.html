@@ -1940,7 +1940,7 @@
             ? '<button class="btn ' + (added ? 'btn-added' : '') + '" onclick="toggleAsset(\'' + safeId + '\', event)">' + (added ? "已收藏" : "收藏") + '</button>'
             : '<button class="btn" onclick="' + (item.type === "voice" ? 'toggleVoicePreview(\'' + safeId + '\')' : 'previewResource(\'' + safeId + '\')') + '">' + (item.type === "voice" ? (playingVoiceId === item.id ? "停止" : "试听") : "预览") + '</button>';
         const secondaryAction = item.type === "template"
-            ? '<button class="btn btn-primary" onclick="' + (item.isMultiSegment ? 'openWFCanvasPage' : 'openSameModal') + '(\'' + safeId + '\', event)">' + (item.isMultiSegment ? '画布工作流' : '爆款复刻') + '</button>'
+            ? '<button class="btn btn-primary" onclick="' + (item.isMultiSegment ? 'openWFCanvasPage' : 'openSameModal') + '(\'' + safeId + '\', event)">' + (item.isMultiSegment ? '爆款复刻' : '爆款复刻') + '</button>'
             : '<button class="btn ' + (added ? 'btn-added' : 'btn-primary') + '" onclick="toggleAsset(\'' + safeId + '\')">' + (added ? "移出资产库" : "加入资产库") + '</button>';
         const cardAttrs = item.type === "template"
             ? ' onclick="previewResource(\'' + safeId + '\')" role="button" tabindex="0" onkeydown="handleTemplateCardKey(event,\'' + safeId + '\')"'
