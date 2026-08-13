@@ -1192,8 +1192,9 @@
             </div>
         </div>
         <div class="nav-section">
-            <div class="nav-item" onclick="showToast('🎬 导演台开发中')"><span class="nav-icon">🎬</span> 导演台</div>
-            <div class="nav-item" onclick="showToast('🛠 全部工具开发中')"><span class="nav-icon">🛠</span> 全部工具</div>
+            <div class="nav-item" onclick="location.href='导演台-批量成片工作台.html'"><span class="nav-icon">🎬</span> 导演台</div>
+            <div class="nav-item" onclick="location.href='全部工具.html'"><span class="nav-icon">🛠</span> 全部工具</div>
+            <div class="nav-item" onclick="location.href='数据表现.html'"><span class="nav-icon">📊</span> 数据中心</div>
         </div>
     </nav>
     <div class="sidebar-bottom">
@@ -1349,6 +1350,22 @@
         </div>
     </div>
 </div>
+
+<!-- 抖音平台作品绑定（已切换后台直发，暂保留）
+<div class="confirm-ov" id="work-bind-ov" onclick="if(event.target===this)closeWorkBinding()">
+    <div class="confirm-box" style="width:520px;max-width:92vw;text-align:left;">
+        <h4 style="text-align:left;margin-bottom:6px;">绑定抖音平台作品</h4>
+        <p style="text-align:left;margin-top:0;">端内确认没有返回可靠作品 ID。请选择账号近期作品，或粘贴作品链接，避免按标题自动误匹配。</p>
+        <div id="work-candidates" style="display:grid;gap:8px;margin:14px 0;"></div>
+        <div style="font-size:12px;color:#777;margin-bottom:6px;">没有找到？粘贴抖音作品链接</div>
+        <input id="work-link-input" placeholder="https://www.douyin.com/video/..." style="width:100%;height:38px;border:1px solid #ddd;border-radius:8px;padding:0 10px;">
+        <div class="confirm-actions" style="margin-top:16px;">
+            <button class="btn btn-cancel" onclick="closeWorkBinding()">取消</button>
+            <button class="btn btn-primary" onclick="bindWorkFromLink()">确认绑定</button>
+        </div>
+    </div>
+</div>
+-->
 
 <!-- 视频详情弹窗 -->
 <div class="detail-ov" id="detail-ov" onclick="if(event.target===this)closeDetail()">
@@ -1619,6 +1636,7 @@
     </div>
 </div>
 
+<!-- 抖音端内确认弹窗（已切换后台直发，暂保留）
 <div class="manual-ov" id="douyin-manual-ov">
     <div class="manual-modal">
         <div class="manual-title">抖音需要端内确认</div>
@@ -1629,6 +1647,7 @@
         </div>
     </div>
 </div>
+-->
 
 <div class="toast" id="toast"></div>
 
@@ -1815,6 +1834,8 @@
                         '<button class="menu-btn" onclick="event.stopPropagation();toggleMenu(' + v.id + ')">⋮</button>' +
                         '<div class="dropdown-menu" id="menu-' + v.id + '">' +
                             '<button class="dropdown-item"' + deliveryDisabled + ' onclick="event.stopPropagation();openDistModal(' + v.id + ')">📤 创建发布任务</button>' +
+                            (hasPublishedPlatform(v.id) ? '<button class="dropdown-item" onclick="event.stopPropagation();viewPerformance(' + v.id + ')">📊 查看发布数据</button>' : '') +
+                            // (needsDouyinWorkBinding(v.id) ? '<button class="dropdown-item" onclick="event.stopPropagation();openWorkBinding(' + v.id + ')">🔗 绑定抖音作品</button>' : '') + // 已切换后台直发，绑定入口暂隐藏
                             '<div class="dropdown-divider"></div>' +
                             '<button class="dropdown-item"' + deliveryDisabled + ' onclick="event.stopPropagation();doDownload(' + v.id + ')">⬇ 下载视频</button>' +
                             '<div class="dropdown-divider"></div>' +
@@ -2702,7 +2723,7 @@
             cls: 'kuaishou',
             mode: '后台发布',
             modeDesc: '提交后由后台上传并发布',
-            requiredScopes: ['user_info', 'user_video_publish', 'user_video_info'],
+            requiredScopes: ['user_info', 'user_video_publish'],
             publishType: 'auto'
         }
     };
@@ -2726,7 +2747,7 @@
     var distVideoIds = [];
     var distSelectedPlatforms = {};
     var distCurrentTab = null;
-    var douyinPendingIds = [];
+    var douyinPendingIds = []; // 抖音端内投稿流程预留（已切换后台直发）
 
     function getDistState() {
         try {
@@ -2836,13 +2857,14 @@
         var platformId = params.get('binding');
         if (!platformId || !PLATFORM_CONFIG[platformId]) return;
         var binding = getBindingState();
-        binding[platformId] = {
+        var existing = binding[platformId] || {};
+        binding[platformId] = Object.assign({}, existing, {
             status: params.get('bindingStatus') || 'bound',
             userName: params.get('userName') || PLATFORM_CONFIG[platformId].name + '账号',
             expireDate: params.get('expireDate') || '',
             publishMode: params.get('publishMode') || PLATFORM_CONFIG[platformId].publishType,
             scopes: (params.get('scopes') || '').split('|').filter(Boolean)
-        };
+        });
         try { localStorage.setItem('platformBindingState', JSON.stringify(binding)); } catch (e) {}
     }
     function restoreShareDraft(payload) {
@@ -3166,7 +3188,7 @@
                 }
                 state[videoId][pkey] = {
                     taskId: buildTaskId(videoId, pkey),
-                    status: pkey === 'douyin' ? 'manual_confirmation_required' : 'queued',
+                    status: 'queued',
                     date: dateStr,
                     title: taskTitle,
                     caption: taskCaption,
@@ -3217,6 +3239,7 @@
                         next[videoId]['kuaishou'].status = 'published';
                         next[videoId]['kuaishou'].platformVideoId = 'ks_' + videoId + '_' + Date.now();
                         next[videoId]['kuaishou'].playUrl = 'https://www.kuaishou.com/short-video/mock-' + videoId;
+                        seedPublishedPerformanceRecord(videoId, 'kuaishou', next[videoId]['kuaishou'].platformVideoId, next[videoId]['kuaishou'].playUrl);
                     }
                 });
                 saveDistState(next);
@@ -3227,10 +3250,37 @@
     }
 
     function simulateDouyinPublish(ids) {
-        douyinPendingIds = ids.slice();
-        var desc = document.getElementById('douyin-manual-desc');
-        if (desc) desc.textContent = '已创建 ' + ids.length + ' 个抖音投稿任务。请在抖音端内完成编辑和发布确认；未确认前，任务会停留在“需要手动确认”。';
-        document.getElementById('douyin-manual-ov').classList.add('show');
+        updatePlatformStatus(ids, 'douyin', 'uploading', '');
+        setTimeout(function() {
+            updatePlatformStatus(ids, 'douyin', 'submitting', '');
+        }, 900);
+        setTimeout(function() {
+            var state = getDistState();
+            ids.forEach(function(videoId) {
+                if (state[videoId] && state[videoId]['douyin']) {
+                    var ok = Math.random() > 0.15;
+                    state[videoId]['douyin'].status = ok ? 'platform_processing' : 'failed';
+                    state[videoId]['douyin'].errorMessage = ok ? '' : '抖音返回：视频发布失败，可检查封面、标题或账号状态后重试。';
+                }
+            });
+            saveDistState(state);
+            renderVideos();
+            showToast('抖音任务已提交，正在同步平台处理状态');
+            setTimeout(function() {
+                var next = getDistState();
+                ids.forEach(function(videoId) {
+                    if (next[videoId] && next[videoId]['douyin'] && next[videoId]['douyin'].status === 'platform_processing') {
+                        next[videoId]['douyin'].status = 'published';
+                        next[videoId]['douyin'].platformVideoId = 'dy_' + videoId + '_' + Date.now();
+                        next[videoId]['douyin'].playUrl = 'https://www.douyin.com/video/mock-' + videoId;
+                        seedPublishedPerformanceRecord(videoId, 'douyin', next[videoId]['douyin'].platformVideoId, next[videoId]['douyin'].playUrl);
+                    }
+                });
+                saveDistState(next);
+                renderVideos();
+                showToast('抖音发布完成');
+            }, 1400);
+        }, 1800);
     }
 
     function updatePlatformStatus(ids, platformId, status, errorMessage) {
@@ -3245,6 +3295,7 @@
         renderVideos();
     }
 
+    /* 抖音端内投稿/手动确认流程（已切换为后台直发，暂保留）:
     function confirmDouyinPublished() {
         var state = getDistState();
         douyinPendingIds.forEach(function(videoId) {
@@ -3252,6 +3303,7 @@
                 state[videoId]['douyin'].status = 'published';
                 state[videoId]['douyin'].platformVideoId = 'dy_' + videoId + '_' + Date.now();
                 state[videoId]['douyin'].playUrl = 'https://www.douyin.com/video/mock-' + videoId;
+                seedPublishedPerformanceRecord(videoId, 'douyin', '', '', 'pending_binding');
             }
         });
         saveDistState(state);
@@ -3264,6 +3316,7 @@
         document.getElementById('douyin-manual-ov').classList.remove('show');
         showToast('抖音任务保留为需要手动确认');
     }
+    */
 
     function renderBadges() {
         var state = getDistState();
@@ -3308,9 +3361,11 @@
             if (normalized === 'auth_expired') {
                 actions += '<button class="mini-btn" onclick="startPlatformBinding(\'' + pkey + '\',[' + videoId + '])">重新授权</button>';
             }
+            /* 手动确认流程已切换为直发，暂保留:
             if (normalized === 'manual_confirmation_required') {
                 actions += '<button class="mini-btn" onclick="continueDouyinPublish(' + videoId + ')">继续确认</button>';
             }
+            */
             if (r.playUrl) {
                 actions += '<button class="mini-btn" onclick="window.open(\'' + escapeHtml(r.playUrl) + '\',\'_blank\')">查看</button>';
             }
@@ -3354,7 +3409,7 @@
             state[videoId][platformId].taskId = buildTaskId(videoId, platformId);
             state[videoId][platformId].date = now.toISOString().slice(0, 10) + ' ' + now.toTimeString().slice(0, 5);
             state[videoId][platformId].retryCount = (state[videoId][platformId].retryCount || 0) + 1;
-            state[videoId][platformId].status = platformId === 'douyin' ? 'manual_confirmation_required' : 'queued';
+            state[videoId][platformId].status = 'queued';
             state[videoId][platformId].errorMessage = '';
             saveDistState(state);
             renderVideos();
@@ -3364,6 +3419,7 @@
         showToast('已重新创建' + PLATFORM_CONFIG[platformId].name + '发布任务');
     }
 
+    /* 抖音端内投稿/手动确认流程（已切换为后台直发，暂保留）:
     function continueDouyinPublish(videoId) {
         var continueVideo = findVideo(videoId);
         var continueGuard = continueVideo && window.XingzaoRefundStore
@@ -3375,12 +3431,161 @@
         }
         simulateDouyinPublish([videoId]);
     }
+    */
+
+    // ====== 发布数据与抖音作品绑定 ======
+    var bindingVideoId = null;
+
+    function hasPublishedPlatform(videoId) {
+        var state = getDistState();
+        var item = state[videoId] || {};
+        return Object.keys(item).some(function(platformId) {
+            return item[platformId] && item[platformId].status === 'published';
+        });
+    }
+
+    /* 绑定抖音作品判断（已切换后台直发，暂保留）:
+    function needsDouyinWorkBinding(videoId) {
+        var state = getDistState();
+        var item = state[videoId] && state[videoId].douyin;
+        return !!(item && (item.status === 'published' || item.status === 'manual_confirmation_required') && !item.platformWorkId);
+    }
+    */
+
+    function viewPerformance(videoId) {
+        location.href = '数据表现.html?focusVideo=' + encodeURIComponent(videoId);
+    }
+
+    /* ====== 抖音作品绑定（已切换后台直发，暂保留） ======
+    function openWorkBinding(videoId) {
+        bindingVideoId = videoId;
+        var video = findVideo(videoId);
+        var candidates = [
+            { id: '73920' + String(videoId).padStart(6, '0') + '301', title: video ? video.title : '近期发布作品', time: '今天 10:26' },
+            { id: '73919' + String(videoId).padStart(6, '0') + '118', title: (video ? video.title : '近期发布作品') + '｜完整版', time: '昨天 18:40' }
+        ];
+        document.getElementById('work-candidates').innerHTML = candidates.map(function(item, index) {
+            return '<button type="button" onclick="bindSelectedWork(\'' + item.id + '\')" style="border:1px solid #e4e7ed;background:' + (index === 0 ? '#f5f8ff' : '#fff') + ';border-radius:9px;padding:11px 12px;text-align:left;cursor:pointer;">' +
+                '<strong style="display:block;font-size:13px;">' + escapeHtml(item.title) + '</strong>' +
+                '<span style="display:block;color:#888;font-size:11px;margin-top:5px;">' + item.time + ' · 作品 ID ' + item.id + '</span></button>';
+        }).join('');
+        document.getElementById('work-link-input').value = '';
+        document.getElementById('work-bind-ov').classList.add('show');
+    }
+
+    function closeWorkBinding() {
+        document.getElementById('work-bind-ov').classList.remove('show');
+        bindingVideoId = null;
+    }
+
+    function bindSelectedWork(platformWorkId) {
+        completeWorkBinding(platformWorkId, 'https://www.douyin.com/video/' + platformWorkId);
+    }
+
+    function bindWorkFromLink() {
+        var link = document.getElementById('work-link-input').value.trim();
+        var match = link.match(/video\/(\d+)/);
+        if (!match) {
+            showToast('请输入有效的抖音作品链接');
+            return;
+        }
+        completeWorkBinding(match[1], link);
+    }
+
+    function completeWorkBinding(platformWorkId, playUrl) {
+        if (!bindingVideoId) return;
+        var performanceRecords = getPerformanceRecords();
+        var conflict = performanceRecords.find(function(item) {
+            return item.platform === 'douyin' && item.platformWorkId === platformWorkId && Number(item.videoId) !== Number(bindingVideoId);
+        });
+        if (conflict) {
+            showToast('该抖音作品已绑定到视频《' + conflict.title + '》，请勿重复绑定');
+            return;
+        }
+        var state = getDistState();
+        state[bindingVideoId] = state[bindingVideoId] || {};
+        state[bindingVideoId].douyin = state[bindingVideoId].douyin || {};
+        state[bindingVideoId].douyin.status = 'published';
+        state[bindingVideoId].douyin.platformWorkId = platformWorkId;
+        state[bindingVideoId].douyin.playUrl = playUrl;
+        saveDistState(state);
+        seedPublishedPerformanceRecord(bindingVideoId, 'douyin', platformWorkId, playUrl);
+        closeWorkBinding();
+        renderVideos();
+        showToast('抖音作品绑定成功，可前往数据中心查看累计表现');
+    }
+    */
+
+    function getPerformanceRecords() {
+        var key = 'contentPerformanceMockV5';
+        var list = [];
+        try {
+            var raw = localStorage.getItem(key) || localStorage.getItem('contentPerformanceMockV1') || '[]';
+            list = JSON.parse(raw);
+        } catch (e) {}
+        if (!Array.isArray(list)) list = [];
+        list.forEach(function(item) {
+            var sourceVideo = findVideo(Number(item.videoId));
+            if (sourceVideo) {
+                item.scope = sourceVideo.scope;
+                item.owner = sourceVideo.creator;
+                item.member = sourceVideo.creator;
+            } else {
+                item.scope = item.scope || 'private';
+                item.owner = item.owner || item.member;
+            }
+        });
+        try { localStorage.setItem(key, JSON.stringify(list)); } catch (e) {}
+        return list;
+    }
+
+    function localDateTime() {
+        var now = new Date();
+        return now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0') + ' ' + String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+    }
+
+    function seedPublishedPerformanceRecord(videoId, platformId, platformWorkId, playUrl, initialStatus) {
+        var key = 'contentPerformanceMockV5';
+        var list = getPerformanceRecords();
+        var video = findVideo(videoId);
+        var existing = list.find(function(item) { return item.platform === platformId && Number(item.videoId) === Number(videoId) && !item.platformWorkId && (item.status === 'pending_binding' || item.status === 'preparing'); });
+        if (existing) {
+            existing.platformWorkId = platformWorkId;
+            existing.playUrl = playUrl;
+            existing.status = initialStatus || 'first_sync';
+            existing.lastError = '';
+            existing.scope = video ? video.scope : (existing.scope || 'private');
+            existing.owner = video ? video.creator : (existing.owner || existing.member || '王小明');
+            existing.member = video ? video.creator : (existing.member || '王小明');
+            localStorage.setItem(key, JSON.stringify(list));
+            return;
+        }
+        var binding = getBindingState()[platformId] || {};
+        list.unshift({
+            id: 'pub_bound_' + Date.now() + '_' + platformId, videoId: videoId, taskId: 'DIST-' + platformId.toUpperCase() + '-' + videoId,
+            title: video ? video.title : '平台发布视频', script: video ? video.script : '',
+            platform: platformId, accountId: binding.performanceAccountId || (platformId === 'douyin' ? 'dy_gulin' : 'ks_gulin'), member: video ? video.creator : '王小明',
+            scope: video ? video.scope : 'private', owner: video ? video.creator : '王小明',
+            publishedAt: '', publishTimePending: true, platformWorkId: platformWorkId,
+            playUrl: playUrl, views: null, likes: null, comments: null, shares: null, avgPlaySeconds: null,
+            status: initialStatus || 'first_sync', dataAt: '', character: video ? video.character : '角色', scene: video ? video.scene : '场景',
+            template: '平台发布', gradient: video ? video.gradient : 'linear-gradient(145deg,#3867d6,#74b9ff)'
+        });
+        localStorage.setItem(key, JSON.stringify(list));
+    }
 
     window.addEventListener('xingzao-refund-change', function() { renderVideos(); });
     document.addEventListener('DOMContentLoaded', function() {
         checkPendingJobs();
         bindFilters(); renderVideos();
         resumeShareFromBinding();
+        var focusVideo = Number(new URLSearchParams(location.search).get('focusVideo'));
+        if (focusVideo) {
+            setTimeout(function() {
+                var card = document.querySelector('.video-card[data-id="' + focusVideo + '"]');
+                if (card) { card.scrollIntoView({ behavior: 'smooth', block: 'center' }); card.style.outline = '3px solid rgba(47,107,255,.35)'; }
+            }, 350);
+        }
         // 从画布工作流跳转：自动打开水印字幕编辑器
         if (new URLSearchParams(location.search).get('openWmEditor') === '1') {
             var wfVideo = videoData.find(function(v) { return v.id === 1; }) || videoData[0];

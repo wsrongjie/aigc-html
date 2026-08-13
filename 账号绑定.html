@@ -105,7 +105,7 @@
     .page-header h1 { font-size: 20px; font-weight: 700; }
     .page-header p { font-size: 13px; color: var(--text-secondary); margin-top: 4px; line-height: 1.6; }
     .bind-overview {
-        margin-bottom: 18px; display: grid; grid-template-columns: 1.2fr 1fr; gap: 14px;
+        margin-bottom: 18px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px;
     }
     .overview-card, .return-banner {
         background: var(--card-bg); border: 1px solid var(--border);
@@ -264,6 +264,10 @@
     .toast span { color: #cbd5e1; font-size: 12px; line-height: 1.5; }
 
     @media (max-width: 768px) {
+        .sidebar { display: none; }
+        .main { margin-left: 0; width: 100%; }
+        .topbar { padding: 0 14px; }
+        .content { padding: 16px 14px; }
         .platform-grid { grid-template-columns: 1fr; }
         .bind-overview { grid-template-columns: 1fr; }
         .return-banner.show { align-items: flex-start; flex-direction: column; }
@@ -301,6 +305,9 @@
         </div>
         <div class="nav-section">
             <div class="nav-section-title" onclick="location.href='全部工具.html'"><span class="nav-icon">🛠</span> 全部工具</div>
+        </div>
+        <div class="nav-section">
+            <div class="nav-section-title" onclick="location.href='数据表现.html'"><span class="nav-icon">📊</span> 数据中心</div>
         </div>
         <div class="nav-section">
             <div class="nav-section-title active" onclick="toggleSection(this)">
@@ -351,6 +358,10 @@
             <div class="overview-card">
                 <div class="overview-title">账号状态</div>
                 <div class="overview-text" id="bindingSummary">正在读取账号授权状态...</div>
+            </div>
+            <div class="overview-card">
+                <div class="overview-title">数据能力说明</div>
+                <div class="overview-text">发布权限与数据权限相互独立。缺少数据权限不影响发布，但数据表现页只能保留最后一次成功数据或显示待授权。</div>
             </div>
         </div>
 
@@ -414,6 +425,7 @@
             publishMode: 'confirm',
             modeLabel: '端内确认',
             scopes: ['user_info', '投稿到抖音', '状态同步'],
+            dataScopes: ['data.external.item', 'video.list'],
             tokenDays: 15
         },
         {
@@ -424,7 +436,8 @@
             desc: '授权后可创建后台发布任务，完成上传、提交发布和状态查询。',
             publishMode: 'auto',
             modeLabel: '后台自动发布',
-            scopes: ['user_info', 'user_video_publish', 'user_video_info'],
+            scopes: ['user_info', 'user_video_publish'],
+            dataScopes: ['user_video_info'],
             tokenDays: 2
         },
         { id: 'xiaohongshu', name: '小红书', logo: LOGOS.xiaohongshu, iconCls: 'bg-xiaohongshu', desc: '发布笔记到小红书', comingSoon: true },
@@ -434,14 +447,16 @@
     var BINDING_KEY = 'platformBindingState';
 
     var defaultState = {
-        douyin: { status: 'unbound', userName: '', expireDate: '', scopes: [] },
-        kuaishou: { status: 'unbound', userName: '', expireDate: '', scopes: [] },
+        douyin: { status: 'unbound', dataStatus: 'unbound', userName: '', expireDate: '', scopes: [], dataScopes: [], performanceAccountId: 'dy_gulin' },
+        kuaishou: { status: 'unbound', dataStatus: 'unbound', userName: '', expireDate: '', scopes: [], dataScopes: [], performanceAccountId: 'ks_gulin' },
         xiaohongshu: { status: 'soon' },
         wechat: { status: 'soon' }
     };
 
     var pendingPlatform = null;
+    var pendingAuthType = 'publish';
     var shareReturnContext = parseShareReturnContext();
+    var performanceReturnContext = new URLSearchParams(location.search).get('from') === 'data-performance';
     var shareAuthPrompted = false;
 
     function getState() {
@@ -450,6 +465,11 @@
             if (raw) {
                 var parsed = JSON.parse(raw);
                 for (var k in defaultState) { if (!(k in parsed)) parsed[k] = defaultState[k]; }
+                ['douyin', 'kuaishou'].forEach(function(id) {
+                    if (!parsed[id].dataStatus) parsed[id].dataStatus = 'unbound';
+                    if (!parsed[id].dataScopes) parsed[id].dataScopes = [];
+                    if (!parsed[id].performanceAccountId) parsed[id].performanceAccountId = id === 'douyin' ? 'dy_gulin' : 'ks_gulin';
+                });
                 return parsed;
             }
         } catch (e) {}
@@ -476,7 +496,15 @@
 
     function renderReturnBanner() {
         var banner = document.getElementById('returnBanner');
-        if (!banner || !shareReturnContext) return;
+        if (!banner) return;
+        if (performanceReturnContext) {
+            document.getElementById('returnBannerText').textContent = '补充视频数据权限后，将返回数据表现页继续查看平台作品数据。';
+            banner.querySelector('.return-banner-title').textContent = '授权后将返回数据中心';
+            banner.querySelector('button').textContent = '返回数据表现';
+            banner.classList.add('show');
+            return;
+        }
+        if (!shareReturnContext) return;
         var p = getPlatform(shareReturnContext.platform);
         var count = shareReturnContext.videoIds ? shareReturnContext.videoIds.split(',').filter(Boolean).length : 0;
         document.getElementById('returnBannerText').textContent =
@@ -485,6 +513,10 @@
     }
 
     function returnToVideoShare() {
+        if (performanceReturnContext) {
+            location.href = '数据表现.html';
+            return;
+        }
         if (!shareReturnContext) {
             location.href = '视频资产.html';
             return;
@@ -511,7 +543,8 @@
         var bound = ['douyin', 'kuaishou'].filter(function(id) { return state[id] && state[id].status === 'bound' && !isExpiredDate(state[id].expireDate); }).length;
         var expired = ['douyin', 'kuaishou'].filter(function(id) { return state[id] && (state[id].status === 'expired' || isExpiredDate(state[id].expireDate)); }).length;
         var missing = ['douyin', 'kuaishou'].filter(function(id) { return state[id] && state[id].status === 'scope_missing'; }).length;
-        var text = '已绑定 ' + bound + ' 个平台';
+        var dataBound = ['douyin', 'kuaishou'].filter(function(id) { return state[id] && state[id].dataStatus === 'bound' && state[id].status !== 'unbound' && !isExpiredDate(state[id].expireDate); }).length;
+        var text = '已绑定 ' + bound + ' 个平台，' + dataBound + ' 个已开通内容数据权限';
         if (expired) text += '，' + expired + ' 个授权过期';
         if (missing) text += '，' + missing + ' 个缺少发布权限';
         text += '。分发时会逐个平台校验授权和发布能力。';
@@ -540,6 +573,16 @@
             var ok = binding.status === 'bound' && granted.indexOf(scope) >= 0;
             return '<span class="scope-chip ' + (ok ? 'ok' : 'warn') + '">' + (ok ? '✓ ' : '待授权 ') + scope + '</span>';
         }).join('');
+    }
+
+    function renderDataPermission(platform, binding) {
+        if (!platform.dataScopes) return '';
+        var connected = binding.status !== 'unbound' && binding.status !== 'expired' && !isExpiredDate(binding.expireDate);
+        var ok = connected && binding.dataStatus === 'bound';
+        var label = ok ? '✓ 数据权限正常' : (connected ? '待补充数据权限' : '连接账号后可申请数据权限');
+        return '<div style="margin-top:9px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">' +
+            '<span class="scope-chip ' + (ok ? 'ok' : 'warn') + '">' + label + '</span>' +
+            '<span style="font-size:10px;color:#999;">' + platform.dataScopes.join(' · ') + '</span></div>';
     }
 
     function isPlatformPublishable(platform, binding) {
@@ -620,6 +663,10 @@
             meta.innerHTML = renderScopeChips(p, s);
             if (meta.innerHTML) body.appendChild(meta);
 
+            var dataMeta = document.createElement('div');
+            dataMeta.innerHTML = renderDataPermission(p, s);
+            if (dataMeta.innerHTML) body.appendChild(dataMeta);
+
             if (s.status === 'soon') {
 
                 var btn = document.createElement('button');
@@ -654,6 +701,22 @@
                 syncBtn.onclick = function() { refreshBindingStatus(p); };
                 actions.appendChild(syncBtn);
 
+                if (s.dataStatus !== 'bound') {
+                    var dataBtn = document.createElement('button');
+                    dataBtn.className = 'btn btn-warning';
+                    dataBtn.textContent = '补充数据授权';
+                    dataBtn.style.marginLeft = '4px';
+                    dataBtn.onclick = function() { showAuthModal(p, 'data'); };
+                    actions.appendChild(dataBtn);
+                } else {
+                    var dataLink = document.createElement('button');
+                    dataLink.className = 'btn';
+                    dataLink.textContent = '查看数据';
+                    dataLink.style.marginLeft = '4px';
+                    dataLink.onclick = function() { location.href = '数据表现.html'; };
+                    actions.appendChild(dataLink);
+                }
+
                 var unbindBtn = document.createElement('button');
                 unbindBtn.className = 'btn btn-ghost';
                 unbindBtn.textContent = '解绑';
@@ -674,6 +737,14 @@
                 authBtn.textContent = effectiveStatus === 'scope_missing' ? '补充授权' : '重新授权';
                 authBtn.onclick = function() { showAuthModal(p); };
                 actions.appendChild(authBtn);
+                if (effectiveStatus === 'scope_missing' && s.dataStatus !== 'bound') {
+                    var dataOnlyBtn = document.createElement('button');
+                    dataOnlyBtn.className = 'btn';
+                    dataOnlyBtn.textContent = '仅补数据授权';
+                    dataOnlyBtn.style.marginLeft = '4px';
+                    dataOnlyBtn.onclick = function() { showAuthModal(p, 'data'); };
+                    actions.appendChild(dataOnlyBtn);
+                }
 
             } else {
                 var authBtn = document.createElement('button');
@@ -690,8 +761,9 @@
         });
     }
 
-    function showAuthModal(platform) {
+    function showAuthModal(platform, authType) {
         pendingPlatform = platform;
+        pendingAuthType = authType || 'publish';
         document.getElementById('authModalIcon').innerHTML = platform.logo;
         document.getElementById('authModalIcon').style.background = platform.iconCls === 'bg-douyin' ? '#161823' : platform.iconCls === 'bg-kuaishou' ? 'linear-gradient(135deg,#FF6A00,#EE2D2D)' : platform.iconCls === 'bg-xiaohongshu' ? '#fff' : '#07C160';
         document.getElementById('authModalIcon').style.width = '48px';
@@ -702,13 +774,17 @@
         document.getElementById('authModalIcon').style.justifyContent = 'center';
         document.getElementById('authModalIcon').style.margin = '0 auto 12px';
         document.getElementById('authModalIcon').style.border = platform.iconCls === 'bg-xiaohongshu' ? '1px solid #eee' : 'none';
-        document.getElementById('authModalTitle').textContent = '授权绑定' + platform.name;
-        document.getElementById('authModalPublishScope').textContent = platform.id === 'douyin'
+        document.getElementById('authModalTitle').textContent = pendingAuthType === 'data' ? ('补充' + platform.name + '数据授权') : ('授权绑定' + platform.name);
+        document.getElementById('authModalPublishScope').textContent = pendingAuthType === 'data'
+            ? ('读取本人账号已发布作品的' + (platform.id === 'douyin' ? '播放、点赞、评论、分享与平均播放时长' : '播放、点赞与评论'))
+            : platform.id === 'douyin'
             ? '创建抖音投稿任务，并引导你在端内完成确认'
             : '后台上传并提交发布到你的' + platform.name + '账号';
 
         var descEl = document.getElementById('authModalDesc');
-        if (platform.publishMode === 'confirm') {
+        if (pendingAuthType === 'data') {
+            descEl.innerHTML = '即将前往' + platform.name + '开放平台补充作品数据权限。<br>授权仅用于展示当前账号下、与本平台视频关联的累计数据表现。';
+        } else if (platform.publishMode === 'confirm') {
             descEl.innerHTML = '即将跳转至抖音开放平台授权。<br>当前原型按 <strong>端内投稿/手动确认</strong> 处理，后台直发需平台开通后启用。';
         } else if (platform.publishMode === 'auto') {
             descEl.innerHTML = '即将跳转至快手开放平台授权。<br>授权后支持 <strong>后台上传并提交发布</strong>，发布状态会在任务记录中同步。';
@@ -727,6 +803,7 @@
     function confirmAuth() {
         if (!pendingPlatform) return;
         var platform = pendingPlatform;
+        var authType = pendingAuthType;
         closeModal('authModal');
 
         showToast('跳转中', '正在跳转到' + platform.name + '授权页面...');
@@ -737,22 +814,47 @@
             var days = platform.tokenDays || 30;
             now.setDate(now.getDate() + days);
             var expireStr = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
-            state[platform.id] = {
-                status: 'bound',
-                userName: platform.id === 'douyin' ? '抖音用户_顾霖' : '快手用户_顾霖',
-                expireDate: expireStr,
-                bindDate: new Date().toISOString().slice(0, 10),
-                publishMode: platform.publishMode,
-                scopes: platform.scopes || [],
-                openId: platform.id + '_open_20260715'
-            };
+            var current = state[platform.id] || {};
+            if (authType === 'data' && (current.status === 'bound' || current.status === 'scope_missing')) {
+                current.dataStatus = 'bound';
+                current.dataScopes = platform.dataScopes || [];
+                current.dataAuthorizedAt = new Date().toISOString();
+                state[platform.id] = current;
+            } else {
+                state[platform.id] = {
+                    status: 'bound', dataStatus: current.dataStatus || 'unbound',
+                    userName: platform.id === 'douyin' ? '抖音用户_顾霖' : '快手用户_顾霖',
+                    expireDate: expireStr, bindDate: new Date().toISOString().slice(0, 10),
+                    publishMode: platform.publishMode, scopes: platform.scopes || [], dataScopes: current.dataScopes || [],
+                    openId: platform.id + '_open_20260715', performanceAccountId: current.performanceAccountId || (platform.id === 'douyin' ? 'dy_gulin' : 'ks_gulin')
+                };
+            }
             saveState(state);
+            if (authType === 'data') updatePerformanceAuthState(platform.id, state[platform.id].performanceAccountId);
             renderPlatforms();
-            showToast('绑定成功', '已成功绑定' + platform.name + '账号。发布时会逐个平台创建任务。');
+            showToast(authType === 'data' ? '数据授权成功' : '绑定成功', authType === 'data' ? ('已获得' + platform.name + '作品数据权限。') : ('已成功绑定' + platform.name + '账号。发布时会逐个平台创建任务。'));
+            if (performanceReturnContext && authType === 'data') {
+                setTimeout(function() { location.href = '数据表现.html'; }, 800);
+            }
             if (shareReturnContext && shareReturnContext.platform === platform.id) {
                 setTimeout(returnToVideoShare, 800);
             }
         }, 1500);
+    }
+
+    function updatePerformanceAuthState(platformId, accountId) {
+        var key = 'contentPerformanceMockV5';
+        try {
+            var list = JSON.parse(localStorage.getItem(key) || '[]');
+            if (!Array.isArray(list)) return;
+            list.forEach(function(item) {
+                if (item.platform === platformId && item.accountId === accountId && item.status === 'auth_missing') {
+                    item.status = 'first_sync';
+                    item.lastError = '数据权限已补充，等待平台完成首次同步。';
+                }
+            });
+            localStorage.setItem(key, JSON.stringify(list));
+        } catch (e) {}
     }
 
     function refreshBindingStatus(platform) {
@@ -777,7 +879,7 @@
         closeModal('unbindModal');
 
         var state = getState();
-        state[platform.id] = { status: 'unbound', userName: '', expireDate: '', scopes: [] };
+        state[platform.id] = { status: 'unbound', dataStatus: 'unbound', userName: '', expireDate: '', scopes: [], dataScopes: [] };
         saveState(state);
         renderPlatforms();
         showToast('已解绑', '已解除与' + platform.name + '的绑定');

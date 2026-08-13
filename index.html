@@ -592,6 +592,9 @@
             <div class="nav-section-title" data-panel="panel-tools"><span class="nav-icon">🛠</span> 全部工具</div>
         </div>
         <div class="nav-section">
+            <div class="nav-section-title" data-panel="panel-data"><span class="nav-icon">📊</span> 数据中心</div>
+        </div>
+        <div class="nav-section">
             <div class="nav-section-title" onclick="toggleSection(this)">
                 <span class="nav-icon">👤</span> 个人中心 <span class="collapse-icon">▾</span>
             </div>
@@ -651,6 +654,11 @@
     <div class="topbar panel" id="panel-tools">
         <span class="topbar-title">全部工具</span>
         <span class="topbar-desc">模板成片、批量生成等工具集市</span>
+    </div>
+    <!-- 数据中心 -->
+    <div class="topbar panel" id="panel-data">
+        <span class="topbar-title">数据中心</span>
+        <span class="topbar-desc">查看平台发布后的数据表现</span>
     </div>
     <!-- 个人中心 -->
     <div class="topbar panel" id="panel-account">
@@ -802,6 +810,15 @@
                 <span class="card-tag tag-tools">官方市场</span>
                 <span class="card-title">元素市场</span>
                 <span class="card-desc">官方音色、场景、成片模板，可收藏并加入资产库</span>
+            </a>
+        </div>
+
+        <!-- 数据中心面板 -->
+        <div class="panel card-grid" id="content-data">
+            <a class="card" href="数据表现.html">
+                <span class="card-tag tag-video">数据中心</span>
+                <span class="card-title">数据表现</span>
+                <span class="card-desc">查看本平台生成视频在抖音、快手发布后的累计播放、点赞与评论数据</span>
             </a>
         </div>
 
