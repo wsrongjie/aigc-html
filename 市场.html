@@ -1139,6 +1139,144 @@
             .role-config-row { grid-template-columns: 1fr; }
         }
 
+        /* 爆款复刻进度入口 */
+        .progress-entry-link {
+            display: inline-flex; align-items: center; gap: 5px;
+            font-size: 12px; font-weight: 800; color: var(--primary);
+            cursor: pointer; transition: all .15s; padding: 4px 10px;
+            border-radius: 8px; border: 1px solid transparent; white-space: nowrap;
+        }
+        .progress-entry-link:hover { color: #1d4ed8; background: var(--primary-soft); border-color: var(--primary-soft); }
+        .progress-entry-link .pe-count {
+            display: inline-flex; align-items: center; justify-content: center;
+            min-width: 18px; height: 18px; padding: 0 5px; border-radius: 999px;
+            background: var(--primary); color: #fff; font-size: 10px; font-weight: 900;
+            animation: peBadgePulse 2s ease-in-out infinite;
+        }
+        @keyframes peBadgePulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.12); opacity: .85; }
+        }
+        .progress-float {
+            position: fixed; right: 24px; bottom: 24px; z-index: 70;
+            height: 44px; padding: 0 16px; border-radius: 14px;
+            background: var(--primary); color: #fff;
+            display: flex; align-items: center; gap: 8px;
+            font-size: 13px; font-weight: 900;
+            box-shadow: 0 8px 28px rgba(47,107,255,.38);
+            cursor: pointer; transition: all .2s;
+        }
+        .progress-float:hover { transform: translateY(-2px); box-shadow: 0 12px 36px rgba(47,107,255,.48); }
+        .progress-float .pf-count {
+            min-width: 20px; height: 20px; padding: 0 6px; border-radius: 999px;
+            background: rgba(255,255,255,.25); font-size: 11px; font-weight: 900;
+            display: inline-flex; align-items: center; justify-content: center;
+        }
+        .progress-overlay {
+            position: fixed; inset: 0; background: rgba(15,23,42,.42);
+            z-index: 85; opacity: 0; pointer-events: none; transition: opacity .3s;
+        }
+        .progress-overlay.show { opacity: 1; pointer-events: auto; }
+        .progress-drawer {
+            position: fixed; right: 0; top: 0; bottom: 0;
+            width: min(420px, 88vw); background: #fff; z-index: 86;
+            box-shadow: -12px 0 48px rgba(15,23,42,.18);
+            transform: translateX(100%); transition: transform .3s ease;
+            display: flex; flex-direction: column;
+        }
+        .progress-drawer.open { transform: translateX(0); }
+        .pd-head {
+            padding: 18px 20px; border-bottom: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: space-between; gap: 12px;
+        }
+        .pd-title { font-size: 16px; font-weight: 900; }
+        .pd-sub { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+        .pd-close {
+            width: 32px; height: 32px; border-radius: 8px;
+            background: #f4f4f5; color: var(--text-secondary); font-size: 18px;
+        }
+        .pd-body { flex: 1; overflow-y: auto; padding: 14px 20px; }
+        .pd-stats {
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px;
+        }
+        .pd-stat {
+            padding: 10px 8px; border-radius: 10px; border: 1px solid var(--border);
+            background: #fafafa; text-align: center;
+        }
+        .pd-stat-num { font-size: 20px; font-weight: 900; }
+        .pd-stat-label { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
+        .pd-group { margin-bottom: 14px; }
+        .pd-group-head {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 8px 0; margin-bottom: 4px;
+        }
+        .pd-group-name { font-size: 13px; font-weight: 900; }
+        .pd-group-status { font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 999px; }
+        .pd-task {
+            display: flex; align-items: center; gap: 10px;
+            padding: 10px; border-radius: 10px; border: 1px solid #f1f1f3;
+            background: #fff; margin-bottom: 6px; transition: border-color .15s;
+        }
+        .pd-task:hover { border-color: var(--primary-soft); }
+        .pd-task-icon { font-size: 18px; flex-shrink: 0; width: 28px; text-align: center; }
+        .pd-task-info { flex: 1; min-width: 0; }
+        .pd-task-script {
+            font-size: 12px; line-height: 1.4; color: var(--text-primary);
+            overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        }
+        .pd-task-meta { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+        .pd-task-progress { flex-shrink: 0; text-align: right; min-width: 52px; }
+        .pd-task-pct { font-size: 13px; font-weight: 900; }
+        .pd-task-bar {
+            width: 52px; height: 4px; border-radius: 2px; background: #e5e7eb; margin-top: 3px;
+        }
+        .pd-task-bar-fill { height: 100%; border-radius: 2px; transition: width .3s; }
+        .pd-footer {
+            padding: 14px 20px; border-top: 1px solid var(--border);
+            display: flex; gap: 8px;
+        }
+        .pd-footer-btn {
+            flex: 1; height: 38px; border-radius: 10px;
+            font-weight: 800; font-size: 13px; display: flex;
+            align-items: center; justify-content: center; gap: 6px;
+        }
+        .pd-empty { text-align: center; padding: 48px 20px; color: var(--text-muted); font-size: 13px; }
+        .pd-empty-icon { font-size: 36px; margin-bottom: 8px; }
+
+        .pd-task-actions { display: flex; gap: 4px; flex-shrink: 0; align-items: center; }
+        .pd-action-btn {
+            height: 26px; padding: 0 10px; border-radius: 6px;
+            font-size: 11px; font-weight: 800; border: 1px solid; cursor: pointer;
+            transition: all .15s; display: inline-flex; align-items: center; gap: 3px;
+        }
+        .pd-action-preview { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+        .pd-action-preview:hover { background: var(--primary); color: #fff; }
+        .pd-action-cancel { border-color: #ef4444; background: #fff5f5; color: #ef4444; }
+        .pd-action-cancel:hover { background: #ef4444; color: #fff; }
+        .cancel-repl-overlay {
+            position: fixed; inset: 0; background: rgba(15,23,42,.52);
+            z-index: 200; display: none; align-items: center; justify-content: center;
+        }
+        .cancel-repl-overlay.show { display: flex; }
+        .cancel-repl-modal {
+            width: min(380px, 90vw); background: #fff; border-radius: 16px;
+            box-shadow: 0 28px 64px rgba(15,23,42,.28); padding: 24px;
+        }
+        .cancel-repl-icon { font-size: 36px; text-align: center; margin-bottom: 12px; }
+        .cancel-repl-title { font-size: 17px; font-weight: 900; text-align: center; margin-bottom: 8px; }
+        .cancel-repl-desc { font-size: 13px; color: var(--text-secondary); line-height: 1.7; text-align: center; margin-bottom: 20px; }
+        .cancel-repl-script {
+            padding: 8px 12px; background: #f8f9fa; border-radius: 8px; border: 1px solid var(--border);
+            font-size: 12px; color: var(--text-primary); line-height: 1.5; margin: 0 auto 18px;
+            max-width: 320px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        }
+        .cancel-repl-actions { display: flex; gap: 10px; justify-content: center; }
+        .cancel-repl-btn { height: 38px; padding: 0 20px; border-radius: 10px; font-weight: 800; font-size: 13px; }
+        .cancel-repl-btn-keep { border: 1px solid var(--border); background: #fff; color: var(--text-primary); }
+        .cancel-repl-btn-keep:hover { border-color: var(--primary); color: var(--primary); }
+        .cancel-repl-btn-confirm { border: 1px solid #ef4444; background: #ef4444; color: #fff; }
+        .cancel-repl-btn-confirm:hover { background: #dc2626; }
+
     </style>
 </head>
 <body>
@@ -1306,7 +1444,10 @@
                 <div>
                     <div class="same-panel-title">爆款复刻</div>
                 </div>
-                <button class="close-btn" type="button" onclick="closeSameModal()">×</button>
+                <div style="display:flex;align-items:center;gap:8px;">
+                    <span class="progress-entry-link" onclick="event.stopPropagation();toggleProgressDrawer()">📋 复刻进度 <span class="pe-count" id="sameProgressCount" style="display:none;"></span></span>
+                    <button class="close-btn" type="button" onclick="closeSameModal()">×</button>
+                </div>
             </div>
             <div class="same-form">
                 <div class="same-field">
@@ -1380,6 +1521,37 @@
     <div class="rht-name" id="roleHoverName"></div>
 </div>
 
+<div class="progress-float" id="progressFloat" onclick="toggleProgressDrawer()" style="display:none;">
+    <span>📋 复刻进度</span>
+    <span class="pf-count" id="floatProgressCount">0</span>
+</div>
+<div class="progress-overlay" id="progressOverlay" onclick="closeProgressDrawer()"></div>
+<div class="progress-drawer" id="progressDrawer">
+    <div class="pd-head">
+        <div>
+            <div class="pd-title">爆款复刻进度</div>
+            <div class="pd-sub">查看已提交的复刻任务生成状态</div>
+        </div>
+        <button class="pd-close" type="button" onclick="closeProgressDrawer()">×</button>
+    </div>
+    <div class="pd-body" id="progressDrawerBody"></div>
+    <div class="pd-footer" style="display:none;">
+        <button class="pd-footer-btn btn" onclick="closeProgressDrawer()">关闭</button>
+        <button class="pd-footer-btn btn btn-primary" onclick="goWorkbench()">打开导演台 →</button>
+    </div>
+</div>
+<div class="cancel-repl-overlay" id="cancelReplOverlay" onclick="abortCancelRepl()">
+    <div class="cancel-repl-modal" onclick="event.stopPropagation()">
+        <div class="cancel-repl-icon">⚠️</div>
+        <div class="cancel-repl-title">确认取消复刻</div>
+        <div class="cancel-repl-desc">取消后该条视频的生成将停止，<br>已消耗的积分不予退还。</div>
+        <div class="cancel-repl-script" id="cancelReplScript"></div>
+        <div class="cancel-repl-actions">
+            <button class="cancel-repl-btn cancel-repl-btn-keep" onclick="abortCancelRepl()">继续生成</button>
+            <button class="cancel-repl-btn cancel-repl-btn-confirm" onclick="confirmCancelRepl()">确认取消</button>
+        </div>
+    </div>
+</div>
 <div class="toast" id="toast"><strong id="toastTitle"></strong><span id="toastText"></span></div>
 
 <script>
@@ -1694,6 +1866,8 @@
     let synthAudioProgress = 0;
     let synthAudioTimer = null;
     let synthStepTimer = null;
+    const REPL_TASKS_KEY = "aigc_replication_tasks";
+    let progressSimInterval = null;
 
     function readList(key) {
         try {
@@ -2490,6 +2664,16 @@
             }]
         };
         try { localStorage.setItem("newTaskFromFlow", JSON.stringify(task)); } catch(e) {}
+        try {
+            var replTasks = readList(REPL_TASKS_KEY);
+            replTasks.unshift({
+                id: Date.now(), templateId: item.id, templateTitle: item.title,
+                script: script, duration: duration, roleName: roleName,
+                status: 'generating', progress: 0,
+                createdAt: new Date().toISOString()
+            });
+            writeList(REPL_TASKS_KEY, replTasks);
+        } catch(e) {}
         closeSameModal();
         window.location.href = "导演台-批量成片工作台.html";
     }
@@ -2780,10 +2964,225 @@
             closeScenePreview();
             closeTemplateVideoPreview();
             closeSameModal();
+            closeProgressDrawer();
         }
     });
 
+    /* ====== 爆款复刻进度面板 ====== */
+    function toggleProgressDrawer() {
+        var isOpen = document.getElementById("progressDrawer").classList.contains("open");
+        if (isOpen) { closeProgressDrawer(); } else { openProgressDrawer(); }
+    }
+    function openProgressDrawer() {
+        renderProgressContent();
+        document.getElementById("progressOverlay").classList.add("show");
+        document.getElementById("progressDrawer").classList.add("open");
+    }
+    function closeProgressDrawer() {
+        document.getElementById("progressOverlay").classList.remove("show");
+        document.getElementById("progressDrawer").classList.remove("open");
+    }
+    function loadReplTasks() {
+        try {
+            var raw = localStorage.getItem(REPL_TASKS_KEY);
+            var list = raw ? JSON.parse(raw) : [];
+            return Array.isArray(list) && list.length > 0 ? list : getSeedReplTasks();
+        } catch(e) { return getSeedReplTasks(); }
+    }
+    function getSeedReplTasks() {
+        var now = Date.now();
+        return [
+            { id: now - 1, templateId: "tpl-market-close", templateTitle: "一分钟市场收评模板", script: "今日A股三大指数集体收涨，沪指站上3200点，北向资金净流入超百亿。", duration: 15, roleName: "我的投顾角色", status: "completed", progress: 100, createdAt: new Date(now - 600000).toISOString() },
+            { id: now - 2, templateId: "tpl-market-close", templateTitle: "一分钟市场收评模板", script: "市场短期波动并不意味着趋势反转，关注基本面和估值水平。", duration: 12, roleName: "稳健男性投顾", status: "generating", progress: 62, createdAt: new Date(now - 180000).toISOString() },
+            { id: now - 3, templateId: "tpl-fund-edu", templateTitle: "基金定投科普模板", script: "基金定投的核心不是预测最低点，而是通过分批投入平滑成本。", duration: 18, roleName: "我的投顾角色", status: "queued", progress: 0, createdAt: new Date(now - 60000).toISOString() },
+            { id: now - 4, templateId: "tpl-risk-alert", templateTitle: "风险提示模板", script: "投资有风险，过往业绩不代表未来表现，请充分了解产品特征。", duration: 10, roleName: "风控讲解员", status: "failed", progress: 0, createdAt: new Date(now - 300000).toISOString(), error: "语音合成超时" }
+        ];
+    }
+    function getReplStatusInfo(status) {
+        var map = {
+            generating: { text: "生成中", color: "#0066ff", bg: "rgba(47,107,255,.1)", icon: "🔄" },
+            queued: { text: "排队中", color: "#f59e0b", bg: "rgba(245,158,11,.1)", icon: "⏳" },
+            completed: { text: "已完成", color: "#059669", bg: "rgba(5,150,105,.1)", icon: "✅" },
+            failed: { text: "已失败", color: "#ef4444", bg: "rgba(239,68,68,.1)", icon: "❌" },
+            cancelled: { text: "已取消", color: "#999", bg: "rgba(153,153,153,.1)", icon: "🚫" }
+        };
+        return map[status] || { text: "未知", color: "#666", bg: "#f4f4f5", icon: "❓" };
+    }
+    function renderProgressContent() {
+        var tasks = loadReplTasks();
+        var body = document.getElementById("progressDrawerBody");
+        if (!tasks.length) {
+            body.innerHTML = '<div class="pd-empty"><div class="pd-empty-icon">📋</div><div>暂无复刻任务</div><div style="margin-top:4px;font-size:12px;">在市场页选择模板点击"爆款复刻"即可创建</div></div>';
+            return;
+        }
+        var counts = { generating: 0, queued: 0, completed: 0, failed: 0, cancelled: 0 };
+        tasks.forEach(function(t) { if (counts.hasOwnProperty(t.status)) counts[t.status]++; });
+        var html = '<div class="pd-stats">' +
+            '<div class="pd-stat"><div class="pd-stat-num">' + tasks.length + '</div><div class="pd-stat-label">全部任务</div></div>' +
+            '<div class="pd-stat"><div class="pd-stat-num" style="color:#0066ff;">' + (counts.generating + counts.queued) + '</div><div class="pd-stat-label">进行中</div></div>' +
+            '<div class="pd-stat"><div class="pd-stat-num" style="color:#059669;">' + counts.completed + '</div><div class="pd-stat-label">已完成</div></div>' +
+            '</div>';
+        var groups = {};
+        tasks.forEach(function(t) {
+            if (!groups[t.templateTitle]) groups[t.templateTitle] = [];
+            groups[t.templateTitle].push(t);
+        });
+        Object.keys(groups).forEach(function(name) {
+            var rows = groups[name];
+            var gSt = 'completed';
+            if (rows.some(function(r) { return r.status === 'generating'; })) gSt = 'generating';
+            else if (rows.every(function(r) { return r.status === 'queued'; })) gSt = 'queued';
+            else if (rows.every(function(r) { return r.status === 'failed'; })) gSt = 'failed';
+            else if (rows.some(function(r) { return r.status === 'failed'; }) && rows.some(function(r) { return r.status === 'completed'; })) gSt = 'failed';
+            var gsi = getReplStatusInfo(gSt);
+            html += '<div class="pd-group"><div class="pd-group-head">' +
+                '<span class="pd-group-name">' + escapeHtml(name) + ' (' + rows.length + ')</span>' +
+                '<span class="pd-group-status" style="color:' + gsi.color + ';background:' + gsi.bg + ';">' + gsi.text + '</span>' +
+                '</div>';
+            rows.forEach(function(task) {
+                var si = getReplStatusInfo(task.status);
+                var pct = task.progress || 0;
+                var barColor = task.status === 'failed' ? '#ef4444' : (task.status === 'completed' ? '#059669' : 'var(--primary)');
+                var actionBtn = '';
+                if (task.status === 'completed') {
+                    actionBtn = '<div class="pd-task-actions"><button class="pd-action-btn pd-action-preview" onclick="event.stopPropagation();previewReplVideo(' + task.id + ')">▶ 预览</button></div>';
+                } else if (task.status === 'generating' || task.status === 'queued') {
+                    actionBtn = '<div class="pd-task-actions"><button class="pd-action-btn pd-action-cancel" onclick="event.stopPropagation();cancelReplTask(' + task.id + ')">✕ 取消</button></div>';
+                } else if (task.status === 'failed') {
+                    actionBtn = '<div class="pd-task-actions"><button class="pd-action-btn pd-action-cancel" style="border-color:#f59e0b;background:#fffbeb;color:#f59e0b;" onclick="event.stopPropagation();retryReplTask(' + task.id + ')">🔄 重试</button></div>';
+                }
+                html += '<div class="pd-task">' +
+                    '<div class="pd-task-icon">' + si.icon + '</div>' +
+                    '<div class="pd-task-info">' +
+                        '<div class="pd-task-script">' + escapeHtml(task.script) + '</div>' +
+                        '<div class="pd-task-meta">' + escapeHtml(task.roleName || "未知角色") + ' · ' + formatReplTime(task.createdAt) + (task.error ? ' · <span style="color:#ef4444;">' + escapeHtml(task.error) + '</span>' : '') + '</div>' +
+                    '</div>' +
+                    '<div class="pd-task-progress">' +
+                        '<div class="pd-task-pct" style="color:' + si.color + ';">' + (task.status === 'queued' ? '等待中' : pct + '%') + '</div>' +
+                        (task.status === 'generating' || task.status === 'completed' ? '<div class="pd-task-bar"><div class="pd-task-bar-fill" style="width:' + pct + '%;background:' + barColor + ';"></div></div>' : '') +
+                    '</div>' +
+                    actionBtn +
+                '</div>';
+            });
+            html += '</div>';
+        });
+        body.innerHTML = html;
+    }
+    function formatReplTime(v) {
+        if (!v) return '-';
+        var d = new Date(v);
+        if (isNaN(d.getTime())) return '-';
+        var hh = String(d.getHours()).padStart(2, '0');
+        var mm = String(d.getMinutes()).padStart(2, '0');
+        return '今天 ' + hh + ':' + mm;
+    }
+    function goWorkbench() { window.location.href = "导演台-批量成片工作台.html"; }
+    function updateProgressBadges() {
+        var tasks = loadReplTasks();
+        var active = tasks.filter(function(t) { return t.status === 'generating' || t.status === 'queued'; }).length;
+        var sameCount = document.getElementById("sameProgressCount");
+        var floatBtn = document.getElementById("progressFloat");
+        var floatCount = document.getElementById("floatProgressCount");
+        if (sameCount) {
+            if (active > 0) { sameCount.textContent = active; sameCount.style.display = 'inline-flex'; }
+            else { sameCount.style.display = 'none'; }
+        }
+        if (floatBtn) {
+            if (tasks.length > 0) {
+                floatBtn.style.display = 'flex';
+                if (floatCount) floatCount.textContent = active > 0 ? active : tasks.length;
+            } else { floatBtn.style.display = 'none'; }
+        }
+    }
+    function startProgressSim() {
+        if (progressSimInterval) return;
+        progressSimInterval = setInterval(function() {
+            var tasks = loadReplTasks();
+            var changed = false;
+            for (var i = 0; i < tasks.length; i++) {
+                var t = tasks[i];
+                if (t.status === 'generating' && t.progress < 100) {
+                    t.progress = Math.min(100, t.progress + Math.floor(Math.random() * 6 + 2));
+                    if (t.progress >= 100) {
+                        t.status = Math.random() > 0.15 ? 'completed' : 'failed';
+                        if (t.status === 'failed') t.error = '生成超时，请重试';
+                    }
+                    changed = true;
+                } else if (t.status === 'queued') {
+                    if (Math.random() > 0.6) { t.status = 'generating'; t.progress = 0; changed = true; }
+                }
+            }
+            if (changed) { writeList(REPL_TASKS_KEY, tasks); }
+            updateProgressBadges();
+            if (document.getElementById("progressDrawer").classList.contains("open")) renderProgressContent();
+        }, 4000);
+    }
+
+    /* ====== 复刻任务操作：预览 / 取消 / 重试 ====== */
+    var pendingCancelReplId = null;
+
+    function previewReplVideo(taskId) {
+        try {
+            var task = loadReplTasks().find(function(t) { return t.id === taskId; });
+            if (task) {
+                localStorage.setItem('replPreviewTask', JSON.stringify(task));
+            }
+        } catch(e) {}
+        window.location.href = '视频资产.html?replPreview=1';
+    }
+
+    function cancelReplTask(taskId) {
+        var task = loadReplTasks().find(function(t) { return t.id === taskId; });
+        if (!task) return;
+        pendingCancelReplId = taskId;
+        var scriptEl = document.getElementById('cancelReplScript');
+        if (scriptEl) scriptEl.textContent = task.script || '未知台词';
+        document.getElementById('cancelReplOverlay').classList.add('show');
+    }
+
+    function confirmCancelRepl() {
+        if (!pendingCancelReplId) { abortCancelRepl(); return; }
+        var tasks = loadReplTasks();
+        for (var i = 0; i < tasks.length; i++) {
+            if (tasks[i].id === pendingCancelReplId) {
+                tasks[i].status = 'cancelled';
+                tasks[i].progress = 0;
+                tasks[i].cancelledAt = new Date().toISOString();
+                break;
+            }
+        }
+        writeList(REPL_TASKS_KEY, tasks);
+        pendingCancelReplId = null;
+        document.getElementById('cancelReplOverlay').classList.remove('show');
+        renderProgressContent();
+        updateProgressBadges();
+        showToast('已取消', '该复刻任务已停止生成');
+    }
+
+    function abortCancelRepl() {
+        pendingCancelReplId = null;
+        document.getElementById('cancelReplOverlay').classList.remove('show');
+    }
+
+    function retryReplTask(taskId) {
+        var tasks = loadReplTasks();
+        for (var i = 0; i < tasks.length; i++) {
+            if (tasks[i].id === taskId) {
+                tasks[i].status = 'queued';
+                tasks[i].progress = 0;
+                tasks[i].error = null;
+                break;
+            }
+        }
+        writeList(REPL_TASKS_KEY, tasks);
+        renderProgressContent();
+        updateProgressBadges();
+        showToast('已重新排队', '任务将很快开始生成');
+    }
+
     render();
+    updateProgressBadges();
+    startProgressSim();
 </script>
 </body>
 </html>

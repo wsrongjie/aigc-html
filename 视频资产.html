@@ -3594,6 +3594,33 @@
                 setTimeout(function() { openWmEditor(); }, 600);
             }
         }
+        // 从市场爆款复刻跳转：自动打开视频预览弹窗
+        if (new URLSearchParams(location.search).get('replPreview') === '1') {
+            try {
+                var raw = localStorage.getItem('replPreviewTask');
+                if (raw) {
+                    var replTask = JSON.parse(raw);
+                    localStorage.removeItem('replPreviewTask');
+                    var script = (replTask.script || '').trim();
+                    var title = (replTask.templateTitle || '').trim();
+                    var matchVideo = null;
+                    if (script) {
+                        matchVideo = videoData.find(function(v) {
+                            return v.script && (v.script.indexOf(script) > -1 || script.indexOf(v.script) > -1);
+                        });
+                    }
+                    if (!matchVideo && title) {
+                        matchVideo = videoData.find(function(v) {
+                            return v.title && (v.title.indexOf(title) > -1 || title.indexOf(v.title) > -1);
+                        });
+                    }
+                    if (!matchVideo) matchVideo = videoData[0];
+                    if (matchVideo) {
+                        setTimeout(function() { openDetail(matchVideo.id); }, 400);
+                    }
+                }
+            } catch(e) {}
+        }
         // 日期输入变更时同步到 advFilter（实时生效）
         var df = document.getElementById('adv-date-from');
         var dt = document.getElementById('adv-date-to');
