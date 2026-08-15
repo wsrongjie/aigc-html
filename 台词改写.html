@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>台词改写</title>
+  <title>创意Agent</title>
   <style>
     :root {
       --blue: #2f6bff; --blue-deep: #1746b8; --blue-soft: #edf3ff;
@@ -86,6 +86,111 @@
     .dir-hint { margin-top: 6px; color: #8a93a6; font-size: 11px; }
     .source-meta { margin-top: 6px; color: #8a93a6; font-size: 11px; text-align: right; }
     .source-meta strong { color: #4b566a; }
+
+    .source-mode-switch {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-bottom: 18px; padding: 4px;
+      border: 1px solid #e3e7ee; border-radius: 11px; background: #f4f6f9;
+    }
+    .source-mode-btn {
+      height: 34px; border: 0; border-radius: 8px; background: transparent; color: #7b8497;
+      font-size: 11px; font-weight: 700; cursor: pointer; transition: .18s ease;
+    }
+    .source-mode-btn:hover { color: var(--blue); }
+    .source-mode-btn.active { background: #fff; color: var(--blue); box-shadow: 0 2px 8px rgba(22,34,58,.08); }
+    .source-pane { display: none; }
+    .source-pane.active { display: block; }
+    .video-source-tabs { display: flex; gap: 18px; margin-bottom: 12px; border-bottom: 1px solid #e7eaf0; }
+    .video-source-tab {
+      position: relative; padding: 0 1px 9px; border: 0; background: transparent; color: #8a93a6;
+      font-size: 11px; font-weight: 700; cursor: pointer;
+    }
+    .video-source-tab.active { color: var(--blue); }
+    .video-source-tab.active::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; border-radius: 2px; background: var(--blue); }
+    .video-input-pane { display: none; }
+    .video-input-pane.active { display: block; }
+    .video-link-input { min-height: 92px; }
+    .upload-zone {
+      min-height: 132px; padding: 18px 14px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 7px;
+      border: 1px dashed #cfd6e2; border-radius: 12px; background: #fafbfc; color: #727d90; text-align: center; cursor: pointer; transition: .18s ease;
+    }
+    .upload-zone:hover, .upload-zone.dragging { border-color: var(--blue); background: var(--blue-soft); color: var(--blue); }
+    .upload-zone.has-file { border-style: solid; border-color: #a9c0ff; background: var(--blue-soft); color: var(--blue-deep); }
+    .upload-zone input { display: none; }
+    .upload-zone-icon { font-size: 25px; line-height: 1; }
+    .upload-zone-title { font-size: 12px; font-weight: 700; word-break: break-all; }
+    .upload-zone-sub { color: #99a2b2; font-size: 10px; line-height: 1.5; }
+    .video-helper { margin: 9px 0 14px; color: #8f98a8; font-size: 10px; line-height: 1.55; }
+    .video-source-actions { display: grid; grid-template-columns: 92px 1fr; gap: 8px; }
+    .video-source-actions .primary-btn { width: 100%; }
+    .preview-source-btn {
+      height: 42px; border: 1px solid #cfd7e5; border-radius: 10px; background: #fff; color: #536078;
+      font-size: 11px; font-weight: 800; cursor: pointer; transition: .18s ease;
+    }
+    .preview-source-btn:hover:not(:disabled) { color: var(--blue); border-color: #9eb8ff; background: var(--blue-soft); }
+    .preview-source-btn:disabled { opacity: .42; cursor: not-allowed; }
+
+    .video-preview-overlay {
+      position: fixed; inset: 0; z-index: 140; display: none; align-items: center; justify-content: center; padding: 24px;
+      background: rgba(10,16,30,.64); backdrop-filter: blur(6px);
+    }
+    .video-preview-overlay.show { display: flex; animation: previewFade .18s ease-out; }
+    .video-preview-modal {
+      width: min(820px, 92vw); max-height: 88vh; overflow: hidden; border: 1px solid rgba(255,255,255,.14); border-radius: 16px;
+      display: flex; flex-direction: column; background: #111827; color: #fff; box-shadow: 0 30px 90px rgba(4,10,24,.42); animation: previewRise .22s ease-out;
+    }
+    .video-preview-head { height: 58px; padding: 0 16px 0 18px; display: flex; align-items: center; justify-content: space-between; gap: 14px; border-bottom: 1px solid rgba(255,255,255,.1); }
+    .video-preview-source { min-width: 0; }
+    .video-preview-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; font-weight: 800; }
+    .video-preview-meta { margin-top: 3px; overflow: hidden; color: #9eabc0; font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+    .video-preview-close { width: 32px; height: 32px; flex-shrink: 0; border: 0; border-radius: 8px; background: rgba(255,255,255,.08); color: #d7deea; font-size: 20px; cursor: pointer; }
+    .video-preview-close:hover { background: rgba(255,255,255,.16); color: #fff; }
+    .video-preview-body { flex: 1; min-height: 0; overflow-y: auto; background: #f6f7f9; }
+    .video-preview-stage { position: relative; display: grid; place-items: center; width: 100%; height: min(46vh, 420px); min-height: 250px; background: radial-gradient(circle at 50% 35%,#253149,#0b101d 72%); }
+    .video-preview-stage video { width: 100%; height: 100%; object-fit: contain; background: #05070b; }
+    .video-preview-placeholder { max-width: 440px; padding: 28px; text-align: center; }
+    .preview-play-disc { width: 66px; height: 66px; margin: 0 auto 16px; display: grid; place-items: center; border: 1px solid rgba(255,255,255,.22); border-radius: 50%; background: rgba(255,255,255,.08); font-size: 22px; box-shadow: 0 12px 32px rgba(0,0,0,.22); }
+    .video-preview-placeholder strong { display: block; font-size: 15px; }
+    .video-preview-placeholder p { margin: 8px 0 0; color: #9eabc0; font-size: 11px; line-height: 1.7; }
+    .preview-transcript-panel { padding: 17px 18px 20px; border-top: 1px solid #dfe4ec; background: #fff; color: var(--ink); }
+    .preview-transcript-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+    .preview-transcript-title { font-size: 12px; font-weight: 800; }
+    .preview-transcript-meta { color: #8b95a7; font-size: 10px; }
+    .preview-transcript-content { padding: 13px 14px; border: 1px solid #e2e6ed; border-radius: 10px; background: #f8f9fb; color: #2c374c; font-size: 13px; line-height: 1.8; white-space: pre-wrap; word-break: break-word; }
+    .preview-transcript-empty { min-height: 112px; padding: 18px; display: grid; place-items: center; border: 1px dashed #d7dde7; border-radius: 10px; background: #fafbfc; color: #8b95a7; text-align: center; font-size: 11px; line-height: 1.7; }
+    .preview-transcript-empty strong { display: block; margin-bottom: 3px; color: #58657a; font-size: 12px; }
+    @keyframes previewFade { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes previewRise { from { opacity: 0; transform: translateY(12px) scale(.985); } to { opacity: 1; transform: translateY(0) scale(1); } }
+    @media (prefers-reduced-motion: reduce) {
+      .video-preview-overlay.show, .video-preview-modal { animation: none; }
+    }
+
+    .video-result { display: none; flex: 1; min-height: 0; overflow-y: auto; padding: 18px; }
+    .video-result.show { display: block; }
+    .video-result-card { max-width: 860px; margin: 0 auto; border: 1px solid #e2e7ef; border-radius: 14px; background: #fff; overflow: hidden; }
+    .video-result-head { padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; gap: 14px; background: #fafbfc; border-bottom: 1px solid #edf0f4; }
+    .video-result-source { display: flex; align-items: center; gap: 10px; min-width: 0; }
+    .video-thumb { width: 42px; height: 42px; flex-shrink: 0; display: grid; place-items: center; border-radius: 10px; color: #fff; background: linear-gradient(145deg,#172033,#53627d); font-size: 16px; }
+    .video-source-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; font-weight: 800; }
+    .video-source-meta { margin-top: 3px; color: var(--muted); font-size: 10px; }
+    .simulated-badge { flex-shrink: 0; padding: 4px 8px; border-radius: 999px; background: #eef1f5; color: #778195; font-size: 9px; font-weight: 700; }
+    .breakdown-summary { padding: 14px 16px 4px; }
+    .breakdown-summary-title { margin-bottom: 9px; font-size: 11px; font-weight: 800; }
+    .structure-track { display: grid; grid-template-columns: 18% 62% 20%; height: 28px; overflow: hidden; border-radius: 8px; color: #fff; font-size: 9px; font-weight: 700; }
+    .structure-track span { display: grid; place-items: center; }
+    .structure-track .hook { background: #ef6a45; }
+    .structure-track .body { background: var(--blue); }
+    .structure-track .cta { background: var(--mint); }
+    .structure-notes { display: grid; grid-template-columns: repeat(3,1fr); gap: 7px; margin-top: 8px; }
+    .structure-note { padding: 8px 9px; border-radius: 8px; background: #f7f8fa; color: #6f788a; font-size: 10px; line-height: 1.5; }
+    .structure-note strong { display: block; margin-bottom: 2px; color: #354055; font-size: 10px; }
+    .transcript-block { padding: 12px 16px 16px; }
+    .transcript-label { display: flex; justify-content: space-between; margin-bottom: 7px; font-size: 11px; font-weight: 800; }
+    .transcript-label span { color: #9aa2b1; font-size: 10px; font-weight: 500; }
+    .transcript-editor { min-height: 190px; resize: vertical; }
+    .video-result-actions { padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; gap: 10px; border-top: 1px solid #edf0f4; background: #fafbfc; }
+    .video-result-actions .primary-btn { width: auto; min-width: 190px; padding: 0 18px; }
+    .inline-ghost { height: 36px; padding: 0 13px; border: 1px solid #dfe4ec; border-radius: 9px; background: #fff; color: #637086; font-size: 11px; font-weight: 700; cursor: pointer; }
+    .inline-ghost:hover { color: var(--blue); border-color: #aec2fb; background: var(--blue-soft); }
 
     .confirm-overlay { position: fixed; inset: 0; z-index: 120; background: rgba(15,20,35,.38); display: flex; align-items: center; justify-content: center; }
     .confirm-modal { width: 320px; background: #fff; border-radius: 14px; padding: 20px; box-shadow: 0 24px 64px rgba(0,0,0,.18); }
@@ -213,6 +318,21 @@
       .editor-panel { height: clamp(560px, 72vh, 760px); min-height: 0; }
       .editor-top { align-items: flex-start; flex-direction: column; }
       .global-actions { flex-wrap: wrap; }
+      .structure-notes { grid-template-columns: 1fr; }
+      .video-result-actions { align-items: stretch; flex-direction: column-reverse; }
+      .video-result-actions .primary-btn, .video-result-actions .inline-ghost { width: 100%; }
+      .video-preview-overlay { padding: 12px; }
+      .video-preview-stage { height: min(42vh, 340px); min-height: 190px; }
+      .preview-transcript-panel { padding: 14px; }
+    }
+    @media (max-width: 600px) {
+      .sidebar { display: none; }
+      .main { margin-left: 0; }
+      .topbar { padding: 0 16px; }
+      .page-head { padding: 18px 16px 14px; }
+      .workspace { padding: 0 12px 16px; }
+      .video-result { padding: 10px; }
+      .structure-track { grid-template-columns: 24% 52% 24%; }
     }
   </style>
 </head>
@@ -230,42 +350,73 @@
       <div class="topbar-right"><span class="prototype-tag">静态原型演示</span><div class="avatar">W</div></div>
     </header>
     <section class="page-head">
-      <div><div class="crumb"><a href="全部工具.html">全部工具</a> / <span>台词改写</span></div><div class="eyebrow">SCRIPT TOOL · REWRITE</div><h1>台词改写</h1></div>
+      <div><div class="crumb"><a href="全部工具.html">全部工具</a> / <span>创意Agent</span></div><div class="eyebrow">SCRIPT TOOL · REWRITE</div><h1>创意Agent</h1><p class="page-desc">粘贴一段基础台词，一键生成多个不同表达角度的改写版本，兼顾强钩子、均衡转化、稳健克制等改写方向。</p></div>
     </section>
     <section class="workspace">
       <aside class="panel control-panel">
         <div class="control-scroll">
-          <div class="section-title">基于一稿批量改写</div>
-          <div class="field">
-            <label class="field-label" for="derive-source">基础台词 <span>必填</span></label>
-            <textarea class="text-area" id="derive-source" style="min-height:180px" placeholder="粘贴作为改写依据的完整台词" oninput="updateSourceMeta()"></textarea>
-                        <div class="source-meta" id="source-meta">0 字</div>
-            <div class="quick-topics"><button class="quick-chip" onclick="fillDeriveDemo()">填入示例</button></div>
+          <div class="source-mode-switch" role="tablist" aria-label="基础台词来源">
+            <button class="source-mode-btn" id="source-mode-video" role="tab" aria-selected="false" onclick="switchSourceMode('video')">从视频提取</button>
+            <button class="source-mode-btn active" id="source-mode-manual" role="tab" aria-selected="true" onclick="switchSourceMode('manual')">直接输入台词</button>
           </div>
-          <div class="field">
-            <label class="field-label">生成篇数 <span>1–10 篇</span></label>
-            <div class="counter"><button onclick="adjustCount(-1)">−</button><strong id="derive-count">3</strong><button onclick="adjustCount(1)">＋</button></div>
-          </div>
-          <details class="advanced">
-            <summary>高级设置</summary>
-            <div class="advanced-body">
-              <div class="field"><label class="field-label">预计时长</label><select class="select" id="derive-duration"><option value="30">30 秒</option><option value="60" selected>60 秒</option><option value="90">90 秒</option></select></div>
-              <div class="field">
-                <label class="field-label">改写方向</label>
-                <div class="dir-chips" id="direction-chips"></div>
-                <textarea class="text-area dir-custom-input" id="direction-custom" style="display:none" oninput="onCustomDirectionInput()" placeholder="参考：弱化营销感，用平实口吻讲清方法与风险，多用“建议”“可以关注”这类克制表达，避免夸张和承诺式话术"></textarea>
-                <div class="dir-hint" id="direction-hint"></div>
-              </div>
+          <div class="source-pane active" id="source-pane-manual">
+            <div class="section-title">基于一稿批量改写</div>
+            <div class="field">
+              <label class="field-label" for="derive-source">创意解构 <span>必填</span></label>
+              <textarea class="text-area" id="derive-source" style="min-height:180px" placeholder="粘贴作为改写依据的完整台词" oninput="updateSourceMeta()"></textarea>
+              <div class="source-meta" id="source-meta">0 字</div>
+              <div class="quick-topics"><button class="quick-chip" onclick="fillDeriveDemo()">填入示例</button></div>
             </div>
-          </details>
-          <button class="primary-btn" id="derive-btn" onclick="generateVariations()">生成改写台词</button>
+            <div class="field">
+              <label class="field-label">生成篇数 <span>1–10 篇</span></label>
+              <div class="counter"><button onclick="adjustCount(-1)">−</button><strong id="derive-count">3</strong><button onclick="adjustCount(1)">＋</button></div>
+            </div>
+            <details class="advanced">
+              <summary>高级设置</summary>
+              <div class="advanced-body">
+                <div class="field"><label class="field-label">预计时长</label><select class="select" id="derive-duration"><option value="30">30 秒</option><option value="60" selected>60 秒</option><option value="90">90 秒</option></select></div>
+                <div class="field">
+                  <label class="field-label">改写方向</label>
+                  <div class="dir-chips" id="direction-chips"></div>
+                  <textarea class="text-area dir-custom-input" id="direction-custom" style="display:none" oninput="onCustomDirectionInput()" placeholder="参考：弱化营销感，用平实口吻讲清方法与风险，多用“建议”“可以关注”这类克制表达，避免夸张和承诺式话术"></textarea>
+                  <div class="dir-hint" id="direction-hint"></div>
+                </div>
+              </div>
+            </details>
+            <button class="primary-btn" id="derive-btn" onclick="generateVariations()">生成改写台词</button>
+          </div>
+          <div class="source-pane" id="source-pane-video">
+            <div class="section-title">从视频提取基础台词</div>
+            <div class="video-source-tabs" role="tablist" aria-label="视频输入方式">
+              <button class="video-source-tab active" id="video-tab-link" role="tab" aria-selected="true" onclick="switchVideoInput('link')">视频链接</button>
+              <button class="video-source-tab" id="video-tab-file" role="tab" aria-selected="false" onclick="switchVideoInput('file')">本地上传</button>
+            </div>
+            <div class="video-input-pane active" id="video-input-link">
+              <textarea class="text-area video-link-input" id="video-link" oninput="onVideoLinkInput()" placeholder="粘贴一个公开视频链接&#10;支持抖音 / 快手 / 视频号等平台"></textarea>
+              <div class="video-helper">当前为静态原型，链接解析与台词提取均为模拟结果；部分平台分享页无法直接播放。</div>
+            </div>
+            <div class="video-input-pane" id="video-input-file">
+              <label class="upload-zone" id="video-upload-zone" for="video-file" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();document.getElementById('video-file').click()}">
+                <span class="upload-zone-icon">▶</span>
+                <span class="upload-zone-title" id="video-file-title">点击或拖拽上传一个视频</span>
+                <span class="upload-zone-sub" id="video-file-sub">支持 MP4、MOV、AVI、WebM，建议不超过 500 MB</span>
+                <input type="file" id="video-file" accept="video/mp4,video/quicktime,video/x-msvideo,video/webm" onchange="handleVideoFile(this)">
+              </label>
+              <div class="video-helper">当前为静态原型，不会上传或保存本地视频。</div>
+            </div>
+            <div class="video-source-actions">
+              <button class="preview-source-btn" id="video-preview-btn" onclick="openVideoPreview()" disabled>预览视频</button>
+              <button class="primary-btn" id="video-breakdown-btn" onclick="startVideoBreakdown()">开始拆解台词</button>
+            </div>
+            <div class="helper">一次处理一个视频，完成后可编辑提取结果再进入改写。</div>
+          </div>
         </div>
       </aside>
       <section class="panel editor-panel">
         <div class="editor-top">
-          <div><div class="editor-heading">改写结果</div><div class="editor-sub" id="result-summary">尚未生成改写版本</div></div>
-          <div class="global-actions">
-            <button class="ghost-btn" id="add-batch-btn" onclick="batchSendToBatch()" disabled>加入批量成片</button>
+          <div><div class="editor-heading" id="editor-heading">创意Agent</div><div class="editor-sub" id="result-summary">尚未生成改写版本</div></div>
+          <div class="global-actions" id="global-actions">
+            <button class="ghost-btn" id="add-batch-btn" onclick="batchSendToBatch()" disabled>批量成片</button>
             <button class="ghost-btn" id="select-all-btn" onclick="toggleSelectAll()" disabled>全选</button>
             <button class="ghost-btn" id="copy-all-btn" onclick="copyAll()" disabled>复制全部</button>
             <button class="ghost-btn" id="txt-btn" onclick="exportTxt()" disabled>导出 TXT</button>
@@ -273,13 +424,62 @@
           </div>
         </div>
         <div class="empty-state" id="empty-state">
-          <div><div class="empty-visual"><div class="paper"></div><div class="spark">AI</div></div><h2>粘贴基础台词开始改写</h2><p>在左侧粘贴一段基础台词，一键生成多个不同表达角度的改写版本。</p></div>
+          <div><div class="empty-visual"><div class="paper"></div><div class="spark">AI</div></div><h2 id="empty-title">粘贴基础台词开始改写</h2><p id="empty-copy">在左侧粘贴一段基础台词，一键生成多个不同表达角度的改写版本。</p></div>
         </div>
         <div class="loading-state" id="loading-state"><div><div class="loader-ring"></div><div class="loading-title" id="loading-title">正在生成同主题表达版本</div><div class="loading-copy" id="loading-copy">组织结构、生成表达，并进行初步合规扫描…</div></div></div>
+        <div class="video-result" id="video-result">
+          <div class="video-result-card">
+            <div class="video-result-head">
+              <div class="video-result-source"><div class="video-thumb">▶</div><div style="min-width:0"><div class="video-source-name" id="video-result-name"></div><div class="video-source-meta" id="video-result-meta"></div></div></div>
+              <span class="simulated-badge">静态原型模拟</span>
+            </div>
+            <div class="breakdown-summary">
+              <div class="breakdown-summary-title">爆款结构拆解</div>
+              <div class="structure-track"><span class="hook" id="structure-hook">钩子 0–3s</span><span class="body" id="structure-body">核心内容 3–35s</span><span class="cta" id="structure-cta">转化 35–42s</span></div>
+              <div class="structure-notes">
+                <div class="structure-note"><strong>反差钩子</strong>先指出常见误区，制造认知缺口。</div>
+                <div class="structure-note"><strong>编号展开</strong>用三点结构降低理解成本，维持观看节奏。</div>
+                <div class="structure-note"><strong>行动收口</strong>补充风险边界后，给出明确的下一步。</div>
+              </div>
+            </div>
+            <div class="transcript-block">
+              <label class="transcript-label" for="video-transcript">提取台词 <span>可直接编辑</span></label>
+              <textarea class="text-area transcript-editor" id="video-transcript" oninput="updateTranscriptMeta()"></textarea>
+              <div class="source-meta" id="video-transcript-meta">0 字</div>
+            </div>
+            <div class="video-result-actions">
+              <button class="inline-ghost" onclick="resetVideoSource()">更换视频</button>
+              <button class="primary-btn" onclick="useTranscriptForRewrite()">使用这版台词进行改写</button>
+            </div>
+          </div>
+        </div>
         <div class="drafts-list" id="drafts-list"></div>
       </section>
     </section>
   </main>
+  <div class="video-preview-overlay" id="video-preview-overlay" role="dialog" aria-modal="true" aria-labelledby="video-preview-title" onclick="if(event.target===this)closeVideoPreview()">
+    <div class="video-preview-modal">
+      <div class="video-preview-head">
+        <div class="video-preview-source"><div class="video-preview-title" id="video-preview-title">视频预览</div><div class="video-preview-meta" id="video-preview-meta"></div></div>
+        <button class="video-preview-close" aria-label="关闭视频预览" onclick="closeVideoPreview()">×</button>
+      </div>
+      <div class="video-preview-body" id="video-preview-body" tabindex="0" aria-label="视频与拆解台词预览内容">
+        <div class="video-preview-stage">
+          <video id="video-preview-player" controls preload="metadata"></video>
+          <div class="video-preview-placeholder" id="video-preview-placeholder">
+            <div class="preview-play-disc">▶</div>
+            <strong id="video-preview-placeholder-title">链接视频预览</strong>
+            <p id="video-preview-placeholder-copy"></p>
+          </div>
+        </div>
+        <section class="preview-transcript-panel" aria-labelledby="preview-transcript-title">
+          <div class="preview-transcript-head"><div class="preview-transcript-title" id="preview-transcript-title">拆解台词</div><div class="preview-transcript-meta" id="preview-transcript-meta"></div></div>
+          <div class="preview-transcript-empty" id="preview-transcript-empty"><div><strong>尚未拆解台词</strong>完成台词拆解后，将在这里展示提取结果。</div></div>
+          <div class="preview-transcript-content" id="preview-transcript-content" style="display:none"></div>
+        </section>
+      </div>
+    </div>
+  </div>
   <div class="toast" id="toast"><span id="toast-msg"></span><button class="toast-action" id="toast-action" style="display:none"></button></div>
   <div class="handoff-banner" id="handoff-banner"><div class="hb-icon">📄</div><div class="hb-body"><strong id="hb-title"></strong><span id="hb-sub"></span></div><button class="hb-close" onclick="dismissHandoffBanner()">✕</button></div>
   <div class="confirm-overlay" id="confirm-overlay" style="display:none" onclick="if(event.target===this)closeConfirm()">
@@ -301,7 +501,8 @@
       '稳健克制': '弱化营销感，措辞更保守，贴近合规表达',
       '自定义': '按您填写的方向要求进行改写'
     };
-    var state = { drafts: [], activeId: null, selectedIds: [], count: 3, loading: false, nextId: 1, directionMode: '均衡转化' };
+    var state = { drafts: [], activeId: null, selectedIds: [], count: 3, loading: false, nextId: 1, directionMode: '均衡转化', sourceMode: 'manual' };
+    var videoState = { inputType: 'link', file: null, result: null, previewToken: 0, bodyOverflow: '', previewTrigger: null };
 
     function renderDirectionChips() {
       var wrap = document.getElementById('direction-chips');
@@ -328,13 +529,309 @@
     }
     function escapeAttr(value) { return escapeHtml(value); }
 
+    function switchSourceMode(mode) {
+      if (state.loading) { toast('当前任务处理中，请稍候'); return; }
+      closeVideoPreview();
+      state.sourceMode = mode === 'video' ? 'video' : 'manual';
+      document.getElementById('source-mode-manual').classList.toggle('active', state.sourceMode === 'manual');
+      document.getElementById('source-mode-video').classList.toggle('active', state.sourceMode === 'video');
+      document.getElementById('source-mode-manual').setAttribute('aria-selected', state.sourceMode === 'manual' ? 'true' : 'false');
+      document.getElementById('source-mode-video').setAttribute('aria-selected', state.sourceMode === 'video' ? 'true' : 'false');
+      document.getElementById('source-pane-manual').classList.toggle('active', state.sourceMode === 'manual');
+      document.getElementById('source-pane-video').classList.toggle('active', state.sourceMode === 'video');
+      renderWorkspace();
+    }
+
+    function switchVideoInput(type) {
+      if (state.loading) { toast('当前任务处理中，请稍候'); return; }
+      closeVideoPreview();
+      videoState.inputType = type === 'file' ? 'file' : 'link';
+      if (videoState.result && videoState.result.source.type !== videoState.inputType) videoState.result = null;
+      document.getElementById('video-tab-link').classList.toggle('active', videoState.inputType === 'link');
+      document.getElementById('video-tab-file').classList.toggle('active', videoState.inputType === 'file');
+      document.getElementById('video-tab-link').setAttribute('aria-selected', videoState.inputType === 'link' ? 'true' : 'false');
+      document.getElementById('video-tab-file').setAttribute('aria-selected', videoState.inputType === 'file' ? 'true' : 'false');
+      document.getElementById('video-input-link').classList.toggle('active', videoState.inputType === 'link');
+      document.getElementById('video-input-file').classList.toggle('active', videoState.inputType === 'file');
+      updateVideoPreviewButton();
+      renderWorkspace();
+    }
+
+    function onVideoLinkInput() {
+      closeVideoPreview();
+      if (videoState.result && videoState.result.source.type === 'link') {
+        videoState.result = null;
+        renderWorkspace();
+      }
+      updateVideoPreviewButton();
+    }
+
+    function isValidPreviewLink(link) {
+      if (!link || /\s/.test(link)) return false;
+      try {
+        var parsed = new URL(link);
+        return !!parsed.hostname && (parsed.protocol === 'http:' || parsed.protocol === 'https:');
+      } catch (error) { return false; }
+    }
+
+    function updateVideoPreviewButton() {
+      var enabled = videoState.inputType === 'file'
+        ? !!videoState.file
+        : isValidPreviewLink(document.getElementById('video-link').value.trim());
+      var button = document.getElementById('video-preview-btn');
+      button.disabled = !enabled;
+      button.textContent = videoState.inputType === 'file' ? '预览视频' : '查看视频信息';
+    }
+
+    function formatFileSize(bytes) {
+      if (bytes < 1024 * 1024) return Math.max(1, Math.round(bytes / 1024)) + ' KB';
+      return (bytes / 1024 / 1024).toFixed(bytes < 10 * 1024 * 1024 ? 1 : 0) + ' MB';
+    }
+
+    function setVideoFile(file) {
+      if (!file) return;
+      var allowedExt = /\.(mp4|mov|avi|webm)$/i.test(file.name || '');
+      var allowedMime = /^(video\/mp4|video\/quicktime|video\/x-msvideo|video\/webm)$/i.test(file.type || '');
+      if (!allowedExt || (file.type && !allowedMime)) { clearVideoFileSelection(); toast('仅支持 MP4、MOV、AVI、WebM 视频'); return; }
+      if (!file.size) { clearVideoFileSelection(); toast('视频文件为空，请重新选择'); return; }
+      if (file.size > 500 * 1024 * 1024) { clearVideoFileSelection(); toast('视频不能超过 500 MB'); return; }
+      closeVideoPreview();
+      videoState.file = file;
+      videoState.result = null;
+      updateVideoUploadZone();
+      updateVideoPreviewButton();
+      renderWorkspace();
+    }
+
+    function clearVideoFileSelection() {
+      closeVideoPreview();
+      videoState.file = null;
+      videoState.result = null;
+      document.getElementById('video-file').value = '';
+      updateVideoUploadZone();
+      updateVideoPreviewButton();
+      renderWorkspace();
+    }
+
+    function handleVideoFile(input) {
+      if (input.files && input.files[0]) setVideoFile(input.files[0]);
+    }
+
+    function updateVideoUploadZone() {
+      var zone = document.getElementById('video-upload-zone');
+      var title = document.getElementById('video-file-title');
+      var sub = document.getElementById('video-file-sub');
+      zone.classList.toggle('has-file', !!videoState.file);
+      title.textContent = videoState.file ? videoState.file.name : '点击或拖拽上传一个视频';
+      sub.textContent = videoState.file ? (formatFileSize(videoState.file.size) + ' · 点击可重新选择') : '支持 MP4、MOV、AVI、WebM，建议不超过 500 MB';
+    }
+
+    function initVideoDropZone() {
+      var zone = document.getElementById('video-upload-zone');
+      zone.addEventListener('dragover', function(event){ event.preventDefault(); zone.classList.add('dragging'); });
+      zone.addEventListener('dragleave', function(){ zone.classList.remove('dragging'); });
+      zone.addEventListener('drop', function(event){
+        event.preventDefault(); zone.classList.remove('dragging');
+        if (event.dataTransfer && event.dataTransfer.files && event.dataTransfer.files[0]) setVideoFile(event.dataTransfer.files[0]);
+      });
+    }
+
+    function getVideoSource() {
+      if (videoState.inputType === 'file') {
+        if (!videoState.file) { toast('请先上传一个视频'); return null; }
+        return { type: 'file', name: videoState.file.name, detail: formatFileSize(videoState.file.size), key: videoState.file.name + ':' + videoState.file.size };
+      }
+      var link = document.getElementById('video-link').value.trim();
+      if (!link) { toast('请先填写视频链接'); return null; }
+      if (/\s/.test(link)) { toast('一次只能填写一个完整视频链接'); return null; }
+      if (!/^https?:\/\//i.test(link)) { toast('请输入以 http:// 或 https:// 开头的视频链接'); return null; }
+      var parsed;
+      try { parsed = new URL(link); } catch (error) { toast('视频链接格式不正确'); return null; }
+      if (!parsed.hostname || (parsed.protocol !== 'http:' && parsed.protocol !== 'https:')) { toast('视频链接格式不正确'); return null; }
+      var host = parsed.hostname.replace(/^www\./, '');
+      return { type: 'link', name: host || '在线视频', detail: '视频链接', key: link };
+    }
+
+    function releasePreviewMedia() {
+      var player = document.getElementById('video-preview-player');
+      videoState.previewToken++;
+      player.onerror = null;
+      try { player.pause(); } catch (error) {}
+      player.removeAttribute('src');
+      try { player.load(); } catch (error) {}
+    }
+
+    function showPreviewPlaceholder(title, copy) {
+      var player = document.getElementById('video-preview-player');
+      player.style.display = 'none';
+      document.getElementById('video-preview-placeholder').style.display = '';
+      document.getElementById('video-preview-placeholder-title').textContent = title;
+      document.getElementById('video-preview-placeholder-copy').textContent = copy;
+    }
+
+    function syncPreviewTranscript() {
+      var empty = document.getElementById('preview-transcript-empty');
+      var content = document.getElementById('preview-transcript-content');
+      var meta = document.getElementById('preview-transcript-meta');
+      var transcript = videoState.result ? document.getElementById('video-transcript').value.trim() : '';
+      if (videoState.result && transcript) {
+        empty.style.display = 'none';
+        content.style.display = '';
+        content.textContent = transcript;
+        meta.textContent = countChars(transcript) + ' 字 · 约 ' + estimateSeconds(transcript) + ' 秒';
+      } else {
+        content.style.display = 'none';
+        content.textContent = '';
+        empty.style.display = 'grid';
+        empty.innerHTML = videoState.result
+          ? '<div><strong>拆解台词为空</strong>可返回拆解结果补充台词后再次预览。</div>'
+          : '<div><strong>尚未拆解台词</strong>完成台词拆解后，将在这里展示提取结果。</div>';
+        meta.textContent = '';
+      }
+    }
+
+    function openVideoPreview() {
+      var source = getVideoSource();
+      if (!source) return;
+      releasePreviewMedia();
+      var overlay = document.getElementById('video-preview-overlay');
+      var player = document.getElementById('video-preview-player');
+      var previewToken = videoState.previewToken;
+      videoState.previewTrigger = document.activeElement;
+      document.getElementById('video-preview-title').textContent = source.type === 'file' ? source.name : '链接视频预览';
+      document.getElementById('video-preview-meta').textContent = (source.type === 'file' ? '本地视频 · ' : source.name + ' · ') + source.detail;
+      document.getElementById('video-preview-placeholder').style.display = 'none';
+      player.style.display = 'none';
+      syncPreviewTranscript();
+      if (source.type === 'file') {
+        showPreviewPlaceholder('本地视频预览', '已选择《' + source.name + '》。当前为 Mock 预览，不会读取或播放本地真实视频。');
+      } else if (!isKnownPlatformShareUrl(source.key)) {
+        player.src = source.key;
+        player.style.display = '';
+        player.onerror = function(){ if (previewToken === videoState.previewToken) handlePreviewPlaybackError(); };
+      } else {
+        showPreviewPlaceholder('平台链接预览', '当前链接是平台分享页。正式接入平台解析能力后，这里将展示视频封面、时长和播放画面。');
+      }
+      videoState.bodyOverflow = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      document.getElementById('video-preview-body').scrollTop = 0;
+      overlay.classList.add('show');
+      overlay.querySelector('.video-preview-close').focus();
+    }
+
+    function isKnownPlatformShareUrl(link) {
+      try {
+        var host = new URL(link).hostname.toLowerCase();
+        return /(^|\.)(douyin\.com|iesdouyin\.com|kuaishou\.com|gifshow\.com|weixin\.qq\.com|channels\.weixin\.qq\.com)$/.test(host);
+      } catch (error) { return false; }
+    }
+
+    function handlePreviewPlaybackError() {
+      if (!document.getElementById('video-preview-overlay').classList.contains('show')) return;
+      showPreviewPlaceholder('当前视频无法直接播放', '可能受到视频编码、平台权限或防盗链限制。原型中仍可体验模拟拆解流程，正式产品需先解析成功。');
+    }
+
+    function closeVideoPreview() {
+      var overlay = document.getElementById('video-preview-overlay');
+      if (!overlay) return;
+      var wasOpen = overlay.classList.contains('show');
+      overlay.classList.remove('show');
+      releasePreviewMedia();
+      if (wasOpen) document.body.style.overflow = videoState.bodyOverflow || '';
+      if (wasOpen && videoState.previewTrigger && typeof videoState.previewTrigger.focus === 'function') videoState.previewTrigger.focus();
+      videoState.previewTrigger = null;
+    }
+
+    function createVideoTranscript(key) {
+      var templates = [
+        '很多人做投资决策时，真正缺少的不是更多消息，而是一套稳定的信息筛选方法。第一步，先确认信息来自哪里；第二步，把事实和观点分开；第三步，提前写下自己的风险边界。市场每天都在变化，方法的意义不是预测结果，而是帮助你在波动中保持判断。如果你想了解这套复盘思路，可以继续查看相关内容。以上内容仅供参考，不构成具体投资建议。投资有风险，决策需谨慎。',
+        '为什么面对同样的市场波动，有人能够保持节奏，有人却总是追着涨跌行动？问题往往不在于看得少，而在于没有形成固定的判断流程。先看公开信息，再核对驱动因素，最后评估是否符合自己的风险承受能力。把这三个问题想清楚之后，再决定下一步怎么做。如果你想了解完整的方法，可以继续查看相关内容。以上内容仅供参考，不构成具体投资建议。投资有风险，决策需谨慎。',
+        '短线操作最容易忽略的，其实不是买卖技巧，而是复盘纪律。每天结束后记录三个问题：当时为什么做出判断，哪些信息真正产生了影响，结果与预期为什么不同。连续复盘一段时间，你会更容易识别自己的情绪和习惯。任何方法都需要结合个人情况审慎使用。如果你想了解具体的复盘清单，可以继续查看相关内容。以上内容仅供参考，不构成具体投资建议。投资有风险，决策需谨慎。'
+      ];
+      var hash = 0;
+      for (var i = 0; i < key.length; i++) { hash = ((hash << 5) - hash) + key.charCodeAt(i); hash |= 0; }
+      return templates[Math.abs(hash) % templates.length];
+    }
+
+    function startVideoBreakdown() {
+      var source = getVideoSource();
+      if (!source) return;
+      state.loading = true;
+      videoState.result = null;
+      renderWorkspace();
+      document.getElementById('loading-title').textContent = '正在拆解视频台词';
+      var stages = ['解析视频并获取音轨…', '识别口播内容，整理断句…', '分析钩子、内容结构和行动引导…'];
+      var stageTimers = stages.map(function(text, index){
+        return setTimeout(function(){ document.getElementById('loading-copy').textContent = text; }, index * 480);
+      });
+      document.querySelectorAll('.control-panel button, .control-panel textarea, .control-panel input').forEach(function(control){ control.disabled = true; });
+      setTimeout(function(){
+        stageTimers.forEach(clearTimeout);
+        videoState.result = { source: source, transcript: createVideoTranscript(source.key) };
+        state.loading = false;
+        document.querySelectorAll('.control-panel button, .control-panel textarea, .control-panel input').forEach(function(control){ control.disabled = false; });
+        renderWorkspace();
+        toast('视频台词已提取，请确认后继续改写');
+      }, 1550);
+    }
+
+    function updateTranscriptMeta() {
+      var text = document.getElementById('video-transcript').value;
+      if (videoState.result) videoState.result.transcript = text;
+      document.getElementById('video-transcript-meta').innerHTML = text.trim()
+        ? '<strong>' + countChars(text) + '</strong> 字 · 约 <strong>' + estimateSeconds(text) + '</strong> 秒'
+        : '0 字';
+      if (document.getElementById('video-preview-overlay').classList.contains('show')) syncPreviewTranscript();
+    }
+
+    function useTranscriptForRewrite() {
+      var transcript = document.getElementById('video-transcript').value.trim();
+      if (!transcript) { toast('提取台词不能为空'); return; }
+      var sourceName = videoState.result && videoState.result.source ? videoState.result.source.name : '视频';
+      var previousSource = document.getElementById('derive-source').value;
+      var previousDrafts = state.drafts.slice();
+      var previousActiveId = state.activeId;
+      var previousSelectedIds = state.selectedIds.slice();
+      document.getElementById('derive-source').value = transcript;
+      state.drafts = [];
+      state.activeId = null;
+      state.selectedIds = [];
+      updateSourceMeta();
+      switchSourceMode('manual');
+      showHandoffBanner('视频拆解', sourceName, countChars(transcript));
+      document.getElementById('derive-source').focus();
+      if (previousSource || previousDrafts.length) {
+        toast('已载入视频台词，原输入和改写结果已暂存', { label: '撤销', onClick: function(){
+          if (state.loading) { toast('改写生成中，暂不能撤销'); return; }
+          document.getElementById('derive-source').value = previousSource;
+          state.drafts = previousDrafts;
+          state.activeId = previousActiveId;
+          state.selectedIds = previousSelectedIds;
+          updateSourceMeta();
+          renderWorkspace();
+          toast('已恢复原输入和改写结果');
+        } });
+      }
+    }
+
+    function resetVideoSource() {
+      closeVideoPreview();
+      videoState.result = null;
+      videoState.file = null;
+      document.getElementById('video-link').value = '';
+      document.getElementById('video-file').value = '';
+      updateVideoUploadZone();
+      updateVideoPreviewButton();
+      renderWorkspace();
+    }
+
     function toast(message, action) {
       var el = document.getElementById('toast');
       document.getElementById('toast-msg').textContent = message;
       var act = document.getElementById('toast-action');
       if (action) {
         act.textContent = action.label; act.style.display = '';
-        act.onclick = function(){ action.onClick(); el.classList.remove('show'); };
+        act.onclick = function(){ el.classList.remove('show'); action.onClick(); };
       } else { act.style.display = 'none'; act.onclick = null; }
       el.classList.add('show');
       clearTimeout(toast.timer);
@@ -352,13 +849,13 @@
     function dismissHandoffBanner() { document.getElementById('handoff-banner').classList.remove('show'); }
 
     function sendToTool(target, text, title, extra) {
-      try { localStorage.setItem(TOOL_HANDOFF_KEY, JSON.stringify(Object.assign({ target: target, from: '台词改写', title: title || '', text: text, at: Date.now() }, extra || {}))); } catch (e) {}
+      try { localStorage.setItem(TOOL_HANDOFF_KEY, JSON.stringify(Object.assign({ target: target, from: '创意Agent', title: title || '', text: text, at: Date.now() }, extra || {}))); } catch (e) {}
       window.location.href = target;
     }
     function sendToBatchTask(texts, summaryTitle) {
       var list = (texts || []).filter(function(t){ return t && t.trim(); });
       if (!list.length) { toast('没有可添加的台词'); return; }
-      try { localStorage.setItem(TOOL_HANDOFF_KEY, JSON.stringify({ target: '简单模式-流程版-模板版.html', from: '台词改写', title: summaryTitle || '', texts: list, at: Date.now() })); } catch (e) {}
+      try { localStorage.setItem(TOOL_HANDOFF_KEY, JSON.stringify({ target: '简单模式-流程版-模板版.html', from: '创意Agent', title: summaryTitle || '', texts: list, at: Date.now() })); } catch (e) {}
       window.location.href = '简单模式-流程版-模板版.html?returnTo=directorWorkbench';
     }
     function batchSendToBatch() {
@@ -419,10 +916,14 @@
       }
       var setting = getSetting();
       var previousDrafts = state.drafts.length ? state.drafts.slice() : null;
+      document.getElementById('toast').classList.remove('show');
+      document.getElementById('toast-action').onclick = null;
       state.loading = true;
       document.getElementById('empty-state').style.display = 'none';
       document.getElementById('drafts-list').style.display = 'none';
       document.getElementById('loading-state').classList.add('show');
+      document.getElementById('loading-title').textContent = '正在生成同主题表达版本';
+      document.getElementById('loading-copy').textContent = '拆解原稿结构，锁定事实与行动引导…';
       var stages = ['拆解原稿结构，锁定事实与行动引导…', '生成多个钩子角度的表达版本…', '挑选差异最大的版本，进行合规扫描…'];
       var stageTimers = stages.map(function(text, i){
         return setTimeout(function(){ document.getElementById('loading-copy').textContent = text; }, i * 500);
@@ -643,9 +1144,43 @@
 
     function renderWorkspace() {
       var drafts = state.drafts; var draft = currentDraft(); var hasDrafts = drafts.length > 0;
+      var empty = document.getElementById('empty-state');
+      var loading = document.getElementById('loading-state');
+      var list = document.getElementById('drafts-list');
+      var videoResult = document.getElementById('video-result');
+      if (state.sourceMode === 'video') {
+        document.getElementById('editor-heading').textContent = '台词拆解';
+        document.getElementById('global-actions').style.display = 'none';
+        document.getElementById('result-summary').textContent = videoState.result ? '已完成台词提取，可编辑后继续改写' : '尚未拆解视频台词';
+        document.getElementById('empty-title').textContent = '添加视频开始拆解';
+        document.getElementById('empty-copy').textContent = '填写一个视频链接或上传本地视频，提取口播台词并分析内容结构。';
+        empty.style.display = !state.loading && !videoState.result ? 'grid' : 'none';
+        loading.classList.toggle('show', state.loading);
+        list.style.display = 'none';
+        videoResult.classList.toggle('show', !state.loading && !!videoState.result);
+        if (videoState.result) {
+          document.getElementById('video-result-name').textContent = videoState.result.source.name;
+          document.getElementById('video-result-meta').textContent = (videoState.result.source.type === 'file' ? '本地视频' : '在线视频') + ' · ' + videoState.result.source.detail;
+          document.getElementById('video-transcript').value = videoState.result.transcript;
+          var totalSeconds = estimateSeconds(videoState.result.transcript);
+          var hookEnd = Math.min(3, totalSeconds);
+          var ctaStart = Math.max(hookEnd, totalSeconds - Math.min(7, Math.max(3, Math.round(totalSeconds * .16))));
+          document.getElementById('structure-hook').textContent = '钩子 0–' + hookEnd + 's';
+          document.getElementById('structure-body').textContent = '核心内容 ' + hookEnd + '–' + ctaStart + 's';
+          document.getElementById('structure-cta').textContent = '转化 ' + ctaStart + '–' + totalSeconds + 's';
+          updateTranscriptMeta();
+        }
+        return;
+      }
+      document.getElementById('editor-heading').textContent = '创意Agent';
+      document.getElementById('global-actions').style.display = '';
+      document.getElementById('empty-title').textContent = '粘贴基础台词开始改写';
+      document.getElementById('empty-copy').textContent = '在左侧粘贴一段基础台词，一键生成多个不同表达角度的改写版本。';
+      videoResult.classList.remove('show');
+      loading.classList.toggle('show', state.loading);
       updateExportControls(drafts);
-      document.getElementById('empty-state').style.display = !state.loading && !hasDrafts ? 'grid' : 'none';
-      document.getElementById('drafts-list').style.display = !state.loading ? '' : 'none';
+      empty.style.display = !state.loading && !hasDrafts ? 'grid' : 'none';
+      list.style.display = !state.loading ? '' : 'none';
       renderDraftCards(drafts, draft);
     }
 
@@ -812,7 +1347,7 @@
       document.getElementById('result-summary').textContent = hasDrafts ? ('共 ' + drafts.length + ' 篇' + (selected.length ? ' · 已选 ' + selected.length + ' 篇' : '')) : '尚未生成改写版本';
       document.getElementById('copy-all-btn').disabled = !hasDrafts;
       document.getElementById('add-batch-btn').disabled = !selected.length;
-      document.getElementById('add-batch-btn').textContent = selected.length ? ('加入批量成片（' + selected.length + '）') : '加入批量成片';
+      document.getElementById('add-batch-btn').textContent = selected.length ? ('批量成片（' + selected.length + '）') : '批量成片';
       document.getElementById('select-all-btn').disabled = !hasDrafts;
       document.getElementById('select-all-btn').textContent = (hasDrafts && selected.length === drafts.length) ? '取消全选' : '全选';
       document.getElementById('txt-btn').disabled = !hasDrafts;
@@ -889,7 +1424,7 @@
     }
     function exportTxt() {
       var entries = currentExportEntries(); if (!entries.length) return;
-      downloadFile('台词改写-导出.txt', entriesText(entries), 'text/plain');
+      downloadFile('创意Agent-导出.txt', entriesText(entries), 'text/plain');
       toast(exportMessage('TXT', entries));
     }
     function csvSafeValue(value) { var text = String(value == null ? '' : value); if (/^[\u0000-\u0020]*[=+\-@]/.test(text)) text = "'" + text; return text; }
@@ -900,7 +1435,7 @@
       entries.forEach(function(entry){
         rows.push([entry.index + 1, entry.draft.title, entry.draft.text, countChars(entry.draft.text), estimateSeconds(entry.draft.text), statusLabel(entry.draft.status)]);
       });
-      downloadFile('台词改写-导出.csv', rows.map(function(row){ return row.map(csvCell).join(','); }).join('\r\n'), 'text/csv');
+      downloadFile('创意Agent-导出.csv', rows.map(function(row){ return row.map(csvCell).join(','); }).join('\r\n'), 'text/csv');
       toast(exportMessage('CSV', entries));
     }
 
@@ -909,9 +1444,28 @@
     function statusLabel(status) { return { unchecked:'待检查', checking:'检查中', attention:'存在待关注项', clear:'✓ 合规检查已通过', stale:'已修改·待复检' }[status] || '待检查'; }
 
     document.addEventListener('keydown', function(e){
+      var previewOverlay = document.getElementById('video-preview-overlay');
+      if (previewOverlay.classList.contains('show')) {
+        if (e.key === 'Escape') { e.preventDefault(); closeVideoPreview(); return; }
+        if (e.key === 'Tab') {
+          var previewClose = previewOverlay.querySelector('.video-preview-close');
+          var previewPlayer = document.getElementById('video-preview-player');
+          var previewBody = document.getElementById('video-preview-body');
+          var previewFocusables = previewPlayer.style.display === 'none' ? [previewBody, previewClose] : [previewBody, previewPlayer, previewClose];
+          var previewIndex = previewFocusables.indexOf(document.activeElement);
+          e.preventDefault();
+          previewFocusables[(previewIndex + (e.shiftKey ? -1 : 1) + previewFocusables.length) % previewFocusables.length].focus();
+          return;
+        }
+        return;
+      }
       if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
         e.preventDefault();
-        if (!state.loading) generateVariations();
+        if (!state.loading) {
+          if (state.sourceMode === 'video' && videoState.result) useTranscriptForRewrite();
+          else if (state.sourceMode === 'video') startVideoBreakdown();
+          else generateVariations();
+        }
       }
     });
 
@@ -922,6 +1476,9 @@
         updateSourceMeta();
         setTimeout(function(){ showHandoffBanner(handoff.from, handoff.title, countChars(handoff.text)); }, 100);
       }
+      initVideoDropZone();
+      updateVideoUploadZone();
+      updateVideoPreviewButton();
       renderDirectionChips();
       renderWorkspace();
     })();
