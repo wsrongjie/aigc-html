@@ -820,7 +820,7 @@
                 </div>
             </div>
             <div class="topbar-actions">
-                <button class="topbar-btn ghost" id="saveDraftBtn" onclick="saveDraft()">保存</button>
+                <button class="topbar-btn ghost" id="saveDraftBtn" onclick="saveDraft()">保存到视频资产</button>
                 <button class="topbar-btn primary" id="exportTopBtn" onclick="openExportModal()">导出视频</button>
             </div>
         </div>
@@ -1220,8 +1220,8 @@
         function saveDraft() {
             lastDraftSavedAt = new Date();
             var timeText = lastDraftSavedAt.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
-            document.getElementById('draftStatus').textContent = '已保存 ' + timeText;
-            showToast('已保存');
+            document.getElementById('draftStatus').textContent = '已保存到视频资产 ' + timeText;
+            showToast('已保存到视频资产');
             updateActionStates();
         }
 
