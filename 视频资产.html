@@ -1079,19 +1079,41 @@
 .dist-record-actions .mini-btn:hover { border-color: var(--primary); color: var(--primary); }
     .dist-empty-record { font-size: 12px; color: var(--text-muted); padding: 4px 0; }
 
-/* 抖音端内确认弹窗 */
-.manual-ov {
+/* 抖音扫码发布弹窗 */
+.qr-ov {
     display: none; position: fixed; inset: 0; z-index: 1700;
     background: rgba(0,0,0,0.56); align-items: center; justify-content: center;
 }
-.manual-ov.show { display: flex; }
-.manual-modal {
-    width: 420px; max-width: 90vw; background: #fff; border-radius: 16px;
-    padding: 22px; box-shadow: 0 24px 80px rgba(0,0,0,0.22);
+.qr-ov.show { display: flex; }
+.qr-modal {
+    width: 460px; max-width: 92vw; background: #fff; border-radius: 16px;
+    padding: 28px; box-shadow: 0 24px 80px rgba(0,0,0,0.22);
 }
-.manual-title { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
-.manual-desc { font-size: 13px; color: var(--text-secondary); line-height: 1.7; margin-bottom: 16px; }
-.manual-actions { display: flex; justify-content: flex-end; gap: 10px; }
+.qr-modal-title { font-size: 17px; font-weight: 700; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
+.qr-modal-title .dy-icon { width: 22px; height: 22px; background: #161823; border-radius: 5px; display: flex; align-items: center; justify-content: center; color: #fff; }
+.qr-modal-sub { font-size: 13px; color: var(--text-secondary); margin-bottom: 20px; line-height: 1.6; }
+.qr-body { display: flex; gap: 24px; align-items: flex-start; }
+.qr-code-area {
+    width: 180px; height: 180px; border: 1px solid var(--border); border-radius: 12px;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    background: #fafafa; position: relative;
+}
+.qr-code-area svg { width: 150px; height: 150px; }
+.qr-steps { flex: 1; display: flex; flex-direction: column; gap: 12px; }
+.qr-step { display: flex; gap: 10px; align-items: flex-start; }
+.qr-step-num {
+    width: 22px; height: 22px; border-radius: 50%; background: #2f6bff; color: #fff;
+    font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.qr-step-text { font-size: 13px; color: var(--text-primary); line-height: 1.6; }
+.qr-step-text .hl { color: #2f6bff; font-weight: 600; }
+.qr-url-box {
+    margin-top: 16px; padding: 10px 12px; background: var(--bg-secondary); border-radius: 8px;
+    font-size: 11px; color: var(--text-muted); word-break: break-all; line-height: 1.5;
+}
+.qr-url-box .label { font-weight: 600; color: var(--text-secondary); margin-bottom: 4px; }
+.qr-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 22px; }
+.qr-status-hint { margin-top: 14px; font-size: 12px; color: var(--warning); display: flex; align-items: center; gap: 6px; }
 
     /* ====== 封面配置内嵌面板 ====== */
     .cover-edit-panel { display: none; flex-direction: column; gap: 14px; }
@@ -1329,7 +1351,7 @@
             <button class="select-all-btn" id="select-all-btn" onclick="toggleSelectAll()">全选</button>
             <span class="spacer"></span>
             <button class="batch-action-btn batch-download" onclick="batchDownload()">⬇ 批量下载</button>
-            <button class="batch-action-btn batch-download" onclick="openBatchDistModal()">📤 批量创建发布任务</button>
+            <button class="batch-action-btn batch-download" onclick="openBatchDistModal()" style="display:none">📤 批量创建发布任务</button>
             <button class="batch-action-btn batch-delete" onclick="batchDelete()">✕ 批量删除</button>
             <button class="batch-exit" onclick="exitBatchMode()">取消</button>
         </div>
@@ -1601,20 +1623,6 @@
                         <label>视频简介</label>
                         <textarea class="dist-textarea" id="dist-desc" placeholder="视频简介..." rows="2"></textarea>
                     </div>
-                    <div class="dist-row">
-                        <div class="dist-field">
-                            <label>可见范围</label>
-                            <select class="dist-select" id="dist-visibility">
-                                <option value="public">默认公开发布</option>
-                                <option value="private">仅自己可见</option>
-                                <option value="friends">仅好友可见</option>
-                            </select>
-                        </div>
-                        <div class="dist-field">
-                            <label>封面</label>
-                            <input class="dist-input" id="dist-cover" value="使用当前视频封面" readonly>
-                        </div>
-                    </div>
                 </div>
                 <div class="dist-fields" id="dist-fields-independent" style="display:none;"></div>
             </div>
@@ -1636,18 +1644,53 @@
     </div>
 </div>
 
-<!-- 抖音端内确认弹窗（已切换后台直发，暂保留）
-<div class="manual-ov" id="douyin-manual-ov">
-    <div class="manual-modal">
-        <div class="manual-title">抖音需要端内确认</div>
-        <div class="manual-desc" id="douyin-manual-desc">发布任务已创建。请前往抖音完成投稿确认，完成后回到这里同步状态。</div>
-        <div class="manual-actions">
-            <button class="btn btn-cancel" onclick="deferDouyinPublish()">稍后确认</button>
-            <button class="btn btn-primary" onclick="confirmDouyinPublished()">我已在抖音完成确认</button>
+<!-- 抖音 aweme.share 扫码发布弹窗 -->
+<div class="qr-ov" id="douyin-qr-ov">
+    <div class="qr-modal">
+        <div class="qr-modal-title">
+            <span class="dy-icon">
+                <svg viewBox="0 0 24 24" fill="none" width="14" height="14"><path d="M15.6 2.4h-3.2v12.8a3.2 3.2 0 1 1-2.8-3.17v-3.26a6.4 6.4 0 1 0 6 6.43V7.37a8.8 8.8 0 0 0 5.2 1.7V5.88a5.6 5.6 0 0 1-5.2-3.48Z" fill="currentColor"/></svg>
+            </span>
+            使用抖音 App 扫码发布
+        </div>
+        <div class="qr-modal-sub">后端已生成 aweme.share 跳转链接，请使用抖音 App 扫描下方二维码，即可进入发布页完成投稿。</div>
+        <div class="qr-body">
+            <div class="qr-code-area" id="qr-code-area">
+                <!-- 原型中为模拟二维码 -->
+                <svg viewBox="0 0 200 200" id="qr-svg"></svg>
+            </div>
+            <div class="qr-steps">
+                <div class="qr-step">
+                    <span class="qr-step-num">1</span>
+                    <span class="qr-step-text">打开手机<span class="hl">抖音 App</span></span>
+                </div>
+                <div class="qr-step">
+                    <span class="qr-step-num">2</span>
+                    <span class="qr-step-text">点击左上角<span class="hl">扫一扫</span>，扫描下方二维码</span>
+                </div>
+                <div class="qr-step">
+                    <span class="qr-step-num">3</span>
+                    <span class="qr-step-text">自动跳转发布页，视频/标题/话题已预填</span>
+                </div>
+                <div class="qr-step">
+                    <span class="qr-step-num">4</span>
+                    <span class="qr-step-text">复核金融内容合规后，点击<span class="hl">发布</span>按钮</span>
+                </div>
+            </div>
+        </div>
+        <div class="qr-url-box">
+            <div class="label">aweme.share 链接</div>
+            <span id="qr-share-url">snssdk1128://aweme/detail?video_id=mock&share_origin=qrcode</span>
+        </div>
+        <div class="qr-status-hint" id="qr-status-hint">
+            ⏳ 等待用户扫码发布… 发布完成后点击下方按钮同步状态
+        </div>
+        <div class="qr-actions">
+            <button class="btn btn-cancel" onclick="closeDouyinQr()">取消</button>
+            <button class="btn btn-primary" onclick="confirmDouyinQrPublished()">我已在抖音完成发布</button>
         </div>
     </div>
 </div>
--->
 
 <div class="toast" id="toast"></div>
 
@@ -1835,7 +1878,7 @@
                         '<div class="dropdown-menu" id="menu-' + v.id + '">' +
                             '<button class="dropdown-item"' + deliveryDisabled + ' onclick="event.stopPropagation();openDistModal(' + v.id + ')">📤 创建发布任务</button>' +
                             (hasPublishedPlatform(v.id) ? '<button class="dropdown-item" onclick="event.stopPropagation();viewPerformance(' + v.id + ')">📊 查看发布数据</button>' : '') +
-                            // (needsDouyinWorkBinding(v.id) ? '<button class="dropdown-item" onclick="event.stopPropagation();openWorkBinding(' + v.id + ')">🔗 绑定抖音作品</button>' : '') + // 已切换后台直发，绑定入口暂隐藏
+                            // (needsDouyinWorkBinding(v.id) ? '<button class="dropdown-item" onclick="event.stopPropagation();openWorkBinding(' + v.id + ')">🔗 绑定抖音作品</button>' : '') + // aweme.share 扫码发布后可自动获取作品ID，暂不启用
                             '<div class="dropdown-divider"></div>' +
                             '<button class="dropdown-item"' + deliveryDisabled + ' onclick="event.stopPropagation();doDownload(' + v.id + ')">⬇ 下载视频</button>' +
                             '<div class="dropdown-divider"></div>' +
@@ -2713,10 +2756,10 @@
         douyin: {
             name: '抖音',
             cls: 'douyin',
-            mode: '端内确认',
-            modeDesc: '创建任务后需要前往抖音端内确认发布',
+            mode: '扫码发布',
+            modeDesc: '生成 aweme.share 链接，用户扫码后在抖音端内确认发布',
             requiredScopes: ['user_info', '投稿到抖音'],
-            publishType: 'manual'
+            publishType: 'qrcode'
         },
         kuaishou: {
             name: '快手',
@@ -2733,7 +2776,7 @@
         uploading: { text: '上传中', dot: 'uploading' },
         submitting: { text: '提交中', dot: 'submitting' },
         platform_processing: { text: '平台处理中', dot: 'platform_processing' },
-        manual_confirmation_required: { text: '需要手动确认', dot: 'manual_confirmation_required' },
+        manual_confirmation_required: { text: '等待扫码发布', dot: 'manual_confirmation_required' },
         retry_scheduled: { text: '等待重试', dot: 'retry_scheduled' },
         published: { text: '平台已发布', dot: 'published' },
         platform_rejected: { text: '平台拒发', dot: 'platform_rejected' },
@@ -2747,7 +2790,7 @@
     var distVideoIds = [];
     var distSelectedPlatforms = {};
     var distCurrentTab = null;
-    var douyinPendingIds = []; // 抖音端内投稿流程预留（已切换后台直发）
+    var douyinPendingIds = []; // 抖音 aweme.share 扫码发布流程待确认视频
 
     function getDistState() {
         try {
@@ -3018,7 +3061,7 @@
             texts.push('快手：创建任务后进入后台上传、提交发布和平台处理中。');
         }
         if (distSelectedPlatforms['douyin']) {
-            texts.push('抖音：创建任务后进入端内确认状态，需要用户完成投稿确认。');
+            texts.push('抖音：创建任务后生成 aweme.share 链接，使用抖音 App 扫码后在端内确认发布。');
         }
         if (texts.length > 0) {
             guide.innerHTML = '发布任务会按“视频 × 平台”独立创建。<br>' + texts.join('<br>');
@@ -3038,7 +3081,7 @@
     }
 
     function bindDistFormValidation() {
-        ['dist-title', 'dist-tags', 'dist-desc', 'dist-visibility'].forEach(function(id) {
+        ['dist-title', 'dist-tags', 'dist-desc'].forEach(function(id) {
             var el = document.getElementById(id);
             if (el) el.oninput = updateDistBtn;
             if (el) el.onchange = updateDistBtn;
@@ -3167,7 +3210,7 @@
         var title = document.getElementById('dist-title').value.trim();
         var tags = document.getElementById('dist-tags').value.trim();
         var desc = document.getElementById('dist-desc').value.trim();
-        var visibility = document.getElementById('dist-visibility').value;
+        var visibility = 'public';
         var aiTag = document.getElementById('dist-ai-tag').checked;
 
         submittingIds.forEach(function(videoId) {
@@ -3253,34 +3296,99 @@
         updatePlatformStatus(ids, 'douyin', 'uploading', '');
         setTimeout(function() {
             updatePlatformStatus(ids, 'douyin', 'submitting', '');
-        }, 900);
+        }, 800);
         setTimeout(function() {
+            // 模拟后端生成 aweme.share 链接成功
             var state = getDistState();
             ids.forEach(function(videoId) {
                 if (state[videoId] && state[videoId]['douyin']) {
-                    var ok = Math.random() > 0.15;
-                    state[videoId]['douyin'].status = ok ? 'platform_processing' : 'failed';
-                    state[videoId]['douyin'].errorMessage = ok ? '' : '抖音返回：视频发布失败，可检查封面、标题或账号状态后重试。';
+                    var v = findVideo(videoId);
+                    var title = state[videoId]['douyin'].title || (v ? v.title : '');
+                    var tags = state[videoId]['douyin'].tags || '';
+                    state[videoId]['douyin'].status = 'manual_confirmation_required';
+                    state[videoId]['douyin'].shareUrl = buildAwemeShareUrl(videoId, title, tags);
+                    state[videoId]['douyin'].errorMessage = '';
                 }
             });
             saveDistState(state);
             renderVideos();
-            showToast('抖音任务已提交，正在同步平台处理状态');
-            setTimeout(function() {
-                var next = getDistState();
-                ids.forEach(function(videoId) {
-                    if (next[videoId] && next[videoId]['douyin'] && next[videoId]['douyin'].status === 'platform_processing') {
-                        next[videoId]['douyin'].status = 'published';
-                        next[videoId]['douyin'].platformVideoId = 'dy_' + videoId + '_' + Date.now();
-                        next[videoId]['douyin'].playUrl = 'https://www.douyin.com/video/mock-' + videoId;
-                        seedPublishedPerformanceRecord(videoId, 'douyin', next[videoId]['douyin'].platformVideoId, next[videoId]['douyin'].playUrl);
-                    }
-                });
-                saveDistState(next);
-                renderVideos();
-                showToast('抖音发布完成');
-            }, 1400);
-        }, 1800);
+            showToast('抖音发布链接已生成，请扫码发布');
+            // 弹出扫码弹窗
+            douyinPendingIds = ids.slice();
+            openDouyinQrModal(ids);
+        }, 1600);
+    }
+
+    function buildAwemeShareUrl(videoId, title, tags) {
+        var params = 'video_id=mock_' + videoId;
+        params += '&title=' + encodeURIComponent(title || '');
+        if (tags) params += '&tags=' + encodeURIComponent(tags);
+        params += '&share_origin=qrcode&publish_type=pre_fill';
+        return 'snssdk1128://aweme/detail?' + params;
+    }
+
+    function openDouyinQrModal(ids) {
+        var state = getDistState();
+        var firstId = ids[0];
+        var item = state[firstId] && state[firstId]['douyin'];
+        var url = item ? item.shareUrl : 'snssdk1128://aweme/detail?video_id=mock&share_origin=qrcode';
+        document.getElementById('qr-share-url').textContent = url;
+        renderMockQrCode(url);
+        document.getElementById('douyin-qr-ov').classList.add('show');
+    }
+
+    function renderMockQrCode(url) {
+        // 原型中用伪随机网格模拟二维码
+        var svg = document.getElementById('qr-svg');
+        var size = 200, cell = 8, count = Math.floor(size / cell);
+        var html = '';
+        // 定位角
+        var corners = [[0,0],[0,count-7],[count-7,0]];
+        corners.forEach(function(c) {
+            html += '<rect x="' + (c[0]*cell) + '" y="' + (c[1]*cell) + '" width="' + (7*cell) + '" height="' + (7*cell) + '" fill="#161823"/>';
+            html += '<rect x="' + ((c[0]+1)*cell) + '" y="' + ((c[1]+1)*cell) + '" width="' + (5*cell) + '" height="' + (5*cell) + '" fill="#fff"/>';
+            html += '<rect x="' + ((c[0]+2)*cell) + '" y="' + ((c[1]+2)*cell) + '" width="' + (3*cell) + '" height="' + (3*cell) + '" fill="#161823"/>';
+        });
+        // 伪随机填充数据区
+        var seed = 0;
+        for (var i = 0; i < url.length; i++) seed += url.charCodeAt(i);
+        for (var r = 0; r < count; r++) {
+            for (var c = 0; c < count; c++) {
+                // 跳过定位角区域
+                if ((r < 8 && c < 8) || (r < 8 && c >= count-8) || (r >= count-8 && c < 8)) continue;
+                seed = (seed * 1103515245 + 12345) & 0x7fffffff;
+                if (seed % 3 === 0) {
+                    html += '<rect x="' + (c*cell) + '" y="' + (r*cell) + '" width="' + cell + '" height="' + cell + '" fill="#161823"/>';
+                }
+            }
+        }
+        svg.innerHTML = html;
+    }
+
+    function closeDouyinQr() {
+        document.getElementById('douyin-qr-ov').classList.remove('show');
+        showToast('抖音任务保留为“等待扫码发布”，可稍后在发布记录中重新扫码');
+    }
+
+    function confirmDouyinQrPublished() {
+        var state = getDistState();
+        douyinPendingIds.forEach(function(videoId) {
+            if (state[videoId] && state[videoId]['douyin']) {
+                state[videoId]['douyin'].status = 'published';
+                state[videoId]['douyin'].platformVideoId = 'dy_' + videoId + '_' + Date.now();
+                state[videoId]['douyin'].playUrl = 'https://www.douyin.com/video/mock-' + videoId;
+                seedPublishedPerformanceRecord(videoId, 'douyin', state[videoId]['douyin'].platformVideoId, state[videoId]['douyin'].playUrl);
+            }
+        });
+        saveDistState(state);
+        renderVideos();
+        document.getElementById('douyin-qr-ov').classList.remove('show');
+        showToast('抖音发布已确认，平台已同步');
+    }
+
+    function reopenDouyinQr(videoId) {
+        douyinPendingIds = [videoId];
+        openDouyinQrModal([videoId]);
     }
 
     function updatePlatformStatus(ids, platformId, status, errorMessage) {
@@ -3295,28 +3403,7 @@
         renderVideos();
     }
 
-    /* 抖音端内投稿/手动确认流程（已切换为后台直发，暂保留）:
-    function confirmDouyinPublished() {
-        var state = getDistState();
-        douyinPendingIds.forEach(function(videoId) {
-            if (state[videoId] && state[videoId]['douyin']) {
-                state[videoId]['douyin'].status = 'published';
-                state[videoId]['douyin'].platformVideoId = 'dy_' + videoId + '_' + Date.now();
-                state[videoId]['douyin'].playUrl = 'https://www.douyin.com/video/mock-' + videoId;
-                seedPublishedPerformanceRecord(videoId, 'douyin', '', '', 'pending_binding');
-            }
-        });
-        saveDistState(state);
-        renderVideos();
-        document.getElementById('douyin-manual-ov').classList.remove('show');
-        showToast('已记录抖音端内确认，原型中模拟为平台已发布');
-    }
 
-    function deferDouyinPublish() {
-        document.getElementById('douyin-manual-ov').classList.remove('show');
-        showToast('抖音任务保留为需要手动确认');
-    }
-    */
 
     function renderBadges() {
         var state = getDistState();
@@ -3361,11 +3448,9 @@
             if (normalized === 'auth_expired') {
                 actions += '<button class="mini-btn" onclick="startPlatformBinding(\'' + pkey + '\',[' + videoId + '])">重新授权</button>';
             }
-            /* 手动确认流程已切换为直发，暂保留:
             if (normalized === 'manual_confirmation_required') {
-                actions += '<button class="mini-btn" onclick="continueDouyinPublish(' + videoId + ')">继续确认</button>';
+                actions += '<button class="mini-btn" onclick="reopenDouyinQr(' + videoId + ')">扫码发布</button>';
             }
-            */
             if (r.playUrl) {
                 actions += '<button class="mini-btn" onclick="window.open(\'' + escapeHtml(r.playUrl) + '\',\'_blank\')">查看</button>';
             }
@@ -3419,19 +3504,7 @@
         showToast('已重新创建' + PLATFORM_CONFIG[platformId].name + '发布任务');
     }
 
-    /* 抖音端内投稿/手动确认流程（已切换为后台直发，暂保留）:
-    function continueDouyinPublish(videoId) {
-        var continueVideo = findVideo(videoId);
-        var continueGuard = continueVideo && window.XingzaoRefundStore
-            ? XingzaoRefundStore.recordDelivery(assetRefundKey(continueVideo), 'publish', XingzaoRefundStore.CURRENT_USER)
-            : { ok: true };
-        if (!continueGuard.ok) {
-            showToast(continueGuard.message);
-            return;
-        }
-        simulateDouyinPublish([videoId]);
-    }
-    */
+
 
     // ====== 发布数据与抖音作品绑定 ======
     var bindingVideoId = null;

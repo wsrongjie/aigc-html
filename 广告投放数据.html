@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>广告投放数据 - 投顾视频平台</title>
+<style>
+
+    :root{--primary:#2f6bff;--primary-dark:#1f55d8;--sidebar:#1c1c1e;--sidebar-text:#a1a1aa;--sidebar-active:#ffffff;--bg:#f5f6f8;--card:#fff;--text:#17181c;--muted:#737782;--border:#e7e9ee;--green:#0f9f6e;--orange:#d97706;--red:#dc4c4c;--blue-soft:#edf3ff;--shadow:0 12px 30px rgba(25,36,58,.08)}
+    *{box-sizing:border-box} body{margin:0;font-family:"Microsoft YaHei","PingFang SC",sans-serif;background:var(--bg);color:var(--text);font-size:13px}.sidebar{position:fixed;inset:0 auto 0 0;width:224px;background:var(--sidebar);display:flex;flex-direction:column;z-index:30}.sidebar-logo{padding:22px 20px 18px;border-bottom:1px solid rgba(255,255,255,.08)}.logo-mark{display:flex;align-items:center;gap:10px}.logo-icon{width:32px;height:32px;background:var(--primary);border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px}.logo-text{color:#fff;font-weight:600;font-size:15px}.logo-sub{color:var(--sidebar-text);font-size:11px;margin-top:2px}.sidebar-nav{flex:1;padding:12px 0;overflow-y:auto}.nav-section{padding:8px 0}.nav-section-title{padding:7px 20px;font-size:14px;color:var(--sidebar-text);letter-spacing:.04em;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:space-between;user-select:none;transition:color .15s}.nav-section-title:hover{color:#e4e4e7}.nav-section-title .collapse-icon{font-size:10px;transition:transform .2s}.nav-section-title.collapsed .collapse-icon{transform:rotate(-90deg)}.nav-section-title.active{color:#fff;background:rgba(47,107,255,.15);border-left:3px solid var(--primary)}.nav-section-children{overflow:hidden;transition:max-height .25s ease,opacity .2s;max-height:300px;opacity:1}.nav-section-children.hidden{max-height:0;opacity:0}.nav-sub-item{display:flex;align-items:center;gap:10px;padding:9px 20px 9px 36px;cursor:pointer;color:var(--sidebar-text);transition:all .15s;border-left:3px solid transparent;font-size:13px;text-decoration:none}.nav-sub-item:hover{color:#e4e4e7;background:rgba(255,255,255,.04)}.nav-sub-item.active{color:#fff;background:rgba(47,107,255,.15);border-left-color:var(--primary)}.nav-icon{width:18px;text-align:center}.sidebar-bottom{padding:16px 20px;border-top:1px solid rgba(255,255,255,.08)}.user-info{display:flex;align-items:center;gap:10px}.user-avatar{width:32px;height:32px;border-radius:50%;background:var(--primary);display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:600}.user-name{color:#e4e4e7;font-size:13px}.user-role{color:var(--sidebar-text);font-size:11px}.sidebar-credits{display:flex;align-items:center;gap:8px;margin-top:12px;padding:10px 12px;background:rgba(255,255,255,.04);border-radius:8px}.sidebar-credits .sc-icon{font-size:14px;line-height:1}.sidebar-credits .sc-label{color:var(--sidebar-text);font-size:11px}.sidebar-credits .sc-value{color:#fff;font-size:14px;font-weight:700;margin-left:auto}.main{margin-left:224px;min-height:100vh}.topbar{height:64px;background:#fff;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 28px;position:sticky;top:0;z-index:20}.top-title{font-size:16px;font-weight:800}.top-sub{font-size:11px;color:var(--muted);margin-left:12px}.role-switch{display:flex;align-items:center;gap:8px;color:var(--muted)}select,input,button{font:inherit}.content{padding:24px 28px 48px;max-width:1600px;margin:auto}.page-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px}.page-head h1{font-size:26px;margin:0 0 7px;letter-spacing:-.5px}.page-head p{margin:0;color:var(--muted);line-height:1.6}.head-actions{display:flex;gap:10px}.btn{border:1px solid var(--border);background:#fff;color:#353841;border-radius:8px;height:36px;padding:0 14px;cursor:pointer;font-weight:650}.btn:hover{border-color:#bbc7e5}.btn-primary{background:var(--primary);border-color:var(--primary);color:#fff}.btn-primary:hover{background:var(--primary-dark)}.filter-card,.panel,.stat{background:var(--card);border:1px solid var(--border);border-radius:12px}.filter-card{padding:16px;margin-bottom:14px}.filter-grid{display:grid;grid-template-columns:150px 130px 170px 160px 160px minmax(180px,1fr) auto;gap:10px;align-items:end}.field label{display:block;font-size:11px;color:var(--muted);margin-bottom:6px}.control{width:100%;height:36px;border:1px solid var(--border);border-radius:8px;background:#fff;padding:0 10px;color:#333;outline:none}.control:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(47,107,255,.08)}.filter-note{margin-top:12px;padding-top:12px;border-top:1px dashed var(--border);display:flex;align-items:center;justify-content:space-between;color:var(--muted);font-size:11px}.sync-strip{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:#f8faff;border:1px solid #dfe8ff;border-radius:10px;margin-bottom:14px}.sync-left{display:flex;gap:16px;align-items:center}.coverage{font-weight:750;color:#31538e}.issue-link{color:#b65f00;cursor:pointer}.issue-link:hover{text-decoration:underline}.sync-right{color:var(--muted);font-size:11px}.stats{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:14px}.stat{padding:17px 18px;position:relative;overflow:hidden;border-left:3px solid var(--primary);transition:transform .15s,box-shadow .15s}.stat:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.06)}.stat:nth-child(2){border-left-color:#00bc8c}.stat:nth-child(3){border-left-color:#f43f5e}.stat:nth-child(4){border-left-color:#a855f7}.stat:nth-child(5){border-left-color:#f59e0b}.stat:nth-child(6){border-left-color:#06b6d4}.stat:after{content:"";position:absolute;width:82px;height:82px;border-radius:50%;right:-28px;top:-36px;background:var(--blue-soft)}.stat-label{font-size:12px;color:var(--muted);position:relative;z-index:1}.stat-value{font-size:27px;font-weight:800;margin-top:8px;letter-spacing:-.6px;position:relative;z-index:1}.stat-icon{position:absolute;right:16px;top:14px;font-size:20px;opacity:.22;z-index:1}.stat-foot{margin-top:5px;font-size:10px;color:#9a9da5;position:relative;z-index:1}.layout{display:grid;grid-template-columns:365px minmax(0,1fr);gap:14px}.panel-head{padding:16px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}.panel-title{font-size:14px;font-weight:800}.panel-sub{font-size:10px;color:var(--muted);margin-top:4px}.account-list{padding:6px 12px 12px}.account-row{display:grid;grid-template-columns:minmax(0,1fr) 72px 82px;gap:8px;align-items:center;padding:13px 8px;border-bottom:1px solid #f0f1f4;cursor:pointer;border-radius:8px}.account-row:hover{background:#f7f9fd}.account-row.active{background:var(--blue-soft)}.account-main{display:flex;align-items:center;gap:9px;min-width:0}.platform-logo{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;color:#fff;font-size:12px;font-weight:800;flex:none}.douyin{background:#17171b}.kuaishou{background:#ff641f}.account-name{font-weight:750;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.account-meta{font-size:10px;color:var(--muted);margin-top:3px}.mini-num{text-align:right}.mini-num strong{display:block;font-size:13px}.mini-num span{font-size:9px;color:var(--muted)}.table-wrap{overflow:auto}.data-table{width:100%;border-collapse:collapse;min-width:1060px}.data-table th{position:sticky;top:0;background:#fafbfc;color:#777b84;text-align:left;font-size:10px;padding:11px 10px;border-bottom:1px solid var(--border);white-space:nowrap}.data-table th.sortable{cursor:pointer}.data-table th.sortable:hover{color:var(--primary)}.data-table td{padding:12px 10px;border-bottom:1px solid #f0f1f4;vertical-align:middle}.data-table tr:hover td{background:#fbfcff}.video-cell{display:flex;align-items:center;gap:9px;min-width:210px;cursor:pointer}.cover{width:48px;height:64px;border-radius:8px;flex:none;display:grid;place-items:center;color:#fff;font-weight:800;font-size:14px;box-shadow:0 3px 12px rgba(0,0,0,.15);position:relative;overflow:hidden}.cover:after{content:"\25B6";position:absolute;inset:0;display:grid;place-items:center;font-size:14px;color:#fff;background:rgba(0,0,0,.28);opacity:0;transition:.18s}.video-cell:hover .cover:after{opacity:1}.video-name{font-weight:750;max-width:185px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.video-script{font-size:10px;color:var(--muted);margin-top:4px;max-width:185px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.pf-badge{display:inline-flex;align-items:center;gap:6px;padding:3px 10px 3px 6px;border-radius:999px;font-size:10px;font-weight:700;line-height:1}.pf-douyin{background:#161823;color:#fff}.pf-douyin svg{flex:none}.pf-kuaishou{background:#fff3e6;color:#d4570a}.pf-kuaishou svg{flex:none}.status{display:inline-flex;align-items:center;gap:5px;padding:4px 8px;border-radius:999px;font-size:10px;font-weight:700}.status:before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}.status.normal{background:#eaf8f2;color:#16845e}.status.wait{background:#fff5de;color:#ae6a00}.status.error{background:#fff0f0;color:#c44444}.status.expired{background:#f0f1f3;color:#6d717a}.metric{font-weight:750;font-variant-numeric:tabular-nums}.metric.na{color:#afb2b8;font-weight:500;cursor:help}.empty{padding:60px 20px;text-align:center;color:var(--muted)}.pagination{padding:13px 16px;display:flex;align-items:center;justify-content:space-between;color:var(--muted);font-size:11px}.drawer-mask{position:fixed;inset:0;background:rgba(15,20,30,.34);z-index:50;opacity:0;visibility:hidden;transition:.2s}.drawer-mask.show{opacity:1;visibility:visible}.drawer{position:absolute;right:0;top:0;height:100%;width:min(560px,94vw);background:#fff;transform:translateX(100%);transition:.24s ease;box-shadow:-18px 0 50px rgba(15,20,30,.16);display:flex;flex-direction:column}.drawer-mask.show .drawer{transform:none}.drawer-head{padding:20px 22px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between}.drawer-title{font-size:17px;font-weight:800}.close{border:0;background:#f1f2f4;border-radius:8px;width:32px;height:32px;cursor:pointer}.drawer-body{overflow:auto;padding:18px 22px}.detail-hero{display:flex;gap:14px;padding-bottom:18px;border-bottom:1px solid var(--border)}.detail-cover{width:78px;height:104px;border-radius:11px;display:grid;place-items:center;color:#fff;font-size:22px;font-weight:800;box-shadow:0 6px 20px rgba(0,0,0,.15);flex:none}.detail-hero h3{margin:3px 0 7px;font-size:16px}.detail-hero p{margin:0;color:var(--muted);line-height:1.6}.detail-section{padding:18px 0;border-bottom:1px solid var(--border)}.detail-section h4{margin:0 0 12px;font-size:13px}.kv-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.kv{padding:10px;background:#f7f8fa;border-radius:8px}.kv label{display:block;color:var(--muted);font-size:10px;margin-bottom:5px}.kv strong{font-size:12px;word-break:break-all}.metric-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.metric-card{border:1px solid var(--border);border-radius:9px;padding:12px;transition:box-shadow .15s}.metric-card:hover{box-shadow:0 4px 14px rgba(0,0,0,.06)}.metric-card label{display:block;color:var(--muted);font-size:10px}.metric-card strong{display:block;font-size:18px;margin-top:6px}.script-box{background:#f7f8fa;padding:12px;border-radius:9px;line-height:1.7;color:#4f535d}.drawer-foot{margin-top:auto;padding:14px 22px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:9px}.toast{position:fixed;right:24px;top:78px;z-index:80;background:#22252b;color:#fff;padding:12px 15px;border-radius:9px;box-shadow:var(--shadow);opacity:0;transform:translateY(-8px);pointer-events:none;transition:.2s}.toast.show{opacity:1;transform:none}.toast strong{display:block;font-size:12px}.toast span{display:block;color:#c4c7cd;font-size:10px;margin-top:4px}.loading-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--primary);animation:pulse 1s infinite}.prototype-tag{background:#fff7df;color:#9a6500;border:1px solid #f2dfac;border-radius:999px;padding:5px 9px;font-size:10px;font-weight:700}@keyframes pulse{50%{opacity:.25}}@media(max-width:1180px){.filter-grid{grid-template-columns:repeat(3,1fr)}.layout{grid-template-columns:1fr}.account-list{display:grid;grid-template-columns:repeat(2,1fr);gap:6px}.stats{grid-template-columns:repeat(3,1fr)}}@media(max-width:768px){.sidebar{display:none}.main{margin-left:0}.topbar{height:auto;min-height:64px;padding:10px 14px;align-items:flex-start}.top-sub{display:none}.role-switch{flex-wrap:wrap;justify-content:flex-end}.content{padding:16px 14px 36px}.page-head,.sync-strip,.filter-note{flex-direction:column;gap:10px}.head-actions{width:100%}.head-actions .btn{flex:1}.filter-grid{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}.account-list{grid-template-columns:1fr}.layout{grid-template-columns:minmax(0,1fr)}.metric-grid,.kv-grid{grid-template-columns:1fr 1fr}}
+  
+</style>
+<style>
+    .bind-guide{margin-bottom:18px;background:linear-gradient(120deg,#eff6ff,#e8efff);border:1px solid #bfdbfe;border-radius:14px;padding:22px 24px;display:flex;align-items:center;justify-content:space-between;gap:18px}
+    .bind-guide-title{font-size:15px;font-weight:700;color:#1e40af;margin-bottom:6px}
+    .bind-guide-text{font-size:12px;color:#1d4ed8;line-height:1.7;max-width:760px}
+    .bind-guide .btn{flex-shrink:0;height:38px;padding:0 20px;border-radius:10px}
+    .platform-tabs{display:flex;gap:6px;border-bottom:1px solid var(--border);margin-bottom:16px}
+    .platform-tab{border:0;background:transparent;font-size:14px;font-weight:600;color:var(--muted);padding:9px 6px;margin-right:22px;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:color .15s,border-color .15s}
+    .platform-tab:hover{color:var(--text)}
+    .platform-tab.active{color:var(--primary);border-bottom-color:var(--primary)}
+    .platform-tab .tab-count{font-size:11px;color:var(--muted);font-weight:600;background:var(--bg);border-radius:8px;padding:1px 7px;margin-left:6px}
+    .platform-tab.active .tab-count{background:var(--blue-soft);color:var(--primary)}
+    .pf-badge.pf-oceanengine{color:#325AB4;background:rgba(50,90,180,.09)}
+    .pf-badge.pf-tencent{color:#0052D9;background:rgba(0,82,217,.09)}
+    .mat-cell{min-width:190px}
+    .mat-name{font-weight:600;font-size:13px;color:var(--text);line-height:1.4}
+    .mat-id{font-size:11px;color:var(--muted);font-family:'SF Mono',Consolas,monospace;margin-top:2px}
+    .sortable{cursor:pointer;user-select:none}
+    .sortable:hover{color:var(--primary)}
+    .data-table th{white-space:nowrap}
+    .metric.na{color:#c2c6cd}
+    .detail-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+    .detail-card{background:var(--bg);border-radius:10px;padding:12px 14px}
+    .detail-card label{display:block;font-size:11px;color:var(--muted);margin-bottom:4px}
+    .detail-card strong{font-size:16px;font-weight:700}
+    .daily-table{width:100%;border-collapse:collapse;font-size:12px}
+    .daily-table th{text-align:left;padding:7px 10px;color:var(--muted);font-weight:600;border-bottom:1px solid var(--border);white-space:nowrap}
+    .daily-table td{padding:7px 10px;border-bottom:1px solid var(--border);font-variant-numeric:tabular-nums}
+    .daily-table tr:last-child td{border-bottom:none}
+    .daily-table td:first-child{font-weight:600;color:var(--text)}
+    .daily-chart-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
+    .chart-note{font-size:11px;color:var(--muted)}
+    .chart-legend{display:flex;flex-wrap:wrap;gap:4px 16px;margin-bottom:8px;font-size:11px;color:var(--muted);line-height:1.6}
+    .chart-legend i{width:12px;height:3px;border-radius:2px;display:inline-block;margin-right:5px;vertical-align:middle}
+    .chart-legend b{color:var(--text);font-weight:700;font-variant-numeric:tabular-nums}
+    .panel-head-actions{display:flex;align-items:center;gap:10px}
+    .panel-head-actions .btn{height:32px;padding:0 14px}
+    .panel-head-actions #resultCount{font-size:12px;color:var(--muted);white-space:nowrap}
+    .daily-chart{width:100%;border:1px solid var(--border);border-radius:10px;background:#fff;overflow:hidden;margin-bottom:14px}
+    .daily-chart svg{display:block;width:100%;height:auto}
+    .kv-sub{font-size:12px;color:var(--muted);line-height:1.6}
+    .kv-sub b{color:var(--text);font-weight:600}
+    .preview-mask{position:fixed;inset:0;background:rgba(10,14,24,.58);z-index:70;display:flex;align-items:center;justify-content:center;opacity:0;visibility:hidden;transition:.2s}
+    .preview-mask.show{opacity:1;visibility:visible}
+    .preview-modal{width:min(760px,94vw);max-height:92vh;background:#fff;border-radius:16px;box-shadow:0 28px 80px rgba(0,0,0,.28);overflow:hidden}
+    .preview-head{height:58px;padding:0 18px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)}
+    .preview-head strong{font-size:15px}
+    .preview-body{padding:20px;display:grid;grid-template-columns:280px minmax(0,1fr);gap:24px;background:#f6f7f9}
+    .platform-player{width:280px;aspect-ratio:9/16;border-radius:16px;overflow:hidden;position:relative;color:#fff;box-shadow:0 18px 40px rgba(20,28,45,.22)}
+    .preview-logo{position:absolute;top:14px;right:14px;z-index:2;background:rgba(0,0,0,.45);backdrop-filter:blur(6px);border-radius:8px;padding:4px;display:grid;place-items:center}
+    .platform-player.playing .preview-visual:after{animation:previewPulse 2s ease-in-out infinite}
+    .preview-visual{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:34px;text-align:center}
+    .preview-visual:after{content:"";position:absolute;width:170px;height:170px;border-radius:50%;border:1px solid rgba(255,255,255,.25);box-shadow:0 0 0 24px rgba(255,255,255,.05)}
+    .preview-letter{position:relative;z-index:1;font-size:54px;font-weight:800;text-shadow:0 4px 20px rgba(0,0,0,.25)}
+    .preview-platform{position:absolute;top:14px;left:14px;z-index:2;background:rgba(0,0,0,.55);backdrop-filter:blur(8px);padding:5px 10px;border-radius:999px;font-size:10px;font-weight:800;display:flex;align-items:center;gap:5px}
+    .preview-copy{position:absolute;left:15px;right:15px;bottom:62px;z-index:2;text-shadow:0 2px 8px rgba(0,0,0,.45)}
+    .preview-copy strong{display:block;font-size:13px}
+    .preview-copy span{display:block;font-size:10px;margin-top:5px;line-height:1.5;color:rgba(255,255,255,.82)}
+    .preview-controls{position:absolute;left:0;right:0;bottom:0;z-index:3;padding:10px 12px;background:linear-gradient(transparent,rgba(0,0,0,.78));display:grid;grid-template-columns:30px minmax(0,1fr) 34px;gap:8px;align-items:center}
+    .preview-control-btn{border:0;background:rgba(255,255,255,.16);color:#fff;width:30px;height:30px;border-radius:50%;cursor:pointer}
+    .preview-progress{width:100%;accent-color:#fff}
+    .preview-meta{padding:8px 0}
+    .preview-meta h3{margin:0 0 8px;font-size:20px}
+    .preview-meta p{margin:0;color:var(--muted);line-height:1.7}
+    .preview-meta-card{margin-top:18px;border:1px solid var(--border);border-radius:11px;background:#fff;padding:14px;box-shadow:0 2px 8px rgba(0,0,0,.03)}
+    .preview-meta-row{display:flex;justify-content:space-between;gap:16px;padding:10px 0;border-bottom:1px solid #f0f1f4}
+    .preview-meta-row:last-child{border-bottom:0}
+    .preview-meta-row span{color:var(--muted);font-size:11px}
+    .preview-meta-row strong{font-size:11px;text-align:right}
+    .preview-note{margin-top:14px;padding:12px;border-radius:9px;background:#fff8e7;color:#8a6200;font-size:11px;line-height:1.6;border:1px solid #f5e6b8}
+    @keyframes previewPulse{50%{transform:scale(1.08);opacity:.55}}
+</style>
+</head>
+<body>
+<aside class="sidebar">
+  <div class="sidebar-logo"><div class="logo-mark"><div class="logo-icon">AI</div><div><div class="logo-text">投顾视频平台</div><div class="logo-sub">AIGC · 短视频制作</div></div></div></div>
+  <nav class="sidebar-nav">
+    <div class="nav-section"><div class="nav-section-title" onclick="location.href='index.html'"><span class="nav-icon">🏠</span> 首页</div></div>
+    <div class="nav-section"><div class="nav-section-title" onclick="location.href='市场.html'"><span class="nav-icon">🏪</span> 市场</div></div>
+    <div class="nav-section"><div class="nav-section-title" onclick="toggleSection(this)"><span class="nav-icon">📦</span> 资产 <span class="collapse-icon">▾</span></div><div class="nav-section-children"><a class="nav-sub-item" href="主体管理-首页.html"><span class="nav-icon">👤</span> 主体</a><a class="nav-sub-item" href="语音首页.html"><span class="nav-icon">🎙</span> 音频</a><a class="nav-sub-item" href="视频资产.html"><span class="nav-icon">🎬</span> 视频</a></div></div>
+    <div class="nav-section"><div class="nav-section-title" onclick="location.href='导演台-批量成片工作台.html'"><span class="nav-icon">🎬</span> 导演台</div></div>
+    <div class="nav-section"><div class="nav-section-title" onclick="location.href='全部工具.html'"><span class="nav-icon">🛠</span> 全部工具</div></div>
+    <div class="nav-section"><div class="nav-section-title active" onclick="toggleSection(this)"><span class="nav-icon">📊</span> 数据中心 <span class="collapse-icon">▾</span></div><div class="nav-section-children"><a class="nav-sub-item" href="数据表现.html"><span class="nav-icon">📈</span> 数据表现</a><a class="nav-sub-item active" href="广告投放数据.html"><span class="nav-icon">📢</span> 广告投放数据</a></div></div>
+    <div class="nav-section"><div class="nav-section-title" onclick="toggleSection(this)"><span class="nav-icon">👤</span> 个人中心 <span class="collapse-icon">▾</span></div><div class="nav-section-children"><a class="nav-sub-item" href="个人信息.html"><span class="nav-icon">👤</span> 个人信息</a><a class="nav-sub-item" href="账号绑定.html"><span class="nav-icon">🔗</span> 账号绑定</a><a class="nav-sub-item" href="团队管理.html"><span class="nav-icon">👥</span> 团队管理</a><a class="nav-sub-item" href="套餐与支付.html"><span class="nav-icon">💳</span> 积分与并发</a><a class="nav-sub-item" href="消费账单.html"><span class="nav-icon">🧾</span> 消费账单</a></div></div>
+  </nav>
+  <div style="border-top:1px solid rgba(255,255,255,.08);padding:12px 20px;"><a href="后台web/后台运营控制台.html" style="display:flex;align-items:center;gap:10px;padding:10px 0;color:var(--sidebar-text);text-decoration:none;font-size:14px;font-weight:500;border-radius:8px;transition:all .15s;"><span style="font-size:15px;width:20px;text-align:center;">⚙️</span> 后台管理</a></div>
+  <div class="sidebar-bottom"><div class="user-info"><div class="user-avatar">王</div><div><div class="user-name">王小明</div><div class="user-role">投顾用户 · 继承视频权限</div></div></div><div class="sidebar-credits"><span class="sc-icon">🪙</span><span class="sc-label">剩余积分</span><span class="sc-value">5,000</span></div></div>
+</aside>
+<main class="main">
+  <header class="topbar"><div><span class="top-title">数据中心</span><span class="top-sub">直播间投放素材维度效果数据</span></div><span class="prototype-tag">原型模拟数据</span></header>
+  <div class="content">
+    <section class="page-head"><div><h1>广告投放数据</h1><p>查看投放至巨量广告、腾讯广告（微视版位）的直播间引流素材效果，按单素材维度聚合展示跑量、直播引流与转化获客数据，辅助投放复盘与优化。</p></div><div class="head-actions"><button class="btn" onclick="location.href='账号绑定.html?from=ad-data'">管理数据授权</button></div></section>
+
+    <section class="bind-guide" id="bindGuide" style="display:none">
+      <div>
+        <div class="bind-guide-title">绑定广告投放账户后自动拉取素材数据</div>
+        <div class="bind-guide-text">绑定巨量广告 / 腾讯广告账户后，平台将通过开放平台报表接口按素材维度拉取直播间投放效果数据（跑量 / 直播引流 / 转化获客）。应用由平台预配置，客户仅需广告账户管理员扫码授权。</div>
+      </div>
+      <button class="btn btn-primary" onclick="location.href='账号绑定.html?from=ad-data'">去账号绑定</button>
+    </section>
+
+    <section class="platform-tabs" id="platformTabs">
+      <button class="platform-tab active" data-platform="oceanengine" onclick="setPlatformTab('oceanengine')">巨量广告 <span class="tab-count" id="tabCountOcean">0</span></button>
+      <button class="platform-tab" data-platform="tencentAds" onclick="setPlatformTab('tencentAds')">腾讯广告 <span class="tab-count" id="tabCountTencent">0</span></button>
+    </section>
+
+    <section class="filter-card" id="filterCard">
+      <div class="filter-grid">
+        <div class="field"><label>投放日期</label><select class="control" id="dateRange" onchange="applyFilters()"><option value="7">最近7天</option><option value="30" selected>最近30天</option><option value="90">最近90天</option><option value="all">全部时间</option></select></div>
+        <div class="field"><label>广告账户</label><select class="control" id="accountFilter" onchange="applyFilters()"><option value="all">全部账户</option></select></div>
+        <div class="field"><label>素材名称</label><input class="control" id="keywordFilter" placeholder="输入素材名称搜索" oninput="applyFilters()"></div>
+        <button class="btn" onclick="resetFilters()">清空</button>
+      </div>
+      <div class="filter-note"><span>日期筛选按素材投放开始日期；页面展示截至最近同步时间的区间累计值，不代表所选时段新增数据。</span><span>当日数据为准实时统计（有延迟），正式统计以 T+1 校准为准。</span><span>腾讯广告未开放的指标以“—”展示，不计为 0。</span></div>
+    </section>
+
+    <section class="sync-strip"><div class="sync-left"><span class="coverage" id="coverageText">数据覆盖 0/0 条素材</span><span class="issue-link" id="issueLink" onclick="filterIssues()"></span></div><div class="sync-right"><span class="loading-dot"></span> 页面快照将在 <strong id="countdown">60</strong> 秒后刷新 · 最近一次同步 <span id="dataTime">—</span></div></section>
+
+    <section class="stats" id="statsRow">
+      <div class="stat"><div class="stat-icon">💰</div><div class="stat-label">总消耗</div><div class="stat-value" id="statCost">0</div><div class="stat-foot">区间累计，单位：元</div></div>
+      <div class="stat"><div class="stat-icon">👁</div><div class="stat-label">总曝光</div><div class="stat-value" id="statShow">0</div><div class="stat-foot">有数据素材的累计值</div></div>
+      <div class="stat"><div class="stat-icon">🖱</div><div class="stat-label">总点击</div><div class="stat-value" id="statClick">0</div><div class="stat-foot">有数据素材的累计值</div></div>
+      <div class="stat"><div class="stat-icon">🎥</div><div class="stat-label">直播间进房</div><div class="stat-value" id="statLiveEnter">0</div><div class="stat-foot">通过素材进入直播间人次</div></div>
+      <div class="stat"><div class="stat-icon">🧩</div><div class="stat-label">组件点击</div><div class="stat-value" id="statComponent">0</div><div class="stat-foot">小风车 / 表单等组件点击</div></div>
+      <div class="stat"><div class="stat-icon">✅</div><div class="stat-label">转化数</div><div class="stat-value" id="statConvert">0</div><div class="stat-foot">留资等转化事件次数</div></div>
+      <div class="stat"><div class="stat-icon">🎯</div><div class="stat-label">转化成本</div><div class="stat-value" id="statConvertCost">—</div><div class="stat-foot">总消耗 / 转化数</div></div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head"><div><div class="panel-title">素材投放明细</div><div class="panel-sub">每行代表一条投放素材在所选区间的累计表现</div></div><div class="panel-head-actions"><span id="resultCount">0 条</span><button class="btn" onclick="exportCSV()">导出数据</button><button class="btn btn-primary" id="refreshBtn" onclick="refreshData()">刷新数据</button></div></div>
+      <div class="table-wrap"><table class="data-table">
+        <thead><tr>
+          <th>素材</th><th>平台 / 账户</th>
+          <th class="sortable" onclick="setSort('startDate')">投放日期 ↕</th>
+          <th class="sortable" onclick="setSort('show')">曝光 ↕</th>
+          <th class="sortable" onclick="setSort('click')">点击 ↕</th>
+          <th>CTR（点击率）</th>
+          <th class="sortable" onclick="setSort('cost')">消耗(元) ↕</th>
+          <th class="sortable" onclick="setSort('cpc')">CPC（点击单价）↕</th>
+          <th class="sortable" onclick="setSort('liveEnter')">进房量 ↕</th>
+          <th>进房率</th>
+          <th class="sortable" onclick="setSort('componentClick')">组件点击 ↕</th>
+          <th class="sortable" onclick="setSort('convert')">转化数 ↕</th>
+          <th class="sortable" onclick="setSort('convertCost')">转化成本 ↕</th>
+          <th>操作</th>
+        </tr></thead>
+        <tbody id="tableBody"></tbody>
+      </table><div class="empty" id="emptyState" style="display:none">没有符合条件的投放素材</div></div>
+      <div class="pagination"><span>当前原型展示筛选后的全部素材</span><span id="pageInfo"></span></div>
+    </section>
+  </div>
+</main>
+
+<div class="drawer-mask" id="drawerMask" onclick="closeDrawerByMask(event)"><aside class="drawer"><div class="drawer-head"><div><div class="drawer-title" id="drawerTitle">素材详情</div><div class="panel-sub">素材维度区间累计与按天明细</div></div><button class="close" onclick="closeDrawer()">×</button></div><div class="drawer-body" id="drawerBody"></div></aside></div>
+
+<div class="preview-mask" id="previewMask" onclick="closePreviewByMask(event)"><section class="preview-modal" onclick="event.stopPropagation()"><div class="preview-head"><div><strong>投放素材预览</strong><div class="panel-sub" id="previewHeadSub">当前投放版本</div></div><button class="close" onclick="closePreview()">×</button></div><div class="preview-body"><div class="platform-player" id="platformPlayer"><div class="preview-logo" id="previewLogo"></div><div class="preview-visual" id="previewVisual"><span class="preview-letter" id="previewLetter">素</span></div><span class="preview-platform" id="previewPlatform">巨量广告</span><div class="preview-copy"><strong id="previewAccount">广告账户</strong><span id="previewCaption">素材名称</span></div><div class="preview-controls"><button class="preview-control-btn" id="previewPlayBtn" onclick="togglePreviewPlayback()" title="播放或暂停">▶</button><input class="preview-progress" id="previewProgress" type="range" min="0" max="30" value="0" oninput="seekPreview(this.value)" aria-label="播放进度"><button class="preview-control-btn" id="previewVolumeBtn" onclick="togglePreviewVolume()" title="静音或恢复音量">🔊</button></div></div><div class="preview-meta"><h3 id="previewTitle">素材名称</h3><p>预览当前表格行对应的投放素材视频内容。</p><div class="preview-meta-card"><div class="preview-meta-row"><span>投放平台</span><strong id="previewMetaPlatform">—</strong></div><div class="preview-meta-row"><span>广告账户</span><strong id="previewMetaAccount">—</strong></div><div class="preview-meta-row"><span>投放区间</span><strong id="previewMetaTime">—</strong></div><div class="preview-meta-row"><span>素材 ID</span><strong id="previewMetaId">—</strong></div></div><div class="preview-note">原型暂无真实视频文件，此处模拟站内播放器的播放、暂停、进度和音量交互。</div></div></div></section></div>
+
+<div class="toast" id="toast"><strong id="toastTitle"></strong><span id="toastText"></span></div>
+
+<script>
+function toggleSection(el){var children=el.parentElement.querySelector('.nav-section-children');if(children){el.classList.toggle('collapsed');children.classList.toggle('hidden')}}
+var STORE_KEY='adPerformanceMockV2';
+var PLATFORM_META={oceanengine:{name:'巨量广告',color:'#325AB4'},tencentAds:{name:'腾讯广告',color:'#0052D9'}};
+var ACCOUNT_BIND_KEY='adAccountBindingState';
+var ACCOUNT_META={'2187654321':{platform:'oceanengine',name:'顾霖证券投资咨询'},'161800123456':{platform:'tencentAds',name:'顾霖投顾·腾讯广告'}};
+
+function makeDaily(start,days,totals){
+  var out=[],weights={
+    show:[0.85,1.05,0.95,1.2,1.1,1.0,1.3,0.9,1.05,1.15],
+    click:[0.9,1.1,0.8,1.25,0.95,1.15,1.2,0.85,1.1,1.0],
+    cost:[0.8,1.2,0.9,1.3,0.85,1.1,1.4,0.95,1.0,1.15],
+    liveEnter:[0.7,1.0,0.85,1.35,1.05,1.2,1.45,0.9,1.1,1.0]
+  },cur=new Date(start.replace(/-/g,'/'));
+  for(var i=0;i<days;i++){
+    var d=new Date(cur),w={show:weights.show[i%10],click:weights.click[i%10],cost:weights.cost[i%10],liveEnter:weights.liveEnter[i%10]};
+    out.push({date:d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'),
+      show:Math.max(0,Math.round(totals.show/days*w.show)),click:Math.max(0,Math.round(totals.click/days*w.click)),
+      cost:Math.max(0,Math.round(totals.cost/days*w.cost)),liveEnter:Math.max(0,Math.round(totals.liveEnter/days*w.liveEnter))});
+    cur.setDate(cur.getDate()+1);
+  }
+  return out;
+}
+
+var SEED=[
+  {id:'admat_101',platform:'oceanengine',accountId:'2187654321',materialId:'1698123004567890',materialName:'早盘行情解读-直播间引流A版',startDate:'2026-08-01',endDate:'2026-08-12',days:12,totals:{show:286400,click:10210,cost:23560,liveEnter:1520},fields:{show:286400,click:10210,ctr:3.56,cost:23560,cpc:2.31,liveEnter:1520,liveEnterRate:14.9,liveAvgWatch:72,componentClick:964,convert:176,convertCost:133.9,validRate:22.4},status:'normal',dataAt:'2026-08-13 02:15',lastError:'',playUrl:'https://www.douyin.com/video/739180102938401'},
+  {id:'admat_102',platform:'oceanengine',accountId:'2187654321',materialId:'1698123004567891',materialName:'保险配置科普-场景口播v2',startDate:'2026-08-02',endDate:'2026-08-12',days:11,totals:{show:182000,click:6200,cost:12860,liveEnter:890},fields:{show:182000,click:6200,ctr:3.41,cost:12860,cpc:2.07,liveEnter:890,liveEnterRate:14.4,liveAvgWatch:61,componentClick:512,convert:96,convertCost:134.0,validRate:19.2},status:'normal',dataAt:'2026-08-13 02:15',lastError:'',playUrl:'https://www.douyin.com/video/739180102938402'},
+  {id:'admat_103',platform:'oceanengine',accountId:'2187654321',materialId:'1698123004567892',materialName:'养老金政策解读-口播',startDate:'2026-08-03',endDate:'2026-08-12',days:10,totals:{show:96100,click:3420,cost:7580,liveEnter:520},fields:{show:96100,click:3420,ctr:3.56,cost:7580,cpc:2.22,liveEnter:520,liveEnterRate:15.2,liveAvgWatch:55,componentClick:301,convert:58,convertCost:130.7,validRate:17.9},status:'normal',dataAt:'2026-08-13 02:15',lastError:'',playUrl:'https://www.douyin.com/video/739180102938403'},
+  {id:'admat_104',platform:'oceanengine',accountId:'2187654321',materialId:'1698123004567893',materialName:'基金定投误区-新素材',startDate:'2026-08-12',endDate:'2026-08-12',days:1,totals:{show:0,click:0,cost:0,liveEnter:0},fields:{show:null,click:null,ctr:null,cost:null,cpc:null,liveEnter:null,liveEnterRate:null,liveAvgWatch:null,componentClick:null,convert:null,convertCost:null,validRate:null},status:'first_sync',dataAt:'',lastError:'素材已上传并提交投放，等待平台完成首次数据同步。',playUrl:''},
+  {id:'admat_105',platform:'oceanengine',accountId:'2187654321',materialId:'1698123004567894',materialName:'每周复盘-周末专场',startDate:'2026-08-01',endDate:'2026-08-11',days:11,totals:{show:128400,click:4680,cost:10420,liveEnter:730},fields:{show:128400,click:4680,ctr:3.65,cost:10420,cpc:2.23,liveEnter:730,liveEnterRate:15.6,liveAvgWatch:58,componentClick:402,convert:74,convertCost:140.8,validRate:18.6},status:'sync_error',dataAt:'2026-08-12 09:10',lastError:'平台接口暂时限流（429），已保留上次成功数据。',playUrl:'https://www.douyin.com/video/739180102938405'},
+  {id:'admat_106',platform:'oceanengine',accountId:'2187654321',materialId:'1698123004567895',materialName:'港股科技周报-直投',startDate:'2026-07-28',endDate:'2026-08-06',days:10,totals:{show:76900,click:2540,cost:6280,liveEnter:410},fields:{show:76900,click:2540,ctr:3.30,cost:6280,cpc:2.47,liveEnter:410,liveEnterRate:16.1,liveAvgWatch:49,componentClick:218,convert:39,convertCost:161.0,validRate:15.4},status:'auth_invalid',dataAt:'2026-08-07 08:00',lastError:'广告账户授权已失效，需要重新授权后才能继续更新数据。',playUrl:'https://www.douyin.com/video/739180102938406'},
+  {id:'admat_201',platform:'tencentAds',accountId:'161800123456',materialId:'742190087654321',materialName:'微视-早盘直播引流A',startDate:'2026-08-02',endDate:'2026-08-12',days:11,totals:{show:154200,click:5120,cost:9680,liveEnter:640},fields:{show:154200,click:5120,ctr:3.32,cost:9680,cpc:1.89,liveEnter:640,liveEnterRate:12.5,liveAvgWatch:null,componentClick:356,convert:61,convertCost:158.7,validRate:null},status:'normal',dataAt:'2026-08-13 02:10',lastError:'',playUrl:'https://weishi.qq.com/video/742190087654321'},
+  {id:'admat_202',platform:'tencentAds',accountId:'161800123456',materialId:'742190087654322',materialName:'微视-保险配置科普',startDate:'2026-08-04',endDate:'2026-08-12',days:9,totals:{show:87300,click:2860,cost:5420,liveEnter:350},fields:{show:87300,click:2860,ctr:3.28,cost:5420,cpc:1.90,liveEnter:350,liveEnterRate:12.2,liveAvgWatch:null,componentClick:192,convert:33,convertCost:164.2,validRate:null},status:'normal',dataAt:'2026-08-13 02:10',lastError:'',playUrl:'https://weishi.qq.com/video/742190087654322'},
+  {id:'admat_203',platform:'tencentAds',accountId:'161800123456',materialId:'742190087654323',materialName:'微视-市场快评v3',startDate:'2026-08-01',endDate:'2026-08-12',days:12,totals:{show:219600,click:7480,cost:15230,liveEnter:930},fields:{show:219600,click:7480,ctr:3.41,cost:15230,cpc:2.04,liveEnter:930,liveEnterRate:12.4,liveAvgWatch:null,componentClick:540,convert:96,convertCost:158.6,validRate:null},status:'normal',dataAt:'2026-08-13 02:10',lastError:'',playUrl:'https://weishi.qq.com/video/742190087654323'},
+  {id:'admat_204',platform:'tencentAds',accountId:'161800123456',materialId:'742190087654324',materialName:'微视-基金定投误区',startDate:'2026-07-30',endDate:'2026-08-10',days:12,totals:{show:45200,click:1380,cost:2910,liveEnter:168},fields:{show:45200,click:1380,ctr:3.05,cost:2910,cpc:2.11,liveEnter:168,liveEnterRate:12.2,liveAvgWatch:null,componentClick:82,convert:12,convertCost:242.5,validRate:null},status:'sync_error',dataAt:'2026-08-11 08:30',lastError:'平台接口返回参数错误（40003），已保留上次成功数据。',playUrl:'https://weishi.qq.com/video/742190087654324'}
+];
+
+function readAdBinding(){
+  try{return JSON.parse(localStorage.getItem(ACCOUNT_BIND_KEY)||'{}')}catch(e){return{}}
+}
+function isExpired(dateStr){
+  if(!dateStr)return false;
+  var t=new Date(dateStr+'T23:59:59').getTime();
+  if(isNaN(t))return false;
+  return t<Date.now();
+}
+function bindAccountStatus(platform){
+  var b=readAdBinding()[platform];
+  if(!b)return 'unbound';
+  if(b.status==='bound'&&!isExpired(b.expireDate))return 'bound';
+  if(b.status==='perm_pending')return 'perm_pending';
+  return 'invalid';
+}
+function reconcileAuth(list){
+  return list.filter(function(r){
+    var bs=bindAccountStatus(r.platform);
+    if(bs==='unbound')return false;
+    if(bs==='perm_pending'&&r.status!=='first_sync'){r.status='first_sync';r.lastError='应用权限审核中，等待权限生效后开始同步数据。'}
+    if(bs==='invalid'&&r.status!=='auth_invalid'){r.status='auth_invalid';r.lastError='广告账户授权已失效，需要重新授权后才能继续更新数据。'}
+    return true;
+  });
+}
+function loadRecords(){
+  try{
+    var raw=localStorage.getItem(STORE_KEY);
+    if(raw){
+      var saved=JSON.parse(raw);
+      SEED.forEach(function(seed){
+        var has=saved.some(function(x){return x.id===seed.id});
+        if(!has){seed.daily=makeDaily(seed.startDate,seed.days,seed.totals);saved.push(seed)}
+      });
+      return reconcileAuth(saved);
+    }
+  }catch(e){}
+  SEED.forEach(function(s){s.daily=makeDaily(s.startDate,s.days,s.totals)});
+  return reconcileAuth(JSON.parse(JSON.stringify(SEED)));
+}
+function saveRecords(){try{localStorage.setItem(STORE_KEY,JSON.stringify(records))}catch(e){}}
+function fmt(n){if(n===null||n===undefined)return '—';return Number(n).toLocaleString('zh-CN')}
+function fmtMoney(n){if(n===null||n===undefined)return '—';return '¥'+Number(n).toLocaleString('zh-CN')}
+function metricHint(r,key){
+  if(r.fields[key]!==null&&r.fields[key]!==undefined)return '';
+  if(r.platform==='tencentAds'&&(key==='liveAvgWatch'||key==='validRate'))return '该平台当前未提供此指标';
+  if(r.status==='first_sync')return '首次同步中，稍后自动更新';
+  if(r.status==='auth_invalid')return '授权已失效，需重新授权';
+  if(r.status==='sync_error')return '本次同步异常';
+  return '等待平台返回数据';
+}
+
+var records=loadRecords(),sortKey='startDate',sortDesc=true,filtered=[],selectedRecord=null,countdown=60,issueOnly=false,platformTab='oceanengine';
+var accountsVisible=[];
+function initOptions(){
+  var af=document.getElementById('accountFilter');
+  accountsVisible=[];
+  records.forEach(function(r){if(accountsVisible.indexOf(r.accountId)<0)accountsVisible.push(r.accountId)});
+  af.innerHTML='<option value="all">全部账户</option>';
+  accountsVisible.forEach(function(id){
+    var a=ACCOUNT_META[id];
+    if(a)af.innerHTML+='<option value="'+id+'">'+PLATFORM_META[a.platform].name+' · '+a.name+'</option>';
+  });
+  syncAccountOptions();
+  renderTabCounts();
+}
+function rPlatform(accountId){return (ACCOUNT_META[accountId]||{}).platform||records.find(function(r){return r.accountId===accountId}).platform}
+function setPlatformTab(p){
+  platformTab=p;
+  document.querySelectorAll('.platform-tab').forEach(function(b){b.classList.toggle('active',b.getAttribute('data-platform')===p)});
+  syncAccountOptions();
+  document.getElementById('accountFilter').value='all';
+  applyFilters();
+}
+function syncAccountOptions(){
+  var af=document.getElementById('accountFilter');
+  Array.prototype.forEach.call(af.options,function(o,i){
+    if(i===0)return;
+    var meta=ACCOUNT_META[o.value];
+    o.hidden=!meta||meta.platform!==platformTab;
+  });
+}
+function renderTabCounts(){
+  document.getElementById('tabCountOcean').textContent=records.filter(function(r){return r.platform==='oceanengine'}).length;
+  document.getElementById('tabCountTencent').textContent=records.filter(function(r){return r.platform==='tencentAds'}).length;
+}
+function getFiltered(){
+  var days=document.getElementById('dateRange').value,
+      a=document.getElementById('accountFilter').value,
+      k=document.getElementById('keywordFilter').value.trim().toLowerCase(),now=new Date();
+  return records.filter(function(r){
+    if(days!=='all'){
+      var d=new Date(r.startDate.replace(/-/g,'/'));
+      if(isNaN(d.getTime())||(now-d)/86400000>Number(days))return false;
+    }
+    if(r.platform!==platformTab)return false;
+    if(a!=='all'&&r.accountId!==a)return false;
+    if(k&&!r.materialName.toLowerCase().includes(k))return false;
+    if(issueOnly&&r.status==='normal')return false;
+    return true;
+  });
+}
+function applyFilters(){filtered=getFiltered();renderAll()}
+function renderAll(){renderStats();renderTable()}
+function renderStats(){
+  var covered=filtered.filter(function(r){return r.fields.show!==null}),sum=function(key){return filtered.reduce(function(t,r){return t+(r.fields[key]===null||r.fields[key]===undefined?0:Number(r.fields[key])||0)},0)},
+      totalCost=sum('cost'),totalConvert=sum('convert');
+  document.getElementById('statCost').textContent=fmt(totalCost);
+  document.getElementById('statShow').textContent=fmt(sum('show'));
+  document.getElementById('statClick').textContent=fmt(sum('click'));
+  document.getElementById('statLiveEnter').textContent=fmt(sum('liveEnter'));
+  document.getElementById('statComponent').textContent=fmt(sum('componentClick'));
+  document.getElementById('statConvert').textContent=fmt(totalConvert);
+  document.getElementById('statConvertCost').textContent=totalConvert>0?fmt((totalCost/totalConvert).toFixed(1)):'—';
+  var issues=filtered.filter(function(r){return r.status!=='normal'});
+  document.getElementById('coverageText').textContent='已有数据 '+covered.length+'/'+filtered.length+' 条素材';
+  document.getElementById('issueLink').textContent=issues.length?(issueOnly?'退出待处理筛选':'待处理 '+issues.length+' 条 →'):'';
+  var times=filtered.map(function(r){return r.dataAt}).filter(Boolean).sort();
+  document.getElementById('dataTime').textContent=times.length?times[times.length-1]:'尚未同步';
+}
+function setSort(key){
+  if(sortKey===key)sortDesc=!sortDesc;else{sortKey=key;sortDesc=true}
+  renderTable();
+}
+function platformBadge(p){return '<span class="pf-badge pf-'+p+'">'+PLATFORM_META[p].name+'</span>'}
+function renderTable(){
+  var rows=filtered.slice().sort(function(a,b){
+    var av=a[sortKey],bv=b[sortKey];
+    if(av===null||av===undefined||av==='')return 1;
+    if(bv===null||bv===undefined||bv==='')return -1;
+    if(typeof av==='string')return sortDesc?bv.localeCompare(av):av.localeCompare(bv);
+    return sortDesc?bv-av:av-bv;
+  });
+  var body=document.getElementById('tableBody'),empty=document.getElementById('emptyState');
+  document.getElementById('resultCount').textContent=rows.length+' 条';
+  document.getElementById('pageInfo').textContent='共 '+rows.length+' 条';
+  empty.style.display=rows.length?'none':'block';
+  body.innerHTML=rows.map(function(r){
+    var f=r.fields,acc=ACCOUNT_META[r.accountId]||{name:'当前授权账户'};
+    var num=function(key,suffix){return '<td class="metric '+(f[key]===null?'na':'')+'" title="'+metricHint(r,key)+'">'+(f[key]===null?'—':fmt(f[key])+(suffix||''))+'</td>'};
+    return '<tr><td class="mat-cell"><div class="mat-name">'+r.materialName+'</div><div class="mat-id">'+r.materialId+'</div></td>'+
+      '<td>'+platformBadge(r.platform)+'<div class="account-meta">'+acc.name+'</div></td>'+
+      '<td>'+(r.startDate.slice(5)+' ~ '+r.endDate.slice(5))+'</td>'+
+      num('show')+num('click')+
+      '<td class="metric">'+(f.ctr===null?'—':f.ctr+'%')+'</td>'+
+      num('cost')+num('cpc')+
+      num('liveEnter')+
+      '<td class="metric">'+(f.liveEnterRate===null?'—':f.liveEnterRate+'%')+'</td>'+
+      num('componentClick')+num('convert')+num('convertCost')+
+      '<td class="operation-cell">'+
+        '<button class="table-action" onclick="openDrawer(\''+r.id+'\')">详情</button>'+
+        '<button class="table-action" onclick="openPreview(\''+r.id+'\')" '+(canPreview(r)?'':'disabled')+' title="'+(canPreview(r)?'站内预览投放素材':previewReason(r))+'">预览</button>'+
+        '<button class="table-action" onclick="openPlatformPage(\''+r.id+'\')" '+(canOpenPlatform(r)?'':'disabled')+' title="'+(canOpenPlatform(r)?'前往'+PLATFORM_META[r.platform].name+'查看作品':platformOpenReason(r))+'">去平台</button>'+
+        '<button class="table-action hot" onclick="hotReplicate(\''+r.id+'\')" '+(r.status==='normal'?'':'disabled title="数据表现正常后才可拆解"')+'>爆款拆解</button>'+
+      '</td></tr>';
+  }).join('');
+}
+function filterIssues(){issueOnly=!issueOnly;document.getElementById('keywordFilter').value='';applyFilters();showToast(issueOnly?'已筛选待处理记录':'已退出待处理筛选',issueOnly?'包含首次同步、授权失效和同步异常记录':'恢复显示全部状态素材')}
+function resetFilters(){issueOnly=false;document.getElementById('dateRange').value='30';document.getElementById('accountFilter').value='all';document.getElementById('keywordFilter').value='';applyFilters()}
+function currentDateTime(){var d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')}
+function refreshData(){
+  var btn=document.getElementById('refreshBtn');btn.disabled=true;btn.textContent='刷新中…';
+  showToast('已创建刷新任务','正在读取当前授权账户素材的最新模拟快照');
+  setTimeout(function(){
+    var updated=0,retained=0,now=currentDateTime();
+    records.forEach(function(r){
+      if(r.status==='normal'){
+        r.fields.show=(r.fields.show||0)+Math.floor(Math.random()*900);
+        r.fields.click=(r.fields.click||0)+Math.floor(Math.random()*60);
+        r.fields.cost=(r.fields.cost||0)+Math.floor(Math.random()*240);
+        r.fields.liveEnter=(r.fields.liveEnter||0)+Math.floor(Math.random()*18);
+        r.fields.ctr=Math.round(r.fields.click/r.fields.show*1000)/10;
+        r.fields.cpc=Math.round(r.fields.cost/r.fields.click*100)/100;
+        r.fields.convertCost=r.fields.convert?Math.round(r.fields.cost/r.fields.convert*10)/10:null;
+        r.dataAt=now;updated++;
+      }else retained++;
+    });
+    saveRecords();
+    countdown=60;btn.disabled=false;btn.textContent='刷新数据';
+    applyFilters();
+    showToast('数据已刷新',updated+' 条素材更新成功，'+retained+' 条记录保留原状态');
+  },1200);
+}
+function openDrawer(id){
+  selectedRecord=records.find(function(r){return r.id===id});
+  if(!selectedRecord)return;
+  var r=selectedRecord,f=r.fields,acc=ACCOUNT_META[r.accountId]||{name:'当前授权账户'};
+  document.getElementById('drawerTitle').textContent=r.materialName;
+  var metricCards='';
+  [['曝光',f.show],['点击',f.click],['消耗(元)',f.cost],['CPC',f.cpc],['进房量',f.liveEnter],['进房率',f.liveEnterRate===null?null:f.liveEnterRate+'%'],['组件点击',f.componentClick],['转化数',f.convert],['转化成本',f.convertCost],['平均观看时长',f.liveAvgWatch===null?null:f.liveAvgWatch+'s'],['线索有效率',f.validRate===null?null:f.validRate+'%']].forEach(function(m){
+    metricCards+='<div class="detail-card"><label>'+m[0]+'</label><strong>'+(m[1]===null?'—':(typeof m[1]==='number'?fmt(m[1]):m[1]))+'</strong></div>';
+  });
+  var dailyRows=r.daily.slice().sort(function(a,b){return a.date<b.date?-1:1}).map(function(d){
+    return '<tr><td>'+d.date.slice(5)+'</td><td>'+fmt(d.show)+'</td><td>'+fmt(d.click)+'</td><td>'+fmt(d.cost)+'</td><td>'+fmt(d.liveEnter)+'</td></tr>';
+  }).join('');
+  var dailyMax={};
+  DAILY_METRICS.forEach(function(m){
+    var mx=0;(r.daily||[]).forEach(function(d){mx=Math.max(mx,d[m.key]||0)});
+    dailyMax[m.key]=mx;
+  });
+  var legendHtml=DAILY_METRICS.map(function(m){
+    return '<span><i style="background:'+(DAILY_COLORS[m.key]||'#2f6bff')+'"></i>'+m.label+' <b>'+(dailyMax[m.key]?fmt(dailyMax[m.key]):'—')+'</b></span>';
+  }).join('');
+  document.getElementById('drawerBody').innerHTML=
+    '<div class="detail-hero"><div class="detail-cover" style="background:linear-gradient(135deg,'+PLATFORM_META[r.platform].color+',#90a4ae)">'+r.materialName.slice(0,1)+'</div><div>'+platformBadge(r.platform)+'<h3>'+r.materialName+'</h3><p>'+acc.name+' · 投放 '+r.startDate.slice(5)+' ~ '+r.endDate.slice(5)+'</p></div></div>'+
+    (r.lastError?'<div class="script-box" style="margin-top:10px;color:#a95020">'+r.lastError+'</div>':'')+
+    '<section class="detail-section"><h4>素材信息</h4><div class="kv-grid"><div class="kv"><label>素材 ID</label><strong>'+r.materialId+'</strong></div><div class="kv"><label>投放平台</label><strong>'+PLATFORM_META[r.platform].name+'</strong></div><div class="kv"><label>广告账户</label><strong>'+acc.name+'</strong></div><div class="kv"><label>数据截至</label><strong>'+(r.dataAt||'尚未同步')+'</strong></div></div></section>'+
+    '<section class="detail-section"><h4>区间累计指标</h4><div class="detail-grid">'+metricCards+'</div></section>'+
+    '<section class="detail-section"><div class="daily-chart-head"><h4 style="margin:0">按天趋势</h4><span class="chart-note">各指标按区间最大值归一化（%），悬停查看真实值</span></div><div class="chart-legend">'+legendHtml+'</div><div class="daily-chart" id="dailyChart"></div><h4 style="margin-top:2px">按天明细</h4><table class="daily-table"><thead><tr><th>日期</th><th>曝光</th><th>点击</th><th>消耗(元)</th><th>进房量</th></tr></thead><tbody>'+dailyRows+'</tbody></table></section>';
+  renderDailyChart(r);
+  document.getElementById('drawerMask').classList.add('show');
+}
+function closeDrawer(){document.getElementById('drawerMask').classList.remove('show')}
+function closeDrawerByMask(e){if(e.target.id==='drawerMask')closeDrawer()}
+var previewRecord=null,previewTimer=null,previewSecond=0,previewDuration=30,previewMuted=false;
+var DAILY_METRICS=[{key:'cost',label:'消耗(元)'},{key:'show',label:'曝光'},{key:'click',label:'点击'},{key:'liveEnter',label:'进房量'}];
+var DAILY_COLORS={cost:'#d97706',show:'#2f6bff',click:'#16a34a',liveEnter:'#dc4c4c'};
+function renderDailyChart(r){
+  var el=document.getElementById('dailyChart');if(!el)return;
+  var data=(r.daily||[]).slice().sort(function(a,b){return a.date<b.date?-1:1});
+  if(!data.length){el.innerHTML='<div style="padding:26px 0;text-align:center;color:#9aa1ab;font-size:12px">暂无按天数据</div>';return}
+  var maxBy={};
+  DAILY_METRICS.forEach(function(m){
+    var mx=0;data.forEach(function(d){mx=Math.max(mx,d[m.key]||0)});
+    maxBy[m.key]=mx||1;
+  });
+  var W=640,H=190,P={l:40,r:10,t:14,b:26};
+  var iw=W-P.l-P.r,ih=H-P.t-P.b,
+      x=function(i){return P.l+(data.length===1?iw/2:i*iw/(data.length-1))},
+      y=function(p){return P.t+ih-p*ih};
+  var yGrid='',yLab='';
+  for(var i=0;i<=4;i++){
+    var p=i/4,py=y(p);
+    yGrid+='<line x1="'+P.l+'" y1="'+py.toFixed(1)+'" x2="'+(W-P.r)+'" y2="'+py.toFixed(1)+'" stroke="#eef0f4" stroke-width="1"/>';
+    yLab+='<text x="'+(P.l-6)+'" y="'+(py+3.5)+'" text-anchor="end" font-size="10" fill="#9aa1ab">'+Math.round(p*100)+'%</text>';
+  }
+  var tickIdx=[];
+  if(data.length<=7){for(var i=0;i<data.length;i++)tickIdx.push(i)}
+  else{var step=data.length/7;for(var i=0;i<7;i++)tickIdx.push(Math.round(i*step));if(tickIdx[tickIdx.length-1]!==data.length-1)tickIdx.push(data.length-1)}
+  var xLab=tickIdx.map(function(i){return '<text x="'+x(i).toFixed(1)+'" y="'+(H-9)+'" text-anchor="middle" font-size="10" fill="#9aa1ab">'+data[i].date.slice(5)+'</text>'}).join('');
+  var parts=yGrid+yLab;
+  DAILY_METRICS.forEach(function(m){
+    var c=DAILY_COLORS[m.key]||'#2f6bff';
+    var pts=data.map(function(d,i){return [x(i),y((d[m.key]||0)/maxBy[m.key])]});
+    var line=pts.map(function(p,i){return(i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)}).join(' ');
+    parts+='<path d="'+line+'" fill="none" stroke="'+c+'" stroke-width="1.6" stroke-linejoin="round"/>';
+    pts.forEach(function(p,i){
+      parts+='<circle cx="'+p[0].toFixed(1)+'" cy="'+p[1].toFixed(1)+'" r="2.5" fill="'+c+'"><title>'+data[i].date+' '+m.label+' '+String(data[i][m.key]||0).toLocaleString('zh-CN')+'</title></circle>';
+    });
+  });
+  el.innerHTML='<svg viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg">'+parts+xLab+'</svg>';
+}
+function canPreview(r){return !!(r&&r.playUrl&&r.status!=='first_sync')}
+function previewReason(r){if(r.status==='first_sync')return '首次同步中，尚未获取作品链接';if(!r.playUrl)return '尚未获取素材作品链接，暂不可预览';return ''}
+function isOfficialPlatformUrl(r){if(!r||!r.playUrl)return false;try{var u=new URL(r.playUrl),host=u.hostname.toLowerCase();if(u.protocol!=='https:')return false;if(r.platform==='oceanengine')return host==='douyin.com'||host.endsWith('.douyin.com')||host==='iesdouyin.com'||host.endsWith('.iesdouyin.com');if(r.platform==='tencentAds')return host==='weishi.qq.com'||host.endsWith('.weishi.qq.com');return false}catch(e){return false}}
+function canOpenPlatform(r){return !!(r&&r.status!=='first_sync'&&isOfficialPlatformUrl(r))}
+function platformOpenReason(r){if(r.status==='first_sync')return '首次同步中，尚未获取作品链接';if(!r.playUrl)return '尚未获取素材作品链接';return '素材作品链接无效'}
+function platformLogo(p){
+  if(p==='oceanengine')return '<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M8.5 3.4v10.6a3.4 3.4 0 1 1-2-3.1V3.4h2Zm1.9-1.8h3.3v10.6a3.4 3.4 0 1 1-2-3.1V1.6Zm7.5 2.9v2.2a6.2 6.2 0 0 1-3.8-1.9v8.9a5.4 5.4 0 1 1-2.9-4.8V3.4a8.7 8.7 0 0 0 6.7 2.6Z" fill="#fff"/></svg>';
+  return '<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 2.4C7.3 2.4 3.8 5.9 3.8 10.4c0 2.4 1.2 4.3 2.8 5.5-.4 2.5-1.9 4.3-3.7 5.4 2.9.3 5.2-1.1 6.5-2.9.7.3 1.7.5 2.6.5 4.7 0 8.2-3.5 8.2-8.5S16.7 2.4 12 2.4Z" fill="#fff"/><ellipse cx="9.1" cy="11" rx="1.05" ry="1.4" fill="#0052D9"/><ellipse cx="14.9" cy="11" rx="1.05" ry="1.4" fill="#0052D9"/><path d="M12 13.6c-1.5 0-2.7.6-3.3 1.5h6.6c-.6-.9-1.8-1.5-3.3-1.5Z" fill="#0052D9"/></svg>';
+}
+function openPreview(id){
+  var r=records.find(function(x){return x.id===id});if(!r)return;
+  if(!canPreview(r)){showToast('暂时无法预览',previewReason(r));return}
+  previewRecord=r;previewSecond=0;previewMuted=false;previewDuration=30;clearInterval(previewTimer);previewTimer=null;
+  var acc=ACCOUNT_META[r.accountId]||{name:'当前授权账户'};
+  document.getElementById('previewHeadSub').textContent=PLATFORM_META[r.platform].name+' · 当前投放素材';
+  document.getElementById('previewLogo').innerHTML=platformLogo(r.platform).replace(/width="18" height="18"/g,'width="28" height="28"');
+  document.getElementById('previewPlatform').innerHTML=platformLogo(r.platform)+' '+PLATFORM_META[r.platform].name;
+  document.getElementById('previewAccount').textContent='@'+acc.name;
+  document.getElementById('previewCaption').textContent=r.materialName;
+  document.getElementById('previewTitle').textContent=r.materialName;
+  document.getElementById('previewMetaPlatform').textContent=PLATFORM_META[r.platform].name;
+  document.getElementById('previewMetaAccount').textContent=acc.name;
+  document.getElementById('previewMetaTime').textContent=r.startDate.slice(5)+' ~ '+r.endDate.slice(5);
+  document.getElementById('previewMetaId').textContent=r.materialId;
+  document.getElementById('previewLetter').textContent=r.materialName.slice(0,1);
+  document.getElementById('previewVisual').style.background='linear-gradient(145deg,'+PLATFORM_META[r.platform].color+',#90a4ae)';
+  document.getElementById('previewProgress').max=previewDuration;
+  document.getElementById('previewProgress').value=0;
+  document.getElementById('previewPlayBtn').textContent='▶';
+  document.getElementById('previewVolumeBtn').textContent='🔊';
+  document.getElementById('platformPlayer').classList.remove('playing');
+  document.getElementById('previewMask').classList.add('show');
+}
+function openPlatformPage(id){
+  var r=records.find(function(x){return x.id===id});if(!r)return;
+  if(!canOpenPlatform(r)){showToast('暂时无法前往平台',platformOpenReason(r));return}
+  var opened=window.open('about:blank','_blank');
+  if(!opened){showToast('新窗口被拦截','请允许浏览器打开新窗口后重试');return}
+  opened.opener=null;opened.location.href=r.playUrl;
+}
+function hotReplicate(id){var r=records.find(function(x){return x.id===id});if(!r)return;showToast('爆款拆解 · '+r.materialName,'功能即将上线，敬请期待')}
+function togglePreviewPlayback(){
+  if(!previewRecord)return;
+  if(previewTimer){pausePreview();return}
+  if(previewSecond>=previewDuration){previewSecond=0;document.getElementById('previewProgress').value=0}
+  document.getElementById('previewPlayBtn').textContent='❚❚';
+  document.getElementById('platformPlayer').classList.add('playing');
+  previewTimer=setInterval(function(){
+    previewSecond++;
+    if(previewSecond>=previewDuration){previewSecond=previewDuration;pausePreview()}
+    document.getElementById('previewProgress').value=previewSecond;
+  },1000);
+}
+function pausePreview(){clearInterval(previewTimer);previewTimer=null;document.getElementById('previewPlayBtn').textContent=previewSecond>=previewDuration?'↻':'▶';document.getElementById('platformPlayer').classList.remove('playing')}
+function seekPreview(value){previewSecond=Number(value)||0;if(previewSecond>=previewDuration)pausePreview();else if(!previewTimer)document.getElementById('previewPlayBtn').textContent='▶'}
+function togglePreviewVolume(){previewMuted=!previewMuted;document.getElementById('previewVolumeBtn').textContent=previewMuted?'🔇':'🔊'}
+function closePreview(){pausePreview();previewSecond=0;previewRecord=null;document.getElementById('previewMask').classList.remove('show')}
+function closePreviewByMask(e){if(e.target.id==='previewMask')closePreview()}
+function showToast(t,d){document.getElementById('toastTitle').textContent=t;document.getElementById('toastText').textContent=d;var el=document.getElementById('toast');el.classList.add('show');clearTimeout(window.toastTimer);window.toastTimer=setTimeout(function(){el.classList.remove('show')},2600)}
+function exportCSV(){
+  var BOM='\uFEFF',header=['素材名称','素材ID','平台','账户','投放开始','投放结束','曝光','点击','CTR','消耗','CPC','进房量','进房率','组件点击','转化数','转化成本','平均观看时长','线索有效率'],
+  rows=filtered.map(function(r){var a=ACCOUNT_META[r.accountId]||{name:''},f=r.fields;
+    return [r.materialName,r.materialId,PLATFORM_META[r.platform].name,a.name,r.startDate,r.endDate,fmt(f.show),fmt(f.click),f.ctr===null?'—':f.ctr+'%',fmt(f.cost),fmt(f.cpc),fmt(f.liveEnter),f.liveEnterRate===null?'—':f.liveEnterRate+'%',fmt(f.componentClick),fmt(f.convert),fmt(f.convertCost),f.liveAvgWatch===null?'—':f.liveAvgWatch+'s',f.validRate===null?'—':f.validRate+'%']}),
+  csv=BOM+header.join(',')+'\n'+rows.map(function(r){return r.map(function(c){return '"'+String(c).replace(/"/g,'""')+'"'}).join(',')}).join('\n'),
+  blob=new Blob([csv],{type:'text/csv;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');
+  a.href=url;a.download='广告投放数据-'+currentDateTime().replace(/[: ]/g,'')+'.csv';document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);
+  showToast('导出成功','已导出 '+filtered.length+' 条筛选结果');
+}
+function renderBindGuide(){
+  var anyBound=Object.keys(PLATFORM_META).some(function(p){return bindAccountStatus(p)==='bound'||bindAccountStatus(p)==='perm_pending'});
+  document.getElementById('bindGuide').style.display=anyBound?'none':'flex';
+  document.getElementById('filterCard').style.display=anyBound?'':'none';
+}
+document.addEventListener('keydown',function(e){if(e.key==='Escape'){closeDrawer();if(document.getElementById('previewMask').classList.contains('show'))closePreview()}});
+initOptions();renderBindGuide();applyFilters();
+setInterval(function(){countdown--;if(countdown<=0){countdown=60;records=loadRecords();initOptions();applyFilters()}document.getElementById('countdown').textContent=countdown},1000);
+</script>
+</body>
+</html>

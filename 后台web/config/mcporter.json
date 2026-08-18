@@ -1,0 +1,7 @@
+{
+  "mcpServers": {
+    "autoglm-browser-agent": {
+      "baseUrl": "http://127.0.0.1:62031"
+    }
+  }
+}

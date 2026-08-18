@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>智能台词工作台</title>
+  <style>
+    :root {
+      --blue: #2f6bff;
+      --blue-deep: #1746b8;
+      --blue-soft: #edf3ff;
+      --ink: #172033;
+      --muted: #7b8497;
+      --line: #e5e9f1;
+      --panel: #ffffff;
+      --canvas: #f3f5f8;
+      --nav: #1c1c1e;
+      --mint: #0aa78f;
+      --mint-soft: #e6f8f4;
+      --amber: #d98600;
+      --amber-soft: #fff5df;
+      --red: #d83b4a;
+      --red-soft: #fff0f1;
+      --shadow: 0 12px 32px rgba(22, 34, 58, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; }
+    body {
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 72% 0%, rgba(47,107,255,.07), transparent 32%),
+        var(--canvas);
+      font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+      font-size: 14px;
+    }
+    button, input, textarea, select { font: inherit; }
+    button { color: inherit; }
+
+    .sidebar {
+      position: fixed; inset: 0 auto 0 0; width: 56px; z-index: 20;
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+      padding: 16px 0; background: #fff; border-right: 1px solid #e8e8e8;
+    }
+    .logo {
+      width: 32px; height: 32px; margin-bottom: 16px;
+      display: grid; place-items: center;
+    }
+    .logo svg { width: 28px; height: 28px; }
+    .sidebar-item {
+      width: 40px; height: 40px; border-radius: 10px;
+      display: flex; flex-direction: column; gap: 4px; align-items: center; justify-content: center;
+      color: #999; text-decoration: none; font-size: 9px; transition: .18s ease;
+    }
+    .sidebar-item .icon { font-size: 16px; line-height: 1; }
+    .sidebar-item:hover { color: #0066ff; background: #f5f5f5; }
+    .sidebar-item.active { color: #0066ff; background: #eef4ff; }
+    .sidebar-divider { width: 24px; height: 1px; margin: 8px 0; background: #e8e8e8; }
+
+    .main { margin-left: 56px; min-height: 100vh; }
+    .topbar {
+      height: 48px; padding: 0 32px; display: flex; align-items: center; justify-content: space-between;
+      background: #fff; border-bottom: 1px solid #e8e8e8; position: sticky; top: 0; z-index: 15;
+    }
+    .topbar-brand { font-size: 13px; font-weight: 600; letter-spacing: 1px; }
+    .topbar-right { display: flex; align-items: center; gap: 14px; color: var(--muted); font-size: 12px; }
+    .prototype-tag { padding: 5px 9px; border-radius: 999px; background: #eef1f5; color: #697386; }
+    .avatar { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; color: #fff; font-size: 11px; font-weight: 700; background: linear-gradient(135deg,#334155,#64748b); }
+
+    .page-head {
+      padding: 22px 26px 18px; display: flex; align-items: flex-end; justify-content: space-between; gap: 24px;
+    }
+    .eyebrow { margin-bottom: 7px; color: var(--blue); font-size: 11px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
+    h1 { margin: 0; font-family: "Songti SC", "STSong", serif; font-size: 27px; letter-spacing: -.02em; }
+    .page-desc { margin: 7px 0 0; color: var(--muted); font-size: 13px; }
+    .head-note { max-width: 310px; color: #6d778a; font-size: 11px; line-height: 1.6; text-align: right; }
+
+    .workspace {
+      padding: 0 26px 26px; display: grid; grid-template-columns: 260px minmax(440px, 1fr) 338px;
+      gap: 16px; height: calc(100vh - 145px); min-height: 600px;
+    }
+    .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; box-shadow: 0 4px 14px rgba(22,34,58,.035); min-height: 0; }
+
+    .control-panel { display: flex; flex-direction: column; overflow: hidden; }
+    .mode-switch { padding: 12px; display: grid; grid-template-columns: repeat(3,1fr); gap: 5px; border-bottom: 1px solid var(--line); background: #fafbfc; }
+    .mode-btn { border: 0; border-radius: 8px; padding: 9px 4px; background: transparent; color: #727b8d; font-size: 11px; font-weight: 700; cursor: pointer; }
+    .mode-btn.active { color: var(--blue-deep); background: #fff; box-shadow: 0 2px 10px rgba(32,53,88,.1); }
+    .control-scroll { padding: 18px; overflow-y: auto; flex: 1; }
+    .mode-panel { display: none; }
+    .mode-panel.active { display: block; animation: rise .24s ease both; }
+    @keyframes rise { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: none; } }
+    .section-kicker { color: var(--blue); font-size: 10px; font-weight: 800; letter-spacing: .12em; }
+    .section-title { margin: 5px 0 5px; font-size: 17px; font-weight: 800; }
+    .section-copy { margin: 0 0 18px; color: var(--muted); font-size: 11px; line-height: 1.65; }
+    .field { margin-bottom: 16px; }
+    .field-label { display: flex; justify-content: space-between; align-items: center; margin-bottom: 7px; font-size: 12px; font-weight: 700; }
+    .field-label span { color: #a0a7b5; font-size: 10px; font-weight: 500; }
+    .text-input, .text-area, .select {
+      width: 100%; border: 1px solid #dce1ea; border-radius: 10px; background: #fff; color: var(--ink); outline: none;
+      transition: border-color .16s, box-shadow .16s;
+    }
+    .text-area { min-height: 112px; padding: 11px 12px; resize: vertical; line-height: 1.65; }
+    .text-input, .select { height: 38px; padding: 0 11px; }
+    .text-area:focus, .text-input:focus, .select:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(47,107,255,.09); }
+    .quick-topics { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+    .quick-chip { border: 1px solid #dfe4ed; border-radius: 999px; padding: 5px 8px; background: #fff; color: #687286; font-size: 10px; cursor: pointer; }
+    .quick-chip:hover { color: var(--blue); border-color: #a9c0ff; background: var(--blue-soft); }
+
+    .counter { height: 38px; display: grid; grid-template-columns: 38px 1fr 38px; border: 1px solid #dce1ea; border-radius: 10px; overflow: hidden; }
+    .counter button { border: 0; background: #f7f8fa; cursor: pointer; font-size: 17px; }
+    .counter button:hover { color: var(--blue); background: var(--blue-soft); }
+    .counter strong { display: grid; place-items: center; border-left: 1px solid #e8ebf1; border-right: 1px solid #e8ebf1; }
+    details.advanced { margin: 4px 0 17px; border: 1px solid #e2e6ed; border-radius: 10px; background: #fafbfc; }
+    details.advanced summary { padding: 11px 12px; cursor: pointer; font-size: 11px; font-weight: 700; list-style: none; }
+    details.advanced summary::-webkit-details-marker { display: none; }
+    details.advanced summary::after { content: "+"; float: right; color: #929aaa; }
+    details.advanced[open] summary::after { content: "−"; }
+    .advanced-body { padding: 0 12px 2px; }
+    .advanced-body .field { margin-bottom: 12px; }
+    .advanced-body .field-label { font-size: 11px; }
+    .advanced-body .select { height: 34px; font-size: 11px; }
+    .segment { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+    .segment button { min-height: 38px; padding: 6px; border: 1px solid #dce1ea; border-radius: 9px; background: #fff; color: #687286; font-size: 11px; cursor: pointer; }
+    .segment button.active { color: var(--blue-deep); border-color: #9ab6ff; background: var(--blue-soft); font-weight: 700; }
+    .primary-btn { width: 100%; height: 42px; border: 0; border-radius: 10px; background: var(--blue); color: #fff; font-weight: 800; cursor: pointer; box-shadow: 0 8px 18px rgba(47,107,255,.2); transition: .18s ease; }
+    .primary-btn:hover { background: #245de6; transform: translateY(-1px); }
+    .primary-btn:disabled { background: #aebbd9; box-shadow: none; cursor: wait; transform: none; }
+    .helper { margin-top: 10px; color: #98a0af; font-size: 10px; line-height: 1.55; text-align: center; }
+
+    .editor-panel { display: flex; flex-direction: column; overflow: hidden; }
+    #editor-panel { scroll-margin-top: 64px; }
+    .editor-top { min-height: 57px; padding: 12px 15px; display: flex; align-items: center; justify-content: space-between; gap: 12px; border-bottom: 1px solid var(--line); }
+    .editor-heading { font-weight: 800; }
+    .editor-sub { margin-top: 3px; color: var(--muted); font-size: 10px; }
+    .global-actions { display: flex; gap: 6px; }
+    .ghost-btn { height: 31px; padding: 0 10px; border: 1px solid #dfe4ec; border-radius: 8px; background: #fff; color: #5e687b; font-size: 10px; font-weight: 700; cursor: pointer; }
+    .ghost-btn:hover:not(:disabled) { color: var(--blue); border-color: #aec2fb; background: var(--blue-soft); }
+    .ghost-btn:disabled { opacity: .4; cursor: not-allowed; }
+    .draft-tabs { display: flex; gap: 7px; padding: 10px 14px; overflow-x: auto; border-bottom: 1px solid var(--line); background: #fafbfc; min-height: 56px; }
+    .draft-tab { min-width: 112px; max-width: 162px; padding: 7px 9px; border: 1px solid #e0e5ed; border-radius: 9px; background: #fff; cursor: pointer; text-align: left; }
+    .draft-tab.active { border-color: #8eaeff; background: var(--blue-soft); box-shadow: inset 0 0 0 1px rgba(47,107,255,.08); }
+    .draft-tab-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 11px; font-weight: 700; }
+    .draft-tab-meta { margin-top: 4px; display: flex; align-items: center; gap: 5px; color: #8d95a5; font-size: 9px; }
+    .status-dot { width: 6px; height: 6px; border-radius: 50%; background: #a7afbc; }
+    .status-dot.checking { background: var(--blue); animation: pulse 1s infinite; }
+    .status-dot.attention { background: var(--amber); }
+    .status-dot.clear { background: var(--mint); }
+    .status-dot.stale { background: #8a93a4; }
+    @keyframes pulse { 50% { opacity: .28; transform: scale(.75); } }
+
+    .empty-state { flex: 1; display: grid; place-items: center; padding: 32px; text-align: center; }
+    .empty-visual { position: relative; width: 118px; height: 98px; margin: 0 auto 20px; }
+    .paper { position: absolute; width: 74px; height: 92px; left: 21px; top: 2px; border: 1px solid #d9e0eb; border-radius: 10px; background: #fff; box-shadow: var(--shadow); transform: rotate(-3deg); }
+    .paper::before { content: ""; position: absolute; left: 15px; right: 15px; top: 23px; height: 3px; border-radius: 3px; background: #7da0ff; box-shadow: 0 14px 0 #d9dfea, 0 28px 0 #d9dfea, 0 42px 0 #e8ebf1; }
+    .spark { position: absolute; right: 1px; top: 4px; width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; color: #fff; background: linear-gradient(135deg,#2f6bff,#0aa78f); box-shadow: 0 8px 18px rgba(47,107,255,.24); font-weight: 800; font-size: 11px; }
+    .empty-state h2 { margin: 0 0 8px; font-family: "Songti SC", "STSong", serif; font-size: 20px; }
+    .empty-state p { max-width: 360px; margin: 0; color: var(--muted); font-size: 12px; line-height: 1.7; }
+    .loading-state { display: none; flex: 1; place-items: center; text-align: center; }
+    .loading-state.show { display: grid; }
+    .loader-ring { width: 42px; height: 42px; margin: 0 auto 14px; border: 3px solid #e5ebf8; border-top-color: var(--blue); border-radius: 50%; animation: spin .8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-title { font-weight: 800; }
+    .loading-copy { margin-top: 6px; color: var(--muted); font-size: 11px; }
+
+    .editor-body { display: none; flex: 1; min-height: 0; padding: 16px; flex-direction: column; }
+    .editor-body.show { display: flex; }
+    .title-row { display: flex; align-items: center; gap: 8px; margin-bottom: 11px; }
+    .draft-title-input { flex: 1; min-width: 0; border: 0; outline: 0; border-radius: 6px; font-family: "Songti SC", "STSong", serif; font-size: 19px; font-weight: 700; color: var(--ink); background: transparent; }
+    .draft-title-input:focus { box-shadow: 0 0 0 3px rgba(47,107,255,.1); }
+    .status-pill { flex: 0 0 auto; padding: 5px 8px; border-radius: 999px; background: #f0f2f6; color: #727b8c; font-size: 9px; font-weight: 700; }
+    .status-pill.attention { background: var(--amber-soft); color: #a36600; }
+    .status-pill.clear { background: var(--mint-soft); color: #087b6a; }
+    .status-pill.checking { background: var(--blue-soft); color: var(--blue-deep); }
+    .script-editor { flex: 1; min-height: 260px; width: 100%; padding: 18px; resize: none; border: 1px solid #dfe4ec; border-radius: 11px; outline: none; color: #202a3d; background: #fcfcfd; font-size: 15px; line-height: 2; letter-spacing: .015em; }
+    .script-editor:focus { border-color: #9bb5fa; box-shadow: 0 0 0 3px rgba(47,107,255,.07); background: #fff; }
+    .editor-foot { min-height: 48px; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .text-meta { color: #8c94a4; font-size: 10px; }
+    .text-meta strong { color: #4b566a; }
+    .single-actions { display: flex; gap: 6px; }
+    .danger-link { color: #ad5360; }
+
+    .insight-panel { display: flex; flex-direction: column; overflow: hidden; }
+    .insight-tabs { padding: 12px; display: grid; grid-template-columns: 1fr 1fr; gap: 6px; border-bottom: 1px solid var(--line); }
+    .insight-tab { height: 34px; border: 0; border-radius: 8px; background: #f4f6f9; color: #717a8b; font-size: 11px; font-weight: 700; cursor: pointer; }
+    .insight-tab.active { color: #fff; background: #243551; }
+    .insight-scroll { flex: 1; overflow-y: auto; padding: 15px; }
+    .insight-content { display: none; }
+    .insight-content.active { display: block; }
+    .insight-empty { margin-top: 70px; color: #9aa2b0; text-align: center; font-size: 11px; line-height: 1.7; }
+    .insight-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+    .insight-title { font-size: 14px; font-weight: 800; }
+    .insight-desc { margin-top: 4px; color: var(--muted); font-size: 10px; line-height: 1.5; }
+    .quality-item { padding: 12px 0; display: grid; grid-template-columns: 26px 1fr; gap: 9px; border-bottom: 1px solid #edf0f4; }
+    .quality-item:last-child { border-bottom: 0; }
+    .quality-icon { width: 24px; height: 24px; display: grid; place-items: center; border-radius: 7px; background: var(--mint-soft); color: var(--mint); font-size: 11px; font-weight: 900; }
+    .quality-item.warn .quality-icon { background: var(--amber-soft); color: var(--amber); }
+    .quality-name { font-size: 11px; font-weight: 800; }
+    .quality-note { margin-top: 4px; color: #7f8898; font-size: 10px; line-height: 1.55; }
+    .risk-summary { display: grid; grid-template-columns: repeat(3,1fr); gap: 6px; margin-bottom: 13px; }
+    .risk-count { padding: 9px 5px; border-radius: 8px; text-align: center; background: #f5f6f8; }
+    .risk-count strong { display: block; font-size: 17px; }
+    .risk-count span { color: #8a92a1; font-size: 9px; }
+    .risk-count.high strong { color: var(--red); }
+    .risk-count.medium strong { color: var(--amber); }
+    .risk-count.low strong { color: #627087; }
+    .risk-card { margin-bottom: 9px; padding: 12px; border: 1px solid #e6e9ef; border-radius: 10px; background: #fff; }
+    .risk-card.high { border-left: 3px solid var(--red); }
+    .risk-card.medium { border-left: 3px solid var(--amber); }
+    .risk-card.low { border-left: 3px solid #8490a4; }
+    .risk-top { display: flex; justify-content: space-between; gap: 8px; align-items: center; }
+    .risk-type { font-size: 11px; font-weight: 800; }
+    .risk-level { padding: 3px 6px; border-radius: 999px; font-size: 10px; font-weight: 800; }
+    .risk-level.high { color: var(--red); background: var(--red-soft); }
+    .risk-level.medium { color: var(--amber); background: var(--amber-soft); }
+    .risk-level.low { color: #647084; background: #eff1f5; }
+    .risk-quote { margin: 8px 0; padding: 7px 8px; border-radius: 6px; background: #f7f8fa; color: #3e495c; font-size: 12px; line-height: 1.55; }
+    .risk-reason { color: #798293; font-size: 12px; line-height: 1.65; }
+    .risk-suggestion { margin-top: 7px; color: #355a8b; font-size: 12px; line-height: 1.65; }
+    .apply-btn { width: 100%; height: 31px; margin-top: 9px; border: 1px solid #b7c9f8; border-radius: 7px; background: var(--blue-soft); color: var(--blue-deep); font-size: 10px; font-weight: 800; cursor: pointer; }
+    .compliance-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin-bottom: 12px; }
+    .compliance-actions button { height: 32px; border: 1px solid #dce2ec; border-radius: 8px; background: #fff; color: #566175; font-size: 10px; font-weight: 700; cursor: pointer; }
+    .compliance-actions button.primary { border-color: #9db8ff; color: var(--blue-deep); background: var(--blue-soft); }
+    .clear-box { padding: 18px 12px; border-radius: 10px; background: var(--mint-soft); color: #127666; text-align: center; font-size: 11px; line-height: 1.7; }
+    .stale-box { padding: 13px; border-radius: 10px; background: #f1f3f6; color: #687286; font-size: 10px; line-height: 1.6; }
+    .disclaimer { padding: 11px 14px; border-top: 1px solid var(--line); background: #fafbfc; color: #7d8798; font-size: 11px; line-height: 1.65; }
+    .disclaimer strong { color: #5d6677; }
+
+    .toast { position: fixed; left: 50%; bottom: 30px; z-index: 100; transform: translate(-50%, 18px); padding: 10px 16px; border-radius: 9px; background: #172033; color: #fff; opacity: 0; pointer-events: none; transition: .22s ease; box-shadow: var(--shadow); font-size: 11px; }
+    .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+    @media (max-width: 1220px) {
+      .workspace { height: auto; min-height: 0; grid-template-columns: 250px minmax(430px,1fr); }
+      .control-panel, .editor-panel { min-height: 650px; }
+      .insight-panel { grid-column: 1 / -1; min-height: 430px; }
+      .insight-scroll { max-height: 520px; }
+    }
+    @media (max-width: 840px) {
+      .page-head { align-items: flex-start; flex-direction: column; }
+      .head-note { text-align: left; }
+      .workspace { grid-template-columns: minmax(0,1fr); }
+      .control-panel, .editor-panel { min-height: 620px; }
+      .insight-panel { grid-column: auto; }
+      .editor-top { align-items: flex-start; flex-direction: column; }
+      .global-actions { flex-wrap: wrap; }
+    }
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="logo"><svg viewBox="0 0 24 24" fill="none" stroke="#1a1a2e" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg></div>
+    <a class="sidebar-item" href="index.html"><span class="icon">📦</span><span class="label">资源</span></a>
+    <a class="sidebar-item" href="导演台首页.html"><span class="icon">🎬</span><span class="label">导演台</span></a>
+    <div class="sidebar-divider"></div>
+    <a class="sidebar-item active" href="全部工具.html"><span class="icon"></span><span class="label">全部工具</span></a>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div class="topbar-brand">智造</div>
+      <div class="topbar-right"><span class="prototype-tag">静态原型演示</span><div class="avatar">W</div></div>
+    </header>
+
+    <section class="page-head">
+      <div>
+        <div class="eyebrow">SCRIPT INTELLIGENCE</div>
+        <h1>智能台词工作台</h1>
+        <p class="page-desc">从选题到成稿，完成创作、诊断、风险提示与批量衍生。</p>
+      </div>
+      <div class="head-note">面向证券投顾口播场景 · 检查结果仅作内容风险提示，不代表正式合规审核结论</div>
+    </section>
+
+    <section class="workspace">
+      <aside class="panel control-panel">
+        <div class="mode-switch" role="tablist" aria-label="台词工作模式">
+          <button class="mode-btn active" id="mode-create" role="tab" aria-selected="true" aria-controls="panel-create" data-mode="create" onclick="setMode('create')">从零创作</button>
+          <button class="mode-btn" id="mode-derive" role="tab" aria-selected="false" aria-controls="panel-derive" data-mode="derive" onclick="setMode('derive')">一稿多版</button>
+          <button class="mode-btn" id="mode-check" role="tab" aria-selected="false" aria-controls="panel-check" data-mode="check" onclick="setMode('check')">风险检查</button>
+        </div>
+        <div class="control-scroll">
+          <div class="mode-panel active" id="panel-create" role="tabpanel" aria-labelledby="mode-create">
+            <div class="section-kicker">CREATE</div>
+            <div class="section-title">描述你的获客主题</div>
+            <p class="section-copy">AI 将生成不同获客钩子，保留转化链路，并在成稿后自动检查表达风险。</p>
+            <div class="field">
+              <label class="field-label" for="topic-input">创作主题 / 用户痛点 <span>必填</span></label>
+              <textarea class="text-area" id="topic-input" style="min-height:88px" placeholder="例如：行情震荡时，短线投资者容易追涨杀跌"></textarea>
+              <div class="quick-topics">
+                <button class="quick-chip" onclick="fillTopic('股票被套后，如何避免情绪化操作？','提供基于公开信息整理的盘前观察清单和复盘方法')">股票被套</button>
+                <button class="quick-chip" onclick="fillTopic('市场震荡时，短线投资者应该先看什么？','每天盘前更新市场观察方向、公开信息来源和风险提示')">市场震荡</button>
+                <button class="quick-chip" onclick="fillTopic('为什么很多投资者的选股步骤容易出错？','用结构化筛选框架帮助用户整理信息、判断依据和风险边界')">选股误区</button>
+              </div>
+            </div>
+            <div class="field">
+              <label class="field-label" for="selling-input">产品 / 服务卖点 <span>必填</span></label>
+              <textarea class="text-area" id="selling-input" style="min-height:74px" placeholder="写清提供什么服务、信息来源和用户如何使用；不要填写无法核验的收益承诺"></textarea>
+            </div>
+            <div class="field">
+              <label class="field-label">生成篇数 <span>1–5 篇</span></label>
+              <div class="counter"><button onclick="adjustCount('create',-1)">−</button><strong id="create-count">3</strong><button onclick="adjustCount('create',1)">＋</button></div>
+            </div>
+            <details class="advanced">
+              <summary>高级设置</summary>
+              <div class="advanced-body">
+                <div class="field"><label class="field-label">预计时长</label><select class="select" id="create-duration"><option value="30">30 秒</option><option value="60" selected>60 秒</option><option value="90">90 秒</option></select></div>
+                <div class="field"><label class="field-label">目标受众</label><select class="select" id="create-audience"><option>小资金投资者</option><option selected>短线投资者</option><option>持仓被套投资者</option><option>普通投资者</option></select></div>
+                <div class="field"><label class="field-label">表达力度</label><select class="select" id="create-style"><option>强钩子</option><option selected>均衡转化</option><option>稳健克制</option></select></div>
+              </div>
+            </details>
+            <button class="primary-btn" id="create-btn" onclick="generateFromTopic()">生成台词</button>
+            <div class="helper">原型使用本地模拟内容，不会调用真实大模型。</div>
+          </div>
+
+          <div class="mode-panel" id="panel-check" role="tabpanel" aria-labelledby="mode-check">
+            <div class="section-kicker">REVIEW</div>
+            <div class="section-title">检查已有台词</div>
+            <p class="section-copy">定位可能存在的表达风险，并提供逐条替换与全文优化建议。</p>
+            <div class="field">
+              <label class="field-label" for="check-source">原始台词 <span>必填</span></label>
+              <textarea class="text-area" id="check-source" style="min-height:260px" placeholder="粘贴需要检查的金融口播台词"></textarea>
+              <div class="quick-topics"><button class="quick-chip" onclick="fillRiskDemo()">填入风险示例</button></div>
+            </div>
+            <button class="primary-btn" id="check-btn" onclick="startExistingCheck()">开始风险检查</button>
+            <div class="helper">检查表达风险，不核验行情、数据和政策事实。</div>
+          </div>
+
+          <div class="mode-panel" id="panel-derive" role="tabpanel" aria-labelledby="mode-derive">
+            <div class="section-kicker">VARIATIONS</div>
+            <div class="section-title">基于一稿批量衍生</div>
+            <p class="section-copy">锁定原稿事实、产品卖点和行动引导，变化钩子、顺序与表达角度。</p>
+            <div class="field">
+              <label class="field-label" for="derive-source">基础台词 <span>必填</span></label>
+              <textarea class="text-area" id="derive-source" style="min-height:180px" placeholder="粘贴作为衍生依据的完整台词"></textarea>
+              <div class="quick-topics"><button class="quick-chip" onclick="fillDeriveDemo()">填入示例</button></div>
+            </div>
+            <div class="field">
+              <label class="field-label">衍生方式</label>
+              <div class="segment"><button class="active" data-derive="same" onclick="setDeriveType('same')">同主题多版本</button><button data-derive="series" onclick="setDeriveType('series')">系列角度扩展</button></div>
+            </div>
+            <div class="field">
+              <label class="field-label">生成篇数 <span>1–5 篇</span></label>
+              <div class="counter"><button onclick="adjustCount('derive',-1)">−</button><strong id="derive-count">3</strong><button onclick="adjustCount('derive',1)">＋</button></div>
+            </div>
+            <details class="advanced">
+              <summary>高级设置</summary>
+              <div class="advanced-body">
+                <div class="field"><label class="field-label">预计时长</label><select class="select" id="derive-duration"><option value="30">30 秒</option><option value="60" selected>60 秒</option><option value="90">90 秒</option></select></div>
+                <div class="field"><label class="field-label">表达力度</label><select class="select" id="derive-style"><option>强钩子</option><option selected>均衡转化</option><option>稳健克制</option></select></div>
+              </div>
+            </details>
+            <button class="primary-btn" id="derive-btn" onclick="generateVariations()">生成衍生台词</button>
+          </div>
+        </div>
+      </aside>
+
+      <section class="panel editor-panel" id="editor-panel">
+        <div class="editor-top">
+          <div><div class="editor-heading">稿件工作区</div><div class="editor-sub" id="result-summary">尚未生成台词</div></div>
+          <div class="global-actions">
+            <button class="ghost-btn" id="copy-all-btn" onclick="copyAll()" disabled>复制全部</button>
+            <button class="ghost-btn" id="txt-btn" onclick="exportTxt()" disabled>导出 TXT</button>
+            <button class="ghost-btn" id="csv-btn" onclick="exportCsv()" disabled>导出 CSV</button>
+          </div>
+        </div>
+        <div class="draft-tabs" id="draft-tabs"></div>
+        <div class="empty-state" id="empty-state">
+          <div><div class="empty-visual"><div class="paper"></div><div class="spark">AI</div></div><h2>从左侧开始一次创作</h2><p>输入选题生成多篇台词，或粘贴已有台词进行检查与衍生。每篇稿件都可以继续编辑。</p></div>
+        </div>
+        <div class="loading-state" id="loading-state" role="status" aria-live="polite"><div><div class="loader-ring"></div><div class="loading-title" id="loading-title">正在理解创作要求</div><div class="loading-copy">组织结构、生成表达，并进行初步风险扫描…</div></div></div>
+        <div class="editor-body" id="editor-body">
+          <div class="title-row"><input class="draft-title-input" id="draft-title" aria-label="当前稿件标题" oninput="updateActiveTitle(this.value)"><span class="status-pill" id="status-pill" role="status" aria-live="polite">待检查</span></div>
+          <textarea class="script-editor" id="script-editor" aria-label="当前稿件正文" oninput="onEditorInput()"></textarea>
+          <div class="editor-foot">
+            <div class="text-meta" id="text-meta"></div>
+            <div class="single-actions">
+              <button class="ghost-btn" id="undo-btn" onclick="undoLastChange()" disabled>撤回修改</button>
+              <button class="ghost-btn" onclick="copyCurrent()">复制本篇</button>
+              <button class="ghost-btn danger-link" onclick="deleteCurrent()">删除</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <aside class="panel insight-panel">
+        <div class="insight-tabs" role="tablist" aria-label="稿件分析类型"><button class="insight-tab active" id="insight-quality" role="tab" aria-selected="true" aria-controls="quality-content" data-insight="quality" onclick="setInsight('quality')">内容诊断</button><button class="insight-tab" id="insight-compliance" role="tab" aria-selected="false" aria-controls="compliance-content" data-insight="compliance" onclick="setInsight('compliance')">风险提示</button></div>
+        <div class="insight-scroll">
+          <div class="insight-content active" id="quality-content" role="tabpanel" aria-labelledby="insight-quality"></div>
+          <div class="insight-content" id="compliance-content" role="tabpanel" aria-labelledby="insight-compliance"></div>
+        </div>
+        <div class="disclaimer"><strong>发布前须知：</strong>本页仅演示 AI 辅助创作与风险识别。发布前须由所属机构按制度审核，核验信息来源和日期，确认机构与人员身份资质披露，并保留稿件、引用来源、修改及审核记录。</div>
+      </aside>
+    </section>
+  </main>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    var state = {
+      mode: 'create',
+      insight: 'quality',
+      counts: { create: 3, derive: 3 },
+      deriveType: 'same',
+      drafts: { create: [], check: [], derive: [] },
+      activeIds: { create: null, check: null, derive: null },
+      loading: false,
+      nextId: 1
+    };
+
+    function escapeHtml(value) {
+      return String(value == null ? '' : value).replace(/[&<>'"]/g, function(ch) {
+        return { '&':'&amp;', '<':'&lt;', '>':'&gt;', "'":'&#39;', '"':'&quot;' }[ch];
+      });
+    }
+
+    function toast(message) {
+      var el = document.getElementById('toast');
+      el.textContent = message;
+      el.classList.add('show');
+      clearTimeout(toast.timer);
+      toast.timer = setTimeout(function(){ el.classList.remove('show'); }, 1900);
+    }
+
+    function currentDrafts() { return state.drafts[state.mode]; }
+    function currentDraft() {
+      var id = state.activeIds[state.mode];
+      return currentDrafts().find(function(item){ return item.id === id; }) || null;
+    }
+
+    function setMode(mode) {
+      if (state.loading || !state.drafts.hasOwnProperty(mode)) return;
+      state.mode = mode;
+      document.querySelectorAll('.mode-btn').forEach(function(btn){
+        var active = btn.dataset.mode === mode;
+        btn.classList.toggle('active', active);
+        btn.setAttribute('aria-selected', active ? 'true' : 'false');
+      });
+      document.querySelectorAll('.mode-panel').forEach(function(panel){ panel.classList.toggle('active', panel.id === 'panel-' + mode); });
+      renderWorkspace();
+    }
+
+    function setInsight(type) {
+      state.insight = type;
+      document.querySelectorAll('.insight-tab').forEach(function(btn){
+        var active = btn.dataset.insight === type;
+        btn.classList.toggle('active', active);
+        btn.setAttribute('aria-selected', active ? 'true' : 'false');
+      });
+      document.querySelectorAll('.insight-content').forEach(function(panel){ panel.classList.toggle('active', panel.id === type + '-content'); });
+    }
+
+    function setDeriveType(type) {
+      if (state.loading) { toast('当前任务处理中，请稍候'); return; }
+      state.deriveType = type;
+      document.querySelectorAll('[data-derive]').forEach(function(btn){ btn.classList.toggle('active', btn.dataset.derive === type); });
+    }
+
+    function adjustCount(type, delta) {
+      if (state.loading) { toast('当前任务处理中，请稍候'); return; }
+      state.counts[type] = Math.max(1, Math.min(5, state.counts[type] + delta));
+      document.getElementById(type + '-count').textContent = state.counts[type];
+    }
+
+    function fillTopic(value, sellingPoint) {
+      document.getElementById('topic-input').value = value;
+      if (sellingPoint) document.getElementById('selling-input').value = sellingPoint;
+    }
+    function fillRiskDemo() {
+      document.getElementById('check-source').value = '立即暂停！持仓超过8万的朋友赶紧调仓，再不调仓就来不及了。我们用大数据从5000多只股票里筛选机会，这套短线方法准到吓人，可以快速提升投资效果。无需下载、无需注册，也不用留手机号，点击视频下方链接马上领取。';
+    }
+    function fillDeriveDemo() {
+      document.getElementById('derive-source').value = '市场震荡时，短线投资者最容易被盘中涨跌打乱节奏。我们每天盘前整理公开市场信息、观察方向和风险提示，帮助你建立自己的判断清单。如果你想了解这套盘前复盘方法，可以点击视频下方链接查看。以上内容仅供参考，不构成具体投资建议。投资有风险，决策需谨慎。';
+    }
+
+    function getSetting(prefix) {
+      return {
+        duration: Number(document.getElementById(prefix + '-duration').value),
+        audience: document.getElementById(prefix + '-audience') ? document.getElementById(prefix + '-audience').value : '短线投资者',
+        style: document.getElementById(prefix + '-style').value
+      };
+    }
+
+    function beginLoading(buttonId, title) {
+      state.loading = true;
+      document.getElementById('empty-state').style.display = 'none';
+      document.getElementById('editor-body').classList.remove('show');
+      document.getElementById('loading-state').classList.add('show');
+      document.getElementById('loading-title').textContent = title;
+      var btn = document.getElementById(buttonId);
+      btn.dataset.originalText = btn.textContent;
+      document.querySelectorAll('.control-panel button, .control-panel select, .control-panel textarea').forEach(function(control){ control.disabled = true; });
+      btn.textContent = '处理中…';
+      if (window.innerWidth <= 840) {
+        setTimeout(function(){ document.getElementById('editor-panel').scrollIntoView({ behavior:'smooth', block:'start' }); }, 30);
+      }
+    }
+
+    function finishLoading(buttonId, drafts) {
+      state.drafts[state.mode] = drafts;
+      state.activeIds[state.mode] = drafts.length ? drafts[0].id : null;
+      state.loading = false;
+      document.getElementById('loading-state').classList.remove('show');
+      var btn = document.getElementById(buttonId);
+      document.querySelectorAll('.control-panel button, .control-panel select, .control-panel textarea').forEach(function(control){ control.disabled = false; });
+      btn.textContent = btn.dataset.originalText || '生成';
+      renderWorkspace();
+      drafts.forEach(function(draft){ draft.status = 'checking'; });
+      renderWorkspace();
+      setTimeout(function(){
+        drafts.forEach(function(draft){ runDraftCheck(draft); });
+        renderWorkspace();
+        toast('台词已生成，并完成初步风险扫描');
+      }, 520);
+    }
+
+    function generateFromTopic() {
+      var topic = document.getElementById('topic-input').value.trim();
+      if (!topic) { toast('请先输入选题或创作要求'); document.getElementById('topic-input').focus(); return; }
+      var sellingPoint = document.getElementById('selling-input').value.trim();
+      if (!sellingPoint) { toast('请先填写产品或服务卖点'); document.getElementById('selling-input').focus(); return; }
+      var count = state.counts.create;
+      var setting = getSetting('create');
+      beginLoading('create-btn', '正在组织获客钩子与转化链路');
+      setTimeout(function(){
+        var scripts = createTopicScripts(topic, sellingPoint, setting).slice(0, count);
+        finishLoading('create-btn', scripts.map(function(item){ return makeDraft(item.title, item.text, setting.duration); }));
+      }, 850);
+    }
+
+    function applyGenerationSettings(text, setting, subject) {
+      var disclosure = '以上内容仅供参考，不构成具体投资建议。投资有风险，决策需谨慎。';
+      var main = text
+        .replace(/以上内容仅供参考[，,]?不构成(?:具体)?投资建议[。！]?/g, '')
+        .replace(/投资有风险[，,]?决策需谨慎[。！]?/g, '')
+        .trim();
+      var parts = main.split('[[CTA]]');
+      var body = parts[0].trim();
+      var cta = (parts[1] || '如果你想了解完整方法，可以点击视频下方链接查看。').trim();
+      if (setting.style === '强钩子') body = body.replace(/值得关注/g, '一定要先看清').replace(/可以先/g, '先别急着行动，可以');
+      if (setting.style === '稳健克制') body = body.replace(/注意了/g, '可以关注').replace(/别再/g, '不妨减少').replace(/最容易/g, '比较容易').replace(/一定要/g, '建议');
+      var targetChars = Math.max(90, setting.duration * 4 - disclosure.length - cta.length);
+      var expansions = [
+        '使用这类信息时，先核对公开来源、适用日期和服务边界，不要把观察方向直接等同于买卖结论。',
+        '你也可以把“' + subject + '”拆成信息、判断、执行和复盘四个环节，逐项记录自己的依据。',
+        '市场环境和个人资金安排都会变化，任何方法都需要结合自身风险承受能力审慎判断。'
+      ];
+      var expansionIndex = 0;
+      while (body.length < targetChars * .78 && expansionIndex < expansions.length) body += expansions[expansionIndex++];
+      if (body.length > targetChars * 1.06) {
+        var pieces = body.match(/[^。！？]+[。！？]?/g) || [body];
+        var trimmed = '';
+        pieces.some(function(piece){
+          if (trimmed && (trimmed + piece).length > targetChars) return true;
+          if (!trimmed && piece.length > targetChars) {
+            var clipped = piece.slice(0, targetChars);
+            var comma = Math.max(clipped.lastIndexOf('，'), clipped.lastIndexOf('；'));
+            trimmed = (comma > 55 ? clipped.slice(0, comma) : clipped).replace(/[，；、]?$/, '。');
+            return true;
+          }
+          trimmed += piece;
+          return false;
+        });
+        body = trimmed;
+      }
+      return body + cta + disclosure;
+    }
+
+    function buildDraftTitle(subject, angle) {
+      var keyword = String(subject || '').replace(/[“”"'？?！!。，、；：\s]/g, '').slice(0, 10) || '金融口播';
+      return keyword + '｜' + angle;
+    }
+
+    function createTopicScripts(topic, sellingPoint, setting) {
+      var audience = setting.audience || '短线投资者';
+      var cta = '[[CTA]]如果你想了解这套方法，可以点击视频下方链接，先查看服务说明和完整内容。';
+      var items = [
+        { title:buildDraftTitle(topic, '痛点钩子版'), text:'股票一有波动就不知道该怎么处理？' + topic + '，往往不是缺少一条结论，而是缺少稳定的信息整理和复盘步骤。对' + audience + '来说，先明确依据、风险边界和执行纪律，比追着盘面情绪行动更重要。我们提供的服务是：' + sellingPoint + '。' + cta },
+        { title:buildDraftTitle(topic, '人群筛选版'), text:'正在关注短线机会的朋友注意了。' + topic + '，尤其需要先判断信息是否公开、日期是否有效，以及自己能否承受相应波动。面向' + audience + '，我们会提供：' + sellingPoint + '。内容用于辅助整理判断过程，不代替个人投资决策。' + cta },
+        { title:buildDraftTitle(topic, '反常识钩子版'), text:'很多人以为短线做不好，是因为没有拿到一只具体股票。其实更常见的问题，是选股顺序、信息来源和风险边界都没有理清。围绕“' + topic + '”，我们提供：' + sellingPoint + '。先建立可复盘的方法，再决定哪些信息值得继续研究。' + cta },
+        { title:buildDraftTitle(topic, '机会观察版'), text:'市场变化快，真正值得关注的不是一句“马上行动”，而是机会背后的公开依据和适用条件。针对“' + topic + '”，我们为' + audience + '提供：' + sellingPoint + '。你可以先观察内容是否适合自己，再结合资金期限和风险承受能力独立判断。' + cta },
+        { title:buildDraftTitle(topic, '问题切入版'), text:'为什么同样面对“' + topic + '”，有人能保持节奏，有人却容易被涨跌带着走？区别通常不在于预测一次涨跌，而在于有没有清晰的信息筛选和复盘流程。我们提供：' + sellingPoint + '，帮助' + audience + '把判断依据整理得更清楚。' + cta }
+      ];
+      return items.map(function(item){ item.text = applyGenerationSettings(item.text, setting, topic); return item; });
+    }
+
+    function startExistingCheck() {
+      var text = document.getElementById('check-source').value.trim();
+      if (!text) { toast('请先粘贴需要检查的台词'); document.getElementById('check-source').focus(); return; }
+      beginLoading('check-btn', '正在定位台词中的表达风险');
+      setTimeout(function(){ finishLoading('check-btn', [makeDraft('表达风险检查稿', text, 60)]); }, 620);
+    }
+
+    function generateVariations() {
+      var source = document.getElementById('derive-source').value.trim();
+      if (!source) { toast('请先粘贴基础台词'); document.getElementById('derive-source').focus(); return; }
+      var count = state.counts.derive;
+      var setting = getSetting('derive');
+      var requestedDeriveType = state.deriveType;
+      beginLoading('derive-btn', requestedDeriveType === 'same' ? '正在生成同主题表达版本' : '正在拆解系列内容角度');
+      setTimeout(function(){
+        var items = requestedDeriveType === 'same' ? createSameThemeScripts(source, setting) : createSeriesScripts(source, setting);
+        var selected = pickDistinctVariations(items, count);
+        finishLoading('derive-btn', selected.map(function(item, index){ return makeDraft(item.title || ('衍生版本 ' + (index + 1)), item.text, setting.duration); }));
+      }, 820);
+    }
+
+    function cleanSource(text) {
+      return text.replace(/\s+/g, ' ').trim();
+    }
+
+    function extractConversionParts(source) {
+      var clean = cleanSource(source)
+        .replace(/以上内容仅供参考[，,]?不构成(?:具体)?投资建议[。！]?/g, '')
+        .replace(/投资有风险[，,]?决策需谨慎[。！]?/g, '')
+        .trim();
+      var pieces = clean.match(/[^。！？]+[。！？]?/g) || [clean];
+      var ctaPattern = /(点击|链接|领取|加入|查看|了解更多|体验|咨询|关注|私信|评论区|回复|扫码|二维码|添加微信|加群|进群)/;
+      var ctaPieces = [];
+      for (var i = pieces.length - 1; i >= Math.max(0, pieces.length - 2); i--) {
+        if (!ctaPattern.test(pieces[i])) break;
+        ctaPieces.unshift(pieces[i]);
+      }
+      var contentPieces = ctaPieces.length ? pieces.slice(0, pieces.length - ctaPieces.length) : pieces.slice();
+      if (!contentPieces.length) contentPieces = ['原稿仅包含行动引导，建议补充核心内容和服务价值。'];
+      var subject = contentPieces[0].replace(/[。！？]+$/, '').trim().slice(0, 12) || '原稿主题';
+      return {
+        sentences: contentPieces.map(function(item){ return item.replace(/[。！？]+$/, '').trim(); }).filter(Boolean),
+        cta: ctaPieces.length ? ctaPieces.join('') : '如果你想了解完整内容，可以点击视频下方链接查看。',
+        subject: subject
+      };
+    }
+
+    function textNgrams(text) {
+      var clean = text.replace(/[^\u4e00-\u9fa5A-Za-z0-9]/g, '');
+      var grams = {};
+      for (var i = 0; i <= clean.length - 4; i++) grams[clean.slice(i, i + 4)] = true;
+      return grams;
+    }
+
+    function variationSimilarity(a, b) {
+      var left = textNgrams(a), right = textNgrams(b), same = 0, total = 0;
+      Object.keys(left).forEach(function(key){ total++; if (right[key]) same++; });
+      Object.keys(right).forEach(function(key){ if (!left[key]) total++; });
+      return total ? same / total : 0;
+    }
+
+    function pickDistinctVariations(items, count) {
+      if (items.length <= 1) return items.slice(0, count);
+      var remaining = items.slice();
+      var selected = [remaining.shift()];
+      while (selected.length < count && remaining.length) {
+        var bestIndex = 0, bestScore = Infinity;
+        remaining.forEach(function(candidate, index){
+          var score = Math.max.apply(null, selected.map(function(chosen){ return variationSimilarity(candidate.text, chosen.text); }));
+          if (score < bestScore) { bestScore = score; bestIndex = index; }
+        });
+        selected.push(remaining.splice(bestIndex, 1)[0]);
+      }
+      return selected;
+    }
+
+    function createSameThemeScripts(source, setting) {
+      var parts = extractConversionParts(source);
+      var sentences = parts.sentences;
+      var core = sentences.join('。') + '。';
+      var reversed = sentences.slice(1).concat(sentences[0]).join('。') + '。';
+      var rotated = sentences.slice(-1).concat(sentences.slice(0, -1)).join('。') + '。';
+      return [
+        { title:buildDraftTitle(parts.subject, '痛点钩子版'), text:'盘中一有波动，就容易打乱原来的判断？' + core + '先把信息和步骤看清楚，再决定是否适合自己。[[CTA]]' + parts.cta },
+        { title:buildDraftTitle(parts.subject, '人群筛选版'), text:'正在关注短线机会的朋友，这段内容可以先看完。' + rotated + '使用前请核对信息来源、适用日期和自身风险承受能力。[[CTA]]' + parts.cta },
+        { title:buildDraftTitle(parts.subject, '反常识钩子版'), text:'很多人以为缺的是一条明确答案，其实更需要的是稳定的判断过程。' + reversed + '方法可以参考，但不能替代个人决策。[[CTA]]' + parts.cta },
+        { title:buildDraftTitle(parts.subject, '机会观察版'), text:'市场机会每天都在变化，先看依据，再看是否适合自己。' + core + '不要把观察方向直接当成买卖结论。[[CTA]]' + parts.cta },
+        { title:buildDraftTitle(parts.subject, '问题切入版'), text:'为什么面对同样的信息，有人能保持节奏，有人却容易追着涨跌行动？' + rotated + '答案往往藏在信息筛选和复盘流程里。[[CTA]]' + parts.cta }
+      ].map(function(item){ item.text = applyGenerationSettings(item.text, setting, '原稿核心观点'); return item; });
+    }
+
+    function createSeriesScripts(source, setting) {
+      var parts = extractConversionParts(source);
+      var points = parts.sentences;
+      var topics = [
+        ['用户痛点篇','盘中一有波动，为什么原来的计划就容易被打乱？','先识别最常见的使用场景，再说明这套内容解决什么问题。'],
+        ['方法价值篇','一套方法有没有价值，先看它能不能把复杂信息整理清楚。','重点说明服务流程、信息来源和用户可以获得什么。'],
+        ['依据核验篇','看到市场观点时，先别急着接受结论。','公开来源、发布日期和适用条件，是判断内容是否可靠的基础。'],
+        ['风险边界篇','任何市场方法都有适用条件，也存在失效的可能。','把风险边界讲清楚，才能避免用户把观察内容当成确定结论。'],
+        ['使用引导篇','如果你第一次接触这套内容，可以先从服务说明开始。','把领取路径、使用步骤和注意事项讲清楚，降低理解成本。']
+      ];
+      return topics.map(function(item, index){
+        var point = points[index % points.length] + '。';
+        return { title:buildDraftTitle(parts.subject, item[0]), text:applyGenerationSettings(item[1] + point + item[2] + '[[CTA]]' + parts.cta, setting, item[0]) };
+      });
+    }
+
+    function makeDraft(title, text, targetDuration) {
+      return { id: state.nextId++, title: title, text: text, targetDuration: targetDuration || 60, status: 'unchecked', findings: [], quality: [], previousText: null, undoIsRedo: false };
+    }
+
+    function runDraftCheck(draft) {
+      draft.findings = findComplianceRisks(draft.text);
+      draft.quality = diagnoseQuality(draft.text, draft.targetDuration);
+      draft.status = draft.findings.length ? 'attention' : 'clear';
+    }
+
+    function isNegatedRisk(text, index) {
+      var before = text.slice(Math.max(0, index - 14), index);
+      if (/(?:不|并不|并非|不能|不会|无意|无需|切勿|严禁)\s*$/.test(before) || /(?:不建议|不要|避免|不应|谨慎|谨防|警惕|不是|不等于)[^，。；！？]{0,8}$/.test(before)) return true;
+      var sentenceStart = Math.max(text.lastIndexOf('。', index - 1), text.lastIndexOf('！', index - 1), text.lastIndexOf('？', index - 1), text.lastIndexOf('!', index - 1), text.lastIndexOf('?', index - 1), text.lastIndexOf('\n', index - 1)) + 1;
+      var sentencePrefix = text.slice(sentenceStart, index);
+      var startsAsWarning = /^\s*(?:不要|切勿|严禁|谨防|警惕|避免)/.test(sentencePrefix);
+      var turnsPositive = /(?:但是|但|不过|然而|，|；)\s*(?:请|可以|欢迎|建议|立即|马上|添加|加|联系|扫码|识别|私信|进群|进入|加入|回复)/.test(sentencePrefix + text.slice(index, index + 6));
+      return startsAsWarning && !turnsPositive;
+    }
+
+    function findComplianceRisks(text) {
+      var actionPattern = /(?:现在就是|这是|当前是)?(?:(?:立即|马上|赶紧)\s*)?(强烈推荐|推荐|建议重点|建议配置|建议关注|优先配置|重点配置|重点关注|值得布局|调仓|放弃[^，。；！？]{0,10}|专做短线|只做短线|快进快出|打板|满仓|清仓|重仓|仓位|加仓|减仓|增持|减持|建仓|抄底|低吸|止盈|止损|目标价|最佳买点|必涨|一定会涨|看好|买入|卖出|持有|申购|赎回)(?:[^，。；！？\s]{0,12})/g;
+      var privateLeadPattern = /(?:扫码(?:添加|联系)?|识别二维码|(?:添加|加|联系)(?:我|(?:官方)?客服|助理|老师|顾问|工作人员)?(?:微信|企微|V|联系方式)|联系(?:(?:官方)?客服|助理|老师|顾问|工作人员)|加群|进(?:入)?(?:粉丝|内部|VIP|交流)?群|加入[^，。；！？]{0,8}群|私信(?:我|老师|顾问|(?:官方)?客服|助理)?|评论区(?:回复|留言)|回复关键词)/g;
+      var personalizedServicePattern = /(?:免费诊股|诊断持仓|领取[^，。；！？]{0,10}(?:牛股|金股|股票|个股|名单)|(?:牛股|金股|股票|个股)名单|盘中指导|实盘指导|跟单|带单|老师带你操作|(?:一对一|免费)?(?:分析|诊断|解读)(?:持仓|个股|股票)|(?:老师)?手把手指导(?:操作|交易)|(?:指导|陪同)(?:操作|交易))/g;
+      var rules = [
+        { severity:'high', type:'收益承诺', regex:/(稳赚不赔|稳赚|保本(?:保收益)?|保收益|保证收益|本金(?:安全|无忧)|收益(?:有保障|兜底)|锁定收益|零风险|绝对赚钱|必赚|翻倍收益)/g, reason:'可能构成对本金安全或投资收益的承诺、保证或暗示。', suggestion:'删除确定性收益承诺，说明投资结果受市场等因素影响。', replacement:'投资结果受市场等多重因素影响，不存在确定收益。' },
+        { severity:'high', type:'具体行动或确定性建议', regex:actionPattern, skipNegative:true, reason:'涉及具体买卖、仓位、目标价或带有强诱导性的行动表达，需要人工判断传播场景、依据与适用对象。', suggestion:'改为介绍公开依据和一般判断方法，避免直接要求用户交易。', replacement:'相关信息仅用于说明判断方法，请结合公开依据和自身风险承受能力审慎决策。' },
+        { severity:'high', type:'非公开信息暗示', regex:/(内幕消息|内部消息|庄家消息|确定消息|独家消息)/g, reason:'暗示掌握非公开或确定性消息，存在明显误导风险。', suggestion:'仅引用可核验的公开信息，并明确来源与发布日期。', replacement:'相关判断仅基于可核验的公开信息，请核对来源与发布日期。' },
+        { severity:'high', type:'站外导流或私域招揽', regex:privateLeadPattern, skipNegative:true, reason:'涉及站外导流、私域群聊或个人联系方式，需要核验机构授权、服务主体和个人信息处理路径。', suggestion:'发布前核验机构官方渠道、服务资质、留痕要求和隐私说明。' },
+        { severity:'high', type:'具体标的或诊股服务招揽', regex:personalizedServicePattern, skipNegative:true, reason:'可能涉及具体标的推荐、个性化诊断或跟单指导，需要重点核验业务资质和服务边界。', suggestion:'不要以具体标的、诊股或跟单作为获客诱因；改为介绍公开信息和一般投资者教育内容。' },
+        { severity:'high', type:'回本解套效果承诺', regex:/(带你[^，。；！？]{0,8}(?:回本|解套|扭亏)|帮你[^，。；！？]{0,8}(?:回本|解套|扭亏)|快速(?:回本|解套|扭亏)|实现(?:回本|解套|扭亏))/g, reason:'暗示服务能够帮助用户挽回损失或实现特定投资结果。', suggestion:'删除回本、解套或扭亏承诺，客观说明服务内容和不确定性。', replacement:'服务仅用于辅助整理公开信息和判断过程，不承诺挽回投资损失。' },
+        { severity:'medium', type:'隐性效果暗示', regex:/(准到吓人|快速提升(?:投资)?效果|不会让(?:你|您)失望|脱颖而出|拉开差距|成功翻身|抓住主线|走出主线)/g, reason:'可能通过结果、能力或效果暗示影响用户判断，需要说明适用条件和不确定性。', suggestion:'改为客观说明服务内容，不暗示确定效果。', replacement:'服务用于辅助整理公开信息和判断过程，实际效果因市场环境及个人情况而异。' },
+        { severity:'medium', type:'紧迫性营销', regex:/(再不[^，。；！？]{0,10}就来不及|来不及了|抓紧(?:时间)?|赶紧|立即暂停|只说一次|千万盯紧|紧盯|马上领取|行情来了)/g, skipNegative:true, reason:'通过时间压力或错失焦虑推动用户立即行动，可能削弱充分判断。', suggestion:'去除时间压力，提醒用户先核验信息与服务说明。', replacement:'请先核对信息来源、适用日期和服务说明，再结合自身情况审慎判断。' },
+        { severity:'medium', type:'稀缺名额营销', regex:/(限时名额|名额有限|仅限\s*\d+\s*名|前\s*\d+\s*名|最后\s*\d+\s*个名额)/g, reason:'通过虚构或未核实的稀缺性推动用户决策，需要核验活动规则和真实数量。', suggestion:'如确有名额限制，请说明活动规则、数量依据和有效期；否则删除稀缺性表达。' },
+        { severity:'medium', type:'依据与能力声明待核实', regex:/(专业(?:投顾|投资顾问)?团队|大数据(?:筛选|选股)?|老股民自用|老师(?:每天)?分享|刚出的研报|研报直接告诉|跟踪主力|筛选出潜力)/g, reason:'涉及团队资质、数据能力、研究依据或信息优势，需要有可核验材料支持。', suggestion:'请注明具体服务主体、公开信息来源、方法边界及对应日期。' },
+        { severity:'medium', type:'服务与隐私承诺待核实', regex:/(不用|无需)(?:下载|注册|留手机号|输入(?:您的|你的)?手机号)|不收录(?:您的|你的)?手机号码/g, reason:'涉及注册流程、个人信息收集或服务门槛承诺，应与真实落地页保持一致。', suggestion:'改为提示用户查看真实服务流程和隐私说明。', replacement:'具体使用流程和个人信息处理方式，请以实际服务页面及隐私说明为准。' },
+        { severity:'medium', type:'夸大或误导表达', regex:/(唯一|最强|顶级|100%|绝对不会|闭眼买|可怕的(?:炒股)?方法|最聪明)/g, reason:'绝对化或夸张表述可能放大能力、效果或确定性。', suggestion:'在可核验的服务范围和适用条件内客观表述。', replacement:'在相应条件和服务范围内，可作为信息参考。' },
+        { severity:'medium', type:'数据依据待核实', regex:/((?:收益(?:率)?|涨幅|回报(?:率)?|成功率|命中率)(?:达到|为|超过|高达)?\d+(?:\.\d+)?%|\d+(?:\.\d+)?%|\d+(?:\.\d+)?倍|持仓(?:超过|达到|不低于)?\s*\d+(?:\.\d+)?万|\d{3,}(?:多|余)?只(?:股票|个股)?|不超过\s*\d+只)/g, reason:'涉及比例、金额、样本规模或筛选数量，需要核验来源、统计口径和有效日期。', suggestion:'请补充可核验的数据来源、统计口径和对应日期。' },
+        { severity:'medium', type:'历史业绩展示', regex:/(历史业绩|过往业绩|曾经收益|策略收益|客户收益|实盘收益)/g, reason:'历史表现需要核验展示口径、来源与必要提示，且不能暗示未来表现。', suggestion:'核验展示口径，并明确历史表现不代表未来结果。', replacement:'经核验的历史信息仅供参考，不代表未来表现。' },
+        { severity:'medium', type:'时效信息待核实', regex:/(今日|今天|本周|目前|最新|截至现在)/g, reason:'表述具有明显时效性，发布前需要核验信息日期与当前有效性。', suggestion:'请补充信息对应日期，并在发布前重新核验。' },
+        { severity:'medium', type:'政策与日期待核实', regex:/((?:截至)?\d{4}[-/.年]\d{1,2}(?:[-/.月]\d{1,2}日?)?|\d{4}年新规|最新政策|监管新规|政策新规|最新监管口径)/g, reason:'涉及明确日期、政策或监管口径，发布前需要核验原始来源和当前效力。', suggestion:'请注明权威来源与适用日期，并在发布前确认政策仍然有效。' }
+      ];
+      var findings = [];
+      rules.forEach(function(rule){
+        var match;
+        rule.regex.lastIndex = 0;
+        while ((match = rule.regex.exec(text)) !== null) {
+          if (rule.skipNegative && isNegatedRisk(text, match.index)) continue;
+          if (rule.skipNegative && /(持有期限|买入成本|卖出机制|推荐阅读|推荐了解)/.test(match[0])) continue;
+          findings.push({ id:'risk-' + findings.length, severity:rule.severity, type:rule.type, excerpt:match[0], sourceIndex:match.index, reason:rule.reason, suggestion:rule.suggestion, replacement:rule.replacement || '', append:false });
+          if (match[0].length === 0) rule.regex.lastIndex++;
+        }
+      });
+      actionPattern.lastIndex = 0;
+      var actionMatch;
+      var hasActionAdvice = false;
+      while ((actionMatch = actionPattern.exec(text)) !== null) {
+        if (!isNegatedRisk(text, actionMatch.index) && !/(持有期限|买入成本|卖出机制|推荐阅读|推荐了解)/.test(actionMatch[0])) { hasActionAdvice = true; break; }
+      }
+      var serviceWordPattern = /(选股服务|投顾服务)/g;
+      var serviceWordMatch;
+      var hasPositiveServiceWord = false;
+      while ((serviceWordMatch = serviceWordPattern.exec(text)) !== null) {
+        if (!isNegatedRisk(text, serviceWordMatch.index)) { hasPositiveServiceWord = true; break; }
+      }
+      var hasInvestmentServiceMarketing = findings.some(function(item){ return item.type === '站外导流或私域招揽' || item.type === '具体标的或诊股服务招揽'; }) || hasPositiveServiceWord;
+      var hasRiskWarning = /投资有风险[^。！？]{0,24}(决策|入市)需谨慎/.test(text);
+      var hasAdviceDisclaimer = /不构成[^。！？]{0,20}投资建议/.test(text);
+      if ((/(投资|股票|基金|收益|市场|行情|保本|买入|卖出|持有|申购|赎回|配置)/.test(text) || hasInvestmentServiceMarketing) && (!hasRiskWarning || !hasAdviceDisclaimer)) {
+        var missingDisclosure = [!hasAdviceDisclaimer ? '“不构成投资建议”声明' : '', !hasRiskWarning ? '投资风险警示' : ''].filter(Boolean).join('和');
+        var disclosureText = (!hasAdviceDisclaimer ? '以上内容仅供参考，不构成具体投资建议。' : '') + (!hasRiskWarning ? '投资有风险，决策需谨慎。' : '');
+        findings.push({ id:'risk-' + findings.length, severity:hasActionAdvice ? 'high' : 'medium', type:'风险提示不足', excerpt:'缺少' + missingDisclosure, reason:'“风险承受能力”等一般表述不能替代完整风险揭示；具体要求仍以机构制度为准。', suggestion:'补充当前缺失的风险揭示，并按机构模板核验。', replacement:disclosureText, append:true });
+      }
+      if (hasActionAdvice || hasInvestmentServiceMarketing) {
+        var missingIdentity = [];
+        if (!/(证券公司|证券投资咨询机构|[\u4e00-\u9fa5]{4,}(有限公司|股份有限公司))/.test(text)) missingIdentity.push('机构全称');
+        if (!/(投资顾问|证券投资顾问|投顾)[:：\s]*[\u4e00-\u9fa5]{2,4}/.test(text)) missingIdentity.push('人员姓名与身份');
+        if (!/(执业|登记)(编号|编码)[:：\s]*[A-Z0-9-]{4,}/i.test(text)) missingIdentity.push('执业登记编号');
+        if (missingIdentity.length) findings.push({ id:'risk-' + findings.length, severity:'medium', type:'身份与资质披露待确认', excerpt:'未识别到' + missingIdentity.join('、'), reason:'公开传播涉及证券建议或投顾服务营销时，应由所属机构确认身份、资质及披露要求。', suggestion:'发布前请补充并核验机构名称、人员身份及执业登记信息。', replacement:'', append:false });
+        if (!/(来源|研究报告|公司公告|公开信息|财报|根据[^，。；]{0,12}(报告|公告|数据))/.test(text)) findings.push({ id:'risk-' + findings.length, severity:'medium', type:'合理依据待确认', excerpt:'未识别到可核验的公开依据', reason:'投资观点、建议或选股服务声明应具有合理依据，并说明信息来源与适用日期。', suggestion:'请补充可核验的公开依据、来源与发布日期。', replacement:'', append:false });
+      }
+      return findings;
+    }
+
+    function diagnoseQuality(text, targetDuration) {
+      var clean = text.replace(/\s/g, '');
+      var seconds = Math.max(1, Math.ceil(clean.length / 4));
+      var sentences = text.split(/[。！？!?]/).filter(function(item){ return item.trim(); });
+      var avg = sentences.length ? clean.length / sentences.length : clean.length;
+      var opening = text.slice(0, 70);
+      var hookOk = /[？?]|为什么|很多|如果|注意了|先问|你是否|误区|被套|波动|短线/.test(opening);
+      var audienceOk = /(投资者|股民|朋友|新手|持仓|短线|小资金)/.test(text);
+      var painOk = /(容易|不知道|问题|误区|被套|波动|缺少|打乱|困扰|追涨杀跌)/.test(text);
+      var valueOk = /(提供|服务|平台|整理|清单|方法|流程|推送|复盘|筛选|观察方向)/.test(text);
+      var ctaOk = /(点击|链接|领取|加入|查看|了解|体验|咨询|关注|私信|评论区|回复|扫码|二维码)/.test(text);
+      var disclosureOk = /不构成[^。！？]{0,20}投资建议/.test(text) && /投资有风险[^。！？]{0,24}(决策|入市)需谨慎/.test(text);
+      var oralOk = avg <= 42 && !/(综上所述|由此可见|鉴于上述)/.test(text);
+      var densityOk = avg <= 48;
+      var durationOk = Math.abs(seconds - targetDuration) <= Math.max(12, targetDuration * .42);
+      return [
+        { name:'获客钩子', ok:hookOk, note:hookOk ? '前段具备问题、人群或具体场景切入。' : '建议在前两句话加入痛点、人群筛选或反常识表达。' },
+        { name:'目标人群', ok:audienceOk, note:audienceOk ? '台词能够识别主要沟通对象。' : '建议明确面向哪类投资者，避免内容对象过于宽泛。' },
+        { name:'用户痛点', ok:painOk, note:painOk ? '已经说明用户为什么需要继续听。' : '建议补充真实使用场景或待解决的问题。' },
+        { name:'产品价值', ok:valueOk, note:valueOk ? '已经交代服务内容或使用价值。' : '建议写清提供什么服务、信息从哪里来以及如何使用。' },
+        { name:'行动引导', ok:ctaOk, note:ctaOk ? '结尾包含明确的下一步操作。' : '建议在结尾补充查看、了解或领取内容的具体路径。' },
+        { name:'风险揭示', ok:disclosureOk, note:disclosureOk ? '已识别到投资建议声明和风险警示。' : '建议补充“不构成投资建议”和投资风险警示，并按机构模板核验。' },
+        { name:'口语自然度', ok:oralOk, note:oralOk ? '句子长度适合自然口播。' : '部分句子偏长或书面，建议拆句并减少连接词。' },
+        { name:'信息密度', ok:densityOk, note:densityOk ? '单句信息量适中，听感压力较低。' : '单句承载内容较多，建议一条句子只表达一个重点。' },
+        { name:'时长适配度', ok:durationOk, note:'预计约 ' + seconds + ' 秒，目标为 ' + targetDuration + ' 秒。' }
+      ];
+    }
+
+    function renderWorkspace() {
+      var drafts = currentDrafts();
+      var draft = currentDraft();
+      var hasDrafts = drafts.length > 0;
+      document.getElementById('result-summary').textContent = hasDrafts ? ('共 ' + drafts.length + ' 篇 · 当前第 ' + (drafts.indexOf(draft) + 1) + ' 篇') : '尚未生成台词';
+      ['copy-all-btn','txt-btn','csv-btn'].forEach(function(id){ document.getElementById(id).disabled = !hasDrafts; });
+      document.getElementById('draft-tabs').style.display = hasDrafts ? 'flex' : 'none';
+      renderDraftTabs(drafts, draft);
+      document.getElementById('empty-state').style.display = !state.loading && !draft ? 'grid' : 'none';
+      document.getElementById('editor-body').classList.toggle('show', !state.loading && !!draft);
+      if (draft) {
+        document.getElementById('draft-title').value = draft.title;
+        document.getElementById('script-editor').value = draft.text;
+        var undoBtn = document.getElementById('undo-btn');
+        undoBtn.disabled = !draft.previousText;
+        undoBtn.textContent = draft.undoIsRedo ? '重做修改' : '撤回修改';
+        renderMeta(draft);
+        renderStatus(draft);
+      }
+      renderInsights(draft);
+    }
+
+    function renderDraftTabs(drafts, active) {
+      var html = drafts.map(function(draft, index){
+        return '<button class="draft-tab' + (active && draft.id === active.id ? ' active' : '') + '" onclick="selectDraft(' + draft.id + ')">' +
+          '<div class="draft-tab-title">' + escapeHtml(draft.title) + '</div>' +
+          '<div class="draft-tab-meta"><span class="status-dot ' + escapeHtml(draft.status) + '"></span><span>第 ' + (index + 1) + ' 篇 · ' + countChars(draft.text) + ' 字</span></div></button>';
+      }).join('');
+      document.getElementById('draft-tabs').innerHTML = html;
+    }
+
+    function selectDraft(id) { state.activeIds[state.mode] = id; renderWorkspace(); }
+    function countChars(text) { return String(text || '').replace(/\s/g, '').length; }
+    function estimateSeconds(text) { return Math.max(1, Math.ceil(countChars(text) / 4)); }
+
+    function renderMeta(draft) {
+      document.getElementById('text-meta').innerHTML = '<strong>' + countChars(draft.text) + '</strong> 字 · 预计口播 <strong>' + estimateSeconds(draft.text) + '</strong> 秒 · 目标 ' + draft.targetDuration + ' 秒';
+    }
+
+    function statusLabel(status) {
+      return { unchecked:'待检查', checking:'检查中', attention:'存在待关注项', clear:'当前演示规则未命中', stale:'内容已修改 · 待复检' }[status] || '待检查';
+    }
+
+    function renderStatus(draft) {
+      var pill = document.getElementById('status-pill');
+      pill.textContent = statusLabel(draft.status);
+      pill.className = 'status-pill ' + draft.status;
+    }
+
+    function updateActiveTitle(value) {
+      var draft = currentDraft(); if (!draft) return;
+      draft.title = value || '未命名台词';
+      renderDraftTabs(currentDrafts(), draft);
+    }
+
+    function onEditorInput() {
+      var draft = currentDraft(); if (!draft) return;
+      draft.text = document.getElementById('script-editor').value;
+      draft.previousText = null;
+      draft.undoIsRedo = false;
+      draft.quality = diagnoseQuality(draft.text, draft.targetDuration);
+      if (draft.status !== 'unchecked') draft.status = 'stale';
+      renderMeta(draft); renderStatus(draft); renderDraftTabs(currentDrafts(), draft); renderInsights(draft);
+    }
+
+    function renderInsights(draft) {
+      renderQuality(draft);
+      renderCompliance(draft);
+    }
+
+    function renderQuality(draft) {
+      var el = document.getElementById('quality-content');
+      if (!draft) { el.innerHTML = '<div class="insight-empty">生成或载入一篇台词后，<br>这里会展示可操作的内容诊断。</div>'; return; }
+      var quality = draft.quality.length ? draft.quality : diagnoseQuality(draft.text, draft.targetDuration);
+      var pending = quality.filter(function(item){ return !item.ok; });
+      var passed = quality.filter(function(item){ return item.ok; });
+      var ordered = pending.concat(passed);
+      el.innerHTML = '<div class="insight-head"><div><div class="insight-title">口播质量诊断</div><div class="insight-desc">需优化 ' + pending.length + ' 项 · 已通过 ' + passed.length + ' 项，待优化项优先展示。</div></div></div>' + ordered.map(function(item){
+        return '<div class="quality-item' + (item.ok ? '' : ' warn') + '"><div class="quality-icon">' + (item.ok ? '✓' : '!') + '</div><div><div class="quality-name">' + escapeHtml(item.name) + '</div><div class="quality-note">' + escapeHtml(item.note) + '</div></div></div>';
+      }).join('');
+    }
+
+    function renderCompliance(draft) {
+      var el = document.getElementById('compliance-content');
+      if (!draft) { el.innerHTML = '<div class="insight-empty">风险检查结果会定位到具体表达，<br>并提供修改原因和替换建议。</div>'; return; }
+      if (draft.status === 'checking') { el.innerHTML = '<div class="insight-empty"><div class="loader-ring" style="width:30px;height:30px"></div>正在检查表达风险…</div>'; return; }
+      if (draft.status === 'stale') {
+        el.innerHTML = '<div class="insight-head"><div><div class="insight-title">检查结果已过期</div><div class="insight-desc">正文已发生修改，需要重新执行检查。</div></div></div><div class="stale-box">旧结果不再代表当前文本。风险提示不会阻止复制或导出。</div><div class="compliance-actions" style="margin-top:10px"><button class="primary" onclick="recheckCurrent()">重新检查</button><button onclick="undoLastChange()"' + (draft.previousText ? '' : ' disabled') + '>撤回修改</button></div>';
+        return;
+      }
+      var counts = { high:0, medium:0, low:0 };
+      draft.findings.forEach(function(item){ counts[item.severity]++; });
+      var html = '<div class="insight-head"><div><div class="insight-title">AI 风险提示</div><div class="insight-desc">仅检查表达，不提供合规结论。高/中/低表示 AI 内容关注级别，不对应监管法律定性。</div></div></div>';
+      html += '<div class="risk-summary"><div class="risk-count high"><strong>' + counts.high + '</strong><span>高风险</span></div><div class="risk-count medium"><strong>' + counts.medium + '</strong><span>中风险</span></div><div class="risk-count low"><strong>' + counts.low + '</strong><span>低风险</span></div></div>';
+      var actionableCount = draft.findings.filter(function(item){ return canApplyFinding(draft.text, item); }).length;
+      html += '<div class="compliance-actions"><button class="primary" onclick="recheckCurrent()">重新检查</button><button onclick="optimizeWhole()"' + (actionableCount ? '' : ' disabled') + '>生成修改参考</button></div>';
+      if (!draft.findings.length) {
+        html += '<div class="clear-box">未命中当前演示规则。<br>这不代表内容合规，仍需人工核验事实、数据及正式发布要求。</div>';
+      } else {
+        html += draft.findings.map(function(item, index){
+          var levelText = item.severity === 'high' ? '高风险' : item.severity === 'medium' ? '中风险' : '低风险';
+          var applicable = canApplyFinding(draft.text, item);
+          var reference = applicable && !item.append ? '<div class="risk-suggestion"><strong>参考文案：</strong>' + escapeHtml(item.replacement) + '</div>' : '';
+          var applyButton = applicable ? '<button class="apply-btn" onclick="applyFinding(' + index + ')">采用替换文案</button>' : '';
+          return '<div class="risk-card ' + item.severity + '"><div class="risk-top"><div class="risk-type">' + escapeHtml(item.type) + '</div><span class="risk-level ' + item.severity + '">' + levelText + '</span></div><div class="risk-quote">“' + escapeHtml(item.excerpt) + '”</div><div class="risk-reason">' + escapeHtml(item.reason) + '</div><div class="risk-suggestion"><strong>建议：</strong>' + escapeHtml(item.suggestion) + '</div>' + reference + applyButton + '</div>';
+        }).join('');
+      }
+      el.innerHTML = html;
+    }
+
+    function recheckCurrent() {
+      var draft = currentDraft(); if (!draft || !draft.text.trim()) { toast('当前台词为空，无法检查'); return; }
+      var requestedMode = state.mode;
+      var requestedId = draft.id;
+      var requestedText = draft.text;
+      draft.status = 'checking'; renderWorkspace();
+      setTimeout(function(){
+        var stillExists = state.drafts[requestedMode].some(function(item){ return item.id === requestedId; });
+        if (!stillExists || draft.text !== requestedText) return;
+        runDraftCheck(draft);
+        if (state.mode === requestedMode && state.activeIds[requestedMode] === requestedId) {
+          renderWorkspace(); setInsight('compliance'); toast('风险检查已更新');
+        }
+      }, 520);
+    }
+
+    function riskSentenceBounds(text, finding) {
+      if (finding.append || !finding.excerpt) return null;
+      var index = Number.isFinite(finding.sourceIndex) ? finding.sourceIndex : text.indexOf(finding.excerpt);
+      if (index < 0 || text.slice(index, index + finding.excerpt.length) !== finding.excerpt) index = text.indexOf(finding.excerpt);
+      if (index < 0) return null;
+      var separators = '。！？!?\n';
+      var start = index;
+      while (start > 0 && separators.indexOf(text[start - 1]) === -1) start--;
+      var end = index + finding.excerpt.length;
+      while (end < text.length && separators.indexOf(text[end]) === -1) end++;
+      if (end < text.length) end++;
+      return { start:start, end:end, length:end - start };
+    }
+
+    function canApplyFinding(text, finding) {
+      if (!finding.replacement) return false;
+      if (finding.append) return true;
+      var bounds = riskSentenceBounds(text, finding);
+      return !!bounds && bounds.length <= 140;
+    }
+
+    function replaceRiskExpression(text, finding) {
+      var bounds = riskSentenceBounds(text, finding);
+      if (!bounds || bounds.length > 140) return text;
+      return text.slice(0, bounds.start) + finding.replacement + text.slice(bounds.end);
+    }
+
+    function applyFinding(index) {
+      var draft = currentDraft(); if (!draft || !draft.findings[index]) return;
+      var finding = draft.findings[index];
+      if (!canApplyFinding(draft.text, finding)) { toast('该问题需要人工补充或核验，暂无可直接替换文案'); return; }
+      draft.previousText = draft.text;
+      draft.undoIsRedo = false;
+      if (finding.append) draft.text = draft.text.replace(/\s+$/, '') + '\n\n' + finding.replacement;
+      else draft.text = replaceRiskExpression(draft.text, finding);
+      draft.quality = diagnoseQuality(draft.text, draft.targetDuration);
+      draft.status = 'stale';
+      renderWorkspace(); setInsight('compliance'); toast('已应用建议，请重新检查');
+    }
+
+    function optimizeWhole() {
+      var draft = currentDraft(); if (!draft || !draft.findings.some(function(item){ return canApplyFinding(draft.text, item); })) return;
+      draft.previousText = draft.text;
+      draft.undoIsRedo = false;
+      var nextText = draft.text;
+      var sentenceGroups = {};
+      var appendTexts = [];
+      draft.findings.forEach(function(finding){
+        if (!canApplyFinding(draft.text, finding)) return;
+        if (finding.append) { if (appendTexts.indexOf(finding.replacement) === -1) appendTexts.push(finding.replacement); return; }
+        var bounds = riskSentenceBounds(draft.text, finding);
+        var key = bounds.start + ':' + bounds.end;
+        var rank = finding.severity === 'high' ? 2 : finding.severity === 'medium' ? 1 : 0;
+        if (!sentenceGroups[key] || rank > sentenceGroups[key].rank) sentenceGroups[key] = { bounds:bounds, finding:finding, rank:rank };
+      });
+      Object.keys(sentenceGroups).map(function(key){ return sentenceGroups[key]; }).sort(function(a,b){ return b.bounds.start - a.bounds.start; }).forEach(function(group){
+        nextText = nextText.slice(0, group.bounds.start) + group.finding.replacement + nextText.slice(group.bounds.end);
+      });
+      appendTexts.forEach(function(replacement){ if (nextText.indexOf(replacement) === -1) nextText = nextText.replace(/\s+$/, '') + '\n\n' + replacement; });
+      nextText = nextText.replace(/([。！？])\1+/g, '$1').replace(/\s+([，。；！？])/g, '$1');
+      draft.text = nextText;
+      draft.quality = diagnoseQuality(draft.text, draft.targetDuration);
+      draft.status = 'stale';
+      renderWorkspace(); setInsight('compliance'); toast('已生成全文优化版本，可撤回');
+    }
+
+    function undoLastChange() {
+      var draft = currentDraft(); if (!draft || !draft.previousText) return;
+      var current = draft.text;
+      draft.text = draft.previousText;
+      draft.previousText = current;
+      draft.undoIsRedo = !draft.undoIsRedo;
+      draft.quality = diagnoseQuality(draft.text, draft.targetDuration);
+      draft.status = 'stale';
+      renderWorkspace(); toast('已撤回到上一版本');
+    }
+
+    function deleteCurrent() {
+      var draft = currentDraft(); if (!draft) return;
+      if (!window.confirm('确认删除“' + draft.title + '”？此操作不会影响其他稿件。')) return;
+      var drafts = currentDrafts();
+      var index = drafts.indexOf(draft);
+      drafts.splice(index, 1);
+      state.activeIds[state.mode] = drafts.length ? drafts[Math.min(index, drafts.length - 1)].id : null;
+      renderWorkspace(); toast('已删除当前稿件');
+    }
+
+    function fallbackCopy(text) {
+      var area = document.createElement('textarea');
+      area.value = text; area.style.position = 'fixed'; area.style.opacity = '0';
+      document.body.appendChild(area); area.focus(); area.select();
+      var ok = false;
+      try { ok = document.execCommand('copy'); } catch (error) { ok = false; }
+      area.remove();
+      if (!ok) throw new Error('copy failed');
+    }
+
+    function copyText(text, successMessage) {
+      if (!text) { toast('没有可复制的内容'); return; }
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(function(){ toast(successMessage); }).catch(function(){
+          try { fallbackCopy(text); toast(successMessage); } catch (error) { toast('复制失败，请手动选择文本'); }
+        });
+      } else {
+        try { fallbackCopy(text); toast(successMessage); } catch (error) { toast('复制失败，请手动选择文本'); }
+      }
+    }
+
+    function outputNotice(message, drafts) {
+      var needsAttention = drafts.some(function(draft){ return draft.status === 'stale' || draft.status === 'unchecked' || draft.status === 'checking' || draft.status === 'attention'; });
+      return needsAttention ? message + '；包含待复检或待关注稿件' : message;
+    }
+    function copyCurrent() { var draft = currentDraft(); if (draft) copyText(draft.text, outputNotice('已复制当前台词', [draft])); }
+    function allText() {
+      return currentDrafts().map(function(draft, index){ return '【' + (index + 1) + '. ' + draft.title + '】\n' + draft.text; }).join('\n\n--------------------\n\n');
+    }
+    function copyAll() { copyText(allText(), outputNotice('已复制全部台词', currentDrafts())); }
+
+    function downloadFile(name, content, type) {
+      var blob = new Blob(['\ufeff' + content], { type: type + ';charset=utf-8' });
+      var url = URL.createObjectURL(blob);
+      var link = document.createElement('a');
+      link.href = url; link.download = name; document.body.appendChild(link); link.click(); link.remove();
+      setTimeout(function(){ URL.revokeObjectURL(url); }, 500);
+    }
+
+    function exportTxt() {
+      if (!currentDrafts().length) return;
+      downloadFile('智能台词工作台-导出.txt', allText(), 'text/plain'); toast(outputNotice('TXT 文件已导出', currentDrafts()));
+    }
+
+    function csvSafeValue(value) {
+      var text = String(value == null ? '' : value);
+      if (/^[\u0000-\u0020]*[=+\-@]/.test(text)) text = "'" + text;
+      return text;
+    }
+    function csvCell(value) { return '"' + csvSafeValue(value).replace(/"/g, '""') + '"'; }
+    function exportCsv() {
+      var drafts = currentDrafts(); if (!drafts.length) return;
+      var rows = [['序号','标题','台词正文','字数','预计时长（秒）','高风险','中风险','低风险','检查状态']];
+      drafts.forEach(function(draft, index){
+        var counts = { high:0, medium:0, low:0 };
+        draft.findings.forEach(function(item){ counts[item.severity]++; });
+        var resultCurrent = draft.status === 'attention' || draft.status === 'clear';
+        rows.push([index + 1, draft.title, draft.text, countChars(draft.text), estimateSeconds(draft.text), resultCurrent ? counts.high : '', resultCurrent ? counts.medium : '', resultCurrent ? counts.low : '', statusLabel(draft.status)]);
+      });
+      downloadFile('智能台词工作台-导出.csv', rows.map(function(row){ return row.map(csvCell).join(','); }).join('\r\n'), 'text/csv'); toast(outputNotice('CSV 文件已导出', drafts));
+    }
+
+    renderWorkspace();
+  </script>
+</body>
+</html>

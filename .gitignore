@@ -4,3 +4,8 @@ node_modules/
 .edge-pinmark-test/
 .mimocode/
 *.exe
+
+后台web/extracted_resumes.txt
+后台web/work/
+.codex-final-logic-smoke.js
+账号绑定_bak_*.html

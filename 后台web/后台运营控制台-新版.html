@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>后台运营管理平台 · 投顾视频平台</title>
+    <style>
+        :root {
+            --primary: #2f6bff;
+            --primary-dark: #174bd6;
+            --ink: #171717;
+            --muted: #6b7280;
+            --soft: #f5f7fb;
+            --line: #e5e7eb;
+            --nav: #1c1c1e;
+            --nav-soft: #2a2a2e;
+            --green: #16a34a;
+            --red: #dc2626;
+            --orange: #ea580c;
+            --blue: #2563eb;
+            --cyan: #0891b2;
+            --radius: 10px;
+        }
+
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
+            color: var(--ink);
+            background: #eef2f7;
+            font-size: 14px;
+        }
+
+        .app { min-height: 100vh; display: flex; }
+        .sidebar {
+            width: 248px;
+            background: var(--nav);
+            color: #d4d4d8;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            inset: 0 auto 0 0;
+            z-index: 10;
+        }
+
+        .brand {
+            padding: 22px 20px 18px;
+            border-bottom: 1px solid rgba(255,255,255,.08);
+        }
+
+        .brand-main { display: flex; align-items: center; gap: 12px; }
+        .brand-mark {
+            width: 34px; height: 34px; border-radius: 8px;
+            background: linear-gradient(135deg, #2f6bff, #0ea5e9);
+            color: #fff; display: grid; place-items: center;
+            font-weight: 800;
+        }
+        .brand-title { color: #fff; font-weight: 700; font-size: 15px; }
+        .brand-sub { color: #9ca3af; font-size: 11px; margin-top: 3px; }
+
+        .nav { padding: 10px 0; overflow-y: auto; flex: 1; }
+        .nav-item {
+            height: 42px;
+            display: flex; align-items: center; gap: 10px;
+            padding: 0 18px;
+            color: #a1a1aa;
+            cursor: pointer;
+            border-left: 3px solid transparent;
+            transition: .15s ease;
+            user-select: none;
+        }
+        .nav-item:hover { color: #fff; background: rgba(255,255,255,.05); }
+        .nav-item.active { color: #fff; background: rgba(47,107,255,.16); border-left-color: var(--primary); }
+        .nav-ico { width: 20px; text-align: center; font-size: 15px; opacity: .95; }
+        .nav-label { white-space: nowrap; }
+
+        .profile {
+            padding: 14px 18px;
+            border-top: 1px solid rgba(255,255,255,.08);
+            display: flex; align-items: center; gap: 10px;
+        }
+        .avatar {
+            width: 32px; height: 32px; border-radius: 50%;
+            display: grid; place-items: center;
+            color: #fff; background: #3f3f46; font-weight: 700;
+        }
+        .profile-name { color: #fff; font-size: 13px; }
+        .profile-role { color: #9ca3af; font-size: 11px; margin-top: 2px; }
+
+        .main { margin-left: 248px; min-width: 0; flex: 1; }
+        .topbar {
+            height: 60px;
+            background: rgba(255,255,255,.92);
+            border-bottom: 1px solid var(--line);
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 24px;
+            position: sticky; top: 0; z-index: 5;
+            backdrop-filter: blur(10px);
+        }
+        .crumb { color: var(--muted); font-size: 13px; }
+        .crumb strong { color: var(--ink); }
+        .top-actions { display: flex; gap: 10px; align-items: center; }
+        .content { padding: 22px 24px 40px; }
+
+        .view { display: none; }
+        .view.active { display: block; }
+        .view-head {
+            display: flex; justify-content: space-between; gap: 16px;
+            margin-bottom: 18px; align-items: flex-end;
+        }
+        .view-title { font-size: 22px; font-weight: 800; margin: 0 0 5px; }
+        .view-desc { color: var(--muted); line-height: 1.6; font-size: 13px; }
+
+        .grid-4 { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 14px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 14px; }
+        .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 14px; }
+        .metric, .card, .table-card {
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            box-shadow: 0 1px 2px rgba(15,23,42,.04);
+        }
+        .metric { padding: 16px; min-height: 108px; }
+        .metric-label { color: var(--muted); font-size: 12px; margin-bottom: 10px; }
+        .metric-value { font-size: 28px; font-weight: 800; letter-spacing: 0; }
+        .metric-note { margin-top: 9px; color: var(--muted); font-size: 12px; }
+        .metric-note.good { color: var(--green); }
+        .metric-note.warn { color: var(--orange); }
+        .metric-note.bad { color: var(--red); }
+        .card { padding: 16px; }
+        .card-title {
+            display: flex; align-items: center; justify-content: space-between;
+            font-size: 15px; font-weight: 750; margin-bottom: 14px;
+        }
+        .card-sub { color: var(--muted); font-size: 12px; font-weight: 400; }
+        .section-gap { margin-top: 18px; }
+
+        .toolbar {
+            display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
+            padding: 14px;
+            border-bottom: 1px solid var(--line);
+        }
+        .input, .select {
+            height: 34px;
+            border: 1px solid var(--line);
+            border-radius: 7px;
+            padding: 0 10px;
+            background: #fff;
+            color: var(--ink);
+            outline: none;
+        }
+        .input { min-width: 210px; }
+        .select { min-width: 132px; }
+        .btn {
+            height: 34px;
+            border: 1px solid var(--line);
+            border-radius: 7px;
+            background: #fff;
+            color: #27272a;
+            padding: 0 12px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+        }
+        .btn:hover { border-color: #cbd5e1; background: #f8fafc; }
+        .btn.primary { background: var(--primary); border-color: var(--primary); color: #fff; }
+        .btn.primary:hover { background: var(--primary-dark); }
+        .btn.ghost { background: transparent; }
+        .btn.small { height: 28px; padding: 0 9px; font-size: 12px; }
+
+        table { width: 100%; border-collapse: collapse; }
+        th, td {
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--line);
+            text-align: left;
+            vertical-align: middle;
+        }
+        th { color: #52525b; font-size: 12px; background: #fafafa; font-weight: 700; }
+        td { font-size: 13px; }
+        tbody tr:hover { background: #fbfdff; }
+        tbody tr:last-child td { border-bottom: none; }
+
+        .status {
+            display: inline-flex; align-items: center;
+            height: 24px; padding: 0 8px; border-radius: 999px;
+            font-size: 12px; font-weight: 700;
+            border: 1px solid transparent;
+            white-space: nowrap;
+        }
+        .s-green { color: #15803d; background: #dcfce7; border-color: #bbf7d0; }
+        .s-blue { color: #1d4ed8; background: #dbeafe; border-color: #bfdbfe; }
+        .s-orange { color: #c2410c; background: #ffedd5; border-color: #fed7aa; }
+        .s-red { color: #b91c1c; background: #fee2e2; border-color: #fecaca; }
+        .s-gray { color: #52525b; background: #f4f4f5; border-color: #e4e4e7; }
+        .s-cyan { color: #0e7490; background: #cffafe; border-color: #a5f3fc; }
+
+        .bar {
+            height: 8px; border-radius: 999px; background: #e5e7eb; overflow: hidden;
+        }
+        .bar span { display: block; height: 100%; background: var(--primary); border-radius: inherit; }
+        .bar span.green { background: var(--green); }
+        .bar span.orange { background: var(--orange); }
+        .bar span.red { background: var(--red); }
+
+        .list { display: grid; gap: 10px; }
+        .list-row {
+            display: flex; justify-content: space-between; gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid #f0f2f5;
+        }
+        .list-row:last-child { border-bottom: none; }
+        .row-title { font-weight: 700; }
+        .row-meta { color: var(--muted); font-size: 12px; margin-top: 4px; }
+
+        .chips { display: flex; flex-wrap: wrap; gap: 7px; }
+        .chip {
+            display: inline-flex; align-items: center;
+            min-height: 24px; padding: 3px 8px;
+            border-radius: 999px;
+            background: #f1f5f9;
+            color: #475569;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .kpi-line {
+            display: grid;
+            grid-template-columns: 120px 1fr 56px;
+            align-items: center;
+            gap: 10px;
+            margin: 11px 0;
+            font-size: 13px;
+        }
+        .muted { color: var(--muted); }
+        .strong { font-weight: 800; }
+
+        .drawer-mask {
+            position: fixed; inset: 0;
+            background: rgba(15,23,42,.22);
+            display: none;
+            z-index: 20;
+        }
+        .drawer {
+            position: fixed; top: 0; right: -560px; bottom: 0;
+            width: 560px; max-width: 94vw;
+            background: #fff;
+            border-left: 1px solid var(--line);
+            box-shadow: -18px 0 48px rgba(15,23,42,.16);
+            transition: right .22s ease;
+            z-index: 21;
+            display: flex; flex-direction: column;
+        }
+        .drawer.open { right: 0; }
+        .drawer-mask.open { display: block; }
+        .drawer-head {
+            height: 60px; padding: 0 18px;
+            border-bottom: 1px solid var(--line);
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .drawer-title { font-weight: 800; font-size: 16px; }
+        .drawer-body { padding: 18px; overflow: auto; }
+        .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 18px; }
+        .detail-item { background: #f8fafc; border: 1px solid #edf2f7; border-radius: 8px; padding: 11px; }
+        .detail-label { color: var(--muted); font-size: 12px; margin-bottom: 6px; }
+        .detail-value { font-weight: 750; }
+
+        .empty-note {
+            padding: 28px;
+            color: var(--muted);
+            text-align: center;
+            background: #fafafa;
+            border-radius: 8px;
+        }
+
+        @media (max-width: 1180px) {
+            .grid-4 { grid-template-columns: repeat(2, minmax(0,1fr)); }
+            .grid-3 { grid-template-columns: repeat(2, minmax(0,1fr)); }
+        }
+        @media (max-width: 760px) {
+            .sidebar { width: 68px; }
+            .brand-title, .brand-sub, .nav-label, .profile-info { display: none; }
+            .brand { padding-left: 17px; }
+            .nav-item { padding: 0 20px; }
+            .main { margin-left: 68px; }
+            .content { padding: 16px; }
+            .grid-4, .grid-3, .grid-2 { grid-template-columns: 1fr; }
+            .view-head { display: block; }
+            .toolbar { align-items: stretch; }
+            .input, .select, .btn { width: 100%; }
+            table { min-width: 820px; }
+            .table-card { overflow-x: auto; }
+        }
+    </style>
+</head>
+<body>
+<div class="app">
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="brand-main">
+                <div class="brand-mark">O</div>
+                <div>
+                    <div class="brand-title">后台运营管理平台</div>
+                    <div class="brand-sub">Internal Ops Console</div>
+                </div>
+            </div>
+        </div>
+        <nav class="nav" id="nav">
+            <div class="nav-item active" data-view="dashboard"><span class="nav-ico">⌂</span><span class="nav-label">工作台</span></div>
+            <div class="nav-item" data-view="tenants"><span class="nav-ico">▣</span><span class="nav-label">客户与租户</span></div>
+            <div class="nav-item" data-view="tasks"><span class="nav-ico">≡</span><span class="nav-label">任务统计</span></div>
+            <div class="nav-item" data-view="compliance"><span class="nav-ico">◇</span><span class="nav-label">内容合规</span></div>
+            <div class="nav-item" data-view="supply"><span class="nav-ico">◈</span><span class="nav-label">音色与模板</span></div>
+            <div class="nav-item" data-view="ai"><span class="nav-ico">◎</span><span class="nav-label">AI 能力中心</span></div>
+            <div class="nav-item" data-view="billing"><span class="nav-ico">¥</span><span class="nav-label">积分与结算</span></div>
+            <div class="nav-item" data-view="system"><span class="nav-ico">⚙</span><span class="nav-label">系统管理</span></div>
+        </nav>
+        <div class="profile">
+            <div class="avatar">运</div>
+            <div class="profile-info">
+                <div class="profile-name">运营管理员</div>
+                <div class="profile-role">ops-admin</div>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main">
+        <header class="topbar">
+            <div class="crumb">控制台 / <strong id="crumbTitle">工作台</strong></div>
+            <div class="top-actions" id="topActions">
+                <button class="btn small">导出概览</button>
+            </div>
+        </header>
+
+        <section class="content">
+            <div class="view active" id="dashboard">
+                <div class="view-head">
+                    <div>
+                        <h1 class="view-title">运营工作台</h1>
+                        <div class="view-desc">汇总客户健康、生成表现、合规风险和平台供给状态。任务数据仅用于观察，不提供取消或重试。</div>
+                    </div>
+                </div>
+                <div class="grid-4" id="dashboardMetrics"></div>
+                <div class="grid-2 section-gap">
+                    <div class="card">
+                        <div class="card-title">待关注租户 <span class="card-sub">余额、到期、失败率</span></div>
+                        <div class="list" id="tenantAlerts"></div>
+                    </div>
+                    <div class="card">
+                        <div class="card-title">失败原因分布 <span class="card-sub">近 7 天</span></div>
+                        <div id="failureBars"></div>
+                    </div>
+                </div>
+                <div class="grid-2 section-gap">
+                    <div class="card">
+                        <div class="card-title">模型调用概览 <span class="card-sub">按功能节点</span></div>
+                        <div id="modelBars"></div>
+                    </div>
+                    <div class="card">
+                        <div class="card-title">待办事项 <span class="card-sub">内部运营事项</span></div>
+                        <div class="list" id="todoList"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="view" id="tenants">
+                <div class="view-head">
+                    <div>
+                        <h1 class="view-title">客户与租户</h1>
+                        <div class="view-desc">管理甲方租户的基础信息、套餐权益、积分余额和客户健康状态。</div>
+                    </div>
+                    <button class="btn primary">新建租户</button>
+                </div>
+                <div class="table-card">
+                    <div class="toolbar">
+                        <select class="select" id="tenantIndustry" onchange="renderTenants()">
+                            <option value="">全部行业</option>
+                            <option value="金融投顾">金融投顾</option>
+                            <option value="保险">保险</option>
+                            <option value="教育培训">教育培训</option>
+                        </select>
+                        <select class="select" id="tenantHealth" onchange="renderTenants()">
+                            <option value="">全部健康状态</option>
+                            <option value="健康">健康</option>
+                            <option value="关注">关注</option>
+                            <option value="风险">风险</option>
+                        </select>
+                        <input class="input" id="tenantSearch" placeholder="搜索租户、管理员" oninput="renderTenants()">
+                    </div>
+                    <table>
+                        <thead>
+                        <tr><th>租户</th><th>行业</th><th>管理员</th><th>套餐</th><th>积分余额</th><th>到期日</th><th>健康状态</th><th>操作</th></tr>
+                        </thead>
+                        <tbody id="tenantTable"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="view" id="tasks">
+                <div class="view-head">
+                    <div>
+                        <h1 class="view-title">任务统计</h1>
+                        <div class="view-desc">只读观察租户任务数据。运营后台不取消、不重试、不修改租户任务状态。</div>
+                    </div>
+                    <button class="btn">导出统计</button>
+                </div>
+                <div class="grid-4" id="taskMetrics"></div>
+                <div class="grid-2 section-gap">
+                    <div class="card">
+                        <div class="card-title">租户任务排行 <span class="card-sub">按视频数</span></div>
+                        <div id="taskRank"></div>
+                    </div>
+                    <div class="card">
+                        <div class="card-title">平均耗时分析 <span class="card-sub">等待 + 生成</span></div>
+                        <div id="durationBars"></div>
+                    </div>
+                </div>
+                <div class="table-card section-gap">
+                    <div class="toolbar">
+                        <select class="select" id="taskTenant" onchange="renderTasks()"><option value="">全部租户</option></select>
+                        <select class="select" id="taskStatus" onchange="renderTasks()">
+                            <option value="">全部状态</option>
+                            <option value="completed">已完成</option>
+                            <option value="generating">生成中</option>
+                            <option value="queued">排队中</option>
+                            <option value="failed">已失败</option>
+                            <option value="partial">部分成功</option>
+                        </select>
+                        <input class="input" id="taskSearch" placeholder="搜索任务名称" oninput="renderTasks()">
+                    </div>
+                    <table>
+                        <thead>
+                        <tr><th>任务名称</th><th>租户</th><th>视频数</th><th>状态</th><th>成功率</th><th>平均耗时</th><th>消耗积分</th><th>操作</th></tr>
+                        </thead>
+                        <tbody id="taskTable"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="view" id="compliance">
+                <div class="view-head">
+                    <div>
+                        <h1 class="view-title">内容合规</h1>
+                        <div class="view-desc">观察金融投顾内容风险、审核结果和规则命中情况，支持合规运营复盘。</div>
+                    </div>
+                    <button class="btn primary">新增风险词</button>
+                </div>
+                <div class="grid-4" id="complianceMetrics"></div>
+                <div class="grid-2 section-gap">
+                    <div class="card">
+                        <div class="card-title">风险类型分布</div>
+                        <div id="riskBars"></div>
+                    </div>
+                    <div class="card">
+                        <div class="card-title">高频风险词</div>
+                        <div class="chips" id="riskWords"></div>
+                    </div>
+                </div>
+                <div class="table-card section-gap">
+                    <div class="toolbar">
+                        <select class="select"><option>全部风险等级</option><option>高风险</option><option>中风险</option><option>低风险</option></select>
+                        <select class="select"><option>全部内容类型</option><option>台词</option><option>图片</option><option>视频</option></select>
+                    </div>
+                    <table>
+                        <thead><tr><th>时间</th><th>租户</th><th>内容类型</th><th>风险等级</th><th>命中规则</th><th>审核结果</th></tr></thead>
+                        <tbody id="complianceTable"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="view" id="supply">
+                <div class="view-head">
+                    <div>
+                        <h1 class="view-title">音色与模板</h1>
+                        <div class="view-desc">维护平台官方音色和视频模板供给。不包含 BGM、水印、字幕样式。</div>
+                    </div>
+                </div>
+                <div class="grid-2">
+                    <div class="table-card">
+                        <div class="toolbar">
+                            <strong>平台音色库</strong>
+                            <button class="btn primary small" style="margin-left:auto">新增音色</button>
+                        </div>
+                        <table>
+                            <thead><tr><th>音色</th><th>场景</th><th>可见范围</th><th>状态</th><th>使用次数</th><th>操作</th></tr></thead>
+                            <tbody id="voiceTable"></tbody>
+                        </table>
+                    </div>
+                    <div class="table-card">
+                        <div class="toolbar">
+                            <strong>视频模板库</strong>
+                            <button class="btn primary small" style="margin-left:auto">新增模板</button>
+                        </div>
+                        <table>
+                            <thead><tr><th>模板</th><th>场景</th><th>默认音色</th><th>状态</th><th>成功率</th><th>操作</th></tr></thead>
+                            <tbody id="templateTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="view" id="ai">
+                <div class="view-head">
+                    <div>
+                        <h1 class="view-title">AI 能力中心</h1>
+                        <div class="view-desc">管理模型、提示词版本、灰度范围和供应商状态，支持研发与产品运营协同。</div>
+                    </div>
+                    <button class="btn">发布记录</button>
+                </div>
+                <div class="grid-3" id="aiCards"></div>
+                <div class="table-card section-gap">
+                    <div class="toolbar">
+                        <strong>提示词版本</strong>
+                        <button class="btn primary small" style="margin-left:auto">新建草稿</button>
+                    </div>
+                    <table>
+                        <thead><tr><th>功能节点</th><th>模型类型</th><th>线上版本</th><th>草稿版本</th><th>灰度范围</th><th>最后更新</th><th>操作</th></tr></thead>
+                        <tbody id="promptTable"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="view" id="billing">
+                <div class="view-head">
+                    <div>
+                        <h1 class="view-title">积分与结算</h1>
+                        <div class="view-desc">管理积分流水、订单、充值、退款、计费规则和成本分析。</div>
+                    </div>
+                    <button class="btn primary">发起调账</button>
+                </div>
+                <div class="grid-4" id="billingMetrics"></div>
+                <div class="table-card section-gap">
+                    <div class="toolbar">
+                        <select class="select"><option>全部租户</option><option>雨虹投资</option><option>华泰理财</option></select>
+                        <select class="select"><option>全部类型</option><option>充值</option><option>消费</option><option>退款</option><option>调账</option></select>
+                        <input class="input" type="date">
+                    </div>
+                    <table>
+                        <thead><tr><th>时间</th><th>租户</th><th>类型</th><th>积分变动</th><th>余额</th><th>操作人</th><th>关联对象</th><th>备注</th></tr></thead>
+                        <tbody id="billingTable"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="view" id="system">
+                <div class="view-head">
+                    <div>
+                        <h1 class="view-title">系统管理</h1>
+                        <div class="view-desc">管理内部账号、角色权限、审批记录和操作审计。</div>
+                    </div>
+                    <button class="btn primary">新增内部账号</button>
+                </div>
+                <div class="grid-3">
+                    <div class="card">
+                        <div class="card-title">内部账号</div>
+                        <div class="metric-value">18</div>
+                        <div class="metric-note">运营 8，研发支持 4，合规 3，管理员 3</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-title">待审批事项</div>
+                        <div class="metric-value">5</div>
+                        <div class="metric-note warn">涉及调账、提示词发布、租户停用</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-title">今日审计日志</div>
+                        <div class="metric-value">42</div>
+                        <div class="metric-note">高风险操作 3 条</div>
+                    </div>
+                </div>
+                <div class="table-card section-gap">
+                    <div class="toolbar">
+                        <strong>操作审计</strong>
+                        <select class="select" style="margin-left:auto"><option>全部类型</option><option>租户</option><option>配置</option><option>结算</option></select>
+                    </div>
+                    <table>
+                        <thead><tr><th>时间</th><th>操作人</th><th>类型</th><th>对象</th><th>变更前</th><th>变更后</th><th>备注</th></tr></thead>
+                        <tbody id="auditTable"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+</div>
+
+<div class="drawer-mask" id="drawerMask" onclick="closeDrawer()"></div>
+<aside class="drawer" id="drawer">
+    <div class="drawer-head">
+        <div class="drawer-title" id="drawerTitle">详情</div>
+        <button class="btn small" onclick="closeDrawer()">关闭</button>
+    </div>
+    <div class="drawer-body" id="drawerBody"></div>
+</aside>
+
+<script>
+const tenants = [
+    { id:'t001', name:'雨虹投资', industry:'金融投顾', admin:'张明', plan:'旗舰版', credits:3200, expiry:'2026-12-31', health:'健康', features:['视频生成','图片创作','语音合成','模板库'], failRate:4.2 },
+    { id:'t002', name:'鑫源保险', industry:'保险', admin:'李芳', plan:'标准版', credits:760, expiry:'2026-07-15', health:'关注', features:['视频生成','语音合成'], failRate:9.8 },
+    { id:'t003', name:'汇丰投顾', industry:'金融投顾', admin:'王磊', plan:'标准版', credits:420, expiry:'2026-06-28', health:'风险', features:['视频生成'], failRate:14.6 },
+    { id:'t004', name:'华泰理财', industry:'金融投顾', admin:'赵强', plan:'旗舰版', credits:8600, expiry:'2026-09-30', health:'健康', features:['视频生成','分镜管理','模板库'], failRate:3.1 },
+    { id:'t005', name:'安联保险经纪', industry:'保险', admin:'刘洋', plan:'试用版', credits:200, expiry:'2026-06-22', health:'风险', features:['视频生成'], failRate:7.4 },
+    { id:'t006', name:'中诚教育', industry:'教育培训', admin:'陈静', plan:'高级版', credits:2400, expiry:'2027-01-31', health:'健康', features:['视频生成','图片创作','语音合成'], failRate:5.0 }
+];
+
+const tasks = [
+    { id:'vt001', name:'市场收评_0616', tenant:'雨虹投资', count:4, status:'completed', success:100, avgDuration:42, cost:520, model:'wan2.7', failure:'-' },
+    { id:'vt002', name:'基金定投科普_0616', tenant:'华泰理财', count:3, status:'completed', success:100, avgDuration:39, cost:360, model:'wan2.7', failure:'-' },
+    { id:'vt003', name:'保险理赔指南_0616', tenant:'鑫源保险', count:5, status:'partial', success:80, avgDuration:58, cost:620, model:'wan2.7', failure:'语音合成接口超时' },
+    { id:'vt004', name:'早盘速递_0616', tenant:'汇丰投顾', count:2, status:'failed', success:0, avgDuration:66, cost:120, model:'LTX Video', failure:'人物检测失败' },
+    { id:'vt005', name:'养老规划_0616', tenant:'中诚教育', count:3, status:'generating', success:33, avgDuration:44, cost:180, model:'wan2.7', failure:'-' },
+    { id:'vt006', name:'车险指南_0616', tenant:'安联保险经纪', count:2, status:'queued', success:0, avgDuration:0, cost:0, model:'LTX Video', failure:'-' }
+];
+
+const voices = [
+    { name:'沉稳男声 A', scene:'市场解读 / 资产配置', scope:'全量租户', status:'启用', usage:12840 },
+    { name:'职业女声 B', scene:'基金定投 / 投顾服务', scope:'金融投顾', status:'启用', usage:9260 },
+    { name:'新闻播报 C', scene:'风险提示 / 合规提示', scope:'全量租户', status:'启用', usage:4180 },
+    { name:'快讯男声 F', scene:'热点快评 / 早盘速递', scope:'指定租户', status:'停用', usage:870 }
+];
+
+const templates = [
+    { name:'市场收评模板', scene:'收盘解读', voice:'沉稳男声 A', status:'启用', success:96 },
+    { name:'基金定投科普模板', scene:'基金知识', voice:'职业女声 B', status:'启用', success:94 },
+    { name:'风险提示模板', scene:'风险揭示', voice:'新闻播报 C', status:'启用', success:98 },
+    { name:'热点快评模板', scene:'热点事件', voice:'快讯男声 F', status:'停用', success:89 }
+];
+
+const complianceRows = [
+    { time:'2026-06-16 10:18', tenant:'汇丰投顾', type:'台词', risk:'高风险', rule:'绝对化收益承诺', result:'已拦截' },
+    { time:'2026-06-16 10:41', tenant:'雨虹投资', type:'台词', risk:'低风险', rule:'风险提示缺失', result:'建议改写' },
+    { time:'2026-06-16 11:05', tenant:'鑫源保险', type:'视频', risk:'中风险', rule:'保险收益表述不完整', result:'人工复核' },
+    { time:'2026-06-16 13:22', tenant:'华泰理财', type:'图片', risk:'低风险', rule:'品牌露出异常', result:'通过' }
+];
+
+const billingRows = [
+    { time:'2026-06-16 09:15', tenant:'雨虹投资', type:'消费', amount:-520, balance:3200, operator:'system', ref:'vt001', note:'视频生成' },
+    { time:'2026-06-16 10:30', tenant:'华泰理财', type:'消费', amount:-360, balance:8600, operator:'system', ref:'vt002', note:'模板成片' },
+    { time:'2026-06-16 11:20', tenant:'鑫源保险', type:'充值', amount:3000, balance:760, operator:'ops-admin', ref:'order_091', note:'季度充值' },
+    { time:'2026-06-16 14:05', tenant:'汇丰投顾', type:'退款', amount:120, balance:420, operator:'finance', ref:'adj_033', note:'异常任务补偿审批通过' }
+];
+
+const prompts = [
+    { node:'台词生成', type:'大语言模型', live:'script_create_v8', draft:'script_create_v9', gray:'内部租户', updated:'2026-06-15' },
+    { node:'合规审核/改写', type:'大语言模型', live:'compliance_v6', draft:'compliance_v7', gray:'金融投顾', updated:'2026-06-14' },
+    { node:'分镜生成', type:'大语言模型', live:'shot_v13', draft:'-', gray:'全量', updated:'2026-06-12' },
+    { node:'首帧生成', type:'多模态模型', live:'first_frame_v6', draft:'first_frame_v7', gray:'指定租户', updated:'2026-06-11' },
+    { node:'视频生成', type:'视频模型', live:'video_v9', draft:'-', gray:'全量', updated:'2026-06-10' }
+];
+
+const auditRows = [
+    { time:'2026-06-16 09:30', operator:'ops-admin', type:'模板', target:'市场收评模板', before:'停用', after:'启用', note:'恢复推荐模板' },
+    { time:'2026-06-16 10:10', operator:'product-ops', type:'提示词', target:'合规审核/改写', before:'compliance_v6', after:'compliance_v7 草稿', note:'新增风险提示缺失检查' },
+    { time:'2026-06-16 11:20', operator:'ops-admin', type:'结算', target:'鑫源保险', before:'-2,240', after:'+760', note:'季度充值' },
+    { time:'2026-06-16 14:00', operator:'admin', type:'权限', target:'合规运营', before:'查看', after:'查看+导出', note:'权限审批通过' }
+];
+
+const viewTitles = {
+    dashboard:'工作台', tenants:'客户与租户', tasks:'任务统计', compliance:'内容合规',
+    supply:'音色与模板', ai:'AI 能力中心', billing:'积分与结算', system:'系统管理'
+};
+
+function statusText(status) {
+    return { completed:'已完成', generating:'生成中', queued:'排队中', failed:'已失败', partial:'部分成功' }[status] || status;
+}
+
+function statusClass(value) {
+    if (['启用','健康','已完成','通过'].includes(value)) return 's-green';
+    if (['生成中','人工复核','建议改写'].includes(value)) return 's-blue';
+    if (['关注','部分成功','排队中','中风险'].includes(value)) return 's-orange';
+    if (['风险','已失败','高风险','已拦截'].includes(value)) return 's-red';
+    return 's-gray';
+}
+
+function metric(label, value, note, cls = '') {
+    return `<div class="metric"><div class="metric-label">${label}</div><div class="metric-value">${value}</div><div class="metric-note ${cls}">${note}</div></div>`;
+}
+
+function barRow(label, value, max, color = '') {
+    const pct = max ? Math.round(value / max * 100) : 0;
+    return `<div class="kpi-line"><span>${label}</span><div class="bar"><span class="${color}" style="width:${pct}%"></span></div><strong>${value}</strong></div>`;
+}
+
+function renderDashboard() {
+    const totalVideos = tasks.reduce((s, t) => s + t.count, 0);
+    const avgSuccess = Math.round(tasks.reduce((s, t) => s + t.success, 0) / tasks.length);
+    const cost = tasks.reduce((s, t) => s + t.cost, 0);
+    document.getElementById('dashboardMetrics').innerHTML = [
+        metric('今日任务数', tasks.length, '只读统计，不提供任务处置'),
+        metric('今日生成视频', totalVideos, '按子任务口径统计', 'good'),
+        metric('今日成功率', avgSuccess + '%', '失败任务进入原因分析', avgSuccess < 90 ? 'warn' : 'good'),
+        metric('今日消耗积分', cost.toLocaleString(), '系统流水自动记录')
+    ].join('');
+
+    document.getElementById('tenantAlerts').innerHTML = tenants
+        .filter(t => t.health !== '健康')
+        .map(t => `<div class="list-row"><div><div class="row-title">${t.name}</div><div class="row-meta">余额 ${t.credits.toLocaleString()}，到期 ${t.expiry}，失败率 ${t.failRate}%</div></div><span class="status ${statusClass(t.health)}">${t.health}</span></div>`)
+        .join('');
+
+    document.getElementById('failureBars').innerHTML = [
+        barRow('语音合成超时', 18, 30, 'orange'),
+        barRow('人物检测失败', 12, 30, 'red'),
+        barRow('视频生成失败', 9, 30, 'red'),
+        barRow('额度不足', 7, 30, 'orange')
+    ].join('');
+
+    document.getElementById('modelBars').innerHTML = [
+        barRow('文本模型', 840, 1000, 'green'),
+        barRow('图片/多模态', 420, 1000),
+        barRow('音频模型', 560, 1000, 'orange'),
+        barRow('视频模型', 310, 1000)
+    ].join('');
+
+    document.getElementById('todoList').innerHTML = [
+        ['3 个租户即将到期', '客户成功需要跟进续费风险'],
+        ['5 条内容进入人工复核', '合规运营查看风险等级'],
+        ['2 个提示词草稿待发布', '需要产品负责人确认灰度范围'],
+        ['1 笔退款待审批', '财务审批后进入积分流水']
+    ].map(x => `<div class="list-row"><div><div class="row-title">${x[0]}</div><div class="row-meta">${x[1]}</div></div><button class="btn small">查看</button></div>`).join('');
+}
+
+function renderTenants() {
+    const industry = document.getElementById('tenantIndustry').value;
+    const health = document.getElementById('tenantHealth').value;
+    const search = document.getElementById('tenantSearch').value.trim().toLowerCase();
+    const rows = tenants.filter(t => {
+        if (industry && t.industry !== industry) return false;
+        if (health && t.health !== health) return false;
+        if (search && !(`${t.name}${t.admin}`.toLowerCase().includes(search))) return false;
+        return true;
+    });
+    document.getElementById('tenantTable').innerHTML = rows.map(t => `
+        <tr>
+            <td><strong>${t.name}</strong><br><span class="muted">${t.id}</span></td>
+            <td>${t.industry}</td>
+            <td>${t.admin}</td>
+            <td>${t.plan}</td>
+            <td><strong>${t.credits.toLocaleString()}</strong></td>
+            <td>${t.expiry}</td>
+            <td><span class="status ${statusClass(t.health)}">${t.health}</span></td>
+            <td><button class="btn small" onclick="openTenant('${t.id}')">详情</button></td>
+        </tr>`).join('') || `<tr><td colspan="8"><div class="empty-note">暂无匹配租户</div></td></tr>`;
+}
+
+function renderTaskFilters() {
+    document.getElementById('taskTenant').innerHTML = `<option value="">全部租户</option>` + tenants.map(t => `<option>${t.name}</option>`).join('');
+}
+
+function renderTasks() {
+    const tenant = document.getElementById('taskTenant').value;
+    const status = document.getElementById('taskStatus').value;
+    const search = document.getElementById('taskSearch').value.trim().toLowerCase();
+    const rows = tasks.filter(t => {
+        if (tenant && t.tenant !== tenant) return false;
+        if (status && t.status !== status) return false;
+        if (search && !t.name.toLowerCase().includes(search)) return false;
+        return true;
+    });
+    const total = rows.reduce((s, t) => s + t.count, 0);
+    const cost = rows.reduce((s, t) => s + t.cost, 0);
+    const success = rows.length ? Math.round(rows.reduce((s, t) => s + t.success, 0) / rows.length) : 0;
+    document.getElementById('taskMetrics').innerHTML = [
+        metric('筛选任务数', rows.length, '父任务口径'),
+        metric('视频总数', total, '子任务口径'),
+        metric('平均成功率', success + '%', '只读统计', success < 85 ? 'warn' : 'good'),
+        metric('消耗积分', cost.toLocaleString(), '来自积分流水')
+    ].join('');
+    document.getElementById('taskRank').innerHTML = tenants.map(t => {
+        const n = tasks.filter(x => x.tenant === t.name).reduce((s, x) => s + x.count, 0);
+        return barRow(t.name, n, 8, n > 4 ? 'green' : '');
+    }).join('');
+    document.getElementById('durationBars').innerHTML = [
+        barRow('平均排队等待', 18, 80, 'orange'),
+        barRow('平均视频生成', 46, 80),
+        barRow('平均音频合成', 12, 80, 'green'),
+        barRow('平均后处理', 9, 80, 'green')
+    ].join('');
+    document.getElementById('taskTable').innerHTML = rows.map(t => `
+        <tr>
+            <td><strong>${t.name}</strong><br><span class="muted">${t.id}</span></td>
+            <td>${t.tenant}</td>
+            <td>${t.count}</td>
+            <td><span class="status ${statusClass(statusText(t.status))}">${statusText(t.status)}</span></td>
+            <td>${t.success}%</td>
+            <td>${t.avgDuration ? t.avgDuration + ' 秒' : '-'}</td>
+            <td>${t.cost.toLocaleString()}</td>
+            <td><button class="btn small" onclick="openTask('${t.id}')">只读详情</button></td>
+        </tr>`).join('') || `<tr><td colspan="8"><div class="empty-note">暂无匹配任务</div></td></tr>`;
+}
+
+function renderCompliance() {
+    document.getElementById('complianceMetrics').innerHTML = [
+        metric('今日审核内容', 186, '台词、图片、视频'),
+        metric('风险命中', 24, '命中规则后进入记录', 'warn'),
+        metric('高风险拦截', 5, '不直接修改客户内容', 'bad'),
+        metric('复核通过率', '82%', '人工复核结果')
+    ].join('');
+    document.getElementById('riskBars').innerHTML = [
+        barRow('收益承诺', 11, 20, 'red'),
+        barRow('风险提示缺失', 9, 20, 'orange'),
+        barRow('诱导交易', 4, 20, 'red'),
+        barRow('品牌露出异常', 3, 20)
+    ].join('');
+    document.getElementById('riskWords').innerHTML = ['稳赚','保本保收益','立即买入','翻倍机会','内部消息','必涨','无风险'].map(w => `<span class="chip">${w}</span>`).join('');
+    document.getElementById('complianceTable').innerHTML = complianceRows.map(r => `
+        <tr><td>${r.time}</td><td>${r.tenant}</td><td>${r.type}</td><td><span class="status ${statusClass(r.risk)}">${r.risk}</span></td><td>${r.rule}</td><td><span class="status ${statusClass(r.result)}">${r.result}</span></td></tr>
+    `).join('');
+}
+
+function renderSupply() {
+    document.getElementById('voiceTable').innerHTML = voices.map(v => `
+        <tr><td><strong>${v.name}</strong></td><td>${v.scene}</td><td>${v.scope}</td><td><span class="status ${statusClass(v.status)}">${v.status}</span></td><td>${v.usage.toLocaleString()}</td><td><button class="btn small">编辑</button></td></tr>
+    `).join('');
+    document.getElementById('templateTable').innerHTML = templates.map(t => `
+        <tr><td><strong>${t.name}</strong></td><td>${t.scene}</td><td>${t.voice}</td><td><span class="status ${statusClass(t.status)}">${t.status}</span></td><td>${t.success}%</td><td><button class="btn small">编辑</button></td></tr>
+    `).join('');
+}
+
+function renderAi() {
+    document.getElementById('aiCards').innerHTML = [
+        `<div class="card"><div class="card-title">模型可用性</div>${barRow('qwen3.6-plus', 99, 100, 'green')}${barRow('wan2.7-image', 96, 100, 'green')}${barRow('cosyvoice', 91, 100, 'orange')}${barRow('wan2.7-t2v', 94, 100, 'green')}</div>`,
+        `<div class="card"><div class="card-title">供应商状态</div><div class="list"><div class="list-row"><div><div class="row-title">阿里云 DashScope</div><div class="row-meta">音频合成延迟略高</div></div><span class="status s-orange">关注</span></div><div class="list-row"><div><div class="row-title">视频模型服务</div><div class="row-meta">平均耗时稳定</div></div><span class="status s-green">正常</span></div></div></div>`,
+        `<div class="card"><div class="card-title">灰度配置</div><div class="list"><div class="list-row"><div><div class="row-title">合规提示词 v7</div><div class="row-meta">金融投顾行业灰度</div></div><span class="status s-blue">灰度中</span></div><div class="list-row"><div><div class="row-title">首帧生成 v7</div><div class="row-meta">指定租户灰度</div></div><span class="status s-blue">灰度中</span></div></div></div>`
+    ].join('');
+    document.getElementById('promptTable').innerHTML = prompts.map(p => `
+        <tr><td>${p.node}</td><td>${p.type}</td><td><strong>${p.live}</strong></td><td>${p.draft}</td><td>${p.gray}</td><td>${p.updated}</td><td><button class="btn small">版本对比</button></td></tr>
+    `).join('');
+}
+
+function renderBilling() {
+    const income = billingRows.filter(b => b.amount > 0).reduce((s, b) => s + b.amount, 0);
+    const spend = Math.abs(billingRows.filter(b => b.amount < 0).reduce((s, b) => s + b.amount, 0));
+    document.getElementById('billingMetrics').innerHTML = [
+        metric('今日充值积分', income.toLocaleString(), '含退款和充值'),
+        metric('今日消费积分', spend.toLocaleString(), '系统消费流水'),
+        metric('待审批调账', 3, '大额调账需审批', 'warn'),
+        metric('估算模型成本', '¥ 428', '按供应商成本估算')
+    ].join('');
+    document.getElementById('billingTable').innerHTML = billingRows.map(b => `
+        <tr><td>${b.time}</td><td>${b.tenant}</td><td><span class="status ${b.amount > 0 ? 's-green' : 's-orange'}">${b.type}</span></td><td><strong>${b.amount > 0 ? '+' : ''}${b.amount.toLocaleString()}</strong></td><td>${b.balance.toLocaleString()}</td><td>${b.operator}</td><td>${b.ref}</td><td>${b.note}</td></tr>
+    `).join('');
+}
+
+function renderSystem() {
+    document.getElementById('auditTable').innerHTML = auditRows.map(a => `
+        <tr><td>${a.time}</td><td>${a.operator}</td><td><span class="status s-gray">${a.type}</span></td><td>${a.target}</td><td>${a.before}</td><td>${a.after}</td><td>${a.note}</td></tr>
+    `).join('');
+}
+
+function openTenant(id) {
+    const t = tenants.find(x => x.id === id);
+    document.getElementById('drawerTitle').textContent = `${t.name} · 租户详情`;
+    document.getElementById('drawerBody').innerHTML = `
+        <div class="detail-grid">
+            <div class="detail-item"><div class="detail-label">租户 ID</div><div class="detail-value">${t.id}</div></div>
+            <div class="detail-item"><div class="detail-label">行业</div><div class="detail-value">${t.industry}</div></div>
+            <div class="detail-item"><div class="detail-label">管理员</div><div class="detail-value">${t.admin}</div></div>
+            <div class="detail-item"><div class="detail-label">套餐</div><div class="detail-value">${t.plan}</div></div>
+            <div class="detail-item"><div class="detail-label">积分余额</div><div class="detail-value">${t.credits.toLocaleString()}</div></div>
+            <div class="detail-item"><div class="detail-label">健康状态</div><div class="detail-value"><span class="status ${statusClass(t.health)}">${t.health}</span></div></div>
+        </div>
+        <div class="card-title">已开通能力</div>
+        <div class="chips">${t.features.map(f => `<span class="chip">${f}</span>`).join('')}</div>
+        <div class="card-title section-gap">最近任务统计</div>
+        <table><thead><tr><th>任务</th><th>状态</th><th>成功率</th><th>积分</th></tr></thead><tbody>
+        ${tasks.filter(x => x.tenant === t.name).map(x => `<tr><td>${x.name}</td><td>${statusText(x.status)}</td><td>${x.success}%</td><td>${x.cost}</td></tr>`).join('') || '<tr><td colspan="4">暂无任务</td></tr>'}
+        </tbody></table>`;
+    showDrawer();
+}
+
+function openTask(id) {
+    const t = tasks.find(x => x.id === id);
+    document.getElementById('drawerTitle').textContent = `${t.name} · 只读任务详情`;
+    document.getElementById('drawerBody').innerHTML = `
+        <div class="detail-grid">
+            <div class="detail-item"><div class="detail-label">任务 ID</div><div class="detail-value">${t.id}</div></div>
+            <div class="detail-item"><div class="detail-label">租户</div><div class="detail-value">${t.tenant}</div></div>
+            <div class="detail-item"><div class="detail-label">状态</div><div class="detail-value">${statusText(t.status)}</div></div>
+            <div class="detail-item"><div class="detail-label">使用模型</div><div class="detail-value">${t.model}</div></div>
+            <div class="detail-item"><div class="detail-label">视频数</div><div class="detail-value">${t.count}</div></div>
+            <div class="detail-item"><div class="detail-label">消耗积分</div><div class="detail-value">${t.cost.toLocaleString()}</div></div>
+        </div>
+        <div class="card">
+            <div class="card-title">运营边界</div>
+            <div class="view-desc">该详情页仅用于观察生成链路和失败原因，不提供取消、重试、改状态、改参数等动作。</div>
+        </div>
+        <div class="card section-gap">
+            <div class="card-title">失败原因</div>
+            <div>${t.failure === '-' ? '无失败记录' : t.failure}</div>
+        </div>`;
+    showDrawer();
+}
+
+function showDrawer() {
+    document.getElementById('drawerMask').classList.add('open');
+    document.getElementById('drawer').classList.add('open');
+}
+
+function closeDrawer() {
+    document.getElementById('drawerMask').classList.remove('open');
+    document.getElementById('drawer').classList.remove('open');
+}
+
+function switchView(view) {
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.getElementById(view).classList.add('active');
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.toggle('active', n.dataset.view === view));
+    document.getElementById('crumbTitle').textContent = viewTitles[view];
+    const actionMap = {
+        dashboard:'<button class="btn small">导出概览</button>',
+        tenants:'<button class="btn small">导出租户</button>',
+        tasks:'<button class="btn small">导出统计</button>',
+        compliance:'<button class="btn small">导出审核记录</button>',
+        supply:'<button class="btn small">发布记录</button>',
+        ai:'<button class="btn small">模型调用日志</button>',
+        billing:'<button class="btn small">导出流水</button>',
+        system:'<button class="btn small">导出审计</button>'
+    };
+    document.getElementById('topActions').innerHTML = actionMap[view] || '';
+}
+
+document.getElementById('nav').addEventListener('click', e => {
+    const item = e.target.closest('.nav-item');
+    if (item) switchView(item.dataset.view);
+});
+
+renderDashboard();
+renderTenants();
+renderTaskFilters();
+renderTasks();
+renderCompliance();
+renderSupply();
+renderAi();
+renderBilling();
+renderSystem();
+</script>
+</body>
+</html>
