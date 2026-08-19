@@ -222,6 +222,8 @@ function bindAccountStatus(platform){
   return 'invalid';
 }
 function reconcileAuth(list){
+  var bindRaw=localStorage.getItem(ACCOUNT_BIND_KEY);
+  if(!bindRaw||bindRaw==='{}')return list;
   return list.filter(function(r){
     var bs=bindAccountStatus(r.platform);
     if(bs==='unbound')return false;
@@ -526,6 +528,12 @@ function exportCSV(){
   showToast('导出成功','已导出 '+filtered.length+' 条筛选结果');
 }
 function renderBindGuide(){
+  var bindRaw=localStorage.getItem(ACCOUNT_BIND_KEY);
+  if(!bindRaw||bindRaw==='{}'){
+    document.getElementById('bindGuide').style.display='none';
+    document.getElementById('filterCard').style.display='';
+    return;
+  }
   var anyBound=Object.keys(PLATFORM_META).some(function(p){return bindAccountStatus(p)==='bound'||bindAccountStatus(p)==='perm_pending'});
   document.getElementById('bindGuide').style.display=anyBound?'none':'flex';
   document.getElementById('filterCard').style.display=anyBound?'':'none';
