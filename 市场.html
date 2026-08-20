@@ -489,6 +489,40 @@
             background: rgba(255,255,255,.62);
             box-shadow: 0 18px 28px rgba(15,23,42,.22);
         }
+        .role-visual {
+            background: linear-gradient(135deg,#eef2ff 0%,#e0e7ff 55%,#c7d2fe 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .role-avatar {
+            width: 96px;
+            height: 96px;
+            border-radius: 50%;
+            background: linear-gradient(135deg,#ffffff 0%,#eef2ff 100%);
+            box-shadow: 0 10px 24px rgba(79,70,229,.22);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 54px;
+            position: relative;
+        }
+        .role-avatar::after {
+            content: "";
+            position: absolute;
+            left: 50%;
+            bottom: -46px;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 52px;
+            border-radius: 60px 60px 12px 12px;
+            background: rgba(255,255,255,.55);
+        }
+        .role-avatar em {
+            font-style: normal;
+            position: relative;
+            z-index: 2;
+        }
         .template-visual {
             background: linear-gradient(135deg,#f8fafc,#e0f2fe);
             display: flex;
@@ -1368,6 +1402,7 @@
             <div class="tabbar" aria-label="市场分类">
                 <button class="tab-btn active" data-type="template" onclick="switchType('template')">视频模板</button>
                 <button class="tab-btn" data-type="voice" onclick="switchType('voice')">音色模板</button>
+                <button class="tab-btn" data-type="role" onclick="switchType('role')">角色模板</button>
                 <button class="tab-btn" data-type="scene" onclick="switchType('scene')">场景模板</button>
             </div>
             <label class="search-box">
@@ -1639,6 +1674,79 @@
         },
 
         {
+            id: "role-senior-male",
+            type: "role",
+            title: "资深投顾讲解员",
+            industry: "证券",
+            gender: "男",
+            style: "资深投顾",
+            emoji: "👨‍💼",
+            meta: "男 · 资深投顾 · 沉稳男声 A",
+            scene: "市场解读",
+            voice: { name: "沉稳男声 A", meta: "男声 · 财经 · 专业克制" },
+            tags: ["市场解读", "资产配置", "专业"],
+            desc: "沉稳可信的资深投顾形象，适合市场收评、资产配置和投资观点输出。",
+            score: 97,
+            favs: 132,
+            createdAt: "2026-06-21",
+            used: 1980
+        },
+        {
+            id: "role-female-edu",
+            type: "role",
+            title: "理财科普讲解员",
+            industry: "基金",
+            gender: "女",
+            style: "理财科普",
+            emoji: "👩‍💼",
+            meta: "女 · 理财科普 · 知性女声 B",
+            scene: "基金投教",
+            voice: { name: "知性女声 B", meta: "女声 · 知识 · 清晰亲和" },
+            tags: ["基金科普", "新手教育", "亲和"],
+            desc: "亲和清晰的女声讲解形象，适合基金定投、理财入门和投教科普。",
+            score: 95,
+            favs: 104,
+            createdAt: "2026-06-19",
+            used: 1540
+        },
+        {
+            id: "role-risk-male",
+            type: "role",
+            title: "风控讲解员",
+            industry: "银行",
+            gender: "男",
+            style: "风控合规",
+            emoji: "🧑‍💼",
+            meta: "男 · 风控合规 · 新闻播报 C",
+            scene: "风险提示",
+            voice: { name: "新闻播报 C", meta: "中性 · 播报 · 稳定权威" },
+            tags: ["风险提示", "合规", "权威"],
+            desc: "克制权威的风控讲解形象，适合风险揭示、合规提示和公告解读。",
+            score: 92,
+            favs: 79,
+            createdAt: "2026-06-15",
+            used: 1105
+        },
+        {
+            id: "role-service-female",
+            type: "role",
+            title: "服务顾问",
+            industry: "保险",
+            gender: "女",
+            style: "客户服务",
+            emoji: "👩‍💻",
+            meta: "女 · 客户服务 · 专业女主播",
+            scene: "客户服务",
+            voice: { name: "专业女主播 / 中文", meta: "女声 · 服务 · 清晰亲和" },
+            tags: ["客户服务", "服务介绍", "亲切"],
+            desc: "亲切专业的服务顾问形象，适合客户服务流程说明和产品介绍。",
+            score: 90,
+            favs: 66,
+            createdAt: "2026-06-12",
+            used: 834
+        },
+
+        {
             id: "scene-modern-studio",
             type: "scene",
             title: "现代财经演播室",
@@ -1819,11 +1927,15 @@
         }
     ];
 
-        const typeLabels = { voice: "音色模板", scene: "场景模板", template: "视频模板" };
+        const typeLabels = { voice: "音色模板", scene: "场景模板", template: "视频模板", role: "角色模板" };
     const attrSchemas = {
         voice: [
             { key: "gender", label: "性别" },
             { key: "tone", label: "语气" }
+        ],
+        role: [
+            { key: "gender", label: "性别" },
+            { key: "style", label: "职业风格" }
         ],
         scene: [
             { key: "ratio", label: "画幅" },
@@ -2104,7 +2216,7 @@
         const usedHtml = '<span class="used-badge">📋 ' + item.used.toLocaleString('zh-CN') + '</span>';
         const hot = item.type === "template" && item.hot === true;
         const visual = item.type === "voice" ? "" :
-            '<div class="resource-visual ' + (item.type === "scene" ? 'scene-visual ' + item.visual : 'template-visual') + '">' +
+            '<div class="resource-visual ' + (item.type === "scene" ? 'scene-visual ' + item.visual : (item.type === "role" ? 'role-visual' : 'template-visual')) + '">' +
                 '<span class="official-badge">官方资源</span>' +
                 (hot ? '<span class="hot-badge">🔥 HOT</span>' : '') +
                 usedHtml +
@@ -2146,11 +2258,15 @@
         if (item.type === "scene") {
             return '<div class="scene-lines"></div><div class="scene-desk"></div>';
         }
+        if (item.type === "role") {
+            return '<div class="role-avatar"><em>' + (item.emoji || "👤") + '</em></div>';
+        }
         return '<div class="phone-preview"></div><div class="template-map"><div class="template-step"></div><div class="template-step"></div><div class="template-step"></div></div>';
     }
 
     function getCardTags(item) {
         if (item.type === "voice") return [item.gender, item.tone];
+        if (item.type === "role") return [item.gender, item.style];
         if (item.type === "scene") return [item.ratio, item.place];
         if (item.type === "template") return [item.resolution, item.ratio];
         return item.tags;
@@ -2215,6 +2331,7 @@
         added.push(id);
         writeList(ADDED_KEY, added);
         if (item.type === "scene") addSceneToLibrary(item);
+        if (item.type === "role") addRoleToLibrary(item);
         if (item.type === "template") {
             showToast("已收藏", item.title + " 已加入收藏");
         } else {
@@ -2229,6 +2346,7 @@
         const added = getAdded().filter(assetId => assetId !== id);
         writeList(ADDED_KEY, added);
         if (item.type === "scene") removeSceneFromLibrary(item);
+        if (item.type === "role") removeRoleFromLibrary(item);
         if (item.type === "template") {
             showToast("已取消收藏", item.title + " 已从收藏中移除");
         } else {
@@ -2267,6 +2385,29 @@
         const sceneId = "market-" + item.id;
         writeList(SUBJECT_LIBRARY_KEY, readList(SUBJECT_LIBRARY_KEY).filter(scene => scene.id !== sceneId));
         writeList(SAME_SCENE_KEY, readList(SAME_SCENE_KEY).filter(scene => scene.id !== sceneId));
+    }
+
+    function addRoleToLibrary(item) {
+        const roleId = "market-" + item.id;
+        const subjectList = readList(SUBJECT_LIBRARY_KEY).filter(subject => subject.id !== roleId);
+        subjectList.unshift({
+            id: roleId,
+            type: "role",
+            name: item.title,
+            desc: item.desc,
+            owner: "my",
+            createdByMe: false,
+            favorite: false,
+            status: "官方角色",
+            visual: "role",
+            voice: item.voice && item.voice.name ? item.voice.name : ""
+        });
+        writeList(SUBJECT_LIBRARY_KEY, subjectList);
+    }
+
+    function removeRoleFromLibrary(item) {
+        const roleId = "market-" + item.id;
+        writeList(SUBJECT_LIBRARY_KEY, readList(SUBJECT_LIBRARY_KEY).filter(subject => subject.id !== roleId));
     }
 
     function openTemplateVideoPreview(item) {
@@ -2708,7 +2849,7 @@
             detailItem("行业", item.industry) +
             getResourceDetailItems(item) +
             detailItem("使用热度", item.favs + " 次");
-        document.getElementById("previewActionBtn").textContent = "查看预览";
+        document.getElementById("previewActionBtn").textContent = item.type === "role" ? "试听音色" : "查看预览";
         syncPreviewAssetButton(id);
         document.getElementById("previewMask").classList.add("show");
     }
@@ -2746,11 +2887,18 @@
         if (item.type === "voice") {
             return '<div class="voice-preview"><span class="resource-badge">官方音色</span><div class="voice-preview-title">' + escapeHtml(item.title) + '</div><div class="voice-preview-meta">' + escapeHtml(item.gender) + ' · ' + escapeHtml(item.tone) + '<br>适合场景：' + escapeHtml(item.suitableScene) + '</div></div>';
         }
+        if (item.type === "role") {
+            return '<div class="role-visual" style="width:260px;height:190px;border-radius:16px;overflow:hidden;position:relative;">' + buildVisual(item) + '</div>';
+        }
         return '<div style="width:260px;height:190px;border-radius:16px;overflow:hidden;position:relative;background:#f1f5f9;">' + buildVisual(item) + '</div>';
     }
 
     function getResourceDetailItems(item) {
-        return attrSchemas[item.type].map(schema => detailItem(schema.label, item[schema.key])).join("");
+        var items = attrSchemas[item.type].map(schema => detailItem(schema.label, item[schema.key]));
+        if (item.type === "role" && item.voice) {
+            items.push(detailItem("关联音色", item.voice.name));
+        }
+        return items.join("");
     }
 
     function closePreview(event) {
@@ -2766,7 +2914,31 @@
     function previewPrimaryAction() {
         const item = resources.find(r => r.id === previewResourceId);
         if (!item) return;
+        if (item.type === "role") {
+            previewRoleVoice(item);
+            return;
+        }
         showToast("预览资源", item.title + " 的预览效果已展示");
+    }
+
+    function previewRoleVoice(item) {
+        if (!("speechSynthesis" in window)) {
+            showToast("暂不支持试听", "当前浏览器不支持语音合成模拟");
+            return;
+        }
+        window.speechSynthesis.cancel();
+        var voiceName = item.voice && item.voice.name ? item.voice.name : "";
+        var isEnglish = voiceName.indexOf("English") >= 0;
+        var text = isEnglish ? "Hello, this is a short preview of the selected voice." : (item.desc || "您好，这是当前角色的音色试听效果。");
+        var utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = isEnglish ? "en-US" : "zh-CN";
+        utterance.rate = (voiceName.indexOf("快讯") >= 0 || voiceName.indexOf("干练") >= 0) ? 1.06 : 0.95;
+        utterance.pitch = item.gender === "女" ? 1.08 : 0.94;
+        var voices = window.speechSynthesis.getVoices();
+        var matched = voices.find(v => v.lang && v.lang.toLowerCase().indexOf(isEnglish ? "en" : "zh") === 0);
+        if (matched) utterance.voice = matched;
+        window.speechSynthesis.speak(utterance);
+        showToast("正在试听", voiceName || item.title);
     }
 
     function addCurrentPreview() {
