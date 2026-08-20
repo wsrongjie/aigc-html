@@ -779,6 +779,67 @@
         .var-default-item .vd-upload-row { display: flex; gap: 8px; align-items: flex-end; flex-wrap: wrap; }
         .var-default-item .vd-upload-row textarea { flex: 1; min-width: 200px; }
         .empty-workflow-hint { text-align: center; padding: 24px; color: var(--text-muted); font-size: 12px; }
+
+        /* ===== 角色图片缩略图 + hover 大图 ===== */
+        .role-thumb {
+            width: 44px; height: 44px; border-radius: 8px;
+            object-fit: cover; border: 1px solid var(--border);
+            background: #F0F0F3; cursor: zoom-in;
+            display: inline-block;
+        }
+        .role-thumb-placeholder {
+            width: 44px; height: 44px; border-radius: 8px;
+            border: 1px dashed var(--border);
+            background: #FAFAFA; color: var(--text-muted);
+            display: inline-flex; align-items: center; justify-content: center;
+            font-size: 18px; cursor: default;
+        }
+        .role-preview-layer {
+            position: fixed; z-index: 3000; pointer-events: none;
+            display: none; padding: 6px;
+            background: #fff; border: 1px solid var(--border);
+            border-radius: 10px; box-shadow: var(--shadow-md);
+        }
+        .role-preview-layer.show { display: block; }
+        .role-preview-layer img {
+            display: block; max-width: 260px; max-height: 260px;
+            border-radius: 6px; object-fit: contain;
+        }
+        .role-preview-layer .role-preview-name {
+            font-size: 11px; color: var(--text-secondary);
+            font-weight: 600; text-align: center;
+            padding: 4px 2px 0;
+        }
+
+        /* ===== 标签下拉多选 ===== */
+        .tag-select { position: relative; }
+        .tag-select-trigger {
+            display: flex; align-items: center; justify-content: space-between; gap: 8px;
+            height: 32px; padding: 0 10px;
+            border: 1px solid var(--border); border-radius: 6px;
+            background: #fff; cursor: pointer; font-size: 12px;
+            color: var(--text-primary); overflow: hidden;
+        }
+        .tag-select-trigger:hover { border-color: var(--primary); }
+        .tag-select-trigger span:first-child {
+            flex: 1; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+        }
+        .tag-select-caret { font-size: 10px; color: var(--text-muted); flex-shrink: 0; }
+        .tag-select-dropdown {
+            position: absolute; top: 100%; left: 0; right: 0; z-index: 60;
+            margin-top: 4px; background: #fff;
+            border: 1px solid var(--border); border-radius: 8px;
+            box-shadow: var(--shadow-md); padding: 6px;
+            display: none; max-height: 190px; overflow-y: auto;
+        }
+        .tag-select-dropdown.show { display: block; }
+        .tag-option {
+            display: flex; align-items: center; gap: 8px;
+            padding: 6px 8px; border-radius: 6px;
+            cursor: pointer; font-size: 12px; color: var(--text-primary);
+        }
+        .tag-option:hover { background: #F7F7F8; }
+        .tag-option input { accent-color: var(--primary); cursor: pointer; }
     </style>
 </head>
 <body>
@@ -802,6 +863,7 @@
         <div class="nav-submenu" id="marketConfigSubmenu">
             <div class="nav-item sub" data-view="view-template-config"><span class="nav-icon">●</span> 视频模板</div>
             <div class="nav-item sub" data-view="view-voice-config"><span class="nav-icon">●</span> 音色模板</div>
+            <div class="nav-item sub" data-view="view-role-config"><span class="nav-icon">●</span> 角色模板</div>
             <div class="nav-item sub" data-view="view-scene-config"><span class="nav-icon">●</span> 场景模板</div>
             <div class="nav-item sub" data-view="view-workflow-config"><span class="nav-icon">●</span> 工作流模板</div>
         </div>
@@ -1029,6 +1091,21 @@
                 <table>
                     <thead><tr><th style="min-width:120px">音色名称</th><th>性别</th><th>语气</th><th>音色 ID</th><th>状态</th><th>使用次数</th><th>操作</th></tr></thead>
                     <tbody id="voiceConfigTable"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 视图：角色模板 -->
+        <div class="panel" id="view-role-config">
+            <div class="section-title">角色模板</div>
+            <div class="table-wrap" style="margin-bottom:24px">
+                <div class="table-toolbar">
+                    <span style="font-weight:600;font-size:13px">平台内置角色</span>
+                    <button class="btn btn-primary btn-sm" onclick="openRoleModal()" style="margin-left:auto">+ 新增角色</button>
+                </div>
+                <table>
+                    <thead><tr><th style="min-width:120px">角色名称</th><th style="width:76px">角色图片</th><th>性别</th><th>音色</th><th>行业</th><th>标签</th><th>状态</th><th>引用次数</th><th>备注</th><th>操作</th></tr></thead>
+                    <tbody id="roleConfigTable"></tbody>
                 </table>
             </div>
         </div>
@@ -1363,6 +1440,76 @@
         <div class="modal-footer">
             <button class="btn" onclick="closeVoiceModal()">取消</button>
             <button class="btn btn-primary" onclick="saveVoiceConfig()">保存</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal：新增/编辑角色 -->
+<div class="modal-overlay" id="roleModalOverlay">
+    <div class="modal" id="roleModal">
+        <div class="modal-header">
+            <span class="modal-title" id="roleModalTitle">新增角色</span>
+            <button class="modal-close" onclick="closeRoleModal()">×</button>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
+            <div class="form-group"><label class="kv-label">角色名称 <span style="color:red">*</span></label><input class="filter-input" id="rfRoleName" style="width:100%" placeholder="如：资深男投顾·张老师"></div>
+            <div class="form-group">
+                <label class="kv-label">角色图片 <span style="color:red">*</span> <span style="font-weight:400;color:var(--text-muted);font-size:11px">用于列表展示，必传</span></label>
+                <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+                    <label class="btn btn-sm" style="cursor:pointer;display:inline-flex;align-items:center;gap:6px">
+                        📁 选择图片
+                        <input type="file" id="rfImageFile" accept="image/*" style="display:none" onchange="onRoleImageChange()">
+                    </label>
+                    <img id="rfImagePreview" class="role-thumb" src="" style="display:none" alt="角色图片预览">
+                    <span id="rfImageName" style="font-size:12px;color:var(--text-muted)">未选择</span>
+                </div>
+            </div>
+            <div class="form-group"><label class="kv-label">性别 <span style="color:red">*</span></label><select class="filter-select" id="rfGender" style="width:100%"><option value="">请选择</option><option value="男">男</option><option value="女">女</option></select></div>
+            <div class="form-group">
+                <label class="kv-label">角色三视图 <span style="font-weight:400;color:var(--text-muted);font-size:11px">可选，用于 AI 生成参考</span></label>
+                <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+                    <label class="btn btn-sm" style="cursor:pointer;display:inline-flex;align-items:center;gap:6px">
+                        📁 选择图片
+                        <input type="file" id="rfThreeViewFile" accept="image/*" style="display:none" onchange="onRoleThreeViewChange()">
+                    </label>
+                    <img id="rfThreeViewPreview" class="role-thumb" src="" style="display:none" alt="角色三视图预览">
+                    <span id="rfThreeViewName" style="font-size:12px;color:var(--text-muted)">未选择</span>
+                </div>
+            </div>
+            <div class="form-group"><label class="kv-label">行业</label><select class="filter-select" id="rfIndustry" style="width:100%"><option value="">请选择</option><option>金融投顾</option><option>保险</option><option>教育培训</option><option>其他</option></select></div>
+            <div class="form-group"><label class="kv-label">使用次数</label><input class="filter-input" id="rfUsed" style="width:100%" type="number" min="0" value="0"></div>
+            <div class="form-group"><label class="kv-label">状态</label><select class="filter-select" id="rfStatus" style="width:100%"><option value="使用中">使用中</option><option value="已停用">已停用</option></select></div>
+            <div class="form-group">
+                <label class="kv-label">标签（可多选）</label>
+                <div class="tag-select" id="rfTagSelect">
+                    <div class="tag-select-trigger" onclick="toggleTagDropdown(event)">
+                        <span id="rfTagTriggerText">请选择标签</span>
+                        <span class="tag-select-caret">▾</span>
+                    </div>
+                    <div class="tag-select-dropdown" id="rfTagDropdown"></div>
+                </div>
+            </div>
+        </div>
+        <div class="form-group" style="margin-bottom:14px">
+            <label class="kv-label">音色语音文件 <span style="color:red">*</span></label>
+            <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+                <label class="btn btn-sm" style="cursor:pointer;display:inline-flex;align-items:center;gap:6px">
+                    📁 选择文件
+                    <input type="file" id="rfVoiceFile" accept="audio/*" style="display:none" onchange="onRoleFileChange()">
+                </label>
+                <span id="rfVoiceFileName" style="font-size:12px;color:var(--text-muted)">未选择文件</span>
+            </div>
+        </div>
+        <div class="form-group" style="margin-bottom:14px">
+            <label class="kv-label">备注</label>
+            <textarea id="rfRemark" style="width:100%;height:72px;padding:10px 12px;border:1px solid var(--border);border-radius:6px;font-size:13px;resize:none;line-height:1.5" placeholder="角色形象、适用场景说明..."></textarea>
+        </div>
+        <input type="hidden" id="rfEditIndex">
+        <input type="hidden" id="rfImageData">
+        <input type="hidden" id="rfThreeViewData">
+        <div class="modal-footer">
+            <button class="btn" onclick="closeRoleModal()">取消</button>
+            <button class="btn btn-primary" onclick="saveRoleConfig()">保存</button>
         </div>
     </div>
 </div>
@@ -1715,7 +1862,7 @@ function switchView(viewId) {
         document.querySelector('.nav-parent[data-toggle="business-config"]').classList.add('active');
         toggleBusinessMenu(true);
     }
-    var marketViews = ['view-template-config','view-voice-config','view-scene-config','view-workflow-config'];
+    var marketViews = ['view-template-config','view-voice-config','view-role-config','view-scene-config','view-workflow-config'];
     var inMarket = marketViews.indexOf(viewId) !== -1;
     if (inMarket) {
         document.querySelector('.nav-parent[data-toggle="market-config"]').classList.add('active');
@@ -1734,6 +1881,7 @@ function switchView(viewId) {
         'view-billing':'积分与账单',
         'view-refund-review':'积分退还审核',
         'view-voice-config':'市场配置 / 音色模板',
+        'view-role-config':'市场配置 / 角色模板',
         'view-credit-config':'业务配置 / 商业化配置',
         'view-prompt-config':'业务配置 / 提示词配置',
         'view-template-config':'市场配置 / 视频模板',
@@ -1773,6 +1921,7 @@ function refreshView(viewId) {
     else if (viewId === 'view-billing') renderBilling();
     else if (viewId === 'view-refund-review') renderRefundReview();
     else if (viewId === 'view-voice-config') renderVoiceConfigs();
+    else if (viewId === 'view-role-config') renderRoleConfigs();
     else if (viewId === 'view-credit-config') renderPricing();
     else if (viewId === 'view-scheduler-config') { AppState.tenants.forEach(refreshTenantCommercialState); renderScheduler(); }
     else if (viewId === 'view-prompt-config') renderPrompts();
@@ -1880,6 +2029,17 @@ function initData() {
         AppState.tenants = normalizeTenants(saved.tenants || AppState.tenants);
         AppState.releaseLogs = normalizeReleaseLogs(saved.releaseLogs || AppState.releaseLogs);
         AppState.voiceConfigs = saved.voiceConfigs || AppState.voiceConfigs;
+        AppState.roleConfigs = (saved.roleConfigs || AppState.roleConfigs).map(function(r) {
+            if (!r.image) {
+                var d = AppState.roleConfigs.find(function(x) { return x.id === r.id; });
+                if (d && d.image) r.image = d.image;
+            }
+            if (!r.threeView) {
+                var d2 = AppState.roleConfigs.find(function(x) { return x.id === r.id; });
+                if (d2 && d2.threeView) r.threeView = d2.threeView;
+            }
+            return r;
+        });
         AppState.creditRate = saved.creditRate || AppState.creditRate;
         AppState.creditValidityMonths = saved.creditValidityMonths || AppState.creditValidityMonths;
         AppState.concurrencyProducts = (saved.concurrencyProducts || AppState.concurrencyProducts).map(function(p) { return { months:Math.max(1, Number(p.months) || 1), price:Math.max(1, Number(p.price) || 1), gift:Math.max(0, Number(p.gift) || 0), isDefault:!!p.isDefault, status:p.status === '停用' ? '停用' : '启用' }; });
@@ -2013,6 +2173,12 @@ var AppState = {
         { id:'scene-risk-dark', name:'深色风控看板', industry:'银行', ratio:'9:16', place:'演播室', scene:'风险提示', tags:['风险提示','风控','合规'], desc:'深色背景配合风险指标和合规提示，适合风险教育内容。', imageOriginal:'', imageExample:'', used:1267, status:'使用中' },
         { id:'scene-service-office', name:'高端办公咨询室', industry:'保险', ratio:'16:9', place:'办公室', scene:'客户服务', tags:['客户服务','服务介绍','可信'], desc:'明亮办公环境，适合投顾服务介绍、客户流程说明。', imageOriginal:'', imageExample:'', used:892, status:'使用中' },
         { id:'scene-warm-library', name:'温和书房口播场景', industry:'基金', ratio:'9:16', place:'书房', scene:'基金投教', tags:['基金投教','投教科普','温和'], desc:'书架与暖色灯光组合，适合理财科普和新手教育。', imageOriginal:'', imageExample:'', used:1589, status:'使用中' }
+    ],
+    roleConfigs: [
+        { id:'role-001', name:'资深男投顾·张老师', gender:'男', voiceFile:'voice_male_zhang.wav', industry:'金融投顾', tags:['稳健','市场收评','专业'], used:1286, remark:'适合市场收评、资产配置类口播，沉稳可信', status:'使用中', image:'data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22200%22%20height%3D%22200%22%20viewBox%3D%220%200%20200%20200%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%233b5bfd%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%231e3a8a%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D%22200%22%20height%3D%22200%22%20rx%3D%2228%22%20fill%3D%22url(%23g)%22%2F%3E%3Ccircle%20cx%3D%22100%22%20cy%3D%2280%22%20r%3D%2240%22%20fill%3D%22%23f2c9a0%22%2F%3E%3Cpath%20d%3D%22M100%20120c-36%200-58%2024-61%2054%2046%2010%2076%2010%20122%200%200-30-25-54-61-54z%22%20fill%3D%22%232f6bff%22%2F%3E%3C%2Fsvg%3E', threeView:'data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22200%22%20height%3D%22200%22%20viewBox%3D%220%200%20200%20200%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%233b5bfd%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%231e3a8a%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D%22200%22%20height%3D%22200%22%20rx%3D%2228%22%20fill%3D%22url(%23g)%22%2F%3E%3Ccircle%20cx%3D%22104%22%20cy%3D%2280%22%20r%3D%2238%22%20fill%3D%22%23f2c9a0%22%2F%3E%3Cpath%20d%3D%22M140%2066c10%2010%2010%2026%200%2036%205-7%207-14%207-22%200-5-2-10-7-14z%22%20fill%3D%22%23f2c9a0%22%2F%3E%3Cpath%20d%3D%22M103%20118c-32%200-52%2022-55%2052%2042%209%2068%209%20110%200%200-30-23-52-55-52z%22%20fill%3D%22%232f6bff%22%2F%3E%3Ccircle%20cx%3D%22112%22%20cy%3D%2266%22%20r%3D%226%22%20fill%3D%22%23f2c9a0%22%20opacity%3D%220.35%22%2F%3E%3C%2Fsvg%3E' },
+        { id:'role-002', name:'知性女讲师·王老师', gender:'女', voiceFile:'voice_female_wang.wav', industry:'教育培训', tags:['亲和','基金投教','科普'], used:987, remark:'适合基金定投、理财入门等投教内容，娓娓道来', status:'使用中', image:'data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22200%22%20height%3D%22200%22%20viewBox%3D%220%200%20200%20200%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23f9a8d4%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23e11d74%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D%22200%22%20height%3D%22200%22%20rx%3D%2228%22%20fill%3D%22url(%23g)%22%2F%3E%3Ccircle%20cx%3D%22100%22%20cy%3D%2280%22%20r%3D%2240%22%20fill%3D%22%23f7d3b0%22%2F%3E%3Cpath%20d%3D%22M100%20120c-36%200-58%2024-61%2054%2046%2010%2076%2010%20122%200%200-30-25-54-61-54z%22%20fill%3D%22%23f472b6%22%2F%3E%3C%2Fsvg%3E', threeView:'data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22200%22%20height%3D%22200%22%20viewBox%3D%220%200%20200%20200%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23f9a8d4%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23e11d74%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D%22200%22%20height%3D%22200%22%20rx%3D%2228%22%20fill%3D%22url(%23g)%22%2F%3E%3Ccircle%20cx%3D%22104%22%20cy%3D%2280%22%20r%3D%2238%22%20fill%3D%22%23f7d3b0%22%2F%3E%3Cpath%20d%3D%22M140%2066c10%2010%2010%2026%200%2036%205-7%207-14%207-22%200-5-2-10-7-14z%22%20fill%3D%22%23f7d3b0%22%2F%3E%3Cpath%20d%3D%22M103%20118c-32%200-52%2022-55%2052%2042%209%2068%209%20110%200%200-30-23-52-55-52z%22%20fill%3D%22%23f472b6%22%2F%3E%3Ccircle%20cx%3D%22112%22%20cy%3D%2266%22%20r%3D%226%22%20fill%3D%22%23f7d3b0%22%20opacity%3D%220.35%22%2F%3E%3C%2Fsvg%3E' },
+        { id:'role-003', name:'快评男主播·李老师', gender:'男', voiceFile:'voice_male_li.wav', industry:'金融投顾', tags:['干练','热点快评','快讯'], used:654, remark:'节奏紧凑，适合盘中快评和热点事件解读', status:'使用中', image:'data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22200%22%20height%3D%22200%22%20viewBox%3D%220%200%20200%20200%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23334155%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%230f172a%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D%22200%22%20height%3D%22200%22%20rx%3D%2228%22%20fill%3D%22url(%23g)%22%2F%3E%3Ccircle%20cx%3D%22100%22%20cy%3D%2280%22%20r%3D%2240%22%20fill%3D%22%23e8b48c%22%2F%3E%3Cpath%20d%3D%22M100%20120c-36%200-58%2024-61%2054%2046%2010%2076%2010%20122%200%200-30-25-54-61-54z%22%20fill%3D%22%23475569%22%2F%3E%3C%2Fsvg%3E' },
+        { id:'role-004', name:'服务客服·小美', gender:'女', voiceFile:'voice_female_xiaomei.wav', industry:'保险', tags:['客户服务','引导'], used:321, remark:'亲和力强，适合客户服务、操作引导类内容', status:'使用中', image:'data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22200%22%20height%3D%22200%22%20viewBox%3D%220%200%20200%20200%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23a78bfa%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%236d28d9%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D%22200%22%20height%3D%22200%22%20rx%3D%2228%22%20fill%3D%22url(%23g)%22%2F%3E%3Ccircle%20cx%3D%22100%22%20cy%3D%2280%22%20r%3D%2240%22%20fill%3D%22%23f5cfae%22%2F%3E%3Cpath%20d%3D%22M100%20120c-36%200-58%2024-61%2054%2046%2010%2076%2010%20122%200%200-30-25-54-61-54z%22%20fill%3D%22%238b5cf6%22%2F%3E%3C%2Fsvg%3E' }
     ],
     scheduler: {
         scenarioVersion: 'tenant-level-v4',
@@ -5034,6 +5200,315 @@ function saveTemplateConfig() {
     closeTemplateModal();
     renderTemplates();
     toast('模板「' + name + '」已' + (editIndex !== '' ? '更新' : '创建'), 'success');
+}
+
+// ===========================
+// 角色模板配置
+// ===========================
+function renderRoleConfigs() {
+    var html = '';
+    for (var i = 0; i < AppState.roleConfigs.length; i++) {
+        var r = AppState.roleConfigs[i];
+        var stCls = r.status === '使用中' ? 'status-active' : 'status-stopped';
+        var tagsHtml = (r.tags || []).map(function(t) { return '<span class="chip chip-blue">' + escapeHtml(t) + '</span>'; }).join('');
+        var voiceLabel = r.voiceFile ? '<span style="color:var(--text-muted);font-size:12px">📄 ' + escapeHtml(r.voiceFile) + '</span>' : '<span style="color:var(--text-muted);font-size:12px">-</span>';
+        html += '<tr>' +
+            '<td><strong>' + escapeHtml(r.name) + '</strong></td>' +
+            '<td>' + buildRoleThumb(r) + '</td>' +
+            '<td>' + (r.gender || '-') + '</td>' +
+            '<td>' + voiceLabel + '</td>' +
+            '<td>' + (r.industry ? escapeHtml(r.industry) : '<span style="color:var(--text-muted)">-</span>') + '</td>' +
+            '<td>' + (tagsHtml || '<span style="color:var(--text-muted)">-</span>') + '</td>' +
+            '<td><span class="status ' + stCls + '" style="font-size:11px">' + r.status + '</span></td>' +
+            '<td><strong>' + (r.used || 0).toLocaleString() + '</strong></td>' +
+            '<td style="font-size:12px;color:var(--text-secondary);max-width:220px">' + (r.remark ? escapeHtml(r.remark) : '-') + '</td>' +
+            '<td class="voice-actions">' +
+                '<button class="btn btn-xs" onclick="openRoleModal(' + i + ')">编辑</button> ' +
+                '<button class="btn btn-xs ' + (r.status === '使用中' ? '' : 'btn-primary') + '" onclick="toggleRoleStatus(' + i + ')">' + (r.status === '使用中' ? '下架' : '上架') + '</button> ' +
+                '<button class="btn btn-xs" onclick="previewRole(' + i + ')">试听</button> ' +
+                '<button class="btn btn-xs btn-danger" onclick="deleteRole(' + i + ')">删除</button>' +
+            '</td>' +
+            '</tr>';
+    }
+    document.getElementById('roleConfigTable').innerHTML = html || '<tr><td colspan="9" style="text-align:center;padding:40px;color:var(--text-muted)">暂无角色数据</td></tr>';
+}
+
+function buildRoleThumb(r) {
+    if (r.image) {
+        return '<img class="role-thumb" src="' + r.image + '" alt="' + escapeHtml(r.name) + '" data-role-name="' + escapeHtml(r.name) + '" onmouseenter="showRolePreview(this)" onmousemove="moveRolePreview(event)" onmouseleave="hideRolePreview()">';
+    }
+    return '<span class="role-thumb-placeholder" title="' + escapeHtml(r.name) + ' 未上传图片">👤</span>';
+}
+
+var _rolePreviewLayer = null;
+function getRolePreviewLayer() {
+    if (!_rolePreviewLayer) {
+        _rolePreviewLayer = document.createElement('div');
+        _rolePreviewLayer.className = 'role-preview-layer';
+        document.body.appendChild(_rolePreviewLayer);
+    }
+    return _rolePreviewLayer;
+}
+
+function showRolePreview(img) {
+    var layer = getRolePreviewLayer();
+    layer.innerHTML = '<img src="' + img.src + '" alt=""><div class="role-preview-name">' + (img.getAttribute('data-role-name') || '') + '</div>';
+    layer.classList.add('show');
+}
+
+function moveRolePreview(event) {
+    var layer = getRolePreviewLayer();
+    var pad = 14, offset = 12;
+    var x = event.clientX + offset;
+    var y = event.clientY + offset;
+    var rect = layer.getBoundingClientRect();
+    if (x + rect.width > window.innerWidth - pad) x = event.clientX - rect.width - offset;
+    if (y + rect.height > window.innerHeight - pad) y = event.clientY - rect.height - offset;
+    layer.style.left = x + 'px';
+    layer.style.top = y + 'px';
+}
+
+function hideRolePreview() {
+    var layer = getRolePreviewLayer();
+    layer.classList.remove('show');
+}
+
+var ROLE_TAG_OPTIONS = ['稳健','专业','权威','干练','亲和','市场收评','基金投教','热点快评','客户服务','科普','快讯','引导','风险提示','资产配置'];
+var _roleSelectedTags = [];
+
+function toggleTagDropdown(e) {
+    e.stopPropagation();
+    var dd = document.getElementById('rfTagDropdown');
+    renderTagOptions();
+    dd.classList.toggle('show');
+}
+
+function renderTagOptions() {
+    var html = '';
+    ROLE_TAG_OPTIONS.forEach(function(t) {
+        var checked = _roleSelectedTags.indexOf(t) !== -1 ? 'checked' : '';
+        html += '<label class="tag-option"><input type="checkbox" value="' + escapeHtml(t) + '" ' + checked + ' onchange="onTagOptionChange(this)"><span>' + escapeHtml(t) + '</span></label>';
+    });
+    document.getElementById('rfTagDropdown').innerHTML = html;
+}
+
+function onTagOptionChange(cb) {
+    if (cb.checked) {
+        if (_roleSelectedTags.indexOf(cb.value) === -1) _roleSelectedTags.push(cb.value);
+    } else {
+        _roleSelectedTags = _roleSelectedTags.filter(function(t) { return t !== cb.value; });
+    }
+    var el = document.getElementById('rfTagTriggerText');
+    el.textContent = _roleSelectedTags.length ? _roleSelectedTags.join('、') : '请选择标签';
+}
+
+document.addEventListener('click', function(e) {
+    var dd = document.getElementById('rfTagDropdown');
+    if (dd && dd.classList.contains('show') && !e.target.closest('.tag-select')) {
+        dd.classList.remove('show');
+    }
+});
+
+function setRoleTags(tags) {
+    _roleSelectedTags = (tags || []).slice();
+    document.getElementById('rfTagTriggerText').textContent = _roleSelectedTags.length ? _roleSelectedTags.join('、') : '请选择标签';
+}
+
+function openRoleModal(editIndex) {
+    var isEdit = typeof editIndex === 'number';
+    document.getElementById('roleModalTitle').textContent = isEdit ? '编辑角色' : '新增角色';
+    document.getElementById('rfEditIndex').value = isEdit ? editIndex : '';
+    if (isEdit) {
+        var r = AppState.roleConfigs[editIndex];
+        document.getElementById('rfRoleName').value = r.name || '';
+        document.getElementById('rfGender').value = r.gender || '';
+        document.getElementById('rfIndustry').value = r.industry || '';
+        document.getElementById('rfUsed').value = r.used || 0;
+        document.getElementById('rfStatus').value = r.status || '使用中';
+        document.getElementById('rfVoiceFileName').textContent = r.voiceFile ? '📄 ' + r.voiceFile : '未选择文件';
+        document.getElementById('rfRemark').value = r.remark || '';
+        setRoleImageForm(r.image || '');
+        setRoleThreeViewForm(r.threeView || '');
+        setRoleTags(r.tags || []);
+    } else {
+        document.getElementById('rfRoleName').value = '';
+        document.getElementById('rfGender').value = '';
+        document.getElementById('rfIndustry').value = '';
+        document.getElementById('rfUsed').value = 0;
+        document.getElementById('rfStatus').value = '使用中';
+        document.getElementById('rfVoiceFileName').textContent = '未选择文件';
+        document.getElementById('rfVoiceFile').value = '';
+        document.getElementById('rfRemark').value = '';
+        setRoleImageForm('');
+        setRoleThreeViewForm('');
+        setRoleTags([]);
+    }
+    document.getElementById('roleModalOverlay').classList.add('show');
+}
+
+function setRoleThreeViewForm(threeView) {
+    var preview = document.getElementById('rfThreeViewPreview');
+    var nameEl = document.getElementById('rfThreeViewName');
+    document.getElementById('rfThreeViewData').value = threeView || '';
+    if (threeView) {
+        preview.src = threeView;
+        preview.style.display = 'inline-block';
+        nameEl.textContent = '已上传';
+    } else {
+        preview.src = '';
+        preview.style.display = 'none';
+        nameEl.textContent = '未选择';
+    }
+}
+
+function onRoleThreeViewChange() {
+    var fileInput = document.getElementById('rfThreeViewFile');
+    var file = fileInput.files && fileInput.files[0];
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function(e) {
+        var preview = document.getElementById('rfThreeViewPreview');
+        preview.src = e.target.result;
+        preview.style.display = 'inline-block';
+        document.getElementById('rfThreeViewName').textContent = file.name;
+        document.getElementById('rfThreeViewData').value = e.target.result;
+    };
+    reader.readAsDataURL(file);
+}
+
+function setRoleImageForm(image) {
+    var preview = document.getElementById('rfImagePreview');
+    var nameEl = document.getElementById('rfImageName');
+    document.getElementById('rfImageData').value = image || '';
+    if (image) {
+        preview.src = image;
+        preview.style.display = 'inline-block';
+        nameEl.textContent = '已上传';
+    } else {
+        preview.src = '';
+        preview.style.display = 'none';
+        nameEl.textContent = '未选择';
+    }
+}
+
+function onRoleImageChange() {
+    var fileInput = document.getElementById('rfImageFile');
+    var file = fileInput.files && fileInput.files[0];
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function(e) {
+        var preview = document.getElementById('rfImagePreview');
+        preview.src = e.target.result;
+        preview.style.display = 'inline-block';
+        document.getElementById('rfImageName').textContent = file.name;
+        document.getElementById('rfImageData').value = e.target.result;
+    };
+    reader.readAsDataURL(file);
+}
+
+function closeRoleModal() {
+    document.getElementById('roleModalOverlay').classList.remove('show');
+}
+
+function onRoleFileChange() {
+    var fileInput = document.getElementById('rfVoiceFile');
+    var file = fileInput.files && fileInput.files[0];
+    document.getElementById('rfVoiceFileName').textContent = file ? '📄 ' + file.name : '未选择文件';
+}
+
+function saveRoleConfig() {
+    var data = {
+        name: document.getElementById('rfRoleName').value.trim(),
+        gender: document.getElementById('rfGender').value,
+        industry: document.getElementById('rfIndustry').value.trim(),
+        used: parseInt(document.getElementById('rfUsed').value) || 0,
+        status: document.getElementById('rfStatus').value,
+        tags: _roleSelectedTags.slice(),
+        voiceFile: document.getElementById('rfVoiceFileName').textContent.replace('📄 ', ''),
+        remark: document.getElementById('rfRemark').value.trim(),
+        image: document.getElementById('rfImageData').value,
+        threeView: document.getElementById('rfThreeViewData').value
+    };
+    if (data.voiceFile === '未选择文件') data.voiceFile = '';
+    if (!data.name || !data.gender) {
+        toast('请填写角色名称和性别', 'error');
+        return;
+    }
+    if (!data.image) {
+        toast('角色图片为必传项，请上传图片', 'error');
+        return;
+    }
+    if (!data.voiceFile) {
+        toast('音色语音文件为必传项，请上传音频文件', 'error');
+        return;
+    }
+
+    var editIndex = document.getElementById('rfEditIndex').value;
+    if (editIndex) {
+        var r = AppState.roleConfigs[parseInt(editIndex)];
+        if (r) {
+            r.name = data.name; r.gender = data.gender; r.industry = data.industry;
+            r.used = data.used; r.status = data.status; r.tags = data.tags;
+            r.voiceFile = data.voiceFile; r.remark = data.remark;
+            r.image = data.image; r.threeView = data.threeView;
+            addAuditLog('配置', data.name, '-', '-', '编辑内置角色');
+            toast('角色「' + data.name + '」已更新', 'success');
+        }
+    } else {
+        AppState.roleConfigs.push({
+            id: 'role-' + Date.now(), name: data.name, gender: data.gender,
+            industry: data.industry, used: data.used, status: data.status,
+            tags: data.tags, voiceFile: data.voiceFile, remark: data.remark,
+            image: data.image, threeView: data.threeView
+        });
+        addAuditLog('配置', data.name, '-', '使用中', '新增内置角色');
+        toast('角色「' + data.name + '」已新增', 'success');
+    }
+    saveData();
+    closeRoleModal();
+    renderRoleConfigs();
+}
+
+function previewRole(index) {
+    var r = AppState.roleConfigs[index];
+    if (!r) return;
+    if (r.voiceFile) {
+        toast('🎵 正在试听「' + r.name + '」— 文件：' + r.voiceFile);
+    } else {
+        toast('该角色未绑定音色文件，无法试听', 'error');
+    }
+}
+
+function toggleRoleStatus(index) {
+    var r = AppState.roleConfigs[index];
+    if (!r) return;
+    var before = r.status;
+    r.status = r.status === '使用中' ? '已停用' : '使用中';
+    addAuditLog('配置', r.name, before, r.status, '调整内置角色状态');
+    saveData();
+    renderRoleConfigs();
+    toast('内置角色「' + r.name + '」已' + (r.status === '使用中' ? '上架' : '下架'), 'success');
+}
+
+function deleteRole(index) {
+    var r = AppState.roleConfigs[index];
+    if (!r) return;
+    if (r.status === '使用中') {
+        toast('请先下架该角色后再删除', 'error');
+        return;
+    }
+    showConfirm(
+        '删除角色',
+        '确定要删除角色「' + r.name + '」吗？此操作不可撤销。',
+        '⚠️',
+        function() {
+            AppState.roleConfigs.splice(index, 1);
+            addAuditLog('配置', r.name, '-', '-', '删除内置角色');
+            saveData();
+            renderRoleConfigs();
+            toast('角色「' + r.name + '」已删除', 'success');
+        }
+    );
 }
 
 // ===========================
