@@ -280,7 +280,7 @@
     </header>
     <section class="page-head">
       <div><div class="crumb"><a href="全部工具.html">全部工具</a> / <span>爆款拆解</span></div><div class="eyebrow">SCRIPT TOOL · BREAKDOWN</div><h1>爆款拆解</h1><p class="page-desc">粘贴视频链接或上传文件，提取爆款视频的台词文案。</p></div>
-      <div class="head-note">提取结果可一键导入台词改写或合规检查工具继续处理</div>
+      <div class="head-note">提取结果可一键导入创意Agent或合规检查工具继续处理</div>
     </section>
     <section class="workspace">
       <aside class="panel control-panel">
@@ -607,7 +607,7 @@
           '<span class="draft-card-meta"><strong>' + countChars(draft.text) + '</strong> 字 · 约 <strong>' + estimateSeconds(draft.text) + '</strong> 秒<button class="expand-btn" onclick="event.stopPropagation();toggleCardExpand(this)">展开 ⌄</button></span>' +
           '<div class="draft-card-actions">' +
           '<button class="card-action-btn" onclick="event.stopPropagation();copyDraft(' + draft.id + ')">复制</button>' +
-          '<button class="card-action-btn primary" onclick="event.stopPropagation();sendDraftToTool(' + draft.id + ',\'台词改写.html\')">导入台词改写</button>' +
+          '<button class="card-action-btn primary" onclick="event.stopPropagation();sendDraftToTool(' + draft.id + ',\'创意Agent.html\')">导入创意Agent</button>' +
           '</div></div></div>';
       }).join('');
     }

@@ -405,7 +405,7 @@
     function sendDraftToDerive(draftId) {
       var draft = findDraftById(draftId);
       if (!draft || !draft.text.trim()) { toast('台词为空'); return; }
-      sendToTool('台词改写.html', draft.text, draft.title);
+      sendToTool('创意Agent.html', draft.text, draft.title);
     }
     function consumeHandoff() {
       try {
@@ -652,7 +652,7 @@
           '<span class="draft-card-meta"><strong>' + countChars(draft.text) + '</strong> 字 · 约 <strong>' + estimateSeconds(draft.text) + '</strong> 秒<button class="expand-btn" onclick="event.stopPropagation();toggleCardExpand(this)">展开 ⌄</button></span>' +
           '<div class="draft-card-actions">' +
           '<button class="card-action-btn" onclick="event.stopPropagation();copyDraft(' + draft.id + ')">复制</button>' +
-          '<button class="card-action-btn primary" onclick="event.stopPropagation();sendDraftToDerive(' + draft.id + ')">导入台词改写</button>' +
+          '<button class="card-action-btn primary" onclick="event.stopPropagation();sendDraftToDerive(' + draft.id + ')">导入创意Agent</button>' +
           '<button class="card-action-btn" onclick="event.stopPropagation();clearDraft(' + draft.id + ')" style="color:#ad5360">清空</button>' +
           '</div></div></div>';
       }).join('');
