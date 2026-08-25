@@ -228,6 +228,8 @@
     .ghost-btn { height: 31px; padding: 0 10px; border: 1px solid #dfe4ec; border-radius: 8px; background: #fff; color: #5e687b; font-size: 10px; font-weight: 700; cursor: pointer; }
     .ghost-btn:hover:not(:disabled) { color: var(--blue); border-color: #aec2fb; background: var(--blue-soft); }
     .ghost-btn:disabled { opacity: .4; cursor: not-allowed; }
+    .ghost-btn.is-disabled { opacity: .4; cursor: not-allowed; }
+    .ghost-btn.is-disabled:hover:not(:disabled) { color: #5e687b; border-color: #dfe4ec; background: #fff; }
     .helper { margin-top: 10px; color: #98a0af; font-size: 10px; line-height: 1.55; text-align: center; }
 
     .editor-panel { display: flex; flex-direction: column; min-width: 0; overflow: hidden; }
@@ -1048,8 +1050,14 @@ function switchSourceMode(mode) {
       try { localStorage.setItem(TOOL_HANDOFF_KEY, JSON.stringify({ target: '简单模式-流程版-模板版.html', from: '创意Agent', title: summaryTitle || '', texts: list, at: Date.now() })); } catch (e) {}
       window.location.href = '简单模式-流程版-模板版.html?returnTo=directorWorkbench';
     }
+    function isDialogueDraft(draft) {
+      if (!draft || draft.scriptIndex === undefined) return false;
+      var s = scriptList[draft.scriptIndex];
+      return !!(s && s.format === 'dialogue');
+    }
     function batchSendToBatch() {
       var entries = currentExportEntries(); if (!entries.length) return;
+      if (entries.some(function(e){ return isDialogueDraft(e.draft); })) { toast('当前仅支持单人口播稿批量成片创作'); return; }
       sendToBatchTask(entries.map(function(e){ return e.draft.text; }), '已选 ' + entries.length + ' 篇改写稿');
     }
     function sendDraftToCheck(draftId) {
@@ -1094,8 +1102,9 @@ function switchSourceMode(mode) {
     }
 
     function syncScriptToDrafts() {
-      var duration = creativeBriefVal('duration');
-      var newDrafts = scriptList.map(function(script, i){ return scriptToDraft(script, i, duration); });
+      var wc = parseInt(creativeBriefVal('wordCount'), 10) || 300;
+      var durationSec = Math.round(wc / 4);
+      var newDrafts = scriptList.map(function(script, i){ return scriptToDraft(script, i, durationSec); });
       state.drafts = newDrafts;
       state.selectedIds = [];
       state.activeId = newDrafts.length ? newDrafts[0].id : null;
@@ -1576,8 +1585,12 @@ function renderWorkspace() {
       state.selectedIds = selected;
       document.getElementById('result-summary').textContent = hasDrafts ? ('共 ' + drafts.length + ' 篇' + (selected.length ? ' · 已选 ' + selected.length + ' 篇' : '')) : '尚未生成改写版本';
       document.getElementById('copy-all-btn').disabled = !hasDrafts;
-      document.getElementById('add-batch-btn').disabled = !selected.length;
-      document.getElementById('add-batch-btn').textContent = selected.length ? ('批量成片（' + selected.length + '）') : '批量成片';
+      var batchBtn = document.getElementById('add-batch-btn');
+      var hasDialogueSelected = selected.some(function(id){ return isDialogueDraft(findDraftById(id)); });
+      batchBtn.disabled = !selected.length;
+      batchBtn.classList.toggle('is-disabled', hasDialogueSelected);
+      batchBtn.title = hasDialogueSelected ? '当前仅支持单人口播稿批量成片创作' : '';
+      batchBtn.textContent = selected.length ? ('批量成片（' + selected.length + '）') : '批量成片';
       document.getElementById('select-all-btn').disabled = !hasDrafts;
       document.getElementById('select-all-btn').textContent = (hasDrafts && selected.length === drafts.length) ? '取消全选' : '全选';
       document.getElementById('txt-btn').disabled = !hasDrafts;
@@ -1685,7 +1698,7 @@ function renderWorkspace() {
       { key:'product', label:'产品 / 服务', val:'请选择', ai:false, aiDefault:false, full:false },
       { key:'audience', label:'用户人群', val:'请选择', ai:false, aiDefault:false, full:false },
       { key:'topic', label:'热点 / 主题', val:'近期行情', ai:false, aiDefault:false, full:false },
-      { key:'duration', label:'视频时长', val:'30 秒', ai:false, aiDefault:false, full:false },
+      { key:'wordCount', label:'目标字数', val:'300 字', ai:false, aiDefault:false, full:false },
       { key:'style', label:'表达风格', val:'专业 + 口语', ai:true, aiDefault:true, full:false },
       { key:'format', label:'口播形式', val:'单人口播', ai:true, aiDefault:true, full:false },
       { key:'cta', label:'行动引导', val:'进入今晚直播间', ai:true, aiDefault:true, full:false },
@@ -1698,7 +1711,7 @@ function renderWorkspace() {
       product: ['XX 基金投顾服务', 'XX 会员服务', 'XX 投资课程'],
       audience: ['权益基金投资者', '新基民', '高净值客户', '稳健型投资者', '30~45 岁投资者'],
       topic: ['近期行情', '市场情绪', '市场震荡', '板块轮动', '风格切换', '结构性机会', '资金流向', '缩量调整', '放量反弹'],
-      duration: ['15 秒', '30 秒', '60 秒'],
+      wordCount: ['100 字', '300 字', '500 字'],
       style: ['专业 + 口语', '强钩子', '克制', '亲和口语'],
       format: ['单人口播', '双人口播'],
       cta: ['进入今晚直播间', '预约咨询', '领取报告', '关注我'],
@@ -1892,7 +1905,7 @@ function renderWorkspace() {
         product: '请选择',
         audience: '请选择',
         topic: '近期行情',
-        duration: '30 秒',
+        wordCount: '300 字',
         style: '专业 + 口语',
         format: '单人口播',
         cta: '进入今晚直播间',
@@ -1931,7 +1944,7 @@ function renderWorkspace() {
           '</span>' +
           pair('产品/服务', 'product', '，') +
           pair('生成', 'count', '，') +
-          pair('时长', 'duration', '，') +
+          pair('字数', 'wordCount', '，') +
           pair('风格', 'style', '，') +
           pair('形式', 'format', '，') +
           pair('结尾引导', 'cta', '，') +
@@ -2082,7 +2095,7 @@ function renderWorkspace() {
           '<span class="creative-foot-note" id="creativeFootNote">请先勾选至少 1 篇口播稿</span>' +
         '</div>';
       var sub = document.getElementById('creativeTaskSub');
-      if (currentBrief) sub.textContent = '基于「' + currentBrief.topic + '」进入 · 目标时长 ' + creativeBriefVal('duration') + (hasProductInfo() ? ' · 已结合产品资料' : '');
+      if (currentBrief) sub.textContent = '基于「' + currentBrief.topic + '」进入 · 目标字数 ' + creativeBriefVal('wordCount') + (hasProductInfo() ? ' · 已结合产品资料' : '');
       renderCreativeTabs();
       renderCreativeScript();
       renderCreativeSide();
@@ -2298,14 +2311,16 @@ function renderWorkspace() {
       }
       var formatTag = (currentScript.format === 'dialogue') ? '双人口播' : '单人口播';
       var styleVal = creativeBriefVal('style');
-      var sec = Math.max(1, Math.round(countChars(fullText) / 5.2));
-      var pct = Math.min(120, Math.round(sec / 30 * 100));
+      var targetWC = parseInt(creativeBriefVal('wordCount'), 10) || 300;
+      var chars = countChars(fullText);
+      var sec = Math.max(1, Math.round(chars / 5.2));
+      var pct = Math.min(150, Math.round(chars / targetWC * 100));
       document.getElementById('creativeSide').innerHTML =
         '<div class="creative-side-box"><h4>⏱ 时长估算</h4>' +
-        '<div class="creative-duration-stat"><span>目标时长</span><b>' + creativeBriefVal('duration') + '</b></div>' +
+        '<div class="creative-duration-stat"><span>目标字数</span><b>' + creativeBriefVal('wordCount') + '</b></div>' +
         '<div class="creative-duration-bar"><span style="width:' + pct + '%"></span></div>' +
         '<div class="creative-duration-stat"><span>预估时长</span><b>' + sec + ' 秒</b></div>' +
-        '<div class="creative-duration-stat"><span>总字数</span><b>' + countChars(fullText) + ' 字</b></div></div>' +
+        '<div class="creative-duration-stat"><span>总字数</span><b>' + chars + ' 字</b></div></div>' +
         '<div class="creative-side-box"><h4>🏷 风格标签</h4>' +
         '<div style="display:flex;flex-wrap:wrap;gap:6px;">' +
         '<span class="creative-tag" style="color:var(--blue);background:var(--blue-soft);">' + styleVal + '</span>' +
@@ -2317,6 +2332,8 @@ function renderWorkspace() {
       var ta = document.querySelector('#creativeEditor .creative-seg-ta');
       if (!ta) return;
       var chars = countChars(ta.value);
+      var targetWC = parseInt(creativeBriefVal('wordCount'), 10) || 300;
+      var ratio = chars / targetWC;
       var sec = Math.max(1, Math.round(chars / 5.2));
       var bar = document.querySelector('#creativeSide .creative-duration-bar span');
       var stats = document.querySelectorAll('#creativeSide .creative-duration-stat b');
@@ -2325,14 +2342,15 @@ function renderWorkspace() {
         stats[2].textContent = chars + ' 字';
       }
       if (bar) {
-        bar.style.width = Math.min(120, Math.round(sec / 30 * 100)) + '%';
-        bar.style.background = sec > 38 ? '#d83b4a' : (sec > 34 ? '#d98600' : 'var(--blue)');
+        bar.style.width = Math.min(150, Math.round(ratio * 100)) + '%';
+        bar.style.background = ratio > 1.1 ? '#d83b4a' : (ratio > 1.0 ? '#d98600' : 'var(--blue)');
       }
     }
 
     function creativeAdopt() {
       var selected = validSelectedIds(state.drafts);
       if (!selected.length) { toast('请先勾选至少 1 篇口播稿'); return; }
+      if (selected.some(function(id){ return isDialogueDraft(findDraftById(id)); })) { toast('当前仅支持单人口播稿批量成片创作'); return; }
       var texts = selected.map(function(id){
         var draft = findDraftById(id);
         if (!draft || !draft.text) return '';
