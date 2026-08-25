@@ -2000,7 +2000,7 @@ function renderWorkspace() {
         }
         html += '<div class="pm-manage-btn" onclick="openProductManager()">⚙ 管理产品与服务</div>';
       }
-      if (key !== 'format') {
+      if (key !== 'format' && key !== 'topic') {
         html += '<div class="custom-row"><input class="custom-input" id="chipCustomInput" placeholder="自定义输入…" onkeydown="if(event.key===\'Enter\')creativePickCustomOption(\'' + key + '\')"><button class="custom-btn" onclick="creativePickCustomOption(\'' + key + '\')">保存</button></div>';
       }
       dd.innerHTML = html;
