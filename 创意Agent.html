@@ -400,9 +400,22 @@
 
     @keyframes chipDdIn { from { opacity: 0; transform: translateY(-6px) scale(.97); } to { opacity: 1; transform: none; } }
     .chip-dropdown { position: fixed; z-index: 200; display: none; background: #fff; border: 1px solid #e2e7ef; border-radius: 12px; box-shadow: 0 16px 40px rgba(22,34,58,.18); padding: 8px; min-width: 180px; max-width: 280px; max-height: min(320px, calc(100vh - 24px)); overflow-y: auto; animation: chipDdIn .18s ease; }
-    .chip-dropdown .opt { padding: 8px 10px; border-radius: 8px; cursor: pointer; font-size: 13px; color: var(--ink); line-height: 1.4; }
+    .chip-dropdown .opt { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 8px; cursor: pointer; font-size: 13px; color: var(--ink); line-height: 1.4; }
     .chip-dropdown .opt:hover { background: var(--blue-soft); color: var(--blue); }
     .chip-dropdown .opt.selected { background: var(--blue); color: #fff; }
+    .chip-dropdown .opt-label { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .chip-dropdown .opt-del { width: 20px; height: 20px; flex-shrink: 0; display: grid; place-items: center; border: none; border-radius: 6px; background: transparent; color: #c2c9d5; font-size: 15px; line-height: 1; cursor: pointer; transition: .15s; padding: 0; font-family: inherit; }
+    .chip-dropdown .opt:hover .opt-del { color: #97a1b3; }
+    .chip-dropdown .opt-del:hover { background: var(--red-soft); color: var(--red); }
+    .chip-dropdown .opt.selected .opt-del { color: rgba(255,255,255,.72); }
+    .chip-dropdown .opt.selected .opt-del:hover { background: rgba(255,255,255,.18); color: #fff; }
+    .chip-dropdown .opt.confirming { background: var(--red-soft); color: var(--red); animation: pmShake .24s ease-out; cursor: default; }
+    .chip-dropdown .opt.confirming .opt-label { font-weight: 700; }
+    .chip-dropdown .opt-del-btn { height: 22px; flex-shrink: 0; border: none; border-radius: 6px; font-size: 11px; font-weight: 700; cursor: pointer; transition: .15s; font-family: inherit; }
+    .chip-dropdown .opt-del-btn.yes { padding: 0 9px; background: var(--red); color: #fff; }
+    .chip-dropdown .opt-del-btn.yes:hover { background: #b52e3d; }
+    .chip-dropdown .opt-del-btn.no { width: 22px; padding: 0; background: transparent; color: #8b95a7; font-size: 12px; }
+    .chip-dropdown .opt-del-btn.no:hover { background: #e6ebf2; color: #4b566a; }
     .chip-dropdown .opt-divider { border-top: 1px solid #e2e7ef; margin: 6px 2px; }
     .chip-dropdown .custom-row { display: flex; gap: 6px; padding: 2px; }
     .chip-dropdown .custom-input { flex: 1; min-width: 0; border: 1px solid #e2e7ef; border-radius: 7px; padding: 7px 9px; font-size: 13px; outline: none; }
@@ -1697,13 +1710,13 @@ function renderWorkspace() {
       { key:'goal', label:'营销目标', val:'请选择', ai:false, aiDefault:false, full:false },
       { key:'product', label:'产品 / 服务', val:'请选择', ai:false, aiDefault:false, full:false },
       { key:'audience', label:'用户人群', val:'请选择', ai:false, aiDefault:false, full:false },
-      { key:'topic', label:'热点 / 主题', val:'近期行情', ai:false, aiDefault:false, full:false },
-      { key:'wordCount', label:'目标字数', val:'300 字', ai:false, aiDefault:false, full:false },
+      { key:'topic', label:'热点 / 主题', val:'请选择', ai:false, aiDefault:false, full:false },
+      { key:'wordCount', label:'目标字数', val:'100 字', ai:false, aiDefault:false, full:false },
       { key:'style', label:'表达风格', val:'专业 + 口语', ai:true, aiDefault:true, full:false },
       { key:'format', label:'口播形式', val:'单人口播', ai:true, aiDefault:true, full:false },
-      { key:'cta', label:'行动引导', val:'进入今晚直播间', ai:true, aiDefault:true, full:false },
+      { key:'cta', label:'行动引导', val:'请选择', ai:false, aiDefault:false, full:false },
       { key:'count', label:'生成篇数', val:'1 篇', ai:false, aiDefault:false, full:false },
-      { key:'extra', label:'补充要求', val:'不涉及具体指数点位与收益数字', ai:true, aiDefault:true, full:true }
+      { key:'extra', label:'补充要求', val:'请选择', ai:false, aiDefault:false, full:true }
     ];
 
     var creativeFieldOptions = {
@@ -1904,13 +1917,13 @@ function renderWorkspace() {
         goal: '请选择',
         product: '请选择',
         audience: '请选择',
-        topic: '近期行情',
-        wordCount: '300 字',
+        topic: '请选择',
+        wordCount: '100 字',
         style: '专业 + 口语',
         format: '单人口播',
-        cta: '进入今晚直播间',
+        cta: '请选择',
         count: '1 篇',
-        extra: '不涉及具体指数点位与收益数字'
+        extra: '请选择'
       };
       currentBrief.productInfo = { name: '', selling: '', service: '' };
       creativeBriefSchema.forEach(function(f){ f.val = currentBrief[f.key]; f.ai = f.aiDefault; });
@@ -1928,7 +1941,7 @@ function renderWorkspace() {
         var cls = 'creative-chip';
         var tip = '点击修改';
         var aiBadge = '';
-        if (f.val === '请选择') { cls += ' unset'; tip = '必填 · 点击选择'; }
+        if (f.val === '请选择') { cls += ' unset'; tip = '点击选择'; }
         else if (f.ai) { aiBadge = '<span class="chip-ai">✨</span>'; tip = 'AI 自动补全 · 点击可修改'; }
         return '<span class="' + cls + '" title="' + tip + '" onclick="creativeOpenChipDropdown(\'' + key + '\', this, event)">' + creativeBriefVal(key) + aiBadge + '<span class="chip-edit">✎</span></span>';
       }
@@ -1992,18 +2005,34 @@ function renderWorkspace() {
       return parts.join('\n\n');
     }
 
-    function creativeOpenChipDropdown(key, el, event) {
-      event.stopPropagation();
+    var chipDeleteConfirm = { key: null, val: null };
+    function creativeIsCustomOption(key, val) {
+      var builtin = creativeFieldOptions[key] || [];
+      if (builtin.indexOf(val) >= 0) return false;
+      return (creativeGetCustomOptions()[key] || []).indexOf(val) >= 0;
+    }
+    function buildChipDropdownHtml(key) {
       var f = creativeBriefSchema.find(function(x){ return x.key === key; });
       var cur = f.val;
       var opts = key === 'product' ? getProducts().map(function(p){ return p.name; })
         : key === 'format' ? (creativeFieldOptions.format || []).slice()
         : creativeGetFieldOptions(key);
-      var dd = document.getElementById('chipDropdown');
       var html = '';
       opts.forEach(function(o){
         var esc = String(o).replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;');
-        html += '<div class="opt' + (o === cur ? ' selected' : '') + '" onclick="creativePickChipOption(\'' + key + '\', \'' + esc + '\')">' + escapeHtml(o) + '</div>';
+        if (chipDeleteConfirm.key === key && chipDeleteConfirm.val === o) {
+          html += '<div class="opt confirming">' +
+            '<span class="opt-label">删除「' + escapeHtml(o) + '」？</span>' +
+            '<button class="opt-del-btn yes" onclick="creativeConfirmDeleteOption(\'' + key + '\', \'' + esc + '\', event)">删除</button>' +
+            '<button class="opt-del-btn no" title="取消" onclick="creativeCancelDeleteOption(\'' + key + '\', event)">✕</button>' +
+            '</div>';
+          return;
+        }
+        var delBtn = creativeIsCustomOption(key, o)
+          ? '<button class="opt-del" title="删除该自定义选项" onclick="creativeAskDeleteOption(\'' + key + '\', \'' + esc + '\', event)">×</button>'
+          : '';
+        html += '<div class="opt' + (o === cur ? ' selected' : '') + '" onclick="creativePickChipOption(\'' + key + '\', \'' + esc + '\')">' +
+          '<span class="opt-label">' + escapeHtml(o) + '</span>' + delBtn + '</div>';
       });
       html += '<div class="opt-divider"></div>';
       if (key === 'product') {
@@ -2016,7 +2045,50 @@ function renderWorkspace() {
       if (key !== 'format' && key !== 'topic') {
         html += '<div class="custom-row"><input class="custom-input" id="chipCustomInput" placeholder="自定义输入…" onkeydown="if(event.key===\'Enter\')creativePickCustomOption(\'' + key + '\')"><button class="custom-btn" onclick="creativePickCustomOption(\'' + key + '\')">保存</button></div>';
       }
-      dd.innerHTML = html;
+      return html;
+    }
+    function refreshChipDropdownHtml(key) {
+      var dd = document.getElementById('chipDropdown');
+      if (dd.style.display === 'block') dd.innerHTML = buildChipDropdownHtml(key);
+    }
+    function creativeAskDeleteOption(key, val, event) {
+      if (event) event.stopPropagation();
+      chipDeleteConfirm = { key: key, val: val };
+      refreshChipDropdownHtml(key);
+    }
+    function creativeCancelDeleteOption(key, event) {
+      if (event) event.stopPropagation();
+      chipDeleteConfirm = { key: null, val: null };
+      refreshChipDropdownHtml(key);
+    }
+    function creativeConfirmDeleteOption(key, val, event) {
+      if (event) event.stopPropagation();
+      var c = creativeGetCustomOptions();
+      var list = c[key] || [];
+      var idx = list.indexOf(val);
+      if (idx >= 0) {
+        list.splice(idx, 1);
+        if (list.length) c[key] = list; else delete c[key];
+        try { localStorage.setItem(CREATIVE_CUSTOM_KEY, JSON.stringify(c)); } catch (e) {}
+      }
+      chipDeleteConfirm = { key: null, val: null };
+      var resetTip = '';
+      if (creativeBriefVal(key) === val) {
+        var f = creativeBriefSchema.find(function(x){ return x.key === key; });
+        f.val = '请选择';
+        if (currentBrief) currentBrief[key] = '请选择';
+        renderCreativeAssume();
+        resetTip = '，已重置为「请选择」';
+      }
+      refreshChipDropdownHtml(key);
+      toast('已删除自定义选项「' + val + '」' + resetTip);
+    }
+
+    function creativeOpenChipDropdown(key, el, event) {
+      event.stopPropagation();
+      chipDeleteConfirm = { key: null, val: null };
+      var dd = document.getElementById('chipDropdown');
+      dd.innerHTML = buildChipDropdownHtml(key);
       var rect = el.getBoundingClientRect();
       dd.style.display = 'block';
       var ddW = dd.offsetWidth;
@@ -2065,7 +2137,7 @@ function renderWorkspace() {
       }
       creativePickChipOption(key, v);
     }
-    function closeChipDropdown() { document.getElementById('chipDropdown').style.display = 'none'; }
+    function closeChipDropdown() { chipDeleteConfirm = { key: null, val: null }; document.getElementById('chipDropdown').style.display = 'none'; }
     document.addEventListener('click', function(e){
       var dd = document.getElementById('chipDropdown');
       if (dd && dd.style.display === 'block' && !dd.contains(e.target)) closeChipDropdown();
