@@ -1707,10 +1707,10 @@ function renderWorkspace() {
     var selectedScripts = {};
 
     var creativeBriefSchema = [
-      { key:'goal', label:'营销目标', val:'请选择', ai:false, aiDefault:false, full:false },
+      { key:'goal', label:'营销目标', val:'直播引流', ai:false, aiDefault:false, full:false },
       { key:'product', label:'产品 / 服务', val:'请选择', ai:false, aiDefault:false, full:false },
       { key:'audience', label:'用户人群', val:'请选择', ai:false, aiDefault:false, full:false },
-      { key:'topic', label:'热点 / 主题', val:'请选择', ai:false, aiDefault:false, full:false },
+      { key:'topic', label:'市场状态', val:[], ai:false, aiDefault:false, full:false, multi:true, maxSelect:3 },
       { key:'wordCount', label:'目标字数', val:'100 字', ai:false, aiDefault:false, full:false },
       { key:'style', label:'表达风格', val:'专业 + 口语', ai:true, aiDefault:true, full:false },
       { key:'format', label:'口播形式', val:'单人口播', ai:true, aiDefault:true, full:false },
@@ -1723,7 +1723,7 @@ function renderWorkspace() {
       goal: ['直播引流', '推广产品', '服务推广', '内容涨粉', '投教内容'],
       product: ['XX 基金投顾服务', 'XX 会员服务', 'XX 投资课程'],
       audience: ['权益基金投资者', '新基民', '高净值客户', '稳健型投资者', '30~45 岁投资者'],
-      topic: ['近期行情', '市场情绪', '市场震荡', '板块轮动', '风格切换', '结构性机会', '资金流向', '缩量调整', '放量反弹'],
+      topic: ['市场情绪', '量价状态', '市场结构', '风格特征', '资金行为', '市场核心矛盾', '投资者体感', '热点板块', '弱势方向'],
       wordCount: ['100 字', '300 字', '500 字'],
       style: ['专业 + 口语', '强钩子', '克制', '亲和口语'],
       format: ['单人口播', '双人口播'],
@@ -1904,7 +1904,11 @@ function renderWorkspace() {
     }
     function creativeBriefVal(key) {
       var f = creativeBriefSchema.find(function(x){ return x.key === key; });
-      return f ? f.val : '';
+      if (!f) return '';
+      if (f.multi && Array.isArray(f.val)) {
+        return f.val.length > 0 ? f.val.join('、') : '请选择';
+      }
+      return f.val;
     }
 
     function renderCreativeWorkspace() {
@@ -1914,10 +1918,10 @@ function renderWorkspace() {
 
     function creativeInitBrief() {
       currentBrief = {
-        goal: '请选择',
+        goal: '直播引流',
         product: '请选择',
         audience: '请选择',
-        topic: '请选择',
+        topic: [],
         wordCount: '100 字',
         style: '专业 + 口语',
         format: '单人口播',
@@ -1941,9 +1945,15 @@ function renderWorkspace() {
         var cls = 'creative-chip';
         var tip = '点击修改';
         var aiBadge = '';
-        if (f.val === '请选择') { cls += ' unset'; tip = '点击选择'; }
-        else if (f.ai) { aiBadge = '<span class="chip-ai">✨</span>'; tip = 'AI 自动补全 · 点击可修改'; }
-        return '<span class="' + cls + '" title="' + tip + '" onclick="creativeOpenChipDropdown(\'' + key + '\', this, event)">' + creativeBriefVal(key) + aiBadge + '<span class="chip-edit">✎</span></span>';
+        var displayVal = creativeBriefVal(key);
+        if (f.multi && Array.isArray(f.val)) {
+          if (f.val.length === 0) { cls += ' unset'; tip = '点击选择（最多' + f.maxSelect + '个）'; }
+          else if (f.ai) { aiBadge = '<span class="chip-ai">✨</span>'; tip = 'AI 自动补全 · 点击可修改'; }
+        } else {
+          if (f.val === '请选择') { cls += ' unset'; tip = '点击选择'; }
+          else if (f.ai) { aiBadge = '<span class="chip-ai">✨</span>'; tip = 'AI 自动补全 · 点击可修改'; }
+        }
+        return '<span class="' + cls + '" title="' + tip + '" onclick="creativeOpenChipDropdown(\'' + key + '\', this, event)">' + displayVal + aiBadge + '<span class="chip-edit">✎</span></span>';
       }
       function pair(label, key, punct) {
         return '<span class="creative-assume-pair">' + label + chip(key) + (punct || '，') + '</span>';
@@ -2014,10 +2024,14 @@ function renderWorkspace() {
     function buildChipDropdownHtml(key) {
       var f = creativeBriefSchema.find(function(x){ return x.key === key; });
       var cur = f.val;
+      var isMulti = f.multi && Array.isArray(cur);
       var opts = key === 'product' ? getProducts().map(function(p){ return p.name; })
         : key === 'format' ? (creativeFieldOptions.format || []).slice()
         : creativeGetFieldOptions(key);
       var html = '';
+      if (isMulti) {
+        html += '<div class="pm-dd-info" style="padding:8px 10px;border-bottom:1px solid #e2e7ef;">已选 <strong>' + cur.length + '</strong>/' + f.maxSelect + ' 个市场状态</div>';
+      }
       opts.forEach(function(o){
         var esc = String(o).replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;');
         if (chipDeleteConfirm.key === key && chipDeleteConfirm.val === o) {
@@ -2031,10 +2045,18 @@ function renderWorkspace() {
         var delBtn = creativeIsCustomOption(key, o)
           ? '<button class="opt-del" title="删除该自定义选项" onclick="creativeAskDeleteOption(\'' + key + '\', \'' + esc + '\', event)">×</button>'
           : '';
-        html += '<div class="opt' + (o === cur ? ' selected' : '') + '" onclick="creativePickChipOption(\'' + key + '\', \'' + esc + '\')">' +
-          '<span class="opt-label">' + escapeHtml(o) + '</span>' + delBtn + '</div>';
+        var checked = isMulti ? (cur.indexOf(o) >= 0) : (o === cur);
+        var checkIcon = isMulti ? '<span style="display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border:1.5px solid ' + (checked ? 'var(--blue)' : '#c3cfe8') + ';border-radius:4px;margin-right:8px;background:' + (checked ? 'var(--blue)' : '#fff') + ';flex-shrink:0;">' + (checked ? '<span style="color:#fff;font-size:10px;font-weight:800;">✓</span>' : '') + '</span>' : '';
+        var onclickHandler = isMulti
+          ? 'onclick="creativePickChipOption(\'' + key + '\', \'' + esc + '\', event)"'
+          : 'onclick="creativePickChipOption(\'' + key + '\', \'' + esc + '\')"';
+        html += '<div class="opt' + (checked ? ' selected' : '') + '" ' + onclickHandler + '>' +
+          checkIcon + '<span class="opt-label">' + escapeHtml(o) + '</span>' + delBtn + '</div>';
       });
-      html += '<div class="opt-divider"></div>';
+      if (isMulti) {
+        html += '<div class="opt-divider"></div>';
+        html += '<div style="padding:6px 10px;color:#8a93a6;font-size:10.5px;line-height:1.5;">最多选择 ' + f.maxSelect + ' 个，点击选项可切换选中状态</div>';
+      }
       if (key === 'product') {
         var curP = findProduct(cur);
         if (curP) {
@@ -2101,8 +2123,29 @@ function renderWorkspace() {
       var inp = document.getElementById('chipCustomInput');
       if (inp) inp.focus();
     }
-    function creativePickChipOption(key, val) {
+    function creativePickChipOption(key, val, event) {
+      if (event) event.stopPropagation();
       var f = creativeBriefSchema.find(function(x){ return x.key === key; });
+      var isMulti = f.multi && Array.isArray(f.val);
+      if (isMulti) {
+        var idx = f.val.indexOf(val);
+        if (idx >= 0) {
+          f.val.splice(idx, 1);
+          toast('已取消选择「' + val + '」');
+        } else {
+          if (f.val.length >= f.maxSelect) {
+            toast('最多选择 ' + f.maxSelect + ' 个市场状态');
+            return;
+          }
+          f.val.push(val);
+          toast('已选择「' + val + '」');
+        }
+        f.ai = false;
+        currentBrief[key] = f.val;
+        refreshChipDropdownHtml(key);
+        renderCreativeAssume();
+        return;
+      }
       f.val = val;
       f.ai = false;
       currentBrief[key] = val;
@@ -2145,7 +2188,8 @@ function renderWorkspace() {
 
     function renderCreativeWorkbench() {
       var wb = document.getElementById('creative-workbench');
-      var title = currentBrief ? currentBrief.topic : '新建创作任务';
+      var topicDisplay = currentBrief ? (Array.isArray(currentBrief.topic) ? (currentBrief.topic.length > 0 ? currentBrief.topic.join('、') : '未选择市场状态') : currentBrief.topic) : '新建创作任务';
+      var title = topicDisplay;
       wb.innerHTML =
         '<div class="creative-task-head">' +
           '<div style="flex:1;min-width:0"><div class="creative-task-title" id="creativeTaskTitle">' + escapeHtml(title) + '</div>' +
@@ -2167,7 +2211,7 @@ function renderWorkspace() {
           '<span class="creative-foot-note" id="creativeFootNote">请先勾选至少 1 篇口播稿</span>' +
         '</div>';
       var sub = document.getElementById('creativeTaskSub');
-      if (currentBrief) sub.textContent = '基于「' + currentBrief.topic + '」进入 · 目标字数 ' + creativeBriefVal('wordCount') + (hasProductInfo() ? ' · 已结合产品资料' : '');
+      if (currentBrief) sub.textContent = '基于「' + topicDisplay + '」进入 · 目标字数 ' + creativeBriefVal('wordCount') + (hasProductInfo() ? ' · 已结合产品资料' : '');
       renderCreativeTabs();
       renderCreativeScript();
       renderCreativeSide();
@@ -2430,7 +2474,7 @@ function renderWorkspace() {
       }).filter(function(t){ return t && t.trim(); });
       if (!texts.length) { toast('所选口播稿无内容，无法进入视频创作'); return; }
       toast('已采用，正在携带 ' + texts.length + ' 篇口播稿进入视频创作');
-      setTimeout(function(){ sendToBatchTask(texts, currentBrief ? currentBrief.topic : '创意任务'); }, 600);
+      setTimeout(function(){ sendToBatchTask(texts, currentBrief ? (Array.isArray(currentBrief.topic) ? currentBrief.topic.join('、') || '创意任务' : currentBrief.topic) : '创意任务'); }, 600);
     }
 
     document.addEventListener('keydown', function(e){
