@@ -743,6 +743,26 @@
             font-size: 10px;
         }
 
+        .role-asset-card-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 3px;
+            margin-top: 6px;
+        }
+        .role-asset-tag {
+            padding: 1px 6px;
+            border-radius: 8px;
+            background: #eef2ff;
+            color: #4f46e5;
+            font-size: 10px;
+            line-height: 1.5;
+            white-space: nowrap;
+        }
+        .role-asset-tag.more {
+            background: #f3f4f6;
+            color: #6b7280;
+        }
+
         .role-asset-actions {
             display: flex;
             flex-wrap: wrap;
@@ -878,6 +898,76 @@
             transform: scale(0.96);
         }
 
+        .tag-config {
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            background: #fafafa;
+            padding: 12px;
+        }
+        .tag-config-selected {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            min-height: 30px;
+            align-items: center;
+            padding-bottom: 10px;
+            border-bottom: 1px dashed #e5e7eb;
+        }
+        .selected-tag-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 8px 4px 12px;
+            border-radius: 14px;
+            background: #4f46e5;
+            color: #ffffff;
+            font-size: 12px;
+        }
+        .selected-tag-remove {
+            border: 0;
+            background: rgba(255,255,255,0.25);
+            color: #fff;
+            width: 16px;
+            height: 16px;
+            line-height: 1;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .tag-config-hint {
+            font-size: 12px;
+            color: #9ca3af;
+        }
+        .tag-config-divider {
+            font-size: 11px;
+            color: #6b7280;
+            margin: 10px 0 8px;
+        }
+        .tag-config-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        .tag-config-add {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+            padding-top: 10px;
+            border-top: 1px dashed #e5e7eb;
+        }
+        .tag-config-add input {
+            flex: 1;
+            height: 34px;
+            border: 1px solid #e5e7eb;
+            border-radius: 9px;
+            padding: 0 12px;
+            font-size: 13px;
+            outline: none;
+        }
+        .tag-config-add input:focus {
+            border-color: #4f46e5;
+        }
+
         .ai-adjust-base-tip {
             margin: 0 0 10px;
             border-radius: 9px;
@@ -1001,7 +1091,51 @@
             font-size: 12px;
         }
 
+        .outfit-tags {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #f3f4f6;
+        }
+        .outfit-tags-title {
+            font-size: 12px;
+            color: #374151;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .outfit-tags-title .optional {
+            font-weight: 400;
+            color: #9ca3af;
+        }
+        .outfit-tags-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        .outfit-tags-selected {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            width: 100%;
+            margin-bottom: 6px;
+        }
+        .outfit-tags-add {
+            margin-top: 10px;
+        }
+        .outfit-tags-add input {
+            width: 100%;
+            height: 32px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 0 10px;
+            font-size: 12px;
+            outline: none;
+        }
+        .outfit-tags-add input:focus {
+            border-color: #4f46e5;
+        }
+
         .outfit-modal-actions {
+
             display: flex;
             justify-content: flex-end;
             gap: 10px;
@@ -1373,8 +1507,18 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="subjectDesc" id="descLabel">角色小传</label>
-                            <textarea id="subjectDesc" class="form-control textarea" placeholder="请输入角色小传，例如年龄、职业、形象气质、服装风格等"></textarea>
+                            <label id="descLabel">角色标签</label>
+                            <div class="tag-config">
+                                <div class="tag-config-selected" id="selectedTags">
+                                    <span class="tag-config-hint">尚未添加标签</span>
+                                </div>
+                                <div class="tag-config-divider">可选标签（点击添加，可多选）</div>
+                                <div class="tag-config-options" id="tagPool"></div>
+                                <div class="tag-config-add">
+                                    <input id="newTagInput" type="text" placeholder="输入新标签，回车或点击添加" maxlength="20" />
+                                    <button type="button" class="btn btn-light" id="addTagBtn">+ 添加</button>
+                                </div>
+                            </div>
                         </div>
 
                         <div class="form-group" id="imageFormGroup">
@@ -1594,6 +1738,13 @@
             <label for="outfitNameInput">变体名称 <span class="required">*</span></label>
             <input class="form-control" id="outfitNameInput" maxlength="20" placeholder="例如：深蓝商务西装" aria-describedby="outfitNameError" />
             <div class="outfit-name-error" id="outfitNameError" role="alert" aria-live="polite"></div>
+            <div class="outfit-tags">
+                <div class="outfit-tags-title">变体标签 <span class="optional">（可选）</span></div>
+                <div class="outfit-tags-options" id="outfitTagPool"></div>
+                <div class="outfit-tags-add">
+                    <input id="outfitNewTagInput" maxlength="20" placeholder="输入新标签，回车添加" />
+                </div>
+            </div>
             <div class="outfit-modal-actions">
                 <button class="btn btn-light" type="button" onclick="closeOutfitNameModal()">取消</button>
                 <button class="btn btn-primary" type="button" onclick="confirmOutfitName()">确认</button>
@@ -1641,6 +1792,13 @@
         let outfitNameContext = null;
         let pendingMainCandidate = null;
         let pendingOutfitUploadImg = "";
+        let outfitPendingTags = [];
+        const outfitTagPoolBase = ["西装", "休闲", "商务", "正式", "礼服", "日常"];
+        let selectedTags = [];
+        const presetTags = {
+            role: ["女主播", "解说员", "亲和", "专业", "干练", "知性", "主播", "讲师"],
+            scene: ["演播室", "财经", "会议室", "办公", "现代", "高端", "户外", "舞台"]
+        };
         const maxOutfits = 16;
 
         const libraryKey = "subjectLibraryItems";
@@ -1649,7 +1807,9 @@
         const subjectName = document.getElementById("subjectName");
         const visibilitySelect = document.getElementById("visibilitySelect");
         const subjectVoice = document.getElementById("subjectVoice");
-        const subjectDesc = document.getElementById("subjectDesc");
+        const selectedTagsEl = document.getElementById("selectedTags");
+        const tagPoolEl = document.getElementById("tagPool");
+        const newTagInput = document.getElementById("newTagInput");
         const nameCount = document.getElementById("nameCount");
         const subjectImage = document.getElementById("subjectImage");
         const uploadPreview = document.getElementById("uploadPreview");
@@ -1698,6 +1858,7 @@
                 name: item && item.name ? String(item.name).slice(0, 20) : "变体 " + (index + 1),
                 img: item && item.img ? safeImageSource(item.img) : "",
                 prompt: item && item.prompt ? String(item.prompt) : "",
+                tags: item && Array.isArray(item.tags) ? item.tags.slice() : [],
                 createdAt: item && item.createdAt ? item.createdAt : new Date().toISOString()
             })).filter((item) => item.img);
         }
@@ -1766,7 +1927,7 @@
             }
 
             const cards = [{ id: "main", name: "默认主图", img: imageData, isMain: true }]
-                .concat(outfits.map((item) => ({ id: item.id, name: item.name, img: item.img, isMain: false })));
+                .concat(outfits.map((item) => ({ id: item.id, name: item.name, img: item.img, isMain: false, tags: item.tags })));
             if (outfits.length < maxOutfits) {
                 cards.push({ id: "__upload", isUpload: true });
             }
@@ -1793,6 +1954,12 @@
                         '<div class="role-asset-card-copy">' +
                             '<div class="role-asset-card-name">' + escapeHtml(item.name) + '</div>' +
                             '<div class="role-asset-card-type">' + (item.isMain ? "角色默认形象" : "变体附图") + '</div>' +
+                            (item.isMain || !(item.tags && item.tags.length)
+                                ? ''
+                                : '<div class="role-asset-card-tags">' +
+                                    item.tags.slice(0, 3).map((t) => '<span class="role-asset-tag">' + escapeHtml(t) + '</span>').join("") +
+                                    (item.tags.length > 3 ? '<span class="role-asset-tag more">+' + (item.tags.length - 3) + '</span>' : '') +
+                                '</div>') +
                         '</div>' +
                     '</button>' + actions +
                 '</article>';
@@ -1809,6 +1976,22 @@
             }
         }
 
+        function renderOutfitTagConfig() {
+            const pool = outfitTagPoolBase.slice();
+            outfits.forEach((item) => {
+                (item.tags || []).forEach((t) => {
+                    if (pool.indexOf(t) < 0) pool.push(t);
+                });
+            });
+            const chips = pool.map((t) =>
+                '<button type="button" class="prompt-tag' + (outfitPendingTags.indexOf(t) >= 0 ? ' active' : '') + '" data-tag="' + escapeHtml(t) + '">' + escapeHtml(t) + '</button>'
+            ).join("");
+            const selectedHtml = outfitPendingTags.length
+                ? '<div class="outfit-tags-selected">' + outfitPendingTags.map((t) => '<span class="selected-tag-chip">' + escapeHtml(t) + '<button type="button" class="selected-tag-remove" data-tag="' + escapeHtml(t) + '">×</button></span>').join("") + '</div>'
+                : '';
+            document.getElementById("outfitTagPool").innerHTML = selectedHtml + chips;
+        }
+
         function isOutfitNameDuplicate(name, exceptId) {
             const normalized = name.trim().toLocaleLowerCase();
             return outfits.some((item) => item.id !== exceptId && item.name.trim().toLocaleLowerCase() === normalized);
@@ -1821,16 +2004,24 @@
             document.getElementById("outfitNameDesc").textContent = context.desc;
             document.getElementById("outfitNameError").textContent = "";
             input.value = context.value || "";
+            if (context.type === "rename" && context.outfitId) {
+                const outfit = outfits.find((item) => item.id === context.outfitId);
+                outfitPendingTags = (outfit && outfit.tags) ? outfit.tags.slice() : [];
+            } else {
+                outfitPendingTags = [];
+            }
+            renderOutfitTagConfig();
             document.getElementById("outfitNameModal").classList.add("active");
             setTimeout(() => input.focus(), 0);
         }
 
-        function closeOutfitNameModal() {
+            function closeOutfitNameModal() {
             if (outfitNameContext && outfitNameContext.type === "retain-main") {
                 pendingMainCandidate = null;
             }
             document.getElementById("outfitNameModal").classList.remove("active");
             outfitNameContext = null;
+            outfitPendingTags = [];
         }
 
         function openAddOutfitDialog() {
@@ -1874,6 +2065,7 @@ if (!name) { error.textContent = "请输入变体名称"; input.focus(); return;
                     name,
                     img: aiAdjustedImage,
                     prompt: aiAdjustedPrompt,
+                    tags: outfitPendingTags.slice(),
                     createdAt: new Date().toISOString()
                 });
                 aiAdjustBaseKey = "outfit:" + outfits[outfits.length - 1].id;
@@ -1887,6 +2079,7 @@ if (!name) { error.textContent = "请输入变体名称"; input.focus(); return;
                     name,
                     img: pendingOutfitUploadImg,
                     prompt: "",
+                    tags: outfitPendingTags.slice(),
                     createdAt: new Date().toISOString()
                 });
                 aiAdjustBaseKey = "outfit:" + outfits[outfits.length - 1].id;
@@ -1894,7 +2087,10 @@ if (!name) { error.textContent = "请输入变体名称"; input.focus(); return;
                 showToast("已添加变体图：" + name);
             } else if (outfitNameContext.type === "rename") {
                 const outfit = outfits.find((item) => item.id === outfitNameContext.outfitId);
-                if (outfit) outfit.name = name;
+                if (outfit) {
+                    outfit.name = name;
+                    outfit.tags = outfitPendingTags.slice();
+                }
                 showToast("变体名称已更新");
             } else if (outfitNameContext.type === "retain-main") {
                 applyPendingMainCandidate(true, name);
@@ -2011,8 +2207,10 @@ if (!name) { error.textContent = "请输入变体名称"; input.focus(); return;
                 subjectName.value = targetType === "scene" ? "图片创作场景" : "图片创作角色";
                 updateNameCount();
             }
-            if (payload.prompt && !subjectDesc.value.trim()) {
-                subjectDesc.value = payload.prompt;
+            if (payload.prompt && !selectedTags.length) {
+                const t = payload.prompt.trim();
+                if (t && t.length <= 20 && selectedTags.indexOf(t) < 0) selectedTags.push(t);
+                renderTagConfig();
             }
             showToast(targetType === "scene" ? "已带入图片创作生成图，可继续创建场景" : "已带入图片创作生成图，可继续创建角色");
             sessionStorage.removeItem("imageCreationHandoff");
@@ -2414,6 +2612,7 @@ retainBtn.title = canRetain ? "" : "变体图已达 16 张，请先删除一张�
                     name: oldMainName,
                     img: oldMainImage,
                     prompt: "",
+                    tags: outfitPendingTags.slice(),
                     createdAt: new Date().toISOString()
                 });
             }
@@ -2438,7 +2637,7 @@ retainBtn.title = canRetain ? "" : "变体图已达 16 张，请先删除一张�
             document.getElementById("pageDesc").textContent = isScene ?
                 "创建视频背景场景，上传场景图并生成多角度视图资产。" :
                 "创建视频中的人物主体，配置角色音色并生成多视图资产。";
-            document.getElementById("descLabel").textContent = isScene ? "场景描述" : "角色小传";
+            document.getElementById("descLabel").textContent = isScene ? "场景标签" : "角色标签";
             document.getElementById("imageLabel").innerHTML = (isScene ? "上传场景图" : "上传主图") + ' <span class="required">*</span>';
             document.getElementById("uploadTitle").textContent = isScene ? "上传一张场景图" : "上传一张角色主图";
             document.getElementById("uploadDesc").textContent = isScene ?
@@ -2477,9 +2676,8 @@ retainBtn.title = canRetain ? "" : "变体图已达 16 张，请先删除一张�
             document.querySelector(".form-top").classList.toggle("scene-mode", isScene);
             voiceSelectRow.style.display = isScene ? "none" : "grid";
             addVoiceBtn.style.display = isScene ? "none" : "inline-flex";
-            subjectDesc.placeholder = isScene ?
-                "请输入场景描述，例如：现代财经演播室，背景有大屏数据图表，整体风格专业、简洁、可信。" :
-                "请输入角色小传，例如年龄、职业、形象气质、服装风格等";
+            selectedTags = [];
+            renderTagConfig();
             document.getElementById("createSubjectBtn").textContent = "保存";
             document.getElementById("footerTip").textContent = source === "step2" ?
                 "创建完成后会返回 Step 2，并把新主体插入对应列表第一位。" :
@@ -2509,7 +2707,8 @@ retainBtn.title = canRetain ? "" : "变体图已达 16 张，请先删除一张�
             originalSubject = Object.assign({}, subject);
             subjectType = "role";
             subjectName.value = subject.name || "";
-            subjectDesc.value = subject.desc || "";
+            selectedTags = (subject.tags && subject.tags.length) ? subject.tags.slice() : [];
+            renderTagConfig();
             ensureVoiceOption(subject.voice || "");
             subjectVoice.value = subject.voice || "";
             visibilitySelect.value = subject.visibility || "self";
@@ -2573,9 +2772,45 @@ retainBtn.title = canRetain ? "" : "变体图已达 16 张，请先删除一张�
             return saved;
         }
 
+        function collectTagPool() {
+            const isScene = subjectType === "scene";
+            const pool = presetTags[isScene ? "scene" : "role"].slice();
+            readLibrary().forEach((item) => {
+                (item.tags || []).forEach((t) => {
+                    if (pool.indexOf(t) < 0) pool.push(t);
+                });
+            });
+            return pool;
+        }
+
+        function renderTagConfig() {
+            const selectedHtml = selectedTags.length
+                ? selectedTags.map((t) => '<span class="selected-tag-chip">' + escapeHtml(t) + '<button type="button" class="selected-tag-remove" data-tag="' + escapeHtml(t) + '">×</button></span>').join("")
+                : '<span class="tag-config-hint">尚未添加标签</span>';
+            selectedTagsEl.innerHTML = selectedHtml;
+            const pool = collectTagPool();
+            tagPoolEl.innerHTML = pool.map((t) =>
+                '<button type="button" class="prompt-tag' + (selectedTags.indexOf(t) >= 0 ? ' active' : '') + '" data-tag="' + escapeHtml(t) + '">' + escapeHtml(t) + '</button>'
+            ).join("") || '<span class="tag-config-hint">暂无可用标签</span>';
+        }
+
+        function toggleTag(tag) {
+            const idx = selectedTags.indexOf(tag);
+            if (idx >= 0) selectedTags.splice(idx, 1); else selectedTags.push(tag);
+            renderTagConfig();
+        }
+
+        function addTagFromInput() {
+            const val = newTagInput.value.trim();
+            if (!val) return;
+            if (selectedTags.indexOf(val) < 0) selectedTags.push(val);
+            newTagInput.value = "";
+            renderTagConfig();
+        }
+
         function buildSubject(status) {
             const name = subjectName.value.trim() || "未命名" + typeName();
-            const desc = subjectDesc.value.trim() || (subjectType === "scene" ? "暂无场景描述" : "暂无角色描述");
+            const desc = selectedTags.length ? selectedTags.join("、") : (subjectType === "scene" ? "暂无场景标签" : "暂无角色标签");
             if (!imageData) {
                 setPreview(createPlaceholderImage(subjectType, name), "系统生成主图");
             }
@@ -2585,6 +2820,7 @@ retainBtn.title = canRetain ? "" : "变体图已达 16 张，请先删除一张�
                 type: subjectType,
                 name,
                 desc,
+                tags: selectedTags.slice(),
                 voice: subjectType === "role" ? subjectVoice.value : "",
                 visibility: visibilitySelect.value,
                 img: imageData,
@@ -2702,7 +2938,57 @@ retainBtn.title = canRetain ? "" : "变体图已达 16 张，请先删除一张�
 
         subjectName.addEventListener("input", () => { updateNameCount(); markDirty(); });
         subjectVoice.addEventListener("change", () => { updatePreviewText(); markDirty(); });
-        subjectDesc.addEventListener("input", markDirty);
+        tagPoolEl.addEventListener("click", (event) => {
+            const btn = event.target.closest(".prompt-tag");
+            if (!btn || !btn.dataset.tag) return;
+            toggleTag(btn.dataset.tag);
+            markDirty();
+        });
+        selectedTagsEl.addEventListener("click", (event) => {
+            const btn = event.target.closest(".selected-tag-remove");
+            if (!btn || !btn.dataset.tag) return;
+            const idx = selectedTags.indexOf(btn.dataset.tag);
+            if (idx >= 0) selectedTags.splice(idx, 1);
+            renderTagConfig();
+            markDirty();
+        });
+        newTagInput.addEventListener("keydown", (event) => {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                addTagFromInput();
+                markDirty();
+            }
+        });
+        document.getElementById("addTagBtn").addEventListener("click", () => { addTagFromInput(); markDirty(); });
+
+        const outfitTagPoolEl = document.getElementById("outfitTagPool");
+        const outfitNewTagInput = document.getElementById("outfitNewTagInput");
+        outfitTagPoolEl.addEventListener("click", (event) => {
+            const btn = event.target.closest(".prompt-tag");
+            if (!btn || !btn.dataset.tag) return;
+            const t = btn.dataset.tag;
+            const idx = outfitPendingTags.indexOf(t);
+            if (idx >= 0) outfitPendingTags.splice(idx, 1); else outfitPendingTags.push(t);
+            renderOutfitTagConfig();
+        });
+        outfitTagPoolEl.addEventListener("click", (event) => {
+            const btn = event.target.closest(".selected-tag-remove");
+            if (!btn || !btn.dataset.tag) return;
+            const idx = outfitPendingTags.indexOf(btn.dataset.tag);
+            if (idx >= 0) outfitPendingTags.splice(idx, 1);
+            renderOutfitTagConfig();
+        });
+        outfitNewTagInput.addEventListener("keydown", (event) => {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                const v = outfitNewTagInput.value.trim();
+                if (v) {
+                    if (outfitPendingTags.indexOf(v) < 0) outfitPendingTags.push(v);
+                    outfitNewTagInput.value = "";
+                    renderOutfitTagConfig();
+                }
+            }
+        });
         visibilitySelect.addEventListener("change", markDirty);
         document.getElementById("authCheck").addEventListener("change", markDirty);
         previewVoiceBtn.addEventListener("click", previewSelectedVoice);

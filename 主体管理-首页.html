@@ -268,6 +268,35 @@
             color: #ffffff;
         }
 
+        .tag-filters {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        .tag-filters-label {
+            font-size: 13px;
+            color: #6b7280;
+            white-space: nowrap;
+            margin-right: 2px;
+        }
+        .tag-filters-options {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .tag-clear {
+            margin-left: auto;
+            border: 0;
+            background: none;
+            color: #4f46e5;
+            font-size: 12px;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
         .check-filter {
             height: 32px;
             display: inline-flex;
@@ -876,6 +905,11 @@
                     </div>
                 </div>
 
+                <div class="tag-filters" id="tagFilters">
+                    <span class="tag-filters-label">标签</span>
+                    <div class="tag-filters-options" id="tagFilterOptions"></div>
+                </div>
+
                 <div class="card-row" id="assetGrid"></div>
                 <div class="empty-state" id="emptyState">
                     <div>
@@ -947,6 +981,7 @@
                 createdByMe: true,
                 favorite: false,
                 status: "草稿",
+                tags: ["解说员"],
                 visual: "role"
             },
             {
@@ -959,6 +994,7 @@
                 createdByMe: true,
                 favorite: true,
                 status: "4 视图",
+                tags: ["女主播", "亲和"],
                 visual: "role",
                 img: createDemoRoleImage("默认主图", "#334155", "#4f46e5"),
                 outfits: [
@@ -987,6 +1023,7 @@
                 createdByMe: false,
                 favorite: false,
                 status: "8 视角",
+                tags: ["演播室", "财经"],
                 visual: "scene"
             },
             {
@@ -998,11 +1035,13 @@
                 createdByMe: true,
                 favorite: false,
                 status: "8 视角",
+                tags: ["会议室", "办公"],
                 visual: "scene"
             }
         ];
 
         let typeFilter = "all";
+        let tags = [];
         let query = "";
         let onlyFav = false;
         let onlyCreated = false;
@@ -1110,11 +1149,23 @@
             )).join("");
         }
 
+        function renderTagFilters() {
+            const all = allSubjects();
+            const options = Array.from(new Set(all.flatMap(s => s.tags || []))).sort();
+            const container = document.getElementById("tagFilterOptions");
+            const chips = options.map(t =>
+                '<button type="button" class="chip' + (tags.indexOf(t) >= 0 ? ' active' : '') + '" data-tag="' + escapeHtml(t) + '">' + escapeHtml(t) + '</button>'
+            ).join("");
+            container.innerHTML = chips + (tags.length ? '<button type="button" class="tag-clear" id="tagClear">清空(' + tags.length + ')</button>' : '');
+        }
+
         function render() {
+            renderTagFilters();
             const list = allSubjects();
             const filtered = list.filter((subject) => {
                 const text = [subject.name, subject.desc, subject.voice, subjectTypeName(subject.type)].join(" ").toLowerCase();
                 if (typeFilter !== "all" && subject.type !== typeFilter) return false;
+                if (tags.length && !tags.some(t => (subject.tags || []).indexOf(t) >= 0)) return false;
                 if (onlyFav && !subject.favorite) return false;
                 if (onlyCreated && !subject.createdByMe) return false;
                 if (query && !text.includes(query.toLowerCase())) return false;
@@ -1238,6 +1289,20 @@
                 typeFilter = button.dataset.type;
                 render();
             });
+        });
+
+        document.getElementById("tagFilterOptions").addEventListener("click", (event) => {
+            if (event.target.id === "tagClear") {
+                tags = [];
+                render();
+                return;
+            }
+            const btn = event.target.closest(".chip");
+            if (!btn || !btn.dataset.tag) return;
+            const value = btn.dataset.tag;
+            const idx = tags.indexOf(value);
+            if (idx >= 0) tags.splice(idx, 1); else tags.push(value);
+            render();
         });
 
         searchInput.addEventListener("input", () => {

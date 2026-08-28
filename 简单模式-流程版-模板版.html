@@ -67,6 +67,20 @@
     .av-search, .bg-search { margin-bottom: 8px; }
     .av-search input, .bg-search input { width: 100%; padding: 7px 10px; border: 1.5px solid #e8e8e8; border-radius: 8px; font-size: 12px; background: #fafafa; transition: all 0.2s; }
     .av-search input:focus, .bg-search input:focus { outline: none; border-color: #0066ff; background: #fff; box-shadow: 0 0 0 3px rgba(0,102,255,0.08); }
+
+    .av-tag-filter { position: relative; margin-bottom: 8px; }
+    .av-tag-trigger { display: flex; align-items: center; justify-content: space-between; height: 34px; padding: 0 10px; border: 1.5px solid #e8e8e8; border-radius: 8px; background: #fafafa; cursor: pointer; font-size: 12px; color: #374151; }
+    .av-tag-trigger:hover { border-color: #0066ff; }
+    .av-tag-caret { color: #9ca3af; }
+    .av-tag-dropdown { position: absolute; top: 38px; left: 0; right: 0; z-index: 20; background: #fff; border: 1px solid #e8e8e8; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,.12); padding: 8px; }
+    .av-tag-dropdown-head { display: flex; align-items: center; justify-content: space-between; padding: 2px 2px 8px; font-size: 12px; color: #6b7280; border-bottom: 1px solid #f3f4f6; }
+    .av-tag-clear { border: 0; background: none; color: #0066ff; font-size: 12px; cursor: pointer; }
+    .av-tag-options { display: flex; flex-wrap: wrap; gap: 6px; padding-top: 8px; max-height: 180px; overflow-y: auto; }
+    .av-tag-option { display: inline-flex; align-items: center; gap: 4px; padding: 5px 10px; border-radius: 14px; border: 1px solid #e5e7eb; cursor: pointer; font-size: 12px; color: #4b5563; background: #fff; }
+    .av-tag-option:hover { border-color: #0066ff; }
+    .av-tag-option.on { border-color: #0066ff; background: #e8f1ff; color: #0066ff; }
+    .av-tag-check { width: 14px; text-align: center; }
+    .av-tag-none { font-size: 12px; color: #9ca3af; padding: 6px 0; }
     .av-grid-compact { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; max-height: 240px; overflow-y: auto; padding-right: 4px; }
     .av-item-compact { display: flex; flex-direction: column; align-items: center; padding: 8px 4px; border-radius: 8px; cursor: pointer; transition: all 0.15s; background: #fafafa; border: 1.5px solid #e8e8e8; position: relative; }
     .av-item-compact:hover { background: #f5f8ff; border-color: #0066ff33; }
@@ -591,7 +605,20 @@
               <span class="section-badge done" id="t-person" style="display:none;">已选择</span>
             </div>
 
-            <div class="av-search"><input type="text" placeholder="搜索角色名称、标签..." oninput="filterAvatarList(this.value)"></div>
+            <div class="av-search"><input type="text" placeholder="搜索角色名称..." oninput="filterAvatarList(this.value)"></div>
+            <div class="av-tag-filter" id="avTagFilter">
+              <div class="av-tag-trigger" onclick="toggleAvatarTagDropdown(event)">
+                <span id="avTagLabel">标签筛选（可多选）</span>
+                <span class="av-tag-caret">▾</span>
+              </div>
+              <div class="av-tag-dropdown" id="avTagDropdown" style="display:none;">
+                <div class="av-tag-dropdown-head">
+                  <span>按标签筛选（可多选）</span>
+                  <button type="button" class="av-tag-clear" onclick="clearAvatarTags(event)">清空</button>
+                </div>
+                <div class="av-tag-options" id="avTagOptions"></div>
+              </div>
+            </div>
             <div class="av-grid-compact" id="avatar-grid"></div>
             <div class="add-item-btn" onclick="openCreateSubject('role')">＋ 新增角色</div>
           </div>
@@ -609,6 +636,19 @@
               <span class="toggle-hint">（关闭=只能选 1 个，开启=可多选）</span>
             </div>
             <div class="bg-search"><input type="text" placeholder="搜索场景名称..." oninput="filterBgList(this.value)"></div>
+            <div class="av-tag-filter" id="bgTagFilter" style="margin-top:8px;">
+              <div class="av-tag-trigger" onclick="toggleBgTagDropdown(event)">
+                <span id="bgTagLabel">标签筛选（可多选）</span>
+                <span class="av-tag-caret">▾</span>
+              </div>
+              <div class="av-tag-dropdown" id="bgTagDropdown" style="display:none;">
+                <div class="av-tag-dropdown-head">
+                  <span>按标签筛选（可多选）</span>
+                  <button type="button" class="av-tag-clear" onclick="clearBgTags(event)">清空</button>
+                </div>
+                <div class="av-tag-options" id="bgTagOptions"></div>
+              </div>
+            </div>
             <div class="bg-grid-compact" id="bg-grid-preset"></div>
             <div class="add-item-btn" onclick="openCreateSubject('scene')">＋ 新增场景</div>
           </div>
@@ -1462,13 +1502,69 @@
       return m;
     }
     /* ========== 角色（单选） ========== */
+    var avatarTagFilter = [];
+    function collectAvatarTags() {
+      var tags = [];
+      getMergedAvatars().forEach(function(a){
+        if (a.tag && tags.indexOf(a.tag) < 0) tags.push(a.tag);
+      });
+      return tags.sort();
+    }
+    function updateAvatarTagLabel() {
+      var el = document.getElementById('avTagLabel');
+      if (!el) return;
+      el.textContent = avatarTagFilter.length ? '标签：' + avatarTagFilter.join('、') : '标签筛选（可多选）';
+    }
+    function renderAvatarTagOptions() {
+      var el = document.getElementById('avTagOptions');
+      if (!el) return;
+      var tags = collectAvatarTags();
+      el.innerHTML = tags.map(function(t){
+        var on = avatarTagFilter.indexOf(t) >= 0;
+        return '<label class="av-tag-option' + (on?' on':'') + '" onclick="toggleAvatarTag(event,\'' + encodeURIComponent(t) + '\')">' +
+          '<span class="av-tag-check">' + (on?'✓':'') + '</span>' + escapeHtml(t) + '</label>';
+      }).join('') || '<div class="av-tag-none">暂无标签</div>';
+      updateAvatarTagLabel();
+    }
+    function refreshAvatarList() {
+      var input = document.querySelector('.av-search input');
+      renderAvatarList(input ? input.value : '');
+    }
+    function toggleAvatarTagDropdown(e) {
+      if (e) e.stopPropagation();
+      var d = document.getElementById('avTagDropdown');
+      if (!d) return;
+      var show = d.style.display !== 'block';
+      d.style.display = show ? 'block' : 'none';
+      if (show) renderAvatarTagOptions();
+    }
+    function toggleAvatarTag(e, enc) {
+      if (e) e.stopPropagation();
+      var t = decodeURIComponent(enc);
+      var i = avatarTagFilter.indexOf(t);
+      if (i >= 0) avatarTagFilter.splice(i,1); else avatarTagFilter.push(t);
+      renderAvatarTagOptions();
+      refreshAvatarList();
+    }
+    function clearAvatarTags(e) {
+      if (e) e.stopPropagation();
+      avatarTagFilter = [];
+      renderAvatarTagOptions();
+      refreshAvatarList();
+    }
+    document.addEventListener('click', function(){ var d = document.getElementById('avTagDropdown'); if (d) d.style.display = 'none'; });
     function getAvatarSearchValue() { var el=document.querySelector('.av-search input'); return el?el.value:''; }
     function filterAvatarList(v) { renderAvatarList(v); }
 
     function renderAvatarList(keyword) {
       keyword = (keyword || '').toLowerCase();
       var list = getMergedAvatars();
-      var filtered = list.filter(function(a){ return a.name.toLowerCase().indexOf(keyword)>-1 || a.tag.toLowerCase().indexOf(keyword)>-1 || a.key.toLowerCase().indexOf(keyword)>-1; });
+      var filtered = list.filter(function(a){ 
+        var kw = a.name.toLowerCase().indexOf(keyword)>-1 || a.tag.toLowerCase().indexOf(keyword)>-1 || a.key.toLowerCase().indexOf(keyword)>-1;
+        if (!kw) return false;
+        if (avatarTagFilter.length && avatarTagFilter.indexOf(a.tag) < 0) return false;
+        return true;
+      });
       var c = document.getElementById('avatar-grid');
       if (filtered.length === 0) { c.innerHTML = '<div class="av-nore">没有找到匹配的角色</div>'; return; }
       var h = '';
@@ -1516,13 +1612,80 @@
     }
 
     /* ========== 背景（单选/多选开关） ========== */
+    var bgTagFilter = [];
+    var bgTagMap = {
+      '办公室':['商务','办公'], '会议室':['商务','办公'], '工作室':['商务','创作'], '展厅':['商务','展示'],
+      '居家':['居家','生活'], '书架':['居家','学习'], '花园':['居家','自然'],
+      '咖啡厅':['餐饮','休闲'], '餐厅':['餐饮','商务'], '厨房':['餐饮','生活'],
+      '户外':['户外','自然'], '公园':['户外','自然'], '海边':['户外','自然'], '雪山':['户外','自然'], '森林':['户外','自然'], '沙漠':['户外','自然'], '草原':['户外','自然'],
+      '演播室':['演播','直播'],
+      '教室':['教育','学习'], '图书馆':['教育','学习'],
+      '地铁站':['交通','城市'], '机场':['交通','出行'],
+      '城市夜景':['城市','夜景'], '天台':['户外','城市'],
+      '健身房':['运动','健康']
+    };
+    function collectBgTags() {
+      var tags = [];
+      Object.keys(bgTagMap).forEach(function(k){ bgTagMap[k].forEach(function(t){ if (tags.indexOf(t) < 0) tags.push(t); }); });
+      return tags.sort();
+    }
+    function updateBgTagLabel() {
+      var el = document.getElementById('bgTagLabel');
+      if (!el) return;
+      el.textContent = bgTagFilter.length ? '标签：' + bgTagFilter.join('、') : '标签筛选（可多选）';
+    }
+    function renderBgTagOptions() {
+      var el = document.getElementById('bgTagOptions');
+      if (!el) return;
+      var tags = collectBgTags();
+      el.innerHTML = tags.map(function(t){
+        var on = bgTagFilter.indexOf(t) >= 0;
+        return '<label class="av-tag-option' + (on?' on':'') + '" onclick="toggleBgTag(event,\'' + encodeURIComponent(t) + '\')">' +
+          '<span class="av-tag-check">' + (on?'✓':'') + '</span>' + escapeHtml(t) + '</label>';
+      }).join('') || '<div class="av-tag-none">暂无标签</div>';
+      updateBgTagLabel();
+    }
+    function refreshBgList() {
+      var input = document.querySelector('.bg-search input');
+      renderBgList(input ? input.value : '');
+    }
+    function toggleBgTagDropdown(e) {
+      if (e) e.stopPropagation();
+      var d = document.getElementById('bgTagDropdown');
+      if (!d) return;
+      var show = d.style.display !== 'block';
+      d.style.display = show ? 'block' : 'none';
+      if (show) renderBgTagOptions();
+    }
+    function toggleBgTag(e, enc) {
+      if (e) e.stopPropagation();
+      var t = decodeURIComponent(enc);
+      var i = bgTagFilter.indexOf(t);
+      if (i >= 0) bgTagFilter.splice(i,1); else bgTagFilter.push(t);
+      renderBgTagOptions();
+      refreshBgList();
+    }
+    function clearBgTags(e) {
+      if (e) e.stopPropagation();
+      bgTagFilter = [];
+      renderBgTagOptions();
+      refreshBgList();
+    }
+    document.addEventListener('click', function(){ var d = document.getElementById('bgTagDropdown'); if (d) d.style.display = 'none'; });
     function filterBgList(v) { renderBgList(v); }
     function getBgSearchValue() { var el=document.querySelector('.bg-search input'); return el?el.value:''; }
 
     function renderBgList(keyword) {
       keyword = (keyword || '').toLowerCase();
       var merged = getMergedBgMap();
-      var keys = Object.keys(merged).filter(function(k){ return k.toLowerCase().indexOf(keyword)>-1; });
+      var keys = Object.keys(merged).filter(function(k){
+        if (keyword && k.toLowerCase().indexOf(keyword) < 0) return false;
+        if (bgTagFilter.length) {
+          var tags = bgTagMap[k] || [];
+          if (!tags.some(function(t){ return bgTagFilter.indexOf(t) >= 0; })) return false;
+        }
+        return true;
+      });
       var c = document.getElementById('bg-grid-preset');
       if (keys.length === 0) { c.innerHTML = '<div class="av-nore">没有找到匹配的场景</div>'; return; }
       var h = '';

@@ -1957,7 +1957,7 @@
         type: "template",
         query: "",
         industry: "全部行业",
-        tag: "全部标签",
+        tags: [],
         attrs: {},
         sort: "used",
         onlyAdded: false,
@@ -2010,7 +2010,7 @@
     function switchType(type) {
         state.type = type;
         state.industry = "全部行业";
-        state.tag = "全部标签";
+        state.tags = [];
         state.attrs = {};
         state.onlyAdded = false;
         state.filtersExpanded = false;
@@ -2031,7 +2031,12 @@
     }
 
     function setTag(value) {
-        state.tag = value;
+        const idx = state.tags.indexOf(value);
+        if (idx >= 0) {
+            state.tags.splice(idx, 1);
+        } else {
+            state.tags.push(value);
+        }
         state.onlyAdded = false;
         render();
     }
@@ -2068,7 +2073,10 @@
 
     function clearFilter(type, key) {
         if (type === "industry") state.industry = "全部行业";
-        if (type === "tag") state.tag = "全部标签";
+        if (type === "tag" && key) {
+            const idx = state.tags.indexOf(key);
+            if (idx >= 0) state.tags.splice(idx, 1);
+        }
         if (type === "attr") delete state.attrs[key];
         if (type === "added") state.onlyAdded = false;
         render();
@@ -2076,7 +2084,7 @@
 
     function clearAllFilters() {
         state.industry = "全部行业";
-        state.tag = "全部标签";
+        state.tags = [];
         state.attrs = {};
         state.onlyAdded = false;
         render();
@@ -2104,7 +2112,7 @@
     function renderSelectedFilters() {
         const selected = [];
         if (state.industry !== "全部行业") selected.push({ label: state.industry, type: "industry" });
-        if (state.tag !== "全部标签") selected.push({ label: state.tag, type: "tag" });
+        state.tags.forEach(tag => selected.push({ label: tag, type: "tag", key: tag }));
         Object.keys(state.attrs).forEach(key => {
             const schema = attrSchemas[state.type].find(item => item.key === key);
             selected.push({ label: (schema ? schema.label + "：" : "") + state.attrs[key], type: "attr", key: key });
@@ -2124,7 +2132,7 @@
         return resources
             .filter(item => item.type === state.type)
             .filter(item => state.type === 'voice' || state.industry === "全部行业" || item.industry === state.industry)
-            .filter(item => state.type === 'voice' || state.tag === "全部标签" || item.tags.indexOf(state.tag) >= 0)
+            .filter(item => state.type === 'voice' || state.tags.length === 0 || state.tags.some(t => item.tags.indexOf(t) >= 0))
             .filter(item => Object.keys(state.attrs).every(key => item[key] === state.attrs[key]))
             .filter(item => {
                 if (!state.query) return true;
@@ -2152,15 +2160,15 @@
 
         if (!state.tagsExpanded && tagOptions.length > tagLimit + 1) {
             visibleTagOptions = tagOptions.slice(0, tagLimit + 1);
-            if (state.tag !== "全部标签" && visibleTagOptions.indexOf(state.tag) < 0) {
-                visibleTagOptions.push(state.tag);
-            }
+            state.tags.forEach(function(t) {
+                if (visibleTagOptions.indexOf(t) < 0) visibleTagOptions.push(t);
+            });
         }
 
         var hiddenTagCount = Math.max(0, tagOptions.length - visibleTagOptions.length);
         if (state.type !== 'voice') {
             rows.push(renderFilterLine("行业", industryOptions.map(function(item) { return buildChip(item, state.industry === item && !state.onlyAdded, "setIndustry", item); })));
-            rows.push(renderFilterLine("标签", visibleTagOptions.map(function(item) { return buildChip(item, state.tag === item && !state.onlyAdded, "setTag", item); }).concat(
+            rows.push(renderFilterLine("标签", visibleTagOptions.map(function(item) { return buildChip(item, state.tags.indexOf(item) >= 0 && !state.onlyAdded, "setTag", item); }).concat(
                 tagOptions.length > tagLimit + 1
                     ? ['<button class="chip" onclick="toggleAllTags()">' + (state.tagsExpanded ? "收起标签" : "更多标签" + (hiddenTagCount ? " +" + hiddenTagCount : "")) + '</button>']
                     : []
