@@ -241,7 +241,7 @@
         }
         .drawer-overlay.show { opacity: 1; visibility: visible; }
         .drawer {
-            position: fixed; right: 0; top: 0; bottom: 0; width: 900px;
+            position: fixed; right: 0; top: 0; bottom: 0; width: min(900px, 100vw);
             background: var(--card-bg); z-index: 1002;
             box-shadow: -4px 0 24px rgba(0,0,0,0.12);
             transform: translateX(100%); transition: transform 0.3s ease;
@@ -252,7 +252,9 @@
             display: flex; align-items: center; justify-content: space-between;
             padding: 20px 24px; border-bottom: 1px solid var(--border); flex-shrink: 0;
         }
-        .drawer-title { font-size: 16px; font-weight: 700; }
+        .drawer-title { min-width:0; font-size:16px; font-weight:700; line-height:1.45; overflow-wrap:anywhere; }
+        .drawer-header .modal-close { flex-shrink:0; }
+        #tenantDrawer { width:min(760px, 100vw); }
         .drawer-body { flex: 1; overflow-y: auto; padding: 24px; }
 
         /* ===== Toast ===== */
@@ -427,6 +429,191 @@
         .tenant-detail-title { font-size:16px; font-weight:800; }
         .tenant-detail-sub { font-size:12px; color:var(--text-muted); margin-top:4px; }
         .mini-metrics { display:grid; grid-template-columns:repeat(5,1fr); gap:10px; margin-bottom:16px; }
+        .tenant-detail-tabs {
+            display:flex; align-items:center; gap:4px; margin:18px 0 20px;
+            padding:4px; width:max-content; max-width:100%; border:1px solid var(--border);
+            border-radius:10px; background:#fff; overflow-x:auto;
+        }
+        .tenant-detail-tab {
+            height:32px; padding:0 16px; border:0; border-radius:7px; background:transparent;
+            color:var(--text-secondary); font-size:13px; font-weight:700; white-space:nowrap;
+        }
+        .tenant-detail-tab:hover { color:var(--primary); background:var(--primary-light); }
+        .tenant-detail-tab.active { color:#fff; background:var(--primary); box-shadow:0 2px 8px rgba(47,107,255,.22); }
+        .tenant-detail-tab:focus-visible,
+        .tenant-record-toolbar .filter-input:focus-visible,
+        .tenant-record-toolbar .filter-select:focus-visible,
+        .tenant-record-toolbar .btn:focus-visible {
+            outline:3px solid rgba(47,107,255,.28); outline-offset:2px; border-color:var(--primary);
+        }
+        .tenant-detail-pane[hidden] { display:none; }
+        .tenant-record-shell { border:1px solid var(--border); border-radius:var(--radius); background:#fff; overflow:hidden; }
+        .tenant-record-toolbar {
+            display:flex; align-items:flex-end; gap:10px; flex-wrap:wrap; padding:14px 16px;
+            border-bottom:1px solid var(--border); background:#fafafa;
+        }
+        .tenant-record-filter { display:flex; flex-direction:column; gap:5px; }
+        .tenant-record-filter label { font-size:11px; color:var(--text-secondary); font-weight:700; }
+        .tenant-record-filter .filter-input { width:180px; }
+        .tenant-record-filter.search .filter-input { width:240px; }
+        .tenant-record-actions { margin-left:auto; display:flex; align-items:center; gap:8px; }
+        .tenant-record-count { font-size:12px; color:var(--text-secondary); white-space:nowrap; }
+        .prototype-note {
+            display:flex; align-items:flex-start; gap:8px; margin-bottom:12px; padding:10px 12px;
+            border:1px solid #bfdbfe; border-radius:8px; background:#eff6ff; color:#1e40af;
+            font-size:12px; line-height:1.55;
+        }
+        .tenant-asset-kindbar {
+            display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; margin-bottom:12px;
+        }
+        .tenant-asset-kind {
+            display:flex; align-items:center; gap:12px; min-height:66px; padding:12px 14px;
+            border:1px solid var(--border); border-radius:10px; background:#fff; text-align:left;
+            color:var(--text-primary); cursor:pointer; transition:border-color .15s,box-shadow .15s,background .15s;
+        }
+        .tenant-asset-kind:hover { border-color:#9db8ff; background:#f8faff; }
+        .tenant-asset-kind.active { border-color:var(--primary); background:#f3f6ff; box-shadow:0 0 0 2px rgba(47,107,255,.08); }
+        .tenant-asset-kind:focus-visible { outline:3px solid rgba(47,107,255,.28); outline-offset:2px; }
+        .tenant-asset-kind-icon {
+            width:38px; height:38px; flex:0 0 38px; border-radius:9px; display:flex; align-items:center;
+            justify-content:center; background:#edf2ff; color:var(--primary); font-size:17px; font-weight:800;
+        }
+        .tenant-asset-kind.active .tenant-asset-kind-icon { background:var(--primary); color:#fff; }
+        .tenant-asset-kind-copy { min-width:0; }
+        .tenant-asset-kind-copy strong { display:block; font-size:13px; }
+        .tenant-asset-kind-copy span { display:block; margin-top:3px; color:var(--text-secondary); font-size:11px; line-height:1.35; }
+        .tenant-asset-kind-count { margin-left:auto; color:var(--text-secondary); font-size:12px; font-weight:700; white-space:nowrap; }
+        .tenant-record-table-scroll { overflow-x:auto; }
+        .tenant-record-table-scroll:focus-visible { outline:3px solid rgba(47,107,255,.24); outline-offset:-3px; }
+        .tenant-record-table { min-width:1080px; }
+        .tenant-record-table th { position:sticky; top:0; z-index:1; background:#fafafa; }
+        .tenant-record-table td { vertical-align:middle; }
+        .tenant-record-table th:last-child,
+        .tenant-record-table td:last-child { position:sticky; right:0; background:#fff; box-shadow:-8px 0 12px -12px rgba(24,24,27,.45); }
+        .tenant-record-table th:last-child { z-index:2; background:#fafafa; }
+        .tenant-record-table tr:hover td:last-child { background:#fafafa; }
+        .tenant-record-name { display:flex; align-items:center; gap:10px; min-width:190px; }
+        .tenant-record-preview {
+            width:38px; height:38px; flex:0 0 38px; border-radius:9px; display:flex; align-items:center;
+            justify-content:center; color:#fff; font-size:17px; font-weight:800; overflow:hidden;
+            box-shadow:inset 0 0 0 1px rgba(255,255,255,.2);
+        }
+        .tenant-record-preview.voice { background:#0f766e; }
+        .tenant-record-preview.role { background:#3158b7; }
+        .tenant-record-preview.scene { background:#7c4d26; }
+        .tenant-record-title { font-weight:700; line-height:1.35; }
+        .tenant-record-id { margin-top:3px; font:10px/1.2 Consolas,monospace; color:var(--text-secondary); }
+        .tenant-record-summary { max-width:260px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:var(--text-secondary); font-size:12px; }
+        .tenant-empty { padding:56px 20px; text-align:center; color:var(--text-muted); }
+        .tenant-empty strong { display:block; margin-bottom:6px; color:var(--text-secondary); font-size:14px; }
+        .record-detail-meta { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-bottom:18px; }
+        .record-detail-meta-item { padding:11px 12px; border:1px solid var(--border); border-radius:8px; background:#fafafa; min-width:0; }
+        .record-detail-meta-item span { display:block; margin-bottom:5px; font-size:10px; color:var(--text-secondary); font-weight:700; }
+        .record-detail-meta-item strong { display:block; font-size:12px; line-height:1.5; overflow-wrap:anywhere; }
+        .record-detail-section { margin-bottom:18px; }
+        .record-detail-section h4 { margin-bottom:8px; font-size:13px; }
+        .record-detail-content {
+            padding:13px 14px; border:1px solid var(--border); border-radius:8px; background:#fafafa;
+            color:var(--text-primary); font-size:12px; line-height:1.75; white-space:pre-wrap; overflow-wrap:anywhere;
+        }
+        .record-output-card { margin-top:10px; padding:13px 14px; border:1px solid var(--border); border-radius:8px; background:#fff; }
+        .record-output-card:first-child { margin-top:0; }
+        .record-output-head { display:flex; justify-content:space-between; gap:10px; margin-bottom:8px; }
+        .record-output-title { font-size:13px; font-weight:800; }
+        .record-output-text { font-size:12px; line-height:1.75; white-space:pre-wrap; overflow-wrap:anywhere; }
+        .asset-file-list { display:flex; flex-direction:column; gap:8px; }
+        .asset-file-item {
+            display:grid; grid-template-columns:36px minmax(0,1fr) auto; align-items:center; gap:10px;
+            padding:10px 12px; border:1px solid var(--border); border-radius:8px; background:#fff;
+        }
+        .asset-file-type {
+            height:28px; border-radius:6px; display:flex; align-items:center; justify-content:center;
+            background:#eef2ff; color:#3158b7; font-size:9px; font-weight:900; letter-spacing:.04em;
+        }
+        .asset-file-name { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:12px; font-weight:700; }
+        .asset-file-meta { margin-top:3px; color:var(--text-secondary); font-size:10px; }
+        .asset-file-purpose { color:var(--text-secondary); font-size:11px; white-space:nowrap; }
+        .asset-file-actions { display:flex; align-items:center; justify-content:flex-end; gap:6px; }
+        .asset-file-action {
+            height:28px; padding:0 9px; border:1px solid var(--border); border-radius:6px;
+            background:#fff; color:var(--text-primary); font-size:11px; font-weight:700; cursor:pointer;
+        }
+        .asset-file-action:hover { border-color:#9db8ff; color:var(--primary); background:#f8faff; }
+        .asset-file-action.primary { border-color:#aac0fa; color:#244ca8; background:#eef3ff; }
+        .asset-file-action:disabled { opacity:.45; cursor:not-allowed; }
+        .voice-generated-list { display:flex; flex-direction:column; gap:8px; }
+        .voice-generated-item {
+            display:grid; grid-template-columns:36px minmax(0,1fr); gap:10px;
+            padding:12px; border:1px solid var(--border); border-radius:10px; background:#fff;
+        }
+        .voice-generated-main { min-width:0; }
+        .voice-generated-head { display:flex; justify-content:space-between; gap:12px; align-items:flex-start; }
+        .voice-generated-title-wrap { min-width:0; }
+        .voice-generated-title { font-size:13px; font-weight:800; line-height:1.35; }
+        .voice-generated-meta { margin-top:3px; color:var(--text-secondary); font-size:10px; }
+        .voice-generated-actions { display:flex; justify-content:flex-end; flex-wrap:wrap; gap:6px; }
+        .voice-generated-script-meta { margin-top:7px; color:var(--text-secondary); font-size:11px; }
+        .voice-generated-script {
+            margin-top:10px; padding:10px 12px; border:1px dashed #cfd7e6; border-radius:8px;
+            background:#fafbff; color:var(--text-primary); font-size:12px; line-height:1.75; white-space:pre-wrap; overflow-wrap:anywhere;
+        }
+        .voice-generated-script-empty { color:var(--text-muted); }
+        .asset-sample-cell { min-width:230px; }
+        .asset-sample-name { max-width:230px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:12px; font-weight:700; }
+        .asset-sample-meta { margin-top:4px; color:var(--text-secondary); font-size:10px; }
+        .asset-sample-ops { display:flex; gap:6px; margin-top:7px; }
+        .voice-preview-panel {
+            margin-bottom:18px; padding:18px; border:1px solid #b7c8f8; border-radius:12px; background:#f7f9ff;
+        }
+        .voice-preview-head { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; }
+        .voice-preview-head strong { display:block; font-size:15px; }
+        .voice-preview-head span { display:block; margin-top:3px; color:var(--text-secondary); font-size:11px; }
+        .voice-waveform { height:54px; margin:18px 0 14px; display:flex; align-items:center; gap:4px; overflow:hidden; }
+        .voice-waveform i { width:4px; flex:1; max-width:6px; min-width:2px; border-radius:99px; background:#6388ee; opacity:.82; }
+        .voice-preview-panel.is-playing .voice-waveform i { animation:tenantWave .72s ease-in-out infinite alternate; }
+        .voice-preview-panel.is-playing .voice-waveform i:nth-child(3n) { animation-delay:.16s; }
+        .voice-preview-panel.is-playing .voice-waveform i:nth-child(4n) { animation-delay:.3s; }
+        @keyframes tenantWave { from { transform:scaleY(.55); opacity:.48; } to { transform:scaleY(1); opacity:1; } }
+        .voice-preview-actions { display:flex; align-items:center; gap:10px; }
+        .voice-preview-time { margin-left:auto; color:var(--text-secondary); font:11px Consolas,monospace; }
+        .tool-flow-tags { display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
+        .tool-flow-tag { padding:4px 8px; border-radius:999px; background:#f1f3f5; color:#4b5563; font-size:10px; font-weight:700; }
+        .record-output-badges { display:flex; justify-content:flex-end; flex-wrap:wrap; gap:5px; }
+        .record-output-badge { padding:3px 7px; border-radius:999px; background:#eef3ff; color:#3158b7; font-size:10px; font-weight:700; }
+        .record-output-badge.adopted { background:#e8f7ef; color:#16794b; }
+        .record-output-badge.warning { background:#fff3e4; color:#a85c00; }
+        .technical-details { margin-bottom:18px; border:1px solid var(--border); border-radius:8px; background:#fafafa; }
+        .technical-details summary { padding:11px 13px; cursor:pointer; font-size:12px; font-weight:700; color:var(--text-secondary); }
+        .technical-details .record-detail-meta { margin:0; padding:0 12px 12px; }
+        .asset-detail-hero {
+            min-height:150px; margin-bottom:18px; border-radius:12px; display:flex; flex-direction:column;
+            align-items:center; justify-content:center; gap:10px; color:#fff; text-align:center;
+        }
+        .asset-detail-hero.voice { background:linear-gradient(135deg,#115e59,#2dd4bf); }
+        .asset-detail-hero.role { background:linear-gradient(135deg,#1e3a8a,#60a5fa); }
+        .asset-detail-hero.scene { background:linear-gradient(135deg,#581c87,#c084fc); }
+        .asset-detail-hero-icon { font-size:42px; }
+        .asset-detail-hero strong { font-size:16px; }
+        .record-drawer-footer {
+            position:sticky; bottom:-24px; display:flex; justify-content:flex-end; gap:8px;
+            margin:18px -24px -24px; padding:14px 24px; border-top:1px solid var(--border); background:#fff;
+        }
+        @media (max-width:900px) {
+            .tenant-record-actions { width:100%; margin-left:0; justify-content:space-between; }
+            .tenant-record-filter, .tenant-record-filter .filter-input, .tenant-record-filter .filter-select, .tenant-record-filter.search .filter-input { width:100%; }
+            .record-detail-meta { grid-template-columns:1fr; }
+        }
+        @media (max-width:600px) {
+            .tenant-detail-tabs { width:100%; }
+            .tenant-detail-tab { flex:1; }
+            .tenant-asset-kindbar { grid-template-columns:1fr; }
+            .asset-file-item { grid-template-columns:36px minmax(0,1fr); }
+            .asset-file-purpose { grid-column:2; }
+            .asset-file-actions { grid-column:2; justify-content:flex-start; flex-wrap:wrap; }
+            .voice-generated-item { grid-template-columns:36px minmax(0,1fr); }
+            .voice-generated-actions { justify-content:flex-start; }
+            .voice-generated-script { grid-column:2; }
+        }
         .mini-metric { background:#FAFAFA; border:1px solid var(--border); border-radius:var(--radius-sm); padding:10px 12px; }
         .mini-metric-value { font-size:18px; font-weight:800; }
         .mini-metric-label { font-size:11px; color:var(--text-muted); margin-top:2px; }
@@ -810,6 +997,8 @@
             font-weight: 600; text-align: center;
             padding: 4px 2px 0;
         }
+        .role-hover-trigger { cursor: zoom-in; }
+        .role-hover-trigger:hover { background: #f8faff; }
 
         /* ===== 标签下拉多选 ===== */
         .tag-select { position: relative; }
@@ -1223,7 +1412,7 @@
             <div class="table-wrap">
                 <div class="table-toolbar">
                     <select class="filter-select" id="auditTypeFilter" onchange="renderAudit()">
-                        <option value="">全部类型</option><option value="租户">租户</option><option value="积分">积分</option><option value="积分退还">积分退还</option><option value="任务">任务</option><option value="配置">配置</option><option value="提示词">提示词</option>
+                        <option value="">全部类型</option><option value="租户">租户</option><option value="积分">积分</option><option value="积分退还">积分退还</option><option value="任务">任务</option><option value="配置">配置</option><option value="提示词">提示词</option><option value="导出">导出</option>
                     </select>
                     <input class="filter-input" type="text" id="auditSearch" placeholder="搜索操作人 / 对象 / 备注" oninput="renderAudit()">
                     <button class="btn btn-sm" onclick="renderAudit()" style="margin-left:auto">刷新</button>
@@ -1308,7 +1497,7 @@
         </div>
         <div class="form-group" style="margin-bottom:14px">
             <label class="kv-label">备注 *</label>
-            <input class="filter-input" id="rfRemark" style="width:100%" placeholder="请填写充值原因、审批单号或沟通记录">
+            <input class="filter-input" id="refundReviewRemark" style="width:100%" placeholder="请填写充值原因、审批单号或沟通记录">
         </div>
         <input type="hidden" id="rfTenantId">
         <div class="modal-footer">
@@ -1673,10 +1862,10 @@
 
 <!-- Drawer：租户详情 -->
 <div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
-<div class="drawer" id="tenantDrawer">
+<div class="drawer" id="tenantDrawer" role="dialog" aria-modal="true" aria-labelledby="drawerTitle" aria-hidden="true" tabindex="-1" inert>
     <div class="drawer-header">
         <span class="drawer-title" id="drawerTitle">租户详情</span>
-        <button class="modal-close" onclick="closeDrawer()">×</button>
+        <button class="modal-close" onclick="closeDrawer()" aria-label="关闭详情">×</button>
     </div>
     <div class="drawer-body" id="drawerBody"></div>
 </div>
@@ -1740,7 +1929,7 @@
 </div>
 
 <!-- Toast -->
-<div class="toast" id="toast"></div>
+<div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
 
 <!-- Confirm -->
 <div class="confirm-overlay" id="confirmOverlay">
@@ -1770,9 +1959,10 @@ function handleLogout() {
     toast('当前原型已取消登录页，默认进入后台管理页面');
 }
 
-var CURRENT_OPERATOR = { id:'ops-admin', name:'运营管理员', role:'超级管理员', permissions:['refund_review','refund_manual_adjust'] };
+var CURRENT_OPERATOR = { id:'ops-admin', name:'运营管理员', role:'超级管理员', permissions:['refund_review','refund_manual_adjust','tenant_content_view','tenant_content_export'] };
 function currentOperator() { return CURRENT_OPERATOR.id; }
 function hasOperatorPermission(permission) { return CURRENT_OPERATOR.permissions.indexOf(permission) !== -1; }
+function canExportTenantContent() { return hasOperatorPermission('tenant_content_view') && hasOperatorPermission('tenant_content_export'); }
 
 // ===========================
 // Toast / Confirm
@@ -1846,6 +2036,10 @@ function toggleMarketMenu(forceOpen) {
 }
 
 function switchView(viewId) {
+    if (viewId !== 'view-tenant-detail') {
+        var contentDrawer = document.getElementById('tenantDrawer');
+        if (contentDrawer && contentDrawer.classList.contains('show')) closeDrawer();
+    }
     currentView = viewId;
     document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active'); });
     var currentNav = document.querySelector('.nav-item[data-view="' + viewId + '"]');
@@ -2015,6 +2209,222 @@ function normalizeTenants(list) {
     return list;
 }
 
+function tenantDurationSeconds(value) {
+    var parts = String(value || '').split(':').map(Number);
+    if (parts.length !== 2 || parts.some(function(part) { return !Number.isFinite(part) || part < 0; })) return 0;
+    return parts[0] * 60 + parts[1];
+}
+
+function tenantDurationLabel(seconds) {
+    var value = Math.max(0, Math.round(Number(seconds) || 0));
+    return String(Math.floor(value / 60)).padStart(2,'0') + ':' + String(value % 60).padStart(2,'0');
+}
+
+function tenantParseVoiceSize(size) {
+    if (typeof size === 'number' && isFinite(size) && size > 0) return size;
+    var text = String(size || '').trim();
+    if (!text) return 0;
+    var match = text.match(/^([\d.]+)\s*([kmgt]?b)$/i);
+    if (!match) return 0;
+    var value = parseFloat(match[1]);
+    if (!isFinite(value) || value < 0) return 0;
+    var unit = match[2].toUpperCase();
+    var scale = { B:1, KB:1024, MB:1024 * 1024, GB:1024 * 1024 * 1024, TB:1024 * 1024 * 1024 * 1024 }[unit] || 1;
+    return Math.round(value * scale);
+}
+
+function tenantFormatVoiceSize(bytes) {
+    var value = Math.max(0, Number(bytes) || 0);
+    if (!value) return '0 B';
+    var units = ['B', 'KB', 'MB', 'GB'];
+    var unitIndex = 0;
+    while (value >= 1024 && unitIndex < units.length - 1) {
+        value /= 1024;
+        unitIndex++;
+    }
+    return (unitIndex === 0 ? Math.round(value) : value.toFixed(value >= 10 ? 1 : 2)) + ' ' + units[unitIndex];
+}
+
+function tenantNormalizeVoiceGeneratedFile(file, asset, index) {
+    var safeName = String(asset.name || asset.id || '未命名音色').replace(/[\\/:*?"<>|]/g, '_');
+    var source = Object.assign({}, file || {});
+    var durationSec = Number(source.durationSec) || tenantDurationSeconds(source.duration) || 0;
+    var sizeBytes = tenantParseVoiceSize(source.sizeBytes || source.size);
+    var transcript = String(source.transcript || source.script || source.lineText || '').trim();
+    return Object.assign(source, {
+        id: source.id || (asset.id + '-voice-file-' + (index + 1)),
+        name: source.name || (safeName + '-合成语音-' + (index + 1) + '.wav'),
+        title: source.title || source.scriptTitle || ('合成语音 ' + (index + 1)),
+        format: source.format || 'WAV',
+        sizeBytes: sizeBytes,
+        size: source.size || (sizeBytes ? tenantFormatVoiceSize(sizeBytes) : '-'),
+        durationSec: durationSec,
+        duration: source.duration || (durationSec ? tenantDurationLabel(durationSec) : '-'),
+        transcript: transcript,
+        transcriptTitle: source.transcriptTitle || '台词',
+        purpose: source.purpose || '音色合成语音文件'
+    });
+}
+
+function tenantVoiceFileStats(files) {
+    var list = Array.isArray(files) ? files : [];
+    var totalDurationSec = 0;
+    var totalSizeBytes = 0;
+    var scriptCount = 0;
+    list.forEach(function(file) {
+        totalDurationSec += Math.max(0, Number(file && file.durationSec) || tenantDurationSeconds(file && file.duration) || 0);
+        totalSizeBytes += tenantParseVoiceSize(file && (file.sizeBytes || file.size));
+        if (String((file && (file.transcript || file.script || file.lineText)) || '').trim()) scriptCount++;
+    });
+    return {
+        count: list.length,
+        durationSec: totalDurationSec,
+        duration: tenantDurationLabel(totalDurationSec),
+        sizeBytes: totalSizeBytes,
+        size: tenantFormatVoiceSize(totalSizeBytes),
+        scriptCount: scriptCount
+    };
+}
+
+function normalizeTenantAssetMedia(asset) {
+    var item = Object.assign({}, asset || {});
+    var details = Object.assign({}, item.details || {});
+    var safeName = String(item.name || item.id || '未命名资产').replace(/[\\/:*?"<>|]/g, '_');
+    var usageSeed = 0;
+    var usageSeedStr = String(item.id || item.name || safeName);
+    for (var usi = 0; usi < usageSeedStr.length; usi++) usageSeed += usageSeedStr.charCodeAt(usi);
+    var stableUsageCount = function() { return (usageSeed % 22) + 6; };
+    if (item.type === 'voice') {
+        var legacyFiles = Array.isArray(details.sampleFiles) ? details.sampleFiles.filter(function(file) { return file && typeof file === 'object'; }) : [];
+        var sampleFile = details.sampleFile && typeof details.sampleFile === 'object' ? details.sampleFile : (legacyFiles[0] || null);
+        if (!sampleFile) {
+            var sampleDurationSec = tenantDurationSeconds(details.sampleDuration) || 18;
+            sampleFile = { name:safeName + '-录音源文件.wav', format:'WAV', size:'2.1 MB', durationSec:sampleDurationSec, duration:tenantDurationLabel(sampleDurationSec), purpose:'用户上传的录音源文件' };
+        }
+        var normalizedDurationSec = Number(sampleFile.durationSec) || tenantDurationSeconds(sampleFile.duration) || 18;
+        sampleFile = Object.assign({}, sampleFile, { durationSec:normalizedDurationSec, duration:tenantDurationLabel(normalizedDurationSec), purpose:'用户上传的录音源文件' });
+        var generatedFiles = Array.isArray(details.generatedFiles) ? details.generatedFiles.filter(function(file) { return file && typeof file === 'object'; }) : [];
+        if (!generatedFiles.length && item.status === 'available' && details.previewAudio && typeof details.previewAudio === 'object') {
+            generatedFiles = [Object.assign({}, details.previewAudio, { title: details.previewAudio.title || '试听版本', transcript: details.previewAudio.transcript || details.previewAudio.script || '' })];
+        }
+        generatedFiles = generatedFiles.map(function(file, index) { return tenantNormalizeVoiceGeneratedFile(file, item, index); });
+        if (!generatedFiles.length && item.status === 'available') {
+            generatedFiles = [tenantNormalizeVoiceGeneratedFile({ name:safeName + '-合成语音-1.wav', size:'0.9 MB', durationSec:15, transcript:'暂无台词' }, item, 0)];
+        }
+        var generatedStats = tenantVoiceFileStats(generatedFiles);
+        details.mediaKind = 'audio';
+        details.sampleFile = sampleFile;
+        details.sampleDuration = sampleFile.duration;
+        delete details.sampleFiles;
+        delete details.sampleCount;
+        delete details.sampleTotalDurationSec;
+        details.generatedFiles = generatedFiles;
+        details.generatedFileCount = generatedStats.count;
+        details.generatedTotalDurationSec = generatedStats.durationSec;
+        details.generatedTotalDuration = generatedStats.duration;
+        details.generatedTotalSizeBytes = generatedStats.sizeBytes;
+        details.generatedTotalSize = generatedStats.size;
+        details.generatedScriptCount = generatedStats.scriptCount;
+        details.previewAudio = generatedFiles[0] || (item.status === 'available' ? (details.previewAudio || { name:safeName + '-试听.wav', format:'WAV', size:'0.8 MB', durationSec:15, duration:'00:15', purpose:'复刻音色试听' }) : null);
+    } else if (item.type === 'role' || item.type === 'scene') {
+        var isRole = item.type === 'role';
+        details.mediaKind = 'image';
+        if (isRole) {
+            details.outfitCount = Math.max(0, Number(details.outfitCount) || 0);
+            details.voiceName = details.voiceName || '未绑定音色';
+            if (!details.mainImage || !details.mainImage.dataUrl) {
+                var svgMain = '<svg xmlns="http://www.w3.org/2000/svg" width="400" height="560" viewBox="0 0 400 560"><rect width="400" height="560" fill="#f0f4f8"/><circle cx="200" cy="180" r="80" fill="#d4a574"/><path d="M200 260c-60 0-100 40-100 90 0 0 40 20 100 20s100-20 100-20c0-50-40-90-100-90z" fill="#1e3a5f"/></svg>';
+                details.mainImage = details.mainImage || {};
+                details.mainImage.dataUrl = details.mainImage.dataUrl || ('data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgMain));
+                details.mainImage.name = details.mainImage.name || (safeName + '-角色主图.png');
+                details.mainImage.format = details.mainImage.format || 'PNG';
+            }
+            var outfitColors = ['#4a90d9', '#e74c3c', '#2ecc71'];
+            var buildOutfitSvg = function(bgColor) {
+                return '<svg xmlns="http://www.w3.org/2000/svg" width="300" height="400" viewBox="0 0 300 400"><rect width="300" height="400" fill="#f8f8f8"/><rect x="50" y="40" width="200" height="280" rx="12" fill="' + bgColor + '"/><circle cx="150" cy="120" r="50" fill="#d4a574"/><rect x="100" y="180" width="100" height="120" rx="8" fill="#fff" opacity="0.3"/></svg>';
+            };
+            details.outfitImages = Array.isArray(details.outfitImages) ? details.outfitImages.filter(function(file) { return file && typeof file === 'object'; }).map(function(file, index) {
+                if (!(file.dataUrl || file.url)) {
+                    file = Object.assign({}, file, { dataUrl: 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(buildOutfitSvg(outfitColors[index % outfitColors.length])) });
+                }
+                if (!file.usageCount) file.usageCount = (index + 1) * 4 + 2;
+                return file;
+            }) : [];
+            if (!details.outfitImages.length && details.outfitCount) {
+                details.outfitImages = Array.from({ length:details.outfitCount }, function(_, index) {
+                    var bgColor = outfitColors[index % outfitColors.length];
+                    return { dataUrl:'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(buildOutfitSvg(bgColor)), name:safeName + '-形象变体-' + (index + 1) + '.png', format:'PNG', size:(2.2 + index * .3).toFixed(1) + ' MB', resolution:'2048 × 3072', label:'形象变体 ' + (index + 1), usageCount: (index + 1) * 4 + 2 };
+                });
+            }
+            if (!details.mainImage.usageCount) details.mainImage.usageCount = details.generatedVideoCount || stableUsageCount();
+            details.outfitCount = details.outfitImages.length;
+            delete details.mainView;
+            delete details.rightsStatus;
+            delete details.viewImages;
+            delete details.viewCount;
+        } else {
+            details.ratio = details.ratio || '9:16';
+            details.imageSource = details.imageSource || item.source || '用户上传';
+            details.mainImage = details.mainImage || { name:safeName + '-场景主图.jpg', format:'JPG', size:'5.2 MB', resolution:(details.ratio === '16:9' ? '3840 × 2160' : '2160 × 3840'), purpose:'场景主图' };
+            if (!details.mainImage.dataUrl) {
+                var svgScene = '<svg xmlns="http://www.w3.org/2000/svg" width="400" height="560" viewBox="0 0 400 560"><rect width="400" height="560" fill="#e8eef5"/><rect x="28" y="32" width="344" height="230" rx="10" fill="#c9d8ea"/><rect x="60" y="60" width="140" height="90" rx="6" fill="#9fb6d0"/><rect x="220" y="60" width="120" height="90" rx="6" fill="#a8c2de"/><rect x="60" y="170" width="120" height="70" rx="6" fill="#8fa8c4"/><rect x="220" y="170" width="120" height="70" rx="6" fill="#b6cbe2"/><rect x="40" y="300" width="320" height="150" rx="12" fill="#d7c9b0"/><circle cx="120" cy="380" r="40" fill="#c2b29a"/><rect x="180" y="330" width="120" height="90" rx="8" fill="#e6dcc8"/></svg>';
+                details.mainImage.dataUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgScene);
+            }
+            if (!details.mainImage.usageCount) details.mainImage.usageCount = details.generatedVideoCount || stableUsageCount();
+            delete details.viewImages;
+            delete details.viewCount;
+            delete details.rightsStatus;
+        }
+        var stripSvgText = function(imgObj) {
+            if (!imgObj || !imgObj.dataUrl || imgObj.dataUrl.indexOf('data:image/svg+xml') !== 0) return imgObj;
+            var decodedSvg = decodeURIComponent(String(imgObj.dataUrl).split(',')[1] || '');
+            if (decodedSvg.indexOf('<text') !== -1) {
+                decodedSvg = decodedSvg.replace(/<text[^>]*>[\s\S]*?<\/text>/g, '');
+                imgObj = Object.assign({}, imgObj, { dataUrl: 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(decodedSvg) });
+            }
+            return imgObj;
+        };
+        details.mainImage = stripSvgText(details.mainImage);
+        details.outfitImages = (details.outfitImages || []).map(stripSvgText);
+    }
+    item.details = details;
+    return item;
+}
+
+function normalizeTenantAssets(items) {
+    return (Array.isArray(items) ? items : []).filter(function(item) { return item && ['voice','role','scene'].indexOf(item.type) !== -1; }).map(normalizeTenantAssetMedia);
+}
+
+function normalizeTenantToolRuns(items) {
+    return (Array.isArray(items) ? items : []).filter(function(run) { return run && typeof run === 'object'; }).map(function(run) {
+        var item = Object.assign({}, run);
+        item.input = item.input && typeof item.input === 'object' && !Array.isArray(item.input) ? Object.assign({}, item.input) : {};
+        item.outputs = Array.isArray(item.outputs) ? item.outputs.filter(function(output) { return output && typeof output === 'object'; }).map(function(output) { return Object.assign({}, output); }) : [];
+        item.findings = Array.isArray(item.findings) ? item.findings.filter(function(finding) { return finding && typeof finding === 'object'; }).map(function(finding) { return Object.assign({}, finding); }) : [];
+        item.downstreamActions = Array.isArray(item.downstreamActions) ? item.downstreamActions.map(String) : [];
+        if (item.toolType === 'viral_breakdown') {
+            var sources = Array.isArray(item.input.videoSources) ? item.input.videoSources : (item.input.videoSources ? [item.input.videoSources] : []);
+            item.input.videoSources = sources.map(function(source, index) {
+                if (source && typeof source === 'object') return Object.assign({ id:'source-' + (index + 1), type:item.sourceMode || 'video_link' }, source);
+                return { id:'source-' + (index + 1), type:item.sourceMode || 'video_link', value:String(source), name:String(source) };
+            });
+            item.input.sourceCount = item.input.videoSources.length;
+        }
+        if (item.toolType === 'compliance_check') {
+            item.input.draftCount = Math.max(1, Number(item.input.draftCount) || 1);
+            var allFindingsAdopted = item.findings.length > 0 && item.findings.every(function(finding) { return !!finding.adopted; });
+            var completedRecheck = item.downstreamActions.some(function(action) { return action.indexOf('复检') !== -1; });
+            if (allFindingsAdopted && completedRecheck) {
+                item.contentCheckStatus = 'clear';
+                item.outputs.forEach(function(output) {
+                    if (output.checkStatus === '存在关注项') output.checkStatus = '当前规则未发现风险';
+                });
+            }
+        }
+        return item;
+    });
+}
+
 function initData() {
     var saved = loadData();
     if (saved) {
@@ -2048,13 +2458,56 @@ function initData() {
         AppState.prompts = mergePromptDefaults(saved.prompts || []);
         AppState.opsTasks = saved.opsTasks || AppState.opsTasks;
         AppState.auditLogs = normalizeAuditLogs(saved.auditLogs || AppState.auditLogs);
+        AppState.tenantMembers = Array.isArray(saved.tenantMembers) ? saved.tenantMembers : AppState.tenantMembers;
+        AppState.tenantAssets = normalizeTenantAssets(Array.isArray(saved.tenantAssets) ? saved.tenantAssets : AppState.tenantAssets);
+        var savedToolRuns = Array.isArray(saved.toolRuns) ? saved.toolRuns.slice() : [];
+        var savedToolRunIds = {};
+        savedToolRuns.forEach(function(run) { if (run && run.id) savedToolRunIds[run.id] = true; });
+        AppState.toolRuns.forEach(function(defaultRun) { if (!savedToolRunIds[defaultRun.id]) savedToolRuns.push(defaultRun); });
+        AppState.toolRuns = normalizeTenantToolRuns(savedToolRuns);
         return;
     }
     AppState.tenants = normalizeTenants(AppState.tenants);
+    AppState.tenantAssets = normalizeTenantAssets(AppState.tenantAssets);
+    AppState.toolRuns = normalizeTenantToolRuns(AppState.toolRuns);
     saveData();
 }
 
 var AppState = {
+    tenantMembers: [
+        { id:'u001', tenantId:'t001', name:'王小明', account:'wangxm@yh-am.com', department:'内容运营部', role:'内容运营', status:'active', joinedAt:'2025-03-18', lastActiveAt:'2026-08-28 17:42' },
+        { id:'u002', tenantId:'t001', name:'陈雨', account:'chenyu@yh-am.com', department:'投顾业务部', role:'投顾顾问', status:'active', joinedAt:'2025-04-02', lastActiveAt:'2026-08-29 09:12' },
+        { id:'u003', tenantId:'t001', name:'李倩', account:'liqian@yh-am.com', department:'品牌市场部', role:'品牌运营', status:'disabled', joinedAt:'2025-05-11', lastActiveAt:'2026-07-30 18:20' },
+        { id:'u004', tenantId:'t002', name:'李芳', account:'lif@xy-bx.com', department:'数字营销部', role:'内容负责人', status:'active', joinedAt:'2025-06-01', lastActiveAt:'2026-08-28 15:36' },
+        { id:'u005', tenantId:'t002', name:'周敏', account:'zhoumin@xy-bx.com', department:'保险顾问部', role:'保险顾问', status:'active', joinedAt:'2025-06-20', lastActiveAt:'2026-08-27 11:03' },
+        { id:'u006', tenantId:'t003', name:'王磊', account:'wang@hf-ad.com', department:'投教中心', role:'投教运营', status:'active', joinedAt:'2025-12-01', lastActiveAt:'2026-08-25 16:15' },
+        { id:'u007', tenantId:'t004', name:'陈静', account:'chenj@zc-edu.com', department:'课程内容部', role:'内容主管', status:'active', joinedAt:'2025-08-20', lastActiveAt:'2026-08-29 08:55' },
+        { id:'u008', tenantId:'t004', name:'胡楠', account:'hunan@zc-edu.com', department:'直播运营部', role:'课程运营', status:'active', joinedAt:'2025-09-05', lastActiveAt:'2026-08-28 20:10' }
+    ],
+    tenantAssets: [
+        { id:'asset-v-001', tenantId:'t001', creatorId:'u001', creatorNameSnapshot:'王小明', type:'voice', name:'小明·市场收评音色', status:'available', visibility:'团队可见', referenceCount:18, lastUsedAt:'2026-08-28 16:40', createdAt:'2026-07-09 10:26', updatedAt:'2026-08-18 14:05', details:{ sampleFile:{ name:'市场收评_录音源文件.wav', format:'WAV', size:'3.4 MB', durationSec:18, duration:'00:18' }, generatedFiles:[{ id:'vf-v-001-1', name:'市场收评_晨间版.wav', title:'市场收评·晨间版', format:'WAV', size:'1.1 MB', durationSec:21, duration:'00:21', synthTime:'2026-08-28 16:32', transcript:'今天市场开盘后继续围绕政策预期和成交量变化来波动，先把核心结论说清楚，再看资金是否有持续跟进。从早盘表现来看，科技板块领涨，但量能配合不足，午后需关注北向资金流向。' },{ id:'vf-v-001-2', name:'市场收评_午间版.wav', title:'市场收评·午间版', format:'WAV', size:'1.3 MB', durationSec:27, duration:'00:27', synthTime:'2026-08-28 14:15', transcript:'如果你手里是长期资金，今天更重要的不是追涨，而是判断仓位是否已经偏离原先的配置节奏。市场短期波动是常态，关键是确认投资逻辑是否发生变化，而不是被情绪左右。' },{ id:'vf-v-001-3', name:'市场收评_收盘版.wav', title:'市场收评·收盘版', format:'WAV', size:'1.4 MB', durationSec:30, duration:'00:30', synthTime:'2026-08-28 15:42', transcript:'回到收盘，我们先看指数位置，再看成交结构，最后再判断明天是否需要调整节奏。今日两市成交额较昨日有所放大，但个股涨跌比仍较为均衡，说明资金分歧仍在。' },{ id:'vf-v-001-4', name:'市场收评_晚间复盘.wav', title:'市场收评·晚间复盘', format:'WAV', size:'1.6 MB', durationSec:35, duration:'00:35', synthTime:'2026-08-27 20:18', transcript:'晚间复盘来看，今天市场整体呈现震荡整理格局，板块轮动明显加快。对于明天的走势，建议关注两个信号：一是早盘成交量能否有效放大，二是权重板块能否接力护盘。' }], linkedRoles:['陈老师·稳健投顾'], recentUses:['市场收评_0828','震荡行情客户沟通','收盘点评_0827'] } },
+        { id:'asset-r-001', tenantId:'t001', creatorId:'u002', creatorNameSnapshot:'陈雨', type:'role', name:'陈老师·稳健投顾', status:'available', visibility:'团队可见', referenceCount:12, lastUsedAt:'2026-08-29 09:04', createdAt:'2026-07-12 15:10', updatedAt:'2026-08-21 11:32', details:{ description:'深色西装、正面半身，适合市场解读与投教口播。', voiceName:'小明·市场收评音色', outfitCount:3, userTags:['稳健','市场解读'], mainImage:{ dataUrl:'data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22400%22%20height%3D%22560%22%20viewBox%3D%220%200%20400%20560%22%3E%3Crect%20width%3D%22400%22%20height%3D%22560%22%20fill%3D%22%23f0f4f8%22%2F%3E%3Ccircle%20cx%3D%22200%22%20cy%3D%22180%22%20r%3D%2280%22%20fill%3D%22%23d4a574%22%2F%3E%3Cpath%20d%3D%22M200%20260c-60%200-100%2040-100%2090%200%200%2040%2020%20100%2020s100-20%20100-20c0-50-40-90-100-90z%22%20fill%3D%22%231e3a5f%22%2F%3E%3Crect%20x%3D%22160%22%20y%3D%22340%22%20width%3D%2280%22%20height%3D%22120%22%20rx%3D%228%22%20fill%3D%22%23ffffff%22%2F%3E%3Ctext%20x%3D%22200%22%20y%3D%22520%22%20text-anchor%3D%22middle%22%20font-size%3D%2218%22%20fill%3D%22%23666%22%3E%E9%99%88%E8%80%81%E5%B8%88%C2%B7%E7%A8%B3%E5%81%A5%E6%8A%95%E9%A1%BE%3C%2Ftext%3E%3C%2Fsvg%3E', name:'陈老师-角色主图.png', format:'PNG', size:'3.8 MB', resolution:'2048 × 3072', purpose:'角色主图', usageCount:18 } } },
+        { id:'asset-s-001', tenantId:'t001', creatorId:'u001', creatorNameSnapshot:'王小明', type:'scene', name:'雨虹财经直播间', status:'available', source:'AI 生成', visibility:'团队可见', referenceCount:9, lastUsedAt:'2026-08-27 17:15', createdAt:'2026-07-18 09:45', updatedAt:'2026-07-18 10:02', details:{ description:'蓝灰色财经演播室，背景包含行情屏与品牌色灯带。', ratio:'9:16', viewCount:8, imageSource:'文字生成' } },
+        { id:'asset-v-002', tenantId:'t001', creatorId:'u003', creatorNameSnapshot:'李倩', type:'voice', name:'品牌活动女声', status:'processing', visibility:'仅自己', referenceCount:0, lastUsedAt:'-', createdAt:'2026-08-29 08:30', updatedAt:'2026-08-29 08:31', details:{ sampleFile:{ name:'品牌活动主持_录音.mp3', format:'MP3', size:'1.8 MB', durationSec:22, duration:'00:22' }, linkedRoles:[], recentUses:[] } },
+        { id:'asset-s-002', tenantId:'t001', creatorId:'u002', creatorNameSnapshot:'陈雨', type:'scene', name:'户外客户沙龙', status:'failed', source:'AI 生成', visibility:'仅自己', referenceCount:0, lastUsedAt:'-', createdAt:'2026-08-26 14:18', updatedAt:'2026-08-26 14:19', details:{ description:'城市露台客户沙龙，傍晚自然光。', ratio:'9:16', viewCount:0, imageSource:'文字生成', errorMessage:'参考图主体区域不足，未生成可用多视角图。' } },
+        { id:'asset-v-003', tenantId:'t002', creatorId:'u004', creatorNameSnapshot:'李芳', type:'voice', name:'保险顾问亲和女声', status:'available', visibility:'团队可见', referenceCount:21, lastUsedAt:'2026-08-28 10:45', createdAt:'2026-06-22 11:16', updatedAt:'2026-07-15 16:20', details:{ sampleFile:{ name:'保险顾问_亲和语气.wav', format:'WAV', size:'4.1 MB', durationSec:24, duration:'00:24' }, generatedFiles:[{ id:'vf-v-003-1', name:'保险顾问_家庭保障说明.wav', title:'家庭保障配置说明', format:'WAV', size:'1.0 MB', durationSec:19, duration:'00:19', synthTime:'2026-08-28 10:42', transcript:'如果客户家里有老人和孩子，先看基础保障是否够，再考虑预算范围内的补充方案。很多家庭在配置保险时容易陷入"买得多就是保障全"的误区，其实更重要的是保额是否充足。' },{ id:'vf-v-003-2', name:'保险顾问_重疾险配置.wav', title:'重疾险配置要点', format:'WAV', size:'1.2 MB', durationSec:24, duration:'00:24', synthTime:'2026-08-27 15:38', transcript:'重疾险不是越多越好，关键是保额是否覆盖家庭现金流风险，以及缴费压力是否可持续。建议保额至少覆盖3-5年的家庭年支出，同时确保年缴保费不超过家庭年收入的5%。' },{ id:'vf-v-003-3', name:'保险顾问_年金险说明.wav', title:'年金险产品说明', format:'WAV', size:'1.5 MB', durationSec:28, duration:'00:28', synthTime:'2026-08-26 09:20', transcript:'年金险的核心价值在于锁定长期收益，在当前利率下行的环境下，适合有明确养老规划或子女教育金需求的客户。但需要注意流动性较差，不适合短期资金。' }], linkedRoles:['家庭保障顾问·周老师'], recentUses:['家庭保单整理','重疾险配置说明','年金险产品介绍'] } },
+        { id:'asset-r-002', tenantId:'t002', creatorId:'u005', creatorNameSnapshot:'周敏', type:'role', name:'家庭保障顾问·周老师', status:'available', visibility:'团队可见', referenceCount:15, lastUsedAt:'2026-08-27 14:28', createdAt:'2026-06-25 13:50', updatedAt:'2026-08-01 09:18', details:{ description:'浅色商务装，适合家庭保障方案说明。', voiceName:'保险顾问亲和女声', outfitCount:2, userTags:['家庭保障','亲和'] } },
+        { id:'asset-s-003', tenantId:'t002', creatorId:'u004', creatorNameSnapshot:'李芳', type:'scene', name:'家庭保障咨询室', status:'available', source:'市场模板二次创建', visibility:'团队可见', referenceCount:11, lastUsedAt:'2026-08-26 16:30', createdAt:'2026-07-02 10:20', updatedAt:'2026-07-02 10:35', details:{ description:'暖色咨询室，桌面留有保单与家庭照片展示位。', ratio:'9:16', viewCount:8, imageSource:'模板二次创建' } },
+        { id:'asset-r-003', tenantId:'t004', creatorId:'u007', creatorNameSnapshot:'陈静', type:'role', name:'课程讲师·陈老师', status:'available', visibility:'团队可见', referenceCount:34, lastUsedAt:'2026-08-29 08:40', createdAt:'2026-05-18 14:12', updatedAt:'2026-08-12 17:22', details:{ description:'课程讲解主讲人，白色衬衫与深蓝外套。', voiceName:'知性女声 B', outfitCount:5, userTags:['课程讲师','知识科普'] } },
+        { id:'asset-s-004', tenantId:'t004', creatorId:'u008', creatorNameSnapshot:'胡楠', type:'scene', name:'在线课程录播间', status:'available', source:'AI 生成', visibility:'团队可见', referenceCount:28, lastUsedAt:'2026-08-28 20:02', createdAt:'2026-05-22 16:08', updatedAt:'2026-06-03 10:18', details:{ description:'明亮录播间，右侧保留课件大屏区域。', ratio:'16:9', viewCount:8, imageSource:'文字生成' } }
+    ],
+    toolRuns: [
+        { id:'run-ca-001', tenantId:'t001', creatorId:'u001', creatorNameSnapshot:'王小明', toolType:'creative_agent', mode:'zero_to_one', sourceMode:'manual', title:'震荡行情下的客户沟通选题', runStatus:'success', contentCheckStatus:'attention', createdAt:'2026-08-28 14:06', completedAt:'2026-08-28 14:07', durationMs:48200, points:36, toolVersion:'creative-agent-v1.4', promptVersion:'creative_zero_v6', isMock:true, input:{ topic:'震荡行情下，如何帮助客户建立更稳定的投资预期', product:'基金投顾陪伴服务', marketingGoal:'客户投教与存量陪伴', platform:'视频号', audience:'持有基金但容易受短期波动影响的客户', style:'专业、克制、问题导向', presentation:'真人口播', cta:'引导查看完整投教内容', outputCount:2, targetDuration:'60 秒', requirements:'不做收益承诺；用客户常见问题开场；结尾引导查看完整投教内容。' }, outputs:[{ id:'out-ca-001-1', title:'波动不是问题，没预期才是', text:'市场一波动，很多人第一反应是问：现在到底该不该卖？\n但真正需要先解决的，不是预测下一次涨跌，而是确认这笔资金准备使用多久、能承受多大波动，以及原来的配置逻辑有没有变化。\n把这三个问题想清楚，再决定要不要调整，通常比追着行情行动更稳妥。以上内容仅作投资者教育，不构成具体投资建议。', selected:true, adopted:true, checkStatus:'存在关注项' },{ id:'out-ca-001-2', title:'先看账户目标，再看今天涨跌', text:'如果每天的涨跌都会改变你的计划，问题可能不在市场，而在最初没有把账户目标讲清楚。先区分短期要用的钱和长期配置的钱，再讨论波动是否需要处理。', selected:false, adopted:false, checkStatus:'待检查' }], downstreamActions:['导出 TXT','送往合规检查'] },
+        { id:'run-rw-001', tenantId:'t001', creatorId:'u002', creatorNameSnapshot:'陈雨', toolType:'creative_agent', mode:'rewrite', sourceMode:'manual', title:'基金定投服务介绍改写', runStatus:'success', contentCheckStatus:'clear', createdAt:'2026-08-28 09:18', completedAt:'2026-08-28 09:19', durationMs:31600, points:20, toolVersion:'creative-agent-v1.4', promptVersion:'rewrite_same_v4', isMock:true, input:{ originalText:'我们的基金定投服务可以帮助客户抓住市场机会，实现财富快速增长。现在加入即可获得专业老师一对一指导。', rewriteGoal:'降低营销感，改为投教解释口吻', tone:'专业、克制', targetDuration:'45 秒' }, outputs:[{ id:'out-rw-001-1', title:'定投服务说明·克制版', text:'基金定投的核心不是判断某一天是不是最低点，而是用固定节奏参与长期投资。我们的服务会帮助客户梳理资金期限、风险承受能力和执行计划，并提供持续的投教内容。具体方案仍需结合个人情况评估。', selected:true, adopted:true, checkStatus:'通过' }], downstreamActions:['复制','添加到批量成片'] },
+        { id:'run-rw-002', tenantId:'t001', creatorId:'u001', creatorNameSnapshot:'王小明', toolType:'creative_agent', mode:'rewrite', sourceMode:'video_file', title:'线下沙龙视频台词提取与改写', runStatus:'success', contentCheckStatus:'stale', createdAt:'2026-08-27 16:35', completedAt:'2026-08-27 16:38', durationMs:168000, points:58, toolVersion:'creative-agent-v1.4', promptVersion:'rewrite_video_v2', isMock:true, input:{ videoSource:'客户沙龙_资产配置答疑.mp4', videoMetadata:'本地视频 · 128.4 MB · 08:42', extractedTranscript:'很多客户会问，最近市场反复波动，是不是应该先全部卖掉等稳定以后再买回来。', editedTranscript:'很多客户会问，市场反复波动时，是不是应该先卖出，等稳定以后再重新配置。', rewriteGoal:'整理成三条短视频口播', tone:'现场答疑、自然', targetDuration:'每条 40 秒' }, outputs:[{ id:'out-rw-002-1', title:'波动时要不要全部卖出', text:'市场波动时，先全部卖出看起来像是在规避风险，但它同时要求你做对两次判断：什么时候卖，以及什么时候重新买回。更实际的做法，是先检查资金期限和配置比例。', selected:true, adopted:false, checkStatus:'修改后待复检' },{ id:'out-rw-002-2', title:'重新配置前先回答三个问题', text:'准备调整账户前，可以先回答三个问题：这笔钱什么时候用、能承受多大回撤、当前配置是否偏离原计划。答案比短期涨跌更能决定是否需要行动。', selected:true, adopted:true, checkStatus:'修改后待复检' }], downstreamActions:['导出 CSV'] },
+        { id:'run-vb-001', tenantId:'t001', creatorId:'u002', creatorNameSnapshot:'陈雨', toolType:'viral_breakdown', mode:'batch_video', sourceMode:'video_link', title:'基金定投爆款视频拆解', runStatus:'success', contentCheckStatus:'not_run', createdAt:'2026-08-27 10:20', completedAt:'2026-08-27 10:22', durationMs:89000, points:0, toolVersion:'viral-breakdown-v1.0', promptVersion:'breakdown_v3', isMock:true, input:{ videoSources:['https://v.douyin.com/example-1','https://v.kuaishou.com/example-2'], sourceCount:2 }, outputs:[{ id:'out-vb-001-1', sourceId:'source-1', title:'定投不是低点预测', text:'很多人做定投，最纠结的是今天是不是低点。其实定投真正解决的，是不用把所有判断都压在某一天。', structure:'冲突式开场 → 解释误区 → 给出行动建议', selected:true, adopted:true, checkStatus:'未检查' },{ id:'out-vb-001-2', sourceId:'source-2', title:'先确定资金期限', text:'开始定投前，先确认这笔钱三年内会不会使用，再决定投入节奏和金额。', structure:'问题开场 → 三步判断 → 克制收尾', selected:false, adopted:false, checkStatus:'未检查' }], downstreamActions:['导入创意 Agent','添加到批量成片'] },
+        { id:'run-cc-001', tenantId:'t001', creatorId:'u001', creatorNameSnapshot:'王小明', toolType:'compliance_check', mode:'batch_check', sourceMode:'manual', title:'市场收评台词合规检查', runStatus:'success', contentCheckStatus:'clear', createdAt:'2026-08-26 17:10', completedAt:'2026-08-26 17:11', durationMs:18400, points:0, toolVersion:'compliance-check-v1.1', promptVersion:'rule-set-202608', isMock:true, input:{ checkedText:'这只基金后续肯定会涨，现在上车可以获得稳定收益。', draftCount:1 }, outputs:[{ id:'out-cc-001-1', title:'复检后的台词', text:'这只基金后续表现仍会受到市场环境影响，是否适合配置需要结合个人风险承受能力判断。', selected:false, adopted:false, checkStatus:'当前规则未发现风险' }], findings:[{ severity:'high', type:'收益承诺', excerpt:'肯定会涨', reason:'使用确定性表述描述未来收益。', suggestion:'改为说明市场不确定性和适配条件。', adopted:true },{ severity:'medium', type:'误导性表达', excerpt:'稳定收益', reason:'容易使用户理解为收益有保障。', suggestion:'删除收益保障含义。', adopted:true }], downstreamActions:['已采纳 2 条修改','完成复检（当前规则未发现风险）','添加到批量成片'] },
+        { id:'run-ca-002', tenantId:'t001', creatorId:'u003', creatorNameSnapshot:'李倩', toolType:'creative_agent', mode:'zero_to_one', sourceMode:'manual', title:'品牌直播预热视频', runStatus:'failed', contentCheckStatus:'not_run', createdAt:'2026-08-26 10:02', completedAt:'2026-08-26 10:03', durationMs:51000, points:0, toolVersion:'creative-agent-v1.4', promptVersion:'creative_zero_v6', isMock:true, input:{ topic:'季度客户直播预告', platform:'抖音', audience:'已关注品牌账号的存量客户', targetDuration:'30 秒', requirements:'突出直播时间和三项议题。' }, outputs:[], errorCode:'MODEL_TIMEOUT', errorMessage:'大语言模型响应超时，本次未扣除积分。', downstreamActions:[] },
+        { id:'run-ca-003', tenantId:'t002', creatorId:'u005', creatorNameSnapshot:'周敏', toolType:'creative_agent', mode:'zero_to_one', sourceMode:'manual', title:'家庭保单整理短视频', runStatus:'success', contentCheckStatus:'clear', createdAt:'2026-08-27 11:20', completedAt:'2026-08-27 11:21', durationMs:44200, points:32, toolVersion:'creative-agent-v1.4', promptVersion:'creative_zero_v6', isMock:true, input:{ topic:'家庭保单为什么需要定期整理', platform:'视频号', audience:'已有多份保单的家庭客户', targetDuration:'60 秒', requirements:'避免制造焦虑，给出可执行的整理步骤。' }, outputs:[{ id:'out-ca-003-1', title:'保单多，不等于保障完整', text:'家里保单越来越多，最需要做的不是继续增加，而是先把现有保障整理清楚。可以按家庭成员、保障责任、保额和缴费期限做一张表，再检查有没有重复或空缺。', selected:true, adopted:true, checkStatus:'通过' }], downstreamActions:['添加到批量成片'] },
+        { id:'run-rw-003', tenantId:'t003', creatorId:'u006', creatorNameSnapshot:'王磊', toolType:'creative_agent', mode:'rewrite', sourceMode:'video_link', title:'公开课链接台词改写', runStatus:'failed', contentCheckStatus:'not_run', createdAt:'2026-08-25 15:44', completedAt:'2026-08-25 15:45', durationMs:62000, points:0, toolVersion:'creative-agent-v1.4', promptVersion:'rewrite_video_v2', isMock:true, input:{ videoSource:'https://video.example.com/course/market-review', videoMetadata:'在线视频 · 页面可访问', rewriteGoal:'提取后改写为 3 条投教口播', tone:'客观、易懂', targetDuration:'45 秒' }, outputs:[], errorCode:'TRANSCRIPT_UNAVAILABLE', errorMessage:'未获得可用音轨，无法生成转写结果。', downstreamActions:[] },
+        { id:'run-rw-004', tenantId:'t004', creatorId:'u007', creatorNameSnapshot:'陈静', toolType:'creative_agent', mode:'rewrite', sourceMode:'manual', title:'课程招生介绍改写', runStatus:'success', contentCheckStatus:'clear', createdAt:'2026-08-29 08:12', completedAt:'2026-08-29 08:13', durationMs:29500, points:18, toolVersion:'creative-agent-v1.4', promptVersion:'rewrite_same_v4', isMock:true, input:{ originalText:'零基础也能快速掌握短视频制作，我们提供从脚本到发布的完整方法。', rewriteGoal:'改成真实课程介绍，减少夸张承诺', tone:'老师讲解、直接', targetDuration:'40 秒' }, outputs:[{ id:'out-rw-004-1', title:'课程介绍·直接版', text:'这门课会从选题、脚本、拍摄到发布，带你走一遍完整的短视频制作流程。课程适合刚开始做内容、还没有稳定方法的人，具体进度取决于练习投入和原有基础。', selected:true, adopted:true, checkStatus:'通过' }], downstreamActions:['复制'] },
+        { id:'run-rw-005', tenantId:'t004', creatorId:'u008', creatorNameSnapshot:'胡楠', toolType:'creative_agent', mode:'rewrite', sourceMode:'manual', title:'直播切片标题改写', runStatus:'processing', contentCheckStatus:'not_run', createdAt:'2026-08-29 09:05', completedAt:'-', durationMs:0, points:0, toolVersion:'creative-agent-v1.4', promptVersion:'rewrite_series_v3', isMock:true, input:{ originalText:'直播课里关于选题方法的一段讲解，准备拆成系列短视频。', rewriteGoal:'拆成五个连续选题', tone:'课程讲师、简洁', targetDuration:'每条 30 秒' }, outputs:[], downstreamActions:[] }
+    ],
     tenants: [
         { id:'t001',name:'雨虹投资',industry:'金融投顾',tenantLevel:'VIP客户',status:'启用中',adminName:'张明',adminPhone:'13800001001',adminEmail:'zhang@yh-am.com',dailyQuota:1000,dailyUsed:800,concurrency:10,modelLevel:'高级',credits:3200,openedAt:'2025-03-15',features:['视频生成','图片创作','语音合成','分镜管理'] },
         { id:'t002',name:'鑫源保险',industry:'保险',tenantLevel:'普通客户',status:'启用中',adminName:'李芳',adminPhone:'13800001002',adminEmail:'lif@xy-bx.com',dailyQuota:500,dailyUsed:450,concurrency:5,modelLevel:'标准',credits:1800,openedAt:'2025-06-01',features:['视频生成','语音合成'] },
@@ -2597,7 +3050,7 @@ function openRechargeModal(tenantId) {
     document.getElementById('rfTenantId').value = tenantId;
     document.getElementById('rfTenantName').value = t.name + '（当前余额：' + t.credits.toLocaleString() + ' 积分）';
     document.getElementById('rfPoints').value = '';
-    document.getElementById('rfRemark').value = '';
+    document.getElementById('refundReviewRemark').value = '';
     document.getElementById('rfAmount').textContent = '¥0.00';
     document.getElementById('rfCreditRateDisplay').textContent = AppState.creditRate;
     document.getElementById('rechargeModalOverlay').classList.add('show');
@@ -2612,7 +3065,7 @@ function updateRechargePreview() {
 function confirmRecharge() {
     var tenantId = document.getElementById('rfTenantId').value;
     var pts = parseInt(document.getElementById('rfPoints').value) || 0;
-    var remark = document.getElementById('rfRemark').value.trim();
+    var remark = document.getElementById('refundReviewRemark').value.trim();
     if (pts <= 0) { toast('请输入有效的充值积分数量', 'error'); return; }
     if (!remark) { toast('请填写充值备注，便于留存充值记录', 'error'); return; }
 
@@ -2938,14 +3391,35 @@ function resetRefundSeed() {
 // 租户详情
 // ===========================
 var currentTenantDetailId = null;
+var tenantDetailUiState = createTenantDetailUiState();
+var tenantAssetSearchTimer = null;
+var tenantToolSearchTimer = null;
+
+function createTenantDetailUiState() {
+    return {
+        activeTab: 'overview',
+        assetFilters: { kind:'voice', userId:'', dateFrom:'', dateTo:'', keyword:'' },
+        toolFilters: { userId:'', type:'', dateFrom:'', dateTo:'', keyword:'' },
+        selectedRecord: null
+    };
+}
+
+function resetTenantDetailUiState() {
+    clearTimeout(tenantAssetSearchTimer);
+    clearTimeout(tenantToolSearchTimer);
+    tenantDetailUiState = createTenantDetailUiState();
+    closeDrawer();
+}
 
 function viewTenantDetail(id) {
+    resetTenantDetailUiState();
     currentTenantDetailId = id;
     switchView('view-tenant-detail');
     renderTenantDetail(id);
 }
 
 function backToTenantList() {
+    resetTenantDetailUiState();
     currentTenantDetailId = null;
     switchView('view-tenants');
 }
@@ -2994,7 +3468,7 @@ function renderTenantDetail(id) {
         return '<tr><td>' + right.source + '<div style="font-size:10px;color:var(--text-muted)">' + right.id + '</div></td><td>' + right.count + '</td><td>' + (right.expiresAt || '永久有效') + '</td><td><span class="status ' + (active ? 'status-active' : 'status-stopped') + '">' + (active ? '生效中' : '已失效') + '</span></td></tr>';
     }).join('');
 
-    document.getElementById('tenantDetailContent').innerHTML =
+    var overviewHtml =
         '<div class="card-grid2" style="margin-bottom:20px">' +
         '<div class="info-card">' +
         '<h4>基本信息</h4>' +
@@ -3034,6 +3508,1264 @@ function renderTenantDetail(id) {
         '<div class="table-wrap">' +
         '<table style="font-size:12px"><thead><tr><th>任务 ID</th><th>任务名称</th><th>状态</th><th>视频数</th><th>消耗积分</th><th>创建时间</th></tr></thead><tbody>' + (taskHtml || '<tr><td colspan="6" style="color:var(--text-muted);text-align:center;padding:20px">暂无任务</td></tr>') + '</tbody></table>' +
         '</div>';
+
+    document.getElementById('tenantDetailContent').innerHTML =
+        '<div class="tenant-detail-tabs" id="tdTabBar" role="tablist" aria-label="租户详情内容">' +
+            tenantDetailTabButton('overview', '经营概览') +
+            tenantDetailTabButton('assets', '用户资产') +
+            tenantDetailTabButton('tools', '工具记录') +
+        '</div>' +
+        '<section class="tenant-detail-pane" id="tdOverviewPane" role="tabpanel" aria-labelledby="tdTabOverview">' + overviewHtml + '</section>' +
+        '<section class="tenant-detail-pane" id="tdAssetsPane" role="tabpanel" aria-labelledby="tdTabAssets" hidden></section>' +
+        '<section class="tenant-detail-pane" id="tdToolsPane" role="tabpanel" aria-labelledby="tdTabTools" hidden></section>';
+    applyTenantDetailTabState();
+}
+
+function tenantDetailTabButton(tab, label) {
+    var suffix = tab === 'overview' ? 'Overview' : (tab === 'assets' ? 'Assets' : 'Tools');
+    var active = tenantDetailUiState.activeTab === tab;
+    return '<button class="tenant-detail-tab' + (active ? ' active' : '') + '" id="tdTab' + suffix + '" role="tab" aria-selected="' + active + '" aria-controls="td' + suffix + 'Pane" tabindex="' + (active ? '0' : '-1') + '" onclick="switchTenantDetailTab(\'' + tab + '\')" onkeydown="handleTenantDetailTabKeydown(event,\'' + tab + '\')">' + label + '</button>';
+}
+
+function switchTenantDetailTab(tab, shouldFocus) {
+    if (['overview','assets','tools'].indexOf(tab) === -1) return;
+    if (tab !== 'overview' && !hasOperatorPermission('tenant_content_view')) {
+        toast('当前账号无用户内容查看权限', 'error');
+        return;
+    }
+    tenantDetailUiState.activeTab = tab;
+    tenantDetailUiState.selectedRecord = null;
+    closeDrawer();
+    applyTenantDetailTabState();
+    if (shouldFocus !== false) {
+        var target = document.getElementById(tab === 'overview' ? 'tdTabOverview' : (tab === 'assets' ? 'tdTabAssets' : 'tdTabTools'));
+        if (target) target.focus();
+    }
+}
+
+function applyTenantDetailTabState() {
+    var tabs = [
+        { key:'overview', tab:'tdTabOverview', pane:'tdOverviewPane' },
+        { key:'assets', tab:'tdTabAssets', pane:'tdAssetsPane' },
+        { key:'tools', tab:'tdTabTools', pane:'tdToolsPane' }
+    ];
+    tabs.forEach(function(item) {
+        var tabEl = document.getElementById(item.tab);
+        var paneEl = document.getElementById(item.pane);
+        var active = tenantDetailUiState.activeTab === item.key;
+        if (tabEl) {
+            tabEl.classList.toggle('active', active);
+            tabEl.setAttribute('aria-selected', String(active));
+            tabEl.tabIndex = active ? 0 : -1;
+        }
+        if (paneEl) paneEl.hidden = !active;
+    });
+    if (tenantDetailUiState.activeTab === 'assets') renderTenantAssets();
+    if (tenantDetailUiState.activeTab === 'tools') renderTenantToolRuns();
+}
+
+function handleTenantDetailTabKeydown(event, tab) {
+    var order = ['overview','assets','tools'];
+    var index = order.indexOf(tab);
+    if (index < 0) return;
+    if (event.key === 'ArrowRight') index = (index + 1) % order.length;
+    else if (event.key === 'ArrowLeft') index = (index - 1 + order.length) % order.length;
+    else if (event.key === 'Home') index = 0;
+    else if (event.key === 'End') index = order.length - 1;
+    else return;
+    event.preventDefault();
+    switchTenantDetailTab(order[index], true);
+}
+
+function getCurrentTenant() {
+    return AppState.tenants.find(function(item) { return item.id === currentTenantDetailId; }) || null;
+}
+
+function getTenantMembers(tenantId) {
+    return (AppState.tenantMembers || []).filter(function(item) { return item.tenantId === tenantId; });
+}
+
+function getTenantMemberName(tenantId, memberId, snapshot) {
+    var member = getTenantMembers(tenantId).find(function(item) { return item.id === memberId; });
+    return member ? member.name : (snapshot || '未知用户');
+}
+
+function buildTenantMemberOptions(tenantId, selected) {
+    var html = '<option value="">全部成员</option>';
+    getTenantMembers(tenantId).forEach(function(member) {
+        html += '<option value="' + escapeHtml(member.id) + '"' + (member.id === selected ? ' selected' : '') + '>' + escapeHtml(member.name) + (member.status === 'disabled' ? '（已停用）' : '') + '</option>';
+    });
+    return html;
+}
+
+function tenantDateRangeValid(filters) {
+    return !(filters.dateFrom && filters.dateTo && filters.dateFrom > filters.dateTo);
+}
+
+function isTenantToolRun(run) {
+    if (!run) return false;
+    if (run.toolType === 'creative_agent') return ['zero_to_one','rewrite'].indexOf(run.mode) !== -1;
+    if (run.toolType === 'viral_breakdown') return run.mode === 'batch_video';
+    return run.toolType === 'compliance_check' && run.mode === 'batch_check';
+}
+
+function tenantToolFilterKey(run) {
+    if (!run) return '';
+    if (run.toolType === 'creative_agent') return run.mode === 'zero_to_one' ? 'creative_zero' : 'creative_rewrite';
+    return run.toolType || '';
+}
+
+function selectTenantAssets(tenantId, filters) {
+    filters = filters || tenantDetailUiState.assetFilters;
+    if (!tenantDateRangeValid(filters)) return [];
+    var kind = ['voice','role','scene'].indexOf(filters.kind) !== -1 ? filters.kind : 'voice';
+    var keyword = String(filters.keyword || '').trim().toLowerCase();
+    return (AppState.tenantAssets || []).filter(function(asset) {
+        if (!asset) return false;
+        if (asset.tenantId !== tenantId) return false;
+        if (asset.type !== kind) return false;
+        if (filters.userId && asset.creatorId !== filters.userId) return false;
+        var day = String(asset.createdAt || '').slice(0,10);
+        if ((filters.dateFrom || filters.dateTo) && !day) return false;
+        if (filters.dateFrom && day < filters.dateFrom) return false;
+        if (filters.dateTo && day > filters.dateTo) return false;
+        if (keyword) {
+            var creator = getTenantMemberName(tenantId, asset.creatorId, asset.creatorNameSnapshot);
+            var details = asset.details || {};
+            var searchable = [asset.id, asset.name, creator];
+            if (asset.type === 'voice') {
+                searchable.push((details.sampleFile || {}).name, (details.sampleFile || {}).format, details.voiceName);
+            } else if (asset.type === 'role') {
+                searchable.push((details.mainImage || {}).name, details.voiceName, (details.userTags || []).join(' '));
+                (details.outfitImages || []).forEach(function(file) { searchable.push(file.name, file.label); });
+            } else {
+                searchable.push(asset.source, details.imageSource, details.ratio, (details.mainImage || {}).name);
+            }
+            var haystack = searchable.filter(Boolean).join(' ').toLowerCase();
+            if (haystack.indexOf(keyword) === -1) return false;
+        }
+        return true;
+    }).sort(function(a,b) {
+        var byDate = String(b.createdAt || '').localeCompare(String(a.createdAt || ''));
+        return byDate || String(a.id).localeCompare(String(b.id));
+    });
+}
+
+function selectTenantToolRuns(tenantId, filters) {
+    filters = filters || tenantDetailUiState.toolFilters;
+    if (!tenantDateRangeValid(filters)) return [];
+    var keyword = String(filters.keyword || '').trim().toLowerCase();
+    return (AppState.toolRuns || []).filter(function(run) {
+        if (!isTenantToolRun(run)) return false;
+        if (run.tenantId !== tenantId) return false;
+        if (filters.userId && run.creatorId !== filters.userId) return false;
+        if (filters.type && tenantToolFilterKey(run) !== filters.type) return false;
+        var day = String(run.createdAt || '').slice(0,10);
+        if ((filters.dateFrom || filters.dateTo) && !day) return false;
+        if (filters.dateFrom && day < filters.dateFrom) return false;
+        if (filters.dateTo && day > filters.dateTo) return false;
+        if (keyword) {
+            var creator = getTenantMemberName(tenantId, run.creatorId, run.creatorNameSnapshot);
+            var haystack = [run.id, run.title, creator, JSON.stringify(run.input || {}), JSON.stringify(run.outputs || []), JSON.stringify(run.findings || []), (run.downstreamActions || []).join(' ')].join(' ').toLowerCase();
+            if (haystack.indexOf(keyword) === -1) return false;
+        }
+        return true;
+    }).sort(function(a,b) {
+        var byDate = String(b.createdAt || '').localeCompare(String(a.createdAt || ''));
+        return byDate || String(a.id).localeCompare(String(b.id));
+    });
+}
+
+function tenantAssetTypeLabel(type) {
+    return { voice:'音色', role:'角色', scene:'场景' }[type] || '未知资产';
+}
+
+function tenantAssetIcon(type) {
+    return { voice:'◖◗', role:'人', scene:'景' }[type] || '·';
+}
+
+function tenantAssetStatusLabel(status) {
+    return { available:'可用', processing:'生成中', failed:'失败' }[status] || status || '未知';
+}
+
+function tenantAssetStatusClass(status) {
+    return status === 'available' ? 'status-active' : (status === 'processing' ? 'status-trial' : 'status-failed');
+}
+
+function tenantToolModeLabel(run) {
+    if (run.toolType === 'viral_breakdown') return '爆款拆解';
+    if (run.toolType === 'compliance_check') return '合规检查';
+    if (run.mode === 'zero_to_one') return '创意 Agent · 从 0 创作';
+    if (run.mode !== 'rewrite') return '未知工具记录';
+    var source = { manual:'直接输入', video_link:'视频链接', video_file:'本地视频' }[run.sourceMode] || '台词来源';
+    return '台词改写 · ' + source;
+}
+
+function tenantToolAdoptedCount(run) {
+    if (run.toolType === 'compliance_check') return (run.findings || []).filter(function(finding) { return !!finding.adopted; }).length;
+    return (run.outputs || []).filter(function(output) { return !!output.adopted; }).length;
+}
+
+function tenantToolAdoptionLabel(run) {
+    return run.toolType === 'compliance_check' ? ('已采纳风险 ' + tenantToolAdoptedCount(run) + ' 条') : ('已采用结果 ' + tenantToolAdoptedCount(run) + ' 条');
+}
+
+function tenantVideoSourceLabel(source) {
+    if (!source) return '';
+    return typeof source === 'object' ? (source.name || source.value || source.url || source.id || '') : String(source);
+}
+
+function tenantToolDownstreamLabel(run) {
+    var actions = run.downstreamActions || [];
+    if (actions.some(function(action) { return String(action).indexOf('批量成片') !== -1; })) return '已进入成片';
+    if (actions.some(function(action) { return String(action).indexOf('合规') !== -1 || String(action).indexOf('创意 Agent') !== -1; })) return '已流转工具';
+    if (actions.some(function(action) { return String(action).indexOf('导出') !== -1; })) return '已导出';
+    return '-';
+}
+
+function tenantToolStatusLabel(status) {
+    return { success:'成功', failed:'失败', processing:'处理中', cancelled:'已取消' }[status] || status || '未知';
+}
+
+function tenantToolStatusClass(status) {
+    return status === 'success' ? 'status-active' : (status === 'processing' ? 'status-trial' : (status === 'failed' ? 'status-failed' : 'status-stopped'));
+}
+
+function renderTenantAssets() {
+    var pane = document.getElementById('tdAssetsPane');
+    var tenant = getCurrentTenant();
+    if (!pane || !tenant) return;
+    var f = tenantDetailUiState.assetFilters;
+    var kind = ['voice','role','scene'].indexOf(f.kind) !== -1 ? f.kind : 'voice';
+    var voiceCount = (AppState.tenantAssets || []).filter(function(asset) { return asset.tenantId === tenant.id && asset.type === 'voice'; }).length;
+    var roleCount = (AppState.tenantAssets || []).filter(function(asset) { return asset.tenantId === tenant.id && asset.type === 'role'; }).length;
+    var sceneCount = (AppState.tenantAssets || []).filter(function(asset) { return asset.tenantId === tenant.id && asset.type === 'scene'; }).length;
+    var kindCopy = {
+        voice:'查看用户复刻的音色、合成语音文件和关联台词。',
+        role:'查看用户创建的角色主图、形象变体和绑定音色。',
+        scene:'查看用户创建的场景主图。'
+    }[kind];
+    pane.innerHTML =
+        '<div class="tenant-asset-kindbar" role="group" aria-label="用户资产分类">' +
+            '<button class="tenant-asset-kind' + (kind === 'voice' ? ' active' : '') + '" type="button" aria-pressed="' + (kind === 'voice') + '" onclick="switchTenantAssetKind(\'voice\',this)"><span class="tenant-asset-kind-icon">声</span><span class="tenant-asset-kind-copy"><strong>音色</strong><span>录音源文件与合成结果</span></span><span class="tenant-asset-kind-count">' + voiceCount + ' 条</span></button>' +
+            '<button class="tenant-asset-kind' + (kind === 'role' ? ' active' : '') + '" type="button" aria-pressed="' + (kind === 'role') + '" onclick="switchTenantAssetKind(\'role\',this)"><span class="tenant-asset-kind-icon">人</span><span class="tenant-asset-kind-copy"><strong>角色</strong><span>主图、形象变体与绑定音色</span></span><span class="tenant-asset-kind-count">' + roleCount + ' 条</span></button>' +
+            '<button class="tenant-asset-kind' + (kind === 'scene' ? ' active' : '') + '" type="button" aria-pressed="' + (kind === 'scene') + '" onclick="switchTenantAssetKind(\'scene\',this)"><span class="tenant-asset-kind-icon">景</span><span class="tenant-asset-kind-copy"><strong>场景</strong><span>场景主图</span></span><span class="tenant-asset-kind-count">' + sceneCount + ' 条</span></button>' +
+        '</div>' +
+        '<div class="prototype-note"><strong>' + tenantAssetTypeLabel(kind) + '记录</strong><span>' + kindCopy + ' 静态原型未接入真实文件服务。</span></div>' +
+        '<div class="tenant-record-shell">' +
+            '<div class="tenant-record-toolbar">' +
+                '<div class="tenant-record-filter"><label for="tdAssetUserFilter">创建人</label><select class="filter-select" id="tdAssetUserFilter" onchange="updateTenantAssetFilters()">' + buildTenantMemberOptions(tenant.id, f.userId) + '</select></div>' +
+                '<div class="tenant-record-filter"><label for="tdAssetDateFrom">创建日期起</label><input class="filter-input" id="tdAssetDateFrom" type="date" value="' + escapeHtml(f.dateFrom) + '" aria-describedby="tdAssetResultCount" onchange="updateTenantAssetFilters()"></div>' +
+                '<div class="tenant-record-filter"><label for="tdAssetDateTo">创建日期止</label><input class="filter-input" id="tdAssetDateTo" type="date" value="' + escapeHtml(f.dateTo) + '" aria-describedby="tdAssetResultCount" onchange="updateTenantAssetFilters()"></div>' +
+                '<div class="tenant-record-filter search"><label for="tdAssetSearch">关键词</label><input class="filter-input" id="tdAssetSearch" value="' + escapeHtml(f.keyword) + '" placeholder="名称 / 文件 / 创建人" oninput="queueTenantAssetFilterUpdate()"></div>' +
+                '<div class="tenant-record-actions"><span class="tenant-record-count" id="tdAssetResultCount" role="status" aria-live="polite" aria-atomic="true"></span><button class="btn btn-sm" onclick="clearTenantAssetFilters()">清空筛选</button></div>' +
+            '</div>' +
+            '<div id="tdAssetTableArea"></div>' +
+        '</div>';
+    renderTenantAssetTable();
+}
+
+function switchTenantAssetKind(kind, trigger) {
+    if (['voice','role','scene'].indexOf(kind) === -1 || tenantDetailUiState.assetFilters.kind === kind) return;
+    clearTimeout(tenantAssetSearchTimer);
+    tenantDetailUiState.assetFilters = createTenantDetailUiState().assetFilters;
+    tenantDetailUiState.assetFilters.kind = kind;
+    renderTenantAssets();
+    if (trigger) setTimeout(function() {
+        var buttons = document.querySelectorAll('.tenant-asset-kind');
+        var index = { voice:0, role:1, scene:2 }[kind];
+        if (buttons[index]) buttons[index].focus();
+    }, 0);
+}
+
+function queueTenantAssetFilterUpdate() {
+    clearTimeout(tenantAssetSearchTimer);
+    tenantAssetSearchTimer = setTimeout(updateTenantAssetFilters, 280);
+}
+
+function updateTenantAssetFilters() {
+    tenantDetailUiState.assetFilters = {
+        kind: ['voice','role','scene'].indexOf(tenantDetailUiState.assetFilters.kind) !== -1 ? tenantDetailUiState.assetFilters.kind : 'voice',
+        userId: (document.getElementById('tdAssetUserFilter') || {}).value || '',
+        dateFrom: (document.getElementById('tdAssetDateFrom') || {}).value || '',
+        dateTo: (document.getElementById('tdAssetDateTo') || {}).value || '',
+        keyword: (document.getElementById('tdAssetSearch') || {}).value || ''
+    };
+    renderTenantAssetTable();
+}
+
+function clearTenantAssetFilters() {
+    clearTimeout(tenantAssetSearchTimer);
+    var kind = tenantDetailUiState.assetFilters.kind;
+    tenantDetailUiState.assetFilters = createTenantDetailUiState().assetFilters;
+    tenantDetailUiState.assetFilters.kind = kind;
+    renderTenantAssets();
+    setTimeout(function() { var first = document.getElementById('tdAssetUserFilter'); if (first) first.focus(); }, 0);
+}
+
+function tenantAssetFiltersActive(filters) {
+    return ['userId','dateFrom','dateTo','keyword'].some(function(key) { return !!filters[key]; });
+}
+
+function tenantAssetFileSummary(asset) {
+    var details = asset.details || {};
+    if (asset.type === 'voice') {
+        var sample = details.sampleFile || {};
+        return (sample.name || '未记录录音源文件') + ' · ' + (sample.format || '音频') + ' · ' + (sample.duration || '-');
+    }
+    var main = details.mainImage || {};
+    if (asset.type === 'role') return (main.name || '角色主图') + ' · 形象变体 ' + (details.outfitImages || []).length + ' 张';
+    return (main.name || '场景主图') + ' · ' + (details.ratio || '-');
+}
+
+function renderTenantAssetTable() {
+    window._roleHoverStore = [];
+    var area = document.getElementById('tdAssetTableArea');
+    var tenant = getCurrentTenant();
+    if (!area || !tenant) return;
+    var valid = tenantDateRangeValid(tenantDetailUiState.assetFilters);
+    var list = selectTenantAssets(tenant.id, tenantDetailUiState.assetFilters);
+    var kind = ['voice','role','scene'].indexOf(tenantDetailUiState.assetFilters.kind) !== -1 ? tenantDetailUiState.assetFilters.kind : 'voice';
+    var kindLabel = tenantAssetTypeLabel(kind);
+    var countEl = document.getElementById('tdAssetResultCount');
+    if (countEl) countEl.textContent = valid ? ('共 ' + list.length + ' 条') : '日期范围无效';
+    ['tdAssetDateFrom','tdAssetDateTo'].forEach(function(id) { var input = document.getElementById(id); if (input) input.setAttribute('aria-invalid', String(!valid)); });
+    if (!valid) {
+        area.innerHTML = '<div class="tenant-empty" role="alert"><strong>日期范围无效</strong>开始日期不能晚于结束日期。</div>';
+        return;
+    }
+    if (!list.length) {
+        var filtered = tenantAssetFiltersActive(tenantDetailUiState.assetFilters);
+        area.innerHTML = filtered
+            ? '<div class="tenant-empty"><strong>暂无匹配' + kindLabel + '</strong>请调整当前分类下的筛选条件。</div>'
+            : '<div class="tenant-empty"><strong>暂无' + kindLabel + '</strong>该租户尚未创建此类用户资产。</div>';
+        return;
+    }
+    var rows = list.map(function(asset) {
+        var creator = getTenantMemberName(tenant.id, asset.creatorId, asset.creatorNameSnapshot);
+        var details = asset.details || {};
+        var mainImage = details.mainImage || {};
+        var imgSrc = (asset.type === 'role' || asset.type === 'scene') ? (mainImage.dataUrl || mainImage.url || '') : '';
+        var nameCellClass = imgSrc ? 'tenant-record-name role-hover-trigger' : 'tenant-record-name';
+        var nameCellAttrs = '';
+        if (imgSrc) {
+            var hoverIdx = window._roleHoverStore ? window._roleHoverStore.length : 0;
+            if (!window._roleHoverStore) window._roleHoverStore = [];
+            window._roleHoverStore.push({ src: imgSrc, name: asset.name });
+            nameCellAttrs = ' data-role-hover-idx="' + hoverIdx + '"';
+        }
+        var prefix = '<tr><td><div class="' + nameCellClass + '"' + nameCellAttrs + '><div class="tenant-record-preview ' + asset.type + '">' + tenantAssetIcon(asset.type) + '</div><div><div class="tenant-record-title">' + escapeHtml(asset.name) + '</div><div class="tenant-record-id">' + escapeHtml(asset.id) + '</div></div></div></td><td>' + escapeHtml(creator) + '</td>';
+        if (asset.type === 'voice') {
+            var sample = details.sampleFile || {};
+            var downloadDisabled = canExportTenantContent() ? '' : ' disabled title="当前账号无用户内容导出权限"';
+            return prefix + '<td><div class="asset-sample-cell"><div class="asset-sample-name" title="' + escapeHtml(sample.name || '') + '">' + escapeHtml(sample.name || '未记录录音源文件') + '</div><div class="asset-sample-meta">' + escapeHtml([sample.format,sample.size,sample.duration].filter(Boolean).join(' · ') || '-') + '</div><div class="asset-sample-ops"><button class="asset-file-action primary" type="button" data-tenant-voice-action="preview" data-asset-id="' + escapeHtml(asset.id) + '" data-file-kind="sample">▶ 试听</button><button class="asset-file-action" type="button" data-tenant-voice-action="download" data-asset-id="' + escapeHtml(asset.id) + '" data-file-kind="sample"' + downloadDisabled + '>下载</button></div></div></td><td>' + escapeHtml(asset.visibility) + '</td><td style="font-size:12px;white-space:nowrap">' + escapeHtml(asset.createdAt || '-') + '</td><td><button class="btn btn-xs td-record-detail" data-record-kind="asset" data-record-id="' + escapeHtml(asset.id) + '">详情</button></td></tr>';
+        }
+        if (asset.type === 'role') {
+            var voiceName = details.voiceName || '未绑定音色';
+            var roleDownloadDisabled = canExportTenantContent() ? '' : ' disabled title="当前账号无用户内容导出权限"';
+            var boundVoiceCell = '<div style="display:flex;align-items:center;gap:6px;min-width:0">' +
+                '<span class="tenant-record-summary" style="flex:0 1 auto;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="' + escapeHtml(voiceName) + '">' + escapeHtml(voiceName) + '</span>' +
+                '<button class="asset-file-action" type="button" data-role-voice-action="preview" data-asset-id="' + escapeHtml(asset.id) + '" title="试听绑定音色">▶ 试听</button>' +
+                '<button class="asset-file-action" type="button" data-role-voice-action="download" data-asset-id="' + escapeHtml(asset.id) + '"' + roleDownloadDisabled + ' title="下载绑定音色">下载</button>' +
+            '</div>';
+            var suffix = '<td>' + escapeHtml(asset.visibility) + '</td><td style="text-align:center">' + Number(asset.referenceCount || 0) + '</td><td style="font-size:12px;white-space:nowrap">' + escapeHtml(asset.createdAt || '-') + '</td><td><button class="btn btn-xs td-record-detail" data-record-kind="asset" data-record-id="' + escapeHtml(asset.id) + '">详情</button></td></tr>';
+            return prefix + '<td>' + boundVoiceCell + '</td><td style="text-align:center">' + Number((details.outfitImages || []).length) + '</td>' + suffix;
+        }
+        var suffix = '<td>' + escapeHtml(asset.visibility) + '</td><td style="text-align:center">' + Number(asset.referenceCount || 0) + '</td><td style="font-size:12px;white-space:nowrap">' + escapeHtml(asset.createdAt || '-') + '</td><td><button class="btn btn-xs td-record-detail" data-record-kind="asset" data-record-id="' + escapeHtml(asset.id) + '">详情</button></td></tr>';
+        return prefix + '<td>' + escapeHtml(details.ratio || '-') + '</td>' + suffix;
+    }).join('');
+    var headers = {
+        voice:'<tr><th scope="col">音色</th><th scope="col">创建人</th><th scope="col">录音源文件</th><th scope="col">可见范围</th><th scope="col">创建时间</th><th scope="col">操作</th></tr>',
+        role:'<tr><th scope="col">角色</th><th scope="col">创建人</th><th scope="col">绑定音色</th><th scope="col">形象变体</th><th scope="col">可见范围</th><th scope="col">引用次数</th><th scope="col">创建时间</th><th scope="col">操作</th></tr>',
+        scene:'<tr><th scope="col">场景</th><th scope="col">创建人</th><th scope="col">画幅</th><th scope="col">可见范围</th><th scope="col">引用次数</th><th scope="col">创建时间</th><th scope="col">操作</th></tr>'
+    };
+    area.innerHTML = '<div class="tenant-record-table-scroll" tabindex="0" aria-label="可横向滚动的' + kindLabel + '记录表"><table class="tenant-record-table"><thead>' + headers[kind] + '</thead><tbody>' + rows + '</tbody></table></div>';
+    bindTenantRecordDetailButtons(area);
+    bindTenantVoiceFileButtons(area);
+    bindRoleBoundVoiceButtons(area);
+    bindRoleHoverPreview(area);
+}
+
+function renderTenantToolRuns() {
+    var pane = document.getElementById('tdToolsPane');
+    var tenant = getCurrentTenant();
+    if (!pane || !tenant) return;
+    var f = tenantDetailUiState.toolFilters;
+    pane.innerHTML =
+        '<div class="prototype-note"><strong>用户内容结果</strong><span>聚合创意 Agent、爆款拆解和合规检查的输入、输出及用户处理情况；当前为静态原型数据，未接入真实任务同步。</span></div>' +
+        '<div class="tenant-record-shell">' +
+            '<div class="tenant-record-toolbar">' +
+                '<div class="tenant-record-filter"><label for="tdToolUserFilter">使用人</label><select class="filter-select" id="tdToolUserFilter" onchange="updateTenantToolFilters()">' + buildTenantMemberOptions(tenant.id, f.userId) + '</select></div>' +
+                '<div class="tenant-record-filter"><label for="tdToolTypeFilter">工具类型</label><select class="filter-select" id="tdToolTypeFilter" onchange="updateTenantToolFilters()"><option value="">全部工具</option><option value="creative_zero"' + (f.type === 'creative_zero' ? ' selected' : '') + '>创意 Agent · 从 0 创作</option><option value="creative_rewrite"' + (f.type === 'creative_rewrite' ? ' selected' : '') + '>创意 Agent · 台词改写</option><option value="viral_breakdown"' + (f.type === 'viral_breakdown' ? ' selected' : '') + '>爆款拆解</option><option value="compliance_check"' + (f.type === 'compliance_check' ? ' selected' : '') + '>合规检查</option></select></div>' +
+                '<div class="tenant-record-filter"><label for="tdToolDateFrom">创建日期起</label><input class="filter-input" id="tdToolDateFrom" type="date" value="' + escapeHtml(f.dateFrom) + '" aria-describedby="tdToolResultCount" onchange="updateTenantToolFilters()"></div>' +
+                '<div class="tenant-record-filter"><label for="tdToolDateTo">创建日期止</label><input class="filter-input" id="tdToolDateTo" type="date" value="' + escapeHtml(f.dateTo) + '" aria-describedby="tdToolResultCount" onchange="updateTenantToolFilters()"></div>' +
+                '<div class="tenant-record-filter search"><label for="tdToolSearch">关键词</label><input class="filter-input" id="tdToolSearch" value="' + escapeHtml(f.keyword) + '" placeholder="记录 ID / 标题 / 输入输出" oninput="queueTenantToolFilterUpdate()"></div>' +
+                '<div class="tenant-record-actions"><span class="tenant-record-count" id="tdToolResultCount" role="status" aria-live="polite" aria-atomic="true"></span><button class="btn btn-sm" onclick="clearTenantToolFilters()">清空筛选</button></div>' +
+            '</div>' +
+            '<div id="tdToolTableArea"></div>' +
+        '</div>';
+    renderTenantToolTable();
+}
+
+function updateTenantToolFilters() {
+    tenantDetailUiState.toolFilters = {
+        userId: (document.getElementById('tdToolUserFilter') || {}).value || '',
+        type: (document.getElementById('tdToolTypeFilter') || {}).value || '',
+        dateFrom: (document.getElementById('tdToolDateFrom') || {}).value || '',
+        dateTo: (document.getElementById('tdToolDateTo') || {}).value || '',
+        keyword: (document.getElementById('tdToolSearch') || {}).value || ''
+    };
+    renderTenantToolTable();
+}
+
+function queueTenantToolFilterUpdate() {
+    clearTimeout(tenantToolSearchTimer);
+    tenantToolSearchTimer = setTimeout(updateTenantToolFilters, 280);
+}
+
+function clearTenantToolFilters() {
+    clearTimeout(tenantToolSearchTimer);
+    tenantDetailUiState.toolFilters = createTenantDetailUiState().toolFilters;
+    renderTenantToolRuns();
+    setTimeout(function() { var first = document.getElementById('tdToolUserFilter'); if (first) first.focus(); }, 0);
+}
+
+function tenantToolInputSummary(run) {
+    var input = run.input || {};
+    if (run.toolType === 'viral_breakdown') return (input.videoSources || []).map(tenantVideoSourceLabel).filter(Boolean).join('；') || '未记录视频来源';
+    if (run.toolType === 'compliance_check') return input.checkedText || '未记录检查文本';
+    if (run.mode === 'zero_to_one') return input.topic || '未填写创作主题';
+    return input.originalText || input.editedTranscript || input.extractedTranscript || input.videoSource || '未记录输入内容';
+}
+
+function tenantToolFiltersActive(filters) {
+    return ['userId','type','dateFrom','dateTo','keyword'].some(function(key) { return !!filters[key]; });
+}
+
+function renderTenantToolTable() {
+    var area = document.getElementById('tdToolTableArea');
+    var tenant = getCurrentTenant();
+    if (!area || !tenant) return;
+    var valid = tenantDateRangeValid(tenantDetailUiState.toolFilters);
+    var list = selectTenantToolRuns(tenant.id, tenantDetailUiState.toolFilters);
+    var countEl = document.getElementById('tdToolResultCount');
+    if (countEl) countEl.textContent = valid ? ('共 ' + list.length + ' 条') : '日期范围无效';
+    ['tdToolDateFrom','tdToolDateTo'].forEach(function(id) { var input = document.getElementById(id); if (input) input.setAttribute('aria-invalid', String(!valid)); });
+    if (!valid) {
+        area.innerHTML = '<div class="tenant-empty" role="alert"><strong>日期范围无效</strong>开始日期不能晚于结束日期。</div>';
+        return;
+    }
+    if (!list.length) {
+        area.innerHTML = tenantToolFiltersActive(tenantDetailUiState.toolFilters)
+            ? '<div class="tenant-empty"><strong>暂无匹配记录</strong>请调整当前工具记录的筛选条件。</div>'
+            : '<div class="tenant-empty"><strong>暂无工具记录</strong>该租户尚未产生创意 Agent、爆款拆解或合规检查记录。</div>';
+        return;
+    }
+    var rows = list.map(function(run) {
+        var creator = getTenantMemberName(tenant.id, run.creatorId, run.creatorNameSnapshot);
+        var summary = tenantToolInputSummary(run);
+        return '<tr>' +
+            '<td><div class="tenant-record-title">' + escapeHtml(run.title) + '</div><div class="tenant-record-id">' + escapeHtml(run.id) + '</div></td>' +
+            '<td><span class="chip chip-blue">' + escapeHtml(tenantToolModeLabel(run)) + '</span></td>' +
+            '<td>' + escapeHtml(creator) + '</td>' +
+            '<td><div class="tenant-record-summary" title="' + escapeHtml(summary) + '">' + escapeHtml(summary) + '</div></td>' +
+            '<td><span class="status ' + tenantToolStatusClass(run.runStatus) + '">' + escapeHtml(tenantToolStatusLabel(run.runStatus)) + '</span></td>' +
+            '<td style="text-align:center">' + (run.outputs || []).length + '</td>' +
+            '<td style="text-align:center">' + escapeHtml(tenantToolAdoptionLabel(run)) + '</td>' +
+            '<td>' + escapeHtml(tenantToolDownstreamLabel(run)) + '</td>' +
+            '<td style="font-size:12px;white-space:nowrap">' + escapeHtml(run.createdAt || '-') + '</td>' +
+            '<td><button class="btn btn-xs td-record-detail" data-record-kind="tool" data-record-id="' + escapeHtml(run.id) + '">详情</button></td>' +
+        '</tr>';
+    }).join('');
+    area.innerHTML = '<div class="tenant-record-table-scroll" tabindex="0" aria-label="可横向滚动的工具记录表"><table class="tenant-record-table"><thead><tr><th scope="col">记录</th><th scope="col">工具类型</th><th scope="col">使用人</th><th scope="col">输入摘要</th><th scope="col">状态</th><th scope="col">结果数</th><th scope="col">用户处理</th><th scope="col">下游去向</th><th scope="col">创建时间</th><th scope="col">操作</th></tr></thead><tbody>' + rows + '</tbody></table></div>';
+    bindTenantRecordDetailButtons(area);
+}
+
+function bindTenantRecordDetailButtons(root) {
+    if (!root) return;
+    root.querySelectorAll('.td-record-detail').forEach(function(button) {
+        button.addEventListener('click', function() {
+            openTenantRecordDrawer(button.getAttribute('data-record-kind'), button.getAttribute('data-record-id'), button);
+        });
+    });
+}
+
+function bindRoleHoverPreview(root) {
+    if (!root) return;
+    root.querySelectorAll('[data-role-hover-idx]').forEach(function(el) {
+        var idx = Number(el.getAttribute('data-role-hover-idx'));
+        el.addEventListener('mouseenter', function(e) {
+            var item = window._roleHoverStore ? window._roleHoverStore[idx] : null;
+            if (!item) return;
+            var img = new Image();
+            img.src = item.src;
+            img.setAttribute('data-role-name', item.name || '');
+            img.onload = function() { showRolePreview(img); };
+            img.onerror = function() { showRolePreview({ src: item.src, getAttribute: function() { return item.name; } }); };
+            moveRolePreview(e);
+        });
+        el.addEventListener('mousemove', moveRolePreview);
+        el.addEventListener('mouseleave', function() {
+            var layer = getRolePreviewLayer();
+            layer.classList.remove('show');
+        });
+    });
+}
+
+window.openImagePreview = function(src, title) {
+    var overlay = document.createElement('div');
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:5000;display:flex;align-items:center;justify-content:center;cursor:zoom-out';
+    overlay.onclick = function() { document.body.removeChild(overlay); };
+    var img = document.createElement('img');
+    img.src = src;
+    img.alt = title || '';
+    img.style.cssText = 'max-width:90vw;max-height:90vh;object-fit:contain;border-radius:8px;box-shadow:0 8px 32px rgba(0,0,0,0.4)';
+    var titleEl = document.createElement('div');
+    titleEl.textContent = title || '';
+    titleEl.style.cssText = 'position:absolute;bottom:24px;left:50%;transform:translateX(-50%);color:#fff;font-size:14px;font-weight:600;text-shadow:0 2px 8px rgba(0,0,0,0.5);white-space:nowrap';
+    overlay.appendChild(img);
+    overlay.appendChild(titleEl);
+    document.body.appendChild(overlay);
+};
+
+window.downloadImage = function(src, filename) {
+    var link = document.createElement('a');
+    link.href = src;
+    link.download = filename || 'image.png';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    toast('已开始下载：' + filename, 'success');
+};
+
+var tenantDrawerReturnFocus = null;
+
+function recordMetaItem(label, value) {
+    return '<div class="record-detail-meta-item"><span>' + escapeHtml(label) + '</span><strong>' + escapeHtml(value == null || value === '' ? '-' : value) + '</strong></div>';
+}
+
+function assetDetailPairs(asset) {
+    var d = asset.details || {};
+    if (asset.type === 'voice') {
+        return [
+            ['合成文件', (d.generatedFileCount || (d.generatedFiles || []).length || 0) + ' 个'],
+            ['总时长', d.generatedTotalDuration || '-'],
+            ['总大小', d.generatedTotalSize || '-'],
+            ['台词数', (d.generatedScriptCount || 0) + ' 条'],
+            ['录音源文件', (d.sampleFile || {}).name || '-']
+        ];
+    }
+    if (asset.type === 'role') {
+        return [
+            ['绑定音色', d.voiceName], ['形象变体', (d.outfitImages || []).length + ' 套'],
+            ['用户标签', (d.userTags || []).join('、') || '-']
+        ];
+    }
+    return [['画面比例', d.ratio || '-']];
+}
+
+function assetCommonMetaHtml(asset, tenant) {
+    var creator = getTenantMemberName(tenant.id, asset.creatorId, asset.creatorNameSnapshot);
+    var pairs = [
+        ['租户', tenant.name], ['资产 ID', asset.id], ['创建人', creator],
+        ['可见范围', asset.visibility],
+        ['引用次数', Number(asset.referenceCount || 0) + ' 次'], ['最近使用', asset.lastUsedAt || '-'],
+        ['创建时间', asset.createdAt], ['更新时间', asset.updatedAt]
+    ];
+    return pairs.map(function(pair) { return recordMetaItem(pair[0], pair[1]); }).join('');
+}
+
+function assetFileListHtml(files, assetId, fileKind, withActions) {
+    if (!files || !files.length) return '<div class="record-detail-content">暂无可展示的文件快照。</div>';
+    return '<div class="asset-file-list">' + files.map(function(file, index) {
+        var detail = [file.size, file.duration || file.resolution].filter(Boolean).join(' · ');
+        var downloadDisabled = canExportTenantContent() ? '' : ' disabled title="当前账号无用户内容导出权限"';
+        var actions = withActions ? '<div class="asset-file-actions"><button class="asset-file-action primary" type="button" data-tenant-voice-action="preview" data-asset-id="' + escapeHtml(assetId) + '" data-file-kind="' + escapeHtml(fileKind || 'sample') + '">▶ 试听</button><button class="asset-file-action" type="button" data-tenant-voice-action="download" data-asset-id="' + escapeHtml(assetId) + '" data-file-kind="' + escapeHtml(fileKind || 'sample') + '"' + downloadDisabled + '>下载</button></div>' : '<span class="asset-file-purpose">' + escapeHtml(file.purpose || file.label || ('文件 ' + (index + 1))) + '</span>';
+        return '<div class="asset-file-item"><span class="asset-file-type">' + escapeHtml(file.format || 'FILE') + '</span><div><div class="asset-file-name" title="' + escapeHtml(file.name) + '">' + escapeHtml(file.name) + '</div><div class="asset-file-meta">' + escapeHtml(detail || '-') + '</div></div>' + actions + '</div>';
+    }).join('') + '</div>';
+}
+
+function voiceTranscriptToggleId(assetId, fileId) {
+    return 'tenant-voice-transcript-' + String(assetId || '').replace(/[^a-zA-Z0-9_-]/g, '_') + '-' + String(fileId || '').replace(/[^a-zA-Z0-9_-]/g, '_');
+}
+
+function voiceGeneratedFilesHtml(asset) {
+    var details = asset.details || {};
+    var files = Array.isArray(details.generatedFiles) ? details.generatedFiles : [];
+    if (!files.length) return '<div class="record-detail-content">暂无合成语音文件。该音色可能仍在生成中，或者尚未同步到后台记录。</div>';
+    return '<div class="voice-generated-list">' + files.map(function(file, index) {
+        var fileId = file.id || (asset.id + '-voice-file-' + (index + 1));
+        var transcriptId = voiceTranscriptToggleId(asset.id, fileId);
+        var meta = [file.size, file.duration, file.format].filter(Boolean).join(' · ');
+        var transcript = String(file.transcript || file.script || file.lineText || '').trim();
+        var previewDisabled = hasOperatorPermission('tenant_content_view') ? '' : ' disabled title="当前账号无用户内容查看权限"';
+        var downloadDisabled = canExportTenantContent() ? '' : ' disabled title="当前账号无用户内容导出权限"';
+        return '<div class="voice-generated-item">' +
+            '<div class="asset-file-type">' + escapeHtml(file.format || 'WAV') + '</div>' +
+            '<div class="voice-generated-main">' +
+                '<div class="voice-generated-head">' +
+                    '<div class="voice-generated-title-wrap"><div class="voice-generated-title" title="' + escapeHtml(file.title || file.name) + '">' + escapeHtml(file.title || file.name) + '</div><div class="voice-generated-meta">' + escapeHtml(meta || '-') + '</div></div>' +
+                    '<div class="voice-generated-actions">' +
+                        '<button class="asset-file-action primary" type="button" data-tenant-voice-action="preview" data-asset-id="' + escapeHtml(asset.id) + '" data-file-kind="generated" data-file-id="' + escapeHtml(fileId) + '"' + previewDisabled + '>▶ 试听</button>' +
+                        '<button class="asset-file-action" type="button" data-tenant-voice-action="download" data-asset-id="' + escapeHtml(asset.id) + '" data-file-kind="generated" data-file-id="' + escapeHtml(fileId) + '"' + downloadDisabled + '>下载</button>' +
+                        '<button class="asset-file-action" type="button" data-tenant-voice-action="script" data-asset-id="' + escapeHtml(asset.id) + '" data-file-id="' + escapeHtml(fileId) + '">' + (transcript ? '查看台词' : '暂无台词') + '</button>' +
+                    '</div>' +
+                '</div>' +
+                '<div class="voice-generated-script-meta">' + escapeHtml(file.purpose || '音色合成语音文件') + '</div>' +
+                '<div class="voice-generated-script" id="' + escapeHtml(transcriptId) + '" hidden>' + (transcript ? escapeHtml(transcript) : '<span class="voice-generated-script-empty">该文件暂无可查看台词。</span>') + '</div>' +
+            '</div>' +
+        '</div>';
+    }).join('') + '</div>';
+}
+
+function voiceWaveformHtml() {
+    var heights = [18,31,44,25,50,37,22,41,54,29,46,34,20,39,51,28,43,24,48,36,19,32,45,27,52,38,23,42,30,47,26,40];
+    return heights.map(function(height) { return '<i style="height:' + height + 'px"></i>'; }).join('');
+}
+
+function buildVoiceAssetDrawerHtml(asset, tenant) {
+    var details = asset.details || {};
+    var sample = details.sampleFile || {};
+    var canPreview = asset.status === 'available' && hasOperatorPermission('tenant_content_view');
+    var canDownload = canExportTenantContent();
+    var errorMessage = details.errorMessage ? '<div class="record-detail-section"><h4>失败原因</h4><div class="record-detail-content" style="border-color:#fecaca;background:#fef2f2;color:#b91c1c">' + escapeHtml(details.errorMessage) + '</div></div>' : '';
+    var generatedFiles = Array.isArray(details.generatedFiles) ? details.generatedFiles : [];
+
+    var sampleHtml = '';
+    if (sample.name) {
+        sampleHtml = '<div style="padding:14px 16px;background:#f8fafc;border-radius:10px;margin-bottom:20px;border:1px solid var(--border)">' +
+            '<div style="display:flex;align-items:center;gap:10px">' +
+                '<span style="font-size:12px;color:var(--text-muted);font-weight:600">录音源文件</span>' +
+                '<span style="font-size:13px;font-weight:600">' + escapeHtml(sample.name) + '</span>' +
+                '<span style="font-size:12px;color:var(--text-secondary)">' + escapeHtml([sample.format, sample.size, sample.duration].filter(Boolean).join(' · ') || '-') + '</span>' +
+            '</div>' +
+        '</div>';
+    }
+
+    var generatedSection = '';
+    if (generatedFiles.length) {
+        generatedSection = '<div style="margin-bottom:0">' +
+            '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">' +
+                '<h4 style="margin:0;font-size:15px">合成语音记录 <span style="font-size:13px;font-weight:500;color:var(--text-muted)">共 ' + generatedFiles.length + ' 条</span></h4>' +
+            '</div>' +
+            '<div style="display:flex;flex-direction:column;gap:12px">' + generatedFiles.map(function(file, index) {
+                var fileId = file.id || (asset.id + '-voice-file-' + (index + 1));
+                var transcript = String(file.transcript || file.script || file.lineText || '').trim();
+                var previewDisabled = hasOperatorPermission('tenant_content_view') ? '' : ' disabled title="当前账号无用户内容查看权限"';
+                var downloadDisabled = canExportTenantContent() ? '' : ' disabled title="当前账号无用户内容导出权限"';
+                var synthTime = file.synthTime || asset.updatedAt || '-';
+                return '<div style="border:1px solid var(--border);border-radius:10px;overflow:hidden;background:#fff">' +
+                    '<div style="padding:14px 16px;border-bottom:1px solid #f0f0f3;background:#fafafa">' +
+                        '<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px">' +
+                            '<div style="display:flex;align-items:center;gap:10px;min-width:0;flex:1">' +
+                                '<span style="font-size:14px;font-weight:700;color:var(--text-primary)">' + escapeHtml(file.title || file.name || ('语音 ' + (index + 1))) + '</span>' +
+                                '<span style="font-size:11px;padding:2px 8px;background:#eef3ff;color:#3158b7;border-radius:99px;font-weight:600">' + escapeHtml(file.format || 'WAV') + '</span>' +
+                            '</div>' +
+                            '<div style="display:flex;gap:6px;flex-shrink:0">' +
+                                '<button class="asset-file-action primary" type="button" data-tenant-voice-action="preview" data-asset-id="' + escapeHtml(asset.id) + '" data-file-kind="generated" data-file-id="' + escapeHtml(fileId) + '"' + previewDisabled + '>▶ 试听</button>' +
+                                '<button class="asset-file-action" type="button" data-tenant-voice-action="download" data-asset-id="' + escapeHtml(asset.id) + '" data-file-kind="generated" data-file-id="' + escapeHtml(fileId) + '"' + downloadDisabled + '>下载</button>' +
+                            '</div>' +
+                        '</div>' +
+                        '<div style="display:flex;gap:16px;font-size:12px;color:var(--text-secondary)">' +
+                            '<span>时长 <strong style="color:var(--text-primary)">' + escapeHtml(file.duration || '-') + '</strong></span>' +
+                            '<span>大小 <strong style="color:var(--text-primary)">' + escapeHtml(file.size || '-') + '</strong></span>' +
+                            '<span>合成时间 <strong style="color:var(--text-primary)">' + escapeHtml(synthTime) + '</strong></span>' +
+                        '</div>' +
+                    '</div>' +
+                    '<div style="padding:14px 16px;background:#fff">' +
+                        '<div style="font-size:12px;color:var(--text-muted);margin-bottom:6px;font-weight:600">台词内容</div>' +
+                        '<div style="font-size:13px;line-height:1.8;color:var(--text-primary);white-space:pre-wrap;word-break:break-all">' +
+                            (transcript ? escapeHtml(transcript) : '<span style="color:var(--text-muted)">暂无台词内容</span>') +
+                        '</div>' +
+                    '</div>' +
+                '</div>';
+            }).join('') + '</div>' +
+        '</div>';
+    } else {
+        generatedSection = '<div style="text-align:center;padding:48px 20px;color:var(--text-muted)">' +
+            '<div style="font-size:40px;margin-bottom:12px">🎤</div>' +
+            '<div style="font-size:14px;font-weight:600;color:var(--text-secondary);margin-bottom:6px">暂无合成语音记录</div>' +
+            '<div style="font-size:12px">该音色尚未被用于合成语音，或记录尚未同步</div>' +
+        '</div>';
+    }
+
+    return '<div style="margin-bottom:20px;padding:16px;background:linear-gradient(135deg,#f0f7ff,#e8f4f8);border-radius:12px;border:1px solid #d0e3f0">' +
+        '<div style="display:flex;align-items:center;justify-content:space-between">' +
+            '<div>' +
+                '<div style="font-size:16px;font-weight:700;color:var(--text-primary);margin-bottom:4px">' + escapeHtml(asset.name) + '</div>' +
+                '<div style="font-size:12px;color:var(--text-secondary)">' + escapeHtml(generatedFiles.length ? ('基于该音色已合成 ' + generatedFiles.length + ' 条语音') : '暂无合成记录') + '</div>' +
+            '</div>' +
+            '<span class="chip chip-blue" style="font-size:12px">' + escapeHtml(asset.visibility || '团队可见') + '</span>' +
+        '</div>' +
+    '</div>' +
+    sampleHtml +
+    generatedSection + errorMessage +
+    '<div class="record-drawer-footer"><button class="btn" onclick="closeDrawer()">关闭</button></div>';
+}
+
+var tenantVoicePreviewTimer = null;
+var tenantVoicePreviewKey = '';
+
+function bindTenantVoiceFileButtons(scope) {
+    if (!scope) return;
+    scope.querySelectorAll('[data-tenant-voice-action]').forEach(function(button) {
+        button.addEventListener('click', function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            var assetId = button.getAttribute('data-asset-id');
+            var fileKind = button.getAttribute('data-file-kind') || 'sample';
+            var fileId = button.getAttribute('data-file-id') || '';
+            var action = button.getAttribute('data-tenant-voice-action');
+            if (action === 'preview') previewTenantVoiceFile(assetId, { fileKind:fileKind, fileId:fileId }, button);
+            else if (action === 'download') downloadTenantVoiceFile(assetId, { fileKind:fileKind, fileId:fileId });
+            else if (action === 'script') toggleTenantVoiceTranscript(assetId, fileId, button);
+        });
+    });
+}
+
+function findTenantBoundVoiceAsset(tenantId, roleAsset) {
+    var voiceName = ((roleAsset.details || {}).voiceName || '').trim();
+    if (!voiceName) return null;
+    return (AppState.tenantAssets || []).find(function(asset) {
+        return asset.tenantId === tenantId && asset.type === 'voice' && asset.name === voiceName;
+    }) || null;
+}
+
+function previewRoleBoundVoice(roleAssetId) {
+    if (!hasOperatorPermission('tenant_content_view')) { toast('当前账号无用户内容查看权限', 'error'); return; }
+    var tenant = getCurrentTenant();
+    if (!tenant) return;
+    var roleAsset = (AppState.tenantAssets || []).find(function(item) { return item.id === roleAssetId && item.type === 'role' && item.tenantId === tenant.id; });
+    if (!roleAsset) { toast('未找到该角色记录', 'error'); return; }
+    var voiceName = (roleAsset.details || {}).voiceName || '未绑定音色';
+    var voice = findTenantBoundVoiceAsset(tenant.id, roleAsset);
+    if (voice && voice.details && voice.details.sampleFile) {
+        previewTenantVoiceFile(voice.id, 'sample');
+    } else {
+        toast('正在试听绑定音色：' + voiceName + '（静态原型未匹配到音色文件）');
+    }
+}
+
+function downloadRoleBoundVoice(roleAssetId) {
+    if (!canExportTenantContent()) { toast('当前账号无用户内容导出权限', 'error'); return; }
+    var tenant = getCurrentTenant();
+    if (!tenant) return;
+    var roleAsset = (AppState.tenantAssets || []).find(function(item) { return item.id === roleAssetId && item.type === 'role' && item.tenantId === tenant.id; });
+    if (!roleAsset) { toast('未找到该角色记录', 'error'); return; }
+    var voiceName = (roleAsset.details || {}).voiceName || '未绑定音色';
+    var voice = findTenantBoundVoiceAsset(tenant.id, roleAsset);
+    if (voice && voice.details && voice.details.sampleFile) {
+        downloadTenantVoiceFile(voice.id, 'sample');
+    } else {
+        toast('静态原型未接入真实文件地址；正式后台将下载绑定音色：' + voiceName);
+    }
+}
+
+function bindRoleBoundVoiceButtons(scope) {
+    if (!scope) return;
+    scope.querySelectorAll('[data-role-voice-action]').forEach(function(button) {
+        button.addEventListener('click', function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            var assetId = button.getAttribute('data-asset-id');
+            if (button.getAttribute('data-role-voice-action') === 'preview') previewRoleBoundVoice(assetId);
+            else downloadRoleBoundVoice(assetId);
+        });
+    });
+}
+
+function stopTenantVoicePreview() {
+    clearTimeout(tenantVoicePreviewTimer);
+    tenantVoicePreviewTimer = null;
+    tenantVoicePreviewKey = '';
+    var panel = document.getElementById('tenantVoicePreviewPanel');
+    var time = document.getElementById('tenantVoicePreviewTime');
+    var button = document.getElementById('tenantVoicePreviewBtn');
+    if (panel) panel.classList.remove('is-playing');
+    if (button) button.textContent = '▶ 试听首个合成文件';
+    if (time) time.textContent = '00:00 / ' + (time.getAttribute('data-duration') || time.textContent.split(' / ')[1] || '--:--');
+}
+
+function getTenantVoiceFile(assetId, target) {
+    var tenant = getCurrentTenant();
+    if (!tenant) return null;
+    var asset = (AppState.tenantAssets || []).find(function(item) { return item.id === assetId && item.type === 'voice' && item.tenantId === tenant.id; });
+    if (!asset) return null;
+    var details = asset.details || {};
+    var targetKind = typeof target === 'string' ? target : ((target || {}).fileKind || 'sample');
+    var targetId = typeof target === 'object' ? (target.fileId || '') : '';
+    if (targetKind === 'generated') {
+        var files = Array.isArray(details.generatedFiles) ? details.generatedFiles : [];
+        if (targetId) {
+            var matched = files.find(function(file) { return String(file.id || '') === String(targetId); });
+            return { asset:asset, file:matched || files[0] || details.previewAudio || null };
+        }
+        return { asset:asset, file:files[0] || details.previewAudio || null };
+    }
+    return { asset:asset, file:targetKind === 'preview' ? details.previewAudio : details.sampleFile };
+}
+
+function toggleTenantVoiceTranscript(assetId, fileId, button) {
+    var transcriptId = voiceTranscriptToggleId(assetId, fileId);
+    var panel = document.getElementById(transcriptId);
+    if (!panel) return;
+    var isHidden = panel.hidden !== false;
+    panel.hidden = !isHidden;
+    if (button) button.textContent = isHidden ? '收起台词' : '查看台词';
+}
+
+function previewTenantVoiceFile(assetId, target) {
+    if (!hasOperatorPermission('tenant_content_view')) { toast('当前账号无用户内容查看权限', 'error'); return; }
+    var selected = getTenantVoiceFile(assetId, target);
+    if (!selected || !selected.file) { toast('当前没有可试听的音频文件', 'error'); return; }
+    var kind = (typeof target === 'string' ? target : ((target || {}).fileKind || 'sample'));
+    var fileId = (typeof target === 'object' && target && target.fileId) ? target.fileId : '';
+    var key = assetId + ':' + kind + ':' + (fileId || selected.file.id || '');
+    if (tenantVoicePreviewKey === key) { stopTenantVoicePreview(); toast('已停止试听'); return; }
+    stopTenantVoicePreview();
+    var panel = document.getElementById('tenantVoicePreviewPanel');
+    var time = document.getElementById('tenantVoicePreviewTime');
+    var button = document.getElementById('tenantVoicePreviewBtn');
+    if (panel) panel.classList.add('is-playing');
+    if (button) button.textContent = '■ 停止试听';
+    if (time) {
+        time.setAttribute('data-duration', selected.file.duration || '--:--');
+        time.textContent = '00:03 / ' + (selected.file.duration || '--:--');
+    }
+    toast('正在试听：' + selected.file.name + '（静态原型播放状态）');
+    tenantVoicePreviewKey = key;
+    tenantVoicePreviewTimer = setTimeout(function() {
+        stopTenantVoicePreview();
+    }, 3200);
+}
+
+function downloadTenantVoiceFile(assetId, target) {
+    if (!canExportTenantContent()) { toast('当前账号无用户内容导出权限', 'error'); return; }
+    var selected = getTenantVoiceFile(assetId, target);
+    if (!selected || !selected.file) { toast('当前没有可下载的音频文件', 'error'); return; }
+    toast('静态原型未接入真实文件地址；正式后台将下载：' + selected.file.name);
+}
+
+function buildSubjectAssetDrawerHtml(asset, tenant) {
+    var details = asset.details || {};
+    var main = details.mainImage || {};
+    var errorMessage = details.errorMessage ? '<div style="padding:16px;background:#fef2f2;border:1px solid #fecaca;border-radius:10px;color:#b91c1c;margin-bottom:16px">' + escapeHtml(details.errorMessage) + '</div>' : '';
+    var isRole = asset.type === 'role';
+    var secondaryFiles = isRole ? (details.outfitImages || []) : [];
+    var mainImgSrc = main.dataUrl || main.url || '';
+    var mainPreviewHtml = '';
+    if (mainImgSrc) {
+        var mainIdx = window._imgPreviewStore ? window._imgPreviewStore.length : 0;
+        if (!window._imgPreviewStore) window._imgPreviewStore = [];
+        window._imgPreviewStore.push({ src: mainImgSrc, title: asset.name });
+        var mainFileName = (main.name || asset.name + '-主图.png').replace(/'/g, "\\'");
+        var mainUsageCount = main.usageCount || 0;
+        var mainBadgeHtml = '<div style="position:absolute;top:8px;left:8px;padding:4px 10px;background:rgba(0,0,0,0.7);border-radius:99px;font-size:11px;font-weight:700;color:#fff;display:flex;align-items:center;gap:4px"><span style="font-size:13px">🎬</span>已生成 ' + mainUsageCount + ' 个视频</div>';
+        mainPreviewHtml = '<div style="position:relative;border-radius:12px;overflow:hidden;background:#f0f4f8;border:1px solid var(--border);cursor:zoom-in" data-img-preview="' + mainIdx + '">' +
+            '<img src="' + mainImgSrc + '" style="width:100%;max-height:400px;object-fit:contain;display:block" alt="' + escapeHtml(asset.name) + '">' +
+            mainBadgeHtml +
+            '<div style="position:absolute;bottom:0;left:0;right:0;padding:12px 16px;background:linear-gradient(transparent,rgba(0,0,0,0.6));display:flex;align-items:center;justify-content:space-between">' +
+                '<span style="color:#fff;font-size:13px;font-weight:600">' + escapeHtml(asset.name) + '</span>' +
+                '<button class="btn btn-sm" data-img-download="' + mainIdx + '" data-filename="' + mainFileName + '" style="background:rgba(255,255,255,0.2);border-color:rgba(255,255,255,0.3);color:#fff">下载</button>' +
+            '</div>' +
+        '</div>';
+    } else {
+        mainPreviewHtml = '<div style="height:300px;display:flex;align-items:center;justify-content:center;background:#f0f4f8;border-radius:12px;border:1px solid var(--border)">' +
+            '<div style="text-align:center;color:var(--text-muted)"><div style="font-size:48px;margin-bottom:8px">' + (isRole ? '👤' : '🖼️') + '</div><div style="font-size:13px">暂无主图</div></div>' +
+        '</div>';
+    }
+    var variantHtml = '';
+    if (secondaryFiles.length) {
+        variantHtml = '<div style="margin-top:20px">' +
+            '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">' +
+                '<h4 style="margin:0;font-size:15px">形象变体 <span style="font-size:13px;font-weight:500;color:var(--text-muted)">共 ' + secondaryFiles.length + ' 张</span></h4>' +
+            '</div>' +
+            '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px">' + secondaryFiles.map(function(file, index) {
+                var fileSrc = file.dataUrl || file.url || '';
+                var fileLabel = file.label || ('变体 ' + (index + 1));
+                var fileIdx = window._imgPreviewStore.length;
+                var fileUsageCount = file.usageCount || 0;
+                if (fileSrc) {
+                    window._imgPreviewStore.push({ src: fileSrc, title: fileLabel });
+                    var fileFileName = (file.name || fileLabel + '.png').replace(/'/g, "\\'");
+                    return '<div style="position:relative;border-radius:10px;overflow:hidden;background:#f0f4f8;border:1px solid var(--border);cursor:zoom-in;aspect-ratio:3/4" data-img-preview="' + fileIdx + '">' +
+                        '<img src="' + fileSrc + '" style="width:100%;height:100%;object-fit:cover;display:block" alt="' + escapeHtml(fileLabel) + '">' +
+                        '<div style="position:absolute;top:6px;left:6px;padding:3px 8px;background:rgba(0,0,0,0.7);border-radius:99px;font-size:10px;font-weight:700;color:#fff;display:flex;align-items:center;gap:3px">' +
+                            '<span style="font-size:11px">🎬</span>' + fileUsageCount + ' 个视频' +
+                        '</div>' +
+                        '<div style="position:absolute;bottom:0;left:0;right:0;padding:8px 10px;background:linear-gradient(transparent,rgba(0,0,0,0.6));display:flex;align-items:center;justify-content:space-between;gap:6px">' +
+                            '<span style="color:#fff;font-size:11px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + escapeHtml(fileLabel) + '</span>' +
+                            '<div style="display:flex;gap:4px;flex-shrink:0">' +
+                                '<button data-img-preview-btn="' + fileIdx + '" type="button" style="background:rgba(255,255,255,0.22);border:1px solid rgba(255,255,255,0.35);color:#fff;font-size:10px;font-weight:700;cursor:pointer;padding:2px 7px;border-radius:5px">预览</button>' +
+                                '<button data-img-download="' + fileIdx + '" data-filename="' + fileFileName + '" type="button" style="background:rgba(255,255,255,0.22);border:1px solid rgba(255,255,255,0.35);color:#fff;font-size:10px;font-weight:700;cursor:pointer;padding:2px 7px;border-radius:5px">下载</button>' +
+                            '</div>' +
+                        '</div>' +
+                    '</div>';
+                } else {
+                    return '<div style="aspect-ratio:3/4;display:flex;align-items:center;justify-content:center;background:#f0f4f8;border-radius:10px;border:1px solid var(--border)">' +
+                        '<div style="text-align:center;color:var(--text-muted)"><div style="font-size:24px;margin-bottom:4px">🖼️</div><div style="font-size:11px">' + escapeHtml(fileLabel) + '</div></div>' +
+                    '</div>';
+                }
+            }).join('') + '</div>' +
+        '</div>';
+    }
+    var html = mainPreviewHtml + variantHtml + errorMessage +
+        '<div class="record-drawer-footer"><button class="btn" onclick="closeDrawer()">关闭</button></div>';
+    setTimeout(function() {
+        document.querySelectorAll('[data-img-preview]').forEach(function(el) {
+            el.onclick = function() {
+                var idx = Number(el.getAttribute('data-img-preview'));
+                var item = window._imgPreviewStore[idx];
+                if (item) window.openImagePreview(item.src, item.title);
+            };
+        });
+        document.querySelectorAll('[data-img-download]').forEach(function(el) {
+            el.onclick = function(e) {
+                e.stopPropagation();
+                var idx = Number(el.getAttribute('data-img-download'));
+                var fn = el.getAttribute('data-filename') || 'image.png';
+                var item = window._imgPreviewStore[idx];
+                if (item) window.downloadImage(item.src, fn);
+            };
+        });
+        document.querySelectorAll('[data-img-preview-btn]').forEach(function(el) {
+            el.onclick = function(e) {
+                e.stopPropagation();
+                var idx = Number(el.getAttribute('data-img-preview-btn'));
+                var item = window._imgPreviewStore[idx];
+                if (item) window.openImagePreview(item.src, item.title);
+            };
+        });
+    }, 0);
+    return html;
+}
+
+function buildAssetDrawerHtml(asset, tenant) {
+    return asset.type === 'voice' ? buildVoiceAssetDrawerHtml(asset, tenant) : buildSubjectAssetDrawerHtml(asset, tenant);
+}
+
+function toolInputSections(run) {
+    var input = run.input || {};
+    var fields = [];
+    if (run.toolType === 'viral_breakdown') {
+        fields = [['视频来源', (input.videoSources || []).map(tenantVideoSourceLabel).filter(Boolean).join('\n')], ['来源数量', input.sourceCount ? input.sourceCount + ' 个' : '']];
+    } else if (run.toolType === 'compliance_check') {
+        fields = [['被检查台词', input.checkedText], ['检查稿件数', input.draftCount ? input.draftCount + ' 篇' : '']];
+    } else if (run.mode === 'zero_to_one') {
+        fields = [
+            ['创作主题', input.topic], ['目标平台', input.platform], ['目标受众', input.audience],
+            ['目标时长', input.targetDuration], ['创作要求', input.requirements]
+        ];
+    } else {
+        fields = [
+            ['视频来源', input.videoSource], ['视频信息', input.videoMetadata], ['原始台词', input.originalText],
+            ['视频提取台词', input.extractedTranscript], ['用户编辑后台词', input.editedTranscript],
+            ['改写目标', input.rewriteGoal], ['表达口吻', input.tone], ['目标时长', input.targetDuration]
+        ];
+    }
+    var knownKeys = run.toolType === 'viral_breakdown' ? ['videoSources','sourceCount']
+        : (run.toolType === 'compliance_check' ? ['checkedText','draftCount']
+        : (run.mode === 'zero_to_one' ? ['topic','platform','audience','targetDuration','requirements']
+        : ['videoSource','videoMetadata','originalText','extractedTranscript','editedTranscript','rewriteGoal','tone','targetDuration']));
+    var labels = { product:'产品/服务', marketingGoal:'营销目标', style:'创作风格', presentation:'口播形式', cta:'行动引导', outputCount:'生成篇数', extraRequirements:'补充要求', sourceUrl:'来源链接' };
+    Object.keys(input).forEach(function(key) {
+        if (knownKeys.indexOf(key) !== -1) return;
+        var value = input[key];
+        if (value && typeof value === 'object') value = JSON.stringify(value, null, 2);
+        fields.push([labels[key] || key, value]);
+    });
+    return fields.filter(function(pair) { return pair[1] != null && pair[1] !== ''; }).map(function(pair) {
+        return '<div class="record-detail-section"><h4>' + escapeHtml(pair[0]) + '</h4><div class="record-detail-content">' + escapeHtml(pair[1]) + '</div></div>';
+    }).join('') || '<div class="record-detail-content">暂无输入快照</div>';
+}
+
+function toolOutputsHtml(run) {
+    var outputs = run.outputs || [];
+    if (!outputs.length) {
+        return '<div class="record-detail-content">' + escapeHtml(run.runStatus === 'processing' ? '任务仍在处理中，暂未生成结果。' : (run.errorMessage || '暂无输出结果。')) + '</div>';
+    }
+    return outputs.map(function(output, index) {
+        var badges = [];
+        if (output.selected) badges.push('<span class="record-output-badge">用户已选</span>');
+        if (output.adopted) badges.push('<span class="record-output-badge adopted">已采用</span>');
+        if (output.checkStatus) badges.push('<span class="record-output-badge warning">' + escapeHtml(output.checkStatus) + '</span>');
+        var source = output.sourceId ? '<span class="tool-flow-tag">来源：' + escapeHtml((run.input && run.input.videoSources || []).filter(function(item) { return item && item.id === output.sourceId; }).map(tenantVideoSourceLabel)[0] || output.sourceId) + '</span>' : '';
+        var structure = (output.structure || source) ? '<div class="tool-flow-tags">' + source + (output.structure ? '<span class="tool-flow-tag">' + escapeHtml(output.structure) + '</span>' : '') + '</div>' : '';
+        return '<article class="record-output-card"><div class="record-output-head"><div class="record-output-title">' + (index + 1) + '. ' + escapeHtml(output.title || '未命名结果') + '</div><div class="record-output-badges">' + (badges.join('') || '<span class="record-output-badge">生成结果</span>') + '</div></div><div class="record-output-text">' + escapeHtml(output.text || '') + '</div>' + structure + '</article>';
+    }).join('');
+}
+
+function toolFindingsHtml(run) {
+    var findings = run.findings || [];
+    if (!findings.length) return '';
+    return '<div class="record-detail-section"><h4>风险项与处理（' + findings.length + '）</h4>' + findings.map(function(item, index) {
+        return '<article class="record-output-card"><div class="record-output-head"><div class="record-output-title">' + (index + 1) + '. ' + escapeHtml(item.type || '风险项') + '</div><div class="record-output-badges"><span class="record-output-badge warning">' + escapeHtml(item.severity || 'attention') + '</span>' + (item.adopted ? '<span class="record-output-badge adopted">用户已采纳</span>' : '') + '</div></div><div class="record-output-text"><strong>原文：</strong>' + escapeHtml(item.excerpt || '-') + '\n<strong>原因：</strong>' + escapeHtml(item.reason || '-') + '\n<strong>建议：</strong>' + escapeHtml(item.suggestion || '-') + '</div></article>';
+    }).join('') + '</div>';
+}
+
+function buildToolDrawerHtml(run, tenant) {
+    var creator = getTenantMemberName(tenant.id, run.creatorId, run.creatorNameSnapshot);
+    var meta = [
+        ['租户', tenant.name], ['记录 ID', run.id], ['使用人', creator], ['使用类型', tenantToolModeLabel(run)],
+        ['运行状态', tenantToolStatusLabel(run.runStatus)], ['内容检查', contentCheckStatusLabel(run.contentCheckStatus)],
+        ['结果数量', (run.outputs || []).length + ' 条'], ['用户处理', tenantToolAdoptionLabel(run)],
+        ['开始时间', run.createdAt], ['完成时间', run.completedAt || '-']
+    ].map(function(pair) { return recordMetaItem(pair[0], pair[1]); }).join('');
+    var technicalMeta = [
+        ['耗时', run.durationMs ? Math.round(run.durationMs / 1000) + ' 秒' : '-'], ['消耗积分', Number(run.points || 0)],
+        ['工具版本', run.toolVersion || '-'], ['提示词 / 规则版本', run.promptVersion || '-']
+    ].map(function(pair) { return recordMetaItem(pair[0], pair[1]); }).join('');
+    var errorHtml = run.errorMessage ? '<div class="record-detail-section"><h4>失败信息</h4><div class="record-detail-content" style="border-color:#fecaca;background:#fef2f2;color:#b91c1c">' + escapeHtml((run.errorCode ? run.errorCode + ' · ' : '') + run.errorMessage) + '</div></div>' : '';
+    var downstream = (run.downstreamActions || []).length ? '<div class="record-detail-section"><h4>用户操作与下游去向</h4><div class="tool-flow-tags">' + run.downstreamActions.map(function(action) { return '<span class="tool-flow-tag">' + escapeHtml(action) + '</span>'; }).join('') + '</div></div>' : '';
+    return '<div class="prototype-note"><strong>运行时快照</strong><span>重点展示用户输入、生成结果、采用情况和下游流转，不随前台后续内容变化。</span></div>' +
+        '<div class="record-detail-meta">' + meta + '</div>' +
+        '<div class="record-detail-section"><h4>完整输入</h4>' + toolInputSections(run) + '</div>' +
+        '<div class="record-detail-section"><h4>完整输出（' + (run.outputs || []).length + '）</h4>' + toolOutputsHtml(run) + '</div>' +
+        toolFindingsHtml(run) + downstream + errorHtml +
+        '<details class="technical-details"><summary>查看技术信息</summary><div class="record-detail-meta">' + technicalMeta + '</div></details>' +
+        '<div class="record-drawer-footer"><button class="btn" onclick="closeDrawer()">关闭</button></div>';
+}
+
+function contentCheckStatusLabel(status) {
+    return { clear:'当前规则未发现风险', attention:'存在关注项', stale:'修改后待复检', not_run:'未检查' }[status] || status || '未检查';
+}
+
+function openTenantRecordDrawer(kind, recordId, trigger) {
+    if (!hasOperatorPermission('tenant_content_view')) {
+        toast('当前账号无用户内容查看权限', 'error');
+        return;
+    }
+    window._imgPreviewStore = [];
+    var tenant = getCurrentTenant();
+    if (!tenant) return;
+    var record = null;
+    if (kind === 'asset') {
+        record = (AppState.tenantAssets || []).find(function(item) { return item.id === recordId && item.tenantId === tenant.id; });
+    } else if (kind === 'tool') {
+        record = (AppState.toolRuns || []).find(function(item) { return isTenantToolRun(item) && item.id === recordId && item.tenantId === tenant.id; });
+    }
+    if (!record) {
+        closeDrawer();
+        toast('记录不存在或不属于当前租户', 'error');
+        return;
+    }
+    tenantDetailUiState.selectedRecord = { kind:kind, id:record.id, tenantId:tenant.id };
+    tenantDrawerReturnFocus = trigger || document.activeElement;
+    document.getElementById('drawerTitle').textContent = kind === 'asset' ? (tenantAssetTypeLabel(record.type) + '详情 · ' + record.name) : ('工具记录 · ' + record.title);
+    document.getElementById('drawerBody').innerHTML = kind === 'asset' ? buildAssetDrawerHtml(record, tenant) : buildToolDrawerHtml(record, tenant);
+    bindTenantVoiceFileButtons(document.getElementById('drawerBody'));
+    document.getElementById('drawerOverlay').classList.add('show');
+    var drawer = document.getElementById('tenantDrawer');
+    drawer.removeAttribute('inert');
+    drawer.classList.add('show');
+    drawer.setAttribute('aria-hidden', 'false');
+    var closeButton = drawer.querySelector('.modal-close');
+    if (closeButton) closeButton.focus(); else drawer.focus();
+    var voicePreview = document.getElementById('tenantVoicePreviewBtn');
+    if (voicePreview) voicePreview.addEventListener('click', function() { previewTenantVoiceFile(record.id, 'preview'); });
+}
+
+function closeDrawer() {
+    stopTenantVoicePreview();
+    var drawer = document.getElementById('tenantDrawer');
+    var overlay = document.getElementById('drawerOverlay');
+    if (drawer) {
+        drawer.classList.remove('show');
+        drawer.setAttribute('aria-hidden', 'true');
+        drawer.setAttribute('inert', '');
+    }
+    if (overlay) overlay.classList.remove('show');
+    tenantDetailUiState.selectedRecord = null;
+    var focusTarget = tenantDrawerReturnFocus;
+    tenantDrawerReturnFocus = null;
+    if (focusTarget && document.contains(focusTarget)) setTimeout(function() { focusTarget.focus(); }, 0);
+}
+
+function trapTenantDrawerFocus(event) {
+    var drawer = document.getElementById('tenantDrawer');
+    if (!drawer || !drawer.classList.contains('show') || event.key !== 'Tab') return;
+    var items = Array.prototype.slice.call(drawer.querySelectorAll('button,[href],input,select,textarea,[tabindex]:not([tabindex="-1"])')).filter(function(item) { return !item.disabled; });
+    if (!items.length) { event.preventDefault(); drawer.focus(); return; }
+    var first = items[0], last = items[items.length - 1];
+    if (!drawer.contains(document.activeElement)) { event.preventDefault(); first.focus(); return; }
+    if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+    else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+}
+
+function tenantCsvCell(value) {
+    var text = String(value == null ? '' : value);
+    if (/^[\t\r\n]/.test(text) || /^\s*[=+\-@]/.test(text)) text = "'" + text;
+    return '"' + text.replace(/"/g, '""') + '"';
+}
+
+function tenantCsv(rows) {
+    return rows.map(function(row) { return row.map(tenantCsvCell).join(','); }).join('\r\n');
+}
+
+function tenantExportDate() {
+    var d = new Date();
+    function pad(n) { return String(n).padStart(2,'0'); }
+    return d.getFullYear() + pad(d.getMonth()+1) + pad(d.getDate()) + '-' + pad(d.getHours()) + pad(d.getMinutes());
+}
+
+function downloadTenantContentFile(filename, content, mime) {
+    try {
+        var blob = new Blob(['\ufeff' + content], { type:(mime || 'text/plain') + ';charset=utf-8' });
+        var url = URL.createObjectURL(blob);
+        var link = document.createElement('a');
+        link.href = url;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        setTimeout(function() { URL.revokeObjectURL(url); }, 500);
+        return true;
+    } catch (error) {
+        toast('文件生成失败，请稍后重试', 'error');
+        return false;
+    }
+}
+
+function recordTenantContentExport(tenant, target, remark) {
+    addAuditLog('导出', tenant.name + ' · ' + target, '-', '已发起导出', remark);
+    saveData();
+}
+
+function tenantExportFilterSummary(filters, ids, filename) {
+    var parts = [];
+    var labels = { kind:'分类', userId:'成员', type:'类型', mode:'模式', dateFrom:'开始日期', dateTo:'结束日期', keyword:'关键词' };
+    Object.keys(labels).forEach(function(key) {
+        if (filters && filters[key]) parts.push(labels[key] + '=' + String(filters[key]));
+    });
+    parts.push('文件=' + filename);
+    parts.push('记录ID=' + ids.join(','));
+    return parts.join('；');
+}
+
+function exportTenantAssetsCsv() {
+    clearTimeout(tenantAssetSearchTimer);
+    updateTenantAssetFilters();
+    if (!canExportTenantContent()) { toast('当前账号缺少用户内容查看或导出权限', 'error'); return; }
+    var tenant = getCurrentTenant();
+    if (!tenant || !tenantDateRangeValid(tenantDetailUiState.assetFilters)) { toast('请先修正日期范围', 'error'); return; }
+    var list = selectTenantAssets(tenant.id, tenantDetailUiState.assetFilters);
+    if (!list.length) { toast('当前筛选结果为空，无法导出', 'error'); return; }
+    var kind = ['voice','role','scene'].indexOf(tenantDetailUiState.assetFilters.kind) !== -1 ? tenantDetailUiState.assetFilters.kind : 'voice';
+    var rows;
+    if (kind === 'voice') {
+        rows = [['音色 ID','音色名称','创建人','可见范围','录音源文件名','录音源格式','录音源大小','录音源时长','合成文件数','合成总时长','合成总大小','台词数','试听文件名','关联角色','引用次数','最近使用时间','创建时间','更新时间']];
+        list.forEach(function(asset) {
+            var d = asset.details || {}, sample = d.sampleFile || {};
+            rows.push([asset.id,asset.name,getTenantMemberName(tenant.id,asset.creatorId,asset.creatorNameSnapshot),asset.visibility,sample.name || '-',sample.format || '-',sample.size || '-',sample.duration || '-',d.generatedFileCount || (d.generatedFiles || []).length || 0,d.generatedTotalDuration || '-',d.generatedTotalSize || '-',d.generatedScriptCount || 0,(d.previewAudio || {}).name || '-',(d.linkedRoles || []).join('、'),asset.referenceCount || 0,asset.lastUsedAt || '-',asset.createdAt || '-',asset.updatedAt || '-']);
+        });
+    } else if (kind === 'role') {
+        rows = [['角色 ID','角色名称','创建人','可见范围','主图文件','绑定音色','形象变体数','用户标签','引用次数','最近使用时间','创建时间','更新时间']];
+        list.forEach(function(asset) {
+            var d = asset.details || {}, main = d.mainImage || {};
+            rows.push([asset.id,asset.name,getTenantMemberName(tenant.id,asset.creatorId,asset.creatorNameSnapshot),asset.visibility,main.name || '-',d.voiceName || '未绑定',(d.outfitImages || []).length,(d.userTags || []).join('、'),asset.referenceCount || 0,asset.lastUsedAt || '-',asset.createdAt || '-',asset.updatedAt || '-']);
+        });
+    } else {
+        rows = [['场景 ID','场景名称','创建人','可见范围','主图文件','主图格式','主图分辨率','画面比例','引用次数','最近使用时间','创建时间','更新时间']];
+        list.forEach(function(asset) {
+            var d = asset.details || {}, main = d.mainImage || {};
+            rows.push([asset.id,asset.name,getTenantMemberName(tenant.id,asset.creatorId,asset.creatorNameSnapshot),asset.visibility,main.name || '-',main.format || '-',main.resolution || '-',d.ratio || '',asset.referenceCount || 0,asset.lastUsedAt || '-',asset.createdAt || '-',asset.updatedAt || '-']);
+        });
+    }
+    var label = tenantAssetTypeLabel(kind) + '资产';
+    var exportScope = { voice:'voice-assets', role:'roles', scene:'scenes' }[kind];
+    var filename = 'tenant-' + tenant.id + '-' + exportScope + '-' + tenantExportDate() + '.csv';
+    if (!downloadTenantContentFile(filename, tenantCsv(rows), 'text/csv')) return;
+    recordTenantContentExport(tenant, label, '导出 ' + list.length + ' 条；' + tenantExportFilterSummary(tenantDetailUiState.assetFilters, list.map(function(item){return item.id;}), filename));
+    toast('已发起下载 ' + list.length + ' 条' + label + '摘要', 'success');
+}
+
+function exportTenantToolCsv() {
+    clearTimeout(tenantToolSearchTimer);
+    updateTenantToolFilters();
+    if (!canExportTenantContent()) { toast('当前账号缺少用户内容查看或导出权限', 'error'); return; }
+    var tenant = getCurrentTenant();
+    if (!tenant || !tenantDateRangeValid(tenantDetailUiState.toolFilters)) { toast('请先修正日期范围', 'error'); return; }
+    var list = selectTenantToolRuns(tenant.id, tenantDetailUiState.toolFilters);
+    if (!list.length) { toast('当前筛选结果为空，无法导出', 'error'); return; }
+    var rows = [['记录 ID','标题','工具类型','使用人','运行状态','内容检查','结果数','用户处理','风险项数','已采纳风险项','下游去向','输入摘要','输出摘要','错误信息','创建时间','完成时间']];
+    list.forEach(function(run) {
+        var outputSummary = (run.outputs || []).map(function(item) { return item.title || ''; }).join('；');
+        var adoptedFindings = (run.findings || []).filter(function(item) { return item.adopted; }).length;
+        rows.push([run.id,run.title,tenantToolModeLabel(run),getTenantMemberName(tenant.id,run.creatorId,run.creatorNameSnapshot),tenantToolStatusLabel(run.runStatus),contentCheckStatusLabel(run.contentCheckStatus),(run.outputs || []).length,tenantToolAdoptionLabel(run),(run.findings || []).length,adoptedFindings,(run.downstreamActions || []).join('；'),tenantToolInputSummary(run),outputSummary,run.errorMessage || '',run.createdAt || '-',run.completedAt || '-']);
+    });
+    var filename = 'tenant-' + tenant.id + '-tool-runs-' + tenantExportDate() + '.csv';
+    if (!downloadTenantContentFile(filename, tenantCsv(rows), 'text/csv')) return;
+    recordTenantContentExport(tenant, '工具记录', '导出 ' + list.length + ' 条；' + tenantExportFilterSummary(tenantDetailUiState.toolFilters, list.map(function(item){return item.id;}), filename));
+    toast('已发起下载 ' + list.length + ' 条工具记录摘要', 'success');
+}
+
+function toolRecordTxt(run, tenant) {
+    var lines = [
+        '租户：' + tenant.name + '（' + tenant.id + '）',
+        '记录 ID：' + run.id,
+        '标题：' + run.title,
+        '使用人：' + getTenantMemberName(tenant.id, run.creatorId, run.creatorNameSnapshot),
+        '使用类型：' + tenantToolModeLabel(run),
+        '运行状态：' + tenantToolStatusLabel(run.runStatus),
+        '内容检查：' + contentCheckStatusLabel(run.contentCheckStatus),
+        '开始时间：' + (run.createdAt || '-'),
+        '完成时间：' + (run.completedAt || '-'),
+        '耗时：' + (run.durationMs ? Math.round(run.durationMs/1000) + ' 秒' : '-'),
+        '消耗积分：' + Number(run.points || 0),
+        '工具版本：' + (run.toolVersion || '-'),
+        '提示词版本：' + (run.promptVersion || '-'),
+        '', '===== 完整输入 ====='
+    ];
+    var input = run.input || {};
+    Object.keys(input).forEach(function(key) {
+        var value = input[key];
+        if (value && typeof value === 'object') value = JSON.stringify(value, null, 2);
+        lines.push(key + '：\n' + String(value == null ? '' : value));
+    });
+    lines.push('', '===== 完整输出 =====');
+    if (!(run.outputs || []).length) lines.push(run.errorMessage || '暂无输出');
+    (run.outputs || []).forEach(function(output, index) {
+        lines.push('', (index + 1) + '. ' + (output.title || '未命名结果'),
+            '输出 ID：' + (output.id || '-'),
+            '用户已选：' + (output.selected ? '是' : '否'),
+            '用户已采用：' + (output.adopted ? '是' : '否'),
+            '检查状态：' + (output.checkStatus || '-'),
+            '来源 ID：' + (output.sourceId || '-'),
+            '结构：' + (output.structure || '-'),
+            '正文：\n' + (output.text || ''));
+    });
+    if ((run.findings || []).length) {
+        lines.push('', '===== 风险项与处理 =====');
+        run.findings.forEach(function(item, index) {
+            lines.push('', (index + 1) + '. ' + (item.type || '风险项'),
+                '等级：' + (item.severity || '-'),
+                '原文：' + (item.excerpt || '-'),
+                '原因：' + (item.reason || '-'),
+                '建议：' + (item.suggestion || '-'),
+                '替换建议：' + (item.replacement || '-'),
+                '用户已采纳：' + (item.adopted ? '是' : '否'));
+        });
+    }
+    if ((run.downstreamActions || []).length) lines.push('', '===== 用户操作与下游去向 =====', run.downstreamActions.join('；'));
+    if (run.errorMessage) lines.push('', '===== 失败信息 =====', (run.errorCode ? run.errorCode + ' · ' : '') + run.errorMessage);
+    return lines.join('\r\n');
+}
+
+function exportToolRecordTxt(recordId) {
+    if (!canExportTenantContent()) { toast('当前账号缺少用户内容查看或导出权限', 'error'); return; }
+    var tenant = getCurrentTenant();
+    if (!tenant) return;
+    var selected = tenantDetailUiState.selectedRecord;
+    if (!selected || selected.kind !== 'tool' || selected.id !== recordId || selected.tenantId !== tenant.id) {
+        toast('当前详情已失效，请重新打开记录', 'error');
+        return;
+    }
+    var run = (AppState.toolRuns || []).find(function(item) { return isTenantToolRun(item) && item.id === recordId && item.tenantId === tenant.id; });
+    if (!run) { toast('记录不存在或不属于当前租户', 'error'); return; }
+    var filename = 'tenant-' + tenant.id + '-tool-run-' + String(run.id).replace(/[^a-zA-Z0-9_-]/g,'_') + '.txt';
+    if (!downloadTenantContentFile(filename, toolRecordTxt(run, tenant), 'text/plain')) return;
+    recordTenantContentExport(tenant, run.id, '导出单条工具记录完整 TXT；文件=' + filename + '；记录ID=' + run.id);
+    toast('已发起完整记录下载', 'success');
 }
 
 function manualAdjustCredit(tenantId) {
@@ -6283,13 +8015,13 @@ function renderAudit() {
         var a = list[i];
         var cls = a.type === '积分' ? 'status-active' : (a.type === '提示词' ? 'status-trial' : (a.type === '租户' ? 'status-warning' : (a.type === '任务' ? 'status-success' : 'status-success')));
         html += '<tr>' +
-            '<td style="font-size:12px">' + a.time + '</td>' +
-            '<td>' + a.operator + '</td>' +
-            '<td><span class="status ' + cls + '">' + a.type + '</span></td>' +
-            '<td><strong>' + a.target + '</strong></td>' +
-            '<td style="font-size:12px;color:var(--text-secondary)">' + a.before + '</td>' +
-            '<td style="font-size:12px;color:var(--text-primary)">' + a.after + '</td>' +
-            '<td style="font-size:12px;color:var(--text-secondary)">' + a.remark + '</td>' +
+            '<td style="font-size:12px">' + escapeHtml(a.time) + '</td>' +
+            '<td>' + escapeHtml(a.operator) + '</td>' +
+            '<td><span class="status ' + cls + '">' + escapeHtml(a.type) + '</span></td>' +
+            '<td><strong>' + escapeHtml(a.target) + '</strong></td>' +
+            '<td style="font-size:12px;color:var(--text-secondary)">' + escapeHtml(a.before) + '</td>' +
+            '<td style="font-size:12px;color:var(--text-primary)">' + escapeHtml(a.after) + '</td>' +
+            '<td style="font-size:12px;color:var(--text-secondary)">' + escapeHtml(a.remark) + '</td>' +
             '</tr>';
     }
     document.getElementById('auditTable').innerHTML = html || '<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--text-muted)">暂无匹配的审计记录</td></tr>';
@@ -6459,15 +8191,18 @@ function closeDiffModal() { document.getElementById('diffModalOverlay').classLis
 // 工具函数
 // ===========================
 function escapeHtml(str) {
-    if (!str) return '';
-    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    if (str == null) return '';
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
 
 // ===========================
 // 初始化
 // ===========================
 document.addEventListener('keydown', function(e) {
+    trapTenantDrawerFocus(e);
     if (e.key === 'Escape') {
+        var tenantContentDrawer = document.getElementById('tenantDrawer');
+        if (tenantContentDrawer && tenantContentDrawer.classList.contains('show')) { closeDrawer(); return; }
         closeTenantLevelModal(); closeTenantModal(); closeRechargeModal(); closeVoiceModal(); closePromptModal();
         closeDiffModal(); closeDrawer(); closeTaskDrawer(); closeRefundReview(); closeConfirm();
     }
