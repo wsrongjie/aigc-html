@@ -3852,7 +3852,7 @@ function renderTenantAssetTable() {
         if (asset.type === 'voice') {
             var sample = details.sampleFile || {};
             var downloadDisabled = canExportTenantContent() ? '' : ' disabled title="当前账号无用户内容导出权限"';
-            return prefix + '<td><div class="asset-sample-cell"><div class="asset-sample-name" title="' + escapeHtml(sample.name || '') + '">' + escapeHtml(sample.name || '未记录录音源文件') + '</div><div class="asset-sample-meta">' + escapeHtml([sample.format,sample.size,sample.duration].filter(Boolean).join(' · ') || '-') + '</div><div class="asset-sample-ops"><button class="asset-file-action primary" type="button" data-tenant-voice-action="preview" data-asset-id="' + escapeHtml(asset.id) + '" data-file-kind="sample">▶ 试听</button><button class="asset-file-action" type="button" data-tenant-voice-action="download" data-asset-id="' + escapeHtml(asset.id) + '" data-file-kind="sample"' + downloadDisabled + '>下载</button></div></div></td><td>' + escapeHtml(asset.visibility) + '</td><td style="font-size:12px;white-space:nowrap">' + escapeHtml(asset.createdAt || '-') + '</td><td><button class="btn btn-xs td-record-detail" data-record-kind="asset" data-record-id="' + escapeHtml(asset.id) + '">详情</button></td></tr>';
+            return prefix + '<td><div class="asset-sample-cell"><div class="asset-sample-name" title="' + escapeHtml(sample.name || '') + '">' + escapeHtml(sample.name || '未记录录音源文件') + '</div><div class="asset-sample-meta">' + escapeHtml([sample.format,sample.size,sample.duration].filter(Boolean).join(' · ') || '-') + '</div><div class="asset-sample-ops"><button class="asset-file-action primary" type="button" data-tenant-voice-action="preview" data-asset-id="' + escapeHtml(asset.id) + '" data-file-kind="sample">▶ 试听</button><button class="asset-file-action" type="button" data-tenant-voice-action="download" data-asset-id="' + escapeHtml(asset.id) + '" data-file-kind="sample"' + downloadDisabled + '>下载</button></div></div></td><td>' + escapeHtml(asset.visibility) + '</td><td style="text-align:center">' + Number(asset.referenceCount || 0) + '</td><td style="font-size:12px;white-space:nowrap">' + escapeHtml(asset.createdAt || '-') + '</td><td><button class="btn btn-xs td-record-detail" data-record-kind="asset" data-record-id="' + escapeHtml(asset.id) + '">详情</button></td></tr>';
         }
         if (asset.type === 'role') {
             var voiceName = details.voiceName || '未绑定音色';
@@ -3869,9 +3869,9 @@ function renderTenantAssetTable() {
         return prefix + '<td>' + escapeHtml(details.ratio || '-') + '</td>' + suffix;
     }).join('');
     var headers = {
-        voice:'<tr><th scope="col">音色</th><th scope="col">创建人</th><th scope="col">录音源文件</th><th scope="col">可见范围</th><th scope="col">创建时间</th><th scope="col">操作</th></tr>',
-        role:'<tr><th scope="col">角色</th><th scope="col">创建人</th><th scope="col">绑定音色</th><th scope="col">形象变体</th><th scope="col">可见范围</th><th scope="col">引用次数</th><th scope="col">创建时间</th><th scope="col">操作</th></tr>',
-        scene:'<tr><th scope="col">场景</th><th scope="col">创建人</th><th scope="col">画幅</th><th scope="col">可见范围</th><th scope="col">引用次数</th><th scope="col">创建时间</th><th scope="col">操作</th></tr>'
+        voice:'<tr><th scope="col">音色</th><th scope="col">创建人</th><th scope="col">录音源文件</th><th scope="col">可见范围</th><th scope="col">使用次数</th><th scope="col">创建时间</th><th scope="col">操作</th></tr>',
+        role:'<tr><th scope="col">角色</th><th scope="col">创建人</th><th scope="col">绑定音色</th><th scope="col">形象变体</th><th scope="col">可见范围</th><th scope="col">使用次数</th><th scope="col">创建时间</th><th scope="col">操作</th></tr>',
+        scene:'<tr><th scope="col">场景</th><th scope="col">创建人</th><th scope="col">画幅</th><th scope="col">可见范围</th><th scope="col">使用次数</th><th scope="col">创建时间</th><th scope="col">操作</th></tr>'
     };
     area.innerHTML = '<div class="tenant-record-table-scroll" tabindex="0" aria-label="可横向滚动的' + kindLabel + '记录表"><table class="tenant-record-table"><thead>' + headers[kind] + '</thead><tbody>' + rows + '</tbody></table></div>';
     bindTenantRecordDetailButtons(area);
