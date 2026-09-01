@@ -3431,7 +3431,7 @@ function renderTenantDetail(id) {
         return;
     }
 
-    document.getElementById('tenantDetailTitle').textContent = t.name + ' · 租户详情';
+    document.getElementById('tenantDetailTitle').textContent = t.name;
 
     var stCls = t.status === '启用中' ? 'status-active' : 'status-stopped';
     var pct = Math.round(t.dailyUsed / t.dailyQuota * 100);
