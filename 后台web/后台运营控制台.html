@@ -3740,18 +3740,12 @@ function renderTenantAssets() {
     var voiceCount = (AppState.tenantAssets || []).filter(function(asset) { return asset.tenantId === tenant.id && asset.type === 'voice'; }).length;
     var roleCount = (AppState.tenantAssets || []).filter(function(asset) { return asset.tenantId === tenant.id && asset.type === 'role'; }).length;
     var sceneCount = (AppState.tenantAssets || []).filter(function(asset) { return asset.tenantId === tenant.id && asset.type === 'scene'; }).length;
-    var kindCopy = {
-        voice:'查看用户复刻的音色、合成语音文件和关联台词。',
-        role:'查看用户创建的角色主图、形象变体和绑定音色。',
-        scene:'查看用户创建的场景主图。'
-    }[kind];
     pane.innerHTML =
         '<div class="tenant-asset-kindbar" role="group" aria-label="用户资产分类">' +
             '<button class="tenant-asset-kind' + (kind === 'voice' ? ' active' : '') + '" type="button" aria-pressed="' + (kind === 'voice') + '" onclick="switchTenantAssetKind(\'voice\',this)"><span class="tenant-asset-kind-icon">声</span><span class="tenant-asset-kind-copy"><strong>音色</strong><span>录音源文件与合成结果</span></span><span class="tenant-asset-kind-count">' + voiceCount + ' 条</span></button>' +
             '<button class="tenant-asset-kind' + (kind === 'role' ? ' active' : '') + '" type="button" aria-pressed="' + (kind === 'role') + '" onclick="switchTenantAssetKind(\'role\',this)"><span class="tenant-asset-kind-icon">人</span><span class="tenant-asset-kind-copy"><strong>角色</strong><span>主图、形象变体与绑定音色</span></span><span class="tenant-asset-kind-count">' + roleCount + ' 条</span></button>' +
             '<button class="tenant-asset-kind' + (kind === 'scene' ? ' active' : '') + '" type="button" aria-pressed="' + (kind === 'scene') + '" onclick="switchTenantAssetKind(\'scene\',this)"><span class="tenant-asset-kind-icon">景</span><span class="tenant-asset-kind-copy"><strong>场景</strong><span>场景主图</span></span><span class="tenant-asset-kind-count">' + sceneCount + ' 条</span></button>' +
         '</div>' +
-        '<div class="prototype-note"><strong>' + tenantAssetTypeLabel(kind) + '记录</strong><span>' + kindCopy + ' 静态原型未接入真实文件服务。</span></div>' +
         '<div class="tenant-record-shell">' +
             '<div class="tenant-record-toolbar">' +
                 '<div class="tenant-record-filter"><label for="tdAssetUserFilter">创建人</label><select class="filter-select" id="tdAssetUserFilter" onchange="updateTenantAssetFilters()">' + buildTenantMemberOptions(tenant.id, f.userId) + '</select></div>' +
@@ -3892,7 +3886,6 @@ function renderTenantToolRuns() {
     if (!pane || !tenant) return;
     var f = tenantDetailUiState.toolFilters;
     pane.innerHTML =
-        '<div class="prototype-note"><strong>用户内容结果</strong><span>聚合创意 Agent、爆款拆解和合规检查的输入、输出及用户处理情况；当前为静态原型数据，未接入真实任务同步。</span></div>' +
         '<div class="tenant-record-shell">' +
             '<div class="tenant-record-toolbar">' +
                 '<div class="tenant-record-filter"><label for="tdToolUserFilter">使用人</label><select class="filter-select" id="tdToolUserFilter" onchange="updateTenantToolFilters()">' + buildTenantMemberOptions(tenant.id, f.userId) + '</select></div>' +
@@ -4517,8 +4510,7 @@ function buildToolDrawerHtml(run, tenant) {
     ].map(function(pair) { return recordMetaItem(pair[0], pair[1]); }).join('');
     var errorHtml = run.errorMessage ? '<div class="record-detail-section"><h4>失败信息</h4><div class="record-detail-content" style="border-color:#fecaca;background:#fef2f2;color:#b91c1c">' + escapeHtml((run.errorCode ? run.errorCode + ' · ' : '') + run.errorMessage) + '</div></div>' : '';
     var downstream = (run.downstreamActions || []).length ? '<div class="record-detail-section"><h4>用户操作与下游去向</h4><div class="tool-flow-tags">' + run.downstreamActions.map(function(action) { return '<span class="tool-flow-tag">' + escapeHtml(action) + '</span>'; }).join('') + '</div></div>' : '';
-    return '<div class="prototype-note"><strong>运行时快照</strong><span>重点展示用户输入、生成结果、采用情况和下游流转，不随前台后续内容变化。</span></div>' +
-        '<div class="record-detail-meta">' + meta + '</div>' +
+    return '<div class="record-detail-meta">' + meta + '</div>' +
         '<div class="record-detail-section"><h4>完整输入</h4>' + toolInputSections(run) + '</div>' +
         '<div class="record-detail-section"><h4>完整输出（' + (run.outputs || []).length + '）</h4>' + toolOutputsHtml(run) + '</div>' +
         toolFindingsHtml(run) + downstream + errorHtml +
