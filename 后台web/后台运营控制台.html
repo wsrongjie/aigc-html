@@ -578,10 +578,55 @@
         .voice-preview-time { margin-left:auto; color:var(--text-secondary); font:11px Consolas,monospace; }
         .tool-flow-tags { display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
         .tool-flow-tag { padding:4px 8px; border-radius:999px; background:#f1f3f5; color:#4b5563; font-size:10px; font-weight:700; }
+        .tool-task-links { display:flex; flex-direction:column; align-items:flex-start; gap:6px; margin-top:9px; }
+        .tool-task-link {
+            display:inline-flex; align-items:center; gap:6px; max-width:100%; padding:5px 8px;
+            border:1px solid #cddafd; border-radius:7px; background:#f5f8ff; color:#3158b7;
+            font-size:11px; font-weight:700; cursor:pointer;
+        }
+        .tool-task-link:hover { background:#eaf0ff; border-color:#9db4f5; }
+        .tool-task-link:focus-visible { outline:3px solid rgba(47,107,255,.24); outline-offset:2px; }
+        .tool-task-link.unavailable { border-color:var(--border); background:#fafafa; color:var(--text-muted); cursor:default; }
+        .tool-task-link code { font:10px/1.2 Consolas,monospace; color:inherit; }
+        .tool-task-summary { max-width:220px; font-size:12px; color:var(--text-secondary); line-height:1.45; }
         .record-output-badges { display:flex; justify-content:flex-end; flex-wrap:wrap; gap:5px; }
         .record-output-badge { padding:3px 7px; border-radius:999px; background:#eef3ff; color:#3158b7; font-size:10px; font-weight:700; }
         .record-output-badge.adopted { background:#e8f7ef; color:#16794b; }
         .record-output-badge.warning { background:#fff3e4; color:#a85c00; }
+        .creative-input-grid {
+            display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px;
+            padding:10px; border:1px solid var(--border); border-radius:10px; background:#fafafa;
+        }
+        .creative-input-item {
+            display:grid; grid-template-columns:76px minmax(0,1fr); align-items:start; gap:10px;
+            min-height:34px; padding:7px 9px; border:1px solid #e5e7eb; border-radius:8px; background:#fff;
+        }
+        .creative-input-item.wide { grid-column:1 / -1; }
+        .creative-input-label { color:var(--text-secondary); font-size:11px; line-height:1.55; }
+        .creative-input-value { color:var(--text-primary); font-size:12px; font-weight:700; line-height:1.55; overflow-wrap:anywhere; white-space:pre-wrap; }
+        @media (max-width:760px) {
+            .creative-input-grid { grid-template-columns:1fr; }
+            .creative-input-item.wide { grid-column:auto; }
+        }
+        .viral-source-list, .compliance-draft-list { display:flex; flex-direction:column; gap:10px; }
+        .viral-source-card, .compliance-draft-card { padding:12px; border:1px solid var(--border); border-radius:10px; background:#fff; }
+        .viral-source-head, .compliance-draft-head { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:10px; }
+        .viral-source-title, .compliance-draft-title { font-size:13px; font-weight:800; }
+        .viral-source-url { display:block; max-width:430px; margin-top:3px; color:#3158b7; font-size:11px; line-height:1.45; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+        .viral-source-body { display:grid; grid-template-columns:minmax(220px,280px) minmax(0,1fr); gap:12px; align-items:start; }
+        .viral-video { display:block; width:100%; aspect-ratio:16/9; border-radius:8px; background:#111827; object-fit:cover; }
+        .viral-video-empty { display:flex; align-items:center; justify-content:center; width:100%; aspect-ratio:16/9; border-radius:8px; background:#f3f4f6; color:var(--text-muted); font-size:12px; }
+        .viral-transcript, .compliance-original { padding:10px 11px; border-radius:8px; background:#f8fafc; color:var(--text-primary); font-size:12px; line-height:1.7; white-space:pre-wrap; overflow-wrap:anywhere; }
+        .viral-transcript-label, .compliance-block-label { display:block; margin-bottom:5px; color:var(--text-secondary); font-size:10px; font-weight:700; }
+        .viral-transcript.error { border:1px solid #fecaca; background:#fef2f2; color:#b91c1c; }
+        .compliance-draft-head { margin-bottom:8px; }
+        .compliance-result-count { color:var(--text-secondary); font-size:11px; white-space:nowrap; }
+        .compliance-result-list { display:flex; flex-direction:column; gap:7px; margin-top:8px; }
+        .compliance-result-item { padding:9px 10px; border-left:3px solid #f59e0b; border-radius:6px; background:#fffbeb; font-size:12px; line-height:1.65; }
+        .compliance-result-item.high { border-left-color:#dc2626; background:#fef2f2; }
+        .compliance-result-item strong { display:block; margin-bottom:3px; }
+        .compliance-result-clear { margin-top:8px; padding:9px 10px; border-left:3px solid #16a34a; border-radius:6px; background:#f0fdf4; color:#166534; font-size:12px; }
+        @media (max-width:760px) { .viral-source-body { grid-template-columns:1fr; } }
         .technical-details { margin-bottom:18px; border:1px solid var(--border); border-radius:8px; background:#fafafa; }
         .technical-details summary { padding:11px 13px; cursor:pointer; font-size:12px; font-weight:700; color:var(--text-secondary); }
         .technical-details .record-detail-meta { margin:0; padding:0 12px 12px; }
@@ -2399,9 +2444,24 @@ function normalizeTenantToolRuns(items) {
     return (Array.isArray(items) ? items : []).filter(function(run) { return run && typeof run === 'object'; }).map(function(run) {
         var item = Object.assign({}, run);
         item.input = item.input && typeof item.input === 'object' && !Array.isArray(item.input) ? Object.assign({}, item.input) : {};
-        item.outputs = Array.isArray(item.outputs) ? item.outputs.filter(function(output) { return output && typeof output === 'object'; }).map(function(output) { return Object.assign({}, output); }) : [];
+        item.outputs = Array.isArray(item.outputs) ? item.outputs.filter(function(output) { return output && typeof output === 'object'; }).map(function(output) {
+            var normalizedOutput = Object.assign({}, output);
+            normalizedOutput.status = ['success','failed'].indexOf(normalizedOutput.status) !== -1 ? normalizedOutput.status : (normalizedOutput.errorMessage ? 'failed' : 'success');
+            normalizedOutput.videoTaskLinks = Array.isArray(normalizedOutput.videoTaskLinks) ? normalizedOutput.videoTaskLinks.filter(function(link) {
+                return link && typeof link === 'object' && link.taskId;
+            }).map(function(link) {
+                return {
+                    taskId:String(link.taskId),
+                    taskNameSnapshot:String(link.taskNameSnapshot || link.taskName || link.taskId),
+                    taskStatusSnapshot:String(link.taskStatusSnapshot || link.taskStatus || 'unknown'),
+                    linkedAt:String(link.linkedAt || '')
+                };
+            }) : [];
+            return normalizedOutput;
+        }) : [];
         item.findings = Array.isArray(item.findings) ? item.findings.filter(function(finding) { return finding && typeof finding === 'object'; }).map(function(finding) { return Object.assign({}, finding); }) : [];
         item.downstreamActions = Array.isArray(item.downstreamActions) ? item.downstreamActions.map(String) : [];
+        item.runStatus = ['processing','success','partial_success','failed','cancelled'].indexOf(item.runStatus) !== -1 ? item.runStatus : 'failed';
         if (item.toolType === 'viral_breakdown') {
             var sources = Array.isArray(item.input.videoSources) ? item.input.videoSources : (item.input.videoSources ? [item.input.videoSources] : []);
             item.input.videoSources = sources.map(function(source, index) {
@@ -2410,19 +2470,19 @@ function normalizeTenantToolRuns(items) {
             });
             item.input.sourceCount = item.input.videoSources.length;
         }
-        if (item.toolType === 'compliance_check') {
-            item.input.draftCount = Math.max(1, Number(item.input.draftCount) || 1);
-            var allFindingsAdopted = item.findings.length > 0 && item.findings.every(function(finding) { return !!finding.adopted; });
-            var completedRecheck = item.downstreamActions.some(function(action) { return action.indexOf('复检') !== -1; });
-            if (allFindingsAdopted && completedRecheck) {
-                item.contentCheckStatus = 'clear';
-                item.outputs.forEach(function(output) {
-                    if (output.checkStatus === '存在关注项') output.checkStatus = '当前规则未发现风险';
-                });
-            }
-        }
+        if (item.toolType === 'compliance_check') item.input.draftCount = Math.max(1, Number(item.input.draftCount) || 1);
         return item;
     });
+}
+
+function mergeTenantToolRuns(defaultRuns, savedRuns) {
+    var defaults = normalizeTenantToolRuns(defaultRuns);
+    var defaultIds = {};
+    defaults.forEach(function(run) { if (run.id) defaultIds[run.id] = true; });
+    var customRuns = normalizeTenantToolRuns(savedRuns).filter(function(run) {
+        return run.id && !defaultIds[run.id];
+    });
+    return defaults.concat(customRuns);
 }
 
 function initData() {
@@ -2460,16 +2520,12 @@ function initData() {
         AppState.auditLogs = normalizeAuditLogs(saved.auditLogs || AppState.auditLogs);
         AppState.tenantMembers = Array.isArray(saved.tenantMembers) ? saved.tenantMembers : AppState.tenantMembers;
         AppState.tenantAssets = normalizeTenantAssets(Array.isArray(saved.tenantAssets) ? saved.tenantAssets : AppState.tenantAssets);
-        var savedToolRuns = Array.isArray(saved.toolRuns) ? saved.toolRuns.slice() : [];
-        var savedToolRunIds = {};
-        savedToolRuns.forEach(function(run) { if (run && run.id) savedToolRunIds[run.id] = true; });
-        AppState.toolRuns.forEach(function(defaultRun) { if (!savedToolRunIds[defaultRun.id]) savedToolRuns.push(defaultRun); });
-        AppState.toolRuns = normalizeTenantToolRuns(savedToolRuns);
+        AppState.toolRuns = mergeTenantToolRuns(AppState.toolRuns, saved.toolRuns);
         return;
     }
     AppState.tenants = normalizeTenants(AppState.tenants);
     AppState.tenantAssets = normalizeTenantAssets(AppState.tenantAssets);
-    AppState.toolRuns = normalizeTenantToolRuns(AppState.toolRuns);
+    AppState.toolRuns = mergeTenantToolRuns(AppState.toolRuns, []);
     saveData();
 }
 
@@ -2497,15 +2553,15 @@ var AppState = {
         { id:'asset-s-004', tenantId:'t004', creatorId:'u008', creatorNameSnapshot:'胡楠', type:'scene', name:'在线课程录播间', status:'available', source:'AI 生成', visibility:'团队可见', referenceCount:28, lastUsedAt:'2026-08-28 20:02', createdAt:'2026-05-22 16:08', updatedAt:'2026-06-03 10:18', details:{ description:'明亮录播间，右侧保留课件大屏区域。', ratio:'16:9', viewCount:8, imageSource:'文字生成' } }
     ],
     toolRuns: [
-        { id:'run-ca-001', tenantId:'t001', creatorId:'u001', creatorNameSnapshot:'王小明', toolType:'creative_agent', mode:'zero_to_one', sourceMode:'manual', title:'震荡行情下的客户沟通选题', runStatus:'success', contentCheckStatus:'attention', createdAt:'2026-08-28 14:06', completedAt:'2026-08-28 14:07', durationMs:48200, points:36, toolVersion:'creative-agent-v1.4', promptVersion:'creative_zero_v6', isMock:true, input:{ topic:'震荡行情下，如何帮助客户建立更稳定的投资预期', product:'基金投顾陪伴服务', marketingGoal:'客户投教与存量陪伴', platform:'视频号', audience:'持有基金但容易受短期波动影响的客户', style:'专业、克制、问题导向', presentation:'真人口播', cta:'引导查看完整投教内容', outputCount:2, targetDuration:'60 秒', requirements:'不做收益承诺；用客户常见问题开场；结尾引导查看完整投教内容。' }, outputs:[{ id:'out-ca-001-1', title:'波动不是问题，没预期才是', text:'市场一波动，很多人第一反应是问：现在到底该不该卖？\n但真正需要先解决的，不是预测下一次涨跌，而是确认这笔资金准备使用多久、能承受多大波动，以及原来的配置逻辑有没有变化。\n把这三个问题想清楚，再决定要不要调整，通常比追着行情行动更稳妥。以上内容仅作投资者教育，不构成具体投资建议。', selected:true, adopted:true, checkStatus:'存在关注项' },{ id:'out-ca-001-2', title:'先看账户目标，再看今天涨跌', text:'如果每天的涨跌都会改变你的计划，问题可能不在市场，而在最初没有把账户目标讲清楚。先区分短期要用的钱和长期配置的钱，再讨论波动是否需要处理。', selected:false, adopted:false, checkStatus:'待检查' }], downstreamActions:['导出 TXT','送往合规检查'] },
-        { id:'run-rw-001', tenantId:'t001', creatorId:'u002', creatorNameSnapshot:'陈雨', toolType:'creative_agent', mode:'rewrite', sourceMode:'manual', title:'基金定投服务介绍改写', runStatus:'success', contentCheckStatus:'clear', createdAt:'2026-08-28 09:18', completedAt:'2026-08-28 09:19', durationMs:31600, points:20, toolVersion:'creative-agent-v1.4', promptVersion:'rewrite_same_v4', isMock:true, input:{ originalText:'我们的基金定投服务可以帮助客户抓住市场机会，实现财富快速增长。现在加入即可获得专业老师一对一指导。', rewriteGoal:'降低营销感，改为投教解释口吻', tone:'专业、克制', targetDuration:'45 秒' }, outputs:[{ id:'out-rw-001-1', title:'定投服务说明·克制版', text:'基金定投的核心不是判断某一天是不是最低点，而是用固定节奏参与长期投资。我们的服务会帮助客户梳理资金期限、风险承受能力和执行计划，并提供持续的投教内容。具体方案仍需结合个人情况评估。', selected:true, adopted:true, checkStatus:'通过' }], downstreamActions:['复制','添加到批量成片'] },
-        { id:'run-rw-002', tenantId:'t001', creatorId:'u001', creatorNameSnapshot:'王小明', toolType:'creative_agent', mode:'rewrite', sourceMode:'video_file', title:'线下沙龙视频台词提取与改写', runStatus:'success', contentCheckStatus:'stale', createdAt:'2026-08-27 16:35', completedAt:'2026-08-27 16:38', durationMs:168000, points:58, toolVersion:'creative-agent-v1.4', promptVersion:'rewrite_video_v2', isMock:true, input:{ videoSource:'客户沙龙_资产配置答疑.mp4', videoMetadata:'本地视频 · 128.4 MB · 08:42', extractedTranscript:'很多客户会问，最近市场反复波动，是不是应该先全部卖掉等稳定以后再买回来。', editedTranscript:'很多客户会问，市场反复波动时，是不是应该先卖出，等稳定以后再重新配置。', rewriteGoal:'整理成三条短视频口播', tone:'现场答疑、自然', targetDuration:'每条 40 秒' }, outputs:[{ id:'out-rw-002-1', title:'波动时要不要全部卖出', text:'市场波动时，先全部卖出看起来像是在规避风险，但它同时要求你做对两次判断：什么时候卖，以及什么时候重新买回。更实际的做法，是先检查资金期限和配置比例。', selected:true, adopted:false, checkStatus:'修改后待复检' },{ id:'out-rw-002-2', title:'重新配置前先回答三个问题', text:'准备调整账户前，可以先回答三个问题：这笔钱什么时候用、能承受多大回撤、当前配置是否偏离原计划。答案比短期涨跌更能决定是否需要行动。', selected:true, adopted:true, checkStatus:'修改后待复检' }], downstreamActions:['导出 CSV'] },
-        { id:'run-vb-001', tenantId:'t001', creatorId:'u002', creatorNameSnapshot:'陈雨', toolType:'viral_breakdown', mode:'batch_video', sourceMode:'video_link', title:'基金定投爆款视频拆解', runStatus:'success', contentCheckStatus:'not_run', createdAt:'2026-08-27 10:20', completedAt:'2026-08-27 10:22', durationMs:89000, points:0, toolVersion:'viral-breakdown-v1.0', promptVersion:'breakdown_v3', isMock:true, input:{ videoSources:['https://v.douyin.com/example-1','https://v.kuaishou.com/example-2'], sourceCount:2 }, outputs:[{ id:'out-vb-001-1', sourceId:'source-1', title:'定投不是低点预测', text:'很多人做定投，最纠结的是今天是不是低点。其实定投真正解决的，是不用把所有判断都压在某一天。', structure:'冲突式开场 → 解释误区 → 给出行动建议', selected:true, adopted:true, checkStatus:'未检查' },{ id:'out-vb-001-2', sourceId:'source-2', title:'先确定资金期限', text:'开始定投前，先确认这笔钱三年内会不会使用，再决定投入节奏和金额。', structure:'问题开场 → 三步判断 → 克制收尾', selected:false, adopted:false, checkStatus:'未检查' }], downstreamActions:['导入创意 Agent','添加到批量成片'] },
-        { id:'run-cc-001', tenantId:'t001', creatorId:'u001', creatorNameSnapshot:'王小明', toolType:'compliance_check', mode:'batch_check', sourceMode:'manual', title:'市场收评台词合规检查', runStatus:'success', contentCheckStatus:'clear', createdAt:'2026-08-26 17:10', completedAt:'2026-08-26 17:11', durationMs:18400, points:0, toolVersion:'compliance-check-v1.1', promptVersion:'rule-set-202608', isMock:true, input:{ checkedText:'这只基金后续肯定会涨，现在上车可以获得稳定收益。', draftCount:1 }, outputs:[{ id:'out-cc-001-1', title:'复检后的台词', text:'这只基金后续表现仍会受到市场环境影响，是否适合配置需要结合个人风险承受能力判断。', selected:false, adopted:false, checkStatus:'当前规则未发现风险' }], findings:[{ severity:'high', type:'收益承诺', excerpt:'肯定会涨', reason:'使用确定性表述描述未来收益。', suggestion:'改为说明市场不确定性和适配条件。', adopted:true },{ severity:'medium', type:'误导性表达', excerpt:'稳定收益', reason:'容易使用户理解为收益有保障。', suggestion:'删除收益保障含义。', adopted:true }], downstreamActions:['已采纳 2 条修改','完成复检（当前规则未发现风险）','添加到批量成片'] },
-        { id:'run-ca-002', tenantId:'t001', creatorId:'u003', creatorNameSnapshot:'李倩', toolType:'creative_agent', mode:'zero_to_one', sourceMode:'manual', title:'品牌直播预热视频', runStatus:'failed', contentCheckStatus:'not_run', createdAt:'2026-08-26 10:02', completedAt:'2026-08-26 10:03', durationMs:51000, points:0, toolVersion:'creative-agent-v1.4', promptVersion:'creative_zero_v6', isMock:true, input:{ topic:'季度客户直播预告', platform:'抖音', audience:'已关注品牌账号的存量客户', targetDuration:'30 秒', requirements:'突出直播时间和三项议题。' }, outputs:[], errorCode:'MODEL_TIMEOUT', errorMessage:'大语言模型响应超时，本次未扣除积分。', downstreamActions:[] },
-        { id:'run-ca-003', tenantId:'t002', creatorId:'u005', creatorNameSnapshot:'周敏', toolType:'creative_agent', mode:'zero_to_one', sourceMode:'manual', title:'家庭保单整理短视频', runStatus:'success', contentCheckStatus:'clear', createdAt:'2026-08-27 11:20', completedAt:'2026-08-27 11:21', durationMs:44200, points:32, toolVersion:'creative-agent-v1.4', promptVersion:'creative_zero_v6', isMock:true, input:{ topic:'家庭保单为什么需要定期整理', platform:'视频号', audience:'已有多份保单的家庭客户', targetDuration:'60 秒', requirements:'避免制造焦虑，给出可执行的整理步骤。' }, outputs:[{ id:'out-ca-003-1', title:'保单多，不等于保障完整', text:'家里保单越来越多，最需要做的不是继续增加，而是先把现有保障整理清楚。可以按家庭成员、保障责任、保额和缴费期限做一张表，再检查有没有重复或空缺。', selected:true, adopted:true, checkStatus:'通过' }], downstreamActions:['添加到批量成片'] },
-        { id:'run-rw-003', tenantId:'t003', creatorId:'u006', creatorNameSnapshot:'王磊', toolType:'creative_agent', mode:'rewrite', sourceMode:'video_link', title:'公开课链接台词改写', runStatus:'failed', contentCheckStatus:'not_run', createdAt:'2026-08-25 15:44', completedAt:'2026-08-25 15:45', durationMs:62000, points:0, toolVersion:'creative-agent-v1.4', promptVersion:'rewrite_video_v2', isMock:true, input:{ videoSource:'https://video.example.com/course/market-review', videoMetadata:'在线视频 · 页面可访问', rewriteGoal:'提取后改写为 3 条投教口播', tone:'客观、易懂', targetDuration:'45 秒' }, outputs:[], errorCode:'TRANSCRIPT_UNAVAILABLE', errorMessage:'未获得可用音轨，无法生成转写结果。', downstreamActions:[] },
-        { id:'run-rw-004', tenantId:'t004', creatorId:'u007', creatorNameSnapshot:'陈静', toolType:'creative_agent', mode:'rewrite', sourceMode:'manual', title:'课程招生介绍改写', runStatus:'success', contentCheckStatus:'clear', createdAt:'2026-08-29 08:12', completedAt:'2026-08-29 08:13', durationMs:29500, points:18, toolVersion:'creative-agent-v1.4', promptVersion:'rewrite_same_v4', isMock:true, input:{ originalText:'零基础也能快速掌握短视频制作，我们提供从脚本到发布的完整方法。', rewriteGoal:'改成真实课程介绍，减少夸张承诺', tone:'老师讲解、直接', targetDuration:'40 秒' }, outputs:[{ id:'out-rw-004-1', title:'课程介绍·直接版', text:'这门课会从选题、脚本、拍摄到发布，带你走一遍完整的短视频制作流程。课程适合刚开始做内容、还没有稳定方法的人，具体进度取决于练习投入和原有基础。', selected:true, adopted:true, checkStatus:'通过' }], downstreamActions:['复制'] },
+        { id:'run-ca-001', tenantId:'t001', creatorId:'u001', creatorNameSnapshot:'王小明', toolType:'creative_agent', mode:'zero_to_one', sourceMode:'manual', title:'震荡行情下的客户沟通选题', runStatus:'success', contentCheckStatus:'attention', createdAt:'2026-08-28 14:06', completedAt:'2026-08-28 14:07', durationMs:48200, points:36, toolVersion:'creative-agent-v1.4', promptVersion:'creative_zero_v6', isMock:true, input:{ topic:'震荡行情下，如何帮助客户建立更稳定的投资预期', marketState:'震荡行情', product:'基金投顾陪伴服务', marketingGoal:'客户投教与存量陪伴', platform:'视频号', audience:'持有基金但容易受短期波动影响的客户', style:'专业、克制、问题导向', presentation:'真人口播', cta:'引导查看完整投教内容', outputCount:2, targetWords:300, targetDuration:'60 秒', requirements:'不做收益承诺；用客户常见问题开场；结尾引导查看完整投教内容。' }, outputs:[{ id:'out-ca-001-1', status:'success', title:'波动不是问题，没预期才是', text:'市场一波动，很多人第一反应是问：现在到底该不该卖？\n但真正需要先解决的，不是预测下一次涨跌，而是确认这笔资金准备使用多久、能承受多大波动，以及原来的配置逻辑有没有变化。\n把这三个问题想清楚，再决定要不要调整，通常比追着行情行动更稳妥。以上内容仅作投资者教育，不构成具体投资建议。', checkStatus:'存在关注项', videoTaskLinks:[{ taskId:'vt_001', taskNameSnapshot:'市场收评_0602', taskStatusSnapshot:'partial', linkedAt:'2026-08-28 14:12' }] },{ id:'out-ca-001-2', status:'success', title:'先看账户目标，再看今天涨跌', text:'如果每天的涨跌都会改变你的计划，问题可能不在市场，而在最初没有把账户目标讲清楚。先区分短期要用的钱和长期配置的钱，再讨论波动是否需要处理。', checkStatus:'待检查', videoTaskLinks:[] }], downstreamActions:['导出 TXT','送往合规检查'] },
+        { id:'run-rw-001', tenantId:'t001', creatorId:'u002', creatorNameSnapshot:'陈雨', toolType:'creative_agent', mode:'rewrite', sourceMode:'manual', title:'基金定投服务介绍改写', runStatus:'success', contentCheckStatus:'clear', createdAt:'2026-08-28 09:18', completedAt:'2026-08-28 09:19', durationMs:31600, points:20, toolVersion:'creative-agent-v1.4', promptVersion:'rewrite_same_v4', isMock:true, input:{ originalText:'我们的基金定投服务可以帮助客户抓住市场机会，实现财富快速增长。现在加入即可获得专业老师一对一指导。', rewriteGoal:'降低营销感，改为投教解释口吻', tone:'专业、克制', targetDuration:'45 秒' }, outputs:[{ id:'out-rw-001-1', status:'success', title:'定投服务说明·克制版', text:'基金定投的核心不是判断某一天是不是最低点，而是用固定节奏参与长期投资。我们的服务会帮助客户梳理资金期限、风险承受能力和执行计划，并提供持续的投教内容。具体方案仍需结合个人情况评估。', checkStatus:'通过', videoTaskLinks:[{ taskId:'vt_002', taskNameSnapshot:'资产配置_0602', taskStatusSnapshot:'completed', linkedAt:'2026-08-28 09:24' }] }], downstreamActions:['复制','添加到批量成片'] },
+        { id:'run-rw-002', tenantId:'t001', creatorId:'u001', creatorNameSnapshot:'王小明', toolType:'creative_agent', mode:'rewrite', sourceMode:'video_file', title:'线下沙龙视频台词提取与改写', runStatus:'success', contentCheckStatus:'stale', createdAt:'2026-08-27 16:35', completedAt:'2026-08-27 16:38', durationMs:168000, points:58, toolVersion:'creative-agent-v1.4', promptVersion:'rewrite_video_v2', isMock:true, input:{ videoSource:'客户沙龙_资产配置答疑.mp4', videoMetadata:'本地视频 · 128.4 MB · 08:42', extractedTranscript:'很多客户会问，最近市场反复波动，是不是应该先全部卖掉等稳定以后再买回来。', editedTranscript:'很多客户会问，市场反复波动时，是不是应该先卖出，等稳定以后再重新配置。', rewriteGoal:'整理成三条短视频口播', tone:'现场答疑、自然', targetDuration:'每条 40 秒' }, outputs:[{ id:'out-rw-002-1', status:'success', title:'波动时要不要全部卖出', text:'市场波动时，先全部卖出看起来像是在规避风险，但它同时要求你做对两次判断：什么时候卖，以及什么时候重新买回。更实际的做法，是先检查资金期限和配置比例。', checkStatus:'修改后待复检', videoTaskLinks:[] },{ id:'out-rw-002-2', status:'success', title:'重新配置前先回答三个问题', text:'准备调整账户前，可以先回答三个问题：这笔钱什么时候用、能承受多大回撤、当前配置是否偏离原计划。答案比短期涨跌更能决定是否需要行动。', checkStatus:'修改后待复检', videoTaskLinks:[] }], downstreamActions:['导出 CSV'] },
+        { id:'run-vb-001', tenantId:'t001', creatorId:'u002', creatorNameSnapshot:'陈雨', toolType:'viral_breakdown', mode:'batch_video', sourceMode:'video_link', title:'基金定投爆款视频拆解', runStatus:'partial_success', contentCheckStatus:'not_run', createdAt:'2026-08-27 10:20', completedAt:'2026-08-27 10:22', durationMs:89000, points:0, toolVersion:'viral-breakdown-v1.0', promptVersion:'breakdown_v3', isMock:true, input:{ videoSources:[{ id:'source-1', title:'定投认知误区', sourceUrl:'https://v.douyin.com/example-1', previewUrl:'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4' },{ id:'source-2', title:'长期资金规划', sourceUrl:'https://v.kuaishou.com/example-2', previewUrl:'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4' },{ id:'source-3', title:'账户配置案例', sourceUrl:'https://channels.weixin.qq.com/example-3', previewUrl:'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4' }], sourceCount:3 }, outputs:[{ id:'out-vb-001-1', sourceId:'source-1', status:'success', title:'定投不是低点预测', text:'很多人做定投，最纠结的是今天是不是低点。其实定投真正解决的，是不用把所有判断都压在某一天。', structure:'冲突式开场 → 解释误区 → 给出行动建议', checkStatus:'未检查', videoTaskLinks:[{ taskId:'vt_001', taskNameSnapshot:'市场收评_0602', taskStatusSnapshot:'partial', linkedAt:'2026-08-27 10:30' }] },{ id:'out-vb-001-2', sourceId:'source-2', status:'success', title:'先确定资金期限', text:'开始定投前，先确认这笔钱三年内会不会使用，再决定投入节奏和金额。', structure:'问题开场 → 三步判断 → 克制收尾', checkStatus:'未检查', videoTaskLinks:[] },{ id:'out-vb-001-3', sourceId:'source-3', status:'failed', title:'视频 3 拆解失败', text:'', errorCode:'TRANSCRIPT_UNAVAILABLE', errorMessage:'未获得可用音轨，无法提取台词。', videoTaskLinks:[] }], downstreamActions:['导入创意 Agent','添加到批量成片'] },
+        { id:'run-cc-001', tenantId:'t001', creatorId:'u001', creatorNameSnapshot:'王小明', toolType:'compliance_check', mode:'batch_check', sourceMode:'manual', title:'市场收评台词合规检查', runStatus:'success', contentCheckStatus:'attention', createdAt:'2026-08-26 17:10', completedAt:'2026-08-26 17:11', durationMs:18400, points:0, toolVersion:'compliance-check-v1.1', promptVersion:'rule-set-202608', isMock:true, input:{ drafts:[{ id:'draft-1', text:'这只基金后续肯定会涨，现在上车可以获得稳定收益。' },{ id:'draft-2', text:'基金净值会受到市场环境影响，投资前需要结合自己的风险承受能力进行判断。' },{ id:'draft-3', text:'跟着老师操作，三个月保证翻倍，名额有限请立即购买。' }], draftCount:3 }, outputs:[{ id:'out-cc-001-1', draftId:'draft-1', status:'success', title:'建议修改稿', text:'这只基金后续表现仍会受到市场环境影响，是否适合配置需要结合个人风险承受能力判断。', checkStatus:'修改后待复检', videoTaskLinks:[{ taskId:'vt_002', taskNameSnapshot:'资产配置_0602', taskStatusSnapshot:'completed', linkedAt:'2026-08-26 17:16' }] }], findings:[{ draftId:'draft-1', severity:'high', type:'收益承诺', excerpt:'肯定会涨', reason:'使用确定性表述描述未来收益。', suggestion:'改为说明市场不确定性和适配条件。' },{ draftId:'draft-1', severity:'medium', type:'误导性表达', excerpt:'稳定收益', reason:'容易使用户理解为收益有保障。', suggestion:'删除收益保障含义。' },{ draftId:'draft-3', severity:'high', type:'收益承诺', excerpt:'三个月保证翻倍', reason:'承诺固定期限内获得确定收益。', suggestion:'删除收益保证和具体回报承诺。' },{ draftId:'draft-3', severity:'medium', type:'诱导营销', excerpt:'名额有限请立即购买', reason:'使用稀缺性和紧迫性诱导用户决策。', suggestion:'改为客观说明产品信息与适配条件。' }], downstreamActions:['已采纳 2 条修改','完成复检','添加到批量成片'] },
+        { id:'run-ca-002', tenantId:'t001', creatorId:'u003', creatorNameSnapshot:'李倩', toolType:'creative_agent', mode:'zero_to_one', sourceMode:'manual', title:'品牌直播预热视频', runStatus:'failed', contentCheckStatus:'not_run', createdAt:'2026-08-26 10:02', completedAt:'2026-08-26 10:03', durationMs:51000, points:0, toolVersion:'creative-agent-v1.4', promptVersion:'creative_zero_v6', isMock:true, input:{ topic:'季度客户直播预告', marketState:'季度客户沟通期', product:'品牌季度直播', marketingGoal:'直播预约转化', platform:'抖音', audience:'已关注品牌账号的存量客户', style:'直接、口语化', presentation:'单人口播', cta:'引导预约直播', outputCount:1, targetWords:180, targetDuration:'30 秒', requirements:'突出直播时间和三项议题。' }, outputs:[], errorStage:'generate', errorCode:'MODEL_TIMEOUT', errorMessage:'大语言模型响应超时，本次未扣除积分。', downstreamActions:[] },
+        { id:'run-ca-003', tenantId:'t002', creatorId:'u005', creatorNameSnapshot:'周敏', toolType:'creative_agent', mode:'zero_to_one', sourceMode:'manual', title:'家庭保单整理短视频', runStatus:'success', contentCheckStatus:'clear', createdAt:'2026-08-27 11:20', completedAt:'2026-08-27 11:21', durationMs:44200, points:32, toolVersion:'creative-agent-v1.4', promptVersion:'creative_zero_v6', isMock:true, input:{ topic:'家庭保单为什么需要定期整理', marketState:'家庭保障复盘期', product:'家庭保单整理服务', marketingGoal:'客户投教与服务咨询', platform:'视频号', audience:'已有多份保单的家庭客户', style:'专业、亲和', presentation:'单人口播', cta:'引导预约保单整理', outputCount:1, targetWords:300, targetDuration:'60 秒', requirements:'避免制造焦虑，给出可执行的整理步骤。' }, outputs:[{ id:'out-ca-003-1', status:'success', title:'保单多，不等于保障完整', text:'家里保单越来越多，最需要做的不是继续增加，而是先把现有保障整理清楚。可以按家庭成员、保障责任、保额和缴费期限做一张表，再检查有没有重复或空缺。', checkStatus:'通过', videoTaskLinks:[{ taskId:'vt_003', taskNameSnapshot:'保险科普_0601', taskStatusSnapshot:'partial', linkedAt:'2026-08-27 11:28' }] }], downstreamActions:['添加到批量成片'] },
+        { id:'run-rw-003', tenantId:'t003', creatorId:'u006', creatorNameSnapshot:'王磊', toolType:'creative_agent', mode:'rewrite', sourceMode:'video_link', title:'公开课链接台词改写', runStatus:'failed', contentCheckStatus:'not_run', createdAt:'2026-08-25 15:44', completedAt:'2026-08-25 15:45', durationMs:62000, points:0, toolVersion:'creative-agent-v1.4', promptVersion:'rewrite_video_v2', isMock:true, input:{ videoSource:'https://video.example.com/course/market-review', videoMetadata:'在线视频 · 页面可访问', rewriteGoal:'提取后改写为 3 条投教口播', tone:'客观、易懂', targetDuration:'45 秒' }, outputs:[], errorStage:'transcribe', errorCode:'TRANSCRIPT_UNAVAILABLE', errorMessage:'未获得可用音轨，无法生成转写结果。', downstreamActions:[] },
+        { id:'run-rw-004', tenantId:'t004', creatorId:'u007', creatorNameSnapshot:'陈静', toolType:'creative_agent', mode:'rewrite', sourceMode:'manual', title:'课程招生介绍改写', runStatus:'success', contentCheckStatus:'clear', createdAt:'2026-08-29 08:12', completedAt:'2026-08-29 08:13', durationMs:29500, points:18, toolVersion:'creative-agent-v1.4', promptVersion:'rewrite_same_v4', isMock:true, input:{ originalText:'零基础也能快速掌握短视频制作，我们提供从脚本到发布的完整方法。', rewriteGoal:'改成真实课程介绍，减少夸张承诺', tone:'老师讲解、直接', targetDuration:'40 秒' }, outputs:[{ id:'out-rw-004-1', status:'success', title:'课程介绍·直接版', text:'这门课会从选题、脚本、拍摄到发布，带你走一遍完整的短视频制作流程。课程适合刚开始做内容、还没有稳定方法的人，具体进度取决于练习投入和原有基础。', checkStatus:'通过', videoTaskLinks:[] }], downstreamActions:['复制'] },
         { id:'run-rw-005', tenantId:'t004', creatorId:'u008', creatorNameSnapshot:'胡楠', toolType:'creative_agent', mode:'rewrite', sourceMode:'manual', title:'直播切片标题改写', runStatus:'processing', contentCheckStatus:'not_run', createdAt:'2026-08-29 09:05', completedAt:'-', durationMs:0, points:0, toolVersion:'creative-agent-v1.4', promptVersion:'rewrite_series_v3', isMock:true, input:{ originalText:'直播课里关于选题方法的一段讲解，准备拆成系列短视频。', rewriteGoal:'拆成五个连续选题', tone:'课程讲师、简洁', targetDuration:'每条 30 秒' }, outputs:[], downstreamActions:[] }
     ],
     tenants: [
@@ -3399,7 +3455,9 @@ function createTenantDetailUiState() {
     return {
         activeTab: 'overview',
         assetFilters: { kind:'voice', userId:'', dateFrom:'', dateTo:'', keyword:'' },
-        toolFilters: { userId:'', type:'', dateFrom:'', dateTo:'', keyword:'' },
+        toolFilters: { userId:'', type:'creative_agent', status:'', dateFrom:'', dateTo:'', keyword:'' },
+        toolLoadStatus: 'ready',
+        toolLoadError: '',
         selectedRecord: null
     };
 }
@@ -3529,7 +3587,7 @@ function tenantDetailTabButton(tab, label) {
 
 function switchTenantDetailTab(tab, shouldFocus) {
     if (['overview','assets','tools'].indexOf(tab) === -1) return;
-    if (tab !== 'overview' && !hasOperatorPermission('tenant_content_view')) {
+    if (tab === 'assets' && !hasOperatorPermission('tenant_content_view')) {
         toast('当前账号无用户内容查看权限', 'error');
         return;
     }
@@ -3611,8 +3669,11 @@ function isTenantToolRun(run) {
 
 function tenantToolFilterKey(run) {
     if (!run) return '';
-    if (run.toolType === 'creative_agent') return run.mode === 'zero_to_one' ? 'creative_zero' : 'creative_rewrite';
     return run.toolType || '';
+}
+
+function tenantToolTypeLabel(type) {
+    return { creative_agent:'创意 Agent', viral_breakdown:'爆款拆解', compliance_check:'合规检查' }[type] || '未知工具';
 }
 
 function selectTenantAssets(tenantId, filters) {
@@ -3660,6 +3721,7 @@ function selectTenantToolRuns(tenantId, filters) {
         if (run.tenantId !== tenantId) return false;
         if (filters.userId && run.creatorId !== filters.userId) return false;
         if (filters.type && tenantToolFilterKey(run) !== filters.type) return false;
+        if (filters.status && run.runStatus !== filters.status) return false;
         var day = String(run.createdAt || '').slice(0,10);
         if ((filters.dateFrom || filters.dateTo) && !day) return false;
         if (filters.dateFrom && day < filters.dateFrom) return false;
@@ -3701,34 +3763,55 @@ function tenantToolModeLabel(run) {
     return '台词改写 · ' + source;
 }
 
-function tenantToolAdoptedCount(run) {
-    if (run.toolType === 'compliance_check') return (run.findings || []).filter(function(finding) { return !!finding.adopted; }).length;
-    return (run.outputs || []).filter(function(output) { return !!output.adopted; }).length;
-}
-
-function tenantToolAdoptionLabel(run) {
-    return run.toolType === 'compliance_check' ? ('已采纳风险 ' + tenantToolAdoptedCount(run) + ' 条') : ('已采用结果 ' + tenantToolAdoptedCount(run) + ' 条');
-}
-
 function tenantVideoSourceLabel(source) {
     if (!source) return '';
-    return typeof source === 'object' ? (source.name || source.value || source.url || source.id || '') : String(source);
+    return typeof source === 'object' ? (source.title || source.name || source.sourceUrl || source.value || source.url || source.id || '') : String(source);
 }
 
-function tenantToolDownstreamLabel(run) {
-    var actions = run.downstreamActions || [];
-    if (actions.some(function(action) { return String(action).indexOf('批量成片') !== -1; })) return '已进入成片';
-    if (actions.some(function(action) { return String(action).indexOf('合规') !== -1 || String(action).indexOf('创意 Agent') !== -1; })) return '已流转工具';
-    if (actions.some(function(action) { return String(action).indexOf('导出') !== -1; })) return '已导出';
-    return '-';
+function tenantViralSources(run) {
+    return ((run.input || {}).videoSources || []).map(function(source, index) {
+        if (typeof source === 'string') return { id:'source-' + (index + 1), title:'视频 ' + (index + 1), sourceUrl:source, previewUrl:'' };
+        return {
+            id:source.id || ('source-' + (index + 1)),
+            title:source.title || source.name || ('视频 ' + (index + 1)),
+            sourceUrl:source.sourceUrl || source.url || source.value || '',
+            previewUrl:source.previewUrl || source.playUrl || ''
+        };
+    });
+}
+
+function tenantComplianceDrafts(run) {
+    var input = run.input || {};
+    var rawDrafts = Array.isArray(input.drafts) ? input.drafts : (Array.isArray(input.checkedTexts) ? input.checkedTexts : (input.checkedText ? [input.checkedText] : []));
+    return rawDrafts.map(function(draft, index) {
+        return typeof draft === 'string'
+            ? { id:'draft-' + (index + 1), text:draft }
+            : { id:draft.id || ('draft-' + (index + 1)), text:draft.text || draft.content || '' };
+    });
 }
 
 function tenantToolStatusLabel(status) {
-    return { success:'成功', failed:'失败', processing:'处理中', cancelled:'已取消' }[status] || status || '未知';
+    return { success:'成功', partial_success:'部分成功', failed:'失败', processing:'处理中', cancelled:'已取消' }[status] || status || '未知';
 }
 
 function tenantToolStatusClass(status) {
-    return status === 'success' ? 'status-active' : (status === 'processing' ? 'status-trial' : (status === 'failed' ? 'status-failed' : 'status-stopped'));
+    return status === 'success' ? 'status-active' : (status === 'processing' ? 'status-trial' : (status === 'partial_success' ? 'status-warning' : (status === 'failed' ? 'status-failed' : 'status-stopped')));
+}
+
+function tenantToolVideoTaskLinks(run) {
+    var links = [];
+    (run.outputs || []).forEach(function(output) {
+        (output.videoTaskLinks || []).forEach(function(link) { links.push(Object.assign({ outputId:output.id }, link)); });
+    });
+    return links;
+}
+
+function tenantToolFinalResultSummary(run) {
+    var successful = (run.outputs || []).filter(function(output) { return output.status !== 'failed' && String(output.text || '').trim(); });
+    if (!successful.length) return run.runStatus === 'processing' ? '正在生成结果' : '本次执行无最终结果';
+    var first = successful[0];
+    var text = first.title || first.text || '最终结果';
+    return successful.length > 1 ? (text + ' 等 ' + successful.length + ' 条') : text;
 }
 
 function renderTenantAssets() {
@@ -3885,11 +3968,21 @@ function renderTenantToolRuns() {
     var tenant = getCurrentTenant();
     if (!pane || !tenant) return;
     var f = tenantDetailUiState.toolFilters;
+    var type = ['creative_agent','viral_breakdown','compliance_check'].indexOf(f.type) !== -1 ? f.type : 'creative_agent';
+    f.type = type;
+    var creativeCount = (AppState.toolRuns || []).filter(function(run) { return isTenantToolRun(run) && run.tenantId === tenant.id && run.toolType === 'creative_agent'; }).length;
+    var breakdownCount = (AppState.toolRuns || []).filter(function(run) { return isTenantToolRun(run) && run.tenantId === tenant.id && run.toolType === 'viral_breakdown'; }).length;
+    var complianceCount = (AppState.toolRuns || []).filter(function(run) { return isTenantToolRun(run) && run.tenantId === tenant.id && run.toolType === 'compliance_check'; }).length;
     pane.innerHTML =
+        '<div class="tenant-asset-kindbar" role="group" aria-label="工具类型">' +
+            '<button class="tenant-asset-kind' + (type === 'creative_agent' ? ' active' : '') + '" type="button" aria-pressed="' + (type === 'creative_agent') + '" onclick="switchTenantToolType(\'creative_agent\',this)"><span class="tenant-asset-kind-icon">创</span><span class="tenant-asset-kind-copy"><strong>创意 Agent</strong><span>从 0 创作与台词改写</span></span><span class="tenant-asset-kind-count">' + creativeCount + ' 条</span></button>' +
+            '<button class="tenant-asset-kind' + (type === 'viral_breakdown' ? ' active' : '') + '" type="button" aria-pressed="' + (type === 'viral_breakdown') + '" onclick="switchTenantToolType(\'viral_breakdown\',this)"><span class="tenant-asset-kind-icon">拆</span><span class="tenant-asset-kind-copy"><strong>爆款拆解</strong><span>批量视频内容拆解</span></span><span class="tenant-asset-kind-count">' + breakdownCount + ' 条</span></button>' +
+            '<button class="tenant-asset-kind' + (type === 'compliance_check' ? ' active' : '') + '" type="button" aria-pressed="' + (type === 'compliance_check') + '" onclick="switchTenantToolType(\'compliance_check\',this)"><span class="tenant-asset-kind-icon">检</span><span class="tenant-asset-kind-copy"><strong>合规检查</strong><span>台词风险识别与修改建议</span></span><span class="tenant-asset-kind-count">' + complianceCount + ' 条</span></button>' +
+        '</div>' +
         '<div class="tenant-record-shell">' +
             '<div class="tenant-record-toolbar">' +
                 '<div class="tenant-record-filter"><label for="tdToolUserFilter">使用人</label><select class="filter-select" id="tdToolUserFilter" onchange="updateTenantToolFilters()">' + buildTenantMemberOptions(tenant.id, f.userId) + '</select></div>' +
-                '<div class="tenant-record-filter"><label for="tdToolTypeFilter">工具类型</label><select class="filter-select" id="tdToolTypeFilter" onchange="updateTenantToolFilters()"><option value="">全部工具</option><option value="creative_zero"' + (f.type === 'creative_zero' ? ' selected' : '') + '>创意 Agent · 从 0 创作</option><option value="creative_rewrite"' + (f.type === 'creative_rewrite' ? ' selected' : '') + '>创意 Agent · 台词改写</option><option value="viral_breakdown"' + (f.type === 'viral_breakdown' ? ' selected' : '') + '>爆款拆解</option><option value="compliance_check"' + (f.type === 'compliance_check' ? ' selected' : '') + '>合规检查</option></select></div>' +
+
                 '<div class="tenant-record-filter"><label for="tdToolDateFrom">创建日期起</label><input class="filter-input" id="tdToolDateFrom" type="date" value="' + escapeHtml(f.dateFrom) + '" aria-describedby="tdToolResultCount" onchange="updateTenantToolFilters()"></div>' +
                 '<div class="tenant-record-filter"><label for="tdToolDateTo">创建日期止</label><input class="filter-input" id="tdToolDateTo" type="date" value="' + escapeHtml(f.dateTo) + '" aria-describedby="tdToolResultCount" onchange="updateTenantToolFilters()"></div>' +
                 '<div class="tenant-record-filter search"><label for="tdToolSearch">关键词</label><input class="filter-input" id="tdToolSearch" value="' + escapeHtml(f.keyword) + '" placeholder="记录 ID / 标题 / 输入输出" oninput="queueTenantToolFilterUpdate()"></div>' +
@@ -3900,10 +3993,23 @@ function renderTenantToolRuns() {
     renderTenantToolTable();
 }
 
+function switchTenantToolType(type, trigger) {
+    if (['creative_agent','viral_breakdown','compliance_check'].indexOf(type) === -1 || tenantDetailUiState.toolFilters.type === type) return;
+    clearTimeout(tenantToolSearchTimer);
+    tenantDetailUiState.toolFilters.type = type;
+    renderTenantToolRuns();
+    if (trigger) setTimeout(function() {
+        var pane = document.getElementById('tdToolsPane');
+        var buttons = pane ? pane.querySelectorAll('.tenant-asset-kind') : [];
+        var index = { creative_agent:0, viral_breakdown:1, compliance_check:2 }[type];
+        if (buttons[index]) buttons[index].focus();
+    }, 0);
+}
+
 function updateTenantToolFilters() {
     tenantDetailUiState.toolFilters = {
         userId: (document.getElementById('tdToolUserFilter') || {}).value || '',
-        type: (document.getElementById('tdToolTypeFilter') || {}).value || '',
+        type: ['creative_agent','viral_breakdown','compliance_check'].indexOf(tenantDetailUiState.toolFilters.type) !== -1 ? tenantDetailUiState.toolFilters.type : 'creative_agent',
         dateFrom: (document.getElementById('tdToolDateFrom') || {}).value || '',
         dateTo: (document.getElementById('tdToolDateTo') || {}).value || '',
         keyword: (document.getElementById('tdToolSearch') || {}).value || ''
@@ -3918,7 +4024,9 @@ function queueTenantToolFilterUpdate() {
 
 function clearTenantToolFilters() {
     clearTimeout(tenantToolSearchTimer);
+    var type = tenantDetailUiState.toolFilters.type;
     tenantDetailUiState.toolFilters = createTenantDetailUiState().toolFilters;
+    tenantDetailUiState.toolFilters.type = type;
     renderTenantToolRuns();
     setTimeout(function() { var first = document.getElementById('tdToolUserFilter'); if (first) first.focus(); }, 0);
 }
@@ -3926,19 +4034,43 @@ function clearTenantToolFilters() {
 function tenantToolInputSummary(run) {
     var input = run.input || {};
     if (run.toolType === 'viral_breakdown') return (input.videoSources || []).map(tenantVideoSourceLabel).filter(Boolean).join('；') || '未记录视频来源';
-    if (run.toolType === 'compliance_check') return input.checkedText || '未记录检查文本';
+    if (run.toolType === 'compliance_check') {
+        var drafts = tenantComplianceDrafts(run);
+        return drafts.length > 1 ? drafts.length + ' 条台词' : (drafts[0] ? drafts[0].text : '未记录检查文本');
+    }
     if (run.mode === 'zero_to_one') return input.topic || '未填写创作主题';
     return input.originalText || input.editedTranscript || input.extractedTranscript || input.videoSource || '未记录输入内容';
 }
 
 function tenantToolFiltersActive(filters) {
-    return ['userId','type','dateFrom','dateTo','keyword'].some(function(key) { return !!filters[key]; });
+    return ['userId','status','dateFrom','dateTo','keyword'].some(function(key) { return !!filters[key]; });
+}
+
+function tenantToolTaskCellHtml(run) {
+    var links = tenantToolVideoTaskLinks(run);
+    if (!links.length) return '<span class="tool-task-summary">未用于视频生成</span>';
+    var first = links[0];
+    var task = (AppState.opsTasks || []).find(function(item) { return item.taskId === first.taskId && item.tenantId === run.tenantId; });
+    var label = first.taskNameSnapshot || first.taskId;
+    var statusLabel = getTaskStatusLabel(task ? task.status : first.taskStatusSnapshot);
+    var button = task
+        ? '<button type="button" class="tool-task-link js-tool-task-link" data-task-id="' + escapeHtml(first.taskId) + '" title="查看视频任务 ' + escapeHtml(first.taskId) + '"><span>' + escapeHtml(label) + ' · ' + escapeHtml(statusLabel) + '</span><code>' + escapeHtml(first.taskId) + '</code></button>'
+        : '<span class="tool-task-link unavailable" title="任务已删除、归档或当前不可访问"><span>' + escapeHtml(label) + ' · ' + escapeHtml(statusLabel) + ' · 不可访问</span><code>' + escapeHtml(first.taskId) + '</code></span>';
+    return '<div class="tool-task-links">' + button + (links.length > 1 ? '<span class="tool-task-summary">另有 ' + (links.length - 1) + ' 个关联任务</span>' : '') + '</div>';
 }
 
 function renderTenantToolTable() {
     var area = document.getElementById('tdToolTableArea');
     var tenant = getCurrentTenant();
     if (!area || !tenant) return;
+    if (tenantDetailUiState.toolLoadStatus === 'loading') {
+        area.innerHTML = '<div class="tenant-empty" role="status"><strong>正在加载工具记录</strong>请稍候，正在读取该租户的正式执行记录。</div>';
+        return;
+    }
+    if (tenantDetailUiState.toolLoadStatus === 'error') {
+        area.innerHTML = '<div class="tenant-empty" role="alert"><strong>工具记录加载失败</strong>' + escapeHtml(tenantDetailUiState.toolLoadError || '暂时无法读取记录，请稍后重试。') + '<button type="button" class="btn btn-secondary btn-sm" style="margin-top:12px" onclick="retryTenantToolRecords()">重新加载</button></div>';
+        return;
+    }
     var valid = tenantDateRangeValid(tenantDetailUiState.toolFilters);
     var list = selectTenantToolRuns(tenant.id, tenantDetailUiState.toolFilters);
     var countEl = document.getElementById('tdToolResultCount');
@@ -3951,27 +4083,48 @@ function renderTenantToolTable() {
     if (!list.length) {
         area.innerHTML = tenantToolFiltersActive(tenantDetailUiState.toolFilters)
             ? '<div class="tenant-empty"><strong>暂无匹配记录</strong>请调整当前工具记录的筛选条件。</div>'
-            : '<div class="tenant-empty"><strong>暂无工具记录</strong>该租户尚未产生创意 Agent、爆款拆解或合规检查记录。</div>';
+            : '<div class="tenant-empty"><strong>暂无' + escapeHtml(tenantToolTypeLabel(tenantDetailUiState.toolFilters.type)) + '记录</strong>该租户尚未使用此工具产生正式执行记录。</div>';
         return;
     }
+    var toolType = tenantDetailUiState.toolFilters.type;
+    var isCreative = toolType === 'creative_agent';
+    var isViral = toolType === 'viral_breakdown';
+    var isCompliance = toolType === 'compliance_check';
     var rows = list.map(function(run) {
         var creator = getTenantMemberName(tenant.id, run.creatorId, run.creatorNameSnapshot);
         var summary = tenantToolInputSummary(run);
+        var finalSummary = tenantToolFinalResultSummary(run);
+        var resultCount = (run.outputs || []).filter(function(output) { return output.status !== 'failed'; }).length;
+        var taskLinks = tenantToolVideoTaskLinks(run);
+        var primaryTaskId = taskLinks.length ? taskLinks[0].taskId : run.id;
+        var primaryTaskName = taskLinks.length ? (taskLinks[0].taskNameSnapshot || taskLinks[0].taskId) : '';
+        var tdExecInput = isCreative ? '' : '<td><div class="tenant-record-summary" title="' + escapeHtml(summary) + '">' + escapeHtml(summary) + '</div></td>';
+        var tdRunStatus = (isCreative || isViral || isCompliance) ? '' : '<td><span class="status ' + tenantToolStatusClass(run.runStatus) + '">' + escapeHtml(tenantToolStatusLabel(run.runStatus)) + '</span></td>';
+        var tdFinalResult = isCreative
+            ? '<td><strong>' + resultCount + '</strong> 篇</td>'
+            : (isCompliance ? '' : '<td><div class="tenant-record-summary" title="' + escapeHtml(finalSummary) + '">' + escapeHtml(finalSummary) + '</div><div class="tenant-record-id">' + resultCount + ' 条成功结果</div></td>');
         return '<tr>' +
-            '<td><div class="tenant-record-title">' + escapeHtml(run.title) + '</div><div class="tenant-record-id">' + escapeHtml(run.id) + '</div></td>' +
+            '<td><div class="tenant-record-title">' + escapeHtml(primaryTaskId) + '</div>' + (primaryTaskName ? '<div class="tenant-record-id">' + escapeHtml(primaryTaskName) + '</div>' : '') + '</td>' +
             '<td><span class="chip chip-blue">' + escapeHtml(tenantToolModeLabel(run)) + '</span></td>' +
             '<td>' + escapeHtml(creator) + '</td>' +
-            '<td><div class="tenant-record-summary" title="' + escapeHtml(summary) + '">' + escapeHtml(summary) + '</div></td>' +
-            '<td><span class="status ' + tenantToolStatusClass(run.runStatus) + '">' + escapeHtml(tenantToolStatusLabel(run.runStatus)) + '</span></td>' +
-            '<td style="text-align:center">' + (run.outputs || []).length + '</td>' +
-            '<td style="text-align:center">' + escapeHtml(tenantToolAdoptionLabel(run)) + '</td>' +
-            '<td>' + escapeHtml(tenantToolDownstreamLabel(run)) + '</td>' +
+            tdExecInput + tdRunStatus +
+            tdFinalResult +
+            '<td>' + tenantToolTaskCellHtml(run) + '</td>' +
             '<td style="font-size:12px;white-space:nowrap">' + escapeHtml(run.createdAt || '-') + '</td>' +
             '<td><button class="btn btn-xs td-record-detail" data-record-kind="tool" data-record-id="' + escapeHtml(run.id) + '">详情</button></td>' +
         '</tr>';
     }).join('');
-    area.innerHTML = '<div class="tenant-record-table-scroll" tabindex="0" aria-label="可横向滚动的工具记录表"><table class="tenant-record-table"><thead><tr><th scope="col">记录</th><th scope="col">工具类型</th><th scope="col">使用人</th><th scope="col">输入摘要</th><th scope="col">状态</th><th scope="col">结果数</th><th scope="col">用户处理</th><th scope="col">下游去向</th><th scope="col">创建时间</th><th scope="col">操作</th></tr></thead><tbody>' + rows + '</tbody></table></div>';
+    var thExecInput = isCreative ? '' : '<th scope="col">执行输入</th>';
+    var thRunStatus = (isCreative || isViral || isCompliance) ? '' : '<th scope="col">运行状态</th>';
+    var thFinalResult = isCompliance ? '' : '<th scope="col">' + (isCreative ? '结果数量' : '最终结果') + '</th>';
+    area.innerHTML = '<div class="tenant-record-table-scroll" tabindex="0" aria-label="可横向滚动的工具记录表"><table class="tenant-record-table"><thead><tr><th scope="col">任务ID</th><th scope="col">工具类型</th><th scope="col">使用人</th>' + thExecInput + thRunStatus + thFinalResult + '<th scope="col">关联视频任务</th><th scope="col">执行时间</th><th scope="col">操作</th></tr></thead><tbody>' + rows + '</tbody></table></div>';
     bindTenantRecordDetailButtons(area);
+}
+
+function retryTenantToolRecords() {
+    tenantDetailUiState.toolLoadStatus = 'ready';
+    tenantDetailUiState.toolLoadError = '';
+    renderTenantToolTable();
 }
 
 function bindTenantRecordDetailButtons(root) {
@@ -3981,6 +4134,18 @@ function bindTenantRecordDetailButtons(root) {
             openTenantRecordDrawer(button.getAttribute('data-record-kind'), button.getAttribute('data-record-id'), button);
         });
     });
+    root.querySelectorAll('.js-tool-task-link').forEach(function(button) {
+        button.addEventListener('click', function() { openToolLinkedTask(button.getAttribute('data-task-id')); });
+    });
+}
+
+function openToolLinkedTask(taskId) {
+    var tenant = getCurrentTenant();
+    var task = (AppState.opsTasks || []).find(function(item) { return item.taskId === taskId && tenant && item.tenantId === tenant.id; });
+    if (!task) { toast('关联视频任务已删除、归档或当前不可访问', 'error'); return; }
+    closeDrawer();
+    switchView('view-tasks');
+    setTimeout(function() { openTaskDetail(taskId); }, 0);
 }
 
 function bindRoleHoverPreview(root) {
@@ -4446,8 +4611,12 @@ function toolInputSections(run) {
         fields = [['被检查台词', input.checkedText], ['检查稿件数', input.draftCount ? input.draftCount + ' 篇' : '']];
     } else if (run.mode === 'zero_to_one') {
         fields = [
-            ['创作主题', input.topic], ['目标平台', input.platform], ['目标受众', input.audience],
-            ['目标时长', input.targetDuration], ['创作要求', input.requirements]
+            ['创作主题', input.topic], ['营销目标', input.marketingGoal || input.goal],
+            ['产品/服务', input.product], ['目标受众', input.audience],
+            ['目标平台', input.platform], ['视频时长', input.targetDuration || input.duration],
+            ['表达风格', input.style], ['口播形式', input.presentation || input.format],
+            ['行动引导', input.cta], ['生成篇数', input.outputCount || input.count],
+            ['创作要求', input.requirements || input.extra]
         ];
     } else {
         fields = [
@@ -4458,7 +4627,7 @@ function toolInputSections(run) {
     }
     var knownKeys = run.toolType === 'viral_breakdown' ? ['videoSources','sourceCount']
         : (run.toolType === 'compliance_check' ? ['checkedText','draftCount']
-        : (run.mode === 'zero_to_one' ? ['topic','platform','audience','targetDuration','requirements']
+        : (run.mode === 'zero_to_one' ? ['topic','marketingGoal','goal','product','audience','platform','targetDuration','duration','style','presentation','format','cta','outputCount','count','requirements','extra']
         : ['videoSource','videoMetadata','originalText','extractedTranscript','editedTranscript','rewriteGoal','tone','targetDuration']));
     var labels = { product:'产品/服务', marketingGoal:'营销目标', style:'创作风格', presentation:'口播形式', cta:'行动引导', outputCount:'生成篇数', extraRequirements:'补充要求', sourceUrl:'来源链接' };
     Object.keys(input).forEach(function(key) {
@@ -4472,48 +4641,163 @@ function toolInputSections(run) {
     }).join('') || '<div class="record-detail-content">暂无输入快照</div>';
 }
 
-function toolOutputsHtml(run) {
+function creativeToolInputHtml(run) {
+    var input = run.input || {};
+    var fields = run.mode === 'zero_to_one' ? [
+        ['市场状态', input.marketState || input.topic],
+        ['用户人群', input.audience],
+        ['营销目标', input.marketingGoal || input.goal],
+        ['产品/服务', input.product],
+        ['生成篇数', input.outputCount || input.count, '篇'],
+        ['目标字数', input.targetWords || input.wordCount, '字'],
+        ['表达风格', input.style],
+        ['口播形式', input.presentation || input.format],
+        ['行动引导', input.cta],
+        ['补充要求', input.requirements || input.extra, '', true]
+    ] : [
+        ['视频来源', input.videoSource], ['视频信息', input.videoMetadata],
+        ['原始台词', input.originalText, '', true], ['视频提取台词', input.extractedTranscript, '', true],
+        ['用户编辑后台词', input.editedTranscript, '', true], ['改写目标', input.rewriteGoal],
+        ['表达口吻', input.tone], ['目标时长', input.targetDuration]
+    ];
+    var items = fields.filter(function(field) { return field[1] != null && field[1] !== ''; }).map(function(field) {
+        var value = String(field[1]);
+        if (field[2] && value.indexOf(field[2]) === -1) value += ' ' + field[2];
+        return '<div class="creative-input-item' + (field[3] ? ' wide' : '') + '"><span class="creative-input-label">' + escapeHtml(field[0]) + '</span><strong class="creative-input-value">' + escapeHtml(value) + '</strong></div>';
+    }).join('');
+    return items ? '<div class="creative-input-grid">' + items + '</div>' : '<div class="record-detail-content">暂无输入快照</div>';
+}
+
+function toolOutputsHtml(run, options) {
+    options = options || {};
     var outputs = run.outputs || [];
     if (!outputs.length) {
         return '<div class="record-detail-content">' + escapeHtml(run.runStatus === 'processing' ? '任务仍在处理中，暂未生成结果。' : (run.errorMessage || '暂无输出结果。')) + '</div>';
     }
     return outputs.map(function(output, index) {
         var badges = [];
-        if (output.selected) badges.push('<span class="record-output-badge">用户已选</span>');
-        if (output.adopted) badges.push('<span class="record-output-badge adopted">已采用</span>');
+        badges.push('<span class="record-output-badge ' + (output.status === 'failed' ? 'warning' : 'adopted') + '">' + (output.status === 'failed' ? '生成失败' : '最终结果') + '</span>');
         if (output.checkStatus) badges.push('<span class="record-output-badge warning">' + escapeHtml(output.checkStatus) + '</span>');
         var source = output.sourceId ? '<span class="tool-flow-tag">来源：' + escapeHtml((run.input && run.input.videoSources || []).filter(function(item) { return item && item.id === output.sourceId; }).map(tenantVideoSourceLabel)[0] || output.sourceId) + '</span>' : '';
         var structure = (output.structure || source) ? '<div class="tool-flow-tags">' + source + (output.structure ? '<span class="tool-flow-tag">' + escapeHtml(output.structure) + '</span>' : '') + '</div>' : '';
-        return '<article class="record-output-card"><div class="record-output-head"><div class="record-output-title">' + (index + 1) + '. ' + escapeHtml(output.title || '未命名结果') + '</div><div class="record-output-badges">' + (badges.join('') || '<span class="record-output-badge">生成结果</span>') + '</div></div><div class="record-output-text">' + escapeHtml(output.text || '') + '</div>' + structure + '</article>';
+        var content = output.status === 'failed'
+            ? '<div class="record-detail-content" style="border-color:#fecaca;background:#fef2f2;color:#b91c1c">' + escapeHtml((output.errorCode ? output.errorCode + ' · ' : '') + (output.errorMessage || '该结果生成失败。')) + '</div>'
+            : '<div class="record-output-text">' + escapeHtml(output.text || '最终结果为空') + '</div>';
+        var badgesHtml = options.hideBadges ? '' : '<div class="record-output-badges">' + badges.join('') + '</div>';
+        return '<article class="record-output-card"><div class="record-output-head"><div class="record-output-title">' + (index + 1) + '. ' + escapeHtml(output.title || '未命名结果') + '</div>' + badgesHtml + '</div>' + content + structure + toolOutputTaskLinksHtml(output, run.tenantId) + '</article>';
     }).join('');
+}
+
+function toolOutputTaskLinksHtml(output, tenantId) {
+    var links = output.videoTaskLinks || [];
+    if (!links.length) return '<div class="tool-task-links"><span class="tool-task-summary">未用于视频生成</span></div>';
+    return '<div class="tool-task-links">' + links.map(function(link) {
+        var task = (AppState.opsTasks || []).find(function(item) { return item.taskId === link.taskId && item.tenantId === tenantId; });
+        var label = link.taskNameSnapshot || link.taskId;
+        if (!task) {
+            return '<span class="tool-task-link unavailable" title="任务已删除、归档或当前不可访问"><span>' + escapeHtml(label) + ' · 不可访问</span><code>' + escapeHtml(link.taskId) + '</code></span>';
+        }
+        return '<button type="button" class="tool-task-link js-tool-task-link" data-task-id="' + escapeHtml(link.taskId) + '" title="查看视频任务 ' + escapeHtml(link.taskId) + '"><span>' + escapeHtml(task.taskName) + ' · ' + escapeHtml(getTaskStatusLabel(task.status)) + '</span><code>' + escapeHtml(link.taskId) + '</code></button>';
+    }).join('') + '</div>';
 }
 
 function toolFindingsHtml(run) {
     var findings = run.findings || [];
     if (!findings.length) return '';
-    return '<div class="record-detail-section"><h4>风险项与处理（' + findings.length + '）</h4>' + findings.map(function(item, index) {
-        return '<article class="record-output-card"><div class="record-output-head"><div class="record-output-title">' + (index + 1) + '. ' + escapeHtml(item.type || '风险项') + '</div><div class="record-output-badges"><span class="record-output-badge warning">' + escapeHtml(item.severity || 'attention') + '</span>' + (item.adopted ? '<span class="record-output-badge adopted">用户已采纳</span>' : '') + '</div></div><div class="record-output-text"><strong>原文：</strong>' + escapeHtml(item.excerpt || '-') + '\n<strong>原因：</strong>' + escapeHtml(item.reason || '-') + '\n<strong>建议：</strong>' + escapeHtml(item.suggestion || '-') + '</div></article>';
+    return '<div class="record-detail-section"><h4>风险项与建议（' + findings.length + '）</h4>' + findings.map(function(item, index) {
+        return '<article class="record-output-card"><div class="record-output-head"><div class="record-output-title">' + (index + 1) + '. ' + escapeHtml(item.type || '风险项') + '</div><div class="record-output-badges"><span class="record-output-badge warning">' + escapeHtml(item.severity || 'attention') + '</span></div></div><div class="record-output-text"><strong>原文：</strong>' + escapeHtml(item.excerpt || '-') + '\n<strong>原因：</strong>' + escapeHtml(item.reason || '-') + '\n<strong>建议：</strong>' + escapeHtml(item.suggestion || '-') + '</div></article>';
     }).join('') + '</div>';
+}
+
+function tenantSafeHttpUrl(value) {
+    if (!value) return '';
+    try {
+        var parsed = new URL(String(value), window.location.href);
+        return parsed.protocol === 'http:' || parsed.protocol === 'https:' ? parsed.href : '';
+    } catch (error) {
+        return '';
+    }
+}
+
+function viralBreakdownDrawerHtml(run) {
+    var sources = tenantViralSources(run);
+    var outputs = run.outputs || [];
+    if (!sources.length) return '<div class="record-detail-content">本次记录没有保存用户输入的视频链接。</div><div class="record-drawer-footer"><button class="btn" onclick="closeDrawer()">关闭</button></div>';
+    var cards = sources.map(function(source, index) {
+        var output = outputs.find(function(item) { return item.sourceId === source.id; }) || outputs[index];
+        var sourceUrl = tenantSafeHttpUrl(source.sourceUrl);
+        var previewUrl = tenantSafeHttpUrl(source.previewUrl);
+        var sourceLink = sourceUrl
+            ? '<a class="viral-source-url" href="' + escapeHtml(sourceUrl) + '" target="_blank" rel="noopener noreferrer" title="' + escapeHtml(source.sourceUrl) + '">' + escapeHtml(source.sourceUrl) + '</a>'
+            : '<span class="viral-source-url" title="' + escapeHtml(source.sourceUrl || '') + '">' + escapeHtml(source.sourceUrl || '未保存视频链接') + '</span>';
+        var preview = previewUrl
+            ? '<video class="viral-video" controls playsinline preload="metadata" src="' + escapeHtml(previewUrl) + '">当前浏览器不支持视频播放。</video>'
+            : '<div class="viral-video-empty">暂无可播放的视频地址</div>';
+        var transcript = !output
+            ? '<div class="viral-transcript"><span class="viral-transcript-label">拆解台词</span>暂无拆解结果</div>'
+            : (output.status === 'failed'
+                ? '<div class="viral-transcript error"><span class="viral-transcript-label">拆解失败</span>' + escapeHtml((output.errorCode ? output.errorCode + ' · ' : '') + (output.errorMessage || '未获得可用台词。')) + '</div>'
+                : '<div class="viral-transcript"><span class="viral-transcript-label">拆解台词</span>' + escapeHtml(output.text || '未提取到台词内容') + '</div>');
+        return '<article class="viral-source-card" data-source-id="' + escapeHtml(source.id) + '">' +
+            '<div class="viral-source-head"><div><div class="viral-source-title">' + (index + 1) + '. ' + escapeHtml(source.title) + '</div>' + sourceLink + '</div></div>' +
+            '<div class="viral-source-body">' + preview + transcript + '</div></article>';
+    }).join('');
+    return '<div class="record-detail-section"><h4>视频链接与拆解台词（' + sources.length + '）</h4><div class="viral-source-list">' + cards + '</div></div>' +
+        '<div class="record-drawer-footer"><button class="btn" onclick="closeDrawer()">关闭</button></div>';
+}
+
+function complianceCheckDrawerHtml(run) {
+    var drafts = tenantComplianceDrafts(run);
+    var findings = run.findings || [];
+    if (!drafts.length) return '<div class="record-detail-content">本次记录没有保存用户输入原文。</div><div class="record-drawer-footer"><button class="btn" onclick="closeDrawer()">关闭</button></div>';
+    var cards = drafts.map(function(draft, index) {
+        var draftFindings = findings.filter(function(item) {
+            return item.draftId ? item.draftId === draft.id : index === 0;
+        });
+        var resultHtml = draftFindings.length ? '<div class="compliance-result-list">' + draftFindings.map(function(item) {
+            var severityLabel = { high:'高风险', medium:'中风险', low:'低风险' }[item.severity] || '需关注';
+            return '<div class="compliance-result-item ' + (item.severity === 'high' ? 'high' : '') + '"><strong>' + escapeHtml(severityLabel + ' · ' + (item.type || '风险项')) + '</strong>' +
+                '命中原文：' + escapeHtml(item.excerpt || '-') + '<br>风险说明：' + escapeHtml(item.reason || '-') + '<br>修改建议：' + escapeHtml(item.suggestion || '-') + '</div>';
+        }).join('') + '</div>' : '<div class="compliance-result-clear">当前规则未发现风险</div>';
+        return '<article class="compliance-draft-card" data-draft-id="' + escapeHtml(draft.id) + '">' +
+            '<div class="compliance-draft-head"><div class="compliance-draft-title">台词 ' + (index + 1) + '</div><span class="compliance-result-count">' + (draftFindings.length ? '发现 ' + draftFindings.length + ' 项风险' : '未发现风险') + '</span></div>' +
+            '<div class="compliance-original"><span class="compliance-block-label">用户输入原文</span>' + escapeHtml(draft.text || '原文为空') + '</div>' +
+            '<div class="compliance-block-label" style="margin-top:10px">合规检查结果</div>' + resultHtml + '</article>';
+    }).join('');
+    return '<div class="record-detail-section"><h4>原文与合规检查结果（' + drafts.length + '）</h4><div class="compliance-draft-list">' + cards + '</div></div>' +
+        '<div class="record-drawer-footer"><button class="btn" onclick="closeDrawer()">关闭</button></div>';
 }
 
 function buildToolDrawerHtml(run, tenant) {
     var creator = getTenantMemberName(tenant.id, run.creatorId, run.creatorNameSnapshot);
+    var isCreative = run.toolType === 'creative_agent';
+    var isViral = run.toolType === 'viral_breakdown';
+    var isCompliance = run.toolType === 'compliance_check';
     var meta = [
         ['租户', tenant.name], ['记录 ID', run.id], ['使用人', creator], ['使用类型', tenantToolModeLabel(run)],
         ['运行状态', tenantToolStatusLabel(run.runStatus)], ['内容检查', contentCheckStatusLabel(run.contentCheckStatus)],
-        ['结果数量', (run.outputs || []).length + ' 条'], ['用户处理', tenantToolAdoptionLabel(run)],
+        ['最终结果', (run.outputs || []).filter(function(output){ return output.status !== 'failed'; }).length + ' 条'], ['关联视频任务', tenantToolVideoTaskLinks(run).length + ' 个'],
         ['开始时间', run.createdAt], ['完成时间', run.completedAt || '-']
     ].map(function(pair) { return recordMetaItem(pair[0], pair[1]); }).join('');
     var technicalMeta = [
         ['耗时', run.durationMs ? Math.round(run.durationMs / 1000) + ' 秒' : '-'], ['消耗积分', Number(run.points || 0)],
         ['工具版本', run.toolVersion || '-'], ['提示词 / 规则版本', run.promptVersion || '-']
     ].map(function(pair) { return recordMetaItem(pair[0], pair[1]); }).join('');
-    var errorHtml = run.errorMessage ? '<div class="record-detail-section"><h4>失败信息</h4><div class="record-detail-content" style="border-color:#fecaca;background:#fef2f2;color:#b91c1c">' + escapeHtml((run.errorCode ? run.errorCode + ' · ' : '') + run.errorMessage) + '</div></div>' : '';
-    var downstream = (run.downstreamActions || []).length ? '<div class="record-detail-section"><h4>用户操作与下游去向</h4><div class="tool-flow-tags">' + run.downstreamActions.map(function(action) { return '<span class="tool-flow-tag">' + escapeHtml(action) + '</span>'; }).join('') + '</div></div>' : '';
+    var errorHtml = run.errorMessage ? '<div class="record-detail-section"><h4>失败信息</h4><div class="record-detail-content" style="border-color:#fecaca;background:#fef2f2;color:#b91c1c">' + escapeHtml((run.errorStage ? '失败阶段：' + run.errorStage + '\n' : '') + (run.errorCode ? run.errorCode + ' · ' : '') + run.errorMessage) + '</div></div>' : '';
+    var legacyVideoAction = !tenantToolVideoTaskLinks(run).length && (run.downstreamActions || []).some(function(action) { return String(action).indexOf('批量成片') !== -1; });
+    var legacyHtml = legacyVideoAction ? '<div class="record-detail-section"><h4>关联视频任务</h4><div class="record-detail-content" style="border-color:#fde68a;background:#fffbeb;color:#92400e">旧记录仅保存了"添加到批量成片"动作，未记录具体任务 ID，无法核验对应的视频任务。</div></div>' : '';
+    if (isCreative) {
+        return '<div class="record-detail-section"><h4>创作信息</h4>' + creativeToolInputHtml(run) + '</div>' +
+            '<div class="record-detail-section"><h4>返回结果（' + (run.outputs || []).length + '）</h4>' + toolOutputsHtml(run, { hideBadges:true }) + '</div>' +
+            toolFindingsHtml(run) + legacyHtml + errorHtml +
+            '<div class="record-drawer-footer"><button class="btn" onclick="closeDrawer()">关闭</button></div>';
+    }
+    if (isViral) return viralBreakdownDrawerHtml(run);
+    if (isCompliance) return complianceCheckDrawerHtml(run);
     return '<div class="record-detail-meta">' + meta + '</div>' +
         '<div class="record-detail-section"><h4>完整输入</h4>' + toolInputSections(run) + '</div>' +
-        '<div class="record-detail-section"><h4>完整输出（' + (run.outputs || []).length + '）</h4>' + toolOutputsHtml(run) + '</div>' +
-        toolFindingsHtml(run) + downstream + errorHtml +
+        '<div class="record-detail-section"><h4>返回结果与异常（' + (run.outputs || []).length + '）</h4>' + toolOutputsHtml(run) + '</div>' +
+        toolFindingsHtml(run) + legacyHtml + errorHtml +
         '<details class="technical-details"><summary>查看技术信息</summary><div class="record-detail-meta">' + technicalMeta + '</div></details>' +
         '<div class="record-drawer-footer"><button class="btn" onclick="closeDrawer()">关闭</button></div>';
 }
@@ -4523,7 +4807,7 @@ function contentCheckStatusLabel(status) {
 }
 
 function openTenantRecordDrawer(kind, recordId, trigger) {
-    if (!hasOperatorPermission('tenant_content_view')) {
+    if (kind === 'asset' && !hasOperatorPermission('tenant_content_view')) {
         toast('当前账号无用户内容查看权限', 'error');
         return;
     }
@@ -4546,6 +4830,7 @@ function openTenantRecordDrawer(kind, recordId, trigger) {
     document.getElementById('drawerTitle').textContent = kind === 'asset' ? (tenantAssetTypeLabel(record.type) + '详情 · ' + record.name) : ('工具记录 · ' + record.title);
     document.getElementById('drawerBody').innerHTML = kind === 'asset' ? buildAssetDrawerHtml(record, tenant) : buildToolDrawerHtml(record, tenant);
     bindTenantVoiceFileButtons(document.getElementById('drawerBody'));
+    bindTenantRecordDetailButtons(document.getElementById('drawerBody'));
     document.getElementById('drawerOverlay').classList.add('show');
     var drawer = document.getElementById('tenantDrawer');
     drawer.removeAttribute('inert');
@@ -4679,11 +4964,12 @@ function exportTenantToolCsv() {
     if (!tenant || !tenantDateRangeValid(tenantDetailUiState.toolFilters)) { toast('请先修正日期范围', 'error'); return; }
     var list = selectTenantToolRuns(tenant.id, tenantDetailUiState.toolFilters);
     if (!list.length) { toast('当前筛选结果为空，无法导出', 'error'); return; }
-    var rows = [['记录 ID','标题','工具类型','使用人','运行状态','内容检查','结果数','用户处理','风险项数','已采纳风险项','下游去向','输入摘要','输出摘要','错误信息','创建时间','完成时间']];
+    var rows = [['记录 ID','标题','工具类型','使用人','运行状态','最终结果数','关联视频任务数','关联任务 ID','输入摘要','最终结果摘要','失败阶段','错误信息','创建时间','完成时间']];
     list.forEach(function(run) {
-        var outputSummary = (run.outputs || []).map(function(item) { return item.title || ''; }).join('；');
-        var adoptedFindings = (run.findings || []).filter(function(item) { return item.adopted; }).length;
-        rows.push([run.id,run.title,tenantToolModeLabel(run),getTenantMemberName(tenant.id,run.creatorId,run.creatorNameSnapshot),tenantToolStatusLabel(run.runStatus),contentCheckStatusLabel(run.contentCheckStatus),(run.outputs || []).length,tenantToolAdoptionLabel(run),(run.findings || []).length,adoptedFindings,(run.downstreamActions || []).join('；'),tenantToolInputSummary(run),outputSummary,run.errorMessage || '',run.createdAt || '-',run.completedAt || '-']);
+        var finalOutputs = (run.outputs || []).filter(function(item) { return item.status !== 'failed' && String(item.text || '').trim(); });
+        var outputSummary = finalOutputs.map(function(item) { return (item.title ? item.title + '：' : '') + item.text; }).join('；');
+        var taskLinks = tenantToolVideoTaskLinks(run);
+        rows.push([run.id,run.title,tenantToolModeLabel(run),getTenantMemberName(tenant.id,run.creatorId,run.creatorNameSnapshot),tenantToolStatusLabel(run.runStatus),finalOutputs.length,taskLinks.length,taskLinks.map(function(link){ return link.taskId; }).join('；'),tenantToolInputSummary(run),outputSummary,run.errorStage || '',run.errorMessage || '',run.createdAt || '-',run.completedAt || '-']);
     });
     var filename = 'tenant-' + tenant.id + '-tool-runs-' + tenantExportDate() + '.csv';
     if (!downloadTenantContentFile(filename, tenantCsv(rows), 'text/csv')) return;
@@ -4699,7 +4985,6 @@ function toolRecordTxt(run, tenant) {
         '使用人：' + getTenantMemberName(tenant.id, run.creatorId, run.creatorNameSnapshot),
         '使用类型：' + tenantToolModeLabel(run),
         '运行状态：' + tenantToolStatusLabel(run.runStatus),
-        '内容检查：' + contentCheckStatusLabel(run.contentCheckStatus),
         '开始时间：' + (run.createdAt || '-'),
         '完成时间：' + (run.completedAt || '-'),
         '耗时：' + (run.durationMs ? Math.round(run.durationMs/1000) + ' 秒' : '-'),
@@ -4714,32 +4999,38 @@ function toolRecordTxt(run, tenant) {
         if (value && typeof value === 'object') value = JSON.stringify(value, null, 2);
         lines.push(key + '：\n' + String(value == null ? '' : value));
     });
-    lines.push('', '===== 完整输出 =====');
-    if (!(run.outputs || []).length) lines.push(run.errorMessage || '暂无输出');
+    lines.push('', '===== 最终结果 =====');
+    if (!(run.outputs || []).length) lines.push(run.errorMessage || '本次执行无最终结果');
     (run.outputs || []).forEach(function(output, index) {
         lines.push('', (index + 1) + '. ' + (output.title || '未命名结果'),
             '输出 ID：' + (output.id || '-'),
-            '用户已选：' + (output.selected ? '是' : '否'),
-            '用户已采用：' + (output.adopted ? '是' : '否'),
+            '结果状态：' + (output.status === 'failed' ? '失败' : '成功'),
             '检查状态：' + (output.checkStatus || '-'),
             '来源 ID：' + (output.sourceId || '-'),
             '结构：' + (output.structure || '-'),
             '正文：\n' + (output.text || ''));
+        if (output.errorMessage) lines.push('结果错误：' + (output.errorCode ? output.errorCode + ' · ' : '') + output.errorMessage);
+        if ((output.videoTaskLinks || []).length) {
+            lines.push('关联视频任务：');
+            output.videoTaskLinks.forEach(function(link) {
+                lines.push('- ' + (link.taskNameSnapshot || link.taskId) + '（' + link.taskId + '，状态：' + getTaskStatusLabel(link.taskStatusSnapshot) + '，关联时间：' + (link.linkedAt || '-') + '）');
+            });
+        } else {
+            lines.push('关联视频任务：未用于视频生成');
+        }
     });
     if ((run.findings || []).length) {
-        lines.push('', '===== 风险项与处理 =====');
+        lines.push('', '===== 风险项与建议 =====');
         run.findings.forEach(function(item, index) {
             lines.push('', (index + 1) + '. ' + (item.type || '风险项'),
                 '等级：' + (item.severity || '-'),
                 '原文：' + (item.excerpt || '-'),
                 '原因：' + (item.reason || '-'),
                 '建议：' + (item.suggestion || '-'),
-                '替换建议：' + (item.replacement || '-'),
-                '用户已采纳：' + (item.adopted ? '是' : '否'));
+                '替换建议：' + (item.replacement || '-'));
         });
     }
-    if ((run.downstreamActions || []).length) lines.push('', '===== 用户操作与下游去向 =====', run.downstreamActions.join('；'));
-    if (run.errorMessage) lines.push('', '===== 失败信息 =====', (run.errorCode ? run.errorCode + ' · ' : '') + run.errorMessage);
+    if (run.errorMessage) lines.push('', '===== 失败信息 =====', (run.errorStage ? '失败阶段：' + run.errorStage : ''), (run.errorCode ? run.errorCode + ' · ' : '') + run.errorMessage);
     return lines.join('\r\n');
 }
 
