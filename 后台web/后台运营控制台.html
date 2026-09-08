@@ -2555,12 +2555,12 @@ var AppState = {
     toolRuns: [
         { id:'run-ca-001', tenantId:'t001', creatorId:'u001', creatorNameSnapshot:'王小明', toolType:'creative_agent', mode:'zero_to_one', sourceMode:'manual', title:'震荡行情下的客户沟通选题', runStatus:'success', contentCheckStatus:'attention', createdAt:'2026-08-28 14:06', completedAt:'2026-08-28 14:07', durationMs:48200, points:36, toolVersion:'creative-agent-v1.4', promptVersion:'creative_zero_v6', isMock:true, input:{ topic:'震荡行情下，如何帮助客户建立更稳定的投资预期', marketState:'震荡行情', product:'基金投顾陪伴服务', marketingGoal:'客户投教与存量陪伴', platform:'视频号', audience:'持有基金但容易受短期波动影响的客户', style:'专业、克制、问题导向', presentation:'真人口播', cta:'引导查看完整投教内容', outputCount:2, targetWords:300, targetDuration:'60 秒', requirements:'不做收益承诺；用客户常见问题开场；结尾引导查看完整投教内容。' }, outputs:[{ id:'out-ca-001-1', status:'success', title:'波动不是问题，没预期才是', text:'市场一波动，很多人第一反应是问：现在到底该不该卖？\n但真正需要先解决的，不是预测下一次涨跌，而是确认这笔资金准备使用多久、能承受多大波动，以及原来的配置逻辑有没有变化。\n把这三个问题想清楚，再决定要不要调整，通常比追着行情行动更稳妥。以上内容仅作投资者教育，不构成具体投资建议。', checkStatus:'存在关注项', videoTaskLinks:[{ taskId:'vt_001', taskNameSnapshot:'市场收评_0602', taskStatusSnapshot:'partial', linkedAt:'2026-08-28 14:12' }] },{ id:'out-ca-001-2', status:'success', title:'先看账户目标，再看今天涨跌', text:'如果每天的涨跌都会改变你的计划，问题可能不在市场，而在最初没有把账户目标讲清楚。先区分短期要用的钱和长期配置的钱，再讨论波动是否需要处理。', checkStatus:'待检查', videoTaskLinks:[] }], downstreamActions:['导出 TXT','送往合规检查'] },
         { id:'run-rw-001', tenantId:'t001', creatorId:'u002', creatorNameSnapshot:'陈雨', toolType:'creative_agent', mode:'rewrite', sourceMode:'manual', title:'基金定投服务介绍改写', runStatus:'success', contentCheckStatus:'clear', createdAt:'2026-08-28 09:18', completedAt:'2026-08-28 09:19', durationMs:31600, points:20, toolVersion:'creative-agent-v1.4', promptVersion:'rewrite_same_v4', isMock:true, input:{ originalText:'我们的基金定投服务可以帮助客户抓住市场机会，实现财富快速增长。现在加入即可获得专业老师一对一指导。', rewriteGoal:'降低营销感，改为投教解释口吻', tone:'专业、克制', targetDuration:'45 秒' }, outputs:[{ id:'out-rw-001-1', status:'success', title:'定投服务说明·克制版', text:'基金定投的核心不是判断某一天是不是最低点，而是用固定节奏参与长期投资。我们的服务会帮助客户梳理资金期限、风险承受能力和执行计划，并提供持续的投教内容。具体方案仍需结合个人情况评估。', checkStatus:'通过', videoTaskLinks:[{ taskId:'vt_002', taskNameSnapshot:'资产配置_0602', taskStatusSnapshot:'completed', linkedAt:'2026-08-28 09:24' }] }], downstreamActions:['复制','添加到批量成片'] },
-        { id:'run-rw-002', tenantId:'t001', creatorId:'u001', creatorNameSnapshot:'王小明', toolType:'creative_agent', mode:'rewrite', sourceMode:'video_file', title:'线下沙龙视频台词提取与改写', runStatus:'success', contentCheckStatus:'stale', createdAt:'2026-08-27 16:35', completedAt:'2026-08-27 16:38', durationMs:168000, points:58, toolVersion:'creative-agent-v1.4', promptVersion:'rewrite_video_v2', isMock:true, input:{ videoSource:'客户沙龙_资产配置答疑.mp4', videoMetadata:'本地视频 · 128.4 MB · 08:42', extractedTranscript:'很多客户会问，最近市场反复波动，是不是应该先全部卖掉等稳定以后再买回来。', editedTranscript:'很多客户会问，市场反复波动时，是不是应该先卖出，等稳定以后再重新配置。', rewriteGoal:'整理成三条短视频口播', tone:'现场答疑、自然', targetDuration:'每条 40 秒' }, outputs:[{ id:'out-rw-002-1', status:'success', title:'波动时要不要全部卖出', text:'市场波动时，先全部卖出看起来像是在规避风险，但它同时要求你做对两次判断：什么时候卖，以及什么时候重新买回。更实际的做法，是先检查资金期限和配置比例。', checkStatus:'修改后待复检', videoTaskLinks:[] },{ id:'out-rw-002-2', status:'success', title:'重新配置前先回答三个问题', text:'准备调整账户前，可以先回答三个问题：这笔钱什么时候用、能承受多大回撤、当前配置是否偏离原计划。答案比短期涨跌更能决定是否需要行动。', checkStatus:'修改后待复检', videoTaskLinks:[] }], downstreamActions:['导出 CSV'] },
+        { id:'run-rw-002', tenantId:'t001', creatorId:'u001', creatorNameSnapshot:'王小明', toolType:'creative_agent', mode:'rewrite', sourceMode:'manual', title:'资产配置答疑台词改写', runStatus:'success', contentCheckStatus:'stale', createdAt:'2026-08-27 16:35', completedAt:'2026-08-27 16:38', durationMs:168000, points:58, toolVersion:'creative-agent-v1.4', promptVersion:'rewrite_same_v4', isMock:true, input:{ originalText:'很多客户会问，市场反复波动时，是不是应该先卖出，等稳定以后再重新配置。', rewriteGoal:'整理成三条短视频口播', tone:'现场答疑、自然', targetDuration:'每条 40 秒' }, outputs:[{ id:'out-rw-002-1', status:'success', title:'波动时要不要全部卖出', text:'市场波动时，先全部卖出看起来像是在规避风险，但它同时要求你做对两次判断：什么时候卖，以及什么时候重新买回。更实际的做法，是先检查资金期限和配置比例。', checkStatus:'修改后待复检', videoTaskLinks:[] },{ id:'out-rw-002-2', status:'success', title:'重新配置前先回答三个问题', text:'准备调整账户前，可以先回答三个问题：这笔钱什么时候用、能承受多大回撤、当前配置是否偏离原计划。答案比短期涨跌更能决定是否需要行动。', checkStatus:'修改后待复检', videoTaskLinks:[] }], downstreamActions:['导出 CSV'] },
         { id:'run-vb-001', tenantId:'t001', creatorId:'u002', creatorNameSnapshot:'陈雨', toolType:'viral_breakdown', mode:'batch_video', sourceMode:'video_link', title:'基金定投爆款视频拆解', runStatus:'partial_success', contentCheckStatus:'not_run', createdAt:'2026-08-27 10:20', completedAt:'2026-08-27 10:22', durationMs:89000, points:0, toolVersion:'viral-breakdown-v1.0', promptVersion:'breakdown_v3', isMock:true, input:{ videoSources:[{ id:'source-1', title:'定投认知误区', sourceUrl:'https://v.douyin.com/example-1', previewUrl:'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4' },{ id:'source-2', title:'长期资金规划', sourceUrl:'https://v.kuaishou.com/example-2', previewUrl:'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4' },{ id:'source-3', title:'账户配置案例', sourceUrl:'https://channels.weixin.qq.com/example-3', previewUrl:'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4' }], sourceCount:3 }, outputs:[{ id:'out-vb-001-1', sourceId:'source-1', status:'success', title:'定投不是低点预测', text:'很多人做定投，最纠结的是今天是不是低点。其实定投真正解决的，是不用把所有判断都压在某一天。', structure:'冲突式开场 → 解释误区 → 给出行动建议', checkStatus:'未检查', videoTaskLinks:[{ taskId:'vt_001', taskNameSnapshot:'市场收评_0602', taskStatusSnapshot:'partial', linkedAt:'2026-08-27 10:30' }] },{ id:'out-vb-001-2', sourceId:'source-2', status:'success', title:'先确定资金期限', text:'开始定投前，先确认这笔钱三年内会不会使用，再决定投入节奏和金额。', structure:'问题开场 → 三步判断 → 克制收尾', checkStatus:'未检查', videoTaskLinks:[] },{ id:'out-vb-001-3', sourceId:'source-3', status:'failed', title:'视频 3 拆解失败', text:'', errorCode:'TRANSCRIPT_UNAVAILABLE', errorMessage:'未获得可用音轨，无法提取台词。', videoTaskLinks:[] }], downstreamActions:['导入创意 Agent','添加到批量成片'] },
         { id:'run-cc-001', tenantId:'t001', creatorId:'u001', creatorNameSnapshot:'王小明', toolType:'compliance_check', mode:'batch_check', sourceMode:'manual', title:'市场收评台词合规检查', runStatus:'success', contentCheckStatus:'attention', createdAt:'2026-08-26 17:10', completedAt:'2026-08-26 17:11', durationMs:18400, points:0, toolVersion:'compliance-check-v1.1', promptVersion:'rule-set-202608', isMock:true, input:{ drafts:[{ id:'draft-1', text:'这只基金后续肯定会涨，现在上车可以获得稳定收益。' },{ id:'draft-2', text:'基金净值会受到市场环境影响，投资前需要结合自己的风险承受能力进行判断。' },{ id:'draft-3', text:'跟着老师操作，三个月保证翻倍，名额有限请立即购买。' }], draftCount:3 }, outputs:[{ id:'out-cc-001-1', draftId:'draft-1', status:'success', title:'建议修改稿', text:'这只基金后续表现仍会受到市场环境影响，是否适合配置需要结合个人风险承受能力判断。', checkStatus:'修改后待复检', videoTaskLinks:[{ taskId:'vt_002', taskNameSnapshot:'资产配置_0602', taskStatusSnapshot:'completed', linkedAt:'2026-08-26 17:16' }] }], findings:[{ draftId:'draft-1', severity:'high', type:'收益承诺', excerpt:'肯定会涨', reason:'使用确定性表述描述未来收益。', suggestion:'改为说明市场不确定性和适配条件。' },{ draftId:'draft-1', severity:'medium', type:'误导性表达', excerpt:'稳定收益', reason:'容易使用户理解为收益有保障。', suggestion:'删除收益保障含义。' },{ draftId:'draft-3', severity:'high', type:'收益承诺', excerpt:'三个月保证翻倍', reason:'承诺固定期限内获得确定收益。', suggestion:'删除收益保证和具体回报承诺。' },{ draftId:'draft-3', severity:'medium', type:'诱导营销', excerpt:'名额有限请立即购买', reason:'使用稀缺性和紧迫性诱导用户决策。', suggestion:'改为客观说明产品信息与适配条件。' }], downstreamActions:['已采纳 2 条修改','完成复检','添加到批量成片'] },
         { id:'run-ca-002', tenantId:'t001', creatorId:'u003', creatorNameSnapshot:'李倩', toolType:'creative_agent', mode:'zero_to_one', sourceMode:'manual', title:'品牌直播预热视频', runStatus:'failed', contentCheckStatus:'not_run', createdAt:'2026-08-26 10:02', completedAt:'2026-08-26 10:03', durationMs:51000, points:0, toolVersion:'creative-agent-v1.4', promptVersion:'creative_zero_v6', isMock:true, input:{ topic:'季度客户直播预告', marketState:'季度客户沟通期', product:'品牌季度直播', marketingGoal:'直播预约转化', platform:'抖音', audience:'已关注品牌账号的存量客户', style:'直接、口语化', presentation:'单人口播', cta:'引导预约直播', outputCount:1, targetWords:180, targetDuration:'30 秒', requirements:'突出直播时间和三项议题。' }, outputs:[], errorStage:'generate', errorCode:'MODEL_TIMEOUT', errorMessage:'大语言模型响应超时，本次未扣除积分。', downstreamActions:[] },
         { id:'run-ca-003', tenantId:'t002', creatorId:'u005', creatorNameSnapshot:'周敏', toolType:'creative_agent', mode:'zero_to_one', sourceMode:'manual', title:'家庭保单整理短视频', runStatus:'success', contentCheckStatus:'clear', createdAt:'2026-08-27 11:20', completedAt:'2026-08-27 11:21', durationMs:44200, points:32, toolVersion:'creative-agent-v1.4', promptVersion:'creative_zero_v6', isMock:true, input:{ topic:'家庭保单为什么需要定期整理', marketState:'家庭保障复盘期', product:'家庭保单整理服务', marketingGoal:'客户投教与服务咨询', platform:'视频号', audience:'已有多份保单的家庭客户', style:'专业、亲和', presentation:'单人口播', cta:'引导预约保单整理', outputCount:1, targetWords:300, targetDuration:'60 秒', requirements:'避免制造焦虑，给出可执行的整理步骤。' }, outputs:[{ id:'out-ca-003-1', status:'success', title:'保单多，不等于保障完整', text:'家里保单越来越多，最需要做的不是继续增加，而是先把现有保障整理清楚。可以按家庭成员、保障责任、保额和缴费期限做一张表，再检查有没有重复或空缺。', checkStatus:'通过', videoTaskLinks:[{ taskId:'vt_003', taskNameSnapshot:'保险科普_0601', taskStatusSnapshot:'partial', linkedAt:'2026-08-27 11:28' }] }], downstreamActions:['添加到批量成片'] },
-        { id:'run-rw-003', tenantId:'t003', creatorId:'u006', creatorNameSnapshot:'王磊', toolType:'creative_agent', mode:'rewrite', sourceMode:'video_link', title:'公开课链接台词改写', runStatus:'failed', contentCheckStatus:'not_run', createdAt:'2026-08-25 15:44', completedAt:'2026-08-25 15:45', durationMs:62000, points:0, toolVersion:'creative-agent-v1.4', promptVersion:'rewrite_video_v2', isMock:true, input:{ videoSource:'https://video.example.com/course/market-review', videoMetadata:'在线视频 · 页面可访问', rewriteGoal:'提取后改写为 3 条投教口播', tone:'客观、易懂', targetDuration:'45 秒' }, outputs:[], errorStage:'transcribe', errorCode:'TRANSCRIPT_UNAVAILABLE', errorMessage:'未获得可用音轨，无法生成转写结果。', downstreamActions:[] },
+        { id:'run-rw-003', tenantId:'t003', creatorId:'u006', creatorNameSnapshot:'王磊', toolType:'creative_agent', mode:'rewrite', sourceMode:'manual', title:'市场复盘台词改写', runStatus:'failed', contentCheckStatus:'not_run', createdAt:'2026-08-25 15:44', completedAt:'2026-08-25 15:45', durationMs:62000, points:0, toolVersion:'creative-agent-v1.4', promptVersion:'rewrite_same_v4', isMock:true, input:{ originalText:'市场短期涨跌难以预测，复盘时应先检查资金期限、风险承受能力和当前配置是否符合原计划。', rewriteGoal:'改写为 3 条投教口播', tone:'客观、易懂', targetDuration:'45 秒' }, outputs:[], errorStage:'generate', errorCode:'MODEL_TIMEOUT', errorMessage:'台词改写生成超时，本次未扣除积分。', downstreamActions:[] },
         { id:'run-rw-004', tenantId:'t004', creatorId:'u007', creatorNameSnapshot:'陈静', toolType:'creative_agent', mode:'rewrite', sourceMode:'manual', title:'课程招生介绍改写', runStatus:'success', contentCheckStatus:'clear', createdAt:'2026-08-29 08:12', completedAt:'2026-08-29 08:13', durationMs:29500, points:18, toolVersion:'creative-agent-v1.4', promptVersion:'rewrite_same_v4', isMock:true, input:{ originalText:'零基础也能快速掌握短视频制作，我们提供从脚本到发布的完整方法。', rewriteGoal:'改成真实课程介绍，减少夸张承诺', tone:'老师讲解、直接', targetDuration:'40 秒' }, outputs:[{ id:'out-rw-004-1', status:'success', title:'课程介绍·直接版', text:'这门课会从选题、脚本、拍摄到发布，带你走一遍完整的短视频制作流程。课程适合刚开始做内容、还没有稳定方法的人，具体进度取决于练习投入和原有基础。', checkStatus:'通过', videoTaskLinks:[] }], downstreamActions:['复制'] },
         { id:'run-rw-005', tenantId:'t004', creatorId:'u008', creatorNameSnapshot:'胡楠', toolType:'creative_agent', mode:'rewrite', sourceMode:'manual', title:'直播切片标题改写', runStatus:'processing', contentCheckStatus:'not_run', createdAt:'2026-08-29 09:05', completedAt:'-', durationMs:0, points:0, toolVersion:'creative-agent-v1.4', promptVersion:'rewrite_series_v3', isMock:true, input:{ originalText:'直播课里关于选题方法的一段讲解，准备拆成系列短视频。', rewriteGoal:'拆成五个连续选题', tone:'课程讲师、简洁', targetDuration:'每条 30 秒' }, outputs:[], downstreamActions:[] }
     ],
@@ -3728,7 +3728,7 @@ function selectTenantToolRuns(tenantId, filters) {
         if (filters.dateTo && day > filters.dateTo) return false;
         if (keyword) {
             var creator = getTenantMemberName(tenantId, run.creatorId, run.creatorNameSnapshot);
-            var haystack = [run.id, run.title, creator, JSON.stringify(run.input || {}), JSON.stringify(run.outputs || []), JSON.stringify(run.findings || []), (run.downstreamActions || []).join(' ')].join(' ').toLowerCase();
+            var haystack = [run.id, run.title, creator, tenantToolKeywordText(run), (run.downstreamActions || []).join(' ')].join(' ').toLowerCase();
             if (haystack.indexOf(keyword) === -1) return false;
         }
         return true;
@@ -3736,6 +3736,19 @@ function selectTenantToolRuns(tenantId, filters) {
         var byDate = String(b.createdAt || '').localeCompare(String(a.createdAt || ''));
         return byDate || String(a.id).localeCompare(String(b.id));
     });
+}
+
+function tenantToolKeywordText(run) {
+    var input = run.input || {};
+    var outputs = run.outputs || [];
+    var findings = run.findings || [];
+    var text = [
+        input.originalText, input.editedTranscript, input.extractedTranscript,
+        input.checkedText, input.topic, input.rewriteGoal, input.tone,
+        outputs.map(function(output) { return [output.title, output.text, output.excerpt].join(' '); }).join(' '),
+        findings.map(function(finding) { return [finding.excerpt, finding.reason, finding.suggestion].join(' '); }).join(' ')
+    ];
+    return text.concat([JSON.stringify(input), JSON.stringify(outputs)]).filter(Boolean).join(' ');
 }
 
 function tenantAssetTypeLabel(type) {
@@ -3757,10 +3770,9 @@ function tenantAssetStatusClass(status) {
 function tenantToolModeLabel(run) {
     if (run.toolType === 'viral_breakdown') return '爆款拆解';
     if (run.toolType === 'compliance_check') return '合规检查';
-    if (run.mode === 'zero_to_one') return '创意 Agent · 从 0 创作';
+    if (run.mode === 'zero_to_one') return '从 0 创作';
     if (run.mode !== 'rewrite') return '未知工具记录';
-    var source = { manual:'直接输入', video_link:'视频链接', video_file:'本地视频' }[run.sourceMode] || '台词来源';
-    return '台词改写 · ' + source;
+    return '台词改写';
 }
 
 function tenantVideoSourceLabel(source) {
@@ -3985,7 +3997,7 @@ function renderTenantToolRuns() {
 
                 '<div class="tenant-record-filter"><label for="tdToolDateFrom">创建日期起</label><input class="filter-input" id="tdToolDateFrom" type="date" value="' + escapeHtml(f.dateFrom) + '" aria-describedby="tdToolResultCount" onchange="updateTenantToolFilters()"></div>' +
                 '<div class="tenant-record-filter"><label for="tdToolDateTo">创建日期止</label><input class="filter-input" id="tdToolDateTo" type="date" value="' + escapeHtml(f.dateTo) + '" aria-describedby="tdToolResultCount" onchange="updateTenantToolFilters()"></div>' +
-                '<div class="tenant-record-filter search"><label for="tdToolSearch">关键词</label><input class="filter-input" id="tdToolSearch" value="' + escapeHtml(f.keyword) + '" placeholder="记录 ID / 标题 / 输入输出" oninput="queueTenantToolFilterUpdate()"></div>' +
+                '<div class="tenant-record-filter search"><label for="tdToolSearch">关键词</label><input class="filter-input" id="tdToolSearch" value="' + escapeHtml(f.keyword) + '" placeholder="台词" oninput="queueTenantToolFilterUpdate()"></div>' +
                 '<div class="tenant-record-actions"><span class="tenant-record-count" id="tdToolResultCount" role="status" aria-live="polite" aria-atomic="true"></span><button class="btn btn-sm" onclick="clearTenantToolFilters()">清空筛选</button></div>' +
             '</div>' +
             '<div id="tdToolTableArea"></div>' +
@@ -4098,11 +4110,12 @@ function renderTenantToolTable() {
         var taskLinks = tenantToolVideoTaskLinks(run);
         var primaryTaskId = taskLinks.length ? taskLinks[0].taskId : run.id;
         var primaryTaskName = taskLinks.length ? (taskLinks[0].taskNameSnapshot || taskLinks[0].taskId) : '';
-        var tdExecInput = isCreative ? '' : '<td><div class="tenant-record-summary" title="' + escapeHtml(summary) + '">' + escapeHtml(summary) + '</div></td>';
+        var tdExecInput = (isCreative || isViral) ? '' : '<td><div class="tenant-record-summary" title="' + escapeHtml(summary) + '">' + escapeHtml(summary) + '</div></td>';
         var tdRunStatus = (isCreative || isViral || isCompliance) ? '' : '<td><span class="status ' + tenantToolStatusClass(run.runStatus) + '">' + escapeHtml(tenantToolStatusLabel(run.runStatus)) + '</span></td>';
         var tdFinalResult = isCreative
             ? '<td><strong>' + resultCount + '</strong> 篇</td>'
-            : (isCompliance ? '' : '<td><div class="tenant-record-summary" title="' + escapeHtml(finalSummary) + '">' + escapeHtml(finalSummary) + '</div><div class="tenant-record-id">' + resultCount + ' 条成功结果</div></td>');
+            : (isViral ? '<td><strong>' + resultCount + '</strong> 条</td>'
+                : (isCompliance ? '' : '<td><div class="tenant-record-summary" title="' + escapeHtml(finalSummary) + '">' + escapeHtml(finalSummary) + '</div><div class="tenant-record-id">' + resultCount + ' 条成功结果</div></td>'));
         return '<tr>' +
             '<td><div class="tenant-record-title">' + escapeHtml(primaryTaskId) + '</div>' + (primaryTaskName ? '<div class="tenant-record-id">' + escapeHtml(primaryTaskName) + '</div>' : '') + '</td>' +
             '<td><span class="chip chip-blue">' + escapeHtml(tenantToolModeLabel(run)) + '</span></td>' +
@@ -4114,9 +4127,9 @@ function renderTenantToolTable() {
             '<td><button class="btn btn-xs td-record-detail" data-record-kind="tool" data-record-id="' + escapeHtml(run.id) + '">详情</button></td>' +
         '</tr>';
     }).join('');
-    var thExecInput = isCreative ? '' : '<th scope="col">执行输入</th>';
+    var thExecInput = (isCreative || isViral) ? '' : '<th scope="col">执行输入</th>';
     var thRunStatus = (isCreative || isViral || isCompliance) ? '' : '<th scope="col">运行状态</th>';
-    var thFinalResult = isCompliance ? '' : '<th scope="col">' + (isCreative ? '结果数量' : '最终结果') + '</th>';
+    var thFinalResult = isCompliance ? '' : '<th scope="col">' + (isCreative ? '结果数量' : (isViral ? '拆解数量' : '最终结果')) + '</th>';
     area.innerHTML = '<div class="tenant-record-table-scroll" tabindex="0" aria-label="可横向滚动的工具记录表"><table class="tenant-record-table"><thead><tr><th scope="col">任务ID</th><th scope="col">工具类型</th><th scope="col">使用人</th>' + thExecInput + thRunStatus + thFinalResult + '<th scope="col">关联视频任务</th><th scope="col">执行时间</th><th scope="col">操作</th></tr></thead><tbody>' + rows + '</tbody></table></div>';
     bindTenantRecordDetailButtons(area);
 }
@@ -4655,10 +4668,8 @@ function creativeToolInputHtml(run) {
         ['行动引导', input.cta],
         ['补充要求', input.requirements || input.extra, '', true]
     ] : [
-        ['视频来源', input.videoSource], ['视频信息', input.videoMetadata],
-        ['原始台词', input.originalText, '', true], ['视频提取台词', input.extractedTranscript, '', true],
-        ['用户编辑后台词', input.editedTranscript, '', true], ['改写目标', input.rewriteGoal],
-        ['表达口吻', input.tone], ['目标时长', input.targetDuration]
+        ['原始台词', input.originalText || input.editedTranscript || input.extractedTranscript, '', true],
+        ['改写方向', input.rewriteGoal, '', true]
     ];
     var items = fields.filter(function(field) { return field[1] != null && field[1] !== ''; }).map(function(field) {
         var value = String(field[1]);
