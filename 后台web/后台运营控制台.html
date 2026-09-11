@@ -6917,6 +6917,7 @@ function renderTemplates() {
                 (i < AppState.templateConfigs.length - 1 ? '<button class="btn btn-xs" onclick="moveTemplate(' + i + ', 1)" title="下移">↓</button> ' : '') +
                 '<button class="btn btn-xs btn-primary" onclick="openTemplatePreview(' + i + ')" title="预览">▶ 预览</button> ' +
                 '<button class="btn btn-xs" onclick="openTemplateModal(' + i + ')">编辑</button> ' +
+                '<button class="btn btn-xs" onclick="copyTemplate(' + i + ')" title="复制为副本">复制</button> ' +
                 '<button class="btn btn-xs ' + (t.status === '启用' ? '' : 'btn-primary') + '" onclick="confirmToggleTemplate(' + i + ')">' + (t.status === '启用' ? '下架' : '上架') + '</button> ' +
                 '<button class="btn btn-xs btn-danger" onclick="confirmDeleteTemplate(' + i + ')">删除</button>' +
             '</td>' +
@@ -6993,6 +6994,18 @@ function deleteTemplate(index) {
     saveData();
     renderTemplates();
     toast('模板「' + name + '」已删除', 'success');
+}
+
+function copyTemplate(index) {
+    var src = AppState.templateConfigs[index];
+    if (!src) return;
+    var copy = JSON.parse(JSON.stringify(src));
+    copy.name = (src.name || '') + '_副本';
+    AppState.templateConfigs.unshift(copy);
+    addAuditLog('配置', copy.name, '-', '-', '复制模板：由「' + src.name + '」复制');
+    saveData();
+    renderTemplates();
+    toast('已复制为「' + copy.name + '」，已置顶', 'success');
 }
 
 function openTemplatePreview(index) {
