@@ -582,8 +582,8 @@
         <!-- 吸顶锚点 -->
         <div class="anchor-bar">
             <a class="anchor-item active" data-anchor="overview" href="#overview">团队概览</a>
-            <a class="anchor-item" data-anchor="members" href="#members">成员管理</a>
             <a class="anchor-item" data-anchor="roles" href="#roles">角色与权限</a>
+            <a class="anchor-item" data-anchor="members" href="#members">成员管理</a>
         </div>
 
         <div class="page-wrap">
@@ -653,7 +653,30 @@
                 </div>
             </div>
 
-            <!-- ========== 2. 成员管理 ========== -->
+            <!-- ========== 2. 角色与权限 ========== -->
+            <section class="card" id="roles">
+                <div class="card-header">
+                    <div>
+                        <div class="card-title"><span class="card-title-icon">🎭</span> 角色与权限</div>
+                        <div class="card-subtitle">定义角色及页面/操作权限，积分额度在成员管理中按人分配</div>
+                    </div>
+                    <button class="btn btn-primary btn-sm" onclick="openNewRoleModal()">
+                        <span>＋</span> 新建角色
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <span class="alert-icon">💡</span>
+                        <div>
+                            角色仅控制<b>权限范围</b>（能访问哪些页面、能执行哪些操作），<b>积分额度在成员管理中按人分配</b>。<br>
+                            同一角色的成员可以拥有不同的积分额度，互不影响。
+                        </div>
+                    </div>
+                    <div class="role-cards" id="roleCards"></div>
+                </div>
+            </section>
+
+            <!-- ========== 3. 成员管理 ========== -->
             <section class="card" id="members">
                 <div class="card-header">
                     <div>
@@ -684,29 +707,6 @@
                             <tbody id="memberTbody"></tbody>
                         </table>
                     </div>
-                </div>
-            </section>
-
-            <!-- ========== 3. 角色与积分 ========== -->
-            <section class="card" id="roles">
-                <div class="card-header">
-                    <div>
-                        <div class="card-title"><span class="card-title-icon">🎭</span> 角色与权限</div>
-                        <div class="card-subtitle">定义角色及页面/操作权限，积分额度在成员管理中按人分配</div>
-                    </div>
-                    <button class="btn btn-primary btn-sm" onclick="openNewRoleModal()">
-                        <span>＋</span> 新建角色
-                    </button>
-                </div>
-                <div class="card-body">
-                    <div class="alert alert-info">
-                        <span class="alert-icon">💡</span>
-                        <div>
-                            角色仅控制<b>权限范围</b>（能访问哪些页面、能执行哪些操作），<b>积分额度在成员管理中按人分配</b>。<br>
-                            同一角色的成员可以拥有不同的积分额度，互不影响。
-                        </div>
-                    </div>
-                    <div class="role-cards" id="roleCards"></div>
                 </div>
             </section>
 
@@ -754,7 +754,7 @@
     <div class="modal modal-sm" role="dialog" aria-modal="true" aria-labelledby="modalChangeRoleTitle" tabindex="-1">
         <div class="modal-header">
             <div class="modal-title" id="modalChangeRoleTitle">变更角色</div>
-            <div class="modal-sub">修改成员所属角色，将同步更新其积分额度</div>
+            <div class="modal-sub">修改成员所属角色，个人积分额度保持不变</div>
         </div>
         <div class="modal-body">
             <div class="form-group">
@@ -1037,6 +1037,7 @@
 
 <div class="toast" id="toast"></div>
 
+<script src="assets/org-access-store.js"></script>
 <script>
 /* ========== 侧栏 ========== */
 function toggleSection(titleEl) {
@@ -1122,7 +1123,7 @@ function updateAddMemberQuotaNote() {
     var rawQuota = (document.getElementById('addMemberQuota').value || '').trim();
     var quota = rawQuota === '' ? 0 : parseInt(rawQuota, 10);
     var allocated = M.members.reduce(function(sum, m){ return sum + (m.quota || 0); }, 0);
-    var poolRemain = M.creditPool.total - allocated;
+    var poolRemain = M.creditPool.total - allocated - (M.creditPool.retiredConsumed || 0);
     var el = document.getElementById('addMemberPoolRemain');
     if (!el) return;
     if (isNaN(quota) || quota < 0) {
@@ -1152,7 +1153,7 @@ function copyText(text) {
 /* ========== 锚点滚动联动 ========== */
 var content = document.getElementById('content');
 var anchors = document.querySelectorAll('.anchor-item');
-var sections = ['overview','members','roles'].map(function(id){ return document.getElementById(id); });
+var sections = ['overview','roles','members'].map(function(id){ return document.getElementById(id); });
 
 anchors.forEach(function(a){
     a.addEventListener('click', function(e){
@@ -1198,6 +1199,7 @@ var permissionCatalog = [
             { id: 'upload', name: '上传音频' },
             { id: 'clone', name: '克隆声音' },
             { id: 'audit', name: '审核音频' },
+            { id: 'edit', name: '编辑音色' },
             { id: 'delete', name: '删除音频' }
         ]
     },
@@ -1209,6 +1211,7 @@ var permissionCatalog = [
             { id: 'upload', name: '上传视频' },
             { id: 'preview', name: '预览视频' },
             { id: 'download', name: '下载视频' },
+            { id: 'edit', name: '编辑视频' },
             { id: 'delete', name: '删除视频' }
         ]
     },
@@ -1325,8 +1328,8 @@ var M = {
         { id: 'r1', name: '投顾管理员', color: '#2f6bff', memberCount: 2, desc: '租户管理者，可管理团队和积分', permissions: getAllPermissions() },
         { id: 'r2', name: '高级投顾', color: '#16a34a', memberCount: 2, desc: '资深投资顾问，可生成高质量视频', permissions: makePermissions(['assetSubject','assetAudio','assetVideo','director','tools','billing'], {
             assetSubject: ['create','edit','publish'],
-            assetAudio: ['upload','clone'],
-            assetVideo: ['preview','download'],
+            assetAudio: ['upload','clone','edit'],
+            assetVideo: ['preview','download','edit'],
             director: ['create','generate','export','template'],
             tools: ['use','download'],
             billing: ['view']
@@ -1385,7 +1388,7 @@ function init() {
 function updateCreditOverview() {
     var pool = M.creditPool;
     var allocated = M.members.reduce(function(sum, m){ return sum + (m.quota || 0); }, 0);
-    var unalloc = pool.total - allocated;
+    var unalloc = pool.total - allocated - (pool.retiredConsumed || 0);
     document.getElementById('cv-total').textContent = pool.total.toLocaleString();
     document.getElementById('cv-allocated').textContent = allocated.toLocaleString();
     document.getElementById('cv-unalloc').textContent = unalloc.toLocaleString();
@@ -1521,7 +1524,7 @@ function addMember() {
     if (!roleId) { toast('请选择归属角色', 'error'); return; }
     if (isNaN(quota) || quota < 0) { toast('请输入有效的积分额度', 'error'); return; }
     var allocated = M.members.reduce(function(sum, m){ return sum + (m.quota || 0); }, 0);
-    var poolRemain = M.creditPool.total - allocated;
+    var poolRemain = M.creditPool.total - allocated - (M.creditPool.retiredConsumed || 0);
     if (quota > poolRemain) { toast('额度超出待分配积分（' + poolRemain.toLocaleString() + '）', 'error'); return; }
     var role = null;
     M.roles.forEach(function(r){ if (r.id === roleId) role = r; });
@@ -1531,7 +1534,7 @@ function addMember() {
     var newMember = {
         id: 'm' + (M.members.length + 1) + '_' + Date.now().toString(36),
         name: name, avatar: name.charAt(0), avatarBg: avatarBg,
-        role: role.name, roleId: roleId, quota: quota, consumed: 0, joined: new Date().toISOString().slice(0, 10)
+        role: role.name, roleId: roleId, orgId: document.getElementById('oa-add-member-org').value, phone: phone, quota: quota, consumed: 0, joined: new Date().toISOString().slice(0, 10)
     };
     M.members.push(newMember);
     role.memberCount++;
@@ -1598,17 +1601,21 @@ function removeMember(memberId) {
     var newBtn = okBtn.cloneNode(true);
     okBtn.parentNode.replaceChild(newBtn, okBtn);
     newBtn.addEventListener('click', function(){
+        if(!OrgAccess.requireAdmin())return;
+        if(OrgAccess.state.members.some(m=>m.id===ctx.currentMemberId&&m.admin)){toast('租户管理员不能被移除','error');return;}
         closeModal('modalRemoveMember');
         var mid = ctx.currentMemberId;
         M.members.forEach(function(m, i){
             if (m.id === mid) {
                 M.roles.forEach(function(r){ if (r.id === m.roleId) r.memberCount--; });
+                M.creditPool.retiredConsumed = (M.creditPool.retiredConsumed || 0) + (m.consumed || 0);
                 M.members.splice(i, 1);
             }
         });
         renderMemberTable();
         renderRoleCards();
-        toast('成员已移除', 'success');
+        updateCreditOverview();
+        toast('成员已移除，未使用额度已回收', 'success');
     });
     openModal('modalRemoveMember');
 }
@@ -1818,7 +1825,7 @@ function allocMemberCredits(memberId) {
     document.getElementById('allocMemberName').innerHTML = '<span class="member-avatar admin-avatar-sm" style="background:' + member.avatarBg + ';margin-right:6px;">' + member.avatar + '</span>' + member.name + ' <span style="font-size:12px;color:var(--text-muted);">(' + member.role + ')</span>';
     document.getElementById('allocCurrentQuota').textContent = '当前额度：' + (member.quota || 0).toLocaleString() + ' 积分（已消耗 ' + (member.consumed || 0).toLocaleString() + '）';
     var allocated = M.members.reduce(function(sum, m){ return sum + (m.quota || 0); }, 0);
-    var poolRemain = M.creditPool.total - allocated;
+    var poolRemain = M.creditPool.total - allocated - (M.creditPool.retiredConsumed || 0);
     document.getElementById('allocPoolRemain').textContent = '总池 ' + M.creditPool.total.toLocaleString() + ' · 已分配 ' + allocated.toLocaleString() + ' · 待分配 ' + poolRemain.toLocaleString();
     document.getElementById('allocAmount').value = '';
     setAllocMode('add');
@@ -1855,7 +1862,7 @@ function calculateCreditAdjustment() {
     var rawAmount = (document.getElementById('allocAmount').value || '').trim();
     var val = parseInt(rawAmount, 10) || 0;
     var allocated = M.members.reduce(function(sum, m){ return sum + (m.quota || 0); }, 0);
-    var poolRemain = M.creditPool.total - allocated;
+    var poolRemain = M.creditPool.total - allocated - (M.creditPool.retiredConsumed || 0);
     var mode = ctx.allocMode || 'add';
     var curQuota = member ? (member.quota || 0) : 0;
     var curConsumed = member ? (member.consumed || 0) : 0;
@@ -1972,7 +1979,9 @@ function deleteRole(roleId) {
     var newBtn = okBtn.cloneNode(true);
     okBtn.parentNode.replaceChild(newBtn, okBtn);
     newBtn.addEventListener('click', function(){
+        if(!OrgAccess.requireAdmin())return;
         var rid = ctx.currentDeleteRoleId;
+        if(M.members.some(m=>m.roleId===rid)){toast('请先转移该角色成员','error');return;}
         var delRole = null;
         M.roles.forEach(function(r, i){
             if (r.id === rid) { delRole = r; M.roles.splice(i, 1); }
@@ -2033,6 +2042,7 @@ function submitRecharge() {
         time: new Date().toISOString().replace('T',' ').slice(0,16),
         status: '审核中', method: method, operator: '王晓明', remark: '—'
     });
+    OrgAccess.syncTeam(M);
     closeModal('modalRecharge');
     renderRechargeTable();
     toast('充值已提交 · ¥' + pkg.amount.toLocaleString() + ' → ' + pkg.credits.toLocaleString() + ' 积分，请等待审核', 'success');
@@ -2042,6 +2052,7 @@ function submitRecharge() {
         if (rec && rec.status === '审核中') {
             rec.status = '已完成';
             M.creditPool.total += rec.credits;
+            OrgAccess.syncTeam(M);
             renderRechargeTable();
             updateCreditOverview();
             renderRoleCards();
@@ -2088,5 +2099,6 @@ function consumeDetail(cId) {
 /* ========== 启动 ========== */
 init();
 </script>
+<script src="assets/org-team-ui.js"></script>
 </body>
 </html>
