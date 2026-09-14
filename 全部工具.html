@@ -1447,6 +1447,18 @@
                     </div>
                 </a>
 
+<script src="assets/org-access-store.js"></script>
+<script src="assets/org-task-access.js"></script>
+                <!-- IP台词创作 -->
+                <a class="tool-card" href="IP台词创作.html">
+                    <div class="thumb" style="background-image:url('assets/IP台词创作.svg');">
+                        <div class="name">IP台词创作</div>
+                    </div>
+                    <div class="info">
+                        <div class="desc">选择主播表达风格，将观点生成有辨识度的口播台词</div>
+                    </div>
+                </a>
+
                 <!-- 爆款拆解 -->
                 <a class="tool-card" href="爆款拆解.html">
                     <div class="thumb" style="background-image:url('assets/爆款拆解.png');">
@@ -1876,7 +1888,7 @@
         // 模拟任务数据（增加人物和背景信息）
         var mockTasks = [
             // 1. 草稿
-            { id: 1, taskName: '草稿_投资入门指南', visibility: '仅自己', script: '（草稿，暂未填写台词）', status: 'draft', progress: 0, duration: 0, cost: 0, createdAt: '2026-06-10T08:00:00', startedAt: null, completedAt: null, wmStatus: null, person: { name: '角色 A · 知性女性', emoji: '👩', gradient: 'linear-gradient(135deg,#ff9a9e,#fad0c4)' }, bg: { name: '办公室', gradient: 'linear-gradient(135deg,#667eea,#764ba2)' } },
+            { id: 1, taskName: '草稿_投资入门指南', visibility: '个人', script: '（草稿，暂未填写台词）', status: 'draft', progress: 0, duration: 0, cost: 0, createdAt: '2026-06-10T08:00:00', startedAt: null, completedAt: null, wmStatus: null, person: { name: '角色 A · 知性女性', emoji: '👩', gradient: 'linear-gradient(135deg,#ff9a9e,#fad0c4)' }, bg: { name: '办公室', gradient: 'linear-gradient(135deg,#667eea,#764ba2)' } },
             // 2. 排队中
             { id: 2, taskName: '排队中_基金定投解读', visibility: '团队可见', script: '基金定投是一种适合普通投资者的长期理财方式，每月固定金额投入...', status: 'queued', progress: 0, duration: 7, cost: 14, createdAt: '2026-06-11T09:00:00', startedAt: null, completedAt: null, wmStatus: null, person: { name: '角色 B · 商务男性', emoji: '👨', gradient: 'linear-gradient(135deg,#a18cd1,#fbc2eb)' }, bg: { name: '办公室', gradient: 'linear-gradient(135deg,#667eea,#764ba2)' } },
             { id: 3, taskName: '排队中_基金定投解读', visibility: '团队可见', script: '选择定投基金时，建议优先考虑指数型基金，费率低且长期收益稳定...', status: 'queued', progress: 0, duration: 6, cost: 12, createdAt: '2026-06-11T09:00:00', startedAt: null, completedAt: null, wmStatus: null, person: { name: '角色 B · 商务男性', emoji: '👨', gradient: 'linear-gradient(135deg,#a18cd1,#fbc2eb)' }, bg: { name: '办公室', gradient: 'linear-gradient(135deg,#667eea,#764ba2)' } },
@@ -1887,15 +1899,15 @@
             { id: 6, taskName: '已完成_养老金规划', visibility: '团队可见', script: '养老金规划越早开始越好，复利效应是长期积累的核心动力...', status: 'completed', progress: 100, duration: 7, cost: 14, createdAt: '2026-06-10T14:00:00', startedAt: '2026-06-10T14:02:00', completedAt: '2026-06-10T14:08:00', wmStatus: 'done', person: { name: '角色 A · 知性女性', emoji: '👩', gradient: 'linear-gradient(135deg,#ff9a9e,#fad0c4)' }, bg: { name: '办公室', gradient: 'linear-gradient(135deg,#667eea,#764ba2)' } },
             { id: 7, taskName: '已完成_养老金规划', visibility: '团队可见', script: '目前国家推行的个人养老金制度每年可享受最高12000元的税收优惠...', status: 'completed', progress: 100, duration: 6, cost: 12, createdAt: '2026-06-10T14:00:00', startedAt: '2026-06-10T14:02:00', completedAt: '2026-06-10T14:07:00', wmStatus: 'done', person: { name: '角色 A · 知性女性', emoji: '👩', gradient: 'linear-gradient(135deg,#ff9a9e,#fad0c4)' }, bg: { name: '办公室', gradient: 'linear-gradient(135deg,#667eea,#764ba2)' } },
             // 5. 部分成功
-            { id: 8, taskName: '部分成功_税务筹划', visibility: '仅自己', script: '个人所得税专项附加扣除包括子女教育、大病医疗、住房贷款利息等...', status: 'completed', progress: 100, duration: 8, cost: 16, createdAt: '2026-06-09T11:00:00', startedAt: '2026-06-09T11:02:00', completedAt: '2026-06-09T11:09:00', wmStatus: 'done', person: { name: '角色 D · 专业顾问', emoji: '👨‍💼', gradient: 'linear-gradient(135deg,#a6c1ee,#fbc2eb)' }, bg: { name: '办公室', gradient: 'linear-gradient(135deg,#667eea,#764ba2)' } },
-            { id: 9, taskName: '部分成功_税务筹划', visibility: '仅自己', script: '年终奖的计税方式可以选择单独计税或并入综合所得，哪种更划算？...', status: 'failed', progress: 0, duration: 0, cost: 14, createdAt: '2026-06-09T11:00:00', startedAt: '2026-06-09T11:02:00', completedAt: null, wmStatus: null, person: { name: '角色 D · 专业顾问', emoji: '👨‍💼', gradient: 'linear-gradient(135deg,#a6c1ee,#fbc2eb)' }, bg: { name: '办公室', gradient: 'linear-gradient(135deg,#667eea,#764ba2)' }, error: '人物表情生成失败，请检查参考图质量' },
-            { id: 10, taskName: '部分成功_税务筹划', visibility: '仅自己', script: '稿酬所得的收入额按70%计算，这是一个很实用的税收优惠政策...', status: 'completed', progress: 100, duration: 7, cost: 14, createdAt: '2026-06-09T11:00:00', startedAt: '2026-06-09T11:02:00', completedAt: '2026-06-09T11:08:30', wmStatus: 'done', person: { name: '角色 D · 专业顾问', emoji: '👨‍💼', gradient: 'linear-gradient(135deg,#a6c1ee,#fbc2eb)' }, bg: { name: '办公室', gradient: 'linear-gradient(135deg,#667eea,#764ba2)' } },
+            { id: 8, taskName: '部分成功_税务筹划', visibility: '个人', script: '个人所得税专项附加扣除包括子女教育、大病医疗、住房贷款利息等...', status: 'completed', progress: 100, duration: 8, cost: 16, createdAt: '2026-06-09T11:00:00', startedAt: '2026-06-09T11:02:00', completedAt: '2026-06-09T11:09:00', wmStatus: 'done', person: { name: '角色 D · 专业顾问', emoji: '👨‍💼', gradient: 'linear-gradient(135deg,#a6c1ee,#fbc2eb)' }, bg: { name: '办公室', gradient: 'linear-gradient(135deg,#667eea,#764ba2)' } },
+            { id: 9, taskName: '部分成功_税务筹划', visibility: '个人', script: '年终奖的计税方式可以选择单独计税或并入综合所得，哪种更划算？...', status: 'failed', progress: 0, duration: 0, cost: 14, createdAt: '2026-06-09T11:00:00', startedAt: '2026-06-09T11:02:00', completedAt: null, wmStatus: null, person: { name: '角色 D · 专业顾问', emoji: '👨‍💼', gradient: 'linear-gradient(135deg,#a6c1ee,#fbc2eb)' }, bg: { name: '办公室', gradient: 'linear-gradient(135deg,#667eea,#764ba2)' }, error: '人物表情生成失败，请检查参考图质量' },
+            { id: 10, taskName: '部分成功_税务筹划', visibility: '个人', script: '稿酬所得的收入额按70%计算，这是一个很实用的税收优惠政策...', status: 'completed', progress: 100, duration: 7, cost: 14, createdAt: '2026-06-09T11:00:00', startedAt: '2026-06-09T11:02:00', completedAt: '2026-06-09T11:08:30', wmStatus: 'done', person: { name: '角色 D · 专业顾问', emoji: '👨‍💼', gradient: 'linear-gradient(135deg,#a6c1ee,#fbc2eb)' }, bg: { name: '办公室', gradient: 'linear-gradient(135deg,#667eea,#764ba2)' } },
             // 6. 已失败
             { id: 11, taskName: '已失败_海外配置', visibility: '团队可见', script: '通过QDII基金进行海外资产配置，可以有效分散单一市场风险...', status: 'failed', progress: 0, duration: 0, cost: 14, createdAt: '2026-06-08T15:00:00', startedAt: '2026-06-08T15:01:00', completedAt: null, wmStatus: null, person: { name: '角色 E · 资深投资师', emoji: '👴', gradient: 'linear-gradient(135deg,#cfd9df,#e2ebf0)' }, bg: { name: '咖啡厅', gradient: 'linear-gradient(135deg,#fbc2eb,#a6c1ee)' }, error: '素材分辨率不足，请上传720p以上图片' },
             { id: 12, taskName: '已失败_海外配置', visibility: '团队可见', script: '港股通和美股通是个人投资者参与海外市场的主要渠道...', status: 'failed', progress: 0, duration: 0, cost: 12, createdAt: '2026-06-08T15:00:00', startedAt: '2026-06-08T15:01:00', completedAt: null, wmStatus: null, person: { name: '角色 E · 资深投资师', emoji: '👴', gradient: 'linear-gradient(135deg,#cfd9df,#e2ebf0)' }, bg: { name: '咖啡厅', gradient: 'linear-gradient(135deg,#fbc2eb,#a6c1ee)' }, error: '语音合成超时，请重试' },
             // 7. 已取消
-            { id: 13, taskName: '已取消_存款技巧', visibility: '仅自己', script: '通知存款的利率介于活期和定期之间，适合资金闲置期不确定的情况...', status: 'cancelled', progress: 0, duration: 0, cost: 0, createdAt: '2026-06-07T16:00:00', startedAt: null, completedAt: null, wmStatus: null, person: { name: '角色 A · 知性女性', emoji: '👩', gradient: 'linear-gradient(135deg,#ff9a9e,#fad0c4)' }, bg: { name: '居家', gradient: 'linear-gradient(135deg,#a8edea,#fed6e3)' } },
-            { id: 14, taskName: '已取消_存款技巧', visibility: '仅自己', script: '大额存单的起存金额为20万元，利率通常高于普通定期存款...', status: 'cancelled', progress: 0, duration: 0, cost: 0, createdAt: '2026-06-07T16:00:00', startedAt: null, completedAt: null, wmStatus: null, person: { name: '角色 A · 知性女性', emoji: '👩', gradient: 'linear-gradient(135deg,#ff9a9e,#fad0c4)' }, bg: { name: '居家', gradient: 'linear-gradient(135deg,#a8edea,#fed6e3)' } },
+            { id: 13, taskName: '已取消_存款技巧', visibility: '个人', script: '通知存款的利率介于活期和定期之间，适合资金闲置期不确定的情况...', status: 'cancelled', progress: 0, duration: 0, cost: 0, createdAt: '2026-06-07T16:00:00', startedAt: null, completedAt: null, wmStatus: null, person: { name: '角色 A · 知性女性', emoji: '👩', gradient: 'linear-gradient(135deg,#ff9a9e,#fad0c4)' }, bg: { name: '居家', gradient: 'linear-gradient(135deg,#a8edea,#fed6e3)' } },
+            { id: 14, taskName: '已取消_存款技巧', visibility: '个人', script: '大额存单的起存金额为20万元，利率通常高于普通定期存款...', status: 'cancelled', progress: 0, duration: 0, cost: 0, createdAt: '2026-06-07T16:00:00', startedAt: null, completedAt: null, wmStatus: null, person: { name: '角色 A · 知性女性', emoji: '👩', gradient: 'linear-gradient(135deg,#ff9a9e,#fad0c4)' }, bg: { name: '居家', gradient: 'linear-gradient(135deg,#a8edea,#fed6e3)' } },
         ];
         var currentFilter = 'all';
 
@@ -2159,7 +2171,7 @@
                     var tnq = g.taskName.replace(/"/g,'&quot;');
                     var tnEsc = g.taskName.replace(/'/g,"\\'");
                     var detailId = 'task-detail-sub-' + groupIndex++;
-                    var groupVisibility = g.items[0] && g.items[0].visibility ? g.items[0].visibility : '仅自己';
+                    var groupVisibility = g.items[0] && g.items[0].visibility ? g.items[0].visibility : '个人';
                     listHtml += '<tr class="task-report-row" data-task="' + tnq + '">';
                     listHtml += '<td><button class="task-report-toggle" type="button" onclick="toggleTaskReportRow(\'' + detailId + '\',this)">−</button><span class="task-report-name" title="' + tnq + '">' + escapeTaskText(g.taskName) + '</span></td>';
                     listHtml += '<td style="font-size:11px;color:#666;">' + groupVisibility + '</td>';
@@ -3142,7 +3154,7 @@
                                 mockTasks.push({
                                     id: Date.now() + idx,
                                     taskName: data.taskName || '未命名任务',
-                                    visibility: '仅自己',
+                                    visibility: '本部门',
                                     script: row.script,
                                     person: row.person,
                                     bg: row.bg,
@@ -3196,7 +3208,7 @@
               mockTasks.push({
                 id: Date.now(),
                 taskName: taskName,
-                visibility: '仅自己',
+                visibility: '本部门',
                 script: cardCount > 0 ? ('（草稿，共 ' + cardCount + ' 条台词）') : '（草稿，暂未填写台词）',
                 status: 'draft',
                 progress: 0,

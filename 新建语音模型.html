@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
+<script src="assets/org-access-store.js"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>新建语音模型 · 紧凑版</title>
@@ -700,8 +701,8 @@
                   <div class="field">
                     <label for="visibility">可见范围</label>
                     <select class="input" id="visibility">
-                      <option value="private">仅自己</option>
-                      <option value="team">团队共享</option>
+                      <option value="private">个人</option>
+                      <option value="team" selected>本部门</option>
                     </select>
                   </div>
                 </div>
@@ -802,7 +803,7 @@
   <script>
     var state = {
       modelName: "财经解读-稳重男声",
-      visibility: "private",
+      visibility: "team",
       voiceName: "",
       voiceMeta: "",
       voiceSource: "",
@@ -1078,6 +1079,9 @@
         return;
       }
 
+      let savedVoice;
+      try { savedVoice = OrgAccess.create("voice",{name:state.modelName.trim(),visibility:state.visibility,desc:state.voiceName}); }
+      catch(error){showToast(error.message);return;}
       showToast("语音模型已保存，保存后返回。");
 
       // 检查是否有 returnUrl 参数
@@ -1090,10 +1094,12 @@
         var voiceLabel = voiceMeta ? (voiceName + " / " + voiceMeta) : voiceName;
         // 将新音色名称追加到 returnUrl 上
         var separator = decodedUrl.indexOf("?") !== -1 ? "&" : "?";
-        var finalUrl = decodedUrl + separator + "newVoice=" + encodeURIComponent(voiceLabel);
+        var finalUrl = decodedUrl + separator + "newVoice=" + encodeURIComponent(voiceLabel) + "&newVoiceId=" + encodeURIComponent(savedVoice.id);
         setTimeout(function() {
           window.location.href = finalUrl;
         }, 1500);
+      } else {
+        setTimeout(function(){window.location.href="语音首页.html";},600);
       }
     }
 
@@ -1123,5 +1129,6 @@
     updateCloneButton();
     render();
   </script>
+<script src="assets/org-page-ui.js"></script>
 </body>
 </html>
