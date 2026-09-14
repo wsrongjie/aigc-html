@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
+<script src="assets/org-access-store.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>视频资产</title>
@@ -234,6 +235,11 @@
     }
     .filter-tag:hover { border-color: var(--primary); color: var(--primary); }
     .filter-tag.active { background: var(--primary-light); color: var(--primary); border-color: var(--primary); }
+    .org-filter-select {
+        height: 32px; padding: 0 10px; border: 1px solid var(--border); border-radius: 16px;
+        font-size: 12.5px; color: var(--text-secondary); background: var(--card-bg); outline: none; cursor: pointer;
+    }
+    .org-filter-select:focus { border-color: var(--primary); }
 
     /* 高级搜索 */
     .adv-search-toggle {
@@ -1249,7 +1255,7 @@
             </div>
             <div class="stat-card">
                 <div class="stat-icon" style="background:#FEF3C7;">👥</div>
-                <div class="stat-info"><div class="stat-label">团队共享</div><div class="stat-value">31</div></div>
+                <div class="stat-info"><div class="stat-label">本部门</div><div class="stat-value">31</div></div>
             </div>
             <div class="stat-card">
                 <div class="stat-icon" style="background:#FEE2E2;">📅</div>
@@ -1265,8 +1271,15 @@
             <div class="filter-group" data-filter="scope">
                 <span class="filter-label">可见范围</span>
                 <button class="filter-tag active" data-value="all">全部</button>
-                <button class="filter-tag" data-value="private">仅自己</button>
-                <button class="filter-tag" data-value="team">团队可见</button>
+                <button class="filter-tag" data-value="private">个人</button>
+                <button class="filter-tag" data-value="team">本部门</button>
+                <button class="filter-tag" data-value="other">其他部门</button>
+                <select class="org-filter-select" id="video-org-filter" style="display:none;">
+                    <option value="all">全部部门</option>
+                    <option value="投顾一组">投顾一组</option>
+                    <option value="投顾二组">投顾二组</option>
+                    <option value="品牌内容组">品牌内容组</option>
+                </select>
             </div>
             <div class="filter-group" data-filter="wm">
                 <span class="filter-label">水印字幕</span>
@@ -1713,9 +1726,11 @@
         { id: 14, title: '地产链观察', desc: '房地产产业链周度跟踪，销售数据和政策变化。', script: '大家好，我是张分析师。房地产产业链周度跟踪来了，我们关注最新销售数据和政策变化的深层影响。', duration: '04:12', scope: 'team', gradient: 'linear-gradient(135deg,#a18cd1,#fbc2eb)', coverThumb: 'real-estate', creator: '李总', date: '2026-05-08', character: '张分析师', scene: '演播室', hasWatermark: false, hasSubtitle: false },
         { id: 15, title: '海外市场速览', desc: '美股科技巨头财报速览，美联储议息会议前瞻。', script: '大家好，我是李教授。美股科技巨头财报速览，美联储议息会议前瞻，海外市场最新动态一网打尽。', duration: '02:36', scope: 'private', gradient: 'linear-gradient(135deg,#fad0c4,#ffd1ff)', coverThumb: 'global-market', creator: '王小明', date: '2026-05-07', character: '李教授', scene: '纯色背景', hasWatermark: false, hasSubtitle: true },
         { id: 16, title: 'ESG投资趋势', desc: 'ESG投资框架和实践，绿色金融政策解读。', script: '大家好，我是投顾小王。ESG投资框架和实践越来越重要，今天我们解读绿色金融最新政策方向。', duration: '05:08', scope: 'team', gradient: 'linear-gradient(135deg,#89f7fe,#66a6ff)', coverThumb: 'esg-green', creator: '张总', date: '2026-05-06', character: '投顾小王', scene: '书房', hasWatermark: true, hasSubtitle: true },
+        { id: 17, title: '投顾二组·晨会精华', desc: '其他部门共享视频，仅可查看，不可编辑或删除。', script: '大家好，这里是投顾二组晨会精华，今日重点关注高股息板块的配置价值。', duration: '02:18', scope: 'other', org: '投顾二组', gradient: 'linear-gradient(135deg,#c4b5fd,#8b5cf6)', coverThumb: 'morning-brief', creator: '李建国', date: '2026-05-05', character: '快评主播', scene: '演播室', hasWatermark: true, hasSubtitle: true },
+        { id: 18, title: '品牌内容组·访谈精选', desc: '其他部门共享视频，仅可查看，不可编辑或删除。', script: '欢迎收看品牌访谈精选，本期对话资深投顾，聊聊长期主义与资产配置。', duration: '03:42', scope: 'other', org: '品牌内容组', gradient: 'linear-gradient(135deg,#fda4af,#fb7185)', coverThumb: 'interview', creator: '赵六', date: '2026-05-04', character: '知性女性', scene: '办公室', hasWatermark: false, hasSubtitle: true },
     ];
 
-    var currentFilter = { scope: 'all', keyword: '', wm: 'all' };
+    var currentFilter = { scope: 'all', org: 'all', keyword: '', wm: 'all' };
     var advFilter = { dateFrom: '', dateTo: '', characters: [], scenes: [] };
     var currentSort = 'date-desc';
     var deleteTargetId = null;
@@ -1758,7 +1773,11 @@
     function getFilteredVideos() {
         var keyword = currentFilter.keyword.trim().toLowerCase();
         return videoData.filter(function(v) {
-            if (currentFilter.scope !== 'all' && v.scope !== currentFilter.scope) return false;
+            if(!OrgAccess.matches(OrgAccess.register("video",v),window.oaAssetFilter || "all"))return false;
+            if (currentFilter.scope === 'other') {
+                if (v.scope !== 'other') return false;
+                if (currentFilter.org !== 'all' && v.org !== currentFilter.org) return false;
+            } else if (currentFilter.scope !== 'all' && v.scope !== currentFilter.scope) return false;
             if (keyword && !v.title.toLowerCase().includes(keyword) && !v.desc.toLowerCase().includes(keyword)) return false;
             if (currentFilter.wm === 'both' && !(v.hasWatermark && v.hasSubtitle)) return false;
             if (currentFilter.wm === 'wm-only' && !(v.hasWatermark && !v.hasSubtitle)) return false;
@@ -1842,9 +1861,11 @@
             var v = sorted[i];
             var isSelected = selectedIds.indexOf(v.id) !== -1;
             var selectedClass = isSelected ? ' selected' : '';
-            var scopeTag = v.scope === 'team'
-                ? '<span class="scope-tag team">团队可见</span>'
-                : '<span class="scope-tag">仅自己</span>';
+            var scopeTag = v.scope === 'other'
+                ? '<span class="scope-tag team">其他部门·' + escapeHtml(v.org || '') + '</span>'
+                : v.scope === 'team'
+                ? '<span class="scope-tag team">本部门</span>'
+                : '<span class="scope-tag">个人</span>';
 
             var coverURL = generateCoverSVG(v.coverThumb, v.gradient);
 
@@ -1920,6 +1941,7 @@
     // ====== 详情弹窗 ======
     var detailVideo = null;
     function openDetail(id) {
+        if(!OrgAccess.requireAsset("video",id,"view"))return;
         var v = null;
         for (var i = 0; i < videoData.length; i++) {
             if (videoData[i].id === id) { v = videoData[i]; break; }
@@ -1956,7 +1978,7 @@
         document.getElementById('d-date').textContent = v.date;
         document.getElementById('d-character').textContent = v.character;
         document.getElementById('d-scene').textContent = v.scene;
-        document.getElementById('d-scope').textContent = v.scope === 'team' ? '团队可见' : '仅自己';
+        document.getElementById('d-scope').textContent = v.scope === 'other' ? '其他部门·' + (v.org || '') : v.scope === 'team' ? '本部门' : '个人';
         document.getElementById('d-script').textContent = v.script || '-';
         document.getElementById('d-desc').textContent = v.desc;
 
@@ -2317,9 +2339,19 @@
                 group.querySelectorAll('.filter-tag').forEach(function(item) { item.classList.remove('active'); });
                 btn.classList.add('active');
                 currentFilter[filterType] = btn.dataset.value;
+                if (filterType === 'scope') {
+                    document.getElementById('video-org-filter').style.display = btn.dataset.value === 'other' ? '' : 'none';
+                }
                 renderVideos();
             });
         });
+        var videoOrgFilter = document.getElementById('video-org-filter');
+        if (videoOrgFilter) {
+            videoOrgFilter.addEventListener('change', function(e) {
+                currentFilter.org = e.target.value;
+                renderVideos();
+            });
+        }
         var searchInput = document.getElementById('video-search');
         if (searchInput) {
             searchInput.addEventListener('input', function(e) {
@@ -3702,5 +3734,6 @@
     });
 </script>
 
+<script src="assets/org-page-ui.js"></script>
 </body>
 </html>

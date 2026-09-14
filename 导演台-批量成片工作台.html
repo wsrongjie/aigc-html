@@ -28,6 +28,8 @@
       --shadow: 0 12px 34px rgba(22, 31, 50, 0.08);
     }
 
+<script src="assets/org-access-store.js"></script>
+<script src="assets/org-task-access.js"></script>
     body {
       min-height: 100vh;
       background: var(--bg);
@@ -149,7 +151,7 @@
     .topbar-title { font-size: 14px; font-weight: 800; letter-spacing: 0; }
     .topbar-right { display: flex; align-items: center; gap: 14px; color: var(--muted); }
 
-    .content { padding: 24px 28px 40px; max-width: 1480px; width: 100%; margin: 0 auto; }
+    .content { padding: 24px 28px 40px; max-width: 1720px; width: 100%; margin: 0 auto; }
 
     .page-head {
       display: flex;
@@ -551,7 +553,7 @@
     }
     .task-report-table {
       width: 100%;
-      min-width: 1560px;
+      min-width: 1920px;
       border-collapse: collapse;
       table-layout: fixed;
     }
@@ -563,6 +565,24 @@
     }
     .task-report-table th:last-child,
     .task-report-table td:last-child { border-right: 0; }
+    /* 操作栏固定：主表+子表右侧 sticky */
+    .task-report-table thead th:last-child {
+      position: sticky;
+      right: 0;
+      z-index: 5;
+      background: #eef4ff;
+      box-shadow: -8px 0 12px rgba(22, 31, 50, 0.06);
+      border-left: 1px solid #e5e7eb;
+    }
+    .task-report-row td:last-child {
+      position: sticky;
+      right: 0;
+      z-index: 3;
+      background: #fff;
+      box-shadow: -8px 0 12px rgba(22, 31, 50, 0.06);
+      border-left: 1px solid #eef0f3;
+    }
+    .task-report-row:hover td:last-child { background: #f9fafb; }
     .task-report-table thead th {
       height: 44px;
       padding: 0 12px;
@@ -616,17 +636,26 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 5px;
-      white-space: nowrap;
+      gap: 6px;
+      white-space: normal;
+      flex-wrap: wrap;
+      row-gap: 6px;
+      line-height: 1.4;
+    }
+    .task-report-row td:last-child,
+    .task-sub-table tbody td.td-op {
+      white-space: normal;
+      padding-top: 8px;
+      padding-bottom: 8px;
     }
     .task-report-action,
     .task-action-btn {
-      padding: 3px 7px;
+      padding: 4px 9px;
       border: none;
       border-radius: 5px;
       background: transparent;
       color: var(--blue);
-      font-size: 11px;
+      font-size: 12px;
       cursor: pointer;
       white-space: nowrap;
       transition: all 0.15s;
@@ -666,6 +695,7 @@
     }
     .task-sub-table {
       width: 100%;
+      min-width: 1500px;
       border-collapse: collapse;
       table-layout: fixed;
       background: #fff;
@@ -681,6 +711,23 @@
     }
     .task-sub-table th:last-child,
     .task-sub-table td:last-child { border-right: 0; }
+    .task-sub-table thead th:last-child {
+      position: sticky;
+      right: 0;
+      z-index: 4;
+      background: #f5f8ff;
+      box-shadow: -8px 0 12px rgba(22, 31, 50, 0.06);
+      border-left: 1px solid #e5e7eb;
+    }
+    .task-sub-table tbody td:last-child {
+      position: sticky;
+      right: 0;
+      z-index: 2;
+      background: #fff;
+      box-shadow: -8px 0 12px rgba(22, 31, 50, 0.06);
+      border-left: 1px solid #eef0f3;
+    }
+    .task-sub-table tbody tr:hover td:last-child { background: #f9fafb; }
     .task-sub-table thead th {
       height: 44px;
       padding: 0 12px;
@@ -792,6 +839,8 @@
     .tg-op-btn.download:hover:not(:disabled) { background: rgba(68,138,255,0.08); }
     .tg-op-btn.warn { color: #f59e0b; }
     .tg-op-btn.warn:hover:not(:disabled) { background: rgba(245,158,11,0.08); }
+    .tg-op-btn.same { color: #7c3aed; font-weight: 700; }
+    .tg-op-btn.same:hover:not(:disabled) { background: rgba(124,58,237,0.08); }
     .tg-op-btn:disabled { opacity: 0.28; cursor: not-allowed; }
 
     .video-card-view {
@@ -2939,21 +2988,24 @@
     var coverCropScale = 1;
 
     var seedTasks = [
-      { id: 1, taskName: '已完成_投资入门指南', visibility: '仅自己', script: '投资入门的第一步，不是追求高收益，而是先明确资金期限、风险承受能力和投资目标。', status: 'completed', progress: 100, duration: 9, cost: 18, createdAt: '2026-06-10T08:00:00', startedAt: '2026-06-10T08:02:00', completedAt: '2026-06-10T08:08:00', wmStatus: null, person: { name: '角色 A · 知性女性', emoji: '👩', gradient: 'linear-gradient(135deg,#ff9a9e,#fad0c4)' }, bg: { name: '办公室', gradient: 'linear-gradient(135deg,#667eea,#764ba2)' } },
-      { id: 2, taskName: '基金定投科普模板', visibility: '团队共享', script: '基金定投是一种适合普通投资者的长期理财方式，每月固定金额投入。', status: 'completed', progress: 100, duration: 7, cost: 14, createdAt: '2026-06-11T09:00:00', startedAt: '2026-06-11T09:01:00', completedAt: '2026-06-11T09:06:00', wmStatus: null, person: { name: '角色 B · 商务男性', emoji: '👨', gradient: 'linear-gradient(135deg,#a18cd1,#fbc2eb)' }, bg: { name: '办公室', gradient: 'linear-gradient(135deg,#667eea,#764ba2)' } },
-      { id: 3, taskName: '基金定投科普模板', visibility: '团队共享', script: '选择定投基金时，建议优先考虑指数型基金，费率低且长期收益稳定。', status: 'completed', progress: 100, duration: 6, cost: 12, createdAt: '2026-06-11T09:00:00', startedAt: '2026-06-11T09:01:30', completedAt: '2026-06-11T09:06:30', wmStatus: null, person: { name: '角色 B · 商务男性', emoji: '👨', gradient: 'linear-gradient(135deg,#a18cd1,#fbc2eb)' }, bg: { name: '办公室', gradient: 'linear-gradient(135deg,#667eea,#764ba2)' } },
-      { id: 4, taskName: '生成中_保险配置攻略', visibility: '团队共享', script: '家庭保险配置应该遵循先大人后小孩、先保障后理财的原则。', status: 'generating', progress: 55, duration: 8, cost: 16, createdAt: '2026-06-11T10:00:00', startedAt: '2026-06-11T10:01:00', completedAt: null, wmStatus: null, person: { name: '角色 C · 可靠中年', emoji: '🧑', gradient: 'linear-gradient(135deg,#ffecd2,#fcb69f)' }, bg: { name: '居家', gradient: 'linear-gradient(135deg,#a8edea,#fed6e3)' } },
-      { id: 5, taskName: '生成中_保险配置攻略', visibility: '团队共享', script: '重大疾病保险的保额建议设置为年收入的3-5倍，才能有效覆盖风险。', status: 'completed', progress: 100, duration: 9, cost: 18, createdAt: '2026-06-11T10:00:00', startedAt: '2026-06-11T10:01:00', completedAt: '2026-06-11T10:07:30', wmStatus: null, person: { name: '角色 C · 可靠中年', emoji: '🧑', gradient: 'linear-gradient(135deg,#ffecd2,#fcb69f)' }, bg: { name: '居家', gradient: 'linear-gradient(135deg,#a8edea,#fed6e3)' } },
-      { id: 12, taskName: '生成中_保险配置攻略', visibility: '团队共享', script: '医疗险主要解决住院报销问题，适合作为重疾险之外的基础补充保障。', status: 'completed', progress: 100, duration: 7, cost: 14, createdAt: '2026-06-11T10:00:00', startedAt: '2026-06-11T10:01:30', completedAt: '2026-06-11T10:06:40', wmStatus: null, person: { name: '角色 C · 可靠中年', emoji: '🧑', gradient: 'linear-gradient(135deg,#ffecd2,#fcb69f)' }, bg: { name: '会议室', gradient: 'linear-gradient(135deg,#a1c4fd,#c2e9fb)' } },
-      { id: 13, taskName: '生成中_保险配置攻略', visibility: '团队共享', script: '寿险的核心作用是覆盖家庭经济责任，尤其适合有房贷和子女教育压力的人群。', status: 'generating', progress: 32, duration: 10, cost: 20, createdAt: '2026-06-11T10:00:00', startedAt: '2026-06-11T10:03:00', completedAt: null, wmStatus: null, person: { name: '角色 C · 可靠中年', emoji: '🧑', gradient: 'linear-gradient(135deg,#ffecd2,#fcb69f)' }, bg: { name: '办公室', gradient: 'linear-gradient(135deg,#667eea,#764ba2)' } },
-      { id: 14, taskName: '生成中_保险配置攻略', visibility: '团队共享', script: '意外险保费低、杠杆高，可以优先覆盖意外身故、伤残和意外医疗责任。', status: 'queued', progress: 0, duration: 6, cost: 12, createdAt: '2026-06-11T10:00:00', startedAt: null, completedAt: null, wmStatus: null, scheduleMode: 'night', person: { name: '角色 C · 可靠中年', emoji: '🧑', gradient: 'linear-gradient(135deg,#ffecd2,#fcb69f)' }, bg: { name: '演播室', gradient: 'linear-gradient(135deg,#fa709a,#fee140)' } },
-      { id: 15, taskName: '生成中_保险配置攻略', visibility: '团队共享', script: '给父母配置保险时，要重点关注健康告知、续保条件和既往症限制。', status: 'failed', progress: 0, duration: 8, cost: 16, createdAt: '2026-06-11T10:00:00', startedAt: '2026-06-11T10:02:10', completedAt: null, wmStatus: null, person: { name: '角色 C · 可靠中年', emoji: '🧑', gradient: 'linear-gradient(135deg,#ffecd2,#fcb69f)' }, bg: { name: '书架', gradient: 'linear-gradient(135deg,#a8edea,#fed6e3)' }, error: '口型驱动失败，请重试生成该条视频' },
-      { id: 6, taskName: '已完成_养老金规划', visibility: '团队共享', script: '养老金规划越早开始越好，复利效应是长期积累的核心动力。', status: 'completed', progress: 100, duration: 7, cost: 14, createdAt: '2026-06-10T14:00:00', startedAt: '2026-06-10T14:02:00', completedAt: '2026-06-10T14:08:00', wmStatus: 'done', person: { name: '角色 A · 知性女性', emoji: '👩', gradient: 'linear-gradient(135deg,#ff9a9e,#fad0c4)' }, bg: { name: '办公室', gradient: 'linear-gradient(135deg,#667eea,#764ba2)' } },
-      { id: 7, taskName: '已完成_养老金规划', visibility: '团队共享', script: '目前国家推行的个人养老金制度每年可享受最高12000元的税收优惠。', status: 'completed', progress: 100, duration: 6, cost: 12, createdAt: '2026-06-10T14:00:00', startedAt: '2026-06-10T14:02:00', completedAt: '2026-06-10T14:07:00', wmStatus: 'done', person: { name: '角色 A · 知性女性', emoji: '👩', gradient: 'linear-gradient(135deg,#ff9a9e,#fad0c4)' }, bg: { name: '办公室', gradient: 'linear-gradient(135deg,#667eea,#764ba2)' } },
-      { id: 8, taskName: '部分成功_税务筹划', visibility: '仅自己', script: '个人所得税专项附加扣除包括子女教育、大病医疗、住房贷款利息等。', status: 'completed', progress: 100, duration: 8, cost: 16, createdAt: '2026-06-09T11:00:00', startedAt: '2026-06-09T11:02:00', completedAt: '2026-06-09T11:09:00', wmStatus: 'done', person: { name: '角色 D · 专业顾问', emoji: '👨‍💼', gradient: 'linear-gradient(135deg,#a6c1ee,#fbc2eb)' }, bg: { name: '办公室', gradient: 'linear-gradient(135deg,#667eea,#764ba2)' } },
-      { id: 9, taskName: '部分成功_税务筹划', visibility: '仅自己', script: '年终奖的计税方式可以选择单独计税或并入综合所得，哪种更划算？', status: 'failed', progress: 0, duration: 0, cost: 14, createdAt: '2026-06-09T11:00:00', startedAt: '2026-06-09T11:02:00', completedAt: null, wmStatus: null, person: { name: '角色 D · 专业顾问', emoji: '👨‍💼', gradient: 'linear-gradient(135deg,#a6c1ee,#fbc2eb)' }, bg: { name: '办公室', gradient: 'linear-gradient(135deg,#667eea,#764ba2)' }, error: '人物表情生成失败，请检查参考图质量' },
-      { id: 10, taskName: '已失败_海外配置', visibility: '团队共享', script: '通过QDII基金进行海外资产配置，可以有效分散单一市场风险。', status: 'failed', progress: 0, duration: 0, cost: 14, createdAt: '2026-06-08T15:00:00', startedAt: '2026-06-08T15:01:00', completedAt: null, wmStatus: null, person: { name: '角色 E · 资深投资师', emoji: '👴', gradient: 'linear-gradient(135deg,#cfd9df,#e2ebf0)' }, bg: { name: '咖啡厅', gradient: 'linear-gradient(135deg,#fbc2eb,#a6c1ee)' }, error: '素材分辨率不足，请上传720p以上图片' },
-      { id: 11, taskName: '已取消_存款技巧', visibility: '仅自己', script: '通知存款的利率介于活期和定期之间，适合资金闲置期不确定的情况。', status: 'cancelled', progress: 0, duration: 0, cost: 0, createdAt: '2026-06-07T16:00:00', startedAt: null, completedAt: null, wmStatus: null, person: { name: '角色 A · 知性女性', emoji: '👩', gradient: 'linear-gradient(135deg,#ff9a9e,#fad0c4)' }, bg: { name: '居家', gradient: 'linear-gradient(135deg,#a8edea,#fed6e3)' } }
+      { id: 1, taskName: '已完成_投资入门指南', visibility: '个人', script: '投资入门的第一步，不是追求高收益，而是先明确资金期限、风险承受能力和投资目标。', status: 'completed', progress: 100, duration: 9, cost: 18, createdAt: '2026-06-10T08:00:00', startedAt: '2026-06-10T08:02:00', completedAt: '2026-06-10T08:08:00', wmStatus: null, person: { name: '角色 A · 知性女性', emoji: '👩', gradient: 'linear-gradient(135deg,#ff9a9e,#fad0c4)' }, bg: { name: '办公室', gradient: 'linear-gradient(135deg,#667eea,#764ba2)' } },
+      { id: 2, taskName: '基金定投科普模板', visibility: '本部门', script: '基金定投是一种适合普通投资者的长期理财方式，每月固定金额投入。', status: 'completed', progress: 100, duration: 7, cost: 14, createdAt: '2026-06-11T09:00:00', startedAt: '2026-06-11T09:01:00', completedAt: '2026-06-11T09:06:00', wmStatus: null, person: { name: '角色 B · 商务男性', emoji: '👨', gradient: 'linear-gradient(135deg,#a18cd1,#fbc2eb)' }, bg: { name: '办公室', gradient: 'linear-gradient(135deg,#667eea,#764ba2)' } },
+      { id: 3, taskName: '基金定投科普模板', visibility: '本部门', script: '选择定投基金时，建议优先考虑指数型基金，费率低且长期收益稳定。', status: 'completed', progress: 100, duration: 6, cost: 12, createdAt: '2026-06-11T09:00:00', startedAt: '2026-06-11T09:01:30', completedAt: '2026-06-11T09:06:30', wmStatus: null, person: { name: '角色 B · 商务男性', emoji: '👨', gradient: 'linear-gradient(135deg,#a18cd1,#fbc2eb)' }, bg: { name: '办公室', gradient: 'linear-gradient(135deg,#667eea,#764ba2)' } },
+      { id: 4, taskName: '生成中_保险配置攻略', visibility: '本部门', script: '家庭保险配置应该遵循先大人后小孩、先保障后理财的原则。', status: 'generating', progress: 55, duration: 8, cost: 16, createdAt: '2026-06-11T10:00:00', startedAt: '2026-06-11T10:01:00', completedAt: null, wmStatus: null, person: { name: '角色 C · 可靠中年', emoji: '🧑', gradient: 'linear-gradient(135deg,#ffecd2,#fcb69f)' }, bg: { name: '居家', gradient: 'linear-gradient(135deg,#a8edea,#fed6e3)' } },
+      { id: 5, taskName: '生成中_保险配置攻略', visibility: '本部门', script: '重大疾病保险的保额建议设置为年收入的3-5倍，才能有效覆盖风险。', status: 'completed', progress: 100, duration: 9, cost: 18, createdAt: '2026-06-11T10:00:00', startedAt: '2026-06-11T10:01:00', completedAt: '2026-06-11T10:07:30', wmStatus: null, person: { name: '角色 C · 可靠中年', emoji: '🧑', gradient: 'linear-gradient(135deg,#ffecd2,#fcb69f)' }, bg: { name: '居家', gradient: 'linear-gradient(135deg,#a8edea,#fed6e3)' } },
+      { id: 12, taskName: '生成中_保险配置攻略', visibility: '本部门', script: '医疗险主要解决住院报销问题，适合作为重疾险之外的基础补充保障。', status: 'completed', progress: 100, duration: 7, cost: 14, createdAt: '2026-06-11T10:00:00', startedAt: '2026-06-11T10:01:30', completedAt: '2026-06-11T10:06:40', wmStatus: null, person: { name: '角色 C · 可靠中年', emoji: '🧑', gradient: 'linear-gradient(135deg,#ffecd2,#fcb69f)' }, bg: { name: '会议室', gradient: 'linear-gradient(135deg,#a1c4fd,#c2e9fb)' } },
+      { id: 13, taskName: '生成中_保险配置攻略', visibility: '本部门', script: '寿险的核心作用是覆盖家庭经济责任，尤其适合有房贷和子女教育压力的人群。', status: 'generating', progress: 32, duration: 10, cost: 20, createdAt: '2026-06-11T10:00:00', startedAt: '2026-06-11T10:03:00', completedAt: null, wmStatus: null, person: { name: '角色 C · 可靠中年', emoji: '🧑', gradient: 'linear-gradient(135deg,#ffecd2,#fcb69f)' }, bg: { name: '办公室', gradient: 'linear-gradient(135deg,#667eea,#764ba2)' } },
+      { id: 14, taskName: '生成中_保险配置攻略', visibility: '本部门', script: '意外险保费低、杠杆高，可以优先覆盖意外身故、伤残和意外医疗责任。', status: 'queued', progress: 0, duration: 6, cost: 12, createdAt: '2026-06-11T10:00:00', startedAt: null, completedAt: null, wmStatus: null, scheduleMode: 'night', person: { name: '角色 C · 可靠中年', emoji: '🧑', gradient: 'linear-gradient(135deg,#ffecd2,#fcb69f)' }, bg: { name: '演播室', gradient: 'linear-gradient(135deg,#fa709a,#fee140)' } },
+      { id: 15, taskName: '生成中_保险配置攻略', visibility: '本部门', script: '给父母配置保险时，要重点关注健康告知、续保条件和既往症限制。', status: 'failed', progress: 0, duration: 8, cost: 16, createdAt: '2026-06-11T10:00:00', startedAt: '2026-06-11T10:02:10', completedAt: null, wmStatus: null, person: { name: '角色 C · 可靠中年', emoji: '🧑', gradient: 'linear-gradient(135deg,#ffecd2,#fcb69f)' }, bg: { name: '书架', gradient: 'linear-gradient(135deg,#a8edea,#fed6e3)' }, error: '口型驱动失败，请重试生成该条视频' },
+      { id: 6, taskName: '已完成_养老金规划', visibility: '本部门', script: '养老金规划越早开始越好，复利效应是长期积累的核心动力。', status: 'completed', progress: 100, duration: 7, cost: 14, createdAt: '2026-06-10T14:00:00', startedAt: '2026-06-10T14:02:00', completedAt: '2026-06-10T14:08:00', wmStatus: 'done', person: { name: '角色 A · 知性女性', emoji: '👩', gradient: 'linear-gradient(135deg,#ff9a9e,#fad0c4)' }, bg: { name: '办公室', gradient: 'linear-gradient(135deg,#667eea,#764ba2)' } },
+      { id: 7, taskName: '已完成_养老金规划', visibility: '本部门', script: '目前国家推行的个人养老金制度每年可享受最高12000元的税收优惠。', status: 'completed', progress: 100, duration: 6, cost: 12, createdAt: '2026-06-10T14:00:00', startedAt: '2026-06-10T14:02:00', completedAt: '2026-06-10T14:07:00', wmStatus: 'done', person: { name: '角色 A · 知性女性', emoji: '👩', gradient: 'linear-gradient(135deg,#ff9a9e,#fad0c4)' }, bg: { name: '办公室', gradient: 'linear-gradient(135deg,#667eea,#764ba2)' } },
+      { id: 8, taskName: '部分成功_税务筹划', visibility: '个人', script: '个人所得税专项附加扣除包括子女教育、大病医疗、住房贷款利息等。', status: 'completed', progress: 100, duration: 8, cost: 16, createdAt: '2026-06-09T11:00:00', startedAt: '2026-06-09T11:02:00', completedAt: '2026-06-09T11:09:00', wmStatus: 'done', person: { name: '角色 D · 专业顾问', emoji: '👨‍💼', gradient: 'linear-gradient(135deg,#a6c1ee,#fbc2eb)' }, bg: { name: '办公室', gradient: 'linear-gradient(135deg,#667eea,#764ba2)' } },
+      { id: 9, taskName: '部分成功_税务筹划', visibility: '个人', script: '年终奖的计税方式可以选择单独计税或并入综合所得，哪种更划算？', status: 'failed', progress: 0, duration: 0, cost: 14, createdAt: '2026-06-09T11:00:00', startedAt: '2026-06-09T11:02:00', completedAt: null, wmStatus: null, person: { name: '角色 D · 专业顾问', emoji: '👨‍💼', gradient: 'linear-gradient(135deg,#a6c1ee,#fbc2eb)' }, bg: { name: '办公室', gradient: 'linear-gradient(135deg,#667eea,#764ba2)' }, error: '人物表情生成失败，请检查参考图质量' },
+      { id: 10, taskName: '已失败_海外配置', visibility: '本部门', script: '通过QDII基金进行海外资产配置，可以有效分散单一市场风险。', status: 'failed', progress: 0, duration: 0, cost: 14, createdAt: '2026-06-08T15:00:00', startedAt: '2026-06-08T15:01:00', completedAt: null, wmStatus: null, person: { name: '角色 E · 资深投资师', emoji: '👴', gradient: 'linear-gradient(135deg,#cfd9df,#e2ebf0)' }, bg: { name: '咖啡厅', gradient: 'linear-gradient(135deg,#fbc2eb,#a6c1ee)' }, error: '素材分辨率不足，请上传720p以上图片' },
+      { id: 11, taskName: '已取消_存款技巧', visibility: '个人', script: '通知存款的利率介于活期和定期之间，适合资金闲置期不确定的情况。', status: 'cancelled', progress: 0, duration: 0, cost: 0, createdAt: '2026-06-07T16:00:00', startedAt: null, completedAt: null, wmStatus: null, person: { name: '角色 A · 知性女性', emoji: '👩', gradient: 'linear-gradient(135deg,#ff9a9e,#fad0c4)' }, bg: { name: '居家', gradient: 'linear-gradient(135deg,#a8edea,#fed6e3)' } },
+      { id: 16, taskName: '一键同款复刻', visibility: '个人', script: '复刻养老金规划口播，换用商务男性角色重新演绎，复利效应是长期积累的核心动力。', status: 'generating', progress: 68, duration: 8, cost: 16, createdAt: '2026-06-12T09:00:00', startedAt: '2026-06-12T09:01:00', completedAt: null, wmStatus: null, person: { name: '角色 B · 商务男性', emoji: '👨', gradient: 'linear-gradient(135deg,#a18cd1,#fbc2eb)' }, bg: { name: '办公室', gradient: 'linear-gradient(135deg,#667eea,#764ba2)' } },
+      { id: 17, taskName: '一键同款复刻', visibility: '个人', script: '复刻基金定投科普，替换为居家场景与知性女性角色，每月固定金额投入。', status: 'completed', progress: 100, duration: 7, cost: 14, createdAt: '2026-06-12T09:00:30', startedAt: '2026-06-12T09:01:00', completedAt: '2026-06-12T09:07:00', wmStatus: null, person: { name: '角色 A · 知性女性', emoji: '👩', gradient: 'linear-gradient(135deg,#ff9a9e,#fad0c4)' }, bg: { name: '居家', gradient: 'linear-gradient(135deg,#a8edea,#fed6e3)' } },
+      { id: 18, taskName: '一键同款复刻', visibility: '个人', script: '复刻保险配置攻略，闲时队列等待生成，重点关注健康告知与续保条件。', status: 'queued', progress: 0, duration: 8, cost: 12, createdAt: '2026-06-12T09:01:00', startedAt: null, completedAt: null, wmStatus: null, scheduleMode: 'night', person: { name: '角色 C · 可靠中年', emoji: '🧑', gradient: 'linear-gradient(135deg,#ffecd2,#fcb69f)' }, bg: { name: '书架', gradient: 'linear-gradient(135deg,#a8edea,#fed6e3)' } }
     ];
 
     function loadTasks() {
@@ -2989,6 +3041,12 @@
               }
               return task;
             });
+            var hasReplicaGroup = storedTasks.some(function(task) { return task.taskName === '一键同款复刻'; });
+            if (!hasReplicaGroup) {
+              var replicaSeeds = seedTasks.filter(function(seedTask) { return seedTask.taskName === '一键同款复刻'; });
+              storedTasks = replicaSeeds.concat(storedTasks);
+              mockDataChanged = true;
+            }
             if (mockDataChanged) saveTasks(storedTasks);
           }
           return storedTasks;
@@ -3009,20 +3067,22 @@
         var data = JSON.parse(raw);
         if (!data.rows || !data.rows.length) return;
         var tasks = loadTasks();
+        var isCanvas = data.from === 'canvas';
+        var nowIso = new Date().toISOString();
         data.rows.slice().reverse().forEach(function(row, idx) {
           tasks.unshift({
             id: Date.now() + idx,
             taskName: data.taskName || '未命名任务',
-            visibility: '仅自己',
+            visibility: '本部门',
             script: row.script || '',
             person: row.person || { name: '角色 A', emoji: '👩', gradient: 'linear-gradient(135deg,#ff9a9e,#fad0c4)' },
             bg: row.bg || { name: '办公室', gradient: 'linear-gradient(135deg,#667eea,#764ba2)' },
-            status: 'queued',
-            progress: 0,
+            status: isCanvas ? 'generating' : 'queued',
+            progress: isCanvas ? 8 : 0,
             duration: row.duration || 8,
             cost: (row.duration || 8) * (data.scheduleMode === 'night' ? 1.4 : 2),
-            createdAt: new Date().toISOString(),
-            startedAt: null,
+            createdAt: nowIso,
+            startedAt: isCanvas ? nowIso : null,
             completedAt: null,
             wmStatus: null,
             scheduleMode: data.scheduleMode || undefined
@@ -3069,6 +3129,13 @@
 
     function jsString(v) {
       return String(v || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/\r?\n/g, ' ');
+    }
+
+    // 可见范围展示映射：兼容浏览器缓存中的旧取值（仅自己/团队共享）
+    function displayVisibility(v) {
+      if (v === 'team' || v === '团队共享') return '本部门';
+      if (!v || v === 'private' || v === '仅自己') return '个人';
+      return v;
     }
 
     function toast(message) {
@@ -3155,9 +3222,9 @@
         var rows = map[name].sort(function(a, b) { return new Date(a.createdAt) - new Date(b.createdAt); });
         return { name: name, rows: rows };
       }).sort(function(a, b) {
-        if (a.name === '基金定投科普模板') return -1;
-        if (b.name === '基金定投科普模板') return 1;
-        return new Date(b.rows[0].createdAt) - new Date(a.rows[0].createdAt);
+        var aLatest = new Date(a.rows[a.rows.length - 1].createdAt);
+        var bLatest = new Date(b.rows[b.rows.length - 1].createdAt);
+        return bLatest - aLatest;
       });
     }
 
@@ -3352,7 +3419,7 @@
         return;
       }
       var html = '<table class="task-report-table">';
-      html += '<colgroup><col style="width:18%"><col style="width:8%"><col style="width:7%"><col style="width:8%"><col style="width:11%"><col style="width:9%"><col style="width:9%"><col style="width:10%"><col style="width:20%"></colgroup>';
+      html += '<colgroup><col style="width:14%"><col style="width:7%"><col style="width:6%"><col style="width:7%"><col style="width:11%"><col style="width:8%"><col style="width:8%"><col style="width:11%"><col style="width:28%"></colgroup>';
       html += '<thead><tr><th>任务名</th><th>可见范围</th><th>视频数量</th><th>总消耗积分</th><th>任务创建时间</th><th>任务状态</th><th>任务进度</th><th>任务完成时间</th><th>操作</th></tr></thead><tbody>';
       for (var i = 0; i < groups.length; i++) {
         html += renderTaskReportGroup(groups[i], i);
@@ -3395,7 +3462,7 @@
       var tnq = escapeHtml(tn);
       var tnEsc = jsString(tn);
       var detailId = 'task-detail-sub-' + index;
-      var visibility = rows[0] && rows[0].visibility ? rows[0].visibility : '仅自己';
+      var visibility = displayVisibility(rows[0] && rows[0].visibility ? rows[0].visibility : '');
       var html = '';
       html += '<tr class="task-report-row" data-task="' + tnq + '">';
       html += '<td><button class="task-report-toggle" type="button" onclick="toggleTaskReportRow(\'' + detailId + '\',this)">−</button><span class="task-report-name" title="' + tnq + '">' + tnq + '</span></td>';
@@ -3416,7 +3483,7 @@
       html += '<button class="task-report-action danger" onclick="deleteTask(\'' + tnEsc + '\')">删除</button>';
       html += '</div></td></tr>';
       html += '<tr class="task-detail-row" id="' + detailId + '"><td colspan="9"><div class="task-detail-cell">';
-      html += '<table class="task-sub-table"><colgroup><col style="width:5%"><col style="width:21%"><col style="width:6%"><col style="width:6%"><col style="width:8%"><col style="width:9%"><col style="width:11%"><col style="width:11%"><col style="width:7%"><col style="width:16%"></colgroup>';
+      html += '<table class="task-sub-table"><colgroup><col style="width:5%"><col style="width:15%"><col style="width:6%"><col style="width:6%"><col style="width:8%"><col style="width:9%"><col style="width:10%"><col style="width:10%"><col style="width:9%"><col style="width:22%"></colgroup>';
       html += '<thead><tr><th>首帧</th><th>台词</th><th>视频时长</th><th>消耗积分</th><th>视频状态</th><th>生成进度</th><th>开始生成时间</th><th>生成完成时间</th><th>生成耗时</th><th>操作</th></tr></thead><tbody>';
       for (var j = 0; j < rows.length; j++) html += renderTaskReportSubRow(rows[j]);
       html += '</tbody></table></div></td></tr>';
@@ -3466,16 +3533,18 @@
 
       var actionHtml = '';
       if (task.status === 'cancelled') {
-        actionHtml = '<div class="subtask-actions"><button class="tg-op-btn" disabled>关闭</button><button class="tg-op-btn warn" onclick="retryTask(' + task.id + ')">重试</button><button class="tg-op-btn cover" disabled>封面</button><button class="tg-op-btn retry" disabled>预览</button><button class="tg-op-btn download" disabled>下载</button></div>';
+        actionHtml = '<div class="subtask-actions"><button class="tg-op-btn" disabled>关闭</button><button class="tg-op-btn warn" onclick="retryTask(' + task.id + ')">重试</button><button class="tg-op-btn cover" disabled>封面</button><button class="tg-op-btn retry" disabled>预览</button><button class="tg-op-btn download" disabled>下载</button><button class="tg-op-btn same" disabled title="视频生成完成后可用">✨一键同款</button></div>';
       } else if (task.status === 'failed') {
-        actionHtml = '<div class="subtask-actions"><button class="tg-op-btn warn" onclick="retryTask(' + task.id + ')">重试</button><button class="tg-op-btn cover" disabled>封面</button><button class="tg-op-btn retry" disabled>预览</button><button class="tg-op-btn download" disabled>下载</button></div>';
+        actionHtml = '<div class="subtask-actions"><button class="tg-op-btn warn" onclick="retryTask(' + task.id + ')">重试</button><button class="tg-op-btn cover" disabled>封面</button><button class="tg-op-btn retry" disabled>预览</button><button class="tg-op-btn download" disabled>下载</button><button class="tg-op-btn same" disabled title="视频生成完成后可用">✨一键同款</button></div>';
       } else {
+        var canSame = task.status === 'completed' && Number(task.progress) === 100;
         actionHtml = '<div class="subtask-actions">';
         actionHtml += '<button class="tg-op-btn" ' + (canCancel ? 'onclick="subtaskCancel(' + task.id + ')"' : 'disabled') + '>关闭</button>';
         actionHtml += '<button class="tg-op-btn cover" ' + (canCover ? 'onclick="openVideoCoverConfig(' + task.id + ')"' : 'disabled') + '>' + getVideoCoverLabel(task) + '</button>';
         actionHtml += '<button class="tg-op-btn retry" ' + (canPreview ? 'onclick="openPreview(' + task.id + ')"' : 'disabled') + '>预览</button>';
         actionHtml += '<button class="tg-op-btn download" ' + (canDownload ? 'onclick="downloadVideo(' + task.id + ')"' : 'disabled title="' + escapeHtml(refundDelivery.message || '') + '"') + '>下载</button>';
         actionHtml += '<button class="tg-op-btn cover" ' + (canPreview ? 'onclick="openVideoEditor(' + task.id + ')"' : 'disabled') + '>视频编辑</button>';
+        actionHtml += '<button class="tg-op-btn same" ' + (canSame ? 'onclick="openSameStyle(' + task.id + ')" title="用该视频的角色/场景/台词为模板去画布同款创作"' : 'disabled title="视频生成完成后可用"') + '>✨一键同款</button>';
         actionHtml += refundActionHtml(task);
         actionHtml += '</div>';
       }
@@ -3583,6 +3652,7 @@
       html += '<button class="tg-op-btn retry" ' + (canPreview ? 'onclick="openPreview(' + task.id + ')"' : 'disabled') + '>预览</button>';
       html += '<button class="tg-op-btn download" ' + (canDownload ? 'onclick="downloadVideo(' + task.id + ')"' : 'disabled title="' + escapeHtml(refundDelivery.message || '') + '"') + '>下载</button>';
       html += '<button class="tg-op-btn cover" ' + (canPreview ? 'onclick="openVideoEditor(' + task.id + ')"' : 'disabled') + '>视频编辑</button>';
+      html += '<button class="tg-op-btn same" ' + ((task.status === 'completed' && Number(task.progress) === 100) ? 'onclick="openSameStyle(' + task.id + ')" title="用该视频的角色/场景/台词为模板去画布同款创作"' : 'disabled title="视频生成完成后可用"') + '>✨一键同款</button>';
       html += refundActionHtml(task);
       html += '</div></div></article>';
       return html;
@@ -4044,6 +4114,27 @@
       };
       try { localStorage.setItem('videoEditorIncomingTask', JSON.stringify(editorData)); } catch(e) {}
       window.location.href = '视频编辑工具.html?from=director&taskId=' + id;
+    }
+
+    function openSameStyle(id) {
+      var task = getTaskById(id);
+      if (!task) return;
+      if (task.status === 'draft') { toast('草稿暂不支持一键同款'); return; }
+      var payload = {
+        sourceId: task.id,
+        taskName: task.taskName,
+        script: task.script,
+        duration: task.duration,
+        cost: task.cost,
+        person: task.person || { name: '角色', emoji: '👤' },
+        bg: task.bg || { name: '场景' },
+        visibility: task.visibility,
+        status: task.status,
+        from: 'director',
+        createdAt: new Date().toISOString()
+      };
+      try { localStorage.setItem('sameStyleIncomingTask', JSON.stringify(payload)); } catch(e) {}
+      window.location.href = '画布工作流.html?from=director&sameStyle=' + task.id;
     }
 
     function downloadGroup(name) {

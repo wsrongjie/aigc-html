@@ -387,6 +387,14 @@
         border-color: var(--primary);
     }
 
+    .org-filter-select {
+        height: 32px; padding: 0 10px; border: 1px solid var(--border);
+        border-radius: 16px; font-size: 12.5px; color: var(--text-secondary);
+        background: var(--card-bg); outline: none; cursor: pointer;
+    }
+    .org-filter-select:focus { border-color: var(--primary); }
+    .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
     .models-grid {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
@@ -909,8 +917,15 @@
                 <div class="filter-group" data-filter="scope">
                     <span class="filter-label">可见范围</span>
                     <button class="filter-tag active" data-value="all">全部</button>
-                    <button class="filter-tag" data-value="private">仅自己</button>
-                    <button class="filter-tag" data-value="team">团队共享</button>
+                    <button class="filter-tag" data-value="private">个人</button>
+                    <button class="filter-tag" data-value="team">本部门</button>
+                    <button class="filter-tag" data-value="other">其他部门</button>
+                    <select class="org-filter-select" id="org-filter" style="display:none;">
+                        <option value="all">全部部门</option>
+                        <option value="投顾一组">投顾一组</option>
+                        <option value="投顾二组">投顾二组</option>
+                        <option value="品牌内容组">品牌内容组</option>
+                    </select>
                 </div>
             </div>
 
@@ -920,7 +935,7 @@
                      data-name="小明·专业主播音色"
                      data-scope="team"
                      data-gender="male"
-                     data-tags="沉稳男声 早盘解读 团队共享">
+                     data-tags="沉稳男声 早盘解读 本部门">
                     <div class="model-card-header">
                         <div style="display:flex;align-items:center;gap:12px;">
                             <div class="model-icon" style="background:#EDE9FE;">🎙</div>
@@ -932,7 +947,7 @@
                     <div class="model-tags">
                         <span class="tag">沉稳男声</span>
                         <span class="tag">早盘解读</span>
-                        <span class="tag">团队共享</span>
+                        <span class="tag">本部门</span>
                     </div>
                     <div class="model-meta">创建于 2026-04-12 · 已被 23 个视频引用</div>
                     <div class="model-actions">
@@ -945,7 +960,7 @@
                      data-name="职业女声·午评版"
                      data-scope="private"
                      data-gender="female"
-                     data-tags="专业女声 午评 个人 仅自己">
+                     data-tags="专业女声 午评 个人">
                     <div class="model-card-header">
                         <div style="display:flex;align-items:center;gap:12px;">
                             <div class="model-icon" style="background:#FEF3C7;">🔊</div>
@@ -970,7 +985,7 @@
                      data-name="张总·路演专用音色"
                      data-scope="team"
                      data-gender="male"
-                     data-tags="权威男声 路演 团队共享">
+                     data-tags="权威男声 路演 本部门">
                     <div class="model-card-header">
                         <div style="display:flex;align-items:center;gap:12px;">
                             <div class="model-icon" style="background:#EDE9FE;">🎙</div>
@@ -982,7 +997,7 @@
                     <div class="model-tags">
                         <span class="tag">权威男声</span>
                         <span class="tag">路演</span>
-                        <span class="tag">团队共享</span>
+                        <span class="tag">本部门</span>
                     </div>
                     <div class="model-meta">创建于 2026-05-07 · 已被 8 个视频引用</div>
                     <div class="model-actions">
@@ -995,7 +1010,7 @@
                      data-name="测试音色-0506"
                      data-scope="private"
                      data-gender="male"
-                     data-tags="测试音色 个人 仅自己 男声">
+                     data-tags="测试音色 个人 男声">
                     <div class="model-card-header">
                         <div style="display:flex;align-items:center;gap:12px;">
                             <div class="model-icon" style="background:#EDE9FE;">🎙</div>
@@ -1019,7 +1034,7 @@
                      data-name="播报腔·科普系列"
                      data-scope="team"
                      data-gender="neutral"
-                     data-tags="中性播报 科普 团队共享">
+                     data-tags="中性播报 科普 本部门">
                     <div class="model-card-header">
                         <div style="display:flex;align-items:center;gap:12px;">
                             <div class="model-icon" style="background:#FEF3C7;">🔊</div>
@@ -1031,7 +1046,7 @@
                     <div class="model-tags">
                         <span class="tag">中性播报</span>
                         <span class="tag">科普</span>
-                        <span class="tag">团队共享</span>
+                        <span class="tag">本部门</span>
                     </div>
                     <div class="model-meta">创建于 2026-03-28 · 已被 41 个视频引用</div>
                     <div class="model-actions">
@@ -1044,7 +1059,7 @@
                      data-name="权威女声·路演版"
                      data-scope="team"
                      data-gender="female"
-                     data-tags="权威女声 路演 团队共享">
+                     data-tags="权威女声 路演 本部门">
                     <div class="model-card-header">
                         <div style="display:flex;align-items:center;gap:12px;">
                             <div class="model-icon" style="background:#FEF3C7;">🔊</div>
@@ -1056,12 +1071,64 @@
                     <div class="model-tags">
                         <span class="tag">权威女声</span>
                         <span class="tag">路演</span>
-                        <span class="tag">团队共享</span>
+                        <span class="tag">本部门</span>
                     </div>
                     <div class="model-meta">创建于 2026-05-09 · 已被 5 个视频引用</div>
                     <div class="model-actions">
                         <button class="btn btn-secondary btn-sm" onclick="showToast('▶ 正在试听权威女声·路演版')">▶ 试听</button>
                         <button class="btn btn-secondary btn-sm" onclick="showDetail('权威女声·路演版')">详情</button>
+                    </div>
+                </div>
+
+                <div class="model-card"
+                     data-name="投顾二组·晨会快评音色"
+                     data-scope="other"
+                     data-org="投顾二组"
+                     data-gender="male"
+                     data-tags="干练男声 晨会 其他部门 投顾二组">
+                    <div class="model-card-header">
+                        <div style="display:flex;align-items:center;gap:12px;">
+                            <div class="model-icon" style="background:#EDE9FE;">🎙</div>
+                            <div>
+                                <div class="model-name">投顾二组·晨会快评音色</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="model-tags">
+                        <span class="tag">干练男声</span>
+                        <span class="tag">晨会</span>
+                        <span class="tag">其他部门·投顾二组</span>
+                    </div>
+                    <div class="model-meta">创建于 2026-05-11 · 已被 6 个视频引用</div>
+                    <div class="model-actions">
+                        <button class="btn btn-secondary btn-sm" onclick="showToast('▶ 正在试听投顾二组·晨会快评音色')">▶ 试听</button>
+                        <button class="btn btn-secondary btn-sm" onclick="showDetail('投顾二组·晨会快评音色')">详情</button>
+                    </div>
+                </div>
+
+                <div class="model-card"
+                     data-name="品牌组·温情女声"
+                     data-scope="other"
+                     data-org="品牌内容组"
+                     data-gender="female"
+                     data-tags="温情女声 品牌 其他部门 品牌内容组">
+                    <div class="model-card-header">
+                        <div style="display:flex;align-items:center;gap:12px;">
+                            <div class="model-icon" style="background:#FEF3C7;">🔊</div>
+                            <div>
+                                <div class="model-name">品牌组·温情女声</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="model-tags">
+                        <span class="tag">温情女声</span>
+                        <span class="tag">品牌</span>
+                        <span class="tag">其他部门·品牌内容组</span>
+                    </div>
+                    <div class="model-meta">创建于 2026-04-28 · 已被 17 个视频引用</div>
+                    <div class="model-actions">
+                        <button class="btn btn-secondary btn-sm" onclick="showToast('▶ 正在试听品牌组·温情女声')">▶ 试听</button>
+                        <button class="btn btn-secondary btn-sm" onclick="showDetail('品牌组·温情女声')">详情</button>
                     </div>
                 </div>
 
@@ -1201,7 +1268,7 @@
                     <div class="detail-info">
                         <span>📅 创建于 2026-04-12</span>
                         <span>👤 王小明</span>
-                        <span>🔗 团队共享</span>
+                        <span id="detail-scope">🔗 本部门</span>
                     </div>
                     <div style="display:flex;gap:8px;flex-wrap:wrap;">
                         <span class="tag">沉稳男声</span>
@@ -1211,7 +1278,7 @@
 
                 <div style="display:flex;gap:8px;align-self:flex-start;">
                     <button class="btn btn-secondary btn-sm" onclick="showToast('▶ 正在试听')">▶ 试听</button>
-                    <button class="btn btn-danger btn-sm" onclick="showToast('已禁用')">禁用</button>
+                    <button class="btn btn-danger btn-sm" id="detail-disable-btn" onclick="showToast('已禁用')">禁用</button>
                 </div>
             </div>
 
@@ -1249,6 +1316,7 @@
 <script>
     const filterState = {
         scope: 'all',
+        org: 'all',
         gender: 'all',
         keyword: ''
     };
@@ -1326,6 +1394,24 @@
 
     function showDetail(name) {
         document.getElementById('detail-name').textContent = name || '模型详情';
+        let scopeLabel = '🔗 本部门';
+        let isOtherOrg = false;
+        document.querySelectorAll('.model-card:not(.create-card)').forEach(card => {
+            if (card.dataset.name === name) {
+                if (card.dataset.scope === 'other') {
+                    isOtherOrg = true;
+                    scopeLabel = '🔗 其他部门·' + (card.dataset.org || '');
+                } else if (card.dataset.scope === 'private') {
+                    scopeLabel = '🔗 个人';
+                }
+            }
+        });
+        document.getElementById('detail-scope').textContent = scopeLabel;
+        const disableBtn = document.getElementById('detail-disable-btn');
+        if (disableBtn) {
+            disableBtn.disabled = isOtherOrg;
+            disableBtn.title = isOtherOrg ? '其他部门的音色不可操作' : '';
+        }
         showPage('detail');
         document.getElementById('topbar-bread').innerHTML =
             '<span style="cursor:pointer;" onclick="showPage(\'voice\')">语音创作</span> › 模型详情';
@@ -1344,7 +1430,10 @@
             const keyword = filterState.keyword.trim().toLowerCase();
 
             const matchScope =
-                filterState.scope === 'all' || scope === filterState.scope;
+                filterState.scope === 'all' ? true :
+                filterState.scope === 'other'
+                    ? (scope === 'other' && (filterState.org === 'all' || card.dataset.org === filterState.org))
+                    : scope === filterState.scope;
 
             const matchGender =
                 filterState.gender === 'all' || gender === filterState.gender;
@@ -1388,6 +1477,11 @@
 
                 filterState[filterType] = btn.dataset.value;
 
+                const orgFilter = document.getElementById('org-filter');
+                if (orgFilter && filterType === 'scope') {
+                    orgFilter.style.display = btn.dataset.value === 'other' ? '' : 'none';
+                }
+
                 applyFilters();
             });
         });
@@ -1397,6 +1491,14 @@
         if (searchInput) {
             searchInput.addEventListener('input', event => {
                 filterState.keyword = event.target.value;
+                applyFilters();
+            });
+        }
+
+        const orgFilter = document.getElementById('org-filter');
+        if (orgFilter) {
+            orgFilter.addEventListener('change', event => {
+                filterState.org = event.target.value;
                 applyFilters();
             });
         }

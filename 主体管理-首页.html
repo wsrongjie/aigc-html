@@ -268,6 +268,56 @@
             color: #ffffff;
         }
 
+        .scope-filters-label {
+            font-size: 13px;
+            color: #6b7280;
+            white-space: nowrap;
+            margin-right: 2px;
+        }
+        .scope-chip {
+            height: 32px;
+            border: 0;
+            border-radius: 10px;
+            background: #f3f4f6;
+            color: #374151;
+            padding: 0 16px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .scope-chip.active {
+            background: #4f46e5;
+            color: #ffffff;
+        }
+        .scope-select {
+            height: 32px;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 0 10px;
+            font-size: 13px;
+            color: #374151;
+            background: #ffffff;
+            outline: none;
+            cursor: pointer;
+        }
+        .scope-tag {
+            position: absolute;
+            left: 12px;
+            top: 12px;
+            height: 26px;
+            padding: 0 10px;
+            border-radius: 999px;
+            background: rgba(79, 70, 229, 0.92);
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .btn-link:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
         .tag-filters {
             display: flex;
             align-items: center;
@@ -879,8 +929,8 @@
                 <div class="section-header">
                     <div class="section-title-wrap">
                         <div class="section-title">
-                            <h2>主体列表</h2>
-                            <p>支持按类型、收藏和创建人筛选，也可通过名称和描述检索。</p>
+                        <h2>主体列表</h2>
+                        <p>支持按类型、可见范围、收藏和创建人筛选，也可通过名称和描述检索。</p>
                         </div>
                     </div>
                 </div>
@@ -898,6 +948,17 @@
                             <input id="onlyCreated" type="checkbox" />
                             我创建的
                         </label>
+                        <span class="scope-filters-label">可见范围</span>
+                        <button type="button" class="scope-chip active" data-scope="all">全部</button>
+                        <button type="button" class="scope-chip" data-scope="mine">个人</button>
+                        <button type="button" class="scope-chip" data-scope="dept">本部门</button>
+                        <button type="button" class="scope-chip" data-scope="other">其他部门</button>
+                        <select class="scope-select" id="scopeOrgFilter" style="display:none;">
+                            <option value="all">全部部门</option>
+                            <option value="投顾一组">投顾一组</option>
+                            <option value="投顾二组">投顾二组</option>
+                            <option value="品牌内容组">品牌内容组</option>
+                        </select>
                     </div>
                     <div class="search">
                         <input id="searchInput" type="search" placeholder="请输入检索内容" />
@@ -1037,6 +1098,64 @@
                 status: "8 视角",
                 tags: ["会议室", "办公"],
                 visual: "scene"
+            },
+            {
+                id: "seed-role-dept-1",
+                type: "role",
+                name: "资深投顾·陈老师",
+                desc: "部门共享角色，适合晨会解读和投教陪伴类短视频，仅可查看使用。",
+                voice: "沉稳解说男-中年 / 中文",
+                owner: "dept",
+                scope: "dept",
+                createdByMe: false,
+                favorite: false,
+                status: "4 视图",
+                tags: ["资深投顾", "晨会"],
+                visual: "role",
+                img: createDemoRoleImage("陈老师", "#0f766e", "#14b8a6")
+            },
+            {
+                id: "seed-scene-dept-1",
+                type: "scene",
+                name: "品牌路演厅",
+                desc: "部门共享场景，适合路演直播和产品发布类内容。",
+                owner: "dept",
+                scope: "dept",
+                createdByMe: false,
+                favorite: false,
+                status: "8 视角",
+                tags: ["路演", "品牌"],
+                visual: "scene"
+            },
+            {
+                id: "seed-role-other-1",
+                type: "role",
+                name: "投顾二组·快评主播",
+                desc: "其他部门共享角色，仅可查看使用，不可编辑或删除。",
+                voice: "干练快评男-青年 / 中文",
+                owner: "other",
+                scope: "other",
+                org: "投顾二组",
+                createdByMe: false,
+                favorite: false,
+                status: "4 视图",
+                tags: ["快评", "投顾二组"],
+                visual: "role",
+                img: createDemoRoleImage("快评主播", "#7c3aed", "#a78bfa")
+            },
+            {
+                id: "seed-scene-other-1",
+                type: "scene",
+                name: "品牌内容组·访谈角",
+                desc: "其他部门共享场景，仅可查看使用，不可编辑或删除。",
+                owner: "other",
+                scope: "other",
+                org: "品牌内容组",
+                createdByMe: false,
+                favorite: false,
+                status: "8 视角",
+                tags: ["访谈", "品牌内容组"],
+                visual: "scene"
             }
         ];
 
@@ -1045,6 +1164,8 @@
         let query = "";
         let onlyFav = false;
         let onlyCreated = false;
+        let scopeFilter = "all";
+        let scopeOrg = "all";
         let currentDetailSubjectId = "";
         let detailReturnFocus = null;
 
@@ -1165,6 +1286,11 @@
             const filtered = list.filter((subject) => {
                 const text = [subject.name, subject.desc, subject.voice, subjectTypeName(subject.type)].join(" ").toLowerCase();
                 if (typeFilter !== "all" && subject.type !== typeFilter) return false;
+                if (scopeFilter !== "all") {
+                    const subjectScope = subject.scope || "mine";
+                    if (subjectScope !== scopeFilter) return false;
+                    if (scopeFilter === "other" && scopeOrg !== "all" && subject.org !== scopeOrg) return false;
+                }
                 if (tags.length && !tags.some(t => (subject.tags || []).indexOf(t) >= 0)) return false;
                 if (onlyFav && !subject.favorite) return false;
                 if (onlyCreated && !subject.createdByMe) return false;
@@ -1174,11 +1300,14 @@
 
             assetGrid.innerHTML = filtered.map((subject) => {
                 const canDelete = subject.id && subject.id.indexOf("created-") === 0;
+                const subjectScope = subject.scope || "mine";
+                const isOther = subjectScope === "other";
+                const noEditTip = isOther ? ' disabled title="其他部门的主体不可操作"' : '';
                 const outfitCount = subjectOutfits(subject).length;
                 const isRole = subject.type === "role";
                 let actionButtons = '';
                 if (isRole) {
-                    actionButtons += '<button class="btn-link" type="button" data-action="edit">编辑</button>';
+                    actionButtons += '<button class="btn-link" type="button" data-action="edit"' + noEditTip + '>编辑</button>';
                     actionButtons += canDelete ?
                         '<button class="btn-link" type="button" data-action="delete">删除</button>' :
                         '<button class="btn-link" type="button" data-action="fav">' + (subject.favorite ? "取消收藏" : "收藏") + '</button>';
@@ -1195,6 +1324,8 @@
                             renderVisual(subject) +
                             '<div class="badge">' + escapeHtml(subject.status || "视角已生成") + '</div>' +
                             '<div class="type-tag">' + subjectTypeName(subject.type) + '</div>' +
+                            (subjectScope === "dept" ? '<div class="scope-tag">本部门</div>' : '') +
+                            (subjectScope === "other" ? '<div class="scope-tag">其他部门·' + escapeHtml(subject.org || "") + '</div>' : '') +
                             (subject.type === "role" ? '<div class="outfit-count-tag">' + outfitCount + ' 套服饰</div>' : '') +
                         '</div>' +
                         '<div class="card-body">' +
@@ -1212,6 +1343,10 @@
 
         function findSubject(id) {
             return allSubjects().find((subject) => subject.id === id);
+        }
+
+        function subjectScopeOf(subject) {
+            return (subject && subject.scope) || "mine";
         }
 
         function toggleFavorite(id) {
@@ -1244,7 +1379,7 @@
             const roleOutfits = subjectOutfits(subject);
             currentDetailSubjectId = subject.id || "";
             document.getElementById("detailTitle").textContent = subject.name;
-            document.getElementById("detailSubtitle").textContent = subjectTypeName(subject.type) + " / " + (subject.status || "视角已生成");
+            document.getElementById("detailSubtitle").textContent = subjectTypeName(subject.type) + " / " + (subject.status || "视角已生成") + (subjectScopeOf(subject) === "dept" ? " / 本部门" : "") + (subjectScopeOf(subject) === "other" ? " / 其他部门·" + (subject.org || "") : "");
             document.getElementById("detailMainPreview").innerHTML = renderVisual(subject);
             document.getElementById("detailMainLabel").textContent = subjectTypeName(subject.type) + "主视图";
             document.getElementById("detailMainDesc").textContent = subject.desc || "该主视图用于生成右侧的多角度视图资产。";
@@ -1253,7 +1388,7 @@
             const detailViewsGrid = document.getElementById("detailViewsGrid");
             detailViewsGrid.className = "detail-views-grid" + (subject.type === "role" ? " role-outfits" : "");
             detailViewsGrid.innerHTML = renderDetailViews(subject);
-            const canEdit = subject.type === "role" && !!subject.id;
+            const canEdit = subject.type === "role" && !!subject.id && subjectScopeOf(subject) !== "other";
             document.getElementById("detailEditBtn").style.display = canEdit ? "inline-flex" : "none";
             document.getElementById("detailModal").classList.add("active");
             document.getElementById("detailModal").setAttribute("aria-hidden", "false");
@@ -1272,7 +1407,7 @@
 
         function editSubject(id) {
             const subject = findSubject(id);
-            if (!subject || subject.type !== "role") return;
+            if (!subject || subject.type !== "role" || subjectScopeOf(subject) === "other") return;
             window.location.href = "主体管理-创建主体.html?type=role&mode=edit&id=" + encodeURIComponent(id) + "&from=library";
         }
 
@@ -1289,6 +1424,21 @@
                 typeFilter = button.dataset.type;
                 render();
             });
+        });
+
+        document.querySelectorAll(".scope-chip").forEach((button) => {
+            button.addEventListener("click", () => {
+                document.querySelectorAll(".scope-chip").forEach((item) => item.classList.remove("active"));
+                button.classList.add("active");
+                scopeFilter = button.dataset.scope;
+                document.getElementById("scopeOrgFilter").style.display = scopeFilter === "other" ? "" : "none";
+                render();
+            });
+        });
+
+        document.getElementById("scopeOrgFilter").addEventListener("change", (event) => {
+            scopeOrg = event.target.value;
+            render();
         });
 
         document.getElementById("tagFilterOptions").addEventListener("click", (event) => {

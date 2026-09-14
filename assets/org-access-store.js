@@ -1,4 +1,4 @@
-/* 组织资产权限原型：仅用于同源浏览器演示，不替代服务端鉴权。 */
+/* 部门资产权限原型：仅用于同源浏览器演示，不替代服务端鉴权。 */
 (function () {
     'use strict';
     const KEY = 'xingzao_org_access_v1';
@@ -25,7 +25,7 @@
     };
     function read() {
         try { const raw = localStorage.getItem(KEY); if (raw) { const s = JSON.parse(raw); if (s.version === 1 && Array.isArray(s.orgs) && Array.isArray(s.members)) return s; } }
-        catch (e) { console.warn('组织演示数据读取失败', e); }
+        catch (e) { console.warn('部门演示数据读取失败', e); }
         return copy(initial);
     }
     let state = read();
@@ -33,11 +33,11 @@
     state.deleted=state.deleted||{};
     function save() {
         try { localStorage.setItem(KEY, JSON.stringify(state)); }
-        catch(e) { throw new Error('组织数据保存失败，请检查浏览器存储空间。'); }
+        catch(e) { throw new Error('部门数据保存失败，请检查浏览器存储空间。'); }
     }
     function fresh() { state = read(); return state; }
     function user() { return state.members.find(m => m.id === state.currentId) || null; }
-    function orgName(id) { const org = state.orgs.find(o => o.id === id); return org ? org.name : '原组织'; }
+    function orgName(id) { const org = state.orgs.find(o => o.id === id); return org ? org.name : '原部门'; }
     function memberName(id) { const m = state.members.find(m => m.id === id); return m ? m.name : '已移除成员'; }
     function privateScope(value) { return !['team','团队共享','团队可见','组织共享'].includes(value); }
     function assetKey(type,id) { return type + ':' + id; }
@@ -92,8 +92,8 @@
         if (!can(a,action)) { alert('当前账号无权' + ({view:'查看',use:'使用',edit:'编辑',delete:'删除',download:'下载',publish:'发布',replicate:'复刻',share:'修改共享范围'}[action] || '操作') + '该资产。'); return false; }
         return true;
     }
-    function requireAdmin() { fresh(); if (user() && user().admin) return true; alert('仅租户管理员可以管理组织、成员及授权。'); return false; }
-    function badge(a) { return orgName(a.orgId) + ' · ' + memberName(a.creatorId) + ' · ' + (a.visibility === 'private' ? '仅自己' : '组织共享'); }
+    function requireAdmin() { fresh(); if (user() && user().admin) return true; alert('仅租户管理员可以管理部门、成员及授权。'); return false; }
+    function badge(a) { return orgName(a.orgId) + ' · ' + memberName(a.creatorId) + ' · ' + (a.visibility === 'private' ? '仅自己' : '部门共享'); }
     function matches(a, filter) {
         if (!can(a,'view')) return false;
         const u = user();
@@ -142,7 +142,7 @@
                 state.assets[assetKey(type,id)] = {id,type,name:prefix + ' · ' + ({voice:'专业播报音色',role:'投顾主持人',scene:'财经演播室',video:'市场观察成片'}[type]),creatorId:owner,orgId:org,visibility:'team',demo:true,
                     voiceId:type === 'role' ? 'orgdemo-voice-' + letter : undefined,
                     refs:type === 'video' ? [{type:'role',id:'orgdemo-role-' + letter},{type:'voice',id:'orgdemo-voice-' + letter},{type:'scene',id:'orgdemo-scene-' + letter}] : undefined,
-                    desc:'用于组织授权演示的' + types[type],img:type === 'role' ? './assets/role-2.png' : undefined, tags:['组织演示'],status:'可用'};
+                    desc:'用于部门授权演示的' + types[type],img:type === 'role' ? './assets/role-2.png' : undefined, tags:['部门演示'],status:'可用'};
             });
             const id = 'orgdemo-private-' + letter;
             if (!lookup('voice',id)) state.assets[assetKey('voice',id)] = {id,type:'voice',name:prefix + ' · 私人试验音色',creatorId:owner,orgId:org,visibility:'private',demo:true};
@@ -169,7 +169,7 @@
     document.addEventListener('DOMContentLoaded', () => {
         const link = document.createElement('link'); link.rel='stylesheet'; link.href='assets/org-access-ui.css'; document.head.appendChild(link);
         const panel = document.createElement('details'); panel.className='oa-identity';
-        panel.innerHTML='<summary>原型演示身份</summary><label>当前成员<select aria-label="切换演示成员"></select></label><p></p><a href="团队管理.html#organizations">配置组织授权 →</a>';
+        panel.innerHTML='<summary>原型演示身份</summary><label>当前成员<select aria-label="切换演示成员"></select></label><p></p><a href="团队管理.html#organizations">配置部门授权 →</a>';
         document.body.appendChild(panel);
         function renderIdentity() {
             panel.querySelector('select').innerHTML=state.members.map(m => '<option value="'+esc(m.id)+'"'+(m.id===state.currentId?' selected':'')+'>'+esc(m.name+' · '+orgName(m.orgId)+(m.admin?' · 管理员':''))+'</option>').join('');
