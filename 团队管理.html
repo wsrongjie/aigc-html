@@ -517,6 +517,13 @@
         .permission-action-list { grid-template-columns: 1fr; }
     }
 </style>
+<style data-oa-inline>
+/* 内联自 assets/org-access-ui.css（单文件集成，同步日期 2026-09-16） */
+.oa-identity{position:fixed;right:18px;bottom:16px;z-index:9000;background:#fff;border:1px solid #dce4ef;border-radius:12px;box-shadow:0 6px 24px #182d4c20;padding:10px 14px;font:12px/1.6 -apple-system,BlinkMacSystemFont,'Microsoft YaHei',sans-serif;color:#475569;max-width:310px}
+.oa-identity summary{cursor:pointer;color:#245ddb;font-weight:600}.oa-identity label{display:block;margin-top:10px}.oa-identity select{display:block;max-width:280px;width:100%;padding:8px;border:1px solid #dce4ef;border-radius:6px;background:white}.oa-identity p{margin:8px 0}.oa-identity a{color:#2f6bff}
+.oa-toolbar{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin:12px 0;color:#64748b;font-size:12px}.oa-toolbar select,.oa-field{border:1px solid #dce4ef;border-radius:7px;background:white;color:#334155;padding:8px 10px;font:inherit;min-width:160px}.oa-badge{display:block;color:#64748b;font-size:11px;line-height:1.6;margin:6px 0}.oa-note{padding:12px 14px;background:#f1f6ff;border:1px solid #dce8ff;border-radius:8px;font-size:12px;color:#34537c;line-height:1.7;margin:12px 0}.oa-empty{padding:24px;color:#64748b;text-align:center}
+.oa-orgs{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}.oa-org{border:1px solid #e4e4e7;border-radius:10px;padding:18px}.oa-org h3{font-size:15px;margin:0 0 8px}.oa-org p{font-size:12px;color:#71717a;margin:8px 0;line-height:1.6}.oa-org footer{display:flex;gap:12px;margin-top:16px}.oa-btn{border:1px solid #dce4ef;background:white;color:#245ddb;padding:7px 12px;border-radius:7px;cursor:pointer;font-size:12px}.oa-btn:disabled{opacity:.45;cursor:not-allowed}.oa-btn.primary{background:#2f6bff;border-color:#2f6bff;color:white}.oa-btn.danger{color:#dc2626}.oa-dialog{border:1px solid #dce4ef;border-radius:14px;max-width:760px;width:calc(100% - 40px);padding:24px;color:#18181b;box-shadow:0 18px 60px #172c4a30;margin:auto}.oa-dialog::backdrop{background:#11182766}.oa-dialog h2{font-size:18px;margin:0 0 14px}.oa-dialog label{display:block;margin:12px 0;font-size:13px}.oa-dialog label input,.oa-dialog label select,.oa-dialog label textarea{display:block;box-sizing:border-box;width:100%;margin-top:7px}.oa-dialog footer{display:flex;justify-content:flex-end;gap:10px;margin-top:20px}.oa-dialog table{width:100%;border-collapse:collapse;font-size:13px}.oa-dialog td,.oa-dialog th{padding:12px 8px;border-bottom:1px solid #e4e4e7;text-align:center}.oa-dialog td:first-child,.oa-dialog th:first-child{text-align:left}.oa-dialog input[type=checkbox]{accent-color:#2f6bff;width:16px;height:16px}.oa-error{color:#dc2626;font-size:12px;min-height:20px}.oa-asset-preview{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}.oa-asset-preview article{padding:16px;border:1px solid #e4e4e7;border-radius:10px}.oa-asset-preview h3{font-size:14px}.oa-asset-preview p{font-size:12px;color:#64748b}
+</style>
 </head>
 <body>
 
@@ -1037,7 +1044,190 @@
 
 <div class="toast" id="toast"></div>
 
-<script src="assets/org-access-store.js"></script>
+<script>
+/* 内联自 assets/org-access-store.js（单文件集成，同步日期 2026-09-16；动态插 link 处加守卫：已内联 CSS 则跳过） */
+/* 部门资产权限原型：仅用于同源浏览器演示，不替代服务端鉴权。 */
+(function () {
+    'use strict';
+    const KEY = 'xingzao_org_access_v1';
+    const types = { voice: '音色', role: '角色', scene: '场景', video: '视频' };
+    const copy = value => JSON.parse(JSON.stringify(value));
+    const esc = value => String(value == null ? '' : value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    const allPages={assetSubject:['create','edit','delete','publish'],assetAudio:['upload','clone','audit','edit','delete'],assetVideo:['upload','preview','download','edit','delete'],director:['create','generate','export','template'],tools:['use','batch','download','manage'],team:['invite','role','credit','remove'],billing:['view','export','recharge','invoice']};
+    const defaultRoles=[
+        {id:'r1',name:'投顾管理员',permissions:{pages:Object.keys(allPages),actions:allPages}},
+        {id:'r2',name:'高级投顾',permissions:{pages:['assetSubject','assetAudio','assetVideo','director','tools','billing'],actions:{assetSubject:['create','edit','publish'],assetAudio:['upload','clone','edit'],assetVideo:['preview','download','edit'],director:['create','generate','export','template'],tools:['use','download'],billing:['view']}}},
+        {id:'r3',name:'内容审核员',permissions:{pages:['assetAudio','assetVideo','director','billing'],actions:{assetAudio:['audit'],assetVideo:['preview'],director:['generate'],billing:['view']}}}
+    ];
+    const initial = {
+        version: 1, currentId: 'm1',
+        orgs: [{id:'org-a',name:'投顾一组',desc:'日常投顾内容创作'}, {id:'org-b',name:'投顾二组',desc:'专业解读与素材协作'}, {id:'org-c',name:'品牌内容组',desc:'品牌内容与场景制作'}],
+        members: [
+            {id:'m1',name:'王晓明',orgId:'org-a',roleId:'r1',admin:true},
+            {id:'m2',name:'李建国',orgId:'org-b',roleId:'r1',admin:false},
+            {id:'m3',name:'张伟',orgId:'org-a',roleId:'r2',admin:false},
+            {id:'m4',name:'陈静',orgId:'org-b',roleId:'r2',admin:false},
+            {id:'m5',name:'赵六',orgId:'org-c',roleId:'r3',admin:false}
+        ],
+        grants: {'org-a': {'org-b':['voice','role','scene','video']}}, assets: {}, deleted: {}, team: null, roles: defaultRoles
+    };
+    function read() {
+        try { const raw = localStorage.getItem(KEY); if (raw) { const s = JSON.parse(raw); if (s.version === 1 && Array.isArray(s.orgs) && Array.isArray(s.members)) return s; } }
+        catch (e) { console.warn('部门演示数据读取失败', e); }
+        return copy(initial);
+    }
+    let state = read();
+    if(!state.roles.length)state.roles=copy(defaultRoles);
+    state.deleted=state.deleted||{};
+    function save() {
+        try { localStorage.setItem(KEY, JSON.stringify(state)); }
+        catch(e) { throw new Error('部门数据保存失败，请检查浏览器存储空间。'); }
+    }
+    function fresh() { state = read(); return state; }
+    function user() { return state.members.find(m => m.id === state.currentId) || null; }
+    function orgName(id) { const org = state.orgs.find(o => o.id === id); return org ? org.name : '原部门'; }
+    function memberName(id) { const m = state.members.find(m => m.id === id); return m ? m.name : '已移除成员'; }
+    function privateScope(value) { return !['team','团队共享','团队可见','组织共享'].includes(value); }
+    function assetKey(type,id) { return type + ':' + id; }
+    function register(type, source, options) {
+        options = options || {};
+        const id = String(source.id);
+        const key = assetKey(type,id);
+        if((state.deleted||{})[key])return Object.assign({},source,{id,type,deleted:true});
+        let record = state.assets[key];
+        if (!record) {
+            record = Object.assign({}, source, {
+                id, type, name: source.name || source.title || source.taskName || id,
+                creatorId: source.creatorId || options.creatorId || 'm1',
+                orgId: source.orgId || options.orgId || 'org-a',
+                visibility: privateScope(source.visibility || source.scope) ? 'private' : 'team'
+            });
+            state.assets[key] = record;
+            save();
+        }
+        return Object.assign({}, source, record);
+    }
+    function lookup(type,id) { return state.assets[assetKey(type,String(id))] || null; }
+    function list(type) { return Object.values(state.assets).filter(a => !type || a.type === type); }
+    function hasAction(page, action) {
+        const u = user(); if (!u) return false;
+        if (u.admin) return true;
+        const role = state.roles.find(r => r.id === u.roleId);
+        if (!role) return false;
+        const p = role.permissions || {};
+        return (p.pages || []).includes(page) && (!action || ((p.actions || {})[page] || []).includes(action));
+    }
+    function pageOf(a) { return a.type === 'voice' ? 'assetAudio' : a.type === 'video' ? 'assetVideo' : 'assetSubject'; }
+    function can(a, action) {
+        const u = user(); if (!u || !a || a.deleted) return false;
+        if (!hasAction(pageOf(a))) return false;
+        const mine = a.creatorId === u.id;
+        const local = a.orgId === u.orgId;
+        const publicAsset = a.system === true;
+        const shared = a.visibility === 'team' && (local || (((state.grants[u.orgId] || {})[a.orgId] || []).includes(a.type)));
+        if (!(mine || publicAsset || shared)) return false;
+        if (!action || action === 'view') return a.type !== 'video' || hasAction('assetVideo','preview');
+        if (action === 'use') return hasAction('director','generate');
+        if (action === 'replicate') return a.type === 'video' && hasAction('director','generate');
+        if (publicAsset || (!mine && !local)) return false;
+        if (action === 'download') return hasAction(pageOf(a),'download');
+        if (action === 'publish') return hasAction('assetVideo','download');
+        if (!mine && !u.admin) return false;
+        return hasAction(pageOf(a), action === 'share' ? 'edit' : action);
+    }
+    function requireAsset(type,id,action) {
+        fresh(); const a = lookup(type,id);
+        if (!can(a,action)) { alert('当前账号无权' + ({view:'查看',use:'使用',edit:'编辑',delete:'删除',download:'下载',publish:'发布',replicate:'复刻',share:'修改共享范围'}[action] || '操作') + '该资产。'); return false; }
+        return true;
+    }
+    function requireAdmin() { fresh(); if (user() && user().admin) return true; alert('仅租户管理员可以管理部门、成员及授权。'); return false; }
+    function badge(a) { return orgName(a.orgId) + ' · ' + memberName(a.creatorId) + ' · ' + (a.visibility === 'private' ? '仅自己' : '部门共享'); }
+    function matches(a, filter) {
+        if (!can(a,'view')) return false;
+        const u = user();
+        return !filter || filter === 'all' || (filter === 'mine' && a.creatorId === u.id) || (filter === 'local' && a.orgId === u.orgId && a.visibility === 'team') || (filter === 'other' && a.orgId !== u.orgId && a.visibility === 'team');
+    }
+    function create(type, data) {
+        fresh(); const u = user();
+        const page = type === 'voice' ? 'assetAudio' : type === 'video' ? 'director' : 'assetSubject';
+        const action = type === 'voice' ? 'clone' : type === 'video' ? 'generate' : 'create';
+        if (!u || !hasAction(page,action)) throw new Error('当前角色没有创建此类资产的权限。');
+        const a = Object.assign({},data,{id:String(data.id || ('created-' + Date.now() + '-' + Math.random().toString(36).slice(2,7))),type,creatorId:u.id,orgId:u.orgId,visibility:privateScope(data.visibility || data.scope) ? 'private':'team'});
+        a.name = a.name || a.title || '未命名资产';
+        state.assets[assetKey(type,a.id)] = a; save(); return copy(a);
+    }
+    function update(type,data) {
+        fresh(); const a = lookup(type,data.id);
+        if (!can(a,'edit')) throw new Error('无权编辑该资产。');
+        const next = Object.assign({},a,data,{id:a.id,type:a.type,orgId:a.orgId,creatorId:a.creatorId});
+        next.visibility = privateScope(data.visibility || a.visibility) ? 'private':'team';
+        state.assets[assetKey(type,a.id)] = next; save(); return copy(next);
+    }
+    function remove(type,id) {
+        fresh(); const a = lookup(type,id);
+        if (!can(a,'delete')) throw new Error('无权删除该资产。');
+        state.deleted=state.deleted||{};state.deleted[assetKey(type,id)]=true;
+        delete state.assets[assetKey(type,id)]; save();
+    }
+    function validateRefs(refs) {
+        fresh();
+        if (!hasAction('director','generate')) return ['当前角色没有视频生成权限'];
+        const errors = [];
+        (refs || []).forEach(ref => {
+            const a = lookup(ref.type,ref.id);
+            if (!can(a,'use')) errors.push((a ? a.name : '缺失的' + (types[ref.type] || '素材')) + '：请替换为有权使用的素材');
+            if (a && a.type === 'role' && a.voiceId && !(refs||[]).some(r=>r.type==='voice') && !can(lookup('voice',a.voiceId),'use')) errors.push(a.name + '关联音色不可用，请更换音色');
+        });
+        return Array.from(new Set(errors));
+    }
+    function seed() {
+        if (state.seeded) return;
+        ['a','b','c'].forEach((letter,i) => {
+            const owner = ['m3','m4','m5'][i], org = 'org-' + letter, prefix = ['一组','二组','品牌组'][i];
+            Object.keys(types).forEach(type => {
+                const id = type === 'video' ? String(9101+i) : 'orgdemo-' + type + '-' + letter;
+                if (lookup(type,id)) return;
+                state.assets[assetKey(type,id)] = {id,type,name:prefix + ' · ' + ({voice:'专业播报音色',role:'投顾主持人',scene:'财经演播室',video:'市场观察成片'}[type]),creatorId:owner,orgId:org,visibility:'team',demo:true,
+                    voiceId:type === 'role' ? 'orgdemo-voice-' + letter : undefined,
+                    refs:type === 'video' ? [{type:'role',id:'orgdemo-role-' + letter},{type:'voice',id:'orgdemo-voice-' + letter},{type:'scene',id:'orgdemo-scene-' + letter}] : undefined,
+                    desc:'用于部门授权演示的' + types[type],img:type === 'role' ? './assets/role-2.png' : undefined, tags:['部门演示'],status:'可用'};
+            });
+            const id = 'orgdemo-private-' + letter;
+            if (!lookup('voice',id)) state.assets[assetKey('voice',id)] = {id,type:'voice',name:prefix + ' · 私人试验音色',creatorId:owner,orgId:org,visibility:'private',demo:true};
+        });
+        state.seeded=true; save();
+    }
+    seed();
+    function notify() { window.dispatchEvent(new CustomEvent('org-access-change')); }
+    function commit(change) { fresh(); change(state); save(); notify(); }
+    function syncTeam(M) {
+        fresh(); if (!user() || !user().admin) return;
+        state.team = copy(M); state.roles = copy(M.roles);
+        state.members = M.members.map(m => { const old = state.members.find(x => x.id === m.id); return Object.assign({},old || {},{id:m.id,name:m.name,roleId:m.roleId,orgId:m.orgId || (old && old.orgId) || 'org-a',admin:!!(old && old.admin)}); });
+        save();
+    }
+    function bindTeam(M) {
+        fresh(); if (state.team) Object.assign(M,copy(state.team));
+        M.members.forEach(m => { const member = state.members.find(u => u.id === m.id); m.orgId = member ? member.orgId : 'org-a'; });
+        if (!state.roles.length) { state.roles = copy(M.roles); save(); }
+    }
+    window.OrgAccess = {KEY,types,esc,fresh,get state(){return state;},user,orgName,memberName,register,lookup,list,can,hasAction,requireAsset,requireAdmin,badge,matches,create,update,remove,validateRefs,commit,syncTeam,bindTeam,notify};
+    window.addEventListener('storage', e => { if (e.key === KEY) { fresh(); notify(); } });
+    window.addEventListener('focus', () => { fresh(); notify(); });
+    document.addEventListener('DOMContentLoaded', () => {
+        if(!document.querySelector('style[data-oa-inline]')){const link = document.createElement('link'); link.rel='stylesheet'; link.href='assets/org-access-ui.css'; document.head.appendChild(link);}
+        const panel = document.createElement('details'); panel.className='oa-identity';
+        panel.innerHTML='<summary>原型演示身份</summary><label>当前成员<select aria-label="切换演示成员"></select></label><p></p><a href="团队管理.html#organizations">配置部门授权 →</a>';
+        document.body.appendChild(panel);
+        function renderIdentity() {
+            panel.querySelector('select').innerHTML=state.members.map(m => '<option value="'+esc(m.id)+'"'+(m.id===state.currentId?' selected':'')+'>'+esc(m.name+' · '+orgName(m.orgId)+(m.admin?' · 管理员':''))+'</option>').join('');
+            panel.querySelector('p').textContent='仅用于原型演示；私人资产不对管理员开放。';
+        }
+        panel.querySelector('select').onchange=e => { commit(s=>{s.currentId=e.target.value;}); location.reload(); };
+        renderIdentity(); window.addEventListener('org-access-change',renderIdentity);
+    });
+})();
+</script>
 <script>
 /* ========== 侧栏 ========== */
 function toggleSection(titleEl) {
@@ -2099,6 +2289,97 @@ function consumeDetail(cId) {
 /* ========== 启动 ========== */
 init();
 </script>
-<script src="assets/org-team-ui.js"></script>
+<script>
+/* 内联自 assets/org-team-ui.js（单文件集成，同步日期 2026-09-16） */
+/* 团队管理页：部门、成员归属及单向授权。 */
+(function () {
+    const A=OrgAccess, e=A.esc;
+    A.bindTeam(M);
+    const section=document.createElement('section'); section.id='organizations'; section.className='card';
+    section.innerHTML='<div class="card-header"><div><div class="card-title">部门管理</div><div class="card-subtitle">平行部门 · 一人一部门 · 资产按类型单向开放</div></div><button class="btn btn-primary btn-sm" id="oa-new-org">＋ 新建部门</button></div><div class="card-body"><div class="oa-note">部门共享资产默认在本部门内可见、可用。跨部门授权不包含私人资产，不授予编辑、删除、下载或发布权限。</div><div class="oa-orgs" id="oa-orgs"></div></div>';
+    document.getElementById('members').before(section);
+    const anchor=document.createElement('a'); anchor.className='anchor-item'; anchor.href='#organizations'; anchor.textContent='部门管理'; anchor.onclick=event=>{event.preventDefault();section.scrollIntoView({behavior:'smooth',block:'start'});};
+    document.querySelector('.anchor-bar').insertBefore(anchor,document.querySelector('[data-anchor="members"]'));
+    const orgField=document.createElement('div'); orgField.className='form-group'; orgField.innerHTML='<label class="form-label" for="oa-add-member-org">所属部门</label><select class="form-input" id="oa-add-member-org"></select>';
+    document.querySelector('#modalInvite .modal-body').appendChild(orgField);
+    const toolbar=document.querySelector('#members .toolbar');
+    const filter=document.createElement('select');filter.className='oa-field';filter.setAttribute('aria-label','按所属部门筛选');toolbar.appendChild(filter);
+    document.querySelector('#members thead tr').insertAdjacentHTML('afterbegin','<th>所属部门</th>');
+    const dialog=document.createElement('dialog');dialog.className='oa-dialog';document.body.appendChild(dialog);
+    function show(title,body,onSave,buttonText) {
+        dialog.innerHTML='<form method="dialog"><h2>'+e(title)+'</h2>'+body+'<div class="oa-error" role="alert"></div><footer><button class="oa-btn" value="cancel">取消</button><button type="button" class="oa-btn primary" id="oa-dialog-save">'+e(buttonText||'保存')+'</button></footer></form>';
+        dialog.querySelector('#oa-dialog-save').onclick=()=>{try{onSave();dialog.close();render();}catch(err){dialog.querySelector('.oa-error').textContent=err.message;}};
+        dialog.showModal();
+    }
+    function editOrg(id) {
+        if(!A.requireAdmin())return; const org=A.state.orgs.find(o=>o.id===id);
+        show(org?'编辑部门':'新建部门','<label>部门名称<input class="oa-field" id="oa-org-name" maxlength="30" value="'+e(org?org.name:'')+'"></label><label>说明<textarea class="oa-field" id="oa-org-desc" maxlength="100">'+e(org?org.desc:'')+'</textarea></label>',()=>{
+            if(!A.requireAdmin())throw Error('无管理权限');
+            const name=dialog.querySelector('#oa-org-name').value.trim(),desc=dialog.querySelector('#oa-org-desc').value.trim();
+            if(!name)throw Error('请输入部门名称');
+            A.commit(s=>{if(s.orgs.some(o=>o.id!==id&&o.name===name))throw Error('部门名称已存在');if(org){const target=s.orgs.find(o=>o.id===id);target.name=name;target.desc=desc;}else{s.orgs.push({id:'org-'+Date.now(),name,desc});}});
+        });
+    }
+    function grants(id) {
+        if(!A.requireAdmin())return;
+        const source=A.state.orgs.find(o=>o.id===id), current=A.state.grants[id]||{};
+        show('允许「'+source.name+'」访问哪些部门的资产','<div class="oa-note">访问方：'+e(source.name)+'。勾选后，该部门所有成员可查看、使用来源部门此类共享资产（包含后续新增）；角色操作权限仍然生效，授权不会反向或传递。</div><div style="overflow:auto"><table><thead><tr><th>资产来源部门</th>'+Object.values(A.types).map(t=>'<th>'+t+'</th>').join('')+'</tr></thead><tbody>'+A.state.orgs.filter(o=>o.id!==id).map(o=>'<tr><td>'+e(o.name)+'</td>'+Object.keys(A.types).map(t=>'<td><input type="checkbox" aria-label="'+e(source.name+'访问'+o.name+A.types[t])+'" data-org="'+e(o.id)+'" data-type="'+t+'" '+((current[o.id]||[]).includes(t)?'checked':'')+'></td>').join('')+'</tr>').join('')+'</tbody></table></div><div class="oa-note" id="oa-grant-preview"></div>',()=>{
+            if(!A.requireAdmin())throw Error('无管理权限');
+            const next={};dialog.querySelectorAll('input:checked').forEach(c=>{(next[c.dataset.org]||(next[c.dataset.org]=[])).push(c.dataset.type);});
+            A.commit(s=>{s.grants[id]=next;});
+        });
+        const preview=()=>{const selected=Array.from(dialog.querySelectorAll('input:checked')).map(c=>A.orgName(c.dataset.org)+'的'+A.types[c.dataset.type]);dialog.querySelector('#oa-grant-preview').textContent='生效预览：'+source.name+'可访问本部门共享资产'+(selected.length?'，以及'+selected.join('、'):'；其他部门资产均未开放')+'。仅自己资产不在授权范围内。';};
+        dialog.querySelectorAll('input').forEach(c=>c.onchange=preview);preview();
+    }
+    function deleteOrg(id){
+        if(!A.requireAdmin())return;
+        const members=A.state.members.filter(m=>m.orgId===id).length,assets=A.list().filter(a=>a.orgId===id).length;
+        if(members||assets){alert('该部门仍有 '+members+' 名成员、'+assets+' 项归属资产，暂不能删除。');return;}
+        show('删除空部门','<p>确认删除「'+e(A.orgName(id))+'」？关联的跨部门授权也将清理。</p>',()=>{if(!A.requireAdmin())throw Error('无管理权限');A.commit(s=>{if(s.members.some(m=>m.orgId===id)||Object.values(s.assets).some(a=>a.orgId===id))throw Error('部门已被使用，请刷新后重试');s.orgs=s.orgs.filter(o=>o.id!==id);delete s.grants[id];Object.values(s.grants).forEach(g=>delete g[id]);});},'确认删除');
+    }
+    window.oaMoveMember=function(id){
+        if(!A.requireAdmin())return;const m=M.members.find(x=>x.id===id);if(!m)return;
+        show('变更成员部门','<p>'+e(m.name)+'的角色和积分额度保持不变，历史资产保留原归属。</p><label>新部门<select id="oa-target-org" class="oa-field">'+A.state.orgs.map(o=>'<option value="'+e(o.id)+'" '+(m.orgId===o.id?'selected':'')+'>'+e(o.name)+'</option>').join('')+'</select></label>',()=>{if(!A.requireAdmin())throw Error('无管理权限');m.orgId=dialog.querySelector('#oa-target-org').value;A.syncTeam(M);renderMemberTable();});
+    };
+    function render(){
+        const admin=!!(A.user()&&A.user().admin);
+        document.getElementById('oa-new-org').disabled=!admin;
+        document.getElementById('oa-orgs').innerHTML=A.state.orgs.map(o=>{
+            const rules=A.state.grants[o.id]||{};
+            const summary=Object.keys(rules).filter(k=>rules[k].length).map(k=>A.orgName(k)+'：'+rules[k].map(t=>A.types[t]).join('、')).join('；');
+            return '<article class="oa-org"><h3>'+e(o.name)+'</h3><p>'+e(o.desc||'暂无说明')+'</p><p>'+A.state.members.filter(m=>m.orgId===o.id).length+' 名成员</p><p>可访问其他部门：'+e(summary||'未配置')+'</p><footer><button class="oa-btn primary" data-grant="'+e(o.id)+'" '+(!admin?'disabled':'')+'>资产授权</button><button class="oa-btn" data-edit="'+e(o.id)+'" '+(!admin?'disabled':'')+'>编辑</button><button class="oa-btn danger" data-delete="'+e(o.id)+'" '+(!admin?'disabled':'')+'>删除</button></footer></article>';
+        }).join('');
+        const old=filter.value;filter.innerHTML='<option value="">全部部门</option>'+A.state.orgs.map(o=>'<option value="'+e(o.id)+'">'+e(o.name)+'</option>').join('');filter.value=old;
+        const select=document.getElementById('oa-add-member-org'),selected=select.value;select.innerHTML='<option value="">请选择部门</option>'+A.state.orgs.map(o=>'<option value="'+e(o.id)+'">'+e(o.name)+'</option>').join('');select.value=selected;
+        document.getElementById('tn-members').textContent=M.members.length;document.getElementById('tn-roles').textContent=M.roles.length;
+        document.querySelectorAll('#members .card-header button,#roles .card-header button,.credit-card button').forEach(b=>b.disabled=!admin);
+    }
+    section.onclick=event=>{const b=event.target.closest('button');if(!b)return;if(b.id==='oa-new-org')editOrg();if(b.dataset.edit)editOrg(b.dataset.edit);if(b.dataset.grant)grants(b.dataset.grant);if(b.dataset.delete)deleteOrg(b.dataset.delete);};
+    const oldRender=window.renderMemberTable;
+    window.renderMemberTable=function(){
+        oldRender();let count=0;
+        document.querySelectorAll('#memberTbody tr').forEach(row=>{
+            const button=row.querySelector('button');if(!button){row.querySelector('td').colSpan=7;return;}
+            const match=button.getAttribute('onclick').match(/'([^']+)'/);const m=match&&M.members.find(m=>m.id===match[1]);if(!m)return;
+            row.insertAdjacentHTML('afterbegin','<td>'+e(A.orgName(m.orgId))+'</td>');
+            row.querySelector('.actions').insertAdjacentHTML('afterbegin','<button class="btn-text" onclick="oaMoveMember(\''+e(m.id)+'\')">变更部门</button>');
+            if(filter.value&&m.orgId!==filter.value)row.hidden=true;else count++;
+            if(!A.user()||!A.user().admin)row.querySelectorAll('button').forEach(b=>b.disabled=true);
+        });
+        document.getElementById('memberCount').textContent='共 '+count+' 人';A.syncTeam(M);render();
+    };
+    filter.onchange=renderMemberTable;
+    ['addMember','confirmChangeRole','confirmAllocCredits','saveRole','deleteRole','submitRecharge','removeMember','openNewRoleModal','editRole','allocMemberCredits','changeRole'].forEach(name=>{
+        const fn=window[name];window[name]=function(){
+            if(!A.requireAdmin())return;
+            if(name==='removeMember'&&A.state.members.find(m=>m.id===arguments[0]&&m.admin)){alert('租户管理员不能被移除。');return;}
+            if(name==='addMember'&&!document.getElementById('oa-add-member-org').value){toast('请选择所属部门','error');return;}
+            return fn.apply(this,arguments);
+        };
+    });
+    render();init();
+    window.addEventListener('org-access-change',()=>{A.bindTeam(M);oldRender();renderMemberTable();renderRoleCards();updateCreditOverview();});
+})();
+</script>
 </body>
 </html>
