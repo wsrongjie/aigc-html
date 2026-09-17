@@ -1100,6 +1100,7 @@
             <div class="nav-item sub" data-view="view-role-config"><span class="nav-icon">●</span> 角色模板</div>
             <div class="nav-item sub" data-view="view-scene-config"><span class="nav-icon">●</span> 场景模板</div>
             <div class="nav-item sub" data-view="view-workflow-config"><span class="nav-icon">●</span> 工作流模板</div>
+            <div class="nav-item sub" data-view="view-prop-config"><span class="nav-icon">●</span> 道具模板</div>
         </div>
         <div class="nav-item" data-view="view-tasks"><span class="nav-icon">📋</span> 任务统计</div>
         <div class="nav-item" data-view="view-billing"><span class="nav-icon">💰</span> 积分与账单</div>
@@ -1374,6 +1375,22 @@
             </div>
         </div>
 
+        <!-- 视图：道具模板 -->
+        <div class="panel" id="view-prop-config">
+            <div class="section-title">道具模板</div>
+            <div class="table-wrap">
+                <div class="table-toolbar">
+                    <span style="font-weight:600;font-size:13px">业务内置道具模板</span>
+                    <span style="font-size:12px;color:var(--text-muted)">↑↓ 调整即维护前台展示顺序，移动后即时保存生效</span>
+                    <button class="btn btn-primary btn-sm" onclick="openPropModal()" style="margin-left:auto">+ 新增模板</button>
+                </div>
+                <table>
+                    <thead><tr><th>模板名称</th><th>产品类别</th><th>适用行业</th><th>标签</th><th>四视图来源</th><th>状态</th><th>使用次数</th><th style="width:70px;text-align:center" title="点击开关开启/关闭 hot 标签">🔥标签</th><th>操作</th></tr></thead>
+                    <tbody id="propConfigTable"></tbody>
+                </table>
+            </div>
+        </div>
+
         <!-- 视图：商业化配置 -->
         <div class="panel" id="view-credit-config">
             <div class="section-title">积分账户规则</div>
@@ -1615,6 +1632,44 @@
         <div class="modal-footer">
             <button class="btn" onclick="closeTemplateModal()">取消</button>
             <button class="btn btn-primary" onclick="saveTemplateConfig()">保存</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal：新增/编辑道具模板 -->
+<div class="modal-overlay" id="propModalOverlay">
+    <div class="modal" id="propModal">
+        <div class="modal-header">
+            <span class="modal-title" id="propModalTitle">新增模板</span>
+            <button class="modal-close" onclick="closePropModal()">×</button>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
+            <div class="form-group"><label class="kv-label">模板名称 <span style="color:red">*</span></label><input class="filter-input" id="propName" style="width:100%" placeholder="例如：植萃保湿精华"></div>
+            <div class="form-group"><label class="kv-label">产品类别 <span style="color:red">*</span></label>
+                <select class="filter-select" id="propCategory" style="width:100%">
+                    <option value="">请选择产品类别</option>
+                    <option value="面部精华">面部精华</option>
+                    <option value="保温杯">保温杯</option>
+                    <option value="咖啡豆">咖啡豆</option>
+                    <option value="蓝牙耳机">蓝牙耳机</option>
+                </select>
+            </div>
+            <div class="form-group"><label class="kv-label">适用行业 <span style="color:red">*</span></label><input class="filter-input" id="propIndustry" style="width:100%" placeholder="例如：美妆个护"></div>
+            <div class="form-group"><label class="kv-label">标签 <span style="color:red">*</span></label><input class="filter-input" id="propTags" style="width:100%" placeholder="多个标签用逗号分隔"></div>
+            <div class="form-group" style="grid-column:1/-1"><label class="kv-label">四面视图 <span style="color:red">*</span> <span style="font-size:11px;font-weight:400;color:var(--text-muted)">正面 / 背面 / 左侧 / 右侧各 1 张，JPG / PNG ≤ 10MB，自动压缩后保存</span></label>
+                <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px" id="propViewsUpload"></div>
+                <div id="propViewsError" style="font-size:12px;color:red;margin-top:6px"></div>
+            </div>
+            <div class="form-group"><label class="kv-label">使用次数</label><input class="filter-input" id="propUsed" style="width:100%" type="number" min="0" value="0"></div>
+        </div>
+        <div class="form-group" style="margin-bottom:14px">
+            <label class="kv-label">备注</label>
+            <textarea id="propRemark" style="width:100%;height:60px;padding:10px 12px;border:1px solid var(--border);border-radius:6px;font-size:13px;resize:none;line-height:1.5" placeholder="备注信息（非必填）"></textarea>
+        </div>
+        <input type="hidden" id="propEditIndex">
+        <div class="modal-footer">
+            <button class="btn" onclick="closePropModal()">取消</button>
+            <button class="btn btn-primary" onclick="savePropConfig()">保存</button>
         </div>
     </div>
 </div>
@@ -2095,7 +2150,7 @@ function switchView(viewId) {
         document.querySelector('.nav-parent[data-toggle="business-config"]').classList.add('active');
         toggleBusinessMenu(true);
     }
-    var marketViews = ['view-template-config','view-voice-config','view-role-config','view-scene-config','view-workflow-config'];
+    var marketViews = ['view-template-config','view-voice-config','view-role-config','view-scene-config','view-workflow-config','view-prop-config'];
     var inMarket = marketViews.indexOf(viewId) !== -1;
     if (inMarket) {
         document.querySelector('.nav-parent[data-toggle="market-config"]').classList.add('active');
@@ -2120,6 +2175,7 @@ function switchView(viewId) {
         'view-template-config':'市场配置 / 视频模板',
         'view-scene-config':'市场配置 / 场景模板',
         'view-workflow-config':'市场配置 / 工作流模板',
+        'view-prop-config':'市场配置 / 道具模板',
         'view-audit':'操作审计'
     };
     document.getElementById('topbarSection').textContent = titles[viewId] || '';
@@ -2161,6 +2217,7 @@ function refreshView(viewId) {
     else if (viewId === 'view-template-config') renderTemplates();
     else if (viewId === 'view-scene-config') renderSceneConfigs();
     else if (viewId === 'view-workflow-config') renderWorkflowConfigs();
+    else if (viewId === 'view-prop-config') renderPropTemplates();
     else if (viewId === 'view-audit') renderAudit();
 }
 
@@ -2513,6 +2570,7 @@ function initData() {
         AppState.concurrencyProducts = (saved.concurrencyProducts || AppState.concurrencyProducts).map(function(p) { return { months:Math.max(1, Number(p.months) || 1), price:Math.max(1, Number(p.price) || 1), gift:Math.max(0, Number(p.gift) || 0), isDefault:!!p.isDefault, status:p.status === '停用' ? '停用' : '启用' }; });
         AppState.pricingRules = normalizePricingRules(saved.pricingRules || AppState.pricingRules);
         AppState.templateConfigs = saved.templateConfigs || AppState.templateConfigs;
+        AppState.propTemplateConfigs = saved.propTemplateConfigs || AppState.propTemplateConfigs;
         AppState.sceneConfigs = saved.sceneConfigs || AppState.sceneConfigs;
         AppState.workflowTemplates = saved.workflowTemplates || AppState.workflowTemplates;
         AppState.prompts = mergePromptDefaults(saved.prompts || []);
@@ -2674,6 +2732,11 @@ var AppState = {
         { name:'风险提示模板', tags:'风险揭示,合规提示', industry:'金融投顾', used:1123, status:'启用', remark:'', workflow:'portrait_talking', promptConfig:'你是合规风控专家，生成风险提示内容，语言严谨专业。', templateFile:'risk_notice_v1.zip', firstFrameFile:'' },
         { name:'热点快评模板', tags:'热点事件,快讯点评', industry:'金融投顾', used:678, status:'启用', remark:'', workflow:'portrait_talking', promptConfig:'你是财经快讯评论员，对热点事件进行快速点评分析。', templateFile:'hotspot_comment_v2.zip', firstFrameFile:'hotspot_first_frame.png' },
         { name:'服务引导模板', tags:'客户服务,操作引导', industry:'通用', used:0, status:'停用', remark:'', workflow:'portrait_talking', promptConfig:'', templateFile:'', firstFrameFile:'' }
+    ],
+    propTemplateConfigs: [
+        { name:'植萃保湿精华', category:'面部精华', industry:'美妆个护', tags:'产品展示,口播伴侣,四视图', remark:'30ml 玻璃瓶，浅绿色瓶身。', propSet:'serum', used:1654, status:'启用', hot:true },
+        { name:'日常随行保温杯', category:'保温杯', industry:'家居日用', tags:'产品展示,口播伴侣,四视图', remark:'500ml 雾蓝色杯身。', propSet:'cup', used:1290, status:'启用' },
+        { name:'晨光拼配咖啡', category:'咖啡豆', industry:'食品饮料', tags:'产品展示,口播伴侣,四视图', remark:'250g 袋装咖啡。', propSet:'coffee', used:978, status:'启用' }
     ],
     sceneConfigs: [
         { id:'scene-modern-studio', name:'现代财经演播室', industry:'证券', ratio:'9:16', place:'演播室', scene:'市场解读', tags:['市场解读','数据大屏','专业'], desc:'背景包含行情图表与蓝色数据屏，适合市场收评和产品解读。', imageOriginal:'', imageExample:'', used:2134, status:'使用中' },
@@ -7008,6 +7071,311 @@ function copyTemplate(index) {
     toast('已复制为「' + copy.name + '」，已置顶', 'success');
 }
 
+// ===========================
+// 道具模板配置
+// ===========================
+var PROP_SET_LABELS = { serum:'示例图集 serum（精华）', cup:'示例图集 cup（保温杯）', earbuds:'示例图集 earbuds（耳机）', coffee:'示例图集 coffee（咖啡）' };
+
+function renderPropTemplates() {
+    var html = '';
+    for (var i = 0; i < AppState.propTemplateConfigs.length; i++) {
+        var t = AppState.propTemplateConfigs[i];
+        var stCls = t.status === '启用' ? 'status-active' : 'status-stopped';
+        var statusLabel = t.status === '启用' ? '已上架' : '已下架';
+        var tagsHtml = (t.tags || '').split(',').filter(function(x){return x.trim()}).map(function(x){return '<span class="chip">' + x.trim() + '</span> '}).join('');
+        var setLabel = PROP_SET_LABELS[t.propSet] || t.propSet || '<span style="color:var(--text-muted)">-</span>';
+        var viewsCell = (t.images && t.images.front && t.images.back && t.images.left && t.images.right)
+            ? ['front','back','left','right'].map(function(a) { return '<img src="' + t.images[a] + '" style="width:32px;height:32px;object-fit:contain;background:#f8fafc;border:1px solid var(--border);border-radius:6px;margin-right:4px" alt="">'; }).join('')
+            : setLabel;
+        html += '<tr>' +
+            '<td><strong>' + escapeHtml(t.name) + '</strong></td>' +
+            '<td>' + escapeHtml(t.category || '-') + '</td>' +
+            '<td>' + escapeHtml(t.industry || '-') + '</td>' +
+            '<td>' + (tagsHtml || '<span style="color:var(--text-muted)">-</span>') + '</td>' +
+            '<td>' + viewsCell + '</td>' +
+            '<td><span class="status ' + stCls + '">' + statusLabel + '</span></td>' +
+            '<td><strong>' + (t.used || 0).toLocaleString() + '</strong></td>' +
+            '<td style="text-align:center"><label class="switch" title="点击开启/关闭 hot 标签"><input type="checkbox" ' + (t.hot === true ? 'checked' : '') + ' onchange="togglePropHot(' + i + ', this)"><span class="switch-slider"></span></label></td>' +
+            '<td class="template-actions">' +
+                (i > 0 ? '<button class="btn btn-xs" onclick="movePropTemplate(' + i + ', -1)" title="上移">↑</button> ' : '') +
+                (i < AppState.propTemplateConfigs.length - 1 ? '<button class="btn btn-xs" onclick="movePropTemplate(' + i + ', 1)" title="下移">↓</button> ' : '') +
+                '<button class="btn btn-xs btn-primary" onclick="openPropPreview(' + i + ')" title="预览">▶ 预览</button> ' +
+                '<button class="btn btn-xs" onclick="openPropModal(' + i + ')">编辑</button> ' +
+                '<button class="btn btn-xs" onclick="copyProp(' + i + ')" title="复制为副本">复制</button> ' +
+                '<button class="btn btn-xs ' + (t.status === '启用' ? '' : 'btn-primary') + '" onclick="confirmToggleProp(' + i + ')">' + (t.status === '启用' ? '下架' : '上架') + '</button> ' +
+                '<button class="btn btn-xs btn-danger" onclick="confirmDeleteProp(' + i + ')">删除</button>' +
+            '</td>' +
+        '</tr>';
+    }
+    document.getElementById('propConfigTable').innerHTML = html;
+}
+
+function movePropTemplate(index, dir) {
+    var list = AppState.propTemplateConfigs;
+    var target = index + dir;
+    if (target < 0 || target >= list.length) return;
+    var t = list[index];
+    if (!t) return;
+    list.splice(index, 1);
+    list.splice(target, 0, t);
+    addAuditLog('配置', t.name, '第' + (index + 1) + '位', '第' + (target + 1) + '位', '调整道具模板排序');
+    saveData();
+    renderPropTemplates();
+    toast('道具模板「' + t.name + '」已' + (dir < 0 ? '上移' : '下移'), 'success');
+}
+
+function togglePropHot(index, el) {
+    var t = AppState.propTemplateConfigs[index];
+    if (!t) return;
+    var on = !!el.checked;
+    if (on === (t.hot === true)) return;
+    t.hot = on;
+    addAuditLog('配置', t.name, on ? '关闭' : '开启', on ? '开启' : '关闭', '调整道具模板 hot 标签');
+    saveData();
+    toast('道具模板「' + t.name + '」已' + (on ? '开启' : '关闭') + ' hot 标签', 'success');
+}
+
+function confirmToggleProp(index) {
+    var t = AppState.propTemplateConfigs[index];
+    if (!t) return;
+    var action = t.status === '启用' ? '下架' : '上架';
+    showConfirm(
+        action + '道具模板',
+        '确定要' + action + '道具模板「' + t.name + '」吗？',
+        '⚠️',
+        function() { togglePropStatus(index); }
+    );
+}
+
+function togglePropStatus(index) {
+    var t = AppState.propTemplateConfigs[index];
+    if (!t) return;
+    var before = t.status;
+    t.status = before === '启用' ? '停用' : '启用';
+    addAuditLog('配置', t.name, before === '启用' ? '已上架' : '已下架', t.status === '启用' ? '已上架' : '已下架', '调整道具模板状态');
+    saveData();
+    renderPropTemplates();
+    toast('道具模板「' + t.name + '」已' + (t.status === '启用' ? '上架' : '下架'), 'success');
+}
+
+function confirmDeleteProp(index) {
+    var t = AppState.propTemplateConfigs[index];
+    if (!t) return;
+    showConfirm(
+        '删除道具模板',
+        '确定要删除道具模板「' + t.name + '」吗？此操作不可撤销。',
+        '⚠️',
+        function() { deleteProp(index); }
+    );
+}
+
+function deleteProp(index) {
+    var t = AppState.propTemplateConfigs[index];
+    if (!t) return;
+    var name = t.name;
+    AppState.propTemplateConfigs.splice(index, 1);
+    addAuditLog('配置', name, '删除', '-', '删除道具模板');
+    saveData();
+    renderPropTemplates();
+    toast('道具模板「' + name + '」已删除', 'success');
+}
+
+function copyProp(index) {
+    var src = AppState.propTemplateConfigs[index];
+    if (!src) return;
+    var copy = JSON.parse(JSON.stringify(src));
+    copy.name = (src.name || '') + '_副本';
+    AppState.propTemplateConfigs.unshift(copy);
+    addAuditLog('配置', copy.name, '-', '-', '复制道具模板：由「' + src.name + '」复制');
+    saveData();
+    renderPropTemplates();
+    toast('已复制为「' + copy.name + '」，已置顶', 'success');
+}
+
+var _propViews = {};
+var PROP_VIEW_ANGLES = [['front','正面'],['back','背面'],['left','左侧'],['right','右侧']];
+
+function renderPropViewsUpload() {
+    var box = document.getElementById('propViewsUpload');
+    if (!box) return;
+    box.innerHTML = PROP_VIEW_ANGLES.map(function(pair) {
+        var angle = pair[0], label = pair[1];
+        var src = _propViews[angle];
+        return '<div style="border:1px solid var(--border);border-radius:8px;padding:10px;text-align:center">' +
+            (src ? '<img src="' + src + '" style="width:100%;height:72px;object-fit:contain;background:#f8fafc;border-radius:6px" alt="' + label + '">' : '<div style="height:72px;border-radius:6px;background:#f4f4f5;display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--text-muted)">未上传</div>') +
+            '<div style="font-size:12px;font-weight:600;margin:6px 0">' + label + ' <span style="color:red">*</span></div>' +
+            '<label class="btn btn-sm" style="cursor:pointer">' + (src ? '替换' : '选择') +
+                '<input type="file" accept="image/jpeg,image/png" style="display:none" onchange="onPropViewFile(\'' + angle + '\', this)">' +
+            '</label>' +
+            (src ? ' <button class="btn btn-sm" onclick="removePropView(\'' + angle + '\')">移除</button>' : '') +
+        '</div>';
+    }).join('');
+    document.getElementById('propViewsError').textContent = '';
+}
+
+function onPropViewFile(angle, input) {
+    var file = input.files ? input.files[0] : null;
+    input.value = '';
+    if (!file) return;
+    if (['image/jpeg','image/png'].indexOf(file.type) < 0) {
+        document.getElementById('propViewsError').textContent = '请上传 JPG 或 PNG 图片。';
+        return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+        document.getElementById('propViewsError').textContent = '图片超过 10MB，请选择较小的图片。';
+        return;
+    }
+    compressPropImage(file).then(function(dataUrl) {
+        _propViews[angle] = dataUrl;
+        renderPropViewsUpload();
+    }).catch(function() {
+        document.getElementById('propViewsError').textContent = '图片无法读取，请换一张有效的 JPG 或 PNG 图片。';
+    });
+}
+
+function compressPropImage(file) {
+    return new Promise(function(resolve, reject) {
+        var url = URL.createObjectURL(file);
+        var img = new Image();
+        img.onload = function() {
+            try {
+                var ratio = Math.min(1, 1000 / Math.max(img.naturalWidth, img.naturalHeight));
+                var canvas = document.createElement('canvas');
+                canvas.width = Math.max(1, Math.round(img.naturalWidth * ratio));
+                canvas.height = Math.max(1, Math.round(img.naturalHeight * ratio));
+                var ctx = canvas.getContext('2d');
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                URL.revokeObjectURL(url);
+                resolve(canvas.toDataURL('image/jpeg', 0.8));
+            } catch(e) {
+                URL.revokeObjectURL(url);
+                reject(e);
+            }
+        };
+        img.onerror = function() { URL.revokeObjectURL(url); reject(new Error('decode')); };
+        img.src = url;
+    });
+}
+
+function removePropView(angle) {
+    delete _propViews[angle];
+    renderPropViewsUpload();
+}
+
+function openPropModal(editIndex) {
+    var isEdit = typeof editIndex === 'number';
+    document.getElementById('propModalTitle').textContent = isEdit ? '编辑道具模板' : '新增道具模板';
+    document.getElementById('propEditIndex').value = isEdit ? editIndex : '';
+    if (isEdit) {
+        var t = AppState.propTemplateConfigs[editIndex];
+        if (!t) return;
+        document.getElementById('propName').value = t.name || '';
+        document.getElementById('propCategory').value = t.category || '';
+        document.getElementById('propIndustry').value = t.industry || '';
+        document.getElementById('propTags').value = t.tags || '';
+        document.getElementById('propRemark').value = t.remark || '';
+        document.getElementById('propUsed').value = t.used || 0;
+        _propViews = Object.assign({}, t.images || {});
+    } else {
+        document.getElementById('propName').value = '';
+        document.getElementById('propCategory').value = '';
+        document.getElementById('propIndustry').value = '';
+        document.getElementById('propTags').value = '';
+        document.getElementById('propRemark').value = '';
+        document.getElementById('propUsed').value = 0;
+        _propViews = {};
+    }
+    renderPropViewsUpload();
+    document.getElementById('propModalOverlay').classList.add('show');
+}
+
+function closePropModal() {
+    document.getElementById('propModalOverlay').classList.remove('show');
+}
+
+function savePropConfig() {
+    var editIndex = document.getElementById('propEditIndex').value;
+    var name = document.getElementById('propName').value.trim();
+    var category = document.getElementById('propCategory').value;
+    var industry = document.getElementById('propIndustry').value.trim();
+    var tags = document.getElementById('propTags').value.trim();
+    if (!name || !category || !industry || !tags) {
+        toast('请填写模板名称、产品类别、适用行业和标签', 'error');
+        return;
+    }
+    var missing = PROP_VIEW_ANGLES.filter(function(pair) { return !_propViews[pair[0]]; });
+    if (missing.length) {
+        document.getElementById('propViewsError').textContent = '请补齐' + missing.map(function(pair) { return pair[1]; }).join('、') + '图片，四张全部上传后才能保存。';
+        return;
+    }
+    var images = { front:_propViews.front, back:_propViews.back, left:_propViews.left, right:_propViews.right };
+    if (editIndex !== '') {
+        var t = AppState.propTemplateConfigs[parseInt(editIndex)];
+        if (!t) return;
+        t.name = name;
+        t.category = category;
+        t.industry = industry;
+        t.tags = tags;
+        t.images = images;
+        t.used = parseInt(document.getElementById('propUsed').value) || 0;
+        t.remark = document.getElementById('propRemark').value.trim();
+        addAuditLog('配置', t.name, '-', '-', '编辑道具模板');
+    } else {
+        AppState.propTemplateConfigs.push({
+            name: name,
+            category: category,
+            industry: industry,
+            tags: tags,
+            images: images,
+            used: parseInt(document.getElementById('propUsed').value) || 0,
+            status: '启用',
+            remark: document.getElementById('propRemark').value.trim()
+        });
+        addAuditLog('配置', name, '-', '-', '新增道具模板');
+    }
+    try {
+        saveData();
+    } catch(e) {
+        toast('保存失败，浏览器存储空间不足，请压缩图片后重试', 'error');
+        return;
+    }
+    closePropModal();
+    renderPropTemplates();
+    toast('道具模板「' + name + '」已' + (editIndex !== '' ? '更新' : '创建'), 'success');
+}
+
+function openPropPreview(index) {
+    var p = AppState.propTemplateConfigs[index];
+    if (!p) return;
+    document.getElementById('templatePreviewTitle').textContent = '预览道具模板：' + p.name;
+    var video = document.getElementById('templatePreviewVideo');
+    try { video.pause(); } catch(e) {}
+    video.removeAttribute('src');
+    if (video.closest('div')) video.closest('div').style.display = 'none';
+    var setLabel = PROP_SET_LABELS[p.propSet] || p.propSet || '-';
+    var viewsHtml = [['front','正面'],['back','背面'],['left','左侧'],['right','右侧']].map(function(pair) {
+        var src = (p.images && p.images[pair[0]]) || '';
+        return '<div style="border:1px dashed var(--border);border-radius:8px;padding:10px 6px;text-align:center;font-size:12px;color:var(--text-muted)">' +
+            (src ? '<img src="' + src + '" style="width:100%;height:96px;object-fit:contain;background:#f8fafc;border-radius:6px" alt="' + pair[1] + '">' : '<div style="height:96px;display:flex;align-items:center;justify-content:center">示例占位</div>') +
+            '<div style="margin-top:6px">' + pair[1] + '</div></div>';
+    }).join('');
+    document.getElementById('templatePreviewInfo').innerHTML =
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px 24px;margin-bottom:12px">' +
+        '<span>模板名称：<strong>' + escapeHtml(p.name) + '</strong></span>' +
+        '<span>产品类别：<strong>' + escapeHtml(p.category) + '</strong></span>' +
+        '<span>适用行业：<strong>' + escapeHtml(p.industry) + '</strong></span>' +
+        '<span>使用次数：<strong>' + (p.used || 0).toLocaleString() + '</strong></span>' +
+        '<span>标签：<strong>' + escapeHtml(p.tags) + '</strong></span>' +
+        '<span>四视图来源：<strong>' + escapeHtml(setLabel) + '</strong></span>' +
+        '</div>' +
+        '<div style="font-size:12px;color:var(--text-muted);margin-bottom:8px">四面视图（正面 / 背面 / 左侧 / 右侧）</div>' +
+        '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">' + viewsHtml + '</div>' +
+        (p.remark ? '<div style="font-size:12px;color:var(--text-muted);margin-top:10px">备注：' + escapeHtml(p.remark) + '</div>' : '');
+    document.getElementById('templatePreviewOverlay').classList.add('show');
+}
+
 function openTemplatePreview(index) {
     var t = AppState.templateConfigs[index];
     if (!t) return;
@@ -7015,6 +7383,7 @@ function openTemplatePreview(index) {
     var video = document.getElementById('templatePreviewVideo');
     video.src = '';
     video.load();
+    if (video.closest('div')) video.closest('div').style.display = '';
     var wfName = '-';
     var varCount = 0;
     if (t.workflowTemplateId) {

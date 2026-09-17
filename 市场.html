@@ -529,6 +529,91 @@
             align-items: center;
             justify-content: center;
         }
+        .prop-visual {
+            background: linear-gradient(135deg,#fffbeb 0%,#fef3c7 55%,#fde68a 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .prop-emoji {
+            width: 84px;
+            height: 84px;
+            border-radius: 22px;
+            background: linear-gradient(135deg,#ffffff 0%,#fef9c3 100%);
+            box-shadow: 0 10px 24px rgba(217,119,6,.22);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 46px;
+        }
+        .prop-views {
+            display: flex;
+            gap: 6px;
+        }
+        .prop-views span {
+            min-width: 30px;
+            height: 22px;
+            padding: 0 6px;
+            border-radius: 7px;
+            background: rgba(255,255,255,.9);
+            color: #92400e;
+            font-size: 11px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .prop-preview-grid {
+            width: 100%;
+            max-width: 276px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .prop-pv-main {
+            height: 168px;
+            border-radius: 14px;
+            background: linear-gradient(135deg,#fffbeb 0%,#fef3c7 55%,#fde68a 100%);
+            box-shadow: 0 10px 24px rgba(217,119,6,.20);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 72px;
+            position: relative;
+            overflow: hidden;
+        }
+        .prop-pv-tag {
+            position: absolute;
+            left: 10px;
+            top: 10px;
+            padding: 2px 8px;
+            border-radius: 7px;
+            background: rgba(255,255,255,.92);
+            color: #92400e;
+            font-size: 11px;
+            font-weight: 700;
+        }
+        .prop-pv-sub {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 8px;
+        }
+        .prop-pv-cell {
+            height: 76px;
+            border-radius: 12px;
+            background: #fff;
+            border: 1px solid #fde68a;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 2px;
+            font-size: 24px;
+            color: #92400e;
+        }
+        .prop-pv-cell small { font-size: 11px; font-weight: 700; }
         .phone-preview {
             width: 78px;
             height: 128px;
@@ -1404,6 +1489,7 @@
                 <button class="tab-btn" data-type="voice" onclick="switchType('voice')">音色模板</button>
                 <button class="tab-btn" data-type="role" onclick="switchType('role')">角色模板</button>
                 <button class="tab-btn" data-type="scene" onclick="switchType('scene')">场景模板</button>
+                <button class="tab-btn" data-type="prop" onclick="switchType('prop')">道具模板</button>
             </div>
             <label class="search-box">
                 <span>⌕</span>
@@ -1596,6 +1682,7 @@
         if (children) children.classList.toggle('hidden');
     }
     const ADDED_KEY = "marketAddedAssets";
+    const PROP_LIBRARY_KEY = "propAssetLibraryV1";
     const SUBJECT_LIBRARY_KEY = "subjectLibraryItems";
     const SAME_SCENE_KEY = "aigc_subject_scenes";
 
@@ -1924,10 +2011,68 @@
             ],
             bg: "现代财经演播室",
             used: 0
+        },
+        {
+            id: "tpl-prop-serum",
+            type: "prop",
+            title: "植萃保湿精华",
+            industry: "美妆个护",
+            category: "面部精华",
+            meta: "面部精华 · 四视图齐全",
+            scene: "产品展示",
+            emoji: "🧴",
+            hot: true,
+            tags: ["产品展示", "口播伴侣", "四视图"],
+            desc: "30ml 玻璃瓶浅绿色瓶身，含正面、背面、左侧、右侧四面视图，适合美妆产品口播展示。",
+            remarks: "30ml 玻璃瓶，浅绿色瓶身。",
+            score: 95,
+            favs: 108,
+            createdAt: "2026-06-22",
+            includes: "含正面 / 背面 / 左侧 / 右侧四面视图，加入后同步至道具资产库",
+            propSet: "serum",
+            used: 1654
+        },
+        {
+            id: "tpl-prop-cup",
+            type: "prop",
+            title: "日常随行保温杯",
+            industry: "家居日用",
+            category: "保温杯",
+            meta: "保温杯 · 四视图齐全",
+            scene: "产品展示",
+            emoji: "🥤",
+            tags: ["产品展示", "口播伴侣", "四视图"],
+            desc: "500ml 雾蓝色杯身，含正面、背面、左侧、右侧四面视图，适合日用品带货口播展示。",
+            remarks: "500ml 雾蓝色杯身。",
+            score: 92,
+            favs: 86,
+            createdAt: "2026-06-18",
+            includes: "含正面 / 背面 / 左侧 / 右侧四面视图，加入后同步至道具资产库",
+            propSet: "cup",
+            used: 1290
+        },
+        {
+            id: "tpl-prop-coffee",
+            type: "prop",
+            title: "晨光拼配咖啡",
+            industry: "食品饮料",
+            category: "咖啡豆",
+            meta: "咖啡豆 · 四视图齐全",
+            scene: "产品展示",
+            emoji: "☕",
+            tags: ["产品展示", "口播伴侣", "四视图"],
+            desc: "250g 袋装咖啡，含正面、背面、左侧、右侧四面视图，适合食品饮料产品口播展示。",
+            remarks: "250g 袋装咖啡。",
+            score: 90,
+            favs: 71,
+            createdAt: "2026-06-15",
+            includes: "含正面 / 背面 / 左侧 / 右侧四面视图，加入后同步至道具资产库",
+            propSet: "coffee",
+            used: 978
         }
     ];
 
-        const typeLabels = { voice: "音色模板", scene: "场景模板", template: "视频模板", role: "角色模板" };
+        const typeLabels = { voice: "音色模板", scene: "场景模板", template: "视频模板", role: "角色模板", prop: "道具模板" };
     const attrSchemas = {
         voice: [
             { key: "gender", label: "性别" },
@@ -1944,6 +2089,9 @@
         template: [
             { key: "resolution", label: "分辨率" },
             { key: "ratio", label: "画幅" }
+        ],
+        prop: [
+            { key: "category", label: "产品类别" }
         ]
     };
     const builtInRoles = [
@@ -1999,7 +2147,7 @@
     function isAdded(id) { return getAdded().indexOf(id) >= 0; }
 
     function getCollectionFilterLabel() {
-        return state.type === "template" ? "已收藏" : "已加入资产库";
+        return (state.type === "template" || state.type === "prop") ? "已收藏" : "已加入资产库";
     }
 
     function handleSearch(value) {
@@ -2222,25 +2370,27 @@
         const added = isAdded(item.id);
         const safeId = jsString(item.id);
         const usedHtml = '<span class="used-badge">📋 ' + item.used.toLocaleString('zh-CN') + '</span>';
-        const hot = item.type === "template" && item.hot === true;
+        const hot = (item.type === "template" || item.type === "prop") && item.hot === true;
         const visual = item.type === "voice" ? "" :
-            '<div class="resource-visual ' + (item.type === "scene" ? 'scene-visual ' + item.visual : (item.type === "role" ? 'role-visual' : 'template-visual')) + '">' +
+            '<div class="resource-visual ' + (item.type === "scene" ? 'scene-visual ' + item.visual : (item.type === "role" ? 'role-visual' : (item.type === "prop" ? 'prop-visual' : 'template-visual'))) + '">' +
                 '<span class="official-badge">官方资源</span>' +
                 (hot ? '<span class="hot-badge">🔥 HOT</span>' : '') +
                 usedHtml +
                 buildVisual(item) +
             '</div>';
         const badge = item.type === "voice" ? '<div class="resource-badge-row"><span class="resource-badge">官方资源</span>' + usedHtml + '</div>' : "";
-        const primaryAction = item.type === "template"
+        const primaryAction = (item.type === "template" || item.type === "prop")
             ? '<button class="btn ' + (added ? 'btn-added' : '') + '" onclick="toggleAsset(\'' + safeId + '\', event)">' + (added ? "已收藏" : "收藏") + '</button>'
             : '<button class="btn" onclick="' + (item.type === "voice" ? 'toggleVoicePreview(\'' + safeId + '\')' : 'previewResource(\'' + safeId + '\')') + '">' + (item.type === "voice" ? (playingVoiceId === item.id ? "停止" : "试听") : "预览") + '</button>';
         const secondaryAction = item.type === "template"
             ? '<button class="btn btn-primary" onclick="' + (item.isMultiSegment ? 'openWFCanvasPage' : 'openSameModal') + '(\'' + safeId + '\', event)">' + (item.isMultiSegment ? '爆款复刻' : '爆款复刻') + '</button>'
+            : item.type === "prop"
+            ? '<button class="btn btn-primary" onclick="propLibraryAction(\'' + safeId + '\', event)">' + (isPropInLibrary(item.id) ? "前往道具资产" : "加入道具库") + '</button>'
             : '<button class="btn ' + (added ? 'btn-added' : 'btn-primary') + '" onclick="toggleAsset(\'' + safeId + '\')">' + (added ? "移出资产库" : "加入资产库") + '</button>';
-        const cardAttrs = item.type === "template"
+        const cardAttrs = (item.type === "template" || item.type === "prop")
             ? ' onclick="previewResource(\'' + safeId + '\')" role="button" tabindex="0" onkeydown="handleTemplateCardKey(event,\'' + safeId + '\')"'
             : "";
-        return '<article class="resource-card' + (item.type === "voice" ? ' voice-card' : '') + (item.type === "scene" ? ' scene-card' : '') + (item.type === "template" ? ' card-clickable' : '') + '"' + cardAttrs + '>' +
+        return '<article class="resource-card' + (item.type === "voice" ? ' voice-card' : '') + (item.type === "scene" ? ' scene-card' : '') + ((item.type === "template" || item.type === "prop") ? ' card-clickable' : '') + '"' + cardAttrs + '>' +
             visual +
             '<div class="resource-body">' +
                 badge +
@@ -2269,6 +2419,9 @@
         if (item.type === "role") {
             return '<div class="role-avatar"><em>' + (item.emoji || "👤") + '</em></div>';
         }
+        if (item.type === "prop") {
+            return '<div class="prop-emoji">' + (item.emoji || "🧴") + '</div><div class="prop-views"><span>正面</span><span>背面</span><span>左侧</span><span>右侧</span></div>';
+        }
         return '<div class="phone-preview"></div><div class="template-map"><div class="template-step"></div><div class="template-step"></div><div class="template-step"></div></div>';
     }
 
@@ -2277,6 +2430,7 @@
         if (item.type === "role") return [item.gender, item.style];
         if (item.type === "scene") return [item.ratio, item.place];
         if (item.type === "template") return [item.resolution, item.ratio];
+        if (item.type === "prop") return [item.category, "四视图 4/4"];
         return item.tags;
     }
 
@@ -2340,7 +2494,7 @@
         writeList(ADDED_KEY, added);
         if (item.type === "scene") addSceneToLibrary(item);
         if (item.type === "role") addRoleToLibrary(item);
-        if (item.type === "template") {
+        if (item.type === "template" || item.type === "prop") {
             showToast("已收藏", item.title + " 已加入收藏");
         } else {
             showToast("已加入资产库", item.title + " 已复制到我的" + typeLabels[item.type]);
@@ -2355,7 +2509,7 @@
         writeList(ADDED_KEY, added);
         if (item.type === "scene") removeSceneFromLibrary(item);
         if (item.type === "role") removeRoleFromLibrary(item);
-        if (item.type === "template") {
+        if (item.type === "template" || item.type === "prop") {
             showToast("已取消收藏", item.title + " 已从收藏中移除");
         } else {
             showToast("已移出资产库", item.title + " 已从我的" + typeLabels[item.type] + "移除");
@@ -2416,6 +2570,83 @@
     function removeRoleFromLibrary(item) {
         const roleId = "market-" + item.id;
         writeList(SUBJECT_LIBRARY_KEY, readList(SUBJECT_LIBRARY_KEY).filter(subject => subject.id !== roleId));
+    }
+
+    function propImagePath(set, angle) {
+        return "assets/props/" + set + "-" + angle + ".svg";
+    }
+
+    function readPropLibrary() {
+        try {
+            const raw = localStorage.getItem(PROP_LIBRARY_KEY);
+            if (!raw) return { version: 2, seeded: true, items: [] };
+            const data = JSON.parse(raw);
+            if (Array.isArray(data)) return { version: 2, seeded: true, items: data };
+            if (data && Array.isArray(data.items)) return data;
+            return { version: 2, seeded: true, items: [] };
+        } catch(e) {
+            return null;
+        }
+    }
+
+    function isPropInLibrary(id) {
+        const lib = readPropLibrary();
+        if (!lib) return false;
+        return lib.items.some(function(record) { return record.id === "market-" + id; });
+    }
+
+    function addPropToLibrary(item) {
+        const lib = readPropLibrary();
+        if (!lib) {
+            showToast("道具库不可用", "本地道具数据无法读取，请先去道具资产页检查");
+            return false;
+        }
+        const propId = "market-" + item.id;
+        const next = lib.items.filter(function(record) { return record.id !== propId; });
+        next.unshift({
+            id: propId,
+            name: item.title,
+            category: item.category,
+            remarks: item.remarks || item.desc,
+            visibility: "team",
+            org: "",
+            images: {
+                front: propImagePath(item.propSet, "front"),
+                back: propImagePath(item.propSet, "back"),
+                left: propImagePath(item.propSet, "left"),
+                right: propImagePath(item.propSet, "right")
+            }
+        });
+        try {
+            localStorage.setItem(PROP_LIBRARY_KEY, JSON.stringify({ version: 2, seeded: true, items: next }));
+        } catch(e) {
+            showToast("保存失败", "浏览器存储空间不足，道具未能加入道具库");
+            return false;
+        }
+        return true;
+    }
+
+    function removePropFromLibrary(item) {
+        const lib = readPropLibrary();
+        if (!lib) return;
+        const propId = "market-" + item.id;
+        try {
+            localStorage.setItem(PROP_LIBRARY_KEY, JSON.stringify({ version: 2, seeded: true, items: lib.items.filter(function(record) { return record.id !== propId; }) }));
+        } catch(e) {}
+    }
+
+    function propLibraryAction(id, event) {
+        if (event) event.stopPropagation();
+        const item = resources.find(function(r) { return r.id === id; });
+        if (!item || item.type !== "prop") return;
+        if (isPropInLibrary(id)) {
+            window.location.href = "道具资产.html";
+            return;
+        }
+        if (addPropToLibrary(item)) {
+            showToast("已加入道具库", item.title + " 已同步到道具资产，可查看四面视图");
+            render();
+        }
     }
 
     function openTemplateVideoPreview(item) {
@@ -2898,6 +3129,17 @@
         if (item.type === "role") {
             return '<div class="role-visual" style="width:260px;height:190px;border-radius:16px;overflow:hidden;position:relative;">' + buildVisual(item) + '</div>';
         }
+        if (item.type === "prop") {
+            var propEmoji = item.emoji || "🧴";
+            return '<div class="prop-preview-grid">' +
+                '<div class="prop-pv-main"><span class="prop-pv-tag">正面 · 默认封面</span>' + propEmoji + '</div>' +
+                '<div class="prop-pv-sub">' +
+                    '<div class="prop-pv-cell">' + propEmoji + '<small>背面</small></div>' +
+                    '<div class="prop-pv-cell">' + propEmoji + '<small>左侧</small></div>' +
+                    '<div class="prop-pv-cell">' + propEmoji + '<small>右侧</small></div>' +
+                '</div>' +
+            '</div>';
+        }
         return '<div style="width:260px;height:190px;border-radius:16px;overflow:hidden;position:relative;background:#f1f5f9;">' + buildVisual(item) + '</div>';
     }
 
@@ -2924,6 +3166,15 @@
         if (!item) return;
         if (item.type === "role") {
             previewRoleVoice(item);
+            return;
+        }
+        if (item.type === "prop") {
+            if (!isPropInLibrary(item.id)) {
+                if (!addPropToLibrary(item)) return;
+                syncPreviewAssetButton(item.id);
+                render();
+            }
+            window.location.href = "道具资产.html";
             return;
         }
         showToast("预览资源", item.title + " 的预览效果已展示");
@@ -2955,8 +3206,16 @@
     }
 
     function syncPreviewAssetButton(id) {
+        const item = resources.find(function(r) { return r.id === id; });
         const btn = document.getElementById("previewAddBtn");
         const added = isAdded(id);
+        if (item && item.type === "prop") {
+            btn.textContent = added ? "已收藏" : "收藏";
+            btn.classList.toggle("btn-added", added);
+            btn.classList.toggle("btn-primary", !added);
+            document.getElementById("previewActionBtn").textContent = isPropInLibrary(id) ? "前往道具资产" : "加入道具库";
+            return;
+        }
         btn.textContent = added ? "移出资产库" : "加入资产库";
         btn.classList.toggle("btn-added", added);
         btn.classList.toggle("btn-primary", !added);
