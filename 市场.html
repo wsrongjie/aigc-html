@@ -2385,7 +2385,7 @@
         const secondaryAction = item.type === "template"
             ? '<button class="btn btn-primary" onclick="' + (item.isMultiSegment ? 'openWFCanvasPage' : 'openSameModal') + '(\'' + safeId + '\', event)">' + (item.isMultiSegment ? '爆款复刻' : '爆款复刻') + '</button>'
             : item.type === "prop"
-            ? '<button class="btn btn-primary" onclick="propLibraryAction(\'' + safeId + '\', event)">' + (isPropInLibrary(item.id) ? "前往道具资产" : "加入资产库") + '</button>'
+            ? '<button class="btn btn-primary" onclick="propLibraryAction(\'' + safeId + '\', event)">' + (isPropInLibrary(item.id) ? "移除资产库" : "加入资产库") + '</button>'
             : '<button class="btn ' + (added ? 'btn-added' : 'btn-primary') + '" onclick="toggleAsset(\'' + safeId + '\')">' + (added ? "移出资产库" : "加入资产库") + '</button>';
         const cardAttrs = (item.type === "template" || item.type === "prop")
             ? ' onclick="previewResource(\'' + safeId + '\')" role="button" tabindex="0" onkeydown="handleTemplateCardKey(event,\'' + safeId + '\')"'
@@ -2640,7 +2640,9 @@
         const item = resources.find(function(r) { return r.id === id; });
         if (!item || item.type !== "prop") return;
         if (isPropInLibrary(id)) {
-            window.location.href = "道具资产.html";
+            removePropFromLibrary(item);
+            showToast("已移出资产库", item.title + " 已从道具资产中移除");
+            render();
             return;
         }
         if (addPropToLibrary(item)) {
@@ -3169,12 +3171,15 @@
             return;
         }
         if (item.type === "prop") {
-            if (!isPropInLibrary(item.id)) {
+            if (isPropInLibrary(item.id)) {
+                removePropFromLibrary(item);
+                showToast("已移出资产库", item.title + " 已从道具资产中移除");
+            } else {
                 if (!addPropToLibrary(item)) return;
-                syncPreviewAssetButton(item.id);
-                render();
+                showToast("已加入资产库", item.title + " 已同步到道具资产，可查看四面视图");
             }
-            window.location.href = "道具资产.html";
+            syncPreviewAssetButton(item.id);
+            render();
             return;
         }
         showToast("预览资源", item.title + " 的预览效果已展示");
@@ -3213,7 +3218,7 @@
             btn.textContent = added ? "已收藏" : "收藏";
             btn.classList.toggle("btn-added", added);
             btn.classList.toggle("btn-primary", !added);
-            document.getElementById("previewActionBtn").textContent = isPropInLibrary(id) ? "前往道具资产" : "加入资产库";
+            document.getElementById("previewActionBtn").textContent = isPropInLibrary(id) ? "移除资产库" : "加入资产库";
             return;
         }
         btn.textContent = added ? "移出资产库" : "加入资产库";
