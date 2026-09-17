@@ -2385,7 +2385,7 @@
         const secondaryAction = item.type === "template"
             ? '<button class="btn btn-primary" onclick="' + (item.isMultiSegment ? 'openWFCanvasPage' : 'openSameModal') + '(\'' + safeId + '\', event)">' + (item.isMultiSegment ? '爆款复刻' : '爆款复刻') + '</button>'
             : item.type === "prop"
-            ? '<button class="btn btn-primary" onclick="propLibraryAction(\'' + safeId + '\', event)">' + (isPropInLibrary(item.id) ? "前往道具资产" : "加入道具库") + '</button>'
+            ? '<button class="btn btn-primary" onclick="propLibraryAction(\'' + safeId + '\', event)">' + (isPropInLibrary(item.id) ? "前往道具资产" : "加入资产库") + '</button>'
             : '<button class="btn ' + (added ? 'btn-added' : 'btn-primary') + '" onclick="toggleAsset(\'' + safeId + '\')">' + (added ? "移出资产库" : "加入资产库") + '</button>';
         const cardAttrs = (item.type === "template" || item.type === "prop")
             ? ' onclick="previewResource(\'' + safeId + '\')" role="button" tabindex="0" onkeydown="handleTemplateCardKey(event,\'' + safeId + '\')"'
@@ -2620,7 +2620,7 @@
         try {
             localStorage.setItem(PROP_LIBRARY_KEY, JSON.stringify({ version: 2, seeded: true, items: next }));
         } catch(e) {
-            showToast("保存失败", "浏览器存储空间不足，道具未能加入道具库");
+            showToast("保存失败", "浏览器存储空间不足，道具未能加入资产库");
             return false;
         }
         return true;
@@ -2644,7 +2644,7 @@
             return;
         }
         if (addPropToLibrary(item)) {
-            showToast("已加入道具库", item.title + " 已同步到道具资产，可查看四面视图");
+            showToast("已加入资产库", item.title + " 已同步到道具资产，可查看四面视图");
             render();
         }
     }
@@ -3213,7 +3213,7 @@
             btn.textContent = added ? "已收藏" : "收藏";
             btn.classList.toggle("btn-added", added);
             btn.classList.toggle("btn-primary", !added);
-            document.getElementById("previewActionBtn").textContent = isPropInLibrary(id) ? "前往道具资产" : "加入道具库";
+            document.getElementById("previewActionBtn").textContent = isPropInLibrary(id) ? "前往道具资产" : "加入资产库";
             return;
         }
         btn.textContent = added ? "移出资产库" : "加入资产库";
