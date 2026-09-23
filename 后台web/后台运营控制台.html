@@ -1385,7 +1385,7 @@
                     <button class="btn btn-primary btn-sm" onclick="openPropModal()" style="margin-left:auto">+ 新增模板</button>
                 </div>
                 <table>
-                    <thead><tr><th>模板名称</th><th>产品类别</th><th>适用行业</th><th>标签</th><th>四视图来源</th><th>状态</th><th>使用次数</th><th style="width:70px;text-align:center" title="点击开关开启/关闭 hot 标签">🔥标签</th><th>操作</th></tr></thead>
+                    <thead><tr><th>模板名称</th><th>产品类别</th><th>适用行业</th><th>标签</th><th>状态</th><th>使用次数</th><th style="width:70px;text-align:center" title="点击开关开启/关闭 hot 标签">🔥标签</th><th>操作</th></tr></thead>
                     <tbody id="propConfigTable"></tbody>
                 </table>
             </div>
@@ -7083,16 +7083,11 @@ function renderPropTemplates() {
         var stCls = t.status === '启用' ? 'status-active' : 'status-stopped';
         var statusLabel = t.status === '启用' ? '已上架' : '已下架';
         var tagsHtml = (t.tags || '').split(',').filter(function(x){return x.trim()}).map(function(x){return '<span class="chip">' + x.trim() + '</span> '}).join('');
-        var setLabel = PROP_SET_LABELS[t.propSet] || t.propSet || '<span style="color:var(--text-muted)">-</span>';
-        var viewsCell = (t.images && t.images.front && t.images.back && t.images.left && t.images.right)
-            ? ['front','back','left','right'].map(function(a) { return '<img src="' + t.images[a] + '" style="width:32px;height:32px;object-fit:contain;background:#f8fafc;border:1px solid var(--border);border-radius:6px;margin-right:4px" alt="">'; }).join('')
-            : setLabel;
         html += '<tr>' +
             '<td><strong>' + escapeHtml(t.name) + '</strong></td>' +
             '<td>' + escapeHtml(t.category || '-') + '</td>' +
             '<td>' + escapeHtml(t.industry || '-') + '</td>' +
             '<td>' + (tagsHtml || '<span style="color:var(--text-muted)">-</span>') + '</td>' +
-            '<td>' + viewsCell + '</td>' +
             '<td><span class="status ' + stCls + '">' + statusLabel + '</span></td>' +
             '<td><strong>' + (t.used || 0).toLocaleString() + '</strong></td>' +
             '<td style="text-align:center"><label class="switch" title="点击开启/关闭 hot 标签"><input type="checkbox" ' + (t.hot === true ? 'checked' : '') + ' onchange="togglePropHot(' + i + ', this)"><span class="switch-slider"></span></label></td>' +
