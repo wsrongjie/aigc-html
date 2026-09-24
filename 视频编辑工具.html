@@ -1,6 +1,7 @@
 ﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
+<script src="assets/org-access-store.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>视频剪辑 - 投顾视频平台</title>
@@ -2404,6 +2405,8 @@
         }
 
         function startExport() {
+            const orgSource=sessionStorage.getItem("oa-editor-source");
+            if(orgSource && (!OrgAccess.requireAsset("video",orgSource,"edit") || !OrgAccess.requireAsset("video",orgSource,"download")))return;
             var btn = document.getElementById('exportBtn');
             btn.disabled = true;
             btn.textContent = '导出中...';
@@ -2484,6 +2487,8 @@
                 var data = JSON.parse(raw);
                 localStorage.removeItem('videoEditorIncomingTask');
                 if (!data || !data.taskName) return;
+                if(!data.sourceAssetId || !OrgAccess.requireAsset("video",data.sourceAssetId,"edit"))return;
+                sessionStorage.setItem("oa-editor-source",data.sourceAssetId);
 
                 // 更新页面标题
                 document.title = '视频剪辑 - ' + escapeHtml(data.taskName);

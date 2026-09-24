@@ -9,3 +9,7 @@ node_modules/
 后台web/work/
 .codex-final-logic-smoke.js
 账号绑定_bak_*.html
+
+.codex-export/
+.workbuddy/
+后台web/c\[x\]

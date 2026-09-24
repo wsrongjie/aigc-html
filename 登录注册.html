@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="dark">
+    <title>登录 · 猩造</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --green: #63f43b;
+            --green-bright: #b8ff59;
+            --green-deep: #14ad3c;
+            --ink: #040807;
+            --panel: rgba(8, 13, 12, .91);
+            --line: rgba(215, 255, 221, .18);
+            --line-strong: rgba(146, 255, 123, .42);
+            --text: #f3f7f2;
+            --muted: #8d9890;
+            --danger: #ff646d;
+            --radius: 12px;
+        }
+
+        html, body { min-height: 100%; }
+
+        body {
+            min-height: 100vh;
+            overflow: hidden;
+            background: #020504;
+            color: var(--text);
+            font-family: "Microsoft YaHei UI", "PingFang SC", "Noto Sans CJK SC", sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        button, input { font: inherit; }
+        button, a { -webkit-tap-highlight-color: transparent; }
+
+        .page {
+            position: relative;
+            min-height: 100vh;
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(390px, 32vw);
+            align-items: center;
+            isolation: isolate;
+        }
+
+        .scene {
+            position: absolute;
+            inset: 0;
+            z-index: -2;
+            overflow: hidden;
+            background:
+                radial-gradient(circle at 45% 47%, rgba(20, 184, 74, .29), transparent 23%),
+                radial-gradient(circle at 74% 80%, rgba(0, 116, 64, .18), transparent 28%),
+                linear-gradient(110deg, #020605 0%, #03100d 55%, #020504 100%);
+        }
+
+        .scene::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            opacity: .31;
+            background-image:
+                linear-gradient(rgba(64, 255, 108, .12) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(64, 255, 108, .12) 1px, transparent 1px);
+            background-size: 64px 64px;
+            transform: perspective(620px) rotateX(61deg) scale(1.5) translateY(32%);
+            transform-origin: center bottom;
+            mask-image: linear-gradient(to bottom, transparent 5%, #000 48%, #000 100%);
+        }
+
+        .scene::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background:
+                linear-gradient(90deg, transparent 0 55%, rgba(1, 5, 4, .52) 76%, rgba(1, 4, 3, .92) 100%),
+                linear-gradient(180deg, rgba(0, 0, 0, .48), transparent 24%, transparent 72%, rgba(0, 0, 0, .68));
+            pointer-events: none;
+        }
+
+        .digital-rain {
+            position: absolute;
+            inset: 0;
+            opacity: .58;
+            background-image:
+                linear-gradient(180deg, transparent, rgba(61, 255, 100, .64) 50%, transparent),
+                linear-gradient(180deg, transparent, rgba(61, 255, 100, .35) 62%, transparent),
+                linear-gradient(180deg, transparent, rgba(61, 255, 100, .5) 30%, transparent);
+            background-repeat: no-repeat;
+            background-size: 2px 28%, 1px 41%, 2px 18%;
+            background-position: 17% -4%, 47% 12%, 69% 2%;
+            animation: rain 7s linear infinite;
+        }
+
+        @keyframes rain {
+            0% { transform: translateY(-12%); opacity: .26; }
+            50% { opacity: .62; }
+            100% { transform: translateY(21%); opacity: .26; }
+        }
+
+        .hero {
+            grid-column: 1;
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 44px 6vw 56px;
+        }
+
+        .hero-copy {
+            position: absolute;
+            left: clamp(32px, 5vw, 84px);
+            top: clamp(32px, 6vh, 72px);
+            max-width: 480px;
+            z-index: 4;
+        }
+
+        .eyebrow {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 16px;
+            color: var(--green-bright);
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: .18em;
+        }
+
+        .eyebrow::before {
+            content: "";
+            width: 34px;
+            height: 1px;
+            background: var(--green);
+            box-shadow: 0 0 10px var(--green);
+        }
+
+        .hero h1 {
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            font-size: clamp(28px, 3vw, 50px);
+            line-height: 1.12;
+            letter-spacing: -.04em;
+            text-shadow: 0 4px 34px rgba(0, 0, 0, .8);
+        }
+
+        .hero h1 span { color: var(--green-bright); }
+
+        .hero-copy p {
+            margin-top: 18px;
+            color: rgba(228, 240, 230, .62);
+            font-size: 14px;
+            line-height: 1.75;
+            letter-spacing: .04em;
+        }
+
+        .stage {
+            position: relative;
+            width: min(46vw, 610px);
+            aspect-ratio: 1 / .72;
+            margin-top: 12vh;
+            transform-style: preserve-3d;
+        }
+
+        .stage-ring {
+            position: absolute;
+            left: 50%;
+            bottom: 2%;
+            width: 92%;
+            aspect-ratio: 1 / .35;
+            transform: translateX(-50%);
+            border: 2px solid rgba(130, 255, 95, .58);
+            border-radius: 50%;
+            box-shadow:
+                0 0 14px rgba(72, 255, 72, .75),
+                0 0 60px rgba(24, 229, 63, .33),
+                inset 0 0 40px rgba(25, 255, 69, .25);
+        }
+
+        .stage-ring::before,
+        .stage-ring::after {
+            content: "";
+            position: absolute;
+            inset: 11%;
+            border: 1px solid rgba(126, 255, 96, .23);
+            border-radius: 50%;
+        }
+
+        .stage-ring::after { inset: 24%; border-color: rgba(179, 255, 89, .34); }
+
+        .play-tile {
+            position: absolute;
+            left: 50%;
+            top: 43%;
+            width: 42%;
+            aspect-ratio: 1;
+            transform: translate(-50%, -50%) rotateX(-5deg) rotateY(-10deg);
+            border-radius: 25%;
+            border: 1px solid rgba(164, 255, 190, .78);
+            background:
+                linear-gradient(135deg, rgba(255, 255, 255, .16), transparent 24%),
+                linear-gradient(145deg, rgba(5, 82, 54, .78), rgba(4, 33, 23, .52));
+            box-shadow:
+                inset 0 0 32px rgba(65, 255, 134, .22),
+                0 0 12px rgba(103, 255, 170, .7),
+                0 34px 68px rgba(0, 0, 0, .62),
+                0 0 90px rgba(21, 238, 69, .26);
+            backdrop-filter: blur(10px);
+            animation: hoverTile 5.6s ease-in-out infinite;
+        }
+
+        .play-tile::after {
+            content: "";
+            position: absolute;
+            inset: 9%;
+            border-radius: 21%;
+            border: 1px solid rgba(102, 255, 139, .18);
+        }
+
+        @keyframes hoverTile {
+            0%, 100% { transform: translate(-50%, -50%) rotateX(-5deg) rotateY(-10deg) translateY(0); }
+            50% { transform: translate(-50%, -50%) rotateX(-5deg) rotateY(-10deg) translateY(-9px); }
+        }
+
+        .play-icon {
+            position: absolute;
+            left: 52%;
+            top: 50%;
+            width: 37%;
+            height: 45%;
+            transform: translate(-50%, -50%);
+            filter: drop-shadow(0 0 14px rgba(188, 255, 74, .95));
+        }
+
+        .play-icon::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            clip-path: polygon(10% 0, 100% 50%, 10% 100%);
+            border-radius: 18px;
+            background: linear-gradient(135deg, #d9ff73, #70fa3f 56%, #bbff4c);
+        }
+
+        .float-card {
+            position: absolute;
+            width: 86px;
+            aspect-ratio: 1;
+            display: grid;
+            place-items: center;
+            border: 1px solid rgba(102, 255, 152, .62);
+            border-radius: 20px;
+            color: #aaff56;
+            background: linear-gradient(145deg, rgba(10, 57, 39, .55), rgba(2, 12, 9, .7));
+            box-shadow: inset 0 0 24px rgba(38, 255, 92, .14), 0 0 28px rgba(0, 255, 82, .18);
+            backdrop-filter: blur(7px);
+            font-size: 34px;
+            font-weight: 900;
+            text-shadow: 0 0 13px rgba(139, 255, 68, .8);
+        }
+
+        .float-card.card-video { left: 3%; top: 23%; transform: rotate(-7deg); animation: floatA 6s ease-in-out infinite; }
+        .float-card.card-text { left: -5%; bottom: 5%; transform: rotate(5deg); animation: floatB 7s ease-in-out infinite; }
+        .float-card.card-magic { right: 0; top: 16%; transform: rotate(8deg); animation: floatB 6.5s ease-in-out infinite reverse; }
+
+        @keyframes floatA { 50% { transform: rotate(-4deg) translateY(-12px); } }
+        @keyframes floatB { 50% { transform: rotate(3deg) translateY(10px); } }
+
+        .clapper { position: relative; width: 40px; height: 29px; border: 4px solid currentColor; border-radius: 3px; }
+        .clapper::before { content: ""; position: absolute; left: -5px; top: -13px; width: 42px; height: 9px; border-radius: 2px; background: repeating-linear-gradient(120deg, currentColor 0 8px, transparent 8px 13px); transform: rotate(-7deg); transform-origin: left bottom; }
+
+        .magic { position: relative; width: 46px; height: 46px; }
+        .magic::before { content: "✦"; position: absolute; left: 10px; top: -4px; font-size: 38px; }
+        .magic::after { content: "✦"; position: absolute; right: -2px; bottom: -3px; font-size: 17px; }
+
+        .auth-zone {
+            grid-column: 2;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px clamp(30px, 4vw, 72px) 40px 20px;
+            z-index: 3;
+        }
+
+        .auth-card {
+            width: min(100%, 410px);
+            padding: 30px;
+            border: 1px solid rgba(173, 255, 188, .12);
+            border-radius: 16px;
+            background:
+                linear-gradient(145deg, rgba(11, 18, 16, .96), rgba(6, 12, 11, .88)),
+                rgba(5, 10, 9, .92);
+            box-shadow: 0 30px 90px rgba(0, 0, 0, .58), 0 0 0 1px rgba(255, 255, 255, .025) inset;
+            backdrop-filter: blur(22px);
+            animation: cardIn .55s cubic-bezier(.2, .8, .2, 1) both;
+        }
+
+        @keyframes cardIn {
+            from { opacity: 0; transform: translateY(18px) scale(.985); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 26px;
+        }
+
+        .brand-mark {
+            position: relative;
+            width: 39px;
+            height: 31px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #78ff38, #20db55);
+            box-shadow: 0 0 24px rgba(70, 255, 77, .28);
+        }
+
+        .brand-mark::before,
+        .brand-mark::after {
+            content: "";
+            position: absolute;
+            left: 12px;
+            top: 7px;
+            width: 15px;
+            height: 6px;
+            border-radius: 6px;
+            background: #07110b;
+            transform: rotate(45deg);
+        }
+
+        .brand-mark::after { transform: rotate(-45deg); }
+        .brand-name { font-size: 25px; font-weight: 800; letter-spacing: -.04em; }
+        .brand-version { color: var(--muted); font-size: 10px; margin-left: auto; letter-spacing: .12em; }
+
+        .mode-tabs {
+            position: relative;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4px;
+            padding: 4px;
+            margin-bottom: 25px;
+            border: 1px solid rgba(255, 255, 255, .07);
+            border-radius: 11px;
+            background: rgba(255, 255, 255, .035);
+        }
+
+        .mode-tab {
+            height: 38px;
+            border: 0;
+            border-radius: 8px;
+            color: var(--muted);
+            background: transparent;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 700;
+            transition: color .2s, background .2s, box-shadow .2s;
+        }
+
+        .mode-tab:hover { color: #dce7dc; }
+        .mode-tab[aria-selected="true"] {
+            color: #071107;
+            background: linear-gradient(135deg, var(--green-bright), var(--green));
+            box-shadow: 0 7px 22px rgba(56, 237, 64, .2);
+        }
+
+        .form-head { margin-bottom: 22px; }
+        .form-head h2 { font-size: 19px; line-height: 1.3; }
+        .form-head p { margin-top: 7px; color: var(--muted); font-size: 12px; line-height: 1.6; }
+
+        .auth-form[hidden] { display: none; }
+        .field { margin-bottom: 15px; }
+
+        .field-label {
+            display: block;
+            margin-bottom: 7px;
+            color: #c9d2cb;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .input-shell {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 13px;
+            width: 16px;
+            height: 16px;
+            color: #69736c;
+            pointer-events: none;
+            transition: color .2s;
+        }
+
+        .text-input {
+            width: 100%;
+            height: 45px;
+            padding: 0 14px 0 40px;
+            border: 1px solid var(--line);
+            border-radius: 9px;
+            outline: none;
+            color: var(--text);
+            caret-color: var(--green);
+            background: rgba(255, 255, 255, .025);
+            transition: border-color .2s, box-shadow .2s, background .2s;
+        }
+
+        .text-input::placeholder { color: #5e6760; }
+        .text-input:hover { border-color: rgba(215, 255, 221, .28); }
+        .text-input:focus {
+            border-color: var(--line-strong);
+            background: rgba(65, 255, 90, .025);
+            box-shadow: 0 0 0 3px rgba(76, 255, 95, .07);
+        }
+        .input-shell:focus-within .input-icon { color: var(--green); }
+
+        .field.has-error .text-input { border-color: rgba(255, 100, 109, .72); box-shadow: 0 0 0 3px rgba(255, 100, 109, .06); }
+        .error-text { min-height: 17px; padding-top: 5px; color: var(--danger); font-size: 11px; line-height: 1.35; }
+
+        .code-row {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 108px;
+            gap: 9px;
+        }
+
+        .code-button {
+            height: 45px;
+            border: 1px solid rgba(121, 255, 105, .28);
+            border-radius: 9px;
+            color: #d8f9d4;
+            background: rgba(91, 255, 74, .055);
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 700;
+            transition: border-color .2s, color .2s, background .2s;
+        }
+
+        .code-button:hover:not(:disabled) { border-color: rgba(121, 255, 105, .62); color: var(--green-bright); background: rgba(91, 255, 74, .1); }
+        .code-button:disabled { color: #667068; border-color: rgba(255, 255, 255, .08); cursor: not-allowed; }
+
+        .agreement {
+            display: grid;
+            grid-template-columns: 17px 1fr;
+            gap: 9px;
+            align-items: start;
+            margin: 2px 0 18px;
+        }
+
+        .agreement input {
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            margin-top: 1px;
+            border: 1px solid rgba(255, 255, 255, .24);
+            border-radius: 4px;
+            background: rgba(255, 255, 255, .03);
+            cursor: pointer;
+        }
+
+        .agreement input:checked {
+            border-color: var(--green);
+            background: var(--green);
+            box-shadow: inset 0 0 0 3px #0b180d;
+        }
+
+        .agreement input:focus-visible { outline: 2px solid rgba(126, 255, 82, .6); outline-offset: 2px; }
+        .agreement label { color: #a8b1aa; font-size: 11px; line-height: 1.55; cursor: pointer; }
+        .agreement a { color: #49d8ff; text-decoration: none; }
+        .agreement a:hover { text-decoration: underline; }
+        .agreement-error { grid-column: 2; min-height: 0; padding-top: 0; margin-top: -4px; }
+
+        .submit-button {
+            position: relative;
+            width: 100%;
+            height: 46px;
+            overflow: hidden;
+            border: 0;
+            border-radius: 9px;
+            color: #071107;
+            background: linear-gradient(100deg, #39d950, #8af841 54%, #3cdb58);
+            background-size: 180% 100%;
+            cursor: pointer;
+            font-weight: 800;
+            letter-spacing: .08em;
+            box-shadow: 0 12px 28px rgba(37, 217, 70, .17);
+            transition: transform .18s, box-shadow .18s, filter .18s;
+        }
+
+        .submit-button::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            transform: translateX(-120%);
+            background: linear-gradient(100deg, transparent 20%, rgba(255, 255, 255, .38), transparent 80%);
+            transition: transform .65s;
+        }
+
+        .submit-button:hover:not(:disabled) { transform: translateY(-1px); filter: brightness(1.06); box-shadow: 0 15px 34px rgba(37, 217, 70, .25); }
+        .submit-button:hover::after { transform: translateX(120%); }
+        .submit-button:active:not(:disabled) { transform: translateY(1px); }
+        .submit-button:disabled { cursor: wait; filter: saturate(.55); }
+
+        .submit-button.loading .button-label { opacity: 0; }
+        .submit-button.loading::before {
+            content: "";
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 18px;
+            height: 18px;
+            margin: -9px;
+            border: 2px solid rgba(6, 21, 8, .25);
+            border-top-color: #071107;
+            border-radius: 50%;
+            animation: spin .7s linear infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .auth-foot {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            margin-top: 20px;
+            color: #5e6961;
+            font-size: 10px;
+        }
+
+        .auth-foot svg { width: 12px; height: 12px; }
+
+        .toast {
+            position: fixed;
+            left: 50%;
+            top: 26px;
+            z-index: 20;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            max-width: calc(100vw - 32px);
+            padding: 11px 16px;
+            border: 1px solid rgba(137, 255, 114, .28);
+            border-radius: 10px;
+            color: #eaf8e9;
+            background: rgba(8, 18, 11, .94);
+            box-shadow: 0 12px 36px rgba(0, 0, 0, .42);
+            font-size: 12px;
+            opacity: 0;
+            pointer-events: none;
+            transform: translate(-50%, -14px);
+            transition: opacity .22s, transform .22s;
+        }
+
+        .toast.show { opacity: 1; transform: translate(-50%, 0); }
+        .toast-dot { width: 7px; height: 7px; flex: 0 0 auto; border-radius: 50%; background: var(--green); box-shadow: 0 0 10px var(--green); }
+
+        .policy-modal {
+            position: fixed;
+            inset: 0;
+            z-index: 30;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: rgba(0, 0, 0, .72);
+            backdrop-filter: blur(5px);
+        }
+
+        .policy-modal.show { display: flex; }
+        .policy-dialog {
+            width: min(100%, 540px);
+            max-height: min(72vh, 620px);
+            overflow: auto;
+            border: 1px solid rgba(161, 255, 159, .2);
+            border-radius: 15px;
+            background: #0a100e;
+            box-shadow: 0 28px 80px rgba(0, 0, 0, .6);
+        }
+
+        .policy-head {
+            position: sticky;
+            top: 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 19px 22px;
+            border-bottom: 1px solid rgba(255, 255, 255, .08);
+            background: rgba(10, 16, 14, .96);
+        }
+
+        .policy-head h3 { font-size: 16px; }
+        .policy-close { width: 30px; height: 30px; border: 0; border-radius: 8px; color: #9ca69e; background: rgba(255, 255, 255, .05); cursor: pointer; font-size: 18px; }
+        .policy-close:hover { color: #fff; background: rgba(255, 255, 255, .1); }
+        .policy-body { padding: 22px; color: #aeb8b0; font-size: 12px; line-height: 1.85; }
+        .policy-body h4 { margin: 17px 0 6px; color: #e6eee7; font-size: 13px; }
+        .policy-body h4:first-child { margin-top: 0; }
+        .policy-note { margin-top: 20px; padding: 11px 13px; border-radius: 8px; color: #9ac59c; background: rgba(86, 255, 85, .055); }
+
+        @media (max-width: 1050px) {
+            .page { grid-template-columns: 1fr minmax(380px, 43vw); }
+            .hero-copy { max-width: 390px; }
+            .hero-copy p { display: none; }
+            .stage { width: min(50vw, 510px); }
+            .float-card { width: 70px; border-radius: 16px; }
+        }
+
+        @media (max-width: 760px) {
+            body { overflow: auto; }
+            .page { display: block; min-height: 100svh; }
+            .scene::after { background: linear-gradient(180deg, rgba(1, 6, 4, .28), rgba(1, 5, 3, .72) 52%, #020504 100%); }
+            .hero { position: absolute; inset: 0; min-height: 100svh; opacity: .56; padding: 0; pointer-events: none; }
+            .hero-copy { left: 24px; top: 25px; }
+            .hero h1 { font-size: 25px; }
+            .eyebrow { margin-bottom: 10px; }
+            .stage { width: min(86vw, 480px); margin-top: 0; transform: translateY(-10vh); }
+            .float-card { display: none; }
+            .auth-zone { min-height: 100svh; padding: 116px 16px 28px; align-items: flex-end; }
+            .auth-card { width: min(100%, 430px); padding: 24px 20px; border-color: rgba(158, 255, 159, .16); }
+            .brand { margin-bottom: 19px; }
+            .mode-tabs { margin-bottom: 20px; }
+        }
+
+        @media (max-height: 700px) and (min-width: 761px) {
+            body { overflow: auto; }
+            .auth-zone { min-height: 700px; }
+            .hero { min-height: 700px; }
+            .auth-card { padding: 24px 28px; }
+            .brand { margin-bottom: 18px; }
+            .mode-tabs { margin-bottom: 18px; }
+            .form-head { margin-bottom: 15px; }
+            .field { margin-bottom: 10px; }
+            .agreement { margin-bottom: 13px; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; }
+        }
+    </style>
+</head>
+<body>
+<main class="page">
+    <div class="scene" aria-hidden="true">
+        <div class="digital-rain"></div>
+    </div>
+
+    <section class="hero" aria-label="猩造 AI 视频创作平台">
+        <div class="hero-copy">
+            <div class="eyebrow">AI VIDEO WORKSPACE</div>
+            <h1>让每一次表达<br>都被<span>看见</span></h1>
+            <p>从台词、主体、分镜到成片，将专业投顾内容转化为稳定、可控的视频表达。</p>
+        </div>
+
+        <div class="stage" aria-hidden="true">
+            <div class="float-card card-video"><span class="clapper"></span></div>
+            <div class="float-card card-text">T</div>
+            <div class="float-card card-magic"><span class="magic"></span></div>
+            <div class="stage-ring"></div>
+            <div class="play-tile"><span class="play-icon"></span></div>
+        </div>
+    </section>
+
+    <section class="auth-zone">
+        <div class="auth-card">
+            <div class="brand">
+                <span class="brand-mark" aria-hidden="true"></span>
+                <span class="brand-name">猩造</span>
+                <span class="brand-version">AIGC STUDIO</span>
+            </div>
+
+            <div class="mode-tabs" role="tablist" aria-label="账号入口">
+                <button class="mode-tab" id="loginTab" type="button" role="tab" aria-selected="true" aria-controls="loginForm" onclick="switchMode('login')">登录</button>
+                <button class="mode-tab" id="registerTab" type="button" role="tab" aria-selected="false" aria-controls="registerForm" onclick="switchMode('register')">注册</button>
+            </div>
+
+            <form class="auth-form" id="loginForm" role="tabpanel" aria-labelledby="loginTab" novalidate>
+                <div class="form-head">
+                    <h2>欢迎回来</h2>
+                    <p>使用手机号验证码登录猩造工作台</p>
+                </div>
+
+                <div class="field" id="loginPhoneField">
+                    <label class="field-label" for="loginPhone">手机号</label>
+                    <div class="input-shell">
+                        <svg class="input-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="6.5" y="2.5" width="11" height="19" rx="2.5" stroke="currentColor" stroke-width="1.8"/><path d="M10 18.5h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+                        <input class="text-input" id="loginPhone" name="phone" type="tel" inputmode="numeric" autocomplete="tel" maxlength="11" placeholder="请输入手机号" aria-describedby="loginPhoneError">
+                    </div>
+                    <div class="error-text" id="loginPhoneError" aria-live="polite"></div>
+                </div>
+
+                <div class="field" id="loginCodeField">
+                    <label class="field-label" for="loginCode">短信验证码</label>
+                    <div class="code-row">
+                        <div class="input-shell">
+                            <svg class="input-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="2.5" stroke="currentColor" stroke-width="1.8"/><path d="M8 10V7.5a4 4 0 0 1 8 0V10" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="15.5" r="1.5" fill="currentColor"/></svg>
+                            <input class="text-input" id="loginCode" name="code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="请输入验证码" aria-describedby="loginCodeError">
+                        </div>
+                        <button class="code-button" id="loginCodeButton" type="button" onclick="sendCode('login')">获取验证码</button>
+                    </div>
+                    <div class="error-text" id="loginCodeError" aria-live="polite"></div>
+                </div>
+
+                <div class="agreement">
+                    <input id="loginAgreement" type="checkbox" aria-describedby="loginAgreementError">
+                    <label for="loginAgreement">我已阅读并同意 <a href="javascript:void(0)" onclick="openPolicy('user', event)">《用户协议》</a> 和 <a href="javascript:void(0)" onclick="openPolicy('privacy', event)">《隐私政策》</a></label>
+                    <div class="error-text agreement-error" id="loginAgreementError" aria-live="polite"></div>
+                </div>
+
+                <button class="submit-button" id="loginSubmit" type="submit"><span class="button-label">登 录</span></button>
+            </form>
+
+            <form class="auth-form" id="registerForm" role="tabpanel" aria-labelledby="registerTab" hidden novalidate>
+                <div class="form-head">
+                    <h2>创建账号</h2>
+                    <p>完成基础信息验证，即可开始创作</p>
+                </div>
+
+                <div class="field" id="registerUsernameField">
+                    <label class="field-label" for="registerUsername">用户名</label>
+                    <div class="input-shell">
+                        <svg class="input-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.8"/><path d="M4.5 20c.7-4 3.2-6 7.5-6s6.8 2 7.5 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+                        <input class="text-input" id="registerUsername" name="username" type="text" autocomplete="nickname" maxlength="16" placeholder="请输入 2～16 个字符" aria-describedby="registerUsernameError">
+                    </div>
+                    <div class="error-text" id="registerUsernameError" aria-live="polite"></div>
+                </div>
+
+                <div class="field" id="registerPhoneField">
+                    <label class="field-label" for="registerPhone">手机号</label>
+                    <div class="input-shell">
+                        <svg class="input-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="6.5" y="2.5" width="11" height="19" rx="2.5" stroke="currentColor" stroke-width="1.8"/><path d="M10 18.5h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+                        <input class="text-input" id="registerPhone" name="phone" type="tel" inputmode="numeric" autocomplete="tel" maxlength="11" placeholder="请输入手机号" aria-describedby="registerPhoneError">
+                    </div>
+                    <div class="error-text" id="registerPhoneError" aria-live="polite"></div>
+                </div>
+
+                <div class="field" id="registerCodeField">
+                    <label class="field-label" for="registerCode">短信验证码</label>
+                    <div class="code-row">
+                        <div class="input-shell">
+                            <svg class="input-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="2.5" stroke="currentColor" stroke-width="1.8"/><path d="M8 10V7.5a4 4 0 0 1 8 0V10" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="15.5" r="1.5" fill="currentColor"/></svg>
+                            <input class="text-input" id="registerCode" name="code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="请输入验证码" aria-describedby="registerCodeError">
+                        </div>
+                        <button class="code-button" id="registerCodeButton" type="button" onclick="sendCode('register')">获取验证码</button>
+                    </div>
+                    <div class="error-text" id="registerCodeError" aria-live="polite"></div>
+                </div>
+
+                <div class="agreement">
+                    <input id="registerAgreement" type="checkbox" aria-describedby="registerAgreementError">
+                    <label for="registerAgreement">我已阅读并同意 <a href="javascript:void(0)" onclick="openPolicy('user', event)">《用户协议》</a> 和 <a href="javascript:void(0)" onclick="openPolicy('privacy', event)">《隐私政策》</a></label>
+                    <div class="error-text agreement-error" id="registerAgreementError" aria-live="polite"></div>
+                </div>
+
+                <button class="submit-button" id="registerSubmit" type="submit"><span class="button-label">注 册</span></button>
+            </form>
+
+            <div class="auth-foot">
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3 5 6v5c0 4.7 2.9 8.3 7 10 4.1-1.7 7-5.3 7-10V6l-7-3Z" stroke="currentColor" stroke-width="1.7"/><path d="m9 12 2 2 4-4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                手机号仅用于登录验证和账号安全
+            </div>
+        </div>
+    </section>
+</main>
+
+<div class="toast" id="toast" role="status" aria-live="polite">
+    <span class="toast-dot"></span>
+    <span id="toastText"></span>
+</div>
+
+<div class="policy-modal" id="policyModal" role="dialog" aria-modal="true" aria-labelledby="policyTitle" onclick="handleModalBackdrop(event)">
+    <div class="policy-dialog">
+        <div class="policy-head">
+            <h3 id="policyTitle">用户协议</h3>
+            <button class="policy-close" type="button" aria-label="关闭" onclick="closePolicy()">×</button>
+        </div>
+        <div class="policy-body" id="policyBody"></div>
+    </div>
+</div>
+
+<script>
+    var activeMode = 'login';
+    var countdownTimer = null;
+    var toastTimer = null;
+
+    var policyContent = {
+        user: {
+            title: '用户协议',
+            html: '<h4>一、服务说明</h4><p>猩造为投顾视频内容创作提供台词、主体、分镜和成片等原型服务。使用本服务前，请确认你已阅读并理解相关规则。</p>' +
+                  '<h4>二、账号使用</h4><p>请使用本人可正常接收短信的手机号注册。账号仅限本人或所属团队按授权范围使用，请勿转让、出租或用于违法违规活动。</p>' +
+                  '<h4>三、内容责任</h4><p>使用者应对上传、编辑和发布的内容负责，并遵守金融营销、广告、知识产权及平台规则。</p>' +
+                  '<div class="policy-note">当前内容用于静态产品原型展示，不构成正式法律文本。</div>'
+        },
+        privacy: {
+            title: '隐私政策',
+            html: '<h4>一、信息收集</h4><p>注册时收集用户名、手机号及短信验证结果，用于创建账号、身份验证和账号安全。</p>' +
+                  '<h4>二、信息使用</h4><p>手机号仅用于登录验证、安全通知及你主动使用的相关服务，不用于与产品功能无关的用途。</p>' +
+                  '<h4>三、信息保护</h4><p>我们将采取合理措施保护个人信息。你可以在个人中心查看或更新账号资料。</p>' +
+                  '<div class="policy-note">当前内容用于静态产品原型展示，不构成正式法律文本。</div>'
+        }
+    };
+
+    function byId(id) { return document.getElementById(id); }
+
+    function switchMode(mode) {
+        if (mode === activeMode) return;
+
+        var currentPhone = byId(activeMode + 'Phone').value;
+        activeMode = mode;
+        stopCountdown();
+        clearAllErrors();
+
+        byId('loginTab').setAttribute('aria-selected', mode === 'login' ? 'true' : 'false');
+        byId('registerTab').setAttribute('aria-selected', mode === 'register' ? 'true' : 'false');
+        byId('loginForm').hidden = mode !== 'login';
+        byId('registerForm').hidden = mode !== 'register';
+        byId(mode + 'Phone').value = currentPhone;
+        byId(mode + 'Code').value = '';
+        byId(mode + 'Agreement').checked = false;
+        document.title = (mode === 'login' ? '登录' : '注册') + ' · 猩造';
+
+        window.setTimeout(function() {
+            var focusId = mode === 'register' ? 'registerUsername' : 'loginPhone';
+            byId(focusId).focus();
+        }, 0);
+    }
+
+    function normalizeDigits(input) {
+        input.value = input.value.replace(/\D/g, '');
+    }
+
+    function validatePhone(mode) {
+        var phone = byId(mode + 'Phone').value.trim();
+        if (!phone) {
+            setError(mode + 'Phone', '请输入手机号');
+            return false;
+        }
+        if (!/^1[3-9]\d{9}$/.test(phone)) {
+            setError(mode + 'Phone', '请输入正确的 11 位手机号');
+            return false;
+        }
+        clearError(mode + 'Phone');
+        return true;
+    }
+
+    function sendCode(mode) {
+        if (!validatePhone(mode)) {
+            byId(mode + 'Phone').focus();
+            return;
+        }
+
+        stopCountdown();
+        var button = byId(mode + 'CodeButton');
+        var remaining = 60;
+        button.disabled = true;
+        button.textContent = remaining + 's 后重发';
+        showToast('验证码已发送，请注意查收');
+
+        countdownTimer = window.setInterval(function() {
+            remaining -= 1;
+            if (remaining <= 0) {
+                stopCountdown();
+                return;
+            }
+            button.textContent = remaining + 's 后重发';
+        }, 1000);
+    }
+
+    function stopCountdown() {
+        if (countdownTimer) {
+            window.clearInterval(countdownTimer);
+            countdownTimer = null;
+        }
+        ['login', 'register'].forEach(function(mode) {
+            var button = byId(mode + 'CodeButton');
+            button.disabled = false;
+            button.textContent = '获取验证码';
+        });
+    }
+
+    function setError(fieldKey, message) {
+        var field = byId(fieldKey + 'Field');
+        var error = byId(fieldKey + 'Error');
+        if (field) field.classList.add('has-error');
+        if (error) error.textContent = message;
+    }
+
+    function clearError(fieldKey) {
+        var field = byId(fieldKey + 'Field');
+        var error = byId(fieldKey + 'Error');
+        if (field) field.classList.remove('has-error');
+        if (error) error.textContent = '';
+    }
+
+    function clearAllErrors() {
+        document.querySelectorAll('.field').forEach(function(field) { field.classList.remove('has-error'); });
+        document.querySelectorAll('.error-text').forEach(function(error) { error.textContent = ''; });
+    }
+
+    function validateForm(mode) {
+        var valid = true;
+
+        if (mode === 'register') {
+            var username = byId('registerUsername').value.trim();
+            if (!username) {
+                setError('registerUsername', '请输入用户名');
+                valid = false;
+            } else if (username.length < 2 || username.length > 16) {
+                setError('registerUsername', '用户名长度需为 2～16 个字符');
+                valid = false;
+            } else {
+                clearError('registerUsername');
+            }
+        }
+
+        if (!validatePhone(mode)) valid = false;
+
+        var code = byId(mode + 'Code').value.trim();
+        if (!code) {
+            setError(mode + 'Code', '请输入短信验证码');
+            valid = false;
+        } else if (!/^\d{6}$/.test(code)) {
+            setError(mode + 'Code', '请输入 6 位数字验证码');
+            valid = false;
+        } else {
+            clearError(mode + 'Code');
+        }
+
+        if (!byId(mode + 'Agreement').checked) {
+            byId(mode + 'AgreementError').textContent = '请先阅读并同意用户协议和隐私政策';
+            valid = false;
+        } else {
+            byId(mode + 'AgreementError').textContent = '';
+        }
+
+        return valid;
+    }
+
+    function submitForm(mode) {
+        if (!validateForm(mode)) return;
+
+        var button = byId(mode + 'Submit');
+        button.disabled = true;
+        button.classList.add('loading');
+
+        window.setTimeout(function() {
+            button.classList.remove('loading');
+            button.querySelector('.button-label').textContent = mode === 'login' ? '登录成功' : '注册成功';
+            showToast(mode === 'login' ? '登录成功，正在进入工作台' : '注册成功，正在进入工作台');
+            window.setTimeout(function() { window.location.href = 'index.html'; }, 850);
+        }, 650);
+    }
+
+    function showToast(message) {
+        var toast = byId('toast');
+        byId('toastText').textContent = message;
+        toast.classList.add('show');
+        if (toastTimer) window.clearTimeout(toastTimer);
+        toastTimer = window.setTimeout(function() { toast.classList.remove('show'); }, 2600);
+    }
+
+    function openPolicy(type, event) {
+        if (event) event.stopPropagation();
+        var content = policyContent[type];
+        byId('policyTitle').textContent = content.title;
+        byId('policyBody').innerHTML = content.html;
+        byId('policyModal').classList.add('show');
+        document.body.style.overflow = 'hidden';
+        byId('policyModal').querySelector('.policy-close').focus();
+    }
+
+    function closePolicy() {
+        byId('policyModal').classList.remove('show');
+        document.body.style.overflow = '';
+    }
+
+    function handleModalBackdrop(event) {
+        if (event.target === byId('policyModal')) closePolicy();
+    }
+
+    byId('loginForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        submitForm('login');
+    });
+
+    byId('registerForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        submitForm('register');
+    });
+
+    ['loginPhone', 'registerPhone', 'loginCode', 'registerCode'].forEach(function(id) {
+        byId(id).addEventListener('input', function() {
+            normalizeDigits(this);
+            clearError(id.replace(/^(login|register)(Phone|Code)$/, '$1$2'));
+        });
+    });
+
+    byId('registerUsername').addEventListener('input', function() { clearError('registerUsername'); });
+    ['loginAgreement', 'registerAgreement'].forEach(function(id) {
+        byId(id).addEventListener('change', function() {
+            if (this.checked) byId(id + 'Error').textContent = '';
+        });
+    });
+
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape' && byId('policyModal').classList.contains('show')) closePolicy();
+        if ((event.key === 'ArrowLeft' || event.key === 'ArrowRight') && document.activeElement.classList.contains('mode-tab')) {
+            switchMode(activeMode === 'login' ? 'register' : 'login');
+        }
+    });
+</script>
+</body>
+</html>

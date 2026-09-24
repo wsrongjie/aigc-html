@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
+<script src="assets/org-access-store.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>画布工作流 - 投顾视频平台</title>
@@ -710,7 +711,77 @@
     }
 
     function backToMarket() {
-        location.href = "市场.html";
+        const from = new URLSearchParams(location.search).get("from");
+        if (from === "director") {
+            location.href = "导演台-批量成片工作台.html";
+        } else {
+            location.href = "市场.html";
+        }
+    }
+
+    const SAME_STYLE_KEY = "sameStyleIncomingTask";
+
+    function getSameStyleIncoming() {
+        try {
+            const params = new URLSearchParams(location.search);
+            if (params.get("sameStyle") === null && params.get("from") !== "director") return null;
+            const raw = localStorage.getItem(SAME_STYLE_KEY);
+            if (!raw) return null;
+            const data = JSON.parse(raw);
+            if (!data || !data.script && !data.person && !data.bg) return null;
+            const sameId = params.get("sameStyle");
+            if (sameId !== null && data.sourceId !== undefined && String(data.sourceId) !== String(sameId)) return data;
+            return data;
+        } catch (e) {
+            return null;
+        }
+    }
+
+    function applySameStyle(payload) {
+        if (!payload) return;
+        try {
+            const tplId = new URLSearchParams(location.search).get("tpl") || "tpl-multi-segment";
+            const tpl = WF_TEMPLATES[tplId] || WF_TEMPLATES["tpl-multi-segment"];
+            const tplRoles = tpl.roles || [];
+            if (tplRoles.length > 0) {
+                const firstRole = tplRoles[0];
+                wfState.roleMap[firstRole.id] = {
+                    name: (payload.person && payload.person.name) ? payload.person.name : firstRole.name,
+                    voice: firstRole.voice,
+                    img: null,
+                    emoji: (payload.person && payload.person.emoji) ? payload.person.emoji : null,
+                    gradient: (payload.person && payload.person.gradient) ? payload.person.gradient : null,
+                    sameStyle: true
+                };
+            }
+            const bgName = payload.bg && payload.bg.name ? payload.bg.name : null;
+            if (bgName) {
+                const scenes = tpl.defaultScenes || [];
+                const hitIdx = scenes.findIndex(function(s) { return s && s.name === bgName; });
+                if (hitIdx >= 0) {
+                    wfState.selectedSceneIndex = hitIdx;
+                } else {
+                    scenes.unshift({ id: "scene-same-" + String(payload.sourceId || "custom"), name: bgName, icon: "🏢", sameStyle: true, gradient: payload.bg.gradient || null });
+                    wfState.selectedSceneIndex = 0;
+                }
+            }
+            const scripts = tpl.scripts || [];
+            if (scripts.length > 0 && payload.script) {
+                const firstSeg = scripts[0];
+                wfState.scriptSegments[firstSeg.id] = {
+                    text: payload.script,
+                    roleId: tplRoles.length > 0 ? tplRoles[0].id : (firstSeg.defaultRoleId || ""),
+                    speed: 1.2,
+                    synthStatus: "idle"
+                };
+                wfState.selectedScriptIndex = 0;
+            }
+            wfState.frames = [];
+            wfState.frameStatus = "idle";
+            wfState.selectedFrameIndex = 0;
+            wfState.videoStatus = "idle";
+            wfState.sameStyleSource = { sourceId: payload.sourceId, taskName: payload.taskName };
+        } catch (e) {}
     }
 
     function readList(key) {
@@ -826,9 +897,10 @@
                         var displayImg = replaced ? replaced.img : null;
                         var replacedClass = replaced ? ' replaced' : '';
                         var badgeHtml = replaced ? '<span class="wf-role-badge">已替换</span>' : '';
+                        var sameAvatar = (replaced && replaced.emoji) ? replaced.emoji : r.avatar;
                         var avatarHtml = displayImg
                             ? '<img src="' + displayImg + '" alt="' + displayName + '">'
-                            : r.avatar;
+                            : sameAvatar;
                         html += '<div class="wf-role-item' + replacedClass + '" data-role-id="' + r.id + '">';
                         html += '<div class="wf-role-avatar"' + (replaced ? ' onclick="event.stopPropagation();previewRole(\'' + r.id + '\')" style="cursor:pointer;" title="点击预览大图"' : '') + '>' + avatarHtml + '</div>';
                         html += '<div class="wf-role-info">';
@@ -849,9 +921,10 @@
                         var displayName = subject.name;
                         var displayVoice = subject.voice || '未设置音色';
                         var displayImg = subject.img;
+                        var sameFullAvatar = subject.emoji || null;
                         html += '<div class="wf-role-full-preview">';
                         html += '<div class="wf-role-full-img">';
-                        html += displayImg ? '<img src="' + displayImg + '" alt="' + displayName + '">' : '<span class="wf-role-full-placeholder">👤</span>';
+                        html += displayImg ? '<img src="' + displayImg + '" alt="' + displayName + '">' : '<span class="wf-role-full-placeholder">' + (sameFullAvatar || '👤') + '</span>';
                         html += '</div>';
                         html += '<div class="wf-role-full-name">' + displayName + '</div>';
                         html += '<div class="wf-role-full-voice">' + displayVoice + '</div>';
@@ -1251,18 +1324,55 @@
         }, 2500);
     }
 
-    /* ====== 视频生成与预览 ====== */
+    /* ====== 视频生成与预览（生成即送导演台） ====== */
+    function estimateDuration(text) {
+        var len = (text || "").length;
+        return Math.max(6, Math.min(12, Math.round(len / 10) + 5));
+    }
+
+    function buildDirectorPayload() {
+        var tpl = getWFTemplate();
+        var scripts = tpl.scripts || [];
+        var roles = tpl.roles || [];
+        var scenes = tpl.defaultScenes || [];
+        var selScene = scenes[Math.min(wfState.selectedSceneIndex || 0, Math.max(0, scenes.length - 1))] || { name: "默认场景" };
+        function rolePerson(roleId) {
+            var tplRole = null;
+            for (var i = 0; i < roles.length; i++) { if (roles[i].id === roleId) tplRole = roles[i]; }
+            var replaced = wfState.roleMap[roleId];
+            return {
+                name: replaced ? replaced.name : (tplRole ? tplRole.name : "角色"),
+                emoji: (replaced && replaced.emoji) ? replaced.emoji : (tplRole ? tplRole.avatar : "👤"),
+                gradient: (replaced && replaced.gradient) ? replaced.gradient : undefined
+            };
+        }
+        var rows = [];
+        scripts.forEach(function(s) {
+            var seg = wfState.scriptSegments[s.id];
+            var text = (seg && seg.text || "").trim() || s.text || "";
+            if (!text) return;
+            var roleId = (seg && seg.roleId) || s.defaultRoleId || (roles[0] && roles[0].id) || "";
+            rows.push({
+                script: text,
+                person: rolePerson(roleId),
+                bg: { name: selScene.name, gradient: selScene.gradient || undefined },
+                duration: estimateDuration(text)
+            });
+        });
+        if (!rows.length) return null;
+        var taskName = "一键同款复刻";
+        return { taskName: taskName, rows: rows, from: "canvas" };
+    }
+
     function generateVideo() {
-        if (wfState.videoStatus === 'generating') return;
-        wfState.videoStatus = 'generating';
-        renderWFCanvas();
-        updateTopBtn();
-        setTimeout(function() {
-            wfState.videoStatus = 'done';
-            renderWFCanvas();
-            updateTopBtn();
-            showToast('视频生成完成', '点击「预览成片」查看最终效果');
-        }, 5000);
+        if (wfState.videoStatus === "generating") return;
+        var payload = buildDirectorPayload();
+        if (!payload) {
+            showToast("无法生成", "请先录入台词片段");
+            return;
+        }
+        try { localStorage.setItem("newTaskFromFlow", JSON.stringify(payload)); } catch (e) {}
+        location.href = "导演台-批量成片工作台.html?from=canvas";
     }
 
     function previewVideo() {
@@ -1452,13 +1562,30 @@
 
     (function init() {
         const tpl = getWFTemplate();
-        document.getElementById("wfTitle").textContent = tpl.title;
-        document.getElementById("wfMeta").textContent = (tpl.resolution || "1080P") + " · " + (tpl.ratio || "9:16");
-        document.title = tpl.title + " - 画布工作流";
+        const sameStyle = getSameStyleIncoming();
+        if (sameStyle) applySameStyle(sameStyle);
+        const params = new URLSearchParams(location.search);
+        const isSameStyle = sameStyle !== null && (params.get("sameStyle") !== null || params.get("from") === "director");
+        if (isSameStyle && sameStyle) {
+            const shortName = (sameStyle.taskName || "同款视频").length > 18 ? (sameStyle.taskName || "").slice(0, 18) + "…" : (sameStyle.taskName || "同款视频");
+            document.getElementById("wfTitle").textContent = "同款创作 · " + shortName;
+            document.getElementById("wfMeta").textContent = (tpl.resolution || "1080P") + " · " + (tpl.ratio || "9:16") + " · 一键同款";
+            document.title = "同款创作 · " + shortName + " - 画布工作流";
+            const backBtn = document.querySelector(".topbar-left .btn");
+            if (backBtn) backBtn.textContent = "← 返回导演台";
+            const tagEl = document.querySelector(".topbar-tag");
+            if (tagEl) tagEl.textContent = "一键同款";
+        } else {
+            document.getElementById("wfTitle").textContent = tpl.title;
+            document.getElementById("wfMeta").textContent = (tpl.resolution || "1080P") + " · " + (tpl.ratio || "9:16");
+            document.title = tpl.title + " - 画布工作流";
+        }
         renderWFCanvas();
         document.getElementById("wfCanvas").scrollLeft = 0;
         if (window.speechSynthesis) window.speechSynthesis.getVoices();
+        if (isSameStyle && sameStyle) showToast("已载入同款", "角色/场景/台词已带入，可替换元素后重新生成");
     })();
 </script>
+<script src="assets/org-flow-ui.js"></script>
 </body>
 </html>

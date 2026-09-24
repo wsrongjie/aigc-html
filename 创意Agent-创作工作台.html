@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>创意助手 · 创作工作台</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #2f6bff;
+            --primary-dark: #1d4ed8;
+            --primary-light: #e8efff;
+            --sidebar-bg: #1C1C1E;
+            --sidebar-text: #A1A1AA;
+            --sidebar-active: #FFFFFF;
+            --card-bg: #FFFFFF;
+            --border: #E4E4E7;
+            --text-primary: #18181B;
+            --text-secondary: #71717A;
+            --text-muted: #A1A1AA;
+            --bg: #F7F7F8;
+            --radius: 12px;
+            --radius-sm: 8px;
+            --shadow: 0 1px 3px rgba(0,0,0,0.08);
+            --shadow-md: 0 4px 16px rgba(0,0,0,0.10);
+            --danger: #dc2626;
+            --danger-bg: #fee2e2;
+            --warn: #d97706;
+            --warn-bg: #fffbeb;
+            --ok: #059669;
+            --ok-bg: #ecfdf5;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Helvetica Neue', sans-serif;
+            background: var(--bg);
+            color: var(--text-primary);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+            font-size: 14px;
+        }
+        button { font: inherit; cursor: pointer; }
+        button:disabled { opacity: .5; cursor: not-allowed; }
+        .clamp1 { display:-webkit-box; -webkit-line-clamp:1; -webkit-box-orient:vertical; overflow:hidden; }
+        .clamp2 { display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+
+        /* ===== 侧边栏 ===== */
+        .sidebar { width: 216px; background: var(--sidebar-bg); display: flex; flex-direction: column; flex-shrink: 0; }
+        .sidebar-logo { padding: 22px 18px 18px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+        .logo-mark { display: flex; align-items: center; gap: 10px; }
+        .logo-icon { width: 34px; height: 34px; background: var(--primary); border-radius: 9px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 800; font-size: 15px; }
+        .logo-text { color: #fff; font-weight: 700; font-size: 15px; }
+        .logo-sub { color: var(--sidebar-text); font-size: 11px; margin-top: 2px; }
+        .sidebar-nav { flex: 1; padding: 10px 0; overflow-y: auto; }
+        .nav-item { display: flex; align-items: center; gap: 10px; padding: 11px 18px; margin: 2px 10px; cursor: pointer; color: var(--sidebar-text); border-radius: 9px; transition: all 0.15s; font-size: 13px; user-select: none; }
+        .nav-item:hover { color: #E4E4E7; background: rgba(255,255,255,0.05); }
+        .nav-item.active { color: var(--sidebar-active); background: rgba(47,107,255,0.18); }
+        .nav-item .nav-icon { width: 18px; text-align: center; }
+        .nav-item .nav-badge { margin-left: auto; font-size: 10px; background: rgba(255,255,255,0.1); color: var(--sidebar-text); padding: 1px 7px; border-radius: 999px; }
+        .nav-section-label { padding: 14px 18px 6px; font-size: 11px; color: #6b6b73; font-weight: 700; letter-spacing: .04em; }
+        .sidebar-bottom { padding: 14px 18px; border-top: 1px solid rgba(255,255,255,0.06); }
+        .user-info { display: flex; align-items: center; gap: 10px; }
+        .user-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--primary); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 13px; font-weight: 700; }
+        .user-name { color: #E4E4E7; font-size: 13px; }
+        .user-role { color: var(--sidebar-text); font-size: 11px; }
+
+        /* ===== 主区 ===== */
+        .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
+        .topbar { height: 56px; background: var(--card-bg); border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 24px; flex-shrink: 0; gap: 16px; }
+        .topbar-title { font-size: 16px; font-weight: 700; }
+        .topbar-desc { font-size: 12px; color: var(--text-muted); }
+        .topbar-actions { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+        .btn { height: 36px; padding: 0 14px; border-radius: 9px; border: 1px solid var(--border); background: #fff; color: var(--text-primary); font-weight: 600; font-size: 13px; display: inline-flex; align-items: center; gap: 6px; transition: all .15s; }
+        .btn:hover { border-color: var(--primary); color: var(--primary); }
+        .btn-primary { background: var(--primary); color: #fff; border-color: var(--primary); }
+        .btn-primary:hover { background: var(--primary-dark); color: #fff; }
+        .btn-ghost { border-color: transparent; background: transparent; color: var(--text-secondary); }
+        .btn-ghost:hover { background: #f4f4f5; color: var(--text-primary); }
+
+        .content { flex: 1; overflow-y: auto; min-height: 0; }
+        .page { max-width: 1320px; margin: 0 auto; padding: 24px 32px 60px; display: flex; flex-direction: column; gap: 28px; }
+
+        /* ===== 热点中心（顶部区块） ===== */
+        .hotsection { display: flex; flex-direction: column; gap: 14px; }
+        .hotsection-head { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+        .hotsection-title { font-size: 18px; font-weight: 800; display: flex; align-items: center; gap: 8px; }
+        .hotsection-updated { font-size: 12px; color: var(--text-muted); }
+        .refresh-btn { width: 28px; height: 28px; border-radius: 8px; border: 1px solid var(--border); background: #fff; color: var(--text-secondary); font-size: 14px; line-height: 1; }
+        .refresh-btn:hover { border-color: var(--primary); color: var(--primary); }
+        .hot-tabs { display: flex; gap: 6px; margin-left: auto; }
+        .hot-tab { height: 28px; padding: 0 12px; border-radius: 999px; border: 1px solid var(--border); background: #fff; color: var(--text-secondary); font-size: 12px; font-weight: 600; }
+        .hot-tab.active { background: var(--primary-light); color: var(--primary); border-color: var(--primary); }
+
+        .hot-scroll { display: flex; gap: 12px; overflow-x: auto; padding: 4px 2px 10px; scroll-snap-type: x mandatory; }
+        .hot-scroll::-webkit-scrollbar { height: 8px; }
+        .hot-scroll::-webkit-scrollbar-thumb { background: #d4d4d8; border-radius: 999px; }
+        .hot-card {
+            width: 200px; min-width: 200px; height: 126px; border: 1px solid var(--border); border-radius: 12px;
+            padding: 11px 12px; cursor: pointer; transition: all .18s; background: #fff; position: relative; overflow: hidden;
+            scroll-snap-align: start; display: flex; flex-direction: column;
+        }
+        .hot-card:hover { border-color: var(--primary); box-shadow: var(--shadow-md); transform: translateY(-2px); }
+        .hot-card.selected { border-color: var(--primary); background: var(--primary-light); box-shadow: 0 0 0 3px rgba(47,107,255,.10); }
+        .hot-card-top { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+        .hot-cat { font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 5px; }
+        .hot-cat.A股 { color: #dc2626; background: #fee2e2; }
+        .hot-cat.基金 { color: #2563eb; background: #eff6ff; }
+        .hot-cat.宏观 { color: #7c3aed; background: #f5f3ff; }
+        .hot-cat.债市 { color: #059669; background: #ecfdf5; }
+        .hot-heat { margin-left: auto; font-size: 11px; font-weight: 800; color: var(--warn); display: flex; align-items: center; gap: 3px; }
+        .hot-title { font-size: 13px; font-weight: 700; line-height: 1.4; margin-bottom: 5px; }
+        .hot-aud { font-size: 10px; color: var(--text-muted); margin-bottom: auto; }
+        .hot-foot { display: flex; align-items: center; font-size: 10px; color: var(--text-secondary); }
+        .hot-lifecycle { display: inline-flex; align-items: center; gap: 4px; }
+        .hot-lifecycle .dot { width: 5px; height: 5px; border-radius: 50%; background: #22c55e; }
+        .hot-lifecycle.fade .dot { background: #f59e0b; }
+        .hot-sources { margin-left: auto; color: var(--text-muted); }
+
+        /* hover 展开详情层 */
+        .hot-expand {
+            position: absolute; left: 0; right: 0; bottom: 0; padding: 9px 11px; background: #fff;
+            border-top: 1px solid var(--border); transform: translateY(100%); opacity: 0; transition: transform .2s ease, opacity .2s ease;
+        }
+        .hot-card:hover .hot-expand { transform: translateY(0); opacity: 1; }
+        .hot-expand .k { font-size: 10px; font-weight: 700; color: var(--text-secondary); margin-bottom: 3px; }
+        .hot-expand .angles { font-size: 11px; color: var(--primary); font-weight: 600; margin-bottom: 7px; }
+        .hot-expand .row { display: flex; align-items: center; gap: 8px; }
+        .btn-go { height: 26px; padding: 0 12px; border-radius: 7px; border: none; background: var(--primary); color: #fff; font-weight: 700; font-size: 11px; flex-shrink: 0; }
+        .btn-go:hover { background: var(--primary-dark); }
+        .hot-expand .more { margin-left: auto; font-size: 10px; color: var(--text-muted); }
+
+        /* ===== 创作工作台 ===== */
+        .studio { display: flex; flex-direction: column; gap: 16px; }
+        .studio-section-label { font-size: 12px; font-weight: 800; color: var(--text-muted); letter-spacing: .04em; text-transform: uppercase; }
+        .task-head { display: flex; align-items: flex-start; gap: 12px; }
+        .task-head h2 { font-size: 18px; font-weight: 800; flex: 1; }
+        .task-status { font-size: 12px; font-weight: 700; padding: 4px 12px; border-radius: 999px; }
+        .task-status.draft { color: #475569; background: #f1f5f9; }
+        .task-status.generating { color: var(--primary); background: var(--primary-light); }
+        .task-status.ready { color: var(--ok); background: var(--ok-bg); }
+        .task-status.adopted { color: #be185d; background: #fce7f3; }
+        .task-sub { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
+
+        .step-card { background: #fff; border: 1px solid var(--border); border-radius: 14px; box-shadow: var(--shadow); }
+        .step-head { display: flex; align-items: center; gap: 10px; padding: 14px 18px; border-bottom: 1px solid var(--border); }
+        .step-num { width: 24px; height: 24px; border-radius: 8px; background: var(--primary); color: #fff; font-size: 12px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .step-title { font-size: 14px; font-weight: 800; }
+        .step-hint { font-size: 12px; color: var(--text-muted); margin-left: auto; }
+        .step-body { padding: 16px 18px 18px; }
+
+        .brief-actions { display: flex; align-items: center; gap: 10px; margin-top: 14px; }
+
+        /* 创作假设摘要 */
+        .assume-box { background: linear-gradient(135deg,#f6f9ff,#eef2ff); border: 1px solid #dbe4ff; border-radius: 12px; padding: 14px 16px; }
+        .assume-label { font-size: 12px; font-weight: 800; color: var(--primary); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+        .assume-text { font-size: 14px; line-height: 2.1; color: var(--text-primary); }
+        .assume-chip { display: inline-flex; align-items: center; gap: 3px; padding: 1px 11px; margin: 0 3px; border-radius: 999px; background: #fff; border: 1px solid #c7d5ff; color: var(--primary); font-weight: 700; font-size: 13px; cursor: pointer; transition: all .15s; }
+        .assume-chip:hover { background: var(--primary); color: #fff; border-color: var(--primary); }
+        .assume-chip .chip-edit { font-size: 10px; opacity: .55; }
+        .assume-empty { font-size: 14px; color: var(--text-muted); line-height: 1.8; }
+
+        /* 胶囊下拉选择框 */
+        .chip-dropdown {
+            position: fixed; z-index: 200; display: none; background: #fff;
+            border: 1px solid var(--border); border-radius: 12px;
+            box-shadow: 0 16px 40px rgba(15,23,42,.18); padding: 8px; min-width: 180px; max-width: 280px;
+        }
+        .chip-dropdown .opt { padding: 8px 10px; border-radius: 8px; cursor: pointer; font-size: 13px; color: var(--text-primary); line-height: 1.4; }
+        .chip-dropdown .opt:hover { background: var(--primary-light); color: var(--primary); }
+        .chip-dropdown .opt.selected { background: var(--primary); color: #fff; }
+        .chip-dropdown .opt-divider { border-top: 1px solid var(--border); margin: 6px 2px; }
+        .chip-dropdown .custom-row { display: flex; gap: 6px; padding: 2px; }
+        .chip-dropdown .custom-input { flex: 1; min-width: 0; border: 1px solid var(--border); border-radius: 7px; padding: 7px 9px; font-size: 13px; outline: none; }
+        .chip-dropdown .custom-input:focus { border-color: var(--primary); }
+        .chip-dropdown .custom-btn { height: 32px; padding: 0 12px; border: none; border-radius: 7px; background: var(--primary); color: #fff; font-size: 12px; font-weight: 700; flex-shrink: 0; }
+        .chip-dropdown .custom-btn:hover { background: var(--primary-dark); }
+
+        .script-tabs { display: flex; gap: 8px; margin-bottom: 14px; }
+        .script-tab { height: 32px; padding: 0 16px; border-radius: 8px; border: 1px solid var(--border); background: #fff; font-size: 13px; font-weight: 600; color: var(--text-secondary); cursor: pointer; transition: all .15s; display: inline-flex; align-items: center; gap: 6px; }
+        .script-tab:hover { border-color: var(--primary); color: var(--primary); }
+        .script-tab.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+        .script-check { font-size: 13px; line-height: 1; opacity: .55; transition: all .15s; user-select: none; cursor: pointer; }
+        .script-tab:hover .script-check { opacity: 1; }
+        .script-check.checked { opacity: 1; color: var(--ok); }
+        .script-tab.active .script-check.checked { color: #fff; }
+        .script-tool-btn { height: 32px; padding: 0 12px; border-radius: 8px; border: 1px dashed var(--border); background: #fff; font-size: 12px; font-weight: 600; color: var(--text-secondary); cursor: pointer; transition: all .15s; }
+        .script-tool-btn:hover:not(:disabled) { border-color: var(--primary); color: var(--primary); }
+        .script-wrap { display: grid; grid-template-columns: minmax(0,1fr) 230px; gap: 16px; }
+        .script-editor { display: flex; flex-direction: column; gap: 12px; }
+        .seg-bar { display: flex; height: 30px; border-radius: 8px; overflow: hidden; border: 1px solid var(--border); }
+        .seg-bar-part { display: flex; align-items: center; justify-content: center; min-width: 0; }
+        .seg-bar-label { font-size: 11px; font-weight: 800; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 0 8px; }
+        .seg-hook { color: #be185d; background: #fce7f3; }
+        .seg-body { color: #2563eb; background: #eff6ff; }
+        .seg-cta { color: #059669; background: #ecfdf5; }
+        .seg-host { color: #2563eb; background: #eff6ff; }
+        .seg-guest { color: #be185d; background: #fce7f3; }
+        .seg-editbox { position: relative; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; background: #fff; }
+        .seg-hl { position: absolute; inset: 0; overflow: hidden; pointer-events: none; padding: 14px; font-size: 14px; line-height: 1.8; white-space: pre-wrap; word-break: break-word; color: transparent; }
+        .seg-hl mark { color: transparent; padding: 1px 0; border-radius: 3px; }
+        .seg-ta { position: relative; display: block; width: 100%; min-height: 240px; border: none; outline: none; resize: vertical; padding: 14px; font-family: inherit; font-size: 14px; line-height: 1.8; white-space: pre-wrap; word-break: break-word; color: var(--text-primary); background: transparent; box-sizing: border-box; }
+        .script-side { display: flex; flex-direction: column; gap: 12px; }
+        .side-box { border: 1px solid var(--border); border-radius: 10px; padding: 12px; background: #fafafa; }
+        .side-box h4 { font-size: 12px; font-weight: 800; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+        .duration-bar { height: 8px; background: #ececef; border-radius: 999px; overflow: hidden; margin: 8px 0; }
+        .duration-bar span { display: block; height: 100%; background: var(--primary); border-radius: 999px; transition: width .3s; }
+        .duration-stat { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-secondary); margin-bottom: 2px; }
+        .duration-stat b { color: var(--text-primary); }
+
+        .revise-toolbar { display: flex; flex-wrap: wrap; gap: 8px; }
+        .revise-btn { height: 34px; padding: 0 13px; border-radius: 9px; border: 1px solid var(--border); background: #fff; color: var(--text-primary); font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 5px; transition: all .15s; }
+        .revise-btn:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
+        .revise-btn:disabled { opacity: .45; }
+
+        .studio-foot { position: sticky; bottom: 0; background: rgba(255,255,255,.94); backdrop-filter: blur(8px); border-top: 1px solid var(--border); border-radius: 0 0 14px 14px; padding: 12px 18px; display: flex; align-items: center; gap: 10px; }
+        .btn-lg { height: 42px; padding: 0 22px; border-radius: 10px; font-weight: 800; font-size: 14px; }
+        .btn-adopt { background: var(--primary); color: #fff; border: none; box-shadow: 0 10px 22px rgba(47,107,255,.25); }
+        .btn-adopt:hover { background: var(--primary-dark); }
+        .foot-note { font-size: 12px; color: var(--text-muted); margin-left: auto; }
+
+        .gen-loading { display: flex; align-items: center; gap: 10px; color: var(--primary); font-size: 13px; font-weight: 600; padding: 8px 0; }
+        .spinner { width: 16px; height: 16px; border: 2px solid var(--primary-light); border-top-color: var(--primary); border-radius: 50%; animation: spin .8s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .toast { position: fixed; right: 24px; bottom: 24px; z-index: 100; width: 320px; background: #111827; color: #fff; border-radius: 12px; padding: 12px 14px; box-shadow: 0 16px 40px rgba(15,23,42,.24); display: none; }
+        .toast.show { display: block; }
+        .toast strong { display: block; margin-bottom: 4px; }
+        .toast span { color: #cbd5e1; font-size: 12px; line-height: 1.5; }
+
+        .fade-in { animation: fadeIn .3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+        @media (max-width: 900px) {
+            .sidebar { display: none; }
+            .script-wrap { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<aside class="sidebar">
+    <div class="sidebar-logo">
+        <div class="logo-mark">
+            <div class="logo-icon">创</div>
+            <div>
+                <div class="logo-text">投顾创意助手</div>
+                <div class="logo-sub">金融内容 · 创作工作台</div>
+            </div>
+        </div>
+    </div>
+    <nav class="sidebar-nav">
+        <div class="nav-item active"><span class="nav-icon">🖥</span> 工作台</div>
+        <div class="nav-item"><span class="nav-icon">🔥</span> 热点中心 <span class="nav-badge">12</span></div>
+        <div class="nav-item"><span class="nav-icon">📦</span> 产品 / 服务库</div>
+        <div class="nav-item"><span class="nav-icon">📐</span> 企业规则 / 风格</div>
+        <div class="nav-item"><span class="nav-icon">🗂</span> 历史内容</div>
+        <div class="nav-section-label">协作</div>
+        <div class="nav-item"><span class="nav-icon">🛡</span> 合规审核</div>
+        <div class="nav-item"><span class="nav-icon">👥</span> 团队管理</div>
+    </nav>
+    <div class="sidebar-bottom">
+        <div class="user-info">
+            <div class="user-avatar">王</div>
+            <div><div class="user-name">王运营</div><div class="user-role">内容运营 · 投顾事业部</div></div>
+        </div>
+    </div>
+</aside>
+
+<main class="main">
+    <div class="topbar">
+        <span class="topbar-title">创作工作台</span>
+        <span class="topbar-desc">从热点到合规口播稿，一站式创作</span>
+    </div>
+
+    <div class="content">
+        <div class="page">
+            <!-- 热点中心区块 -->
+            <section class="hotsection">
+                <div class="hotsection-head">
+                    <span class="hotsection-title">🔥 今日推荐创作</span>
+                    <span class="hotsection-updated">更新于 08:30 · 基于今日财经资讯聚类</span>
+                    <button class="refresh-btn" onclick="toast('已刷新','热点数据已更新至最新')" title="刷新">↻</button>
+                    <div class="hot-tabs" id="hotTabs">
+                        <button class="hot-tab active" data-cat="全部" onclick="filterHot(this)">全部</button>
+                        <button class="hot-tab" data-cat="A股" onclick="filterHot(this)">A股</button>
+                        <button class="hot-tab" data-cat="基金" onclick="filterHot(this)">基金</button>
+                        <button class="hot-tab" data-cat="宏观" onclick="filterHot(this)">宏观</button>
+                    </div>
+                </div>
+                <div class="hot-scroll" id="hotList"></div>
+            </section>
+
+            <!-- 创作工作台 -->
+            <section class="studio">
+                <div class="studio-section-label">创作工作台</div>
+                <div class="task-head">
+                    <div style="flex:1;">
+                        <h2 id="taskTitle">市场连续震荡，投资者情绪走低</h2>
+                        <div class="task-sub" id="taskSub">从热点「市场连续震荡」进入 · 目标时长 30 秒</div>
+                    </div>
+                    <span class="task-status ready" id="taskStatus">待审核</span>
+                </div>
+
+                <div class="step-card">
+                    <div class="step-head">
+                        <span class="step-num">1</span>
+                        <span class="step-title">创作信息</span>
+                        <span class="step-hint">可填可不填，缺失项由系统自动补全</span>
+                    </div>
+                    <div class="step-body">
+                        <div class="assume-box" id="assumeBox"></div>
+                        <div class="brief-actions">
+                            <button class="btn btn-primary" onclick="generateScript()" id="btnGenScript">生成口播稿 →</button>
+                            <button class="btn btn-ghost" onclick="resetBrief()">重置为系统补全值</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step-card" id="scriptCard" style="display:none;">
+                    <div class="step-head">
+                        <span class="step-num">2</span>
+                        <span class="step-title">口播稿 · 改稿</span>
+                        <span class="step-hint">口播适配已完成</span>
+                    </div>
+                    <div class="step-body">
+                        <div class="script-tabs" id="scriptTabs"></div>
+                        <div class="script-wrap">
+                            <div class="script-editor" id="scriptEditor"></div>
+                            <div class="script-side" id="scriptSide"></div>
+                        </div>
+                        <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:16px;">
+                            <div style="font-size:12px;font-weight:700;color:var(--text-secondary);margin-bottom:10px;">一键改稿</div>
+                            <div class="revise-toolbar" id="reviseToolbar"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="studio-foot">
+                    <button class="btn btn-lg btn-adopt" onclick="adopt()" id="btnAdopt" disabled>视频创作 →</button>
+                    <span class="foot-note" id="footNote">请先勾选至少 1 篇口播稿</span>
+                </div>
+            </section>
+        </div>
+    </div>
+</main>
+
+<div class="toast" id="toast">
+    <strong id="toastTitle"></strong>
+    <span id="toastText"></span>
+</div>
+
+<div class="chip-dropdown" id="chipDropdown"></div>
+
+<script>
+    var hotTopics = [
+        { id:'hot1', title:'市场连续震荡，投资者情绪走低', cat:'A股', heat:92, lifecycle:'黄金期 · 剩余 4h', lifecycleFade:false, sources:7, goals:['直播引流','投教内容'], audience:'权益基金投资者', angles:['亏损焦虑','投资误区','反常识'] },
+        { id:'hot2', title:'美联储降息预期再度升温', cat:'宏观', heat:88, lifecycle:'上升期 · 剩余 8h', lifecycleFade:false, sources:9, goals:['内容涨粉','投教'], audience:'关注海外市场的投资者', angles:['专家判断','问题悬念'] },
+        { id:'hot3', title:'新基民跑步入场，申购热度回升', cat:'基金', heat:76, lifecycle:'成熟期 · 剩余 12h', lifecycleFade:true, sources:5, goals:['推广产品'], audience:'新基民', angles:['身份代入','误区纠正'] },
+        { id:'hot4', title:'债基持续走强，资金涌入固收', cat:'基金', heat:71, lifecycle:'成熟期 · 剩余 10h', lifecycleFade:true, sources:4, goals:['推广产品','投教'], audience:'稳健型投资者', angles:['数据冲击','情绪共鸣'] },
+        { id:'hot5', title:'半导体板块放量拉升，成交活跃', cat:'A股', heat:64, lifecycle:'消退期 · 剩余 3h', lifecycleFade:true, sources:3, goals:['内容涨粉'], audience:'权益投资者', angles:['热点借势','反常识'] }
+    ];
+
+    var currentBrief = null;
+    var currentScript = null;
+    var scriptList = [];
+    var currentScriptIndex = 0;
+    var selectedScripts = {};
+
+    var briefSchema = [
+        { key:'goal', label:'营销目标', val:'请选择', ai:false, aiDefault:false, full:false },
+        { key:'product', label:'产品 / 服务', val:'请选择', ai:false, aiDefault:false, full:false },
+        { key:'audience', label:'用户人群', val:'请选择', ai:false, aiDefault:false, full:false },
+        { key:'topic', label:'热点 / 主题', val:'市场连续震荡', ai:false, aiDefault:false, full:false },
+        { key:'duration', label:'视频时长', val:'30 秒', ai:false, aiDefault:false, full:false },
+        { key:'style', label:'表达风格', val:'专业 + 口语', ai:true, aiDefault:true, full:false },
+        { key:'format', label:'口播形式', val:'单人口播', ai:true, aiDefault:true, full:false },
+        { key:'cta', label:'行动引导', val:'进入今晚直播间', ai:true, aiDefault:true, full:false },
+        { key:'count', label:'生成篇数', val:'1 篇', ai:false, aiDefault:false, full:false },
+        { key:'extra', label:'补充要求', val:'不涉及具体指数点位与收益数字', ai:true, aiDefault:true, full:true }
+    ];
+
+    var fieldOptions = {
+        goal: ['直播引流', '推广产品', '服务推广', '内容涨粉', '投教内容'],
+        product: ['XX 基金投顾服务', 'XX 会员服务', 'XX 投资课程'],
+        audience: ['权益基金投资者', '新基民', '高净值客户', '稳健型投资者', '30~45 岁投资者'],
+        duration: ['15 秒', '30 秒', '60 秒'],
+        style: ['专业 + 口语', '强钩子', '克制', '亲和口语'],
+        format: ['单人口播', '双人口播'],
+        cta: ['进入今晚直播间', '预约咨询', '领取报告', '关注我'],
+        count: ['1 篇', '3 篇', '5 篇'],
+        extra: ['不涉及具体指数点位与收益数字', '不含未来收益预测', '避免具体产品名称']
+    };
+
+    var CUSTOM_OPTIONS_KEY = 'creativeAgent_customFieldOptions';
+
+    function getCustomOptions() {
+        try { return JSON.parse(localStorage.getItem(CUSTOM_OPTIONS_KEY)) || {}; } catch (e) { return {}; }
+    }
+    function saveCustomOption(key, val) {
+        var c = getCustomOptions();
+        if (!c[key]) c[key] = [];
+        if (c[key].indexOf(val) < 0) c[key].push(val);
+        try { localStorage.setItem(CUSTOM_OPTIONS_KEY, JSON.stringify(c)); } catch (e) {}
+    }
+    function getFieldOptions(key) {
+        var builtin = fieldOptions[key] || [];
+        var custom = (getCustomOptions()[key] || []).filter(function(v){ return builtin.indexOf(v) < 0; });
+        return builtin.concat(custom);
+    }
+
+    function toast(title, text) {
+        document.getElementById('toastTitle').textContent = title;
+        document.getElementById('toastText').textContent = text;
+        var t = document.getElementById('toast');
+        t.classList.add('show');
+        clearTimeout(t._timer);
+        t._timer = setTimeout(function(){ t.classList.remove('show'); }, 2600);
+    }
+
+    function renderHotList(cat) {
+        var list = document.getElementById('hotList');
+        list.innerHTML = '';
+        hotTopics.filter(function(h){ return cat === '全部' || h.cat === cat; }).forEach(function(h) {
+            var div = document.createElement('div');
+            div.className = 'hot-card' + (currentBrief && currentBrief.hotId === h.id ? ' selected' : '');
+            div.innerHTML =
+                '<div class="hot-card-top"><span class="hot-cat ' + h.cat + '">' + h.cat + '</span>' +
+                '<span class="hot-heat">🔥 ' + h.heat + '</span></div>' +
+                '<div class="hot-title clamp2">' + h.title + '</div>' +
+                '<div class="hot-aud clamp1">适合 ' + h.audience + '</div>' +
+                '<div class="hot-foot">' +
+                    '<span class="hot-lifecycle ' + (h.lifecycleFade?'fade':'') + '"><span class="dot"></span>' + h.lifecycle + '</span>' +
+                    '<span class="hot-sources">' + h.sources + ' 个来源</span>' +
+                '</div>' +
+                '<div class="hot-expand">' +
+                    '<div class="k">推荐切口</div>' +
+                    '<div class="angles clamp1">' + h.angles.join(' · ') + '</div>' +
+                    '<div class="row"><button class="btn-go" onclick="selectHot(\'' + h.id + '\', event)">去创作</button>' +
+                    '<span class="more">' + h.goals.join(' · ') + '</span></div>' +
+                '</div>';
+            div.onclick = function(e){ if(e.target.tagName !== 'BUTTON') selectHot(h.id, e); };
+            list.appendChild(div);
+        });
+    }
+
+    function filterHot(btn) {
+        document.querySelectorAll('.hot-tab').forEach(function(b){ b.classList.remove('active'); });
+        btn.classList.add('active');
+        renderHotList(btn.dataset.cat);
+    }
+
+    function selectHot(id, e) {
+        if (e) e.stopPropagation();
+        var h = hotTopics.find(function(x){ return x.id === id; });
+        currentBrief = {
+            hotId: h.id,
+            goal: '请选择',
+            product: '请选择',
+            audience: '请选择',
+            topic: h.title.replace(/，.*$/,''),
+            duration: '30 秒',
+            style: '专业 + 口语',
+            format: '单人口播',
+            cta: '进入今晚直播间',
+            count: '1 篇',
+            extra: '不涉及具体指数点位与收益数字'
+        };
+        briefSchema.forEach(function(f){ f.val = currentBrief[f.key]; f.ai = f.aiDefault; });
+        document.getElementById('taskTitle').textContent = h.title;
+        document.getElementById('taskSub').textContent = '从热点「' + currentBrief.topic + '」进入 · 目标时长 30 秒';
+        renderHotList(document.querySelector('.hot-tab.active').dataset.cat);
+        renderBrief();
+        resetWorkspace();
+        document.querySelector('.studio').scrollIntoView({ behavior:'smooth', block:'start' });
+        toast('已带入热点', '创作信息已根据「' + h.title + '」自动补全');
+    }
+
+    function renderBrief() {
+        renderAssume();
+    }
+
+    function renderAssume() {
+        var box = document.getElementById('assumeBox');
+        if (!currentBrief) {
+            box.innerHTML =
+                '<div class="assume-label">💡 本次创作假设</div>' +
+                '<div class="assume-empty">尚未选择热点。请从上方「今日推荐创作」选择一条热点开始，系统会自动补全创作假设。</div>';
+            return;
+        }
+        var map = {};
+        briefSchema.forEach(function(f){ map[f.key] = f.val; });
+        function chip(key){
+            var action = (key === 'topic') ? 'editTopic(event)' : 'openChipDropdown(\'' + key + '\', this, event)';
+            return '<span class="assume-chip" onclick="' + action + '">' + map[key] + '<span class="chip-edit">✎</span></span>';
+        }
+        box.innerHTML =
+            '<div class="assume-label">💡 本次创作假设 <span style="font-weight:400;color:var(--text-muted);font-size:11px;">点击胶囊即可修改</span></div>' +
+            '<div class="assume-text">系统根据 ' + chip('topic') + ' 补全：面向 ' + chip('audience') + '，目标 ' + chip('goal') +
+            '，产品/服务 ' + chip('product') + '，生成 ' + chip('count') + '，时长 ' + chip('duration') + '，风格 ' + chip('style') + '，形式 ' + chip('format') + '，结尾引导 ' + chip('cta') + '，补充要求 ' + chip('extra') + '。</div>';
+    }
+
+    function resetBrief() {
+        if (!currentBrief) return;
+        briefSchema.forEach(function(f){ f.val = currentBrief[f.key]; f.ai = f.aiDefault; });
+        renderBrief();
+        toast('已重置', '创作信息已恢复为系统补全值');
+    }
+
+    function editTopic(event) {
+        event.stopPropagation();
+        var f = briefSchema.find(function(x){ return x.key === 'topic'; });
+        var nv = prompt('修改「' + f.label + '」', f.val);
+        if (nv !== null && nv.trim()) {
+            f.val = nv.trim();
+            f.ai = false;
+            currentBrief['topic'] = f.val;
+            renderBrief();
+            toast('已修改', f.label + ' 已更新为「' + f.val + '」');
+        }
+    }
+
+    function openChipDropdown(key, el, event) {
+        event.stopPropagation();
+        var f = briefSchema.find(function(x){ return x.key === key; });
+        var cur = f.val;
+        var opts = getFieldOptions(key);
+        var dd = document.getElementById('chipDropdown');
+        var html = '';
+        opts.forEach(function(o){
+            var esc = String(o).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+            html += '<div class="opt' + (o === cur ? ' selected' : '') + '" onclick="pickChipOption(\'' + key + '\', \'' + esc + '\')">' + o + '</div>';
+        });
+        html += '<div class="opt-divider"></div>';
+        html += '<div class="custom-row"><input class="custom-input" id="chipCustomInput" placeholder="自定义输入…" onkeydown="if(event.key===\'Enter\')pickCustomOption(\'' + key + '\')"><button class="custom-btn" onclick="pickCustomOption(\'' + key + '\')">保存</button></div>';
+        dd.innerHTML = html;
+        var rect = el.getBoundingClientRect();
+        dd.style.display = 'block';
+        var ddW = dd.offsetWidth;
+        var left = rect.left;
+        if (left + ddW > window.innerWidth - 12) left = window.innerWidth - ddW - 12;
+        dd.style.left = left + 'px';
+        var top = rect.bottom + 6;
+        if (top + dd.offsetHeight > window.innerHeight - 12) top = rect.top - dd.offsetHeight - 6;
+        dd.style.top = top + 'px';
+        var inp = document.getElementById('chipCustomInput');
+        if (inp) inp.focus();
+    }
+
+    function pickChipOption(key, val) {
+        var f = briefSchema.find(function(x){ return x.key === key; });
+        f.val = val;
+        f.ai = false;
+        currentBrief[key] = val;
+        closeChipDropdown();
+        renderBrief();
+        toast('已修改', f.label + ' 已更新为「' + val + '」');
+    }
+
+    function pickCustomOption(key) {
+        var inp = document.getElementById('chipCustomInput');
+        var v = inp ? inp.value.trim() : '';
+        if (!v) return;
+        if (key === 'count') {
+            var num = parseInt(v.replace(/[^0-9]/g, ''), 10);
+            if (isNaN(num) || num < 1) { toast('输入无效', '请输入大于 0 的整数篇数'); return; }
+            v = num + ' 篇';
+        }
+        saveCustomOption(key, v);
+        pickChipOption(key, v);
+    }
+
+    function closeChipDropdown() {
+        document.getElementById('chipDropdown').style.display = 'none';
+    }
+
+    function resetWorkspace() {
+        document.getElementById('scriptCard').style.display = 'none';
+        currentScript = null;
+        scriptList = [];
+        currentScriptIndex = 0;
+        selectedScripts = {};
+        document.getElementById('taskStatus').className = 'task-status draft';
+        document.getElementById('taskStatus').textContent = '草稿';
+        updateAdoptState();
+    }
+
+    function buildMockScripts(fmt, count) {
+        var list = [];
+        if (fmt === '双人口播') {
+            var dialogs = [
+                [
+                    { speaker: '主持人', text: '这轮震荡，很多人的账户又绿了，心里是不是有点发毛？' },
+                    { speaker: '嘉宾', text: '发毛正常，但真正危险的，是这时候开始乱操作。' },
+                    { speaker: '主持人', text: '怎么说？' },
+                    { speaker: '嘉宾', text: '追涨杀跌、来回折腾，手续费和情绪成本，比短期浮亏更伤账户。真正拉开差距的，是能不能稳住仓位、按纪律执行。' },
+                    { speaker: '主持人', text: '那普通投资者到底该看什么、做什么？' },
+                    { speaker: '嘉宾', text: '今晚直播间，我把这件事讲清楚，欢迎来聊。' }
+                ],
+                [
+                    { speaker: '主持人', text: '一跌就想卖，一涨就想追，是不是你？' },
+                    { speaker: '嘉宾', text: '大多数散户都这样，结果就是来回挨打。' },
+                    { speaker: '主持人', text: '那正确的做法是什么？' },
+                    { speaker: '嘉宾', text: '先问自己当初为什么买。逻辑没变，就别因为价格波动自己吓自己。' },
+                    { speaker: '主持人', text: '听着简单，做起来难。' },
+                    { speaker: '嘉宾', text: '所以需要纪律，今晚直播间我教你一套简单的执行方法。' }
+                ],
+                [
+                    { speaker: '主持人', text: '很多人说，这波下跌我早就想跑了。' },
+                    { speaker: '嘉宾', text: '想跑不是错，错的是在恐慌里做决定。' },
+                    { speaker: '主持人', text: '怎么判断是不是恐慌？' },
+                    { speaker: '嘉宾', text: '看你做决定的理由是价格，还是逻辑。价格跌了就慌，这就是情绪。' },
+                    { speaker: '主持人', text: '那该看什么？' },
+                    { speaker: '嘉宾', text: '看你的仓位和承受能力，今晚直播间我们具体聊。' }
+                ],
+                [
+                    { speaker: '主持人', text: '专家说现在是机会，散户说赶紧跑，听谁的？' },
+                    { speaker: '嘉宾', text: '都别急着听，先看看自己的情况。' },
+                    { speaker: '主持人', text: '这怎么讲？' },
+                    { speaker: '嘉宾', text: '机会和风险都是相对的，取决于你的仓位、期限和能承受多少波动。' },
+                    { speaker: '主持人', text: '所以没有标准答案？' },
+                    { speaker: '嘉宾', text: '对，但有标准方法，今晚直播间我帮你算清楚。' }
+                ],
+                [
+                    { speaker: '主持人', text: '这波震荡，你的账户还好吗？' },
+                    { speaker: '嘉宾', text: '账户波动很正常，关键是心态别跟着崩。' },
+                    { speaker: '主持人', text: '心态崩了会怎样？' },
+                    { speaker: '嘉宾', text: '就会乱操作，追涨杀跌，把一次小回调变成真亏损。' },
+                    { speaker: '主持人', text: '怎么避免？' },
+                    { speaker: '嘉宾', text: '提前定好纪律、严格执行，今晚直播间展开讲。' }
+                ]
+            ];
+            for (var i = 0; i < count; i++) {
+                var d = dialogs[i % dialogs.length];
+                list.push({ format: 'dialogue', lines: d.map(function(l){ return { speaker: l.speaker, text: l.text }; }) });
+            }
+        } else {
+            var singles = [
+                {
+                    hook: '今天一看账户，你是不是又有点坐不住了？',
+                    body: '很多人在震荡里反复操作，追涨杀跌，手续费和情绪成本，比短期浮亏更伤账户。真正拉开差距的，不是预测明天涨跌，而是你能不能稳住仓位、按纪律执行。我们的投顾服务，帮你守住长期收益。',
+                    cta: '今晚直播间，我把这件事讲清楚，欢迎来聊。'
+                },
+                {
+                    hook: '市场下跌时，真正危险的可能不是下跌本身。',
+                    body: '大多数人亏钱不是因为看错了方向，而是跌下来之后乱操作。频繁买卖的手续费、追涨杀跌的情绪消耗，往往比那一波回调更伤。这时候要做的，反而是少动、拿住、按计划来。',
+                    cta: '想知道震荡期该怎么管住手？今晚直播间见。'
+                },
+                {
+                    hook: '行情一跌就补仓？很多人第一步就做错了。',
+                    body: '补仓本身没错，错的是不看仓位、不看纪律地盲目加。越跌越买、越买越重，最后把一次小回调变成了大问题。真正该做的，是先问自己当初为什么买、还能承受多少波动。',
+                    cta: '你的持仓到底该怎么处理？今晚直播间我帮你梳理。'
+                },
+                {
+                    hook: '我更担心的不是今天跌了多少，而是很多人的应对方式。',
+                    body: '短期的涨跌很难预测，但应对方式决定了长期结果。震荡里反复操作的人，往往用情绪代替纪律，最后既没躲过下跌，也没吃到反弹。拉开差距的，永远是仓位和执行力。',
+                    cta: '下期我专门讲震荡期的仓位管理，记得关注。'
+                },
+                {
+                    hook: '这波震荡，账户缩水的朋友先别急着动。',
+                    body: '先冷静下来，看看自己的仓位和当初的买入逻辑有没有变。如果只是因为害怕就想跑，大概率会卖在低点；如果只是看到别人恐慌就跟着慌，更需要一份纪律。拿得住，比猜得准更重要。',
+                    cta: '今晚直播间，一起聊聊现在该怎么办。'
+                }
+            ];
+            for (var j = 0; j < count; j++) {
+                var s = singles[j % singles.length];
+                list.push({ format: 'single', hook: s.hook, body: s.body, cta: s.cta });
+            }
+        }
+        return list;
+    }
+
+    function generateScript() {
+        var btn = document.getElementById('btnGenScript');
+        btn.disabled = true;
+        btn.textContent = '生成中…';
+        document.getElementById('taskStatus').className = 'task-status generating';
+        document.getElementById('taskStatus').textContent = '生成口播稿中';
+        document.getElementById('scriptCard').style.display = 'none';
+
+        setTimeout(function(){
+            var fmt = briefSchema.find(function(f){ return f.key === 'format'; }).val;
+            var count = parseInt(briefSchema.find(function(f){ return f.key === 'count'; }).val, 10) || 1;
+            scriptList = buildMockScripts(fmt, count);
+            selectedScripts = {};
+            currentScriptIndex = 0;
+            currentScript = scriptList[0];
+            renderScript();
+            document.getElementById('scriptCard').style.display = 'block';
+            document.getElementById('scriptCard').classList.add('fade-in');
+            document.getElementById('taskStatus').className = 'task-status ready';
+            document.getElementById('taskStatus').textContent = '待审核';
+            btn.disabled = false;
+            btn.textContent = '重新生成口播稿';
+            updateAdoptState();
+            document.getElementById('scriptCard').scrollIntoView({ behavior:'smooth', block:'start' });
+        }, 1100);
+    }
+
+    function escapeHtml(s) {
+        return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    function getScriptSegments() {
+        if (currentScript.format === 'dialogue') {
+            return currentScript.lines.map(function(l, i){
+                return { key: 'line' + i, label: l.speaker, text: l.text, cls: (l.speaker === '主持人' ? 'seg-host' : 'seg-guest') };
+            });
+        }
+        return [
+            { key: 'hook', label: '开场钩子', text: currentScript.hook, cls: 'seg-hook' },
+            { key: 'body', label: '正文', text: currentScript.body, cls: 'seg-body' },
+            { key: 'cta', label: '行动引导', text: currentScript.cta, cls: 'seg-cta' }
+        ];
+    }
+
+    function renderScript() {
+        renderScriptTabs();
+        var editor = document.getElementById('scriptEditor');
+        var segs = getScriptSegments();
+        var fullText = segs.map(function(s){ return s.text; }).join('\n\n');
+        var bar = segs.map(function(s){
+            return '<div class="seg-bar-part ' + s.cls + '" style="flex:' + Math.max(1, s.text.length) + ' 1 0;"><span class="seg-bar-label">' + s.label + '</span></div>';
+        }).join('');
+        var hl = segs.map(function(s, i){
+            return '<mark class="' + s.cls + '">' + escapeHtml(s.text) + '</mark>' + (i < segs.length - 1 ? '\n\n' : '');
+        }).join('');
+        editor.innerHTML =
+            '<div class="seg-bar">' + bar + '</div>' +
+            '<div class="seg-editbox">' +
+                '<div class="seg-hl">' + hl + '</div>' +
+                '<textarea class="seg-ta" spellcheck="false"></textarea>' +
+            '</div>';
+        var ta = editor.querySelector('.seg-ta');
+        var hlEl = editor.querySelector('.seg-hl');
+        ta.value = fullText;
+        ta.addEventListener('input', updateDuration);
+        ta.addEventListener('scroll', function(){ hlEl.scrollTop = ta.scrollTop; });
+        renderScriptSide();
+        updateDuration();
+    }
+
+    function renderScriptTabs() {
+        var box = document.getElementById('scriptTabs');
+        if (!box) return;
+        if (scriptList.length <= 1) {
+            box.innerHTML = '';
+            box.style.display = 'none';
+            return;
+        }
+        box.style.display = 'flex';
+        var allChecked = scriptList.every(function(s, i){ return !!selectedScripts[i]; });
+        var noneChecked = Object.keys(selectedScripts).length === 0;
+        box.innerHTML = scriptList.map(function(s, i){
+            var checked = !!selectedScripts[i];
+            return '<div class="script-tab' + (i === currentScriptIndex ? ' active' : '') + '" onclick="switchScript(' + i + ')">' +
+                '<span class="script-check' + (checked ? ' checked' : '') + '" onclick="event.stopPropagation();toggleSelectScript(' + i + ')" title="勾选后可直接带入视频创作">' + (checked ? '☑' : '☐') + '</span>第 ' + (i + 1) + ' 篇</div>';
+        }).join('') +
+            '<span style="flex:1"></span>' +
+            '<button class="script-tool-btn" onclick="selectAllScripts()"' + (allChecked ? ' disabled' : '') + '>全选</button>' +
+            '<button class="script-tool-btn" onclick="clearSelectedScripts()"' + (noneChecked ? ' disabled' : '') + '>取消</button>';
+    }
+
+    function selectAllScripts() {
+        scriptList.forEach(function(s, i){ selectedScripts[i] = true; });
+        renderScriptTabs();
+        updateAdoptState();
+    }
+
+    function clearSelectedScripts() {
+        selectedScripts = {};
+        renderScriptTabs();
+        updateAdoptState();
+    }
+
+    function toggleSelectScript(i) {
+        if (selectedScripts[i]) delete selectedScripts[i];
+        else selectedScripts[i] = true;
+        renderScriptTabs();
+        updateAdoptState();
+    }
+
+    function updateAdoptState() {
+        var n = Object.keys(selectedScripts).length;
+        document.getElementById('btnAdopt').disabled = n < 1;
+        var note = document.getElementById('footNote');
+        if (note) note.textContent = n >= 1 ? ('已勾选 ' + n + ' 篇 · 点击「视频创作」带入批量成片') : '请先勾选至少 1 篇口播稿';
+    }
+
+    function switchScript(i) {
+        if (i === currentScriptIndex) return;
+        currentScriptIndex = i;
+        currentScript = scriptList[i];
+        renderScript();
+    }
+
+    function renderScriptSide() {
+        var fullText = '';
+        if (currentScript.format === 'dialogue') {
+            currentScript.lines.forEach(function(l){ fullText += l.text; });
+        } else {
+            fullText = currentScript.hook + currentScript.body + currentScript.cta;
+        }
+        var formatTag = (currentScript.format === 'dialogue') ? '双人口播' : '单人口播';
+        var styleVal = briefSchema.find(function(f){ return f.key === 'style'; }).val;
+        var side = document.getElementById('scriptSide');
+        side.innerHTML =
+            '<div class="side-box">' +
+                '<h4>⏱ 时长估算</h4>' +
+                '<div class="duration-stat"><span>目标时长</span><b>30 秒</b></div>' +
+                '<div class="duration-bar"><span id="durBar" style="width:100%"></span></div>' +
+                '<div class="duration-stat"><span>预估时长</span><b id="estDur">31 秒</b></div>' +
+                '<div class="duration-stat"><span>总字数</span><b id="charCount">' + fullText.length + ' 字</b></div>' +
+            '</div>' +
+            '<div class="side-box">' +
+                '<h4>🏷 风格标签</h4>' +
+                '<div style="display:flex;flex-wrap:wrap;gap:6px;">' +
+                    '<span style="font-size:11px;color:var(--primary);background:var(--primary-light);padding:2px 9px;border-radius:999px;font-weight:600;">' + styleVal + '</span>' +
+                    '<span style="font-size:11px;color:var(--text-secondary);background:#f4f4f5;padding:2px 9px;border-radius:999px;font-weight:600;">' + formatTag + '</span>' +
+                '</div>' +
+            '</div>';
+    }
+
+    function updateDuration() {
+        var ta = document.querySelector('#scriptEditor .seg-ta');
+        if (!ta) return;
+        var chars = ta.value.length;
+        var sec = Math.round(chars / 5.2);
+        document.getElementById('charCount').textContent = chars + ' 字';
+        document.getElementById('estDur').textContent = sec + ' 秒';
+        var pct = Math.min(120, Math.round(sec / 30 * 100));
+        document.getElementById('durBar').style.width = pct + '%';
+        document.getElementById('durBar').style.background = sec > 38 ? '#dc2626' : (sec > 34 ? '#f59e0b' : 'var(--primary)');
+    }
+
+    function renderReviseToolbar() {
+        var tools = [
+            { label:'换钩子', icon:'🪝', fn:function(){ reviseHook(); } },
+            { label:'更抓人', icon:'⚡', fn:function(){ reviseSpicy(); } },
+            { label:'更口语', icon:'💬', fn:function(){ reviseOral(); } },
+            { label:'更专业', icon:'🎓', fn:function(){ revisePro(); } },
+            { label:'弱化广告感', icon:'🎯', fn:function(){ reviseSoft(); } },
+            { label:'缩短', icon:'✂', fn:function(){ reviseShort(); } },
+            { label:'换引导', icon:'🔀', fn:function(){ reviseCta(); } }
+        ];
+        var bar = document.getElementById('reviseToolbar');
+        bar.innerHTML = '';
+        tools.forEach(function(t){
+            var b = document.createElement('button');
+            b.className = 'revise-btn';
+            b.innerHTML = t.icon + ' ' + t.label;
+            b.onclick = t.fn;
+            bar.appendChild(b);
+        });
+    }
+
+    function reviseHook() {
+        if (currentScript.format === 'dialogue') {
+            currentScript.lines[0].text = '你的账户这两天，是不是又在悄悄缩水了？';
+            toast('已换钩子', '开场已重写，核心观点与结尾保持不变');
+        } else {
+            currentScript.hook = '这轮震荡，真正让人亏钱的不是下跌，是乱操作。';
+            toast('已换钩子', '开头已重写，核心观点与引导语保持不变');
+        }
+        renderScript();
+    }
+    function reviseSpicy() {
+        if (currentScript.format === 'dialogue') {
+            currentScript.lines[0].text = '这两天，你的账户是不是又在悄悄缩水了？';
+            toast('已增强钩子', '冲突与情绪更强');
+        } else {
+            currentScript.hook = '你的账户这两天，是不是又在悄悄缩水了？';
+            toast('已增强钩子', '冲突与情绪更强，未突破合规约束');
+        }
+        renderScript();
+    }
+    function reviseOral() {
+        if (currentScript.format === 'dialogue') {
+            var alt = ['这轮跌下来，你慌没慌？','账户一绿，谁心里不发毛。','那咋办？','别乱动。追涨杀跌来回折腾，手续费加心累，比短期亏的那点还伤。关键是拿得住、按计划来。','那具体该看啥？','今晚直播间，我跟你讲清楚。'];
+            currentScript.lines.forEach(function(l, i){ if (alt[i]) l.text = alt[i]; });
+            toast('已口语化', '对话更自然，短句与停顿更多');
+        } else {
+            currentScript.body = '很多人一跌就乱动，追涨杀跌来回折腾，手续费加上心累，比短期亏的那点还伤。说白了，拉开差距的不是你会不会预测，而是你能不能拿得住、按计划来。';
+            toast('已口语化', '书面表达已降低，短句与自然停顿更多');
+        }
+        renderScript();
+    }
+    function revisePro() {
+        if (currentScript.format === 'dialogue') {
+            var alt = ['这轮震荡中，你的持仓体验如何？','波动在所难免，但真正的风险往往来自应对方式，而非短期涨跌。','能否具体说说？','频繁交易的摩擦成本与情绪扰动，通常超过短期净值波动本身的影响。决定长期结果的，是仓位纪律与执行的一致性。','那投资者应关注什么？','今晚直播间，我会把这个问题讲清楚。'];
+            currentScript.lines.forEach(function(l, i){ if (alt[i]) l.text = alt[i]; });
+            toast('已增强专业性', '信息密度提升，术语保持克制');
+        } else {
+            currentScript.body = '震荡行情中，频繁交易的摩擦成本与情绪扰动，往往超过短期净值波动的实际影响。决定长期结果的，不是对短期走势的预判，而是仓位纪律与执行的一致性。';
+            toast('已增强专业性', '信息密度提升，术语仍保持克制');
+        }
+        renderScript();
+    }
+    function reviseSoft() {
+        if (currentScript.format === 'dialogue') {
+            var alt = ['这轮震荡，账户又绿了，心里发毛吗？','发毛正常，但别急着动手。','那该怎么做？','先想清楚自己当初为什么买，再看该不该动。频繁操作的手续费和情绪成本，比短期浮亏更伤账户。','听起来关键在纪律？','对，今晚直播间，我把这件事讲清楚。'];
+            currentScript.lines.forEach(function(l, i){ if (alt[i]) l.text = alt[i]; });
+            toast('已弱化广告感', '产品露出已推迟，先增强内容价值');
+        } else {
+            currentScript.body = '很多人在震荡里反复操作，手续费和情绪成本，比短期浮亏更伤账户。真正拉开差距的，是你能不能稳住仓位、按纪律执行，而不是靠猜涨跌。';
+            toast('已弱化广告感', '产品露出已推迟，先增强内容价值');
+        }
+        renderScript();
+    }
+    function reviseShort() {
+        if (currentScript.format === 'dialogue') {
+            currentScript.lines = [
+                { speaker: '主持人', text: '这轮震荡，你慌了吗？' },
+                { speaker: '嘉宾', text: '真正危险的，是这时候乱操作。' },
+                { speaker: '主持人', text: '那怎么办？' },
+                { speaker: '嘉宾', text: '拿得住、按纪律来。' },
+                { speaker: '嘉宾', text: '今晚直播间，我讲清楚。' }
+            ];
+            toast('已缩短', '对话已精简，保持核心观点');
+        } else {
+            currentScript.body = '震荡里反复操作，手续费和情绪成本比浮亏更伤。拉开差距的，是能不能按纪律稳住仓位。';
+            toast('已缩短', '正文已压缩，保持核心观点不变');
+        }
+        renderScript();
+    }
+    function reviseCta() {
+        if (currentScript.format === 'dialogue') {
+            var last = currentScript.lines[currentScript.lines.length - 1];
+            last.text = '关注我，下期讲震荡期该怎么看仓位。';
+            toast('已更换引导语', '行动引导已调整为关注转化');
+        } else {
+            currentScript.cta = '关注我，下期讲震荡期该怎么看仓位。';
+            toast('已更换引导语', '行动引导已调整为关注转化');
+        }
+        renderScript();
+    }
+
+    function adopt() {
+        var idxs = Object.keys(selectedScripts).map(Number).sort(function(a,b){ return a-b; });
+        if (!idxs.length) { toast('请先勾选口播稿', '至少勾选 1 篇后再进入视频创作'); return; }
+        var texts = idxs.map(function(i){
+            var s = scriptList[i];
+            if (!s) return '';
+            if (s.format === 'dialogue') {
+                return s.lines.map(function(l){ return l.speaker + '：' + l.text; }).join('\n');
+            }
+            return [s.hook, s.body, s.cta].join('\n');
+        }).filter(function(t){ return t && t.trim(); });
+        if (!texts.length) { toast('台词为空', '所选口播稿无内容，无法进入视频创作'); return; }
+        var title = document.getElementById('taskTitle').textContent || '创意任务';
+        try {
+            localStorage.setItem('script-tool-handoff', JSON.stringify({
+                target: '简单模式-流程版-模板版.html',
+                from: '创意Agent',
+                title: title,
+                texts: texts,
+                at: Date.now()
+            }));
+        } catch (e) {}
+        document.getElementById('taskStatus').className = 'task-status adopted';
+        document.getElementById('taskStatus').textContent = '已采用 · 进入视频创作';
+        document.getElementById('btnAdopt').disabled = true;
+        toast('已采用 ✓', '已携带 ' + texts.length + ' 篇口播稿进入视频创作');
+        setTimeout(function(){
+            window.location.href = '简单模式-流程版-模板版.html';
+        }, 800);
+    }
+
+    function saveDraft() {
+        toast('草稿已保存', '当前创作信息与口播稿已存为草稿');
+    }
+
+    function newTask() {
+        currentBrief = null;
+        currentScript = null;
+        scriptList = [];
+        currentScriptIndex = 0;
+        selectedScripts = {};
+        document.getElementById('taskTitle').textContent = '新建创作任务';
+        document.getElementById('taskSub').textContent = '从上方选择热点开始创作';
+        document.getElementById('taskStatus').className = 'task-status draft';
+        document.getElementById('taskStatus').textContent = '草稿';
+        document.getElementById('scriptCard').style.display = 'none';
+        updateAdoptState();
+        renderBrief();
+        renderHotList(document.querySelector('.hot-tab.active').dataset.cat);
+        toast('已新建任务', '请选择热点开始创作');
+    }
+
+    document.addEventListener('click', function(e){
+        var dd = document.getElementById('chipDropdown');
+        if (dd && dd.style.display === 'block' && !dd.contains(e.target)) closeChipDropdown();
+    });
+
+    renderHotList('全部');
+    renderBrief();
+    renderReviseToolbar();
+    selectHot('hot1');
+    generateScript();
+</script>
+</body>
+</html>
