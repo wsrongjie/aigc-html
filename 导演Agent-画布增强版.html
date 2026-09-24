@@ -325,7 +325,7 @@ dialog::backdrop{background:rgba(10,20,40,.52)}
 .node-grip{margin-left:auto;color:#a5b1c4;font-size:14px;letter-spacing:2px;padding-top:3px}
 .panel-body{padding:20px 24px 24px}
 .steps{position:absolute;left:50%;bottom:16px;transform:translateX(-50%);z-index:30;background:rgba(255,255,255,.95);border:1px solid var(--line);border-radius:99px;box-shadow:0 12px 30px rgba(20,35,64,.16);padding:7px 14px;overflow:visible}
-.canvas-hint{position:absolute;top:14px;left:16px;z-index:30;background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:99px;padding:6px 12px;font-size:11px;color:var(--muted);box-shadow:0 6px 18px rgba(20,35,64,.08)}
+.canvas-hint{position:absolute;top:78px;left:16px;z-index:30;background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:99px;padding:6px 12px;font-size:11px;color:var(--muted);box-shadow:0 6px 18px rgba(20,35,64,.08)}
 .canvas-tools{position:absolute;right:16px;bottom:16px;z-index:30;display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.95);border:1px solid var(--line);border-radius:99px;padding:6px 10px;box-shadow:0 12px 30px rgba(20,35,64,.16)}
 .canvas-tools .btn{min-height:30px;padding:4px 10px}
 .canvas-tools #zoomLabel{min-width:44px;text-align:center;font-size:12px;font-weight:700;color:#475467}
@@ -335,9 +335,9 @@ dialog::backdrop{background:rgba(10,20,40,.52)}
 .spec-row{display:grid;grid-template-columns:46px minmax(0,1fr);align-items:center;gap:8px}
 .spec-row>span{font-size:12px;font-weight:700;color:#344054}
 .pill-group{display:flex;align-items:stretch;gap:6px}
-.pill{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;min-height:34px;padding:5px 8px;border:1px solid #dce3ee;border-radius:9px;background:#fff;color:#475467;font-size:12px;font-weight:700;transition:border-color .15s,background .15s,box-shadow .15s}
-.pill:hover{border-color:#9db8ed;color:#235bd1}
-.pill.active{border-color:#2f6bff;background:#f1f6ff;color:#1e58cf;box-shadow:0 0 0 2px rgba(47,107,255,.12)}
+.pill-group .pill{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;min-height:34px;padding:5px 8px;border:1px solid #dce3ee;border-radius:9px;background:#fff;color:#475467;font-size:12px;font-weight:700;transition:border-color .15s,background .15s,box-shadow .15s}
+.pill-group .pill:hover{border-color:#9db8ed;color:#235bd1}
+.pill-group .pill.active{border-color:#2f6bff;background:#f1f6ff;color:#1e58cf;box-shadow:0 0 0 2px rgba(47,107,255,.12)}
 .pill.active .ratio-frame{border-color:#2f6bff;background:#dbe7ff}
 .ratio-frame{display:block;flex:none;border:2px solid #b8c6df;border-radius:3px;background:#eef3fb;transition:border-color .15s,background .15s}
 .r-vertical{width:9px;height:15px}
@@ -424,12 +424,12 @@ dialog::backdrop{background:rgba(10,20,40,.52)}
 .node-canvas-action.is-active{border-color:#e5b750;background:#fff7df;color:#9b6400}
 .node-canvas-action svg{width:13px;height:13px;pointer-events:none}
 .node-grip{margin-left:0}
-.canvas-tools{top:14px;right:16px;bottom:auto;max-width:calc(100% - 430px);flex-wrap:wrap;justify-content:flex-end;border-radius:12px;padding:6px 8px}
+.canvas-tools{top:78px;right:16px;bottom:auto;max-width:calc(100% - 430px);flex-wrap:wrap;justify-content:flex-end;border-radius:12px;padding:6px 8px}
 .canvas-tools .btn.active{border-color:#7da2ec;background:#eaf2ff;color:#1f5bd5;box-shadow:inset 0 0 0 1px rgba(47,107,255,.1)}
 .canvas-tools .btn:disabled{opacity:.38;cursor:default}
 .canvas-tools .tool-icon{min-width:31px;padding:4px 7px;font-size:15px}
 .tool-separator{width:1px;height:22px;background:#dce3ee;margin:0 1px}
-.canvas-selection-status{position:absolute;top:62px;left:50%;z-index:31;display:flex;align-items:center;gap:8px;transform:translateX(-50%);min-height:30px;padding:5px 11px;border:1px solid #cfdbf2;border-radius:99px;background:rgba(247,250,255,.94);box-shadow:0 8px 22px rgba(30,68,132,.1);color:#4c617f;font-size:11px;font-weight:700;pointer-events:none;opacity:0;transition:opacity .15s}
+.canvas-selection-status{position:absolute;top:132px;left:50%;z-index:31;display:flex;align-items:center;gap:8px;transform:translateX(-50%);min-height:30px;padding:5px 11px;border:1px solid #cfdbf2;border-radius:99px;background:rgba(247,250,255,.94);box-shadow:0 8px 22px rgba(30,68,132,.1);color:#4c617f;font-size:11px;font-weight:700;pointer-events:none;opacity:0;transition:opacity .15s}
 .canvas-selection-status.is-visible{opacity:1}
 .canvas-selection-status b{color:#245bd0}
 .selection-marquee{position:absolute;z-index:22;display:none;border:1px solid #2f6bff;background:rgba(47,107,255,.11);box-shadow:inset 0 0 0 1px rgba(255,255,255,.45);pointer-events:none}
@@ -447,9 +447,9 @@ dialog::backdrop{background:rgba(10,20,40,.52)}
 .canvas-minimap .mini-node.selected{fill:#dfeaff;stroke:#2f6bff;stroke-width:1.5}
 .canvas-minimap .mini-node.locked{fill:#fff3d2;stroke:#c68a13}
 .canvas-minimap .mini-viewport{fill:rgba(47,107,255,.08);stroke:#2f6bff;stroke-width:1.2}
-.canvas-shortcuts{position:absolute;left:16px;top:56px;z-index:30;display:flex;gap:6px;pointer-events:none}
+.canvas-shortcuts{position:absolute;left:16px;top:120px;z-index:30;display:flex;gap:6px;pointer-events:none}
 .canvas-shortcuts span{padding:4px 7px;border:1px solid rgba(207,216,232,.8);border-radius:7px;background:rgba(255,255,255,.78);color:#78879c;font-size:9px;font-weight:700}
-@media(max-width:1180px){.canvas-tools{max-width:calc(100% - 32px);top:50px}.canvas-hint{max-width:calc(100% - 32px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.canvas-selection-status{top:92px}.canvas-shortcuts{display:none}}
+@media(max-width:1180px){.canvas-tools{max-width:calc(100% - 32px);top:78px}.canvas-hint{max-width:calc(100% - 32px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.canvas-selection-status{top:132px}.canvas-shortcuts{display:none}}
 @media(max-width:760px){.canvas-minimap{width:160px}.canvas-minimap svg{height:86px}.canvas-tools .btn:not(.tool-icon):not(#snapToggleBtn){display:none}.tool-separator{display:none}.canvas-selection-status{display:none}}
 </style>
 <style id="__dm_no_drag_style__">* { -webkit-user-drag: none !important; }</style><style id="__dm_bindable_badge_style__">[data-sp-bindable="database"]{outline:1px dashed #0088ff;outline-offset:2px;border-radius:4px;}[data-sp-bindable="database"] *{pointer-events:none !important;transition:none !important;animation:none !important;}[data-sp-bindable="database"]{transition:none !important;animation:none !important;}</style></head>
