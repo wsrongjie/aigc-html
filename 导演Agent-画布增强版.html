@@ -685,21 +685,21 @@ function assetCatalog(){
   function add(item){if(!item||!item.id||seen[item.id])return;seen[item.id]=true;item.overrideName=state.assetOverrides&&state.assetOverrides[item.id]&&state.assetOverrides[item.id].fileName||'';result.push(item)}
   demoCatalog.forEach(add);
   var meta=state.dslMeta||{};
-  (Array.isArray(meta.roles)?meta.roles:[]).forEach(function(item){add({id:item.id,type:'character',name:item.name||item.id,uri:item.photo&&item.photo.viewImage||'',origin:'dsl'})});
-  (Array.isArray(meta.assets)?meta.assets:[]).forEach(function(item){add({id:item.id,type:assetType(item.type),name:item.name||item.id,uri:item.uri||'',origin:'dsl'})});
+  (Array.isArray(meta.roles)?meta.roles:[]).forEach(function(item){add({id:item.id,type:'character',name:item.name||item.id,uri:item.photo&&item.photo.viewImage||'',status:item.status||'',origin:'dsl'})});
+  (Array.isArray(meta.assets)?meta.assets:[]).forEach(function(item){add({id:item.id,type:assetType(item.type),name:item.name||item.id,uri:item.uri||'',status:item.status||'',origin:'dsl'})});
   try{
     var subjects=JSON.parse(localStorage.getItem('subjectLibraryItems')||'[]');
-    if(Array.isArray(subjects))subjects.forEach(function(item){add({id:item.id,type:assetType(item.type),name:item.name,uri:item.img||'',origin:'platform'})});
+    if(Array.isArray(subjects))subjects.forEach(function(item){add({id:item.id,type:assetType(item.type),name:item.name,uri:item.img||'',status:item.status||'',origin:'platform'})});
     var props=JSON.parse(localStorage.getItem('propAssetLibraryV1')||'null');
     var propItems=Array.isArray(props)?props:props&&props.items;
-    if(Array.isArray(propItems))propItems.forEach(function(item){add({id:item.id,type:'prop',name:item.name,uri:item.images&&item.images.front||'',origin:'platform'})});
+    if(Array.isArray(propItems))propItems.forEach(function(item){add({id:item.id,type:'prop',name:item.name,uri:item.images&&item.images.front||'',status:item.status||'',origin:'platform'})});
   }catch(e){}
-  state.assets.forEach(function(item){add({id:item.id,type:assetType(item.type),name:item.name,uri:item.uri||'',origin:'upload'})});
+  state.assets.forEach(function(item){add({id:item.id,type:assetType(item.type),name:item.name,uri:item.uri||'',status:item.status||'',origin:'upload'})});
   return result
 }
 function slotAccept(type){return type==='audio'||type==='speech'?'audio/*':type==='video'?'video/*':type==='scene'?'image/*,video/*':'image/*'}
 function assetMediaUrl(asset){var value=mediaUrls[asset.id]||((state.assetOverrides&&state.assetOverrides[asset.id])?'':asset.uri||'');if(/^blob:/.test(value))return value;if(/^https?:\/\/[^\s/]+\.[^\s/]+/i.test(value))return value;if(/^assets\/[\w./-]+$/i.test(value))return value;if(/^data:(image|video|audio)\//i.test(value))return value;return ''}
-function assetUsable(asset){return !!assetMediaUrl(asset)}
+function assetUsable(asset){return !/^(draft|草稿)$/i.test(String(asset.status||'').trim())&&!!assetMediaUrl(asset)}
 function slotKey(shotId,slotId){return 'slot:'+shotId+':'+slotId}
 function releaseShotMedia(shot){(shot.requirements||[]).forEach(function(slot){var key=slotKey(shot.id,slot.id);if(mediaUrls[key]&&mediaUrls[key].indexOf('blob:')===0)URL.revokeObjectURL(mediaUrls[key]);delete mediaUrls[key]})}
 function elementType(type){return type}
@@ -1392,8 +1392,8 @@ function renderShotElementSlot(shot,slot){
     if(review.voiceId&&review.voiceId!=='default'&&!voices.some(function(voice){return browserVoiceId(voice)===review.voiceId}))options+='<option value="'+esc(review.voiceId)+'" selected>原音色不可用，请重新选择</option>';
     return '<div class="shot-element"><div class="shot-element-head"><strong>'+esc(slot.label)+'</strong><small>'+esc(typeNames[slot.type]||slot.type)+'</small><span class="tag '+(confirmed?'ok':'warn')+'">'+esc(shotVoiceStatus(shot))+'</span></div><p class="shot-element-hint">'+esc(slot.description||'根据本镜要求动态生成')+'</p><div class="shot-element-controls"><textarea aria-label="'+esc(slot.label)+'文字" oninput="setSlotTextDraft('+eventArg(shot.id)+','+eventArg(slot.id)+',this.value)">'+esc(textValue)+'</textarea></div><div class="shot-voice-controls"><label class="field-label" for="'+esc(shot.id)+'-voice">音色</label><select id="'+esc(shot.id)+'-voice" onchange="setShotVoice('+eventArg(shot.id)+',this.value)">'+options+'</select><div class="shot-voice-actions"><button type="button" class="btn primary" data-voice-action="synthesize" onclick="synthesizeShotSpeech('+eventArg(shot.id)+')" '+(!browserSpeechReady()||!textValue.trim()||!review.voiceId?'disabled':'')+'>'+(synthesized?'重新合成':'合成')+'</button><button type="button" class="btn" data-voice-action="preview" onclick="playShotSpeech('+eventArg(shot.id)+')" '+(!synthesized?'disabled':'')+'>试听</button></div></div></div>'
   }
-  var options=assetCatalog().filter(function(item){return item.type===type}),selected=options.find(function(item){return item.id===effective.assetId});
-  var select='<select aria-label="'+esc(slot.label)+'已有资产" onchange="this.value?bindSlotAsset('+eventArg(shot.id)+','+eventArg(slot.id)+',this.value):setSlotMode('+eventArg(shot.id)+','+eventArg(slot.id)+',&quot;inherit&quot;)"><option value="">选择已有'+esc(typeNames[type]||'素材')+'</option>'+options.map(function(item){return '<option value="'+esc(item.id)+'" '+(item.id===effective.assetId?'selected':'')+'>'+esc(item.name)+' · '+(assetUsable(item)?'可使用':'待补文件')+'</option>'}).join('')+'</select>';
+  var options=assetCatalog().filter(function(item){return item.type===type&&assetUsable(item)}),selected=options.find(function(item){return item.id===effective.assetId});
+  var select='<select aria-label="'+esc(slot.label)+'已有资产" onchange="this.value?bindSlotAsset('+eventArg(shot.id)+','+eventArg(slot.id)+',this.value):setSlotMode('+eventArg(shot.id)+','+eventArg(slot.id)+',&quot;inherit&quot;)"><option value="">选择已有'+esc(typeNames[type]||'素材')+'</option>'+options.map(function(item){return '<option value="'+esc(item.id)+'" '+(item.id===effective.assetId?'selected':'')+'>'+esc(item.name)+'</option>'}).join('')+'</select>';
   var upload='<label class="file-label">本地上传<input type="file" accept="'+slotAccept(slot.type)+'" onchange="uploadSlotFile(event,'+eventArg(shot.id)+','+eventArg(slot.id)+')"></label>';
   var url=effective.mode==='upload'&&effective.scope==='shot'?mediaUrls[slotKey(shot.id,slot.id)]||'':selected?assetMediaUrl(selected):'',mime=effective.mimeType||'';
   var preview=url&&(type==='video'||String(mime).indexOf('video/')===0?'<video controls preload="none" src="'+esc(url)+'"></video>':'<img src="'+esc(url)+'" alt="'+esc(slot.label)+'预览">');
