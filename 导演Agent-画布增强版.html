@@ -130,10 +130,11 @@ textarea:focus,input:focus,select:focus{border-color:var(--blue);box-shadow:0 0 
 .shot-sheet{padding:10px 12px 12px}
 .shot-direction-intro{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:9px;padding:8px 9px;border:1px solid #dfe7f4;border-radius:9px;background:#f7faff}
 .shot-direction-intro p{margin:3px 0 0;color:#667085;font-size:10px;line-height:1.45}
-.shot-direction-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.shot-direction-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
 .shot-direction-grid .wide{grid-column:1/-1}
+.shot-direction-grid .field-label{margin-bottom:4px}
 .shot-direction-grid textarea{min-height:52px}
-.shot-config-strip{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-top:8px}
+.shot-config-strip{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-top:8px}
 .shot-element-summary{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px;padding:7px 8px;border:1px solid #e3e9f3;border-radius:8px;background:#fbfcff;color:#5f6f85;font-size:10px}
 .shot-element-list{display:grid;gap:7px}
 .shot-element{padding:8px;border:1px solid #e0e6ef;border-radius:9px;background:#fff}
@@ -144,6 +145,11 @@ textarea:focus,input:focus,select:focus{border-color:var(--blue);box-shadow:0 0 
 .shot-element-controls{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px;align-items:center}
 .shot-element-controls textarea{grid-column:1/-1;min-height:52px}
 .shot-element-current{margin-top:5px;overflow:hidden;color:#667085;font-size:9px;text-overflow:ellipsis;white-space:nowrap}
+.shot-voice-controls{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:6px}
+.shot-voice-controls .field-label{margin:0;white-space:nowrap}
+.shot-voice-controls select{flex:1 1 145px;min-width:0}
+.shot-voice-actions{display:flex;gap:6px}
+.shot-voice-actions .btn{white-space:nowrap}
 .shot-element-preview{height:80px;margin-top:7px;overflow:hidden;border-radius:7px;background:#eaf0f8}
 .shot-element-preview img,.shot-element-preview video{width:100%;height:100%;object-fit:cover}
 .shot-node>.footer{margin:0;padding:9px 12px;border-top:1px solid #e4e9f1;background:#fbfcff}
@@ -655,6 +661,7 @@ function defaultState(){return{step:1,inputText:examples.product,example:'produc
 var state=defaultState();
 var mediaUrls={};
 var activeTimers={};
+var activeSpeech=null;
 var editingSectionId=null;
 var expandedShotId=null;
 var shotSheetState={};
@@ -1159,7 +1166,7 @@ function inferShotRequirementSpecs(shot){
   if(/人物|主体|出镜|口播|主持|角色|动作/.test(text))items.push({id:'host',type:'character',label:'出镜角色',required:true,description:'执行本镜动作或口播'});
   if(/产品|道具|杯|手机|设备|展示|特写|细节|实物/.test(text))items.push({id:'product',type:'prop',label:'本镜道具',required:true,description:'画面中需要展示或使用的实物'});
   if(/图示|图表|数据|结构|原理|对比/.test(text))items.push({id:'diagram',type:'image',label:'讲解图示',required:false,description:'辅助说明本镜信息'});
-  if(String(shot.script||'').trim())items.push({id:'speech',type:'speech',label:'本镜台词',required:true,description:'跟随本镜画面播放的台词文本'});
+  items.push({id:'speech',type:'speech',label:'本镜台词',required:true,description:'确认台词与音色，试听后再生成视频片段'});
   (shot.requirements||[]).forEach(function(slot){if(slot.refId&&!items.some(function(item){return item.id===slot.id}))items.push({id:slot.id,type:slot.type,label:slot.label,required:slot.required,description:slot.description,refId:slot.refId,lineIds:slot.lineIds})});
   return items
 }
@@ -1195,7 +1202,7 @@ function safeImageUrl(value){return /^(data:image\/(?:png|jpeg|webp|svg\+xml)[;,
 function imageUrl(shot){var slot=(shot.requirements||[]).find(function(item){return ['image','prop','scene','character'].includes(item.type)&&slotReady(shot,item)});if(!slot)return '';var binding=effectiveSlotBinding(shot,slot),url='',mime='';if(binding.mode==='upload'&&binding.scope==='shot'){url=mediaUrls[slotKey(shot.id,slot.id)]||'';mime=binding.mimeType||''}else{var asset=assetCatalog().find(function(item){return item.id===binding.assetId});if(asset){url=assetMediaUrl(asset);mime=state.assetOverrides&&state.assetOverrides[asset.id]&&state.assetOverrides[asset.id].mimeType||''}}if(/^video\//.test(mime)||/\.(mp4|webm)(\?|$)/i.test(url))return '';return safeImageUrl(url)}
 function imageLabel(shot){var slot=(shot.requirements||[]).find(function(item){return ['image','prop','scene','character'].includes(item.type)&&slotReady(shot,item)});if(!slot)return '';var binding=effectiveSlotBinding(shot,slot);if(binding.mode==='upload'&&binding.scope==='shot')return binding.fileName||'';var asset=assetCatalog().find(function(item){return item.id===binding.assetId});return asset?asset.name:''}
 function shotTitle(shot,number){if(shot.title&&shot.title.trim())return shot.title;var section=state.sections.find(function(item){return item.id===shot.sectionId});return(section?section.title:'分镜')+'镜头 '+number}
-function shotProblems(shot){var issues=[];if(!state.sections.some(function(section){return section.id===shot.sectionId}))issues.push('未归属段落');if(shot.proposalStale)issues.push('提案修改后未更新分镜');if(!String(shot.pictureDesc||'').trim())issues.push('画面描述');(shot.requirements||[]).forEach(function(slot){if(slot.required&&!slotReady(shot,slot))issues.push(slot.label)});return issues}
+function shotProblems(shot){var issues=[];if(!state.sections.some(function(section){return section.id===shot.sectionId}))issues.push('未归属段落');if(shot.proposalStale)issues.push('提案修改后未更新分镜');if(!String(shot.pictureDesc||'').trim())issues.push('画面描述');(shot.requirements||[]).forEach(function(slot){if(slot.required&&!slotReady(shot,slot))issues.push(slot.label)});if(!shotVoiceReady(shot))issues.push('语音试听未确认');return issues}
 function renderAssets(){
   initializeGlobalBindings(false);
   var items=globalElements();
@@ -1223,8 +1230,8 @@ function renderGlobalElementCard(item){
 }
 function setAssetFilter(filter){activeAssetFilter=filter;renderAssets()}
 function setAssetStatus(status){activeAssetStatus=status;renderAssets()}
-function setGlobalElementAsset(key,assetId){if(!state.elementBindings)state.elementBindings={};state.elementBindings[key]=assetId?{mode:'asset',assetId:assetId}:{};markElementShotsStale(key);save();renderShots();renderClips()}
-function setGlobalElementText(key,value){var item=globalElements().find(function(candidate){return candidate.key===key});if(!item||item.type!=='speech')return;if(!state.elementBindings)state.elementBindings={};state.elementBindings[key]={mode:'text',text:value};item.usages.forEach(function(use){use.slot.defaultText=value;if(!(use.slot.binding&&['text','upload','global'].includes(use.slot.binding.mode)))use.shot.script=value});markElementShotsStale(key);save();renderShots();renderClips()}
+function setGlobalElementAsset(key,assetId){if(!state.elementBindings)state.elementBindings={};state.elementBindings[key]=assetId?{mode:'asset',assetId:assetId}:{};var item=globalElements().find(function(candidate){return candidate.key===key});if(item&&item.type==='speech')item.usages.forEach(function(use){invalidateShotVoice(use.shot)});markElementShotsStale(key);save();renderShots();renderClips()}
+function setGlobalElementText(key,value){var item=globalElements().find(function(candidate){return candidate.key===key});if(!item||item.type!=='speech')return;if(!state.elementBindings)state.elementBindings={};state.elementBindings[key]={mode:'text',text:value};item.usages.forEach(function(use){use.slot.defaultText=value;if(!(use.slot.binding&&['text','upload','global'].includes(use.slot.binding.mode))){use.shot.script=value;invalidateShotVoice(use.shot)}});markElementShotsStale(key);save();renderShots();renderClips()}
 function uploadGlobalElement(event,key){
   var file=event.target.files[0],item=globalElements().find(function(candidate){return candidate.key===key});if(!file||!item)return;
   var accepted=slotAccept(item.type).split(',').some(function(pattern){return file.type.indexOf(pattern.slice(0,-1))===0});
@@ -1233,6 +1240,7 @@ function uploadGlobalElement(event,key){
   if(!asset){asset={id:uid('global_asset'),type:elementAssetType(item.type),name:file.name,globalElementKey:key};state.assets.push(asset)}else asset.name=file.name;
   if(mediaUrls[asset.id]&&mediaUrls[asset.id].indexOf('blob:')===0)URL.revokeObjectURL(mediaUrls[asset.id]);
   mediaUrls[asset.id]=URL.createObjectURL(file);state.assetOverrides[asset.id]={fileName:file.name,mimeType:file.type};state.elementBindings[key]={mode:'asset',assetId:asset.id};event.target.value='';
+  if(item.type==='speech')item.usages.forEach(function(use){invalidateShotVoice(use.shot)});
   markElementShotsStale(key);save();renderShots();renderClips()
 }
 function focusShot(id){expandedShotId=id;renderShots();var card=document.getElementById('shot-card-'+id);if(card)card.scrollIntoView({behavior:'smooth',block:'start'})}
@@ -1243,25 +1251,27 @@ function setSlotMode(shotId,slotId,mode){
   if(mode==='inherit')slot.binding={mode:'inherit'};
   else if(mode==='text')slot.binding={mode:'text',text:previous.text||effective.mode==='text'&&effective.text||slot.defaultText||shot.script||''};
   else slot.binding=mode?{mode:mode}:{mode:'inherit'};
+  if(slot.type==='speech')invalidateShotVoice(shot);
   markShotStale(shotId);save();renderShots();renderClips()
 }
 function bindSlotAsset(shotId,slotId,assetId){
   var shot=state.shots.find(function(item){return item.id===shotId}),slot=shot&&(shot.requirements||[]).find(function(item){return item.id===slotId});if(!slot)return;
-  slot.binding={mode:'global',assetId:assetId};markShotStale(shotId);save();renderShots();renderClips()
+  slot.binding={mode:'global',assetId:assetId};if(slot.type==='speech')invalidateShotVoice(shot);markShotStale(shotId);save();renderShots();renderClips()
 }
 function setSlotText(shotId,slotId,value){
   var shot=state.shots.find(function(item){return item.id===shotId}),slot=shot&&(shot.requirements||[]).find(function(item){return item.id===slotId});if(!slot)return;
-  slot.binding={mode:'text',text:value};markShotStale(shotId);save();renderShots();renderClips()
+  invalidateShotVoice(shot);slot.binding={mode:'text',text:value};slot.defaultText=value;shot.script=value;markShotStale(shotId);save();renderShots();renderClips()
 }
 function setSlotTextDraft(shotId,slotId,value){
   var shot=state.shots.find(function(item){return item.id===shotId}),slot=shot&&(shot.requirements||[]).find(function(item){return item.id===slotId});if(!slot)return;
-  slot.binding={mode:'text',text:value};markShotStale(shotId);save();renderClips();renderSteps()
+  invalidateShotVoice(shot);
+  slot.binding={mode:'text',text:value};slot.defaultText=value;shot.script=value;markShotStale(shotId);save();updateShotVoiceControls(shot);renderClips();renderSteps()
 }
 function uploadSlotFile(event,shotId,slotId){
   var file=event.target.files[0],shot=state.shots.find(function(item){return item.id===shotId}),slot=shot&&(shot.requirements||[]).find(function(item){return item.id===slotId});if(!file||!slot)return;
   var accepted=slotAccept(slot.type).split(',').some(function(item){return file.type.indexOf(item.slice(0,-1))===0});if(!accepted){toast('素材类型不匹配','此槽位需要 '+(typeNames[slot.type]||slot.type));event.target.value='';return}
   var key=slotKey(shotId,slotId);if(mediaUrls[key]&&mediaUrls[key].indexOf('blob:')===0)URL.revokeObjectURL(mediaUrls[key]);
-  mediaUrls[key]=URL.createObjectURL(file);slot.binding={mode:'upload',fileName:file.name,mimeType:file.type};event.target.value='';markShotStale(shotId);save();renderShots();renderClips()
+  mediaUrls[key]=URL.createObjectURL(file);slot.binding={mode:'upload',fileName:file.name,mimeType:file.type};event.target.value='';if(slot.type==='speech')invalidateShotVoice(shot);markShotStale(shotId);save();renderShots();renderClips()
 }
 function renderSlot(shot,slot){
   var local=slot.binding||{},hasOverride=['global','upload','text'].includes(local.mode),mode=hasOverride?local.mode:'inherit',effective=effectiveSlotBinding(shot,slot),type=elementAssetType(slot.type);
@@ -1320,39 +1330,78 @@ function ensureStep3Surfaces(){
 }
 function currentShotSheet(id){return shotSheetState[id]==='elements'?'elements':'direction'}
 function setShotSheet(id,sheet){shotSheetState[id]=sheet==='elements'?'elements':'direction';renderShots()}
+function browserSpeechReady(){return !!(window.speechSynthesis&&window.SpeechSynthesisUtterance)}
+function browserVoices(){return browserSpeechReady()?window.speechSynthesis.getVoices().filter(function(voice){return /^zh/i.test(voice.lang)}):[]}
+function browserVoiceId(voice){return voice.voiceURI||voice.name+'@'+voice.lang}
+function shotSpeechText(shot){var slot=(shot.requirements||[]).find(function(item){return item.type==='speech'});if(!slot)return '';var binding=effectiveSlotBinding(shot,slot);return String(binding.mode==='text'?binding.text:slot.defaultText||shot.script||'')}
+function shotVoiceSynthesized(shot){var review=shot.voiceReview||{},text=shotSpeechText(shot),voiceId=review.voiceId;return browserSpeechReady()&&!!text.trim()&&!!voiceId&&(voiceId==='default'||browserVoices().some(function(voice){return browserVoiceId(voice)===voiceId}))&&review.synthesized===true&&review.text===text&&review.previewVoiceId===voiceId}
+function shotVoiceReady(shot){return shotVoiceSynthesized(shot)&&shot.voiceReview.previewed===true}
+function shotVoiceStatus(shot){var review=shot.voiceReview||{};if(!browserSpeechReady())return '当前浏览器不支持试听';if(!shotSpeechText(shot).trim())return '待填写台词';if(!review.voiceId)return '待选择音色';if(shotVoiceReady(shot))return '已试听';if(shotVoiceSynthesized(shot))return '待试听';return '待合成'}
+function stopShotSpeech(){if(!activeSpeech)return;activeSpeech=null;if(browserSpeechReady())window.speechSynthesis.cancel()}
+function invalidateShotVoice(shot){if(activeSpeech&&activeSpeech.shotId===shot.id)stopShotSpeech();if(shot.voiceReview){shot.voiceReview.synthesized=false;shot.voiceReview.previewed=false;shot.voiceReview.confirmed=false}}
+function setShotVoice(shotId,voiceId){var shot=state.shots.find(function(item){return item.id===shotId});if(!shot)return;if(voiceId&&voiceId!=='default'&&!browserVoices().some(function(voice){return browserVoiceId(voice)===voiceId}))return;stopShotSpeech();shot.voiceReview={voiceId:voiceId,synthesized:false,previewed:false};markShotStale(shotId);save();renderShots();renderClips()}
+function synthesizeShotSpeech(shotId){
+  var shot=state.shots.find(function(item){return item.id===shotId});if(!shot)return;
+  var text=shotSpeechText(shot),review=shot.voiceReview||{},voiceId=review.voiceId,voice=browserVoices().find(function(item){return browserVoiceId(item)===voiceId});
+  if(!browserSpeechReady()){toast('无法合成','当前浏览器不支持语音合成');return}
+  if(!text.trim()||!voiceId||voiceId!=='default'&&!voice){toast('请补齐语音配置','先填写台词并选择可用音色');return}
+  stopShotSpeech();
+  shot.voiceReview={voiceId:voiceId,text:text,previewVoiceId:voiceId,synthesized:true,previewed:false};
+  markShotStale(shotId);save();renderShots();renderClips();toast('语音已合成','请点击试听，确认效果后生成视频片段')
+}
+function playShotSpeech(shotId){
+  var shot=state.shots.find(function(item){return item.id===shotId});if(!shot||!shotVoiceSynthesized(shot)){toast('请先合成语音','选择音色并完成合成后再试听');return}
+  var text=shotSpeechText(shot),voiceId=shot.voiceReview.voiceId,voice=browserVoices().find(function(item){return browserVoiceId(item)===voiceId});
+  stopShotSpeech();
+  var token=uid('speech'),utterance=new window.SpeechSynthesisUtterance(text);
+  if(voice)utterance.voice=voice;
+  utterance.lang=voice?voice.lang:'zh-CN';
+  activeSpeech={token:token,shotId:shotId,utterance:utterance};
+  utterance.onend=function(){if(!activeSpeech||activeSpeech.token!==token)return;activeSpeech=null;if(state.shots.includes(shot)&&shotVoiceSynthesized(shot)&&shotSpeechText(shot)===text&&shot.voiceReview.voiceId===voiceId){shot.voiceReview.previewed=true;save();renderShots();renderClips()}toast('试听完成','满意后可生成视频片段，不满意可重新合成')};
+  utterance.onerror=function(event){if(!activeSpeech||activeSpeech.token!==token)return;activeSpeech=null;toast('语音试听失败',event.error||'请重新尝试')};
+  try{window.speechSynthesis.speak(utterance)}catch(error){activeSpeech=null;toast('语音试听失败','请检查浏览器语音功能')}
+}
+function updateShotVoiceControls(shot){
+  var node=document.getElementById('node'+shotNodeKey(shot.id));if(!node)return;
+  var confirmed=shotVoiceReady(shot),voiceCard=node.querySelector('.shot-voice-controls'),voiceTag=voiceCard&&voiceCard.closest('.shot-element').querySelector('.shot-element-head .tag');
+  if(voiceTag){voiceTag.textContent=shotVoiceStatus(shot);voiceTag.classList.toggle('ok',confirmed);voiceTag.classList.toggle('warn',!confirmed)}
+  var synth=node.querySelector('[data-voice-action="synthesize"]');if(synth){synth.disabled=!browserSpeechReady()||!shotSpeechText(shot).trim()||!shot.voiceReview||!shot.voiceReview.voiceId;synth.textContent=shotVoiceSynthesized(shot)?'重新合成':'合成'}
+  var preview=node.querySelector('[data-voice-action="preview"]');if(preview)preview.disabled=!shotVoiceSynthesized(shot);
+  var summary=node.querySelector('.shot-element-summary strong');if(summary){var requirements=shot.requirements||[],ready=requirements.filter(function(slot){return slotReady(shot,slot)&&(slot.type!=='speech'||confirmed)}).length;summary.textContent=ready+'/'+requirements.length+' 已配置'}
+  var generate=node.querySelector('.footer .btn.primary');if(generate)generate.disabled=shotProblems(shot).length>0||state.clips.some(function(clip){return clip.id===shot.id&&clip.status==='generating'})
+}
 function renderShotDirectionSheet(shot,number){
-  var sectionOptions=state.sections.map(function(item){return '<option value="'+esc(item.id)+'" '+(item.id===shot.sectionId?'selected':'')+'>'+esc(item.title)+'</option>'}).join('');
-  var shotSize=shot.camera&&shot.camera.shotSize||'medium_close_up',angle=shot.camera&&shot.camera.angle||'eye_level',generation=shot.generation&&shot.generation.type||'video';
+  var shotSize=shot.camera&&shot.camera.shotSize||'medium_close_up',angle=shot.camera&&shot.camera.angle||'eye_level';
   var update=shot.proposalStale?'<div class="shot-proposal-update"><span>提案内容已变化，本镜需要同步。</span><button class="btn" onclick="refreshShot('+eventArg(shot.id)+')">按当前提案更新</button></div>':'';
   return '<div class="shot-sheet">'+update+'<div class="shot-direction-intro"><div><strong>主要创作方向</strong><p>'+esc(shot.purpose||'请补充本镜目的')+'</p></div><span class="tag">'+(Number(shot.dur)||0)+' 秒</span></div><div class="shot-direction-grid">'
     +'<div><label class="field-label" for="'+shot.id+'-title">分镜标题</label><input id="'+shot.id+'-title" type="text" value="'+esc(shotTitle(shot,number))+'" oninput="draftShotField('+eventArg(shot.id)+',&quot;title&quot;,this.value)"></div>'
-    +'<div><label class="field-label" for="'+shot.id+'-section">所属段落</label><select id="'+shot.id+'-section" onchange="editShot('+eventArg(shot.id)+',&quot;sectionId&quot;,this.value)">'+sectionOptions+'</select></div>'
-    +'<div class="wide"><label class="field-label" for="'+shot.id+'-purpose">镜头目的</label><input id="'+shot.id+'-purpose" type="text" value="'+esc(shot.purpose||'')+'" oninput="draftShotField('+eventArg(shot.id)+',&quot;purpose&quot;,this.value)"></div>'
+    +'<div><label class="field-label" for="'+shot.id+'-purpose">镜头目的</label><input id="'+shot.id+'-purpose" type="text" value="'+esc(shot.purpose||'')+'" oninput="draftShotField('+eventArg(shot.id)+',&quot;purpose&quot;,this.value)"></div>'
     +'<div class="wide"><label class="field-label" for="'+shot.id+'-picture">画面描述</label><textarea id="'+shot.id+'-picture" oninput="draftShotField('+eventArg(shot.id)+',&quot;pictureDesc&quot;,this.value)">'+esc(shot.pictureDesc||'')+'</textarea></div>'
     +'<div class="wide"><label class="field-label" for="'+shot.id+'-action">动作描述</label><textarea id="'+shot.id+'-action" oninput="draftShotField('+eventArg(shot.id)+',&quot;actionDesc&quot;,this.value)">'+esc(shot.actionDesc||'')+'</textarea></div>'
     +'<div class="wide"><label class="field-label" for="'+shot.id+'-script">分镜台词</label><textarea id="'+shot.id+'-script" oninput="draftShotField('+eventArg(shot.id)+',&quot;script&quot;,this.value)">'+esc(shot.script||'')+'</textarea></div></div>'
     +'<div class="shot-config-strip"><div><label class="field-label">时长 / 秒</label><input type="number" min="1" value="'+esc(shot.dur)+'" onchange="editShot('+eventArg(shot.id)+',&quot;dur&quot;,this.value)"></div>'
     +'<div><label class="field-label">景别</label><select onchange="setShotParam('+eventArg(shot.id)+',&quot;camera&quot;,&quot;shotSize&quot;,this.value)">'+selectOptions([['wide','全景'],['medium','中景'],['medium_close_up','中近景'],['close_up','近景'],['extreme_close_up','特写']],shotSize)+'</select></div>'
-    +'<div><label class="field-label">机位</label><select onchange="setShotParam('+eventArg(shot.id)+',&quot;camera&quot;,&quot;angle&quot;,this.value)">'+selectOptions([['eye_level','平视'],['high_angle','俯视'],['low_angle','仰视'],['side','侧面']],angle)+'</select></div>'
-    +'<div><label class="field-label">生成方式</label><select onchange="setShotParam('+eventArg(shot.id)+',&quot;generation&quot;,&quot;type&quot;,this.value)">'+selectOptions([['video','视频生成'],['composition','素材合成']],generation)+'</select></div></div>'
+    +'<div><label class="field-label">机位</label><select onchange="setShotParam('+eventArg(shot.id)+',&quot;camera&quot;,&quot;angle&quot;,this.value)">'+selectOptions([['eye_level','平视'],['high_angle','俯视'],['low_angle','仰视'],['side','侧面']],angle)+'</select></div></div>'
     +(shot.overlays&&shot.overlays.length?'<div style="margin-top:8px"><label class="field-label">叠加素材的时间与位置</label>'+renderOverlays(shot)+'</div>':'')+'</div>'
 }
 function renderShotElementSlot(shot,slot){
   var effective=effectiveSlotBinding(shot,slot),ready=slotReady(shot,slot),type=elementAssetType(slot.type);
   if(slot.type==='speech'){
-    var textValue=effective.mode==='text'?effective.text:slot.defaultText||shot.script||'';
-    return '<div class="shot-element"><div class="shot-element-head"><strong>'+esc(slot.label)+'</strong><small>'+esc(typeNames[slot.type]||slot.type)+'</small><span class="tag '+(ready?'ok':slot.required?'warn':'')+'">'+(ready?'已配置':slot.required?'必需':'可选')+'</span></div><p class="shot-element-hint">'+esc(slot.description||'根据本镜要求动态生成')+'</p><div class="shot-element-controls"><textarea aria-label="'+esc(slot.label)+'文字" oninput="setSlotTextDraft('+eventArg(shot.id)+','+eventArg(slot.id)+',this.value)">'+esc(textValue)+'</textarea></div><div class="shot-element-current">当前：'+esc(textValue?'已填写文字台词':'待补充台词')+'</div></div>'
+    var textValue=effective.mode==='text'?effective.text:slot.defaultText||shot.script||'',review=shot.voiceReview||{},synthesized=shotVoiceSynthesized(shot),confirmed=shotVoiceReady(shot);
+    var voices=browserVoices(),options='<option value="">请选择音色</option><option value="default" '+(review.voiceId==='default'?'selected':'')+'>系统默认音色</option>'+voices.map(function(voice){var voiceId=browserVoiceId(voice);return '<option value="'+esc(voiceId)+'" '+(review.voiceId===voiceId?'selected':'')+'>'+esc(voice.name+' · '+voice.lang)+'</option>'}).join('');
+    if(review.voiceId&&review.voiceId!=='default'&&!voices.some(function(voice){return browserVoiceId(voice)===review.voiceId}))options+='<option value="'+esc(review.voiceId)+'" selected>原音色不可用，请重新选择</option>';
+    return '<div class="shot-element"><div class="shot-element-head"><strong>'+esc(slot.label)+'</strong><small>'+esc(typeNames[slot.type]||slot.type)+'</small><span class="tag '+(confirmed?'ok':'warn')+'">'+esc(shotVoiceStatus(shot))+'</span></div><p class="shot-element-hint">'+esc(slot.description||'根据本镜要求动态生成')+'</p><div class="shot-element-controls"><textarea aria-label="'+esc(slot.label)+'文字" oninput="setSlotTextDraft('+eventArg(shot.id)+','+eventArg(slot.id)+',this.value)">'+esc(textValue)+'</textarea></div><div class="shot-voice-controls"><label class="field-label" for="'+esc(shot.id)+'-voice">音色</label><select id="'+esc(shot.id)+'-voice" onchange="setShotVoice('+eventArg(shot.id)+',this.value)">'+options+'</select><div class="shot-voice-actions"><button type="button" class="btn primary" data-voice-action="synthesize" onclick="synthesizeShotSpeech('+eventArg(shot.id)+')" '+(!browserSpeechReady()||!textValue.trim()||!review.voiceId?'disabled':'')+'>'+(synthesized?'重新合成':'合成')+'</button><button type="button" class="btn" data-voice-action="preview" onclick="playShotSpeech('+eventArg(shot.id)+')" '+(!synthesized?'disabled':'')+'>试听</button></div></div></div>'
   }
   var options=assetCatalog().filter(function(item){return item.type===type}),selected=options.find(function(item){return item.id===effective.assetId});
   var select='<select aria-label="'+esc(slot.label)+'已有资产" onchange="this.value?bindSlotAsset('+eventArg(shot.id)+','+eventArg(slot.id)+',this.value):setSlotMode('+eventArg(shot.id)+','+eventArg(slot.id)+',&quot;inherit&quot;)"><option value="">选择已有'+esc(typeNames[type]||'素材')+'</option>'+options.map(function(item){return '<option value="'+esc(item.id)+'" '+(item.id===effective.assetId?'selected':'')+'>'+esc(item.name)+' · '+(assetUsable(item)?'可使用':'待补文件')+'</option>'}).join('')+'</select>';
-  var upload='<label class="file-label">本镜上传<input type="file" accept="'+slotAccept(slot.type)+'" onchange="uploadSlotFile(event,'+eventArg(shot.id)+','+eventArg(slot.id)+')"></label>';
+  var upload='<label class="file-label">本地上传<input type="file" accept="'+slotAccept(slot.type)+'" onchange="uploadSlotFile(event,'+eventArg(shot.id)+','+eventArg(slot.id)+')"></label>';
   var url=effective.mode==='upload'&&effective.scope==='shot'?mediaUrls[slotKey(shot.id,slot.id)]||'':selected?assetMediaUrl(selected):'',mime=effective.mimeType||'';
   var preview=url&&(type==='video'||String(mime).indexOf('video/')===0?'<video controls preload="none" src="'+esc(url)+'"></video>':'<img src="'+esc(url)+'" alt="'+esc(slot.label)+'预览">');
   var current=effective.mode==='upload'?(effective.fileName||'尚未选择文件'):(selected?selected.name:'待配置');
   return '<div class="shot-element"><div class="shot-element-head"><strong>'+esc(slot.label)+'</strong><small>'+esc(typeNames[slot.type]||slot.type)+'</small><span class="tag '+(ready?'ok':slot.required?'warn':'')+'">'+(ready?'已配置':slot.required?'必需':'可选')+'</span></div><p class="shot-element-hint">'+esc(slot.description||'根据本镜要求动态生成')+'</p><div class="shot-element-controls">'+select+upload+'</div><div class="shot-element-current" title="'+esc(current)+'">当前：'+esc(current)+'</div>'+(preview?'<div class="shot-element-preview">'+preview+'</div>':'')+'</div>'
 }
 function renderShotElementsSheet(shot){
-  var requirements=shot.requirements||[],ready=requirements.filter(function(slot){return slotReady(shot,slot)}).length;
+  var requirements=shot.requirements||[],ready=requirements.filter(function(slot){return slotReady(shot,slot)&&(slot.type!=='speech'||shotVoiceReady(shot))}).length;
   return '<div class="shot-sheet"><div class="shot-element-summary"><span>根据“创作方向”动态生成本镜所需表单</span><strong>'+ready+'/'+requirements.length+' 已配置</strong></div><div class="shot-element-list">'+(requirements.length?requirements.map(function(slot){return renderShotElementSlot(shot,slot)}).join(''):'<div class="notice">当前创作方向没有识别出需要补充的元素。</div>')+'</div></div>'
 }
 function shotNodeHtml(shot,number){
@@ -1383,14 +1432,14 @@ function renderShots(){
 }
 function generateShotClip(id){syncClips();save();generateClip(id)}
 function generateAllReadyShots(){generateAllClips()}
-function syncShotSpeechText(shot,next){(shot.requirements||[]).forEach(function(slot){if(slot.type!=='speech')return;slot.defaultText=next;var local=slot.binding||{};if(local.mode==='text'){local.text=next;return}if(['global','upload'].includes(local.mode))return;var key=globalElementKey(shot,slot),binding=state.elementBindings&&state.elementBindings[key];if(binding&&binding.mode==='text'){binding.text=next;var item=globalElements().find(function(candidate){return candidate.key===key});if(item)item.usages.forEach(function(use){var override=use.slot.binding||{};use.slot.defaultText=next;if(!['global','upload','text'].includes(override.mode))use.shot.script=next;markShotStale(use.shot.id)})}})}
+function syncShotSpeechText(shot,next){invalidateShotVoice(shot);(shot.requirements||[]).forEach(function(slot){if(slot.type!=='speech')return;slot.defaultText=next;var local=slot.binding||{};if(local.mode==='text'){local.text=next;return}if(['global','upload'].includes(local.mode))return;var key=globalElementKey(shot,slot),binding=state.elementBindings&&state.elementBindings[key];if(binding&&binding.mode==='text'){binding.text=next;var item=globalElements().find(function(candidate){return candidate.key===key});if(item)item.usages.forEach(function(use){var override=use.slot.binding||{};use.slot.defaultText=next;if(!['global','upload','text'].includes(override.mode)){use.shot.script=next;invalidateShotVoice(use.shot)}markShotStale(use.shot.id)})}})}
 function refreshShot(id){var shot=state.shots.find(function(item){return item.id===id});if(!shot)return;var section=state.sections.find(function(item){return item.id===shot.sectionId});if(!section)return;var group=state.shots.filter(function(item){return item.sectionId===section.id}),shotIndex=group.findIndex(function(item){return item.id===id});shot.pictureDesc='用一个清楚的画面表现：'+section.points;shot.script=section.points;shot.dur=distributedDuration(section.dur,group.length,Math.max(0,shotIndex));shot.proposalStale=false;refreshShotRequirements(shot);syncShotSpeechText(shot,section.points);initializeGlobalBindings(false);markShotStale(id);save();renderShots();renderClips()}
-function draftShotField(id,field,value){var shot=state.shots.find(function(item){return item.id===id});if(!shot||shot[field]===value)return;shot[field]=value;if(field==='title')shot.titleCustom=true;refreshShotRequirements(shot);initializeGlobalBindings(false);if(field==='script')syncShotSpeechText(shot,value);markShotStale(id);save();renderClips();renderSteps()}
+function draftShotField(id,field,value){var shot=state.shots.find(function(item){return item.id===id});if(!shot||shot[field]===value)return;shot[field]=value;if(field==='title')shot.titleCustom=true;refreshShotRequirements(shot);initializeGlobalBindings(false);if(field==='script')syncShotSpeechText(shot,value);markShotStale(id);save();updateShotVoiceControls(shot);renderClips();renderSteps()}
 function editShot(id,field,value){var shot=state.shots.find(function(item){return item.id===id});if(!shot)return;if(field==='sectionId'&&!state.sections.some(function(item){return item.id===value}))return;var next=field==='dur'?Math.max(1,Number(value)||1):value;if(shot[field]===next)return;shot[field]=next;if(field==='title')shot.titleCustom=true;if(field==='sectionId'){var section=state.sections.find(function(item){return item.id===next});shot.sceneId=section.scenes&&section.scenes[0]?section.scenes[0].id:'';shot.proposalStale=true;normalizeShotOrder();realignShotNodePositions();alignClipsToStoryboard()}if(['title','purpose','pictureDesc','actionDesc','script','sectionId'].includes(field)){refreshShotRequirements(shot);initializeGlobalBindings(false)}if(field==='script')syncShotSpeechText(shot,next);markShotStale(id);save();renderShots();renderClips()}
 function addShot(sectionId){var section=state.sections.find(function(item){return item.id===sectionId});if(!section)return;var shot=makeShot(section,1,1);state.shots.push(shot);normalizeShotOrder();realignShotNodePositions();shotSheetState[shot.id]='direction';touchMerged();initializeGlobalBindings(false);syncClips();save();renderShots();panToShot(shot.id,true)}
 function moveShot(id,delta){var shot=state.shots.find(function(item){return item.id===id});if(!shot)return;var group=state.shots.filter(function(item){return item.sectionId===shot.sectionId});var index=group.findIndex(function(item){return item.id===id});var neighbor=group[index+delta];if(!neighbor)return;var from=state.shots.indexOf(shot),to=state.shots.indexOf(neighbor);state.shots[from]=neighbor;state.shots[to]=shot;realignShotNodePositions();alignClipsToStoryboard();save();renderShots();renderClips()}
-function duplicateShot(id){var index=state.shots.findIndex(function(item){return item.id===id});if(index<0)return;var copy=JSON.parse(JSON.stringify(state.shots[index]));copy.id=uid('shot');copy.dslId='';copy.title=shotTitle(state.shots[index],index+1)+'（副本）';copy.titleCustom=true;copy.stale=false;(copy.requirements||[]).forEach(function(slot){if(slot.binding&&slot.binding.mode==='upload')slot.binding={mode:'inherit'}});refreshShotRequirements(copy);state.shots.splice(index+1,0,copy);normalizeShotOrder();realignShotNodePositions();shotSheetState[copy.id]='direction';touchMerged();initializeGlobalBindings(false);syncClips();save();renderShots();panToShot(copy.id,true)}
-function deleteShot(id){if(state.shots.length<=1){toast('至少保留一镜','整片视频需要至少一个分镜');return}var shot=state.shots.find(function(item){return item.id===id});if(shot)releaseShotMedia(shot);state.shots=state.shots.filter(function(item){return item.id!==id});state.clips=state.clips.filter(function(item){return item.id!==id});realignShotNodePositions();delete shotSheetState[id];if(expandedShotId===id)expandedShotId=null;touchMerged();save();renderShots();renderClips()}
+function duplicateShot(id){var index=state.shots.findIndex(function(item){return item.id===id});if(index<0)return;var copy=JSON.parse(JSON.stringify(state.shots[index]));copy.id=uid('shot');copy.dslId='';copy.title=shotTitle(state.shots[index],index+1)+'（副本）';copy.titleCustom=true;copy.stale=false;copy.voiceReview=null;(copy.requirements||[]).forEach(function(slot){if(slot.binding&&slot.binding.mode==='upload')slot.binding={mode:'inherit'}});refreshShotRequirements(copy);state.shots.splice(index+1,0,copy);normalizeShotOrder();realignShotNodePositions();shotSheetState[copy.id]='direction';touchMerged();initializeGlobalBindings(false);syncClips();save();renderShots();panToShot(copy.id,true)}
+function deleteShot(id){if(state.shots.length<=1){toast('至少保留一镜','整片视频需要至少一个分镜');return}var shot=state.shots.find(function(item){return item.id===id});if(activeSpeech&&activeSpeech.shotId===id)stopShotSpeech();if(shot)releaseShotMedia(shot);state.shots=state.shots.filter(function(item){return item.id!==id});state.clips=state.clips.filter(function(item){return item.id!==id});realignShotNodePositions();delete shotSheetState[id];if(expandedShotId===id)expandedShotId=null;touchMerged();save();renderShots();renderClips()}
 function syncClips(){var ids=state.shots.map(function(shot){return shot.id});var added=false;state.clips=state.clips.filter(function(clip){return ids.includes(clip.id)});state.shots.forEach(function(shot){if(!state.clips.some(function(clip){return clip.id===shot.id})){state.clips.push({id:shot.id,status:'draft',progress:0,stale:false,confirmed:false,version:0});added=true}});if(added)alignClipsToStoryboard()}
 function confirmShots(){if(!state.shots.length){toast('没有分镜','请先添加分镜');return}syncClips();var pending=state.clips.filter(function(clip){return !clipReadyForMerge(clip)});if(pending.length){toast('还有分镜片段未完成','请先生成或更新剩余 '+pending.length+' 个分镜片段');renderShots();return}save();renderClips();gotoStep(4)}
 function orderedShot(id){return state.shots.find(function(shot){return shot.id===id})}
@@ -1562,7 +1611,7 @@ function playFinalVideo(){
   document.getElementById('clipDialog').showModal();
   startMockPlay(demo);
 }
-function resetAll(){if(!confirm('确定清空导演 Agent 当前演示内容？'))return;proposalRun++;editingSectionId=null;expandedShotId=null;shotSheetState={};activeAssetFilter='character';activeAssetStatus='all';if(renderTimer){clearInterval(renderTimer);renderTimer=null}stopMockPlay();try{localStorage.removeItem(KEY)}catch(e){}Object.keys(mediaUrls).forEach(function(key){if(mediaUrls[key].indexOf('blob:')===0)URL.revokeObjectURL(mediaUrls[key])});mediaUrls={};state=defaultState();revealStep=1;var button=document.getElementById('generateProposalBtn');button.disabled=false;button.textContent='匹配创作模式 →';document.getElementById('inputText').value=state.inputText;document.getElementById('refLink').value='';document.getElementById('uploadVideo').value='';renderInputHint();renderProposal();renderShots();renderClips();renderSteps();panToGroup(1,false);buildDSL()}
+function resetAll(){if(!confirm('确定清空导演 Agent 当前演示内容？'))return;proposalRun++;editingSectionId=null;expandedShotId=null;shotSheetState={};activeAssetFilter='character';activeAssetStatus='all';if(renderTimer){clearInterval(renderTimer);renderTimer=null}stopMockPlay();stopShotSpeech();try{localStorage.removeItem(KEY)}catch(e){}Object.keys(mediaUrls).forEach(function(key){if(mediaUrls[key].indexOf('blob:')===0)URL.revokeObjectURL(mediaUrls[key])});mediaUrls={};state=defaultState();revealStep=1;var button=document.getElementById('generateProposalBtn');button.disabled=false;button.textContent='匹配创作模式 →';document.getElementById('inputText').value=state.inputText;document.getElementById('refLink').value='';document.getElementById('uploadVideo').value='';renderInputHint();renderProposal();renderShots();renderClips();renderSteps();panToGroup(1,false);buildDSL()}
 /* ===== 无限画布：平移 / 缩放 / 节点拖动 / 动态连线 ===== */
 var pan={x:30,y:24},zoom=1,panDrag=null,nodeDrag=null;
 var revealStep=1,canvasReady=false;
@@ -1717,6 +1766,7 @@ function initCanvas(){
   layoutCanvas();applyTransform();panToGroup(state.step||1,false);
 }
 var interruptedLoad=load();document.getElementById('inputText').value=state.inputText;document.getElementById('refLink').value=state.refLink;renderInputHint();renderProposal();renderShots();renderClips();renderSteps();initCanvas();if(interruptedLoad)save();else buildDSL();
+if(browserSpeechReady()&&window.speechSynthesis.addEventListener)window.speechSynthesis.addEventListener('voiceschanged',function(){renderShots();renderClips()});
 </script>
 
 <script>
