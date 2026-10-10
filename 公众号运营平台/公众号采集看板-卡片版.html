@@ -1,0 +1,1829 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>公众号采集看板</title>
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; }
+  body {
+    font: 12px "Microsoft YaHei", "PingFang SC", sans-serif;
+    color: #10231e; background: #f6f8f6;
+  }
+  .app { display: flex; min-width: 1120px; height: 100vh; min-height: 680px; overflow: hidden; }
+  aside { width: 248px; flex: none; display: flex; flex-direction: column; overflow-y: auto; background: #17211e; color: #dce9e2; }
+  .brand { height: 91px; margin: 0 16px; padding: 23px 10px 0; border-bottom: 1px solid #304039; }
+  .brand strong { display: block; color: #fff; font-size: 18px; margin-bottom: 4px; }
+  .brand small { color: #c5d5cd; font-size: 12px; }
+  nav { padding: 12px 16px; }
+  .nav-item { display: flex; align-items: center; gap: 10px; height: 38px; padding: 0 10px; margin-bottom: 3px; border-radius: 10px; font-size: 12px; font-weight: 600; }
+  .nav-item.active { background: #2b4037; color: #fff; box-shadow: inset 3px 0 #46ba88; }
+  .icon { display: grid; place-items: center; width: 25px; height: 25px; flex: none; border-radius: 8px; background: #303b37; font-size: 12px; }
+  .active .icon { background: #405f4e; }
+  .count { margin-left: auto; padding: 2px 7px; border-radius: 12px; background: #303b37; }
+  .foot { margin-top: auto; padding: 0 25px 24px; color: #acc4b7; font-size: 11px; line-height: 18px; }
+  main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  header { height: 72px; flex: none; display: flex; align-items: center; justify-content: space-between; padding: 0 22px; background: #fff; border-bottom: 1px solid #e0e5df; }
+  h1 { margin: 0 0 3px; font-size: 18px; }
+  header p { margin: 0; color: #758b87; }
+  .actions { display: flex; align-items: center; gap: 8px; }
+  .user, .action { display: inline-flex; align-items: center; height: 31px; padding: 0 11px; border-radius: 10px; white-space: nowrap; font-weight: 600; }
+  .user { gap: 7px; border-radius: 16px; background: #f1f6f3; }
+  .user::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: #2db57b; }
+  .action { border: 1px solid #dce5df; background: #fff; }
+  .workspace { flex: 1; min-height: 0; padding: 16px; }
+  .surface { height: 100%; padding: 8px 32px 0; overflow: hidden; border: 1px solid #e2e9e3; border-radius: 13px; background: #f7f9f7; }
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  .stat { display: block; width: 100%; height: 113px; padding: 17px 18px; border: 1px solid #dfe7e1; border-radius: 14px; background: #fff; text-align: left; cursor: pointer; box-shadow: 0 7px 18px #293f2f0b; transition: transform .15s, border-color .15s, box-shadow .15s; }
+  .stat:hover { transform: translateY(-1px); border-color: #b9dcc7; box-shadow: 0 12px 26px #293f2f16; }
+  .stat:focus-visible { outline: 2px solid #087a53; outline-offset: 2px; }
+  .stat.stat-active { border-color: #7fc3a1; box-shadow: 0 0 0 3px #d9f0e4; }
+  .legend-bar { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 16px; margin-top: 14px; padding: 10px 15px; border: 1px solid #e2e9e3; border-radius: 12px; background: #fff; }
+  .legend-label { color: #758b87; font-size: 11px; font-weight: 700; }
+  .legend-item { display: inline-flex; align-items: center; gap: 6px; color: #4d6b60; font-size: 11px; font-weight: 600; }
+  .legend-item i { width: 8px; height: 8px; flex: none; border-radius: 50%; background: var(--tone, #0f9d63); }
+  .label { color: #637d78; }
+  .value { margin: 8px 0 3px; color: #061b18; font: bold 28px Arial, sans-serif; }
+  .note { color: #91a29d; font-size: 11px; }
+  .card { height: calc(100% - 130px); margin-top: 17px; overflow: hidden; border: 1px solid #dfe7e1; border-radius: 15px; background: #f3f7f4; }
+  .filters { height: 65px; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 0 18px; border-bottom: 1px solid #e6ece7; }
+  .tabs { display: flex; gap: 7px; white-space: nowrap; }
+  .tab { display: inline-flex; align-items: center; height: 31px; padding: 0 11px; border: 1px solid #dce5de; border-radius: 9px; color: #596f69; font-weight: 600; }
+  .tab.selected { color: #087a53; border-color: #c6e7d5; background: #e8f6ee; }
+  .search { width: 220px; height: 33px; flex: none; padding: 8px 10px; border: 1px solid #dce5de; border-radius: 9px; color: #677773; background: #fbfcfb; }
+  .tab-count { margin-left: 6px; padding: 1px 6px; border-radius: 9px; background: #eef2f0; color: #718581; font-size: 10px; font-weight: 700; }
+  .tab.selected .tab-count { background: #cfeada; color: #087a53; }
+  .sort-select { height: 33px; flex: none; padding: 0 8px; border: 1px solid #dce5de; border-radius: 9px; background: #fbfcfb; color: #596f69; font-weight: 600; }
+  /* 公众号卡片：一卡一账号，紧凑型，颜色由状态（--tone / --tone-bg）驱动 */
+  .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(268px, 1fr)); gap: 10px; align-content: start; padding: 12px 16px 16px; }
+  .account-card { position: relative; display: flex; flex-direction: column; gap: 7px; padding: 10px 11px 10px 15px; overflow: hidden; border: 1px solid #dfe7e1; border-radius: 12px; background: #fff; box-shadow: 0 5px 14px #293f2f0b; transition: transform .15s, box-shadow .15s, border-color .15s; }
+  .account-card::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--tone, #0f9d63); }
+  .account-card:hover { transform: translateY(-2px); border-color: var(--tone, #0f9d63); box-shadow: 0 12px 26px #293f2f1c; }
+  .account-card.selected-card { border-color: var(--tone, #0f9d63); background: linear-gradient(180deg, #f7fcf9, #fff); }
+  .card-config { position: absolute; top: 7px; right: 7px; display: grid; place-items: center; width: 24px; height: 24px; padding: 0; border: 1px solid transparent; border-radius: 8px; background: transparent; font-size: 13px; line-height: 1; opacity: .5; transition: .15s; }
+  .account-card:hover .card-config { opacity: 1; }
+  .card-config:hover { border-color: #d7e4dc; background: var(--tone-bg, #e8f6ef); opacity: 1; }
+  .card-config:focus-visible { outline: 2px solid #087a53; outline-offset: 1px; opacity: 1; }
+  .card-head { display: flex; align-items: center; gap: 9px; min-width: 0; }
+  .card-avatar { display: grid; place-items: center; width: 28px; height: 28px; flex: none; border-radius: 8px; background: var(--tone-bg, #e8f6ef); color: var(--tone, #0f9d63); font-size: 13px; font-weight: 700; }
+  .card-title { flex: 1; min-width: 0; padding-right: 22px; }
+  .name { overflow: hidden; font-size: 13px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
+  .id { margin-top: 1px; overflow: hidden; color: #91a29e; font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+  .card-status { display: flex; align-items: center; gap: 6px; min-width: 0; }
+  .account-card .pill { gap: 5px; padding: 3px 7px; border-radius: 7px; font-size: 10px; }
+  .account-card .pill::before { width: 6px; height: 6px; }
+  .card-metric { display: flex; align-items: baseline; gap: 6px; min-width: 0; }
+  .fans { color: #061b18; font: bold 21px Arial, sans-serif; line-height: 1; }
+  .fans.muted { color: #b8c5bf; }
+  .metric-label { flex: none; color: #8ba29a; font-size: 10px; }
+  .card-growth { display: flex; align-items: center; gap: 5px; min-width: 0; color: #8ba29a; font-size: 10px; }
+  .growth-label { flex: none; }
+  .gain { flex: none; color: #7b9089; font-size: 11px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .gain.up { color: #0f9d63; }
+  .gain.down { color: #d0433a; }
+  .spark-wrap { display: flex; margin-left: auto; }
+  .spark { display: block; flex: none; }
+  .spark-empty { display: grid; place-items: center; width: 76px; height: 20px; color: #c3cfca; }
+  .growth-sum { flex: none; color: #637d78; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .card-meta { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; padding-top: 7px; border-top: 1px dashed #e9eeea; }
+  .card-meta .meta { min-width: 0; }
+  .meta-label { color: #91a29e; font-size: 10px; }
+  .meta-value { margin-top: 2px; overflow: hidden; color: #22392f; font-size: 10px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
+  .meta-value.dim { color: #b3c0ba; font-weight: 600; }
+  .grid-empty { grid-column: 1 / -1; }
+  button, input, select, textarea { font: inherit; }
+  [hidden] { display: none !important; }
+  button { cursor: pointer; }
+  button:disabled { cursor: not-allowed; opacity: .48; }
+  .subnav { margin: -3px 0 12px 38px; display: grid; gap: 3px; }
+  .subnav button { padding: 8px 10px; border: 0; border-radius: 8px; background: transparent; color: #b6c9bf; text-align: left; }
+  .subnav button.active, .subnav button:hover { background: #30483c; color: #fff; }
+  .preview-tag { padding: 6px 10px; border-radius: 7px; background: #fff1d8; color: #8c5b13; font-weight: 700; }
+  .action { cursor: pointer; }
+  .view { display: none; height: 100%; }
+  .view.active { display: block; }
+  .section-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin: 6px 0 18px; }
+  .section-head h2 { margin: 0 0 5px; font-size: 20px; }
+  .section-head p { margin: 0; color: #718581; line-height: 1.6; }
+  .section-actions { display: flex; align-items: center; gap: 8px; }
+  .primary, .secondary, .danger { min-height: 34px; padding: 7px 13px; border-radius: 8px; font-weight: 700; }
+  .primary { border: 1px solid #087a53; background: #087a53; color: #fff; }
+  .secondary { border: 1px solid #d7e4dc; background: #fff; color: #2b5846; }
+  .danger { border: 1px solid #f2c9c5; background: #fff5f3; color: #b43e34; }
+  .panel { padding: 20px; border: 1px solid #dfe7e1; border-radius: 14px; background: #fff; }
+  .panel + .panel { margin-top: 14px; }
+  .page-scroll { height: calc(100% - 70px); overflow: auto; padding-bottom: 16px; }
+  .account-table { width: 100%; table-layout: auto; }
+  .account-table th, .account-table td { padding: 10px 12px; }
+  .account-table td { height: 62px; }
+  .account-table tr:first-child { background: transparent; }
+  .account-table button { margin-right: 5px; }
+  .empty { padding: 35px; color: #81958b; text-align: center; }
+  .field-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 15px; }
+  .field { display: grid; gap: 7px; color: #516c60; font-weight: 600; }
+  .field input, .field select, .field textarea { width: 100%; min-height: 36px; padding: 8px 10px; border: 1px solid #d4e2d9; border-radius: 8px; background: #fbfdfb; color: #152e22; outline-color: #087a53; }
+  .field textarea { min-height: 110px; resize: vertical; line-height: 1.6; }
+  .field small, .helper { color: #82948b; font-weight: 400; line-height: 1.55; }
+  .full { grid-column: 1 / -1; }
+  .inline-row { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; }
+  .inline-row input[type="checkbox"] { width: auto; min-height: auto; }
+  .summary-strip { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 15px; padding: 11px 14px; border-radius: 9px; background: #eff7f1; color: #416754; }
+  .pill { display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; border-radius: 9px; background: var(--tone-bg, #edf2ef); color: var(--tone, #547362); font-size: 11px; font-weight: 700; white-space: nowrap; }
+  .pill::before { content: ""; width: 7px; height: 7px; flex: none; border-radius: 50%; background: currentColor; }
+  /* 采集状态配色：绿=正常，灰=暂停，橙=临时封禁，红=永久封禁/采集失败 */
+  .tone-healthy { --tone: #0f9d63; --tone-bg: #e8f6ef; }
+  .tone-stale { --tone: #c9821a; --tone-bg: #fff5dd; }
+  .tone-error { --tone: #d0433a; --tone-bg: #fff0ef; }
+  .tone-paused { --tone: #6f8591; --tone-bg: #eef2f4; }
+  .image-preview { display: block; max-width: 210px; max-height: 130px; margin-top: 8px; border-radius: 8px; object-fit: contain; }
+  .menu-workbench { display: grid; grid-template-columns: 330px minmax(0, 1fr); gap: 20px; align-items: start; }
+  .mp { border: 1px solid #dfe7e1; border-radius: 34px; background: #fff; box-shadow: 0 18px 40px #1c3a281f; overflow: hidden; }
+  .mp-status { display: flex; align-items: center; justify-content: space-between; padding: 12px 22px 4px; color: #111; font-size: 13px; font-weight: 600; }
+  .mp-signal { display: inline-flex; align-items: flex-end; gap: 2px; }
+  .mp-signal i { width: 3px; border-radius: 1px; background: #111; }
+  .mp-signal i:nth-child(1) { height: 4px; } .mp-signal i:nth-child(2) { height: 6px; } .mp-signal i:nth-child(3) { height: 8px; } .mp-signal i:nth-child(4) { height: 10px; }
+  .mp-signal b { width: 16px; height: 8px; margin-left: 6px; border: 1px solid #111; border-radius: 2.5px; background: linear-gradient(to right, #111 70%, transparent 70%); }
+  .mp-nav { position: relative; display: flex; align-items: center; justify-content: center; min-height: 42px; border-bottom: 1px solid #e8e8e8; }
+  .mp-nav strong { color: #111; font-size: 15px; }
+  .mp-back { position: absolute; left: 16px; top: 50%; width: 10px; height: 10px; border-left: 2px solid #111; border-bottom: 2px solid #111; transform: translateY(-50%) rotate(45deg); }
+  .mp-user { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); }
+  .mp-user::before { content: ""; display: block; width: 9px; height: 9px; margin: 0 auto -1px; border: 1.6px solid #111; border-radius: 50%; }
+  .mp-user::after { content: ""; display: block; width: 15px; height: 7px; margin: 0 auto; border: 1.6px solid #111; border-bottom: 0; border-radius: 8px 8px 0 0; }
+  .mp-chat { height: 320px; padding: 14px; background: #ededed; }
+  .mp-foot { position: relative; border-top: 1px solid #e2e2e2; background: #fff; }
+  .mp-menu { display: flex; min-height: 54px; }
+  .mp-menu .mp-item, .mp-menu .mp-plus { flex: 1; min-width: 0; display: flex; align-items: center; justify-content: center; gap: 4px; border: 0; border-right: 1px solid #e7e7e7; background: #fff; color: #353535; font-size: 13px; }
+  .mp-menu .mp-item:last-of-type, .mp-menu .mp-plus:last-of-type { border-right: 0; }
+  .mp-menu .mp-item.selected { color: #087a53; font-weight: 700; }
+  .mp-menu .caret { display: inline-block; width: 0; height: 0; border-left: 4px solid transparent; border-right: 4px solid transparent; border-bottom: 5px solid currentColor; }
+  .mp-menu .mp-plus { color: #8a8a8a; font-size: 22px; font-weight: 400; }
+  .mp-menu .mp-plus:hover { color: #087a53; }
+  .mp-empty-add { flex: 1; margin: 9px 12px; display: grid; place-items: center; border: 1px dashed #74bd92; border-radius: 4px; background: #fbfffc; color: #087a53; font-weight: 700; }
+  .mp-empty-add:hover { background: #f2fbf5; }
+  .mp-menu .empty-menu { flex: 1; display: grid; place-items: center; color: #9fb2a8; font-size: 12px; }
+  .submenu { position: absolute; left: 10px; right: 10px; bottom: calc(100% + 7px); z-index: 3; overflow: hidden; border-radius: 4px; background: #fafafa; box-shadow: 0 8px 22px #0000002b, 0 0 0 1px #d9d9d9; }
+  .submenu::after { content: ""; position: absolute; bottom: -5px; left: var(--arrow, 50%); width: 10px; height: 10px; margin-left: -5px; background: #fafafa; transform: rotate(45deg); box-shadow: 2px 2px 0 #d9d9d9; }
+  .submenu button { display: block; width: 100%; padding: 12px 14px; border: 0; border-bottom: 1px solid #e7e7e7; background: transparent; color: #353535; text-align: center; font-size: 13px; }
+  .submenu button:last-child { border-bottom: 0; }
+  .submenu button:hover, .submenu button.selected { background: #f0f0f0; }
+  .submenu button.sub-add { color: #8a8a8a; }
+  .menu-panel { display: flex; flex-direction: column; min-height: 470px; padding: 20px 22px; border: 1px solid #e0e9e2; border-radius: 12px; background: #fff; }
+  .menu-panel-empty { margin: auto; color: #758b7e; line-height: 1.8; text-align: center; }
+  .menu-panel-body { display: grid; gap: 16px; align-content: start; }
+  .radio-row { display: flex; gap: 22px; padding-top: 2px; }
+  .radio-row label { display: flex; align-items: center; gap: 7px; color: #41674f; font-weight: 600; }
+  .radio-row input { width: auto; min-height: auto; accent-color: #087a53; }
+  .menu-form-head { display: flex; align-items: baseline; gap: 12px; padding-bottom: 14px; border-bottom: 1px solid #eef3ef; }
+  .menu-form-head strong { font-size: 15px; color: #234332; }
+  .menu-form-note { color: #9aa89f; font-size: 12px; }
+  .menu-form-row { display: grid; grid-template-columns: 88px minmax(0, 1fr); gap: 14px; align-items: start; }
+  .menu-form-label { padding-top: 9px; color: #41674f; font-weight: 600; font-size: 13px; }
+  .menu-form-ctrl { display: grid; gap: 6px; }
+  .menu-form-ctrl input:not([type="radio"]):not([type="file"]), .menu-form-ctrl textarea { width: 100%; }
+  .menu-form-ctrl small { color: #93a89c; line-height: 1.6; }
+  .menu-form-row.radio-row-inline { align-items: center; }
+  .menu-form-row .radio-row { flex-wrap: wrap; gap: 18px; padding: 8px 0 2px; }
+  .menu-type-chips { display: inline-flex; gap: 0; border: 1px solid #e0e9e2; border-radius: 8px; background: #fbfdfb; overflow: hidden; width: fit-content; }
+  .menu-chip { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border: 0; border-right: 1px solid #e0e9e2; background: transparent; color: #41674f; font-size: 13px; font-weight: 600; cursor: pointer; }
+  .menu-chip:last-of-type { border-right: 0; }
+  .menu-chip svg { width: 15px; height: 15px; }
+  .menu-chip:hover { background: #f2f9f4; }
+  .menu-chip.selected { background: #e8f6ef; color: #087a53; }
+  .menu-chip:disabled { opacity: .5; cursor: not-allowed; }
+  .menu-delete-link { justify-self: start; margin-top: 4px; padding: 0; border: 0; background: none; color: #087a53; font-size: 13px; font-weight: 600; cursor: pointer; }
+  .menu-delete-link:hover { text-decoration: underline; }
+  .menu-delete-link:disabled { color: #9fb2a8; cursor: not-allowed; text-decoration: none; }
+  .menu-panel-actions { display: flex; justify-content: flex-end; gap: 9px; margin-top: auto; padding-top: 16px; border-top: 1px solid #eef3ef; }
+  .menu-panel .helper { margin: 10px 0 0; }
+  .modal-backdrop { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; padding: 20px; background: #0d2016a8; z-index: 10; }
+  .modal-backdrop.open { display: flex; }
+  .modal { width: min(540px, 100%); padding: 22px; border-radius: 16px; background: #fff; box-shadow: 0 22px 70px #102d1e55; }
+  .modal h2 { margin: 0 0 7px; }
+  .modal p { margin: 0 0 17px; color: #758b7e; line-height: 1.5; }
+  .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px; }
+  .toast { position: fixed; right: 24px; bottom: 22px; z-index: 20; display: none; padding: 11px 16px; border-radius: 9px; background: #203d2d; color: #fff; box-shadow: 0 8px 24px #102d1e40; }
+  .toast.show { display: block; }
+  #dashboardView .card { height: calc(100% - 130px); }
+  #accountView .page-scroll { height: calc(100% - 70px); }
+  @media (max-width: 1500px) { .menu-workbench { grid-template-columns: 300px minmax(0, 1fr); } }
+  @media (max-width: 1350px) {
+    aside { width: 210px; } .surface { padding-inline: 18px; }
+    th, td { padding-inline: 10px; }
+  }
+  .surface { overflow: auto; padding-bottom: 30px; }
+  .view, .view.active { display: block; height: auto; }
+  .card, #dashboardView .card { display: flex; flex-direction: column; height: auto; margin-bottom: 25px; overflow: visible; }
+  .page-scroll, #accountView .page-scroll { height: auto; overflow: visible; padding-bottom: 0; }
+  .section-head { margin-top: 22px; }
+  .filters { flex-wrap: wrap; height: auto; min-height: 65px; padding-block: 11px; }
+  .tabs { flex-wrap: wrap; }
+  .filter-tools { display: flex; align-items: center; gap: 9px; }
+  .tab { cursor: pointer; background: #fff; }
+  /* 配置弹窗：参考微信公众平台后台，左导航 + 右内容 */
+  .config-modal { width: min(1160px, 100%); height: min(780px, calc(100vh - 40px)); display: flex; flex-direction: column; padding: 0; overflow: hidden; }
+  .config-layout { flex: 1; min-height: 0; display: grid; grid-template-columns: 212px minmax(0, 1fr); }
+  .config-side { width: auto; display: flex; flex-direction: column; overflow-y: auto; background: #17211e; }
+  .config-account { display: flex; align-items: center; gap: 11px; padding: 20px 18px 17px; border-bottom: 1px solid #27362f; }
+  .config-avatar { display: grid; place-items: center; width: 38px; height: 38px; flex: none; border-radius: 11px; background: #2b4037; color: #fff; font-size: 15px; font-weight: 700; }
+  .config-account > div { min-width: 0; }
+  .config-account strong { display: block; overflow: hidden; color: #fff; font-size: 13px; text-overflow: ellipsis; white-space: nowrap; }
+  .config-account small { display: block; margin-top: 3px; overflow: hidden; color: #8ba69a; font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
+  .config-nav { padding: 8px 12px 20px; }
+  .config-nav-group { padding: 13px 10px 6px; color: #70887c; font-size: 11px; font-weight: 700; letter-spacing: .5px; }
+  .config-nav-item { display: flex; align-items: center; gap: 10px; width: 100%; height: 40px; padding: 0 12px; margin-bottom: 3px; border: 0; border-radius: 9px; background: transparent; color: #cfe0d7; text-align: left; font-size: 13px; font-weight: 600; }
+  .config-nav-item:hover { background: #22302b; color: #fff; }
+  .config-nav-item.active { background: #2b4037; color: #fff; box-shadow: inset 3px 0 #46ba88; }
+  .config-nav-icon { display: grid; place-items: center; width: 22px; height: 22px; flex: none; border-radius: 6px; background: #303b37; font-size: 11px; font-weight: 700; }
+  .config-nav-item.active .config-nav-icon { background: #405f4e; }
+  .config-main { display: flex; flex-direction: column; min-width: 0; min-height: 0; }
+  .config-topbar { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; flex: none; padding: 20px 26px 15px; border-bottom: 1px solid #e6ece7; }
+  .config-topbar h2 { margin: 0 0 5px; font-size: 18px; }
+  .config-topbar p { margin: 0; color: #8ba194; line-height: 1.55; }
+  .config-topbar .inline-row { flex: none; }
+  .config-modal-body { min-height: 0; flex: 1; padding: 22px 26px 28px; overflow: auto; }
+  @media (max-width: 1350px) { .config-modal { width: min(1020px, 100%); } .config-layout { grid-template-columns: 186px minmax(0, 1fr); } }
+  .config-modal .config-section { margin: 0; }
+  .config-modal .section-head { margin-top: 0; }
+  .config-section { margin-top: 15px; }
+  .config-section .section-head { margin: 0 0 11px; }
+  .config-section .section-head h2 { font-size: 17px; }
+  .config-section .panel { padding: 18px; }
+  .reply-tabs { display: flex; gap: 28px; margin-bottom: 18px; border-bottom: 1px solid #e3ebe5; }
+  .reply-tab { position: relative; padding: 10px 2px 12px; border: 0; background: transparent; color: #41674f; font-weight: 600; }
+  .reply-tab:hover { color: #087a53; }
+  .reply-tab.active { color: #087a53; font-weight: 700; }
+  .reply-tab.active::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 3px; border-radius: 3px 3px 0 0; background: #087a53; }
+  .reply-card { padding: 20px 24px; border: 1px solid #e0e9e2; border-radius: 12px; background: #fff; }
+  .reply-card-head { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+  .reply-card-head h3 { margin: 0; font-size: 15px; }
+  .reply-card-desc { margin: 8px 0 0; color: #758b7e; line-height: 1.6; }
+  /* 被关注回复：开关的二次确认（内联确认条，非弹窗） */
+  .subscribe-confirm { display: flex; align-items: center; gap: 12px; margin: 12px 0 2px; padding: 11px 14px; border: 1px solid #cfe4d6; border-left: 3px solid #087a53; border-radius: 9px; background: #f3faf6; color: #2b5846; font-size: 12px; line-height: 1.6; }
+  .subscribe-confirm-text { flex: 1; min-width: 0; }
+  .subscribe-confirm .inline-row { flex: none; gap: 7px; }
+  .subscribe-confirm .primary, .subscribe-confirm .secondary { min-height: 30px; padding: 5px 12px; font-size: 12px; }
+  .switch { position: relative; display: inline-block; width: 40px; height: 22px; flex: none; }
+  .switch input { position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+  .switch input:disabled { cursor: not-allowed; }
+  .switch i { position: absolute; inset: 0; border-radius: 11px; background: #cfdcd2; transition: background .18s; }
+  .switch i::after { content: ""; position: absolute; top: 2px; left: 2px; width: 18px; height: 18px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px #1c3a2833; transition: transform .18s; }
+  .switch input:checked + i { background: #087a53; }
+  .switch input:checked + i::after { transform: translateX(18px); }
+  .reply-content-head { display: flex; align-items: center; justify-content: space-between; margin: 22px 0 12px; }
+  .reply-content-head strong { font-size: 14px; color: #234332; }
+  .reply-view { min-height: 150px; padding: 15px 18px; border-radius: 8px; background: #f4f8f5; color: #33523f; line-height: 1.8; word-break: break-word; white-space: pre-wrap; }
+  .reply-view.empty { color: #9fb2a8; }
+  /* 关键词回复：列表页（参考微信公众平台后台） */
+  .rule-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-top: 20px; }
+  .rule-search { position: relative; width: 300px; }
+  .rule-search input { width: 100%; height: 34px; padding: 0 34px 0 12px; border: 1px solid #dfe7e1; border-radius: 8px; background: #fff; color: #23392f; }
+  .rule-search input::placeholder { color: #a7b6ae; }
+  .rule-search input:focus { border-color: #7fc3a1; box-shadow: 0 0 0 3px #d9f0e4; outline: none; }
+  .rule-search-icon { position: absolute; top: 9px; right: 11px; width: 16px; height: 16px; color: #9aada4; pointer-events: none; }
+  .rule-table { margin-top: 16px; border: 1px solid #e6ece7; border-radius: 10px; overflow: hidden; }
+  .rule-thead, .rule-row { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1.25fr) minmax(0, 1.5fr) 108px; align-items: center; gap: 14px; padding: 0 16px; }
+  .rule-thead { height: 42px; background: #f6f9f7; color: #6f8579; font-size: 12px; font-weight: 700; }
+  .rule-thead span:last-child { text-align: right; }
+  .rule-row { min-height: 58px; padding-top: 10px; padding-bottom: 10px; border-top: 1px solid #eef3ef; }
+  .rule-table #ruleList > .rule-row:first-child { border-top: 0; }
+  .rule-row .rule-name { overflow: hidden; color: #234332; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
+  .rule-kws { display: flex; flex-wrap: wrap; gap: 6px; min-width: 0; }
+  .rule-kw { max-width: 100%; overflow: hidden; padding: 3px 9px; border-radius: 6px; background: #eef4f0; color: #3c6b53; font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+  .rule-kw.more { padding: 3px 0; background: transparent; color: #8ba194; }
+  .rule-summary { min-width: 0; overflow: hidden; color: #758b7e; font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+  .rule-ops { display: flex; justify-content: flex-end; gap: 6px; }
+  .rule-ops button { min-height: 0; padding: 5px 10px; border-color: transparent; background: transparent; font-size: 12px; font-weight: 600; }
+  .rule-ops .secondary { color: #087a53; }
+  .rule-ops .secondary:hover { background: #eaf6ef; }
+  .rule-ops .danger { color: #b43e34; }
+  .rule-ops .danger:hover { background: #fff5f3; }
+  .rule-table .empty { padding: 46px 0; color: #9fb2a8; text-align: center; }
+
+  /* 关键词回复：编辑页 */
+  .rule-crumb { display: flex; align-items: center; gap: 7px; color: #8ba194; }
+  .rule-crumb button { padding: 0; border: 0; background: transparent; color: #087a53; font-weight: 600; }
+  .rule-crumb button:hover { text-decoration: underline; }
+  .rule-crumb .sep { color: #b6c6bd; }
+  .rule-form { display: grid; gap: 24px; margin-top: 26px; }
+  .rule-form-row { display: grid; grid-template-columns: 78px minmax(0, 1fr); gap: 16px; align-items: start; }
+  .rule-form-label { padding-top: 9px; color: #5d7568; font-weight: 600; }
+  .rule-form-control { min-width: 0; }
+  .rule-form-control > input { width: 100%; height: 36px; padding: 0 12px; border: 1px solid #dfe7e1; border-radius: 8px; background: #fff; color: #23392f; }
+  .rule-form-control > input::placeholder { color: #a7b6ae; }
+  .rule-form-control > input:focus { border-color: #7fc3a1; box-shadow: 0 0 0 3px #d9f0e4; outline: none; }
+  .rule-form-hint { margin-top: 8px; color: #9fb2a8; font-size: 12px; }
+  .rule-form-hint.error { color: #d94a3d; }
+  .kw-row { display: flex; align-items: center; gap: 10px; }
+  .kw-row + .kw-row { margin-top: 10px; }
+  .kw-match { width: 92px; height: 36px; flex: none; padding: 0 10px; border: 1px solid #dfe7e1; border-radius: 8px; background: #fff; color: #2b5846; }
+  .kw-input { flex: 1; min-width: 0; height: 36px; padding: 0 12px; border: 1px solid #dfe7e1; border-radius: 8px; background: #fff; color: #23392f; }
+  .kw-input::placeholder { color: #a7b6ae; }
+  .kw-input:focus { border-color: #7fc3a1; box-shadow: 0 0 0 3px #d9f0e4; outline: none; }
+  .kw-row.invalid .kw-input { border-color: #e0756a; background: #fffafa; }
+  .kw-row.invalid .kw-input:focus { box-shadow: 0 0 0 3px #fbe3e0; }
+  .kw-icon { display: grid; place-items: center; width: 26px; height: 26px; flex: none; border: 1px solid #dfe7e1; border-radius: 50%; background: #fff; color: #7d9388; font-size: 15px; line-height: 1; }
+  .kw-icon:hover { border-color: #9dcbb2; color: #087a53; }
+  .add-content { position: relative; margin-top: 12px; }
+  .add-content-btn { min-height: 0; padding: 6px 12px; border: 1px dashed #c4dccd; border-radius: 8px; background: #fff; color: #087a53; font-weight: 600; }
+  .add-content-btn:hover { background: #f2faf5; }
+  .content-menu { position: absolute; z-index: 6; width: 160px; margin-top: 6px; padding: 6px; border: 1px solid #e2e9e3; border-radius: 10px; background: #fff; box-shadow: 0 14px 30px #1c3a2822; }
+  .content-menu.up { bottom: calc(100% + 6px); margin-top: 0; }
+  .content-menu button { display: flex; align-items: center; gap: 9px; width: 100%; padding: 8px 9px; border: 0; border-radius: 7px; background: transparent; color: #2f5240; text-align: left; }
+  .content-menu button:hover { background: #f2f8f4; }
+  .content-menu svg { width: 16px; height: 16px; flex: none; color: #6c8a75; }
+  .content-item { padding: 12px 14px; border: 1px solid #e4ece6; border-radius: 10px; background: #fbfdfc; }
+  .content-item + .content-item { margin-top: 10px; }
+  .content-item-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .content-item-type { color: #3c6b53; font-weight: 700; }
+  .content-item-del { padding: 2px 8px; border: 0; border-radius: 6px; background: transparent; color: #a4716c; font-size: 12px; }
+  .content-item-del:hover { background: #fdeeee; color: #b43e34; }
+  .content-text { width: 100%; min-height: 74px; margin-top: 9px; padding: 10px 12px; border: 1px solid #e0e9e2; border-radius: 8px; background: #fff; line-height: 1.7; resize: vertical; }
+  .content-upload { display: inline-flex; margin-top: 9px; padding: 6px 12px; border: 1px dashed #c4dccd; border-radius: 8px; color: #087a53; font-weight: 600; cursor: pointer; }
+  .content-upload input { display: none; }
+  .content-image { display: block; max-width: 150px; max-height: 110px; margin-top: 10px; border: 1px solid #e2ebe4; border-radius: 8px; }
+  .rule-form-actions { display: flex; justify-content: center; gap: 12px; margin-top: 30px; padding-top: 22px; border-top: 1px solid #eef3ef; }
+  .rule-form-actions .primary, .rule-form-actions .secondary { min-width: 96px; }
+  .rule-editor { margin-top: 12px; padding: 16px; border: 1px solid #cfe4d6; border-radius: 10px; background: #fafdfb; }
+  .permission-note { margin: 0 0 13px; padding: 10px 12px; border-radius: 8px; background: #fff4e2; color: #855d21; }
+  .auth-modal { width: min(520px, 100%); }
+  .auth-body { display: grid; gap: 14px; }
+  .qr-placeholder { display: grid; place-items: center; width: 176px; height: 176px; padding: 18px; border: 1px dashed #abc9b4; border-radius: 10px; background: #f5faf6; color: #6c8a75; text-align: center; line-height: 1.6; }
+  .auth-steps { display: flex; gap: 8px; margin-bottom: 18px; color: #62806e; }
+  .auth-steps span { padding: 5px 8px; border-radius: 7px; background: #eff5f0; }
+  .auth-steps span.active { background: #d9efdf; color: #116a3d; font-weight: 700; }
+  .auth-result { margin-top: 14px; padding: 12px; border-radius: 9px; background: #f0f7f2; line-height: 1.6; }
+  .auth-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+  .preview-auth-tools .field { margin-top: 10px; }
+  .auth-help { margin-top: 10px; color: #718581; line-height: 1.6; }
+  .preview-auth-tools { margin-top: 15px; padding: 14px; border: 1px dashed #c9d9ce; border-radius: 10px; background: #f8fbf8; }
+  .preview-auth-tools > strong { color: #4a7158; }
+  .preview-auth-tools .field { margin-top: 10px; }
+  .auth-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 15px; }
+  .auth-head h2 { margin: 0 0 6px; }
+  .auth-head p { margin: 0; }
+  .field.invalid input { border-color: #c96a63; background: #fffafa; }
+  .field-error { color: #b43e34; font-weight: 500; font-size: 12px; line-height: 1.5; }
+  .auth-checklist { padding: 13px 14px; border: 1px solid #dfe7e1; border-radius: 11px; background: #f8fbf8; }
+  .auth-checklist > strong { display: block; margin-bottom: 4px; color: #4a7158; }
+  .auth-checklist > small { display: block; margin-bottom: 10px; color: #8ba194; line-height: 1.5; }
+  .check-item { display: grid; grid-template-columns: 18px 1fr; gap: 9px; align-items: start; padding: 9px 0; border-top: 1px dashed #e6eee8; }
+  .check-item:first-of-type { border-top: 0; }
+  .check-mark { display: grid; place-items: center; width: 18px; height: 18px; margin-top: 1px; border-radius: 50%; border: 1.5px solid #cdd9d0; background: #fff; }
+  .check-mark.pending::after { content: ""; width: 5px; height: 5px; border-radius: 50%; background: #d7e2da; }
+  .check-mark.checking { border-color: #9dcbb2; border-top-color: #087a53; animation: spin .7s linear infinite; }
+  .check-mark.pass { border-color: #087a53; background: #087a53; }
+  .check-mark.pass::after { content: ""; width: 8px; height: 4px; margin-top: -2px; border-left: 2px solid #fff; border-bottom: 2px solid #fff; transform: rotate(-45deg); }
+  .check-mark.warn { border-color: #d9a441; background: #fff6e4; color: #a2701a; font-weight: 700; font-size: 11px; }
+  .check-mark.warn::after { content: "!"; }
+  .check-mark.fail { border-color: #c96a63; background: #fdecec; color: #b43e34; font-weight: 700; font-size: 11px; }
+  .check-mark.fail::after { content: "!"; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .check-label { font-weight: 700; color: #2b5846; }
+  .check-hint { margin-top: 2px; color: #8ba194; font-size: 11px; line-height: 1.55; }
+  .check-item.is-warn .check-hint { color: #a2701a; }
+  .check-item.is-fail .check-hint { color: #b43e34; }
+  .auth-body code { padding: 1px 5px; border-radius: 5px; background: #eef4f0; color: #3c6b53; font: 11px Consolas, Menlo, monospace; }
+  .auth-note { padding: 10px 12px; border-radius: 9px; background: #fff6e4; color: #855d21; line-height: 1.7; }
+  .auth-note b { color: #6d4a10; }
+  .auth-note code { padding: 1px 5px; border-radius: 5px; border: 1px solid #f0dcb4; background: #fffdf6; font: 11px Consolas, Menlo, monospace; }
+  .manual-result { padding: 12px 14px; border-radius: 9px; background: #eaf6ef; color: #2b5846; line-height: 1.75; }
+  .manual-result b { color: #0d3a26; }
+  .auth-modal .modal-actions { margin-top: 18px; }
+  @media (max-width: 1350px) { .auth-modal { width: min(480px, 100%); } }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside>
+    <div class="brand"><strong>业务看板中心</strong><small>一个入口 · 统一服务 · 实时切换</small></div>
+    <nav>
+      <div class="nav-item"><span class="icon">总</span>看板总览</div>
+      <div class="nav-item"><span class="icon">投</span>投放实时</div>
+      <div class="nav-item"><span class="icon">客</span>客户管理</div>
+      <div class="nav-item active"><span class="icon">微</span>公众号采集</div>
+      <div class="nav-item"><span class="icon">甲</span>甲方看板<span class="count">7</span>›</div>
+      <div class="nav-item"><span class="icon">本</span>成本控制</div>
+      <div class="nav-item"><span class="icon">利</span>毛利日历</div>
+      <div class="nav-item"><span class="icon">取</span>取数情况</div>
+      <div class="nav-item"><span class="icon">版</span>版本渠道</div>
+      <div class="nav-item"><span class="icon">模</span>模型分析</div>
+      <div class="nav-item"><span class="icon">信</span>问信模板</div>
+      <div class="nav-item"><span class="icon">源</span>采集总览</div>
+    </nav>
+    <div class="foot">公众号采集 · 单页工作台</div>
+  </aside>
+  <main>
+    <header>
+      <div><h1>公众号采集看板</h1><p>账号授权、粉丝同步、采集监测与公众号配置</p></div>
+      <div class="actions"><span class="user">shiwei</span><div class="inline-row" id="previewHeader" hidden><span class="preview-tag">开发预览</span><button type="button" class="action" id="resetDemo">重置本地数据</button></div></div>
+    </header>
+    <div class="workspace"><div class="surface">
+      <section id="dashboardView" class="view">
+        <div class="stats">
+          <button type="button" class="stat" data-jump-filter="all"><div class="label">公众号总数</div><div class="value" id="statTotal">0</div><div class="note">已列入当前工作台 · 点击看全部</div></button>
+          <button type="button" class="stat" data-jump-filter="healthy"><div class="label">正常采集</div><div class="value" id="statHealthy">0</div><div class="note">最近一次同步成功 · 点击筛选</div></button>
+          <button type="button" class="stat" data-jump-filter="all"><div class="label">采集失败</div><div class="value" id="statIssues">0</div><div class="note">含临时/永久封禁 · 点击看全部</div></button>
+          <button type="button" class="stat" data-jump-filter="healthy"><div class="label">正常账号粉丝合计</div><div class="value" id="statFans">0</div><div class="note">仅汇总有权限且采集正常的账号</div></button>
+        </div>
+        <div class="legend-bar">
+          <span class="legend-label">状态说明</span>
+          <span class="legend-item tone-healthy"><i></i>正常采集</span>
+          <span class="legend-item tone-paused"><i></i>已暂停采集</span>
+          <span class="legend-item tone-stale"><i></i>临时封禁</span>
+          <span class="legend-item tone-error"><i></i>永久封禁</span>
+        </div>
+        <div class="card">
+          <div class="filters">
+            <div class="tabs">
+              <button type="button" class="tab selected" data-filter="all">全部<span class="tab-count" data-count="all">0</span></button>
+              <button type="button" class="tab" data-filter="healthy">正常采集<span class="tab-count" data-count="healthy">0</span></button>
+              <button type="button" class="tab" data-filter="paused">已暂停采集<span class="tab-count" data-count="paused">0</span></button>
+              <button type="button" class="tab" data-filter="tempBan">临时封禁<span class="tab-count" data-count="tempBan">0</span></button>
+              <button type="button" class="tab" data-filter="permBan">永久封禁<span class="tab-count" data-count="permBan">0</span></button>
+            </div>
+            <div class="filter-tools">
+              <select class="sort-select" id="sortMode" aria-label="排序方式">
+                <option value="default">按添加顺序</option>
+                <option value="fans">粉丝从高到低</option>
+                <option value="todayGain">今日涨粉从高到低</option>
+              </select>
+              <input class="search" id="dashboardSearch" placeholder="搜索公众号名称或 ID" aria-label="搜索公众号名称或 ID">
+              <button type="button" class="primary" id="addAccount">+ 添加公众号</button>
+            </div>
+          </div>
+          <div class="card-grid" id="accountGrid"></div>
+        </div>
+      </section>
+    </div></div>
+  </main>
+</div>
+<div class="modal-backdrop" id="configModal"><div class="modal config-modal" role="dialog" aria-modal="true" aria-labelledby="selectedAccountTitle">
+  <div class="config-layout">
+    <aside class="config-side">
+      <div class="config-account">
+        <span class="config-avatar" id="configAvatar" aria-hidden="true">微</span>
+        <div><strong id="configAccountName">未选择公众号</strong><small id="configAccountId">—</small></div>
+      </div>
+      <nav class="config-nav" role="tablist" aria-label="公众号配置项目">
+        <div class="config-nav-group">功能</div>
+        <button type="button" class="config-nav-item active" data-config-tab="reply" role="tab" aria-selected="true"><span class="config-nav-icon" aria-hidden="true">复</span>自动回复</button>
+        <button type="button" class="config-nav-item" data-config-tab="menu" role="tab" aria-selected="false"><span class="config-nav-icon" aria-hidden="true">菜</span>自定义菜单</button>
+      </nav>
+    </aside>
+    <div class="config-main">
+      <div class="config-topbar">
+        <div><h2 id="selectedAccountTitle">公众号配置</h2><p id="selectedAccountSummary"></p></div>
+        <div class="inline-row"><button type="button" class="secondary" id="toggleAccountMonitoring">暂停采集</button><button type="button" class="secondary" id="reauthorizeAccount">重新授权</button><button type="button" class="secondary" id="closeConfig">关闭</button></div>
+      </div>
+      <div class="config-modal-body" id="configBody">
+      <section id="monitorView" class="config-section" hidden>
+        <div class="section-head"><div><h2>① 采集监测与提醒</h2><p>这里的状态由本系统的同步任务判定，和微信账号封禁状态不是同一概念。</p></div></div>
+        <div class="panel">
+          <p class="permission-note" id="monitorPermission" hidden></p>
+          <div class="field-grid">
+            <label class="field">超时阈值（分钟）<input id="staleMinutes" type="number" min="1" max="1440"><small>服务端判定用 · 原型状态为静态演示值。</small></label>
+            <label class="field">提醒对象<input id="alertTarget" placeholder="例如：运营负责人"></label>
+            <label class="field full inline-row"><input id="alertEnabled" type="checkbox">启用异常提醒</label>
+          </div>
+          <div class="inline-row" style="margin-top:18px"><button type="button" class="primary" id="saveMonitor">保存规则</button><button type="button" class="secondary" id="simulateSuccess">同步成功状态</button><button type="button" class="secondary" id="simulateError">同步失败状态</button></div>
+          <div class="summary-strip" id="monitorSummary" style="margin:17px 0 0"></div>
+        </div>
+      </section>
+      <section id="replyView" class="config-section" hidden>
+        <p class="permission-note" id="replyPermission" hidden></p>
+        <div class="reply-tabs" role="tablist" aria-label="自动回复类型">
+          <button type="button" class="reply-tab active" data-reply-tab="subscribe" role="tab" aria-selected="true">被关注回复</button>
+          <button type="button" class="reply-tab" data-reply-tab="keyword" role="tab" aria-selected="false">关键词回复</button>
+        </div>
+        <div id="replyKeywordView" hidden>
+          <div class="reply-card" id="ruleListView">
+            <div class="reply-card-head"><h3>关键词回复</h3><span class="switch"><input type="checkbox" id="keywordEnabled" aria-label="启用关键词回复"><i></i></span></div>
+            <p class="reply-card-desc">通过编辑内容或关键词规则，快速进行自动回复设置。如具备开发能力，可更灵活地使用该功能。</p>
+            <div class="rule-toolbar">
+              <div class="rule-search">
+                <input id="ruleSearch" placeholder="搜索关键词/规则名称" aria-label="搜索关键词或规则名称">
+                <svg class="rule-search-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><circle cx="7" cy="7" r="4.4"/><path d="M10.4 10.4L14 14" stroke-linecap="round"/></svg>
+              </div>
+              <button type="button" class="primary" id="addRule">添加回复</button>
+            </div>
+            <div class="rule-table">
+              <div class="rule-thead"><span>规则名称</span><span>关键词</span><span>回复内容</span><span>操作</span></div>
+              <div id="ruleList"></div>
+            </div>
+          </div>
+          <div class="reply-card" id="ruleEditorView" hidden>
+            <div class="rule-crumb"><button type="button" id="ruleBack">关键词回复</button><span class="sep">›</span><span class="current" id="ruleCrumbCurrent">添加回复</span></div>
+            <div class="rule-form">
+              <div class="rule-form-row">
+                <label class="rule-form-label" for="ruleName">规则名称</label>
+                <div class="rule-form-control">
+                  <input id="ruleName" maxlength="60" autocomplete="off" placeholder="输入规则名称">
+                  <div class="rule-form-hint">规则名最多60个字</div>
+                </div>
+              </div>
+              <div class="rule-form-row">
+                <span class="rule-form-label">关键词</span>
+                <div class="rule-form-control">
+                  <div id="ruleKeywords"></div>
+                  <div class="rule-form-hint error" id="ruleKeywordError" hidden>关键词不能为空且最多30个字</div>
+                </div>
+              </div>
+              <div class="rule-form-row">
+                <span class="rule-form-label">回复内容</span>
+                <div class="rule-form-control">
+                  <div id="ruleContents"></div>
+                  <div class="add-content">
+                    <button type="button" class="add-content-btn" id="addContent">＋ 添加内容</button>
+                    <div class="content-menu" id="contentMenu" hidden></div>
+                  </div>
+                </div>
+              </div>
+              <div class="rule-form-row">
+                <span class="rule-form-label">回复方式</span>
+                <div class="rule-form-control radio-row" id="ruleModeRow">
+                  <label><input type="radio" name="ruleReplyMode" value="random">随机回复一条</label>
+                  <label><input type="radio" name="ruleReplyMode" value="all">回复全部</label>
+                </div>
+              </div>
+            </div>
+            <div class="rule-form-actions">
+              <button type="button" class="primary" id="saveRule">保存</button>
+              <button type="button" class="secondary" id="cancelRule">取消</button>
+            </div>
+          </div>
+        </div>
+        <div id="replySubscribeView">
+          <div class="reply-card">
+            <div class="reply-card-head"><h3>被关注回复</h3><span class="switch"><input type="checkbox" id="subscribeEnabled" aria-label="启用被关注回复"><i></i></span></div>
+            <div class="subscribe-confirm" id="subscribeConfirm" hidden role="status">
+              <span class="subscribe-confirm-text" id="subscribeConfirmText"></span>
+              <span class="inline-row"><button type="button" class="secondary" id="subscribeConfirmCancel">取消</button><button type="button" class="primary" id="subscribeConfirmOk">确认开启</button></span>
+            </div>
+            <p class="reply-card-desc">当用户关注此公众号时，可自动回复一条消息。</p>
+            <div class="reply-content-head"><strong>回复内容</strong><button type="button" class="primary" id="editSubscribe">编辑回复</button></div>
+            <div class="reply-view" id="subscribeView"></div>
+            <div class="rule-editor" id="subscribeEditor" hidden>
+              <div class="field-grid">
+                <label class="field full">回复类型<select id="replyType"><option value="text">文字</option><option value="image">图片</option></select></label>
+                <label class="field full" id="replyTextField">回复文字<textarea id="replyText" maxlength="600" placeholder="输入回复内容"></textarea></label>
+                <label class="field full" id="replyImageField" hidden>回复图片<input id="replyImage" type="file" accept="image/png,image/jpeg,image/gif,image/webp"><small>支持 PNG、JPG、GIF、WebP，大小不超过 1 MB。</small><img id="replyImagePreview" class="image-preview" alt="图片预览" hidden></label>
+              </div>
+              <div class="inline-row" style="margin-top:14px"><button type="button" class="secondary" id="cancelSubscribe">取消</button><button type="button" class="primary" id="saveSubscribe">保存</button></div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section id="menuView" class="config-section" hidden>
+        <p class="permission-note" id="menuPermission" hidden></p>
+        <div class="menu-workbench">
+          <div class="mp">
+            <div class="mp-status"><span class="mp-time">1:21</span><span class="mp-signal" aria-hidden="true"><i></i><i></i><i></i><b></b></span></div>
+            <div class="mp-nav"><span class="mp-back" aria-hidden="true"></span><strong id="menuPhoneTitle">公众号</strong><span class="mp-user" aria-hidden="true"></span></div>
+            <div class="mp-chat" id="menuPhoneBody"></div>
+            <div class="mp-foot">
+              <div class="submenu" id="menuSubPanel" hidden></div>
+              <div class="mp-menu" id="menuPhoneButtons"></div>
+            </div>
+          </div>
+          <div class="menu-panel">
+            <div class="menu-panel-empty" id="menuPanelEmpty">你未添加自定义菜单，点击手机预览底部的「＋ 添加菜单」为公众号创建菜单栏。</div>
+            <div class="menu-panel-body" id="menuEditor" hidden>
+              <div class="menu-form-head"><strong id="menuFormTitle">菜单信息</strong><span class="menu-form-note" id="menuFormNote" hidden>已添加子菜单，仅可设置菜单名称</span></div>
+              <div class="menu-form-row">
+                <span class="menu-form-label">名称</span>
+                <div class="menu-form-ctrl">
+                  <input id="menuName" maxlength="8" autocomplete="off" placeholder="菜单名称">
+                  <small id="menuNameHint">仅支持中英文和数字，字数不超过4个汉字或8个字母。</small>
+                </div>
+              </div>
+              <div class="menu-form-row" id="menuActionRow">
+                <span class="menu-form-label">消息类型</span>
+                <div class="menu-form-ctrl">
+                  <div class="radio-row">
+                    <label><input type="radio" name="menuActionRadio" id="menuActionSend" value="send">发送消息</label>
+                    <label><input type="radio" name="menuActionRadio" id="menuActionUrl" value="url">跳转网页</label>
+                    <label><input type="radio" name="menuActionRadio" id="menuActionMini" value="mini">跳转小程序</label>
+                  </div>
+                </div>
+              </div>
+              <div class="menu-form-row" id="menuContentRow">
+                <span class="menu-form-label">菜单内容</span>
+                <div class="menu-form-ctrl">
+                  <div class="menu-type-chips" id="menuTypeChips" role="tablist" aria-label="菜单内容类型">
+                    <button type="button" class="menu-chip" data-menu-type="text"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3.6 4h8.8M8 4v8.4M5.8 12.4h4.4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>文字</button>
+                    <button type="button" class="menu-chip" data-menu-type="image"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="2.6" y="3.2" width="10.8" height="9.6" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="6" cy="6.4" r="1" fill="currentColor" stroke="none"/><path d="M3.4 11.2l2.9-2.7 2.3 2.1 1.9-1.5 2.1 2" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>图片</button>
+                  </div>
+                  <label class="field" id="menuValueField">文字内容<textarea id="menuValue" maxlength="600" placeholder="用户点击菜单后收到的文字"></textarea></label>
+                  <label class="field" id="menuImageField" hidden>素材图片<input id="menuImage" type="file" accept="image/png,image/jpeg,image/gif,image/webp"><small>支持 PNG、JPG、GIF、WebP，大小不超过 1 MB。</small><img id="menuImagePreview" class="image-preview" alt="菜单图片预览" hidden></label>
+                </div>
+              </div>
+              <div class="menu-form-row" id="menuUrlRow" hidden>
+                <span class="menu-form-label">网页链接</span>
+                <div class="menu-form-ctrl">
+                  <input id="menuUrl" placeholder="https://">
+                  <small>粉丝点击菜单将跳转到该页面，链接域名需在公众号后台设置为业务域名。</small>
+                </div>
+              </div>
+              <div class="menu-form-row" id="menuMiniRow" hidden>
+                <span class="menu-form-label">小程序链接</span>
+                <div class="menu-form-ctrl">
+                  <input id="menuMiniLink" placeholder="填写小程序链接，如 wx1234567890abcdef" autocomplete="off">
+                  <small>粉丝点击菜单将跳转到该小程序，小程序需与本公众号已建立关联。</small>
+                </div>
+              </div>
+              <button type="button" class="menu-delete-link" id="deleteMenu">删除菜单</button>
+            </div>
+            <div class="menu-panel-actions">
+              <button type="button" class="secondary" id="previewMenu">预览</button>
+              <button type="button" class="primary" id="publishMenu">保存并发布</button>
+            </div>
+            <p class="helper" id="menuStatus"></p>
+          </div>
+        </div>
+      </section>
+      </div>
+    </div>
+  </div>
+</div></div>
+<div class="modal-backdrop" id="authModal"><div class="modal auth-modal" role="dialog" aria-modal="true" aria-labelledby="authModalTitle">
+  <div class="auth-head">
+    <div><h2 id="authModalTitle">添加公众号 · 授权接入</h2><p id="authModalDesc">授权二维码生成后，请公众号管理员使用微信扫码确认。</p></div>
+  </div>
+  <div class="auth-steps" id="authSteps"></div>
+  <div class="auth-body">
+    <div class="field-grid">
+      <label class="field" id="nameField">公众号名称<input id="manualName" placeholder="例如：内容增长实验室" autocomplete="off"><span class="field-error" id="nameError" hidden></span></label>
+      <label class="field" id="appidField">AppID<input id="manualAppid" placeholder="wx 开头，共 18 位" autocomplete="off"><span class="field-error" id="appidError" hidden></span></label>
+      <label class="field full" id="secretField">AppSecret<input id="manualSecret" type="password" placeholder="32 位密钥，仅用于换取凭证，服务端加密存储" autocomplete="new-password"><span class="field-error" id="secretError" hidden></span></label>
+    </div>
+    <div class="auth-note">接入前请在公众号后台确认三件事：① 已完成<b>微信认证</b>；② 已把本服务出口 IP 加入「开发 → 基本配置 → IP 白名单」，否则返回 <code>40164</code>；③ 已开启<b>用户管理</b>与<b>数据统计</b>接口权限。</div>
+    <div class="preview-auth-tools" id="previewAuthTools" hidden>
+      <strong>开发预览 · 模拟权限</strong>
+      <label class="field">接口权限<select id="authScenario"><option value="full">粉丝数据、消息回复、菜单管理均已授权</option><option value="noFans">缺少粉丝数据权限</option><option value="noReply">缺少消息回复权限</option><option value="noMenu">缺少菜单管理权限</option></select></label>
+    </div>
+    <div class="auth-checklist" id="authCheckPanel" hidden>
+      <strong>接入检查</strong>
+      <small id="authCheckHint">正在向微信逐项校验…</small>
+      <div id="authChecklist"></div>
+    </div>
+    <div class="manual-result" id="manualResult" hidden></div>
+  </div>
+  <div class="modal-actions"><button type="button" class="secondary" id="cancelAuth">关闭</button><button type="button" class="primary" id="manualSubmit">校验并接入</button><button type="button" class="primary" id="completeAuth" hidden>完成接入</button></div>
+</div></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script>
+/*
+研发对接说明：当前账号、草稿和发布状态写入 localStorage，交付时需替换为服务端接口。
+列表中的 account_* 和 authorizer_* 是样例标识，接入后使用微信返回的实际账号标识。
+新增公众号：服务端获取预授权码并生成微信授权页，处理授权回调，核对授权能力后更新账号。
+采集列表：粉丝数、采集状态、最近成功由服务端同步任务提供；最后回调时间取自微信消息／事件回调的接收时间，需服务端在回调入口按公众号记录；封禁时间需明确判定规则和数据来源。
+自动回复：服务端保存规则并处理新关注、消息事件；底部菜单：服务端提交菜单配置。成功后再更新已发布状态。
+地址加入 ?preview=1 可查看授权结果分支并重置本地数据；正常界面不显示这些入口。
+*/
+(() => {
+  'use strict';
+  const storageKey = 'wechatCollectionPrototypeV7';
+  const $ = id => document.getElementById(id);
+  const previewMode = typeof location !== 'undefined' && new URLSearchParams(location.search).get('preview') === '1';
+  $('previewHeader').hidden = !previewMode;
+  $('previewAuthTools').hidden = !previewMode;
+  const clone = value => JSON.parse(JSON.stringify(value));
+  const esc = value => String(value ?? '').replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+  const now = () => new Date().toISOString();
+  const hoursAgo = hours => new Date(Date.now() - hours * 3600000).toISOString();
+  const minutesAgo = minutes => new Date(Date.now() - minutes * 60000).toISOString();
+  const fmt = value => value ? new Date(value).toLocaleString('zh-CN', {hour12:false}) : '—';
+  const fmtTable = value => {
+    const date = value ? new Date(value) : null;
+    if (!date || Number.isNaN(date.getTime())) return '—';
+    const two = number => String(number).padStart(2,'0');
+    return `${date.getFullYear()}-${two(date.getMonth()+1)}-${two(date.getDate())} ${two(date.getHours())}:${two(date.getMinutes())}:${two(date.getSeconds())}`;
+  };
+  const defaultMonitor = () => ({staleMinutes:5, alertTarget:'运营负责人', alertEnabled:true});
+  // 涨粉趋势：gainTrend = [前2日, 前1日, 今日]，末位即「今日涨粉」
+  const gainTrendOf = a => {
+    const trend = Array.isArray(a.gainTrend) ? a.gainTrend.map(Number).filter(Number.isFinite) : [];
+    return trend.length === 3 ? trend : [];
+  };
+  // 今日涨粉 = gainTrend 末位；无数据的账号（暂停 / 封禁）返回 null
+  const todayGainOf = a => {
+    const trend = gainTrendOf(a);
+    return trend.length ? trend[trend.length - 1] : null;
+  };
+  const signedGain = value => value > 0 ? '↑' + value.toLocaleString('zh-CN') : value < 0 ? '↓' + Math.abs(value).toLocaleString('zh-CN') : '—';
+  const dayLabel = daysAgo => {
+    const date = new Date(Date.now() - daysAgo * 86400000);
+    return `${date.getMonth() + 1}/${date.getDate()}`;
+  };
+  // 迷你折线：固定 76×20，仅 3 个点，固定尺寸可避免非等比缩放把圆点压成椭圆
+  function sparkline(trend) {
+    if (!trend.length) return '<span class="spark-empty" title="暂无涨粉数据">—</span>';
+    const W = 76, H = 20, padX = 6, padY = 5;
+    const min = Math.min(...trend), max = Math.max(...trend), flat = max === min;
+    const step = (W - padX * 2) / (trend.length - 1);
+    const points = trend.map((value,index) => [
+      Number((padX + index * step).toFixed(1)),
+      flat ? H / 2 : Number((H - padY - ((value - min) / (max - min)) * (H - padY * 2)).toFixed(1))
+    ]);
+    const color = trend[trend.length - 1] >= trend[0] ? '#0f9d63' : '#d0433a';
+    const line = points.map(point => point.join(',')).join(' ');
+    const area = `${points[0][0]},${H - 1} ${line} ${points[points.length - 1][0]},${H - 1}`;
+    const dots = points.map((point,index) => `<circle cx="${point[0]}" cy="${point[1]}" r="${index === points.length - 1 ? 2.4 : 1.5}" fill="${color}"/>`).join('');
+    const detail = trend.map((value,index) => `${dayLabel(trend.length - 1 - index)} ${value > 0 ? '+' : ''}${value.toLocaleString('zh-CN')}`).join(' · ');
+    return `<svg class="spark" width="76" height="20" viewBox="0 0 76 20" role="img" aria-label="近3日涨粉趋势"><title>近3日涨粉：${detail}</title><polygon points="${area}" fill="${color}" opacity=".12"/><polyline points="${line}" fill="none" stroke="${color}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>${dots}</svg>`;
+  }
+  const emptyReply = () => ({enabled:false,type:'text',text:'',image:''});
+  const emptyReplies = () => ({subscribe:emptyReply()});
+  const fullPermissions = () => ({fans:true,reply:true,menu:true});
+  let ruleSeq = 0;
+  const newRuleId = () => 'kr_' + Date.now().toString(36) + '_' + (++ruleSeq);
+  // 回复内容类型：当前只支持文字与图片（顺序与微信公众平台后台「添加内容」一致）
+  const CONTENT_TYPES = [
+    {type:'text',  label:'文字'},
+    {type:'image', label:'图片'}
+  ];
+  const CONTENT_ICONS = {
+    text:'<path d="M3.6 3.6h8.8M8 3.6v8.8M6 12.4h4" stroke-linecap="round"/>',
+    image:'<rect x="2.4" y="3" width="11.2" height="10" rx="1.6"/><circle cx="6" cy="6.4" r="1.1"/><path d="M3 11.4l3.1-2.9 2.5 2.3 2-1.6 2.3 2.2" stroke-linecap="round" stroke-linejoin="round"/>'
+  };
+  const contentLabel = type => (CONTENT_TYPES.find(item => item.type === type) || {label:'内容'}).label;
+  const isSupportedContent = item => !!item && CONTENT_TYPES.some(entry => entry.type === item.type);
+  const newContent = type => ({type, text:'', image:''});
+  const newKeyword = (value = '', match = 'contains') => ({match, value});
+  const newRule = (name, keywords, contents, replyMode = 'random') => ({
+    id: newRuleId(), name, replyMode,
+    keywords: keywords && keywords.length ? keywords.map(item => newKeyword(item.value, item.match)) : [newKeyword()],
+    contents: (contents || []).filter(isSupportedContent).map(item => Object.assign(newContent(item.type), item))
+  });
+  // 兼容更早的结构 {keyword, match, reply:{...}}；规则级启用状态已合并为模块级开关，不再保留；不支持的内容类型直接丢弃
+  function normalizeRule(rule) {
+    if (!rule || typeof rule !== 'object') return newRule('', [], []);
+    const contents = (Array.isArray(rule.contents) ? rule.contents : []).filter(isSupportedContent);
+    if (Array.isArray(rule.keywords) && Array.isArray(rule.contents)) {
+      return {id: rule.id || newRuleId(), name: rule.name || '', replyMode: rule.replyMode === 'all' ? 'all' : 'random', keywords: rule.keywords.map(item => newKeyword(item.value, item.match)), contents: contents.map(item => Object.assign(newContent(item.type), item))};
+    }
+    const keywords = rule.keyword ? [newKeyword(rule.keyword, rule.match)] : [newKeyword()];
+    const old = rule.reply || {};
+    const legacy = old.text || old.image ? [Object.assign(newContent(old.type === 'image' ? 'image' : 'text'), {text: old.text || '', image: old.image || ''})] : [];
+    return {id: rule.id || newRuleId(), name: rule.name || '', replyMode:'random', keywords, contents: [...contents, ...legacy]};
+  }
+  // 种子数据简写：seedRule(规则名, 关键词, 回复文字)，关键词与回复文字都支持数组
+  const seedRule = (name, keywords, text) => newRule(
+    name,
+    (Array.isArray(keywords) ? keywords : [keywords]).map(value => newKeyword(value)),
+    (Array.isArray(text) ? text : [text]).map(value => Object.assign(newContent('text'), {text: value}))
+  );
+  // 演示数据：12 个账号，状态以「正常采集」为主（正常 9 / 已暂停 1 / 临时封禁 1 / 永久封禁 1）
+  //   minutes  = 最近一次同步距今的分钟数   stale = 有历史数据但已超时（分钟）
+  //   callback = 最后一条消息回调距今的分钟数（不填 = 尚未收到过回调）
+  //   enabled:false → 已暂停采集
+  //   status   = 采集状态（静态字段，页面不做时间推算）：healthy / tempBan 临时封禁 / permBan 永久封禁 / failed 采集失败
+  //              封禁类型由服务端根据 errcode 反推：temp=48004/45009/45011/40243，perm=50002/50007（账号冻结）
+  //   gainTrend= 近3日净增关注 [前2日, 前1日, 今日]，正=涨粉 负=掉粉；末位即「今日涨粉」，3日合计前端自行求和
+  //              真实出处：微信 datacube/getusersummary（新增/取消关注）+ datacube/getusercumulate
+  //              非「正常采集」账号当期无数据，留空数组 → 卡片显示「—」
+  const seed = [
+    {name:'财富金策',  id:'account_003', fans:42087, status:'healthy', minutes:1, callback:1, gainTrend:[412,388,456]},
+    {name:'大盘智向',  id:'account_004', fans:25687, status:'healthy', minutes:2, callback:3, gainTrend:[236,251,208]},
+    {name:'师兄方向标',id:'account_002', fans:17389, status:'healthy', minutes:3, callback:8, gainTrend:[158,142,176], rules:[['获取研报','研报','最新研报已上传，点击菜单「研报精选」查看目录。']]},
+    {name:'稳健长盈',  id:'account_010', fans:8642,  status:'healthy', minutes:2, callback:2, gainTrend:[86,74,92]},
+    {name:'金牛研报',  id:'account_011', fans:5318,  status:'healthy', minutes:3, callback:17, gainTrend:[52,61,47]},
+    {name:'金策组合',  id:'account_001', fans:2283,  status:'healthy', minutes:1, callback:4, gainTrend:[18,24,21], rules:[['早盘策略',['早盘','开盘策略'],['今日早盘策略已生成，回复「福利」领取组合持仓速览。','早盘观点已更新，点击菜单「今日策略」查看最新仓位建议。']],['领取福利','福利','福利领取入口：点击菜单「稳健组合」→「新人礼包」。']]},
+    {name:'价投笔记',  id:'account_012', fans:1204,  status:'healthy', minutes:4, callback:46, gainTrend:[9,6,11]},
+    {name:'明策组合',  id:'account_005', fans:927,   status:'tempBan', banHours:2,  callback:156},
+    {name:'短线优策',  id:'account_006', fans:916,   status:'healthy', minutes:2, callback:22, gainTrend:[7,4,-2]},
+    {name:'稳步研习社',id:'account_007', fans:397,   status:'healthy', stale:1260, callback:1320, enabled:false},
+    {name:'金讯先锋',  id:'account_008', fans:1284,  status:'healthy', minutes:3, gainTrend:[-3,6,2]},
+    {name:'策略配置',  id:'account_009', fans:597,   status:'permBan', banHours:72, callback:1640}
+  ];
+  const validDateValue = value => typeof value === 'string' && !Number.isNaN(new Date(value).getTime());
+  function makeAccount(name,id,fans,status,options = {}) {
+    const permissions = options.permissions || fullPermissions();
+    const healthy = status === 'healthy';
+    const banned = status === 'tempBan' || status === 'permBan';
+    const offset = options.stale != null ? options.stale : options.minutes != null ? options.minutes : 2;
+    const a = {
+      name, id,
+      fans: status === 'pending' ? 0 : fans,
+      status,
+      enabled: options.enabled !== false,
+      authStatus: Object.values(permissions).every(Boolean) ? 'authorized' : 'limited',
+      permissions,
+      monitor: Object.assign(defaultMonitor(), options.monitor || {}),
+      lastSuccess: status === 'pending' ? '' : banned ? hoursAgo(options.banHours != null ? options.banHours : 2) : minutesAgo(offset),
+      lastSync: status === 'pending' ? '' : banned ? hoursAgo(options.banHours != null ? options.banHours : 2) : minutesAgo(offset),
+      lastCallbackAt: options.callback != null ? minutesAgo(options.callback) : '',
+      replyDraft: emptyReplies(), replyPublished: emptyReplies(), replyPublishedAt: {subscribe:''},
+      keywordEnabled: false,
+      keywordRules: (options.rules || []).map(rule => seedRule(rule[0],rule[1],rule[2])),
+      menuDraft: [], menuPublished: [], menuPublishedAt: '',
+      gainTrend: Array.isArray(options.gainTrend) ? options.gainTrend.slice(-3).map(Number) : [],
+      bannedAt: banned ? hoursAgo(options.banHours != null ? options.banHours : 2) : ''
+    };
+    if (healthy && a.enabled) {
+      a.replyDraft.subscribe = {enabled:true,type:'text',text:'欢迎关注！每个交易日 8:30 推送早盘策略，点击菜单「今日策略」查看最新观点。',image:''};
+      a.replyPublished.subscribe = clone(a.replyDraft.subscribe);
+      a.replyPublishedAt.subscribe = hoursAgo(72);
+    }
+    return a;
+  }
+  const initialState = () => ({accounts:seed.map(row => makeAccount(row.name,row.id,row.fans,row.status,row))});
+  function loadState() {
+    try {
+      const data = JSON.parse(localStorage.getItem(storageKey));
+      if (data && Array.isArray(data.accounts) && data.accounts.every(a => a && a.id && a.permissions && a.monitor)) {
+        data.accounts.forEach(a => {
+          if (/^demo_(account_|authorizer_)/.test(a.id)) a.id = a.id.slice(5);
+          if (!validDateValue(a.lastCallbackAt)) a.lastCallbackAt = '';
+          if (a.status === 'error') a.status = 'failed';   // 历史值兼容
+          if (!['healthy','paused','tempBan','permBan','failed','pending'].includes(a.status)) a.status = 'failed';
+          if (!['tempBan','permBan'].includes(a.status)) a.bannedAt = '';
+          a.gainTrend = (Array.isArray(a.gainTrend) ? a.gainTrend : []).slice(-3).map(Number).filter(Number.isFinite);
+          if (typeof a.keywordEnabled !== 'boolean') a.keywordEnabled = false;
+          a.keywordRules = (Array.isArray(a.keywordRules) ? a.keywordRules : []).map(normalizeRule);
+          a.menuDraft = (Array.isArray(a.menuDraft) ? a.menuDraft : []).map(normalizeMenu);
+          a.menuPublished = (Array.isArray(a.menuPublished) ? a.menuPublished : []).map(normalizeMenu);
+        });
+        return data;
+      }
+    } catch (_) {}
+    return initialState();
+  }
+  let state = loadState();
+  let activeAccountId = state.accounts[0]?.id || '';
+  let filter = 'all', sortMode = 'default', selectedMenuId = '', menuImageRequest = 0, imageRequest = 0, toastTimer;
+  let replyTab = 'subscribe', editingSubscribe = false, subscribeBuffer = null, subscribePending = null, editingRuleId = '', ruleBuffer = null;
+  let ruleIsNew = false, ruleFormError = false, ruleQuery = '', contentMenuOpen = false;
+  let openSubMenuId = '';
+  const menuWorking = new Map();
+  let authMode = 'new', authTargetId = '', authPhase = 'waiting';
+  let configTab = 'reply', configReturnFocusId = '', authReturnToConfig = false, returnConfigTab = 'reply';
+  const account = id => state.accounts.find(a => a.id === id);
+  const activeAccount = () => account(activeAccountId);
+  function workingMenu(a) {
+    if (!menuWorking.has(a.id)) menuWorking.set(a.id,clone(a.menuDraft));
+    return menuWorking.get(a.id);
+  }
+  const can = (a, scope) => !!(a && ['authorized','limited'].includes(a.authStatus) && a.permissions[scope]);
+  function saveState() {
+    try { localStorage.setItem(storageKey, JSON.stringify(state)); return true; }
+    catch (_) { state = loadState(); toast('浏览器存储空间不足，本次修改未保存'); return false; }
+  }
+  function toast(message) {
+    $('toast').textContent = message; $('toast').classList.add('show');
+    clearTimeout(toastTimer); toastTimer = setTimeout(() => $('toast').classList.remove('show'), 3200);
+  }
+  // 采集状态为静态字段，直接读 a.status，不做基于时间或权限的实时推算
+  function statusOf(a) {
+    if (a.status === 'tempBan' || a.status === 'permBan') return a.status;
+    if (!a.enabled) return 'paused';
+    if (a.status !== 'healthy') return 'failed';
+    return 'healthy';
+  }
+  // 状态取值：healthy 正常采集 / paused 已暂停采集 / tempBan 临时封禁 / permBan 永久封禁 / failed 采集失败
+  // 封禁类型由服务端同步任务按 errcode 反推：temp=48004 接口被封禁、45009/45011 超频、40243 密钥冻结；perm=50002、50007 账号冻结
+  const statusText = {healthy:'正常采集', paused:'已暂停采集', tempBan:'临时封禁', permBan:'永久封禁', failed:'采集失败'};
+  const statusTone = {healthy:'tone-healthy', paused:'tone-paused', tempBan:'tone-stale', permBan:'tone-error', failed:'tone-error'};
+  const statusTag = a => `<span class="pill ${statusTone[statusOf(a)]}">${statusText[statusOf(a)]}</span>`;
+  function metaBlock(label,value,hover) {
+    return `<div class="meta" title="${esc(hover)}"><div class="meta-label">${label}</div><div class="meta-value${value === '—' ? ' dim' : ''}">${esc(value)}</div></div>`;
+  }
+  function renderAccountCard(a) {
+    const status = statusOf(a);
+    const hasFans = can(a,'fans') && !!a.lastSuccess;
+    const fans = hasFans ? Number(a.fans || 0).toLocaleString('zh-CN') : '—';
+    const callback = fmtTable(a.lastCallbackAt);
+    const banned = fmtTable(a.bannedAt);
+    const trend = gainTrendOf(a);
+    const today = todayGainOf(a);
+    const sum3 = trend.length ? trend.reduce((sum,value) => sum + value, 0) : null;
+    const todayTone = today == null || today === 0 ? '' : today > 0 ? ' up' : ' down';
+    return `<article class="account-card ${statusTone[status]}${a.id === activeAccountId ? ' selected-card' : ''}">
+      <button type="button" class="card-config" data-action="config" data-id="${esc(a.id)}" aria-label="配置 ${esc(a.name)}" title="配置">⚙️</button>
+      <div class="card-head">
+        <span class="card-avatar" aria-hidden="true">${esc((a.name || '公').slice(0,1))}</span>
+        <div class="card-title"><div class="name" title="${esc(a.name)}">${esc(a.name)}</div><div class="id">${esc(a.id)}</div></div>
+      </div>
+      <div class="card-status">${statusTag(a)}</div>
+      <div class="card-metric"><span class="fans${hasFans ? '' : ' muted'}">${fans}</span><span class="metric-label">当前粉丝</span></div>
+      <div class="card-growth">
+        <span class="growth-label">今日涨粉</span><span class="gain${todayTone}">${today == null ? '—' : signedGain(today)}</span>
+        <span class="spark-wrap">${sparkline(trend)}</span>
+        <span class="growth-sum">3日 ${sum3 == null ? '—' : sum3 > 0 ? '+' + sum3.toLocaleString('zh-CN') : sum3.toLocaleString('zh-CN')}</span>
+      </div>
+      <div class="card-meta">
+        ${metaBlock('最后回调', callback, a.lastCallbackAt ? `最后回调时间：${fmtTable(a.lastCallbackAt)}` : '尚未收到回调')}
+        ${metaBlock('封禁时间', banned, a.bannedAt ? `封禁时间：${fmtTable(a.bannedAt)}` : '账号正常')}
+      </div>
+    </article>`;
+  }
+  function sortAccounts(rows) {
+    const order = new Map(state.accounts.map((a,index) => [a.id,index]));
+    const list = [...rows];
+    if (sortMode === 'fans') return list.sort((a,b) => Number(b.fans || 0) - Number(a.fans || 0) || order.get(a.id) - order.get(b.id));
+    // 今日涨粉从高到低：无涨粉数据的账号（暂停 / 封禁）统一排到最后
+    if (sortMode === 'todayGain') return list.sort((a,b) => {
+      const left = todayGainOf(a), right = todayGainOf(b);
+      if (left == null || right == null) return (left == null ? 1 : 0) - (right == null ? 1 : 0) || order.get(a.id) - order.get(b.id);
+      return right - left || order.get(a.id) - order.get(b.id);
+    });
+    return list.sort((a,b) => order.get(a.id) - order.get(b.id));
+  }
+  function countByFilter() {
+    const counts = {all:state.accounts.length,healthy:0,paused:0,tempBan:0,permBan:0,failed:0};
+    state.accounts.forEach(a => {
+      const status = statusOf(a);
+      counts[status] = (counts[status] || 0) + 1;
+    });
+    return counts;
+  }
+  function renderDashboard() {
+    const healthy = state.accounts.filter(a => statusOf(a) === 'healthy');
+    $('statTotal').textContent = state.accounts.length;
+    $('statHealthy').textContent = healthy.length;
+    $('statIssues').textContent = state.accounts.filter(a => !['healthy','paused'].includes(statusOf(a))).length;
+    $('statFans').textContent = healthy.reduce((sum,a) => sum + Number(a.fans || 0), 0).toLocaleString('zh-CN');
+    const counts = countByFilter();
+    document.querySelectorAll('[data-count]').forEach(node => node.textContent = counts[node.dataset.count] ?? 0);
+    document.querySelectorAll('[data-jump-filter]').forEach(node => node.classList.toggle('stat-active', node.dataset.jumpFilter === filter));
+    const query = $('dashboardSearch').value.trim().toLowerCase();
+    const rows = state.accounts.filter(a => {
+      const status = statusOf(a);
+      const matchesFilter = filter === 'all' || filter === status;
+      return matchesFilter && (a.name.toLowerCase().includes(query) || a.id.toLowerCase().includes(query));
+    });
+    const list = sortAccounts(rows);
+    $('accountGrid').innerHTML = list.length ? list.map(renderAccountCard).join('') : '<div class="empty grid-empty">没有符合条件的公众号</div>';
+  }
+  const CONFIG_TITLES = { reply:'自动回复', menu:'自定义菜单' };
+  function renderContext() {
+    const a = activeAccount();
+    $('reauthorizeAccount').disabled = !a;
+    $('toggleAccountMonitoring').disabled = !a;
+    $('toggleAccountMonitoring').textContent = a?.enabled ? '暂停采集' : '开启采集';
+    $('selectedAccountTitle').textContent = CONFIG_TITLES[configTab] || '公众号配置';
+    $('configAccountName').textContent = a ? a.name : '未选择公众号';
+    $('configAccountId').textContent = a ? `公众号 ID：${a.id}` : '—';
+    $('configAvatar').textContent = a ? a.name.slice(0,1) : '微';
+    $('selectedAccountSummary').textContent = a ? `授权：${a.authStatus === 'authorized' ? '完整' : '部分'} · 粉丝数据${a.permissions.fans ? '可用' : '未授权'} · 消息回复${a.permissions.reply ? '可用' : '未授权'} · 菜单管理${a.permissions.menu ? '可用' : '未授权'}` : '请从看板选择公众号。';
+  }
+  function renderMonitor() {
+    const a = activeAccount(), allowed = can(a,'fans');
+    $('monitorPermission').hidden = allowed;
+    $('monitorPermission').textContent = a ? '当前账号缺少粉丝数据权限，无法启用采集监测。请重新授权。' : '请先添加公众号。';
+    ['staleMinutes','alertTarget','alertEnabled','saveMonitor'].forEach(id => $(id).disabled = !allowed);
+    ['simulateSuccess','simulateError'].forEach(id => $(id).disabled = !allowed || !a.enabled);
+    if (!a) { $('monitorSummary').textContent = '暂无监测数据'; return; }
+    $('staleMinutes').value = a.monitor.staleMinutes;
+    $('alertTarget').value = a.monitor.alertTarget;
+    $('alertEnabled').checked = a.monitor.alertEnabled;
+    const alertTriggered = a.monitor.alertEnabled && a.enabled && !['healthy','paused'].includes(statusOf(a));
+    $('monitorSummary').innerHTML = `${statusTag(a)}　最近同步：${fmt(a.lastSync)}　最近成功：${fmt(a.lastSuccess)}　${alertTriggered ? '页面提醒已触发' : '页面提醒未触发'}${a.enabled ? '' : '　监测已暂停'}`;
+  }
+  function renderReply() {
+    const a = activeAccount(), allowed = can(a,'reply');
+    $('replyPermission').hidden = allowed;
+    $('replyPermission').textContent = a ? '当前账号缺少消息回复权限，无法修改自动回复。请重新授权。' : '请先添加公众号。';
+    document.querySelectorAll('[data-reply-tab]').forEach(button => {
+      const selected = button.dataset.replyTab === replyTab;
+      button.classList.toggle('active',selected);
+      button.setAttribute('aria-selected',String(selected));
+    });
+    $('replyKeywordView').hidden = replyTab !== 'keyword';
+    $('replySubscribeView').hidden = replyTab !== 'subscribe';
+    if (replyTab === 'keyword') { renderRules(a, allowed); return; }
+    if (!a) { $('subscribeView').textContent = ''; return; }
+    renderSubscribe(a, allowed);
+  }
+  function replyToggleFields() {
+    const image = $('replyType').value === 'image';
+    $('replyTextField').hidden = image; $('replyImageField').hidden = !image;
+  }
+  function syncSubscribeDraft(a) { a.replyDraft.subscribe = clone(a.replyPublished.subscribe); }
+  function renderSubscribe(a,allowed) {
+    const p = a.replyPublished.subscribe;
+    $('subscribeEnabled').checked = p.enabled; $('subscribeEnabled').disabled = !allowed;
+    $('editSubscribe').disabled = !allowed || editingSubscribe;
+    const pending = subscribePending;
+    $('subscribeConfirm').hidden = pending === null;
+    if (pending !== null) {
+      $('subscribeConfirmText').textContent = pending
+        ? '确认开启被关注回复？开启后，新关注的用户会立即收到下方已设置的回复内容。'
+        : '确认关闭被关注回复？关闭后，新关注的用户将不再收到自动回复，已保存的内容会保留。';
+      $('subscribeConfirmOk').textContent = pending ? '确认开启' : '确认关闭';
+    }
+    const view = $('subscribeView');
+    $('subscribeEditor').hidden = !editingSubscribe;
+    if (editingSubscribe) {
+      view.hidden = true;
+      $('replyType').value = subscribeBuffer.type; $('replyText').value = subscribeBuffer.text;
+      $('replyImagePreview').src = subscribeBuffer.image || ''; $('replyImagePreview').hidden = !subscribeBuffer.image;
+      $('replyImage').value = ''; replyToggleFields();
+      return;
+    }
+    view.hidden = false; view.replaceChildren();
+    const hasContent = p.type === 'image' ? p.image : p.text;
+    view.classList.toggle('empty',!p.enabled || !hasContent);
+    if (!p.enabled) view.textContent = '已关闭。开启后，用户关注此公众号时会收到这里设置的回复。';
+    else if (p.type === 'image' && p.image) { const img = document.createElement('img'); img.src = p.image; img.alt = '被关注回复图片'; img.className = 'image-preview'; view.append(img); }
+    else view.textContent = p.text || '未设置内容';
+  }
+  function contentSummaryOf(item) {
+    if (!item) return '（未设置）';
+    if (item.type === 'text') return item.text || '文字内容未填写';
+    if (item.type === 'image') return item.image ? '图片' : '图片（未选择）';
+    return contentLabel(item.type);
+  }
+  function contentsSummary(rule) {
+    const contents = rule.contents || [];
+    if (!contents.length) return '（未设置）';
+    const label = contentSummaryOf(contents[0]);
+    return contents.length > 1 ? `${label}　等 ${contents.length} 条` : label;
+  }
+  function renderRules(a, allowed) {
+    const editing = !!(a && editingRuleId && ruleBuffer);
+    $('ruleListView').hidden = editing;
+    $('ruleEditorView').hidden = !editing;
+    if (editing) { renderRuleEditor(a, allowed); return; }
+    $('addRule').disabled = !allowed;
+    $('keywordEnabled').checked = !!a && !!a.keywordEnabled;
+    $('keywordEnabled').disabled = !a || !allowed;
+    $('ruleSearch').disabled = !a;
+    if ($('ruleSearch').value !== ruleQuery) $('ruleSearch').value = ruleQuery;
+    if (!a) { $('ruleList').innerHTML = '<div class="empty">请先添加公众号</div>'; return; }
+    if (!a.keywordRules.length) { $('ruleList').innerHTML = '<div class="empty">未添加回复</div>'; return; }
+    const query = ruleQuery.trim().toLowerCase();
+    const rows = a.keywordRules.filter(r => !query
+      || (r.name || '').toLowerCase().includes(query)
+      || (r.keywords || []).some(item => (item.value || '').toLowerCase().includes(query)));
+    if (!rows.length) { $('ruleList').innerHTML = '<div class="empty">没有匹配的回复规则</div>'; return; }
+    $('ruleList').innerHTML = rows.map(rule => {
+      const keywords = (rule.keywords || []).filter(item => item.value);
+      const shown = keywords.slice(0, 2);
+      const keywordHtml = keywords.length
+        ? shown.map(item => `<span class="rule-kw" title="${item.match === 'equal' ? '全匹配' : '半匹配'}">${esc(item.value)}</span>`).join('')
+          + (keywords.length > shown.length ? `<span class="rule-kw more">+${keywords.length - shown.length}</span>` : '')
+        : '<span class="rule-summary">未设置</span>';
+      const summary = contentsSummary(rule);
+      return `<div class="rule-row">
+        <span class="rule-name" title="${esc(rule.name || '未命名规则')}">${esc(rule.name || '未命名规则')}</span>
+        <span class="rule-kws">${keywordHtml}</span>
+        <span class="rule-summary" title="${esc(summary)}">${esc(summary)}</span>
+        <span class="rule-ops"><button type="button" class="secondary" data-rule-edit="${rule.id}"${allowed ? '' : ' disabled'}>编辑</button><button type="button" class="danger" data-rule-delete="${rule.id}"${allowed ? '' : ' disabled'}>删除</button></span>
+      </div>`;
+    }).join('');
+  }
+  function renderKeywordRows() {
+    const keywords = ruleBuffer.keywords;
+    $('ruleKeywords').innerHTML = keywords.map((item,index) => {
+      const invalid = ruleFormError && !(item.value || '').trim();
+      const isLast = index === keywords.length - 1;
+      return `<div class="kw-row${invalid ? ' invalid' : ''}">
+        <select class="kw-match" data-kw-match="${index}" aria-label="匹配方式"><option value="equal"${item.match === 'equal' ? ' selected' : ''}>全匹配</option><option value="contains"${item.match === 'contains' ? ' selected' : ''}>半匹配</option></select>
+        <input class="kw-input" data-kw-input="${index}" maxlength="30" placeholder="输入关键词" value="${esc(item.value)}">
+        ${isLast ? '<button type="button" class="kw-icon" data-kw-add="1" aria-label="添加关键词">+</button>' : ''}
+        ${keywords.length > 1 ? `<button type="button" class="kw-icon" data-kw-remove="${index}" aria-label="删除关键词">−</button>` : ''}
+      </div>`;
+    }).join('');
+  }
+  function renderContentBlocks() {
+    $('ruleContents').innerHTML = ruleBuffer.contents.map((item,index) => {
+      const head = `<div class="content-item-head"><span class="content-item-type">${contentLabel(item.type)}</span><button type="button" class="content-item-del" data-content-remove="${index}">删除</button></div>`;
+      if (item.type === 'image') return `<div class="content-item">${head}<label class="content-upload">选择图片<input type="file" data-content-image="${index}" accept="image/png,image/jpeg,image/gif,image/webp"></label><div class="rule-form-hint">支持 PNG、JPG、GIF、WebP，大小不超过 1 MB。</div>${item.image ? `<img class="content-image" src="${esc(item.image)}" alt="回复图片预览">` : ''}</div>`;
+      return `<div class="content-item">${head}<textarea class="content-text" data-content-text="${index}" maxlength="600" placeholder="输入回复文字">${esc(item.text)}</textarea></div>`;
+    }).join('');
+  }
+  function renderContentMenu() {
+    $('contentMenu').innerHTML = CONTENT_TYPES.map(item => `<button type="button" data-content-type="${item.type}"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true">${CONTENT_ICONS[item.type]}</svg>${item.label}</button>`).join('');
+  }
+  function renderRuleEditor(a, allowed) {
+    $('ruleCrumbCurrent').textContent = ruleIsNew ? '添加回复' : '编辑回复';
+    $('ruleName').value = ruleBuffer.name || '';
+    $('ruleName').disabled = !allowed;
+    renderKeywordRows();
+    renderContentBlocks();
+    $('ruleModeRow').querySelectorAll('input').forEach(input => {
+      input.checked = input.value === (ruleBuffer.replyMode === 'all' ? 'all' : 'random');
+      input.disabled = !allowed;
+    });
+    $('addContent').disabled = !allowed;
+    $('saveRule').disabled = !allowed;
+    $('ruleKeywordError').hidden = !ruleFormError;
+    $('contentMenu').hidden = !contentMenuOpen;
+  }
+  function findMenu(list,id,parent = null) {
+    for (const item of list) {
+      if (item.id === id) return {item,parent};
+      const found = findMenu(item.children || [],id,item); if (found) return found;
+    }
+    return null;
+  }
+  function updateMenuStatus() {
+    const a = activeAccount(); if (!a) { $('menuStatus').textContent = ''; return; }
+    const dirty = JSON.stringify(workingMenu(a)) !== JSON.stringify(a.menuDraft);
+    $('menuStatus').textContent = `${dirty ? '有未发布的修改 · ' : ''}${a.menuPublishedAt ? `上次发布：${fmt(a.menuPublishedAt)}` : '尚未发布过'}`;
+  }
+  function closeSubMenu() {
+    openSubMenuId = '';
+    const panel = $('menuSubPanel');
+    panel.hidden = true; panel.replaceChildren();
+  }
+  function phoneButtonOf(id) {
+    return Array.from($('menuPhoneButtons').querySelectorAll('.mp-item')).find(button => button.dataset.menuId === id);
+  }
+  function showSubMenu(root,button) {
+    const panel = $('menuSubPanel');
+    panel.replaceChildren();
+    root.children.forEach(child => {
+      const entry = document.createElement('button');
+      entry.type = 'button';
+      entry.textContent = child.name || '子菜单名称';
+      if (child.id === selectedMenuId) entry.classList.add('selected');
+      entry.addEventListener('click',() => selectMenu(child.id));
+      panel.append(entry);
+    });
+    if (root.children.length < 5) {
+      const add = document.createElement('button');
+      add.type = 'button'; add.className = 'sub-add'; add.textContent = '＋ 添加子菜单';
+      add.addEventListener('click',() => addChildMenu(root.id));
+      panel.append(add);
+    }
+    panel.hidden = false; openSubMenuId = root.id;
+    if (button) {
+      const anchor = button.offsetLeft + button.offsetWidth / 2 - 10;
+      panel.style.setProperty('--arrow',`${Math.max(18,Math.min(panel.offsetWidth - 18,anchor))}px`);
+    }
+  }
+  function selectMenu(id) {
+    const a = activeAccount(); if (!can(a,'menu')) return;
+    const found = findMenu(workingMenu(a),id); if (!found) return;
+    menuImageRequest++;
+    selectedMenuId = id;
+    if (!found.parent) {
+      if (openSubMenuId === id) closeSubMenu();
+      else showSubMenu(found.item,phoneButtonOf(id));
+    } else closeSubMenu();
+    renderMenu();
+  }
+  function addRootMenu() {
+    const a = activeAccount(); if (!can(a,'menu')) return;
+    const list = workingMenu(a);
+    if (list.length >= 3) { toast('最多配置 3 个一级菜单'); return; }
+    const item = newMenu(); list.push(item);
+    selectedMenuId = item.id; openSubMenuId = '';
+    renderMenu(); $('menuName').focus();
+  }
+  function addChildMenu(rootId) {
+    const a = activeAccount(); if (!can(a,'menu')) return;
+    const found = findMenu(workingMenu(a),rootId); if (!found) return;
+    const root = found.parent || found.item;
+    if (root.children.length >= 5) { toast('每个一级菜单最多配置 5 个二级菜单'); return; }
+    const item = newMenu(); root.children.push(item);
+    selectedMenuId = item.id; openSubMenuId = root.id;
+    renderMenu(); $('menuName').focus();
+  }
+  function renderMenuPhone() {
+    const a = activeAccount(), allowed = can(a,'menu'), bar = $('menuPhoneButtons'), keepOpen = openSubMenuId;
+    closeSubMenu(); bar.replaceChildren();
+    if (!a) { bar.innerHTML = '<span class="empty-menu">请先添加公众号</span>'; return; }
+    if (!allowed) { bar.innerHTML = '<span class="empty-menu">缺少菜单权限</span>'; return; }
+    const list = workingMenu(a);
+    if (!list.length) {
+      const add = document.createElement('button');
+      add.type = 'button'; add.className = 'mp-empty-add'; add.textContent = '＋ 添加菜单';
+      add.addEventListener('click',addRootMenu);
+      bar.append(add);
+      return;
+    }
+    list.forEach(root => {
+      const button = document.createElement('button');
+      button.type = 'button'; button.className = 'mp-item'; button.dataset.menuId = root.id;
+      if (root.id === selectedMenuId) button.classList.add('selected');
+      const label = document.createElement('span'); label.textContent = root.name || '菜单名称';
+      button.append(label);
+      if (root.children.length) { const caret = document.createElement('span'); caret.className = 'caret'; caret.setAttribute('aria-hidden','true'); button.append(caret); }
+      button.addEventListener('click',() => selectMenu(root.id));
+      bar.append(button);
+    });
+    if (list.length < 3) {
+      const plus = document.createElement('button');
+      plus.type = 'button'; plus.className = 'mp-plus'; plus.textContent = '＋';
+      plus.setAttribute('aria-label','添加一级菜单'); plus.title = '添加一级菜单';
+      plus.addEventListener('click',addRootMenu);
+      bar.append(plus);
+    }
+    if (keepOpen) {
+      const root = list.find(item => item.id === keepOpen);
+      if (root) showSubMenu(root,phoneButtonOf(root.id));
+    }
+  }
+  function updateMenuFields() {
+    const a = activeAccount(), found = a && findMenu(workingMenu(a),selectedMenuId);
+    $('menuPanelEmpty').hidden = !!found;
+    $('menuPanelEmpty').textContent = a ? (workingMenu(a).length ? '点击手机预览中的菜单按钮，编辑菜单名称与点击内容。' : '你未添加自定义菜单，点击手机预览底部的「＋ 添加菜单」为公众号创建菜单栏。') : '请先添加公众号。';
+    $('menuEditor').hidden = !found;
+    $('previewMenu').disabled = !a; $('publishMenu').disabled = !a;
+    if (!found) return;
+    const item = found.item, isChild = !!found.parent, hasChildren = item.children.length > 0, allowed = can(a,'menu');
+    const action = MENU_ACTIONS.includes(item.action) ? item.action : 'text';
+    $('menuFormTitle').textContent = isChild ? '子菜单信息' : '菜单信息';
+    $('menuFormNote').hidden = !hasChildren;
+    $('menuName').value = item.name;
+    $('menuName').maxLength = isChild ? 16 : 8;
+    $('menuNameHint').textContent = isChild ? '仅支持中英文和数字，字数不超过8个汉字或16个字母。' : '仅支持中英文和数字，字数不超过4个汉字或8个字母。';
+    $('menuName').disabled = !allowed;
+    $('menuActionRow').hidden = hasChildren;
+    $('menuContentRow').hidden = hasChildren || action === 'url' || action === 'mini';
+    $('menuUrlRow').hidden = hasChildren || action !== 'url';
+    $('menuMiniRow').hidden = hasChildren || action !== 'mini';
+    $('menuActionSend').checked = action === 'text' || action === 'image';
+    $('menuActionSend').disabled = !allowed || hasChildren;
+    $('menuActionUrl').checked = action === 'url';
+    $('menuActionUrl').disabled = !allowed || hasChildren;
+    $('menuActionMini').checked = action === 'mini';
+    $('menuActionMini').disabled = !allowed || hasChildren;
+    document.querySelectorAll('#menuTypeChips .menu-chip').forEach(chip => {
+      const type = chip.dataset.menuType;
+      chip.classList.toggle('selected',type === action);
+      chip.disabled = !allowed;
+    });
+    // 发送消息的文字与图片互斥，同一时间只展示、只保留一种内容
+    $('menuValueField').hidden = action !== 'text';
+    $('menuValue').value = action === 'text' ? item.value || '' : '';
+    $('menuValue').disabled = !allowed;
+    $('menuImageField').hidden = action !== 'image';
+    $('menuImagePreview').src = action === 'image' ? item.value || '' : '';
+    $('menuImagePreview').hidden = action !== 'image' || !item.value;
+    $('menuImage').value = '';
+    $('menuUrl').value = action === 'url' ? item.value || '' : '';
+    $('menuUrl').disabled = !allowed;
+    $('menuMiniLink').value = action === 'mini' ? item.value || '' : '';
+    $('menuMiniLink').disabled = !allowed;
+    $('deleteMenu').disabled = !allowed;
+  }
+  function renderMenu() {
+    const a = activeAccount(), allowed = can(a,'menu');
+    $('menuPermission').hidden = allowed;
+    $('menuPermission').textContent = a ? '当前账号缺少菜单管理权限，无法配置或发布菜单。请重新授权。' : '请先添加公众号。';
+    $('menuPhoneTitle').textContent = a ? a.name : '公众号';
+    renderMenuPhone();
+    updateMenuFields();
+    updateMenuStatus();
+  }
+  function renderAll() { renderDashboard(); renderContext(); renderMonitor(); renderReply(); renderMenu(); }
+  function chooseAccount(id) {
+    if (!account(id)) return;
+    menuImageRequest++;
+    activeAccountId = id; selectedMenuId = ''; replyTab = 'subscribe'; editingSubscribe = false; subscribePending = null;
+    editingRuleId = ''; ruleBuffer = null; ruleIsNew = false; ruleFormError = false; ruleQuery = ''; contentMenuOpen = false;
+    renderAll();
+  }
+  function setConfigTab(tab) {
+    if (!['reply','menu'].includes(tab)) return;
+    configTab = tab;
+    document.querySelectorAll('[data-config-tab]').forEach(button => {
+      const selected = button.dataset.configTab === tab;
+      button.classList.toggle('active',selected);
+      button.setAttribute('aria-selected',String(selected));
+    });
+    $('selectedAccountTitle').textContent = CONFIG_TITLES[tab] || '公众号配置';
+    $('monitorView').hidden = true;
+    $('replyView').hidden = tab !== 'reply';
+    $('menuView').hidden = tab !== 'menu';
+    $('configBody').scrollTop = 0;
+  }
+  function openConfig(id, tab = 'reply') {
+    if (!account(id)) return;
+    chooseAccount(id);
+    configReturnFocusId = id;
+    setConfigTab(tab);
+    $('configModal').classList.add('open');
+    document.querySelector(`[data-config-tab="${configTab}"]`).focus();
+  }
+  function hasUnsavedConfig() {
+    const a = activeAccount(); if (!a) return false;
+    return JSON.stringify(workingMenu(a)) !== JSON.stringify(a.menuDraft);
+  }
+  function closeConfig(restoreFocus = true) {
+    if (!$('configModal').classList.contains('open')) return true;
+    if (hasUnsavedConfig() && !confirm('有未保存的配置修改。关闭后将丢弃这些修改，确定关闭吗？')) return false;
+    $('configModal').classList.remove('open');
+    menuImageRequest++;
+    menuWorking.delete(activeAccountId);
+    if (restoreFocus) {
+      const button = Array.from($('accountGrid').querySelectorAll('[data-action="config"]')).find(item => item.dataset.id === configReturnFocusId);
+      button?.focus();
+    }
+    return true;
+  }
+  function permissionsForScenario(scenario) {
+    const value = fullPermissions();
+    if (scenario === 'noFans') value.fans = false;
+    if (scenario === 'noReply') value.reply = false;
+    if (scenario === 'noMenu') value.menu = false;
+    return value;
+  }
+  const CHECK_DEFS = [
+    {key:'format', label:'密钥格式', hint:'AppID 与 AppSecret 长度校验'},
+    {key:'ip', label:'IP 白名单', hint:'需在公众号后台手动配置'},
+    {key:'api', label:'接口权限', hint:'用户管理与数据统计'}
+  ];
+  let authChecks = {}, authCheckRun = 0;
+  function manualValues() {
+    return { name: $('manualName').value.trim(), appid: $('manualAppid').value.trim(), secret: $('manualSecret').value.trim() };
+  }
+  const APPID_RE = /^wx[0-9a-zA-Z]{16}$/, SECRET_RE = /^[0-9a-zA-Z]{32}$/;
+  function markField(wrapId,errorId,message) {
+    $(wrapId).classList.toggle('invalid',!!message);
+    const target = $(errorId); target.textContent = message || ''; target.hidden = !message;
+  }
+  function clearFieldErrors() { markField('nameField','nameError',''); markField('appidField','appidError',''); markField('secretField','secretError',''); }
+  function liveValidate() {
+    const v = manualValues();
+    markField('appidField','appidError', v.appid && !APPID_RE.test(v.appid) ? 'AppID 应为 wx 开头、共 18 位' : '');
+    markField('secretField','secretError', v.secret && !SECRET_RE.test(v.secret) ? 'AppSecret 应为 32 位字符' : '');
+  }
+  function validateManual() {
+    const v = manualValues();
+    let ok = true;
+    const set = (wrapId,errorId,message) => { markField(wrapId,errorId,message); if (message) ok = false; };
+    set('nameField','nameError', v.name ? '' : '请填写公众号名称');
+    set('appidField','appidError', !v.appid ? '请填写 AppID' : APPID_RE.test(v.appid) ? '' : 'AppID 应为 wx 开头、共 18 位');
+    set('secretField','secretError', !v.secret ? '请填写 AppSecret' : SECRET_RE.test(v.secret) ? '' : 'AppSecret 应为 32 位字符');
+    return ok;
+  }
+  function permissionHint(p) {
+    const missing = [!p.fans && '粉丝数据', !p.reply && '消息回复', !p.menu && '菜单管理'].filter(Boolean);
+    return `缺少${missing.join('、')}权限，相关功能不可用`;
+  }
+  function paintChecklist() {
+    $('authChecklist').innerHTML = CHECK_DEFS.map(item => {
+      const check = authChecks[item.key] || {state:'pending',hint:item.hint};
+      const rowClass = check.state === 'warn' ? 'is-warn' : check.state === 'fail' ? 'is-fail' : '';
+      return `<div class="check-item ${rowClass}"><span class="check-mark ${check.state}"></span><div><div class="check-label">${item.label}</div><div class="check-hint">${esc(check.hint)}</div></div></div>`;
+    }).join('');
+  }
+  function resetChecks() {
+    authChecks = {};
+    CHECK_DEFS.forEach(item => authChecks[item.key] = {state:'pending',hint:item.hint});
+    paintChecklist();
+  }
+  function openAuth(mode = 'new',targetId = '') {
+    authReturnToConfig = mode === 'reauth' && $('configModal').classList.contains('open');
+    if (authReturnToConfig) { returnConfigTab = configTab; if (!closeConfig(false)) { authReturnToConfig = false; return; } }
+    authMode = mode; authTargetId = targetId; authPhase = 'waiting'; authCheckRun++;
+    $('authModalTitle').textContent = mode === 'new' ? '添加公众号 · 手动接入密钥' : '重新授权公众号 · 更新密钥';
+    $('authModalDesc').textContent = mode === 'new' ? '填写公众号的开发者密钥，服务端会用它换取接口调用凭证。' : '更新 AppSecret 可恢复接口调用，已保存的配置与已发布内容不受影响。';
+    $('authScenario').value = 'full';
+    const target = mode === 'reauth' ? account(targetId) : null;
+    $('manualName').value = target ? target.name : '';
+    $('manualAppid').value = target ? target.id : '';
+    $('manualSecret').value = '';
+    clearFieldErrors(); resetChecks(); renderAuthPhase();
+    $('authModal').classList.add('open');
+    (target ? $('manualSecret') : $('manualName')).focus();
+  }
+  function closeAuth() {
+    authCheckRun++;
+    $('authModal').classList.remove('open');
+    if (authReturnToConfig && account(authTargetId)) openConfig(authTargetId,returnConfigTab);
+    else $('addAccount').focus();
+    authReturnToConfig = false;
+  }
+  function renderAuthPhase() {
+    const waiting = authPhase === 'waiting', checking = authPhase === 'checking', approved = authPhase === 'approved';
+    const locked = authMode === 'reauth';
+    $('manualSubmit').hidden = !waiting; $('completeAuth').hidden = !approved; $('manualResult').hidden = !approved;
+    $('authCheckPanel').hidden = waiting;
+    $('authCheckHint').textContent = checking ? '正在向微信逐项校验，请勿关闭。' : '校验完成，确认结果后点击「完成接入」。';
+    $('authScenario').disabled = !waiting;
+    $('manualName').disabled = locked; $('manualAppid').disabled = locked;
+    $('manualSecret').disabled = !waiting;
+    $('authSteps').innerHTML = ['1 填写密钥','2 凭证校验','3 接入监测'].map(text => `<span>${text}</span>`).join('');
+    const active = waiting ? 0 : checking ? 1 : 1;
+    document.querySelectorAll('#authSteps span').forEach((step,index) => step.classList.toggle('active', index === active));
+    if ($('authModal').classList.contains('open')) (waiting ? $('manualSubmit') : approved ? $('completeAuth') : $('cancelAuth')).focus();
+  }
+  function readImage(file) { return new Promise((resolve,reject) => { const reader = new FileReader(); reader.onload = () => resolve(reader.result); reader.onerror = reject; reader.readAsDataURL(file); }); }
+  function validImage(file) { return ['image/png','image/jpeg','image/gif','image/webp'].includes(file.type) && file.size <= 1024 * 1024; }
+  function validateMenu(list) {
+    if (!list.length) return '请先添加菜单';
+    for (const item of list) {
+      if (!item.name.trim()) return '每个菜单都需要名称';
+      if (item.children.length) { const childError = validateMenu(item.children); if (childError) return childError; }
+      else if (item.action === 'url') { try { const url = new URL(item.value); if (!['https:','http:'].includes(url.protocol)) return '菜单链接必须是 http 或 https'; } catch (_) { return '请填写有效的菜单链接'; } }
+      else if (item.action === 'mini') { if (!item.value.trim()) return '请填写小程序链接'; }
+      else if (!item.value) return '每个可点击菜单都需要动作内容';
+    }
+    return '';
+  }
+  const newMenu = () => ({id:'menu_' + Math.random().toString(36).slice(2,10),name:'',action:'text',value:'',children:[]});
+  // 消息类型收敛为三种：发送消息(text/image)、跳转网页(url)、跳转小程序(mini)；旧数据中的其他类型回落为发送消息
+  const MENU_ACTIONS = ['text','image','url','mini'];
+  function normalizeMenu(item) {
+    const base = newMenu();
+    if (!item || typeof item !== 'object') return base;
+    const action = MENU_ACTIONS.includes(item.action) ? item.action : 'text';
+    let value = typeof item.value === 'string' ? item.value : '';
+    // 兼容早期「小程序 AppID + 页面路径」两字段结构，合并为单一小程序链接
+    if (action === 'mini' && !value && typeof item.appid === 'string') value = item.appid;
+    return {
+      id: typeof item.id === 'string' && item.id ? item.id : base.id,
+      name: typeof item.name === 'string' ? item.name : '',
+      action,
+      value,
+      children: (Array.isArray(item.children) ? item.children : []).map(normalizeMenu)
+    };
+  }
+  document.querySelectorAll('[data-filter]').forEach(button => button.addEventListener('click', () => { filter = button.dataset.filter; document.querySelectorAll('[data-filter]').forEach(item => item.classList.toggle('selected',item === button)); renderDashboard(); }));
+  document.querySelectorAll('[data-jump-filter]').forEach(button => button.addEventListener('click', () => {
+    filter = button.dataset.jumpFilter;
+    document.querySelectorAll('[data-filter]').forEach(item => item.classList.toggle('selected',item.dataset.filter === filter));
+    renderDashboard();
+  }));
+  $('dashboardSearch').addEventListener('input',renderDashboard);
+  $('sortMode').addEventListener('change',() => { sortMode = $('sortMode').value; renderDashboard(); });
+  $('accountGrid').addEventListener('click',event => {
+    const button = event.target.closest('[data-action]'); if (!button) return;
+    const a = account(button.dataset.id); if (!a) return;
+    if (button.dataset.action === 'config') openConfig(a.id);
+  });
+  document.querySelectorAll('[data-config-tab]').forEach(button => button.addEventListener('click',() => setConfigTab(button.dataset.configTab)));
+  $('closeConfig').addEventListener('click',() => closeConfig());
+  $('configModal').addEventListener('click',event => { if (event.target === $('configModal')) closeConfig(); });
+  $('addAccount').addEventListener('click',() => openAuth());
+  $('toggleAccountMonitoring').addEventListener('click',() => {
+    const a = activeAccount(); if (!a) return;
+    a.enabled = !a.enabled;
+    const enabled = a.enabled, saved = saveState(); renderAll();
+    if (saved) toast(enabled ? '采集已开启' : '采集已暂停');
+  });
+  $('reauthorizeAccount').addEventListener('click',() => openAuth('reauth',activeAccountId));
+  $('cancelAuth').addEventListener('click',closeAuth);
+  $('authModal').addEventListener('click',event => { if (event.target === $('authModal')) closeAuth(); });
+  document.addEventListener('keydown',event => {
+    const openModal = $('authModal').classList.contains('open') ? $('authModal') : $('configModal').classList.contains('open') ? $('configModal') : null;
+    if (!openModal) return;
+    if (event.key === 'Escape') { if (openModal === $('authModal')) closeAuth(); else closeConfig(); return; }
+    if (event.key !== 'Tab') return;
+    const controls = Array.from(openModal.querySelectorAll('button:not(:disabled), input:not(:disabled), select:not(:disabled), textarea:not(:disabled), a[href]')).filter(item => !item.hidden && !item.closest('[hidden]'));
+    if (!controls.length) return;
+    const first = controls[0], last = controls[controls.length - 1];
+    if (!openModal.contains(document.activeElement)) { event.preventDefault(); (event.shiftKey ? last : first).focus(); return; }
+    if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+    else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+  });
+  ['manualName','manualAppid','manualSecret'].forEach(id => {
+    const refresh = () => { if (authPhase === 'waiting') liveValidate(); };
+    $(id).addEventListener('input',refresh); $(id).addEventListener('change',refresh);
+  });
+  $('manualSubmit').addEventListener('click',async () => {
+    if (authPhase !== 'waiting') return;
+    if (!validateManual()) { toast('请检查表单中标红的字段'); return; }
+    const v = manualValues();
+    const run = ++authCheckRun;
+    const permissions = permissionsForScenario($('authScenario').value);
+    const finals = {
+      format: {state:'pass',hint:'AppID 与 AppSecret 格式正确'},
+      ip: {state:'warn',hint:'无法自动检测，请确认已加入 IP 白名单'},
+      api: Object.values(permissions).every(Boolean) ? {state:'pass',hint:'粉丝数据、消息回复、菜单管理均已授权'} : {state:'warn',hint:permissionHint(permissions)}
+    };
+    authPhase = 'checking'; renderAuthPhase();
+    for (const item of CHECK_DEFS) {
+      if (run !== authCheckRun || !$('authModal').classList.contains('open')) return;
+      authChecks[item.key] = {state:'checking',hint:'正在向微信校验…'};
+      paintChecklist();
+      await new Promise(done => setTimeout(done,360));
+      if (run !== authCheckRun || !$('authModal').classList.contains('open')) return;
+      authChecks[item.key] = finals[item.key];
+      paintChecklist();
+    }
+    if (run !== authCheckRun || !$('authModal').classList.contains('open')) return;
+    authPhase = 'approved';
+    $('manualResult').innerHTML = `凭证校验通过：<b>${esc(v.name)}</b>（<b>${esc(v.appid)}</b>）<br>已获得权限：粉丝数据${permissions.fans ? '已授权' : '未授权'}、消息回复${permissions.reply ? '已授权' : '未授权'}、菜单管理${permissions.menu ? '已授权' : '未授权'}<br>密钥已加密存入服务端，浏览器不保留明文。`;
+    renderAuthPhase();
+  });
+  $('completeAuth').addEventListener('click',() => {
+    if (authPhase !== 'approved') return;
+    const v = manualValues(), permissions = permissionsForScenario($('authScenario').value);
+    if (authMode === 'new') {
+      if (!v.appid || account(v.appid)) { toast('此公众号已接入，不能重复添加'); return; }
+      state.accounts.push(makeAccount(v.name,v.appid,0,'pending',{permissions})); activeAccountId = v.appid;
+    } else {
+      const a = account(authTargetId); if (!a) return;
+      a.permissions = permissions; a.authStatus = Object.values(permissions).every(Boolean) ? 'authorized' : 'limited'; activeAccountId = a.id;
+    }
+    const saved = saveState(); renderAll(); if (saved) { closeAuth(); toast(Object.values(permissions).every(Boolean) ? '密钥校验通过，等待首次同步' : '已接入，但部分权限缺失'); }
+  });
+  $('saveMonitor').addEventListener('click',() => {
+    const a = activeAccount(); if (!can(a,'fans')) return;
+    const staleMinutes = Number($('staleMinutes').value);
+    if (!Number.isInteger(staleMinutes) || staleMinutes < 1 || staleMinutes > 1440) { toast('超时阈值需为 1–1440 分钟'); return; }
+    a.monitor = {staleMinutes,alertTarget:$('alertTarget').value.trim(),alertEnabled:$('alertEnabled').checked};
+    const saved = saveState(); renderAll(); if (saved) toast('监测规则已保存');
+  });
+  $('simulateSuccess').addEventListener('click',() => {
+    const a = activeAccount(); if (!can(a,'fans') || !a.enabled) return;
+    a.status = 'healthy'; a.lastSuccess = now(); a.lastSync = now(); a.fans = Number(a.fans || 0) + 1;
+    a.bannedAt = '';   // 同步成功即视为封禁已解除
+    bumpTodayGain(a);
+    const saved = saveState(); renderAll(); if (saved) toast('同步成功，粉丝数已更新');
+  });
+  // 涨粉趋势：同步成功时今日净增 +1，与「当前粉丝 +1」保持一致
+  function bumpTodayGain(a) {
+    if (gainTrendOf(a).length !== 3) return;
+    a.gainTrend[a.gainTrend.length - 1] = Number(a.gainTrend[a.gainTrend.length - 1]) + 1;
+  }
+  $('simulateError').addEventListener('click',() => {
+    const a = activeAccount(); if (!can(a,'fans') || !a.enabled) return;
+    a.status = 'failed'; a.lastSync = now(); const saved = saveState(); renderAll(); if (saved) toast('同步失败');
+  });
+  document.querySelectorAll('[data-reply-tab]').forEach(button => button.addEventListener('click',() => {
+    if (replyTab === button.dataset.replyTab) return;
+    replyTab = button.dataset.replyTab; editingSubscribe = false; subscribePending = null; editingRuleId = ''; ruleBuffer = null;
+    ruleIsNew = false; ruleFormError = false; contentMenuOpen = false;
+    if ($('contentMenu')) $('contentMenu').hidden = true;
+    renderReply();
+  }));
+  $('editSubscribe').addEventListener('click',() => {
+    const a = activeAccount(); if (!can(a,'reply')) return;
+    editingSubscribe = true; subscribeBuffer = clone(a.replyPublished.subscribe); subscribePending = null;
+    renderReply(); $('replyText').focus();
+  });
+  $('cancelSubscribe').addEventListener('click',() => { editingSubscribe = false; subscribeBuffer = null; renderReply(); });
+  $('replyType').addEventListener('change',() => {
+    if (!editingSubscribe) return;
+    subscribeBuffer.type = $('replyType').value;
+    if (subscribeBuffer.type === 'text') subscribeBuffer.image = '';
+    replyToggleFields(); renderSubscribe(activeAccount(),true);
+  });
+  $('replyText').addEventListener('input',() => { if (editingSubscribe) subscribeBuffer.text = $('replyText').value; });
+  $('replyImage').addEventListener('change',async event => {
+    const file = event.target.files[0]; if (!file) return;
+    if (!validImage(file)) { toast('请选择不超过 1 MB 的 PNG、JPG、GIF 或 WebP 图片'); event.target.value = ''; return; }
+    const request = ++imageRequest;
+    try { const image = await readImage(file); if (request !== imageRequest || !editingSubscribe) return; subscribeBuffer.image = image; }
+    catch (_) { toast('图片读取失败'); return; }
+    $('replyImagePreview').src = subscribeBuffer.image; $('replyImagePreview').hidden = false;
+  });
+  $('saveSubscribe').addEventListener('click',() => {
+    const a = activeAccount(); if (!can(a,'reply') || !subscribeBuffer) return;
+    subscribeBuffer.text = subscribeBuffer.text.trim();
+    if (!(subscribeBuffer.type === 'image' ? subscribeBuffer.image : subscribeBuffer.text)) { toast('请填写回复内容'); return; }
+    a.replyPublished.subscribe = {...clone(subscribeBuffer),enabled:a.replyPublished.subscribe.enabled};
+    syncSubscribeDraft(a);
+    a.replyPublishedAt.subscribe = now();
+    editingSubscribe = false; subscribeBuffer = null;
+    const saved = saveState(); renderReply(); if (saved) toast('被关注回复已保存并生效');
+  });
+  $('subscribeEnabled').addEventListener('change',event => {
+    const a = activeAccount(); if (!can(a,'reply')) { event.target.checked = false; return; }
+    // 开启/关闭都需要二次确认：先把开关回滚到当前生效状态，由内联确认条决定是否落库
+    subscribePending = event.target.checked;
+    renderReply();
+  });
+  $('subscribeConfirmCancel').addEventListener('click',() => {
+    if (subscribePending === null) return;
+    subscribePending = null; renderReply();
+  });
+  $('subscribeConfirmOk').addEventListener('click',() => {
+    const a = activeAccount(); if (!can(a,'reply') || subscribePending === null) return;
+    const next = subscribePending, p = a.replyPublished.subscribe;
+    if (next && !(p.type === 'image' ? p.image : p.text)) { subscribePending = null; renderReply(); toast('请先编辑回复内容，再开启被关注回复'); return; }
+    p.enabled = next; syncSubscribeDraft(a);
+    subscribePending = null;
+    const saved = saveState(); renderReply(); if (saved) toast(next ? '被关注回复已开启' : '被关注回复已关闭');
+  });
+  $('addRule').addEventListener('click',() => {
+    const a = activeAccount(); if (!can(a,'reply')) return;
+    ruleBuffer = newRule('', [newKeyword()], []);
+    editingRuleId = ruleBuffer.id; ruleIsNew = true; ruleFormError = false; contentMenuOpen = false;
+    renderReply(); $('ruleName').focus();
+  });
+  $('ruleSearch').addEventListener('input',() => {
+    ruleQuery = $('ruleSearch').value;
+    const a = activeAccount(); if (a && !(editingRuleId && ruleBuffer)) renderRules(a, can(a,'reply'));
+  });
+  $('keywordEnabled').addEventListener('change',event => {
+    const a = activeAccount(); if (!can(a,'reply')) { event.target.checked = !event.target.checked; return; }
+    a.keywordEnabled = event.target.checked;
+    const saved = saveState(); if (saved) toast(a.keywordEnabled ? '关键词回复已开启' : '关键词回复已关闭');
+  });
+  function closeRuleEditor() {
+    editingRuleId = ''; ruleBuffer = null; ruleIsNew = false; ruleFormError = false; contentMenuOpen = false;
+    $('contentMenu').hidden = true; renderReply();
+  }
+  $('ruleBack').addEventListener('click', closeRuleEditor);
+  $('cancelRule').addEventListener('click', closeRuleEditor);
+  $('ruleName').addEventListener('input',() => { if (ruleBuffer) ruleBuffer.name = $('ruleName').value; });
+  $('ruleKeywords').addEventListener('input',event => {
+    const index = event.target.dataset.kwInput;
+    if (!ruleBuffer || index == null) return;
+    ruleBuffer.keywords[Number(index)].value = event.target.value;
+    if (!ruleFormError) return;
+    const row = event.target.closest('.kw-row');
+    if (event.target.value.trim()) row.classList.remove('invalid');
+    if (!ruleBuffer.keywords.some(item => !(item.value || '').trim())) { ruleFormError = false; $('ruleKeywordError').hidden = true; }
+  });
+  $('ruleKeywords').addEventListener('change',event => {
+    const index = event.target.dataset.kwMatch;
+    if (!ruleBuffer || index == null) return;
+    ruleBuffer.keywords[Number(index)].match = event.target.value;
+  });
+  $('ruleKeywords').addEventListener('click',event => {
+    if (!ruleBuffer) return;
+    if (event.target.closest('[data-kw-add]')) {
+      if (ruleBuffer.keywords.length >= 10) { toast('一个规则最多设置 10 个关键词'); return; }
+      ruleBuffer.keywords.push(newKeyword());
+      renderKeywordRows();
+      const inputs = $('ruleKeywords').querySelectorAll('.kw-input');
+      const last = inputs[inputs.length - 1]; if (last) last.focus();
+      return;
+    }
+    const remove = event.target.closest('[data-kw-remove]');
+    if (remove) {
+      ruleBuffer.keywords.splice(Number(remove.dataset.kwRemove),1);
+      if (!ruleBuffer.keywords.length) ruleBuffer.keywords.push(newKeyword());
+      renderKeywordRows();
+    }
+  });
+  $('ruleModeRow').addEventListener('change',event => {
+    if (!ruleBuffer || event.target.name !== 'ruleReplyMode') return;
+    ruleBuffer.replyMode = event.target.value === 'all' ? 'all' : 'random';
+  });
+  $('ruleContents').addEventListener('input',event => {
+    const index = event.target.dataset.contentText;
+    if (!ruleBuffer || index == null) return;
+    ruleBuffer.contents[Number(index)].text = event.target.value;
+  });
+  $('ruleContents').addEventListener('click',event => {
+    const remove = event.target.closest('[data-content-remove]');
+    if (!remove || !ruleBuffer) return;
+    ruleBuffer.contents.splice(Number(remove.dataset.contentRemove),1);
+    renderContentBlocks();
+  });
+  $('ruleContents').addEventListener('change',async event => {
+    const index = event.target.dataset.contentImage;
+    if (!ruleBuffer || index == null) return;
+    const file = event.target.files[0]; if (!file) return;
+    if (!validImage(file)) { toast('请选择不超过 1 MB 的 PNG、JPG、GIF 或 WebP 图片'); event.target.value = ''; return; }
+    const request = ++imageRequest;
+    try { const image = await readImage(file); if (request !== imageRequest || !ruleBuffer) return; ruleBuffer.contents[Number(index)].image = image; }
+    catch (_) { toast('图片读取失败'); return; }
+    renderContentBlocks();
+  });
+  function positionContentMenu() {
+    const menu = $('contentMenu'), button = $('addContent'), scroller = $('configBody');
+    menu.hidden = false;
+    menu.classList.remove('up');
+    const room = scroller.getBoundingClientRect().bottom - button.getBoundingClientRect().bottom;
+    if (room < menu.offsetHeight + 24) menu.classList.add('up');
+    button.scrollIntoView({ block: 'nearest' });
+  }
+  $('addContent').addEventListener('click',event => {
+    event.stopPropagation();
+    if (!ruleBuffer) return;
+    contentMenuOpen = !contentMenuOpen;
+    if (contentMenuOpen) positionContentMenu();
+    $('contentMenu').hidden = !contentMenuOpen;
+  });
+  $('contentMenu').addEventListener('click',event => {
+    const button = event.target.closest('[data-content-type]');
+    if (!button || !ruleBuffer) return;
+    if (ruleBuffer.contents.length >= 5) { toast('一个规则最多添加 5 条回复内容'); return; }
+    ruleBuffer.contents.push(newContent(button.dataset.contentType));
+    contentMenuOpen = false; $('contentMenu').hidden = true;
+    renderContentBlocks();
+  });
+  document.addEventListener('click',event => {
+    if (!contentMenuOpen) return;
+    if (event.target.closest('#contentMenu') || event.target.closest('#addContent')) return;
+    contentMenuOpen = false; $('contentMenu').hidden = true;
+  });
+  $('saveRule').addEventListener('click',() => {
+    const a = activeAccount(); if (!can(a,'reply') || !ruleBuffer) return;
+    ruleBuffer.name = (ruleBuffer.name || '').trim();
+    ruleBuffer.keywords.forEach(item => { item.value = (item.value || '').trim(); });
+    ruleBuffer.contents.forEach(item => { if (item.type === 'text') item.text = (item.text || '').trim(); });
+    ruleFormError = ruleBuffer.keywords.some(item => !item.value || item.value.length > 30);
+    $('ruleKeywordError').hidden = !ruleFormError;
+    if (ruleFormError) { renderKeywordRows(); toast('关键词不能为空且最多30个字'); return; }
+    if (!ruleBuffer.name) { toast('请填写规则名称'); $('ruleName').focus(); return; }
+    if (!ruleBuffer.contents.length) { toast('请添加回复内容'); return; }
+    const blank = ruleBuffer.contents.find(item => item.type === 'text' ? !item.text : item.type === 'image' ? !item.image : false);
+    if (blank) { toast(`请填写「${contentLabel(blank.type)}」内容`); return; }
+    const index = a.keywordRules.findIndex(rule => rule.id === ruleBuffer.id);
+    if (index >= 0) a.keywordRules[index] = clone(ruleBuffer);
+    else a.keywordRules.push(clone(ruleBuffer));
+    editingRuleId = ''; ruleBuffer = null; ruleIsNew = false; ruleFormError = false; contentMenuOpen = false;
+    const saved = saveState(); renderReply(); if (saved) toast('规则已保存');
+  });
+  $('ruleList').addEventListener('click',event => {
+    const a = activeAccount(); if (!a || !can(a,'reply')) return;
+    const edit = event.target.closest('[data-rule-edit]');
+    if (edit) {
+      const rule = a.keywordRules.find(item => item.id === edit.dataset.ruleEdit); if (!rule) return;
+      ruleBuffer = clone(rule); editingRuleId = rule.id; ruleIsNew = false; ruleFormError = false; contentMenuOpen = false;
+      renderReply(); $('ruleName').focus(); return;
+    }
+    const remove = event.target.closest('[data-rule-delete]');
+    if (remove) {
+      const rule = a.keywordRules.find(item => item.id === remove.dataset.ruleDelete);
+      if (rule && confirm(`删除规则“${rule.name || '未命名规则'}”？`)) {
+        a.keywordRules.splice(a.keywordRules.indexOf(rule),1);
+        const saved = saveState(); renderReply(); if (saved) toast('规则已删除');
+      }
+    }
+  });
+  function updateMenuName() {
+    const a = activeAccount(); if (!can(a,'menu')) return;
+    const found = findMenu(workingMenu(a),selectedMenuId); if (!found) return;
+    found.item.name = $('menuName').value.trim();
+    const button = phoneButtonOf(selectedMenuId);
+    if (button) { const label = button.querySelector('span'); if (label) label.textContent = found.item.name || '菜单名称'; }
+    updateMenuStatus();
+  }
+  function updateMenuValue(value) {
+    const a = activeAccount(); if (!can(a,'menu')) return;
+    const found = findMenu(workingMenu(a),selectedMenuId); if (!found || found.item.children.length) return;
+    found.item.value = value;
+    updateMenuStatus();
+  }
+  $('menuName').addEventListener('input',updateMenuName);
+  $('menuValue').addEventListener('input',() => updateMenuValue($('menuValue').value));
+  $('menuUrl').addEventListener('input',() => updateMenuValue($('menuUrl').value.trim()));
+  function setMenuAction(action) {
+    const a = activeAccount(); if (!can(a,'menu')) return;
+    const found = findMenu(workingMenu(a),selectedMenuId); if (!found || found.item.children.length) return;
+    menuImageRequest++;
+    // 切换消息类型或内容类型时清空原内容：文字与图片、网页链接、小程序链接互斥，同一时间只保留一种
+    if (found.item.action !== action) found.item.value = '';
+    found.item.action = action;
+    renderMenu();
+    if (action === 'url') $('menuUrl').focus();
+    else if (action === 'mini') $('menuMiniLink').focus();
+    else if (action === 'text') $('menuValue').focus();
+  }
+  $('menuActionSend').addEventListener('change',() => { if ($('menuActionSend').checked) setMenuAction(currentSendType()); });
+  function currentSendType() {
+    const a = activeAccount();
+    const found = a && findMenu(workingMenu(a),selectedMenuId);
+    return found && found.item.action === 'image' ? 'image' : 'text';
+  }
+  $('menuActionUrl').addEventListener('change',() => { if ($('menuActionUrl').checked) setMenuAction('url'); });
+  $('menuActionMini').addEventListener('change',() => { if ($('menuActionMini').checked) setMenuAction('mini'); });
+  $('menuTypeChips').addEventListener('click',event => {
+    const chip = event.target.closest('.menu-chip'); if (!chip || chip.disabled) return;
+    const type = chip.dataset.menuType;
+    const a = activeAccount();
+    const found = a && findMenu(workingMenu(a),selectedMenuId);
+    if (!found || found.item.action === type) return;
+    setMenuAction(type);
+  });
+  $('menuMiniLink').addEventListener('input',() => {
+    const a = activeAccount(); if (!can(a,'menu')) return;
+    const found = findMenu(workingMenu(a),selectedMenuId); if (!found || found.item.action !== 'mini') return;
+    found.item.value = $('menuMiniLink').value.trim();
+    updateMenuStatus();
+  });
+  $('menuPhoneBody').addEventListener('click',() => { if (openSubMenuId) closeSubMenu(); });
+  $('menuImage').addEventListener('change',async event => {
+    const file = event.target.files[0]; if (!file) return;
+    if (!validImage(file)) { toast('请选择不超过 1 MB 的图片'); event.target.value = ''; return; }
+    const selectedId = activeAccountId, selectedMenu = selectedMenuId, request = ++menuImageRequest;
+    try { const image = await readImage(file); if (request !== menuImageRequest || selectedId !== activeAccountId || selectedMenu !== selectedMenuId) return; const found = findMenu(workingMenu(activeAccount()),selectedMenu); if (!found || found.item.action !== 'image') return; found.item.value = image; }
+    catch (_) { toast('图片读取失败'); return; }
+    renderMenu();
+  });
+  $('deleteMenu').addEventListener('click',() => {
+    const a = activeAccount(); if (!can(a,'menu')) return;
+    const found = findMenu(workingMenu(a),selectedMenuId); if (!found) return;
+    const label = found.item.name || (found.parent ? '未命名子菜单' : '未命名菜单');
+    if (!confirm(`删除菜单“${label}”${found.item.children.length ? '及其全部子菜单' : ''}？`)) return;
+    const list = found.parent ? found.parent.children : workingMenu(a);
+    list.splice(list.indexOf(found.item),1);
+    selectedMenuId = ''; openSubMenuId = '';
+    renderMenu(); toast('菜单已删除，发布后线上同步生效');
+  });
+  $('previewMenu').addEventListener('click',() => toast('预览：手机模拟器展示的即为发布后的菜单效果'));
+  $('publishMenu').addEventListener('click',() => {
+    const a = activeAccount(); if (!can(a,'menu')) return;
+    const error = validateMenu(workingMenu(a)); if (error) { toast(error); return; }
+    if (!confirm('保存并发布后，自定义菜单将立即对粉丝生效。确定发布吗？')) return;
+    a.menuDraft = clone(workingMenu(a)); a.menuPublished = clone(workingMenu(a)); a.menuPublishedAt = now();
+    const saved = saveState(); renderAll(); if (saved) toast('自定义菜单已保存并发布');
+  });
+  $('resetDemo').addEventListener('click',() => {
+    if (!confirm('重置后，本浏览器保存的账号和配置会被清除。确定重置吗？')) return;
+    state = initialState(); activeAccountId = state.accounts[0]?.id || ''; selectedMenuId = '';
+    menuWorking.clear(); menuImageRequest++; imageRequest++;
+    const saved = saveState(); renderAll(); if (saved) toast('本地数据已重置');
+  });
+  renderContentMenu();
+  renderAll();
+  setInterval(renderDashboard,30000);
+})();
+</script>
+</body>
+</html>

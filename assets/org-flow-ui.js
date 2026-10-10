@@ -70,13 +70,13 @@
         window.OrgFlow.currentRefs=refs;
         return;
     }
-    const creationPages=['index.html','step2-主体管理首页（一级主体联动版）.html','step3-常规分镜管理.html','step3-通灵xz模型.html','step4-成片合成.html','画布工作流.html'];
+    const creationPages=['猩造AI-首页.html','step2-主体管理首页（一级主体联动版）.html','step3-常规分镜管理.html','step3-通灵xz模型.html','step4-成片合成.html','画布工作流.html'];
     if(creationPages.includes(page)){
         const incoming=page==='画布工作流.html'?getJSON('sameStyleIncomingTask',localStorage):null;
         if(incoming?.refs)selectedRefs=incoming.refs;
         const box=selectionPanel();
         function valid(){selectedRefs=Array.from(box.querySelectorAll('select')).filter(s=>s.value).map(s=>({type:s.dataset.oaType,id:s.value}));if(!check(selectedRefs))return false;remember(selectedRefs);return true;}
-        if(page==='index.html'){
+        if(page==='猩造AI-首页.html'){
             // 同款弹窗也使用组织目录，防止模板内置的角色选择覆盖已选素材。
             wrap('openSameModal',null,()=>{const modal=document.getElementById('sameRole')?.closest('.modal,.modal-panel,.same-modal');if(modal&&!modal.contains(box))modal.prepend(box);});
             wrap('confirmSameTemplate',valid,()=>record(selectedRefs,'同款 · 组织协作视频','private'));
