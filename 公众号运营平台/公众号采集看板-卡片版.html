@@ -131,11 +131,10 @@
   .summary-strip { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 15px; padding: 11px 14px; border-radius: 9px; background: #eff7f1; color: #416754; }
   .pill { display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; border-radius: 9px; background: var(--tone-bg, #edf2ef); color: var(--tone, #547362); font-size: 11px; font-weight: 700; white-space: nowrap; }
   .pill::before { content: ""; width: 7px; height: 7px; flex: none; border-radius: 50%; background: currentColor; }
-  /* 采集状态配色：绿=正常，灰=暂停，橙=临时封禁，红=永久封禁/采集失败 */
+  /* 采集状态配色：绿=正常，橙=临时封禁，红=永久封禁/采集失败 */
   .tone-healthy { --tone: #0f9d63; --tone-bg: #e8f6ef; }
   .tone-stale { --tone: #c9821a; --tone-bg: #fff5dd; }
   .tone-error { --tone: #d0433a; --tone-bg: #fff0ef; }
-  .tone-paused { --tone: #6f8591; --tone-bg: #eef2f4; }
   .image-preview { display: block; max-width: 210px; max-height: 130px; margin-top: 8px; border-radius: 8px; object-fit: contain; }
   .menu-workbench { display: grid; grid-template-columns: 330px minmax(0, 1fr); gap: 20px; align-items: start; }
   .mp { border: 1px solid #dfe7e1; border-radius: 34px; background: #fff; box-shadow: 0 18px 40px #1c3a281f; overflow: hidden; }
@@ -429,7 +428,6 @@
         <div class="legend-bar">
           <span class="legend-label">状态说明</span>
           <span class="legend-item tone-healthy"><i></i>正常采集</span>
-          <span class="legend-item tone-paused"><i></i>已暂停采集</span>
           <span class="legend-item tone-stale"><i></i>临时封禁</span>
           <span class="legend-item tone-error"><i></i>永久封禁</span>
         </div>
@@ -438,7 +436,6 @@
             <div class="tabs">
               <button type="button" class="tab selected" data-filter="all">全部<span class="tab-count" data-count="all">0</span></button>
               <button type="button" class="tab" data-filter="healthy">正常采集<span class="tab-count" data-count="healthy">0</span></button>
-              <button type="button" class="tab" data-filter="paused">已暂停采集<span class="tab-count" data-count="paused">0</span></button>
               <button type="button" class="tab" data-filter="tempBan">临时封禁<span class="tab-count" data-count="tempBan">0</span></button>
               <button type="button" class="tab" data-filter="permBan">永久封禁<span class="tab-count" data-count="permBan">0</span></button>
             </div>
@@ -474,7 +471,7 @@
     <div class="config-main">
       <div class="config-topbar">
         <div><h2 id="selectedAccountTitle">公众号配置</h2><p id="selectedAccountSummary"></p></div>
-        <div class="inline-row"><button type="button" class="secondary" id="toggleAccountMonitoring">暂停采集</button><button type="button" class="secondary" id="reauthorizeAccount">重新授权</button><button type="button" class="secondary" id="closeConfig">关闭</button></div>
+        <div class="inline-row"><button type="button" class="secondary" id="reauthorizeAccount">重新授权</button><button type="button" class="secondary" id="closeConfig">关闭</button></div>
       </div>
       <div class="config-modal-body" id="configBody">
       <section id="monitorView" class="config-section" hidden>
@@ -683,7 +680,7 @@
 */
 (() => {
   'use strict';
-  const storageKey = 'wechatCollectionPrototypeV7';
+  const storageKey = 'wechatCollectionPrototypeV8';
   const $ = id => document.getElementById(id);
   const previewMode = typeof location !== 'undefined' && new URLSearchParams(location.search).get('preview') === '1';
   $('previewHeader').hidden = !previewMode;
@@ -706,7 +703,7 @@
     const trend = Array.isArray(a.gainTrend) ? a.gainTrend.map(Number).filter(Number.isFinite) : [];
     return trend.length === 3 ? trend : [];
   };
-  // 今日涨粉 = gainTrend 末位；无数据的账号（暂停 / 封禁）返回 null
+  // 今日涨粉 = gainTrend 末位；无数据的账号（封禁）返回 null
   const todayGainOf = a => {
     const trend = gainTrendOf(a);
     return trend.length ? trend[trend.length - 1] : null;
@@ -774,10 +771,9 @@
     (Array.isArray(keywords) ? keywords : [keywords]).map(value => newKeyword(value)),
     (Array.isArray(text) ? text : [text]).map(value => Object.assign(newContent('text'), {text: value}))
   );
-  // 演示数据：12 个账号，状态以「正常采集」为主（正常 9 / 已暂停 1 / 临时封禁 1 / 永久封禁 1）
-  //   minutes  = 最近一次同步距今的分钟数   stale = 有历史数据但已超时（分钟）
+  // 演示数据：12 个账号，状态以「正常采集」为主（正常 10 / 临时封禁 1 / 永久封禁 1）
+  //   minutes  = 最近一次同步距今的分钟数
   //   callback = 最后一条消息回调距今的分钟数（不填 = 尚未收到过回调）
-  //   enabled:false → 已暂停采集
   //   status   = 采集状态（静态字段，页面不做时间推算）：healthy / tempBan 临时封禁 / permBan 永久封禁 / failed 采集失败
   //              封禁类型由服务端根据 errcode 反推：temp=48004/45009/45011/40243，perm=50002/50007（账号冻结）
   //   gainTrend= 近3日净增关注 [前2日, 前1日, 今日]，正=涨粉 负=掉粉；末位即「今日涨粉」，3日合计前端自行求和
@@ -793,7 +789,7 @@
     {name:'价投笔记',  id:'account_012', fans:1204,  status:'healthy', minutes:4, callback:46, gainTrend:[9,6,11]},
     {name:'明策组合',  id:'account_005', fans:927,   status:'tempBan', banHours:2,  callback:156},
     {name:'短线优策',  id:'account_006', fans:916,   status:'healthy', minutes:2, callback:22, gainTrend:[7,4,-2]},
-    {name:'稳步研习社',id:'account_007', fans:397,   status:'healthy', stale:1260, callback:1320, enabled:false},
+    {name:'稳步研习社',id:'account_007', fans:397,   status:'healthy', minutes:2, callback:12, gainTrend:[5,3,4]},
     {name:'金讯先锋',  id:'account_008', fans:1284,  status:'healthy', minutes:3, gainTrend:[-3,6,2]},
     {name:'策略配置',  id:'account_009', fans:597,   status:'permBan', banHours:72, callback:1640}
   ];
@@ -802,12 +798,11 @@
     const permissions = options.permissions || fullPermissions();
     const healthy = status === 'healthy';
     const banned = status === 'tempBan' || status === 'permBan';
-    const offset = options.stale != null ? options.stale : options.minutes != null ? options.minutes : 2;
+    const offset = options.minutes != null ? options.minutes : 2;
     const a = {
       name, id,
       fans: status === 'pending' ? 0 : fans,
       status,
-      enabled: options.enabled !== false,
       authStatus: Object.values(permissions).every(Boolean) ? 'authorized' : 'limited',
       permissions,
       monitor: Object.assign(defaultMonitor(), options.monitor || {}),
@@ -821,7 +816,7 @@
       gainTrend: Array.isArray(options.gainTrend) ? options.gainTrend.slice(-3).map(Number) : [],
       bannedAt: banned ? hoursAgo(options.banHours != null ? options.banHours : 2) : ''
     };
-    if (healthy && a.enabled) {
+    if (healthy) {
       a.replyDraft.subscribe = {enabled:true,type:'text',text:'欢迎关注！每个交易日 8:30 推送早盘策略，点击菜单「今日策略」查看最新观点。',image:''};
       a.replyPublished.subscribe = clone(a.replyDraft.subscribe);
       a.replyPublishedAt.subscribe = hoursAgo(72);
@@ -831,13 +826,21 @@
   const initialState = () => ({accounts:seed.map(row => makeAccount(row.name,row.id,row.fans,row.status,row))});
   function loadState() {
     try {
-      const data = JSON.parse(localStorage.getItem(storageKey));
+      let raw = localStorage.getItem(storageKey);
+      // V7 升级 V8：去掉暂停态，旧数据自动迁移为正常
+      if (!raw) {
+        const legacy = localStorage.getItem('wechatCollectionPrototypeV7');
+        if (legacy) { raw = legacy; localStorage.removeItem('wechatCollectionPrototypeV7'); }
+      }
+      const data = JSON.parse(raw);
       if (data && Array.isArray(data.accounts) && data.accounts.every(a => a && a.id && a.permissions && a.monitor)) {
         data.accounts.forEach(a => {
           if (/^demo_(account_|authorizer_)/.test(a.id)) a.id = a.id.slice(5);
           if (!validDateValue(a.lastCallbackAt)) a.lastCallbackAt = '';
+          delete a.enabled;
+          if (a.status === 'paused') a.status = 'healthy';
           if (a.status === 'error') a.status = 'failed';   // 历史值兼容
-          if (!['healthy','paused','tempBan','permBan','failed','pending'].includes(a.status)) a.status = 'failed';
+          if (!['healthy','tempBan','permBan','failed','pending'].includes(a.status)) a.status = 'failed';
           if (!['tempBan','permBan'].includes(a.status)) a.bannedAt = '';
           a.gainTrend = (Array.isArray(a.gainTrend) ? a.gainTrend : []).slice(-3).map(Number).filter(Number.isFinite);
           if (typeof a.keywordEnabled !== 'boolean') a.keywordEnabled = false;
@@ -877,14 +880,13 @@
   // 采集状态为静态字段，直接读 a.status，不做基于时间或权限的实时推算
   function statusOf(a) {
     if (a.status === 'tempBan' || a.status === 'permBan') return a.status;
-    if (!a.enabled) return 'paused';
     if (a.status !== 'healthy') return 'failed';
     return 'healthy';
   }
-  // 状态取值：healthy 正常采集 / paused 已暂停采集 / tempBan 临时封禁 / permBan 永久封禁 / failed 采集失败
+  // 状态取值：healthy 正常采集 / tempBan 临时封禁 / permBan 永久封禁 / failed 采集失败
   // 封禁类型由服务端同步任务按 errcode 反推：temp=48004 接口被封禁、45009/45011 超频、40243 密钥冻结；perm=50002、50007 账号冻结
-  const statusText = {healthy:'正常采集', paused:'已暂停采集', tempBan:'临时封禁', permBan:'永久封禁', failed:'采集失败'};
-  const statusTone = {healthy:'tone-healthy', paused:'tone-paused', tempBan:'tone-stale', permBan:'tone-error', failed:'tone-error'};
+  const statusText = {healthy:'正常采集', tempBan:'临时封禁', permBan:'永久封禁', failed:'采集失败'};
+  const statusTone = {healthy:'tone-healthy', tempBan:'tone-stale', permBan:'tone-error', failed:'tone-error'};
   const statusTag = a => `<span class="pill ${statusTone[statusOf(a)]}">${statusText[statusOf(a)]}</span>`;
   function metaBlock(label,value,hover) {
     return `<div class="meta" title="${esc(hover)}"><div class="meta-label">${label}</div><div class="meta-value${value === '—' ? ' dim' : ''}">${esc(value)}</div></div>`;
@@ -922,7 +924,7 @@
     const order = new Map(state.accounts.map((a,index) => [a.id,index]));
     const list = [...rows];
     if (sortMode === 'fans') return list.sort((a,b) => Number(b.fans || 0) - Number(a.fans || 0) || order.get(a.id) - order.get(b.id));
-    // 今日涨粉从高到低：无涨粉数据的账号（暂停 / 封禁）统一排到最后
+    // 今日涨粉从高到低：无涨粉数据的账号（封禁）统一排到最后
     if (sortMode === 'todayGain') return list.sort((a,b) => {
       const left = todayGainOf(a), right = todayGainOf(b);
       if (left == null || right == null) return (left == null ? 1 : 0) - (right == null ? 1 : 0) || order.get(a.id) - order.get(b.id);
@@ -931,7 +933,7 @@
     return list.sort((a,b) => order.get(a.id) - order.get(b.id));
   }
   function countByFilter() {
-    const counts = {all:state.accounts.length,healthy:0,paused:0,tempBan:0,permBan:0,failed:0};
+    const counts = {all:state.accounts.length,healthy:0,tempBan:0,permBan:0,failed:0};
     state.accounts.forEach(a => {
       const status = statusOf(a);
       counts[status] = (counts[status] || 0) + 1;
@@ -942,7 +944,7 @@
     const healthy = state.accounts.filter(a => statusOf(a) === 'healthy');
     $('statTotal').textContent = state.accounts.length;
     $('statHealthy').textContent = healthy.length;
-    $('statIssues').textContent = state.accounts.filter(a => !['healthy','paused'].includes(statusOf(a))).length;
+    $('statIssues').textContent = state.accounts.filter(a => statusOf(a) !== 'healthy').length;
     $('statFans').textContent = healthy.reduce((sum,a) => sum + Number(a.fans || 0), 0).toLocaleString('zh-CN');
     const counts = countByFilter();
     document.querySelectorAll('[data-count]').forEach(node => node.textContent = counts[node.dataset.count] ?? 0);
@@ -960,8 +962,6 @@
   function renderContext() {
     const a = activeAccount();
     $('reauthorizeAccount').disabled = !a;
-    $('toggleAccountMonitoring').disabled = !a;
-    $('toggleAccountMonitoring').textContent = a?.enabled ? '暂停采集' : '开启采集';
     $('selectedAccountTitle').textContent = CONFIG_TITLES[configTab] || '公众号配置';
     $('configAccountName').textContent = a ? a.name : '未选择公众号';
     $('configAccountId').textContent = a ? `公众号 ID：${a.id}` : '—';
@@ -973,13 +973,13 @@
     $('monitorPermission').hidden = allowed;
     $('monitorPermission').textContent = a ? '当前账号缺少粉丝数据权限，无法启用采集监测。请重新授权。' : '请先添加公众号。';
     ['staleMinutes','alertTarget','alertEnabled','saveMonitor'].forEach(id => $(id).disabled = !allowed);
-    ['simulateSuccess','simulateError'].forEach(id => $(id).disabled = !allowed || !a.enabled);
+    ['simulateSuccess','simulateError'].forEach(id => $(id).disabled = !allowed);
     if (!a) { $('monitorSummary').textContent = '暂无监测数据'; return; }
     $('staleMinutes').value = a.monitor.staleMinutes;
     $('alertTarget').value = a.monitor.alertTarget;
     $('alertEnabled').checked = a.monitor.alertEnabled;
-    const alertTriggered = a.monitor.alertEnabled && a.enabled && !['healthy','paused'].includes(statusOf(a));
-    $('monitorSummary').innerHTML = `${statusTag(a)}　最近同步：${fmt(a.lastSync)}　最近成功：${fmt(a.lastSuccess)}　${alertTriggered ? '页面提醒已触发' : '页面提醒未触发'}${a.enabled ? '' : '　监测已暂停'}`;
+    const alertTriggered = a.monitor.alertEnabled && statusOf(a) !== 'healthy';
+    $('monitorSummary').innerHTML = `${statusTag(a)}　最近同步：${fmt(a.lastSync)}　最近成功：${fmt(a.lastSuccess)}　${alertTriggered ? '页面提醒已触发' : '页面提醒未触发'}`;
   }
   function renderReply() {
     const a = activeAccount(), allowed = can(a,'reply');
@@ -1453,12 +1453,6 @@
   $('closeConfig').addEventListener('click',() => closeConfig());
   $('configModal').addEventListener('click',event => { if (event.target === $('configModal')) closeConfig(); });
   $('addAccount').addEventListener('click',() => openAuth());
-  $('toggleAccountMonitoring').addEventListener('click',() => {
-    const a = activeAccount(); if (!a) return;
-    a.enabled = !a.enabled;
-    const enabled = a.enabled, saved = saveState(); renderAll();
-    if (saved) toast(enabled ? '采集已开启' : '采集已暂停');
-  });
   $('reauthorizeAccount').addEventListener('click',() => openAuth('reauth',activeAccountId));
   $('cancelAuth').addEventListener('click',closeAuth);
   $('authModal').addEventListener('click',event => { if (event.target === $('authModal')) closeAuth(); });
@@ -1524,7 +1518,7 @@
     const saved = saveState(); renderAll(); if (saved) toast('监测规则已保存');
   });
   $('simulateSuccess').addEventListener('click',() => {
-    const a = activeAccount(); if (!can(a,'fans') || !a.enabled) return;
+    const a = activeAccount(); if (!can(a,'fans')) return;
     a.status = 'healthy'; a.lastSuccess = now(); a.lastSync = now(); a.fans = Number(a.fans || 0) + 1;
     a.bannedAt = '';   // 同步成功即视为封禁已解除
     bumpTodayGain(a);
@@ -1536,7 +1530,7 @@
     a.gainTrend[a.gainTrend.length - 1] = Number(a.gainTrend[a.gainTrend.length - 1]) + 1;
   }
   $('simulateError').addEventListener('click',() => {
-    const a = activeAccount(); if (!can(a,'fans') || !a.enabled) return;
+    const a = activeAccount(); if (!can(a,'fans')) return;
     a.status = 'failed'; a.lastSync = now(); const saved = saveState(); renderAll(); if (saved) toast('同步失败');
   });
   document.querySelectorAll('[data-reply-tab]').forEach(button => button.addEventListener('click',() => {
