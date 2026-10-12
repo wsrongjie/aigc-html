@@ -135,6 +135,8 @@
   .tone-healthy { --tone: #0f9d63; --tone-bg: #e8f6ef; }
   .tone-stale { --tone: #c9821a; --tone-bg: #fff5dd; }
   .tone-error { --tone: #d0433a; --tone-bg: #fff0ef; }
+  .tone-idle { --tone: #7b8f88; --tone-bg: #eef2f0; }
+  .card-status .pill + .pill { margin-left: 0; }
   .image-preview { display: block; max-width: 210px; max-height: 130px; margin-top: 8px; border-radius: 8px; object-fit: contain; }
   .menu-workbench { display: grid; grid-template-columns: 330px minmax(0, 1fr); gap: 20px; align-items: start; }
   .mp { border: 1px solid #dfe7e1; border-radius: 34px; background: #fff; box-shadow: 0 18px 40px #1c3a281f; overflow: hidden; }
@@ -345,7 +347,7 @@
   .rule-form-actions .primary, .rule-form-actions .secondary { min-width: 96px; }
   .rule-editor { margin-top: 12px; padding: 16px; border: 1px solid #cfe4d6; border-radius: 10px; background: #fafdfb; }
   .permission-note { margin: 0 0 13px; padding: 10px 12px; border-radius: 8px; background: #fff4e2; color: #855d21; }
-  .auth-modal { width: min(520px, 100%); }
+  .auth-modal { width: min(620px, 100%); }
   .auth-body { display: grid; gap: 14px; }
   .qr-placeholder { display: grid; place-items: center; width: 176px; height: 176px; padding: 18px; border: 1px dashed #abc9b4; border-radius: 10px; background: #f5faf6; color: #6c8a75; text-align: center; line-height: 1.6; }
   .auth-steps { display: flex; gap: 8px; margin-bottom: 18px; color: #62806e; }
@@ -389,7 +391,22 @@
   .manual-result { padding: 12px 14px; border-radius: 9px; background: #eaf6ef; color: #2b5846; line-height: 1.75; }
   .manual-result b { color: #0d3a26; }
   .auth-modal .modal-actions { margin-top: 18px; }
-  @media (max-width: 1350px) { .auth-modal { width: min(480px, 100%); } }
+  @media (max-width: 1350px) { .auth-modal { width: min(560px, 100%); } }
+  /* 消息回调：状态、操作指引与配置录入 */
+  .cb-head { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; padding: 12px 14px; border: 1px solid #e2e9e3; border-radius: 12px; background: #fff; }
+  .cb-head-meta { color: #758b7e; font-size: 12px; line-height: 1.6; }
+  .cb-help { padding: 12px 14px; border: 1px solid #e0e9e2; border-radius: 10px; background: #f8fbf9; color: #41674f; font-size: 12px; line-height: 1.8; }
+  .cb-help b { color: #234332; }
+  .cb-help ol { margin: 4px 0 0; padding-left: 18px; }
+  .cb-help li { margin-top: 2px; }
+  .cb-sub { display: flex; align-items: baseline; gap: 10px; margin: 24px 0 12px; padding-bottom: 8px; border-bottom: 1px solid #eef3ef; color: #234332; font-size: 14px; }
+  .cb-sub small { color: #9aa89f; font-size: 11px; font-weight: 400; }
+  .cb-field { margin-top: 16px; }
+  .cb-field input { font-family: Consolas, Menlo, monospace; }
+  .cb-field input.invalid { border-color: #c96a63; background: #fffafa; }
+  .cb-check { margin-top: 14px; padding: 12px 14px; border: 1px solid #e0e9e2; border-radius: 10px; background: #f8fbf9; color: #41674f; font-size: 12px; line-height: 1.7; }
+  .cb-check.ok { border-color: #bfe0cd; background: #f2faf5; color: #1c5c3a; }
+  .cb-check.bad { border-color: #f0cdc9; background: #fff6f4; color: #9c3a31; }
 </style>
 </head>
 <body>
@@ -414,30 +431,33 @@
   </aside>
   <main>
     <header>
-      <div><h1>公众号采集看板</h1><p>账号授权、粉丝同步、采集监测与公众号配置</p></div>
+      <div><h1>公众号采集看板</h1><p>账号授权、消息回调、粉丝同步与公众号配置</p></div>
       <div class="actions"><span class="user">shiwei</span><div class="inline-row" id="previewHeader" hidden><span class="preview-tag">开发预览</span><button type="button" class="action" id="resetDemo">重置本地数据</button></div></div>
     </header>
     <div class="workspace"><div class="surface">
       <section id="dashboardView" class="view">
         <div class="stats">
-          <button type="button" class="stat" data-jump-filter="all"><div class="label">公众号总数</div><div class="value" id="statTotal">0</div><div class="note">已列入当前工作台 · 点击看全部</div></button>
-          <button type="button" class="stat" data-jump-filter="healthy"><div class="label">正常采集</div><div class="value" id="statHealthy">0</div><div class="note">最近一次同步成功 · 点击筛选</div></button>
-          <button type="button" class="stat" data-jump-filter="all"><div class="label">采集失败</div><div class="value" id="statIssues">0</div><div class="note">含临时/永久封禁 · 点击看全部</div></button>
-          <button type="button" class="stat" data-jump-filter="healthy"><div class="label">正常账号粉丝合计</div><div class="value" id="statFans">0</div><div class="note">仅汇总有权限且采集正常的账号</div></button>
+          <button type="button" class="stat" data-stat-key="all" data-jump-filter="all"><div class="label">公众号总数</div><div class="value" id="statTotal">0</div><div class="note">已列入当前工作台</div></button>
+          <button type="button" class="stat" data-stat-key="healthy" data-jump-filter="healthy"><div class="label">正常采集</div><div class="value" id="statHealthy">0</div><div class="note">最近一次同步成功</div></button>
+          <button type="button" class="stat" data-stat-key="failed" data-jump-filter="failed"><div class="label">采集失败</div><div class="value" id="statIssues">0</div><div class="note">含封禁与待首次同步</div></button>
+          <button type="button" class="stat" data-stat-key="fans" data-jump-filter="healthy"><div class="label">正常账号粉丝合计</div><div class="value" id="statFans">0</div><div class="note">仅汇总采集正常的账号</div></button>
         </div>
         <div class="legend-bar">
           <span class="legend-label">状态说明</span>
           <span class="legend-item tone-healthy"><i></i>正常采集</span>
-          <span class="legend-item tone-stale"><i></i>临时封禁</span>
-          <span class="legend-item tone-error"><i></i>永久封禁</span>
+          <span class="legend-item tone-idle"><i></i>待首次同步</span>
+          <span class="legend-item tone-stale"><i></i>临时封禁 / 回调未联通</span>
+          <span class="legend-item tone-error"><i></i>永久封禁 / 采集失败</span>
         </div>
         <div class="card">
           <div class="filters">
             <div class="tabs">
               <button type="button" class="tab selected" data-filter="all">全部<span class="tab-count" data-count="all">0</span></button>
               <button type="button" class="tab" data-filter="healthy">正常采集<span class="tab-count" data-count="healthy">0</span></button>
+              <button type="button" class="tab" data-filter="failed">采集失败<span class="tab-count" data-count="failed">0</span></button>
               <button type="button" class="tab" data-filter="tempBan">临时封禁<span class="tab-count" data-count="tempBan">0</span></button>
               <button type="button" class="tab" data-filter="permBan">永久封禁<span class="tab-count" data-count="permBan">0</span></button>
+              <button type="button" class="tab" data-filter="unlinked">回调未联通<span class="tab-count" data-count="unlinked">0</span></button>
             </div>
             <div class="filter-tools">
               <select class="sort-select" id="sortMode" aria-label="排序方式">
@@ -466,25 +486,36 @@
         <div class="config-nav-group">功能</div>
         <button type="button" class="config-nav-item active" data-config-tab="reply" role="tab" aria-selected="true"><span class="config-nav-icon" aria-hidden="true">复</span>自动回复</button>
         <button type="button" class="config-nav-item" data-config-tab="menu" role="tab" aria-selected="false"><span class="config-nav-icon" aria-hidden="true">菜</span>自定义菜单</button>
+        <div class="config-nav-group">连接</div>
+        <button type="button" class="config-nav-item" data-config-tab="callback" role="tab" aria-selected="false"><span class="config-nav-icon" aria-hidden="true">回</span>消息回调</button>
       </nav>
     </aside>
     <div class="config-main">
       <div class="config-topbar">
         <div><h2 id="selectedAccountTitle">公众号配置</h2><p id="selectedAccountSummary"></p></div>
-        <div class="inline-row"><button type="button" class="secondary" id="reauthorizeAccount">重新授权</button><button type="button" class="secondary" id="closeConfig">关闭</button></div>
+        <div class="inline-row"><button type="button" class="secondary" id="reauthorizeAccount">更新密钥</button><button type="button" class="secondary" id="closeConfig">关闭</button></div>
       </div>
       <div class="config-modal-body" id="configBody">
-      <section id="monitorView" class="config-section" hidden>
-        <div class="section-head"><div><h2>① 采集监测与提醒</h2><p>这里的状态由本系统的同步任务判定，和微信账号封禁状态不是同一概念。</p></div></div>
-        <div class="panel">
-          <p class="permission-note" id="monitorPermission" hidden></p>
-          <div class="field-grid">
-            <label class="field">超时阈值（分钟）<input id="staleMinutes" type="number" min="1" max="1440"><small>服务端判定用 · 原型状态为静态演示值。</small></label>
-            <label class="field">提醒对象<input id="alertTarget" placeholder="例如：运营负责人"></label>
-            <label class="field full inline-row"><input id="alertEnabled" type="checkbox">启用异常提醒</label>
-          </div>
-          <div class="inline-row" style="margin-top:18px"><button type="button" class="primary" id="saveMonitor">保存规则</button><button type="button" class="secondary" id="simulateSuccess">同步成功状态</button><button type="button" class="secondary" id="simulateError">同步失败状态</button></div>
-          <div class="summary-strip" id="monitorSummary" style="margin:17px 0 0"></div>
+      <section id="callbackView" class="config-section" hidden>
+        <p class="permission-note" id="callbackPermission" hidden></p>
+        <div class="cb-head" id="cbStatusRow"></div>
+        <div class="cb-help">
+          <b>先在微信后台配置，再回本页录入</b>
+          <ol>
+            <li>微信开发者平台 → 我的业务 → 公众号 → 消息与事件推送</li>
+            <li>填入<b>平台统一的回调地址</b>；Token 可自行填写或让微信随机生成；<b>加解密方式必须选「安全模式」</b>；数据格式选 XML</li>
+            <li>点「提交」后，把微信后台里的 <b>Token</b> 与 <b>EncodingAESKey</b> 复制到下面两个输入框，保持完全一致</li>
+          </ol>
+        </div>
+        <h3 class="cb-sub">回调配置<small>Token 与 EncodingAESKey 必须与微信后台保持一致</small></h3>
+        <label class="field cb-field">Token<input id="cbToken" maxlength="32" autocomplete="off" spellcheck="false" placeholder="从微信后台复制 Token 粘贴到这里"><small>3–32 位（以微信后台的校验规则为准）</small><span class="field-error" id="cbTokenError" hidden></span></label>
+        <label class="field cb-field">EncodingAESKey<input id="cbAesKey" maxlength="43" autocomplete="off" spellcheck="false" placeholder="从微信后台复制 EncodingAESKey 粘贴到这里"><small>必须 43 位</small><span class="field-error" id="cbAesKeyError" hidden></span></label>
+        <div class="inline-row" style="margin-top:16px">
+          <button type="button" class="primary" id="cbSave">保存</button>
+        </div>
+        <div id="cbSimTools" hidden>
+          <h3 class="cb-sub">开发预览 · 状态模拟</h3>
+          <div class="inline-row"><button type="button" class="secondary" data-cb-sim="event">模拟事件到达</button><button type="button" class="secondary" data-cb-sim="interrupt">模拟回调中断</button></div>
         </div>
       </section>
       <section id="replyView" class="config-section" hidden>
@@ -665,22 +696,73 @@
       <div id="authChecklist"></div>
     </div>
     <div class="manual-result" id="manualResult" hidden></div>
+    <div class="auth-callback" id="authCallbackPanel" hidden>
+      <strong>消息回调配置（安全模式）</strong>
+      <div class="cb-help" style="margin:10px 0 16px">
+        ① 先到 <b>微信开发者平台 → 我的业务 → 公众号 → 消息与事件推送</b>：填入<b>平台统一的回调地址</b>；Token 自行填写或让微信随机生成；<b>加解密方式选「安全模式」</b>；数据格式选 XML；点「提交」。<br>
+        ② 提交后，把微信后台里的 <b>Token</b> 与 <b>EncodingAESKey</b> 复制到下方两个输入框，保持完全一致。
+      </div>
+      <label class="field cb-field">Token<input id="wizToken" maxlength="32" autocomplete="off" spellcheck="false" placeholder="从微信后台复制 Token 粘贴到这里"><small>3–32 位（以微信后台的校验规则为准）</small><span class="field-error" id="wizTokenError" hidden></span></label>
+      <label class="field cb-field">EncodingAESKey<input id="wizAesKey" maxlength="43" autocomplete="off" spellcheck="false" placeholder="从微信后台复制 EncodingAESKey 粘贴到这里"><small>必须 43 位</small><span class="field-error" id="wizAesKeyError" hidden></span></label>
+      <div class="cb-check" id="authCallbackCheck" hidden></div>
+    </div>
   </div>
-  <div class="modal-actions"><button type="button" class="secondary" id="cancelAuth">关闭</button><button type="button" class="primary" id="manualSubmit">校验并接入</button><button type="button" class="primary" id="completeAuth" hidden>完成接入</button></div>
+  <div class="modal-actions"><button type="button" class="secondary" id="cancelAuth">关闭</button><button type="button" class="primary" id="manualSubmit">校验并接入</button><button type="button" class="primary" id="checkCallback" hidden>保存并验证</button><button type="button" class="primary" id="completeAuth" hidden>完成接入</button></div>
 </div></div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <script>
 /*
-研发对接说明：当前账号、草稿和发布状态写入 localStorage，交付时需替换为服务端接口。
-列表中的 account_* 和 authorizer_* 是样例标识，接入后使用微信返回的实际账号标识。
-新增公众号：服务端获取预授权码并生成微信授权页，处理授权回调，核对授权能力后更新账号。
-采集列表：粉丝数、采集状态、最近成功由服务端同步任务提供；最后回调时间取自微信消息／事件回调的接收时间，需服务端在回调入口按公众号记录；封禁时间需明确判定规则和数据来源。
-自动回复：服务端保存规则并处理新关注、消息事件；底部菜单：服务端提交菜单配置。成功后再更新已发布状态。
-地址加入 ?preview=1 可查看授权结果分支并重置本地数据；正常界面不显示这些入口。
+研发对接说明：当前账号、草稿和发布状态写入 localStorage（键名 wechatCollectionPrototypeV10），交付时需替换为服务端接口。
+列表中的 account_* 是样例标识，接入后使用微信返回的 AppID（wx 开头）。
+
+【一、接入与消息回调】
+接入分三步：填写密钥 → 凭证校验（格式 / IP 白名单 / 接口权限）→ 消息回调配置。
+消息回调走「安全模式」，每个公众号一套 Token 与 EncodingAESKey（共 43 位）：
+ 1) 回调地址全平台统一，**不在本页面展示**（由研发在部署时提供，见《实施配置手册》）。
+    多账号路由：POST 包体外层明文 ToUserName（gh_ 原始ID）查表 → 取该账号的 Token/AESKey；
+    安全模式解密后再用内层 appid 二次确认，防止串号。
+    首次 GET 校验请求不带任何账号标识，服务端用「逐 Token 试签名」定出是哪个账号（账号数在百级内成本可忽略）。
+    建议每个公众号的 Token 全局唯一，避免试签名歧义；日志需区分「路由失败」与「验签失败」。
+ 2) Token 与 EncodingAESKey 必须可逆加密存储（验签 / 解密需要原文），不能哈希。
+ 3) 微信首次提交时会发一个 GET 请求（signature/timestamp/nonce/echostr），验签通过并原样返回 echostr 即视为配通。
+    回调网关在每次收到校验/推送时更新该账号的最后事件时间与联通状态（原型为静态演示值）。
+    微信没有「查询推送配置是否正常」的接口，若需主动检测，只能用官方「调试工具」推一条 debug_demo 事件
+    （⚠️ 是否可 API 化待确认）；收到 debug_demo 时须排除出业务统计，不可计入粉丝事件。
+ 4) POST 推送（安全模式）多两个参数 encrypt_type=aes 与 msg_signature；验签用 sha1(sort(token, timestamp, nonce, Encrypt))，
+    解密用 AES-CBC/256bit/PKCS#7，明文结构为 random(16B)+msg_len(4B,网络字节序)+msg+appid，必须校验 appid。
+    无特殊要求时直接回空串或 success（无需加密），业务处理应当异步。
+
+【二、Token / EncodingAESKey 的口径（核心）】
+值的源头在微信侧：运营必须先到「微信开发者平台 → 我的业务 → 公众号 → 消息与事件推送」完成配置
+（填入平台统一的回调地址、填写或随机生成 Token、选「安全模式」、数据格式 XML、点提交），
+再回到本页把微信后台的 Token 与 EncodingAESKey 原样录入，两端必须完全一致。
+  · 输入时务必 trim + 去空格换行（运营从微信后台复制最容易带这些）
+  · EncodingAESKey 固定 43 位；Token 文档只写“任意填写”，我方校验长度须与微信后台的现网限制完全一致（当前按 3–32 位）
+  · 两者都在服务端可逆加密存储（验签 / 解密需要原文），不能哈希
+  · 录入不等于配通：只有收到一条验签通过的推送，状态才算「已联通」
+
+【三、回调状态机】
+unlinked 未配置 → entered 已录入待验证 → connected 已联通（收到过真实推送）
+                                     ↘ interrupted 已中断（曾经联通，现在收不到）
+「未联通」= 状态不是 connected，此时收不到事件，粉丝数不会变化，看板按异常处理。
+⚠️ 不能用「多久没收到事件」判断回调是否正常：低活跃账号本来就没事件。
+
+【四、其它字段】
+ghId（gh_ 原始ID）：从回调包体的 ToUserName 回填，是回调路由的关键，与 AppID 没有换算关系（页面不展示）。
+bannedAt：封禁时间，需明确判定规则与数据来源。
+lastSuccess / lastSync：主动调 API 的同步任务时间，与回调链路互相独立，两者任一异常都要能在看板上看出来。
+粉丝数准确性：事件只给增量，必须有基线（user/get 的 total）与日终对账（datacube/getusersummary、getusercumulate）。
+             本页面不展示基线/对账细节，由服务端保证，卡片上的「今日涨粉」为事件实时累加值。
+
+【五、公众号配置】
+自动回复：一旦配置了消息推送进入开发模式，微信官方后台的自动回复规则即失效，因此此处是唯一入口，服务端需自行处理新关注与消息事件。
+自定义菜单：服务端提交菜单配置，成功后再更新已发布状态（menuDraft 草稿 / menuPublished 已发布的双轨机制）。
+
+地址加入 ?preview=1 可查看权限分支、回调状态模拟按钮并重置本地数据；正常界面不显示这些入口。
 */
 (() => {
   'use strict';
-  const storageKey = 'wechatCollectionPrototypeV8';
+  const storageKey = 'wechatCollectionPrototypeV10';
   const $ = id => document.getElementById(id);
   const previewMode = typeof location !== 'undefined' && new URLSearchParams(location.search).get('preview') === '1';
   $('previewHeader').hidden = !previewMode;
@@ -733,6 +815,15 @@
   const emptyReply = () => ({enabled:false,type:'text',text:'',image:''});
   const emptyReplies = () => ({subscribe:emptyReply()});
   const fullPermissions = () => ({fans:true,reply:true,menu:true});
+  // 自定义菜单：消息类型收敛为三种（发送消息 / 跳转网页 / 跳转小程序），旧数据中的其他类型回落为发送消息
+  // 注意：newMenu / MENU_ACTIONS 被 normalizeMenu 引用，而 normalizeMenu 会在 loadState 里执行，必须定义在最前面
+  const newMenu = () => ({id:'menu_' + Math.random().toString(36).slice(2,10),name:'',action:'text',value:'',children:[]});
+  const MENU_ACTIONS = ['text','image','url','mini'];
+  // ---- 消息回调（安全模式）----
+  // 回调地址全平台统一，不在本页面展示（由研发在部署时提供）。
+  // 值的源头在微信侧：运营先在微信后台配好 Token / EncodingAESKey，再回到本页录入，两边必须保持一致。
+  // 微信后台的校验规则：EncodingAESKey 固定 43 位；Token 文档只说“任意填写”，实际限制需与微信后台对齐（当前按 3–32 位）
+  const TOKEN_MIN = 3, TOKEN_MAX = 32, AESKEY_LEN = 43;
   let ruleSeq = 0;
   const newRuleId = () => 'kr_' + Date.now().toString(36) + '_' + (++ruleSeq);
   // 回复内容类型：当前只支持文字与图片（顺序与微信公众平台后台「添加内容」一致）
@@ -771,27 +862,29 @@
     (Array.isArray(keywords) ? keywords : [keywords]).map(value => newKeyword(value)),
     (Array.isArray(text) ? text : [text]).map(value => Object.assign(newContent('text'), {text: value}))
   );
-  // 演示数据：12 个账号，状态以「正常采集」为主（正常 10 / 临时封禁 1 / 永久封禁 1）
-  //   minutes  = 最近一次同步距今的分钟数
-  //   callback = 最后一条消息回调距今的分钟数（不填 = 尚未收到过回调）
-  //   status   = 采集状态（静态字段，页面不做时间推算）：healthy / tempBan 临时封禁 / permBan 永久封禁 / failed 采集失败
-  //              封禁类型由服务端根据 errcode 反推：temp=48004/45009/45011/40243，perm=50002/50007（账号冻结）
-  //   gainTrend= 近3日净增关注 [前2日, 前1日, 今日]，正=涨粉 负=掉粉；末位即「今日涨粉」，3日合计前端自行求和
-  //              真实出处：微信 datacube/getusersummary（新增/取消关注）+ datacube/getusercumulate
-  //              非「正常采集」账号当期无数据，留空数组 → 卡片显示「—」
+  // 演示数据：12 个账号，覆盖 4 种回调状态
+  //   minutes = 最近一次同步距今的分钟数
+  //   event   = 最后一条回调事件距今的分钟数（不填 = 尚未收到过事件）
+  //   ghId    = 微信原始 ID，即回调包体的 ToUserName；服务端靠它把回调路由到具体账号（页面不展示）
+  //   token / aesKey = 演示值（依次 32 位 / 43 位），真实场景由运营从微信后台录入覆盖；「策略配置」留空表示尚未配置
+  //   callbackStatus = 回调链路状态：unlinked 未配置 / entered 待验证 / connected 已联通 / interrupted 已中断
+  //   status  = 采集状态（静态字段，页面不做时间推算）：healthy / tempBan / permBan / failed / pending
+  //             封禁类型由服务端根据 errcode 反推：temp=48004/45009/45011/40243，perm=50002/50007（账号冻结）
+  //   gainTrend = 近3日净增关注 [前2日, 前1日, 今日]，正=涨粉 负=掉粉；末位即「今日涨粉」，3日合计前端自行求和
+  //               真实出处：订阅消息事件实时累加（今日）+ datacube/getusersummary、getusercumulate（日终对账）
   const seed = [
-    {name:'财富金策',  id:'account_003', fans:42087, status:'healthy', minutes:1, callback:1, gainTrend:[412,388,456]},
-    {name:'大盘智向',  id:'account_004', fans:25687, status:'healthy', minutes:2, callback:3, gainTrend:[236,251,208]},
-    {name:'师兄方向标',id:'account_002', fans:17389, status:'healthy', minutes:3, callback:8, gainTrend:[158,142,176], rules:[['获取研报','研报','最新研报已上传，点击菜单「研报精选」查看目录。']]},
-    {name:'稳健长盈',  id:'account_010', fans:8642,  status:'healthy', minutes:2, callback:2, gainTrend:[86,74,92]},
-    {name:'金牛研报',  id:'account_011', fans:5318,  status:'healthy', minutes:3, callback:17, gainTrend:[52,61,47]},
-    {name:'金策组合',  id:'account_001', fans:2283,  status:'healthy', minutes:1, callback:4, gainTrend:[18,24,21], rules:[['早盘策略',['早盘','开盘策略'],['今日早盘策略已生成，回复「福利」领取组合持仓速览。','早盘观点已更新，点击菜单「今日策略」查看最新仓位建议。']],['领取福利','福利','福利领取入口：点击菜单「稳健组合」→「新人礼包」。']]},
-    {name:'价投笔记',  id:'account_012', fans:1204,  status:'healthy', minutes:4, callback:46, gainTrend:[9,6,11]},
-    {name:'明策组合',  id:'account_005', fans:927,   status:'tempBan', banHours:2,  callback:156},
-    {name:'短线优策',  id:'account_006', fans:916,   status:'healthy', minutes:2, callback:22, gainTrend:[7,4,-2]},
-    {name:'稳步研习社',id:'account_007', fans:397,   status:'healthy', minutes:2, callback:12, gainTrend:[5,3,4]},
-    {name:'金讯先锋',  id:'account_008', fans:1284,  status:'healthy', minutes:3, gainTrend:[-3,6,2]},
-    {name:'策略配置',  id:'account_009', fans:597,   status:'permBan', banHours:72, callback:1640}
+    {name:'财富金策',  id:'account_003', ghId:'gh_9a3f7c21d4e8', fans:42087, status:'healthy', minutes:1, event:1,  gainTrend:[412,388,456], token:'AaYdacJ0WHQe8ozdkoJ44JoeMI5PuBhV', aesKey:'Iif4v2rMKTPCNesSUgfz1DJ38vesNcasVizuKHjADT5'},
+    {name:'大盘智向',  id:'account_004', ghId:'gh_2b8d5e94f1a7', fans:25687, status:'healthy', minutes:2, event:3,  gainTrend:[236,251,208], token:'es1Gc4zH8qSfoum0YdgxBHcTElv35AkU', aesKey:'EE1mMfyfLGfbu2kojqEDqb9Vjo0BbDLaoWUXhZdkbi9'},
+    {name:'师兄方向标',id:'account_002', ghId:'gh_6c1a9f37b2e5', fans:17389, status:'healthy', minutes:3, event:8,  gainTrend:[158,142,176], rules:[['获取研报','研报','最新研报已上传，点击菜单「研报精选」查看目录。']], token:'mW0XA5lFa6mNJLtlVQoMT01HBqx49CjJ', aesKey:'vagmYbLnZBRIXC0kuKVA5D5CRL2uz9cv3iRg5Bk2o2D'},
+    {name:'稳健长盈',  id:'account_010', ghId:'gh_4e7b2c85a9d1', fans:8642,  status:'healthy', minutes:2, event:2,  gainTrend:[86,74,92], token:'bVhGzfWzmgfpMak7eLi1MDwNF0cGK5xP', aesKey:'nLSaxAJbrUGCSdvIkWvKi1V4J0HhpR2bPxksBn0ofGM'},
+    {name:'金牛研报',  id:'account_011', ghId:'gh_8f2d6a13c7b4', fans:5318,  status:'healthy', minutes:3, event:17, gainTrend:[52,61,47], token:'0MXtOvwhV1qrhUkeXhhCQTJjwIRALGUG', aesKey:'qVGrZeM0Eu70Cz4FYLXi6tKPAuDDl2l3TEKJC8zYsKu'},
+    {name:'金策组合',  id:'account_001', ghId:'gh_1d5e8b42f6a9', fans:2283,  status:'healthy', minutes:1, event:4,  gainTrend:[18,24,21], rules:[['早盘策略',['早盘','开盘策略'],['今日早盘策略已生成，回复「福利」领取组合持仓速览。','早盘观点已更新，点击菜单「今日策略」查看最新仓位建议。']],['领取福利','福利','福利领取入口：点击菜单「稳健组合」→「新人礼包」。']], token:'jHJkEoh51gxPpz9S8gPdMVv9vjx2fQH5', aesKey:'1Wia9P9rMEQQ6SnUMfsI3NMCTMWG9Jf1kwihMXMC4WW'},
+    {name:'价投笔记',  id:'account_012', ghId:'gh_7a4c2f96e8b1', fans:1204,  status:'healthy', minutes:4, event:46, gainTrend:[9,6,11], token:'PR0yfRR9MSIcSpxGPinaJHMakB9IQ7kC', aesKey:'GJdt46lnLgdnLXabQ91PrG1P06kgdVX65Hk6XUVvoM9'},
+    {name:'明策组合',  id:'account_005', ghId:'gh_3e9f1b57c2d6', fans:927,   status:'tempBan', banHours:2, token:'oc7eTmDqO5oTfemTPPzIEhAaTJtHKcqL', aesKey:'4xdkUZ6MfTxgXevQexZhydw5edC901b3U67doki48CM'},
+    {name:'短线优策',  id:'account_006', ghId:'gh_5b7d3a68e1f9', fans:916,   status:'healthy', minutes:2, event:22, gainTrend:[7,4,-2], token:'7rMvvVIqWPL7j3a2TFIp1mLrnIL9We8p', aesKey:'DrdKTYic2sWqIrIs7JipA1NrwoCIkznb4UInhyvoEM7'},
+    {name:'稳步研习社',id:'account_007', ghId:'gh_9c2e5f71a4b8', fans:397,   status:'healthy', minutes:2, event:12, gainTrend:[5,3,4], token:'4ac8OvwFxz1bXGiTOfARtTBBZBu6T0xI', aesKey:'VkEVqXaNjic80igOirHJlYVZ5sjzaczSQQZ9MSPTqJU'},
+    {name:'金讯先锋',  id:'account_008', ghId:'gh_2f8a4d16b9c3', fans:1284,  status:'healthy', minutes:3, callbackStatus:'entered', gainTrend:[-3,6,2], token:'fqmMJULhExSWY5yFJSThny6NMZFoq10d', aesKey:'QyCSV8x7xyEdXl6sp6AHIkWy5CyPjMpaJsseeGiwZBO'},
+    {name:'策略配置',  id:'account_009', ghId:'gh_6b3c9e28d7f1', fans:597,   status:'permBan', banHours:72, callbackStatus:'unlinked'}
   ];
   const validDateValue = value => typeof value === 'string' && !Number.isNaN(new Date(value).getTime());
   function makeAccount(name,id,fans,status,options = {}) {
@@ -799,22 +892,35 @@
     const healthy = status === 'healthy';
     const banned = status === 'tempBan' || status === 'permBan';
     const offset = options.minutes != null ? options.minutes : 2;
+    const banHours = options.banHours != null ? options.banHours : 2;
+    // 回调链路状态：默认跟随账号健康度，可用 options.callbackStatus 覆盖
+    const callbackStatus = options.callbackStatus || (banned ? 'interrupted' : healthy ? 'connected' : 'unlinked');
+    const connected = callbackStatus === 'connected';
+    const eventMinutes = options.event != null ? options.event : offset;
     const a = {
       name, id,
+      ghId: options.ghId || '',
       fans: status === 'pending' ? 0 : fans,
       status,
       authStatus: Object.values(permissions).every(Boolean) ? 'authorized' : 'limited',
       permissions,
       monitor: Object.assign(defaultMonitor(), options.monitor || {}),
-      lastSuccess: status === 'pending' ? '' : banned ? hoursAgo(options.banHours != null ? options.banHours : 2) : minutesAgo(offset),
-      lastSync: status === 'pending' ? '' : banned ? hoursAgo(options.banHours != null ? options.banHours : 2) : minutesAgo(offset),
-      lastCallbackAt: options.callback != null ? minutesAgo(options.callback) : '',
+      lastSuccess: status === 'pending' ? '' : banned ? hoursAgo(banHours) : minutesAgo(offset),
+      lastSync: status === 'pending' ? '' : banned ? hoursAgo(banHours) : minutesAgo(offset),
+      // 消息回调（安全模式）：Token / EncodingAESKey 由运营从微信后台录入，两头必须一致；服务端可逆加密存储
+      callback: {
+        token: options.token || '',
+        aesKey: options.aesKey || '',
+        mode: 'safe',
+        status: callbackStatus,
+        lastEventAt: connected ? minutesAgo(eventMinutes) : callbackStatus === 'interrupted' ? hoursAgo(banHours) : ''
+      },
       replyDraft: emptyReplies(), replyPublished: emptyReplies(), replyPublishedAt: {subscribe:''},
       keywordEnabled: false,
       keywordRules: (options.rules || []).map(rule => seedRule(rule[0],rule[1],rule[2])),
       menuDraft: [], menuPublished: [], menuPublishedAt: '',
       gainTrend: Array.isArray(options.gainTrend) ? options.gainTrend.slice(-3).map(Number) : [],
-      bannedAt: banned ? hoursAgo(options.banHours != null ? options.banHours : 2) : ''
+      bannedAt: banned ? hoursAgo(banHours) : ''
     };
     if (healthy) {
       a.replyDraft.subscribe = {enabled:true,type:'text',text:'欢迎关注！每个交易日 8:30 推送早盘策略，点击菜单「今日策略」查看最新观点。',image:''};
@@ -827,16 +933,15 @@
   function loadState() {
     try {
       let raw = localStorage.getItem(storageKey);
-      // V7 升级 V8：去掉暂停态，旧数据自动迁移为正常
+      // V9 升级 V10：回调配置改为“微信侧录入”，只保留 status / token / aesKey / lastEventAt
       if (!raw) {
-        const legacy = localStorage.getItem('wechatCollectionPrototypeV7');
-        if (legacy) { raw = legacy; localStorage.removeItem('wechatCollectionPrototypeV7'); }
+        const legacy = localStorage.getItem('wechatCollectionPrototypeV9');
+        if (legacy) { raw = legacy; localStorage.removeItem('wechatCollectionPrototypeV9'); }
       }
       const data = JSON.parse(raw);
       if (data && Array.isArray(data.accounts) && data.accounts.every(a => a && a.id && a.permissions && a.monitor)) {
         data.accounts.forEach(a => {
           if (/^demo_(account_|authorizer_)/.test(a.id)) a.id = a.id.slice(5);
-          if (!validDateValue(a.lastCallbackAt)) a.lastCallbackAt = '';
           delete a.enabled;
           if (a.status === 'paused') a.status = 'healthy';
           if (a.status === 'error') a.status = 'failed';   // 历史值兼容
@@ -847,6 +952,24 @@
           a.keywordRules = (Array.isArray(a.keywordRules) ? a.keywordRules : []).map(normalizeRule);
           a.menuDraft = (Array.isArray(a.menuDraft) ? a.menuDraft : []).map(normalizeMenu);
           a.menuPublished = (Array.isArray(a.menuPublished) ? a.menuPublished : []).map(normalizeMenu);
+          // V10：回调配置（值由运营从微信后台录入，两边保持一致）
+          if (typeof a.ghId !== 'string') a.ghId = '';
+          delete a.keyUpdatedAt;
+          if (!a.callback || typeof a.callback !== 'object') a.callback = {};
+          const cb = a.callback;
+          delete cb.url;
+          if (typeof cb.token !== 'string') cb.token = '';
+          if (typeof cb.aesKey !== 'string') cb.aesKey = '';
+          cb.mode = 'safe';
+          if (!['connected','entered','interrupted','unlinked'].includes(cb.status)) cb.status = a.status === 'healthy' ? 'entered' : 'unlinked';
+          if (!validDateValue(cb.lastEventAt)) cb.lastEventAt = '';
+          delete cb.connectedAt;
+          // 旧版本只有 lastCallbackAt，迁移为「最后事件时间」
+          if (!cb.lastEventAt && validDateValue(a.lastCallbackAt)) cb.lastEventAt = a.lastCallbackAt;
+          delete a.lastCallbackAt;
+          // 已移除的字段：对账与基线相关
+          ['lastMsgAt','baseFansAt','baseFans','eventDelta','reconcileDiff','diffThreshold','todayEvents'].forEach(key => delete cb[key]);
+          if (cb.status === 'connected' && (!cb.token || !cb.aesKey)) cb.status = 'entered';   // 缺值不可能真的联通
         });
         return data;
       }
@@ -860,7 +983,7 @@
   let ruleIsNew = false, ruleFormError = false, ruleQuery = '', contentMenuOpen = false;
   let openSubMenuId = '';
   const menuWorking = new Map();
-  let authMode = 'new', authTargetId = '', authPhase = 'waiting';
+  let authMode = 'new', authTargetId = '', authPhase = 'waiting', pendingCallback = null;
   let configTab = 'reply', configReturnFocusId = '', authReturnToConfig = false, returnConfigTab = 'reply';
   const account = id => state.accounts.find(a => a.id === id);
   const activeAccount = () => account(activeAccountId);
@@ -879,35 +1002,55 @@
   }
   // 采集状态为静态字段，直接读 a.status，不做基于时间或权限的实时推算
   function statusOf(a) {
-    if (a.status === 'tempBan' || a.status === 'permBan') return a.status;
+    if (a.status === 'tempBan' || a.status === 'permBan' || a.status === 'pending') return a.status;
     if (a.status !== 'healthy') return 'failed';
     return 'healthy';
   }
-  // 状态取值：healthy 正常采集 / tempBan 临时封禁 / permBan 永久封禁 / failed 采集失败
+  // 状态取值：healthy 正常采集 / tempBan 临时封禁 / permBan 永久封禁 / failed 采集失败 / pending 待首次同步
   // 封禁类型由服务端同步任务按 errcode 反推：temp=48004 接口被封禁、45009/45011 超频、40243 密钥冻结；perm=50002、50007 账号冻结
-  const statusText = {healthy:'正常采集', tempBan:'临时封禁', permBan:'永久封禁', failed:'采集失败'};
-  const statusTone = {healthy:'tone-healthy', tempBan:'tone-stale', permBan:'tone-error', failed:'tone-error'};
+  const statusText = {healthy:'正常采集', tempBan:'临时封禁', permBan:'永久封禁', failed:'采集失败', pending:'待首次同步'};
+  const statusTone = {healthy:'tone-healthy', tempBan:'tone-stale', permBan:'tone-error', failed:'tone-error', pending:'tone-idle'};
   const statusTag = a => `<span class="pill ${statusTone[statusOf(a)]}">${statusText[statusOf(a)]}</span>`;
+  // 采集异常（接口/账号维度）：非正常采集都算，含封禁与尚未完成首次同步
+  const isSyncAbnormal = a => statusOf(a) !== 'healthy';
+  // 回调链路状态：unlinked 未配置 / entered 已录入待验证 / connected 已联通 / interrupted 已中断
+  const CALLBACK_STATUS_TEXT = {connected:'已联通', entered:'待验证', interrupted:'已中断', unlinked:'未配置'};
+  const CALLBACK_STATUS_TONE = {connected:'tone-healthy', entered:'tone-stale', interrupted:'tone-error', unlinked:'tone-idle'};
+  // 未联通：只要不是 connected，就收不到事件，粉丝数就不会变
+  const callbackNotLinked = a => !a || !a.callback || a.callback.status !== 'connected';
+  const callbackWarnText = a => {
+    const status = a && a.callback ? a.callback.status : '';
+    return status === 'connected' ? '' : (CALLBACK_STATUS_TEXT[status] || '未配置');
+  };
+  // 卡片左侧色条：采集状态异常优先，其次看回调是否联通
+  function cardTone(a) {
+    const status = statusOf(a);
+    if (status !== 'healthy') return statusTone[status];
+    const cbStatus = a.callback ? a.callback.status : 'unlinked';
+    if (cbStatus === 'connected') return 'tone-healthy';
+    return cbStatus === 'interrupted' ? 'tone-error' : 'tone-stale';
+  }
+  const cbWarnTag = a => { const text = callbackWarnText(a); return text ? `<span class="pill tone-stale">回调${text}</span>` : ''; };
   function metaBlock(label,value,hover) {
     return `<div class="meta" title="${esc(hover)}"><div class="meta-label">${label}</div><div class="meta-value${value === '—' ? ' dim' : ''}">${esc(value)}</div></div>`;
   }
   function renderAccountCard(a) {
-    const status = statusOf(a);
     const hasFans = can(a,'fans') && !!a.lastSuccess;
     const fans = hasFans ? Number(a.fans || 0).toLocaleString('zh-CN') : '—';
-    const callback = fmtTable(a.lastCallbackAt);
+    const cb = a.callback || {};
+    const lastEvent = fmtTable(cb.lastEventAt);
     const banned = fmtTable(a.bannedAt);
     const trend = gainTrendOf(a);
     const today = todayGainOf(a);
     const sum3 = trend.length ? trend.reduce((sum,value) => sum + value, 0) : null;
     const todayTone = today == null || today === 0 ? '' : today > 0 ? ' up' : ' down';
-    return `<article class="account-card ${statusTone[status]}${a.id === activeAccountId ? ' selected-card' : ''}">
+    return `<article class="account-card ${cardTone(a)}${a.id === activeAccountId ? ' selected-card' : ''}">
       <button type="button" class="card-config" data-action="config" data-id="${esc(a.id)}" aria-label="配置 ${esc(a.name)}" title="配置">⚙️</button>
       <div class="card-head">
         <span class="card-avatar" aria-hidden="true">${esc((a.name || '公').slice(0,1))}</span>
         <div class="card-title"><div class="name" title="${esc(a.name)}">${esc(a.name)}</div><div class="id">${esc(a.id)}</div></div>
       </div>
-      <div class="card-status">${statusTag(a)}</div>
+      <div class="card-status">${statusTag(a)}${cbWarnTag(a)}</div>
       <div class="card-metric"><span class="fans${hasFans ? '' : ' muted'}">${fans}</span><span class="metric-label">当前粉丝</span></div>
       <div class="card-growth">
         <span class="growth-label">今日涨粉</span><span class="gain${todayTone}">${today == null ? '—' : signedGain(today)}</span>
@@ -915,8 +1058,8 @@
         <span class="growth-sum">3日 ${sum3 == null ? '—' : sum3 > 0 ? '+' + sum3.toLocaleString('zh-CN') : sum3.toLocaleString('zh-CN')}</span>
       </div>
       <div class="card-meta">
-        ${metaBlock('最后回调', callback, a.lastCallbackAt ? `最后回调时间：${fmtTable(a.lastCallbackAt)}` : '尚未收到回调')}
-        ${metaBlock('封禁时间', banned, a.bannedAt ? `封禁时间：${fmtTable(a.bannedAt)}` : '账号正常')}
+        ${metaBlock('最后事件', lastEvent, cb.lastEventAt ? `最后事件时间：${fmtTable(cb.lastEventAt)}` : '尚未收到任何回调事件')}
+        ${metaBlock('封禁时间', banned, a.bannedAt ? `封禁时间：${fmtTable(a.bannedAt)}` : '账号正常，未封禁')}
       </div>
     </article>`;
   }
@@ -933,32 +1076,38 @@
     return list.sort((a,b) => order.get(a.id) - order.get(b.id));
   }
   function countByFilter() {
-    const counts = {all:state.accounts.length,healthy:0,tempBan:0,permBan:0,failed:0};
+    const counts = {all:state.accounts.length,healthy:0,failed:0,tempBan:0,permBan:0,unlinked:0};
     state.accounts.forEach(a => {
       const status = statusOf(a);
-      counts[status] = (counts[status] || 0) + 1;
+      if (status === 'healthy') counts.healthy += 1; else counts.failed += 1;
+      if (status === 'tempBan') counts.tempBan += 1;
+      if (status === 'permBan') counts.permBan += 1;
+      if (callbackNotLinked(a)) counts.unlinked += 1;
     });
     return counts;
+  }
+  function matchesFilter(a) {
+    if (filter === 'all') return true;
+    if (filter === 'healthy') return statusOf(a) === 'healthy';
+    if (filter === 'failed') return isSyncAbnormal(a);
+    if (filter === 'unlinked') return callbackNotLinked(a);
+    return statusOf(a) === filter;
   }
   function renderDashboard() {
     const healthy = state.accounts.filter(a => statusOf(a) === 'healthy');
     $('statTotal').textContent = state.accounts.length;
     $('statHealthy').textContent = healthy.length;
-    $('statIssues').textContent = state.accounts.filter(a => statusOf(a) !== 'healthy').length;
+    $('statIssues').textContent = state.accounts.filter(isSyncAbnormal).length;
     $('statFans').textContent = healthy.reduce((sum,a) => sum + Number(a.fans || 0), 0).toLocaleString('zh-CN');
     const counts = countByFilter();
     document.querySelectorAll('[data-count]').forEach(node => node.textContent = counts[node.dataset.count] ?? 0);
-    document.querySelectorAll('[data-jump-filter]').forEach(node => node.classList.toggle('stat-active', node.dataset.jumpFilter === filter));
+    document.querySelectorAll('[data-stat-key]').forEach(node => node.classList.toggle('stat-active', node.dataset.statKey === filter));
     const query = $('dashboardSearch').value.trim().toLowerCase();
-    const rows = state.accounts.filter(a => {
-      const status = statusOf(a);
-      const matchesFilter = filter === 'all' || filter === status;
-      return matchesFilter && (a.name.toLowerCase().includes(query) || a.id.toLowerCase().includes(query));
-    });
+    const rows = state.accounts.filter(a => matchesFilter(a) && (a.name.toLowerCase().includes(query) || a.id.toLowerCase().includes(query)));
     const list = sortAccounts(rows);
     $('accountGrid').innerHTML = list.length ? list.map(renderAccountCard).join('') : '<div class="empty grid-empty">没有符合条件的公众号</div>';
   }
-  const CONFIG_TITLES = { reply:'自动回复', menu:'自定义菜单' };
+  const CONFIG_TITLES = { reply:'自动回复', menu:'自定义菜单', callback:'消息回调' };
   function renderContext() {
     const a = activeAccount();
     $('reauthorizeAccount').disabled = !a;
@@ -966,20 +1115,50 @@
     $('configAccountName').textContent = a ? a.name : '未选择公众号';
     $('configAccountId').textContent = a ? `公众号 ID：${a.id}` : '—';
     $('configAvatar').textContent = a ? a.name.slice(0,1) : '微';
-    $('selectedAccountSummary').textContent = a ? `授权：${a.authStatus === 'authorized' ? '完整' : '部分'} · 粉丝数据${a.permissions.fans ? '可用' : '未授权'} · 消息回复${a.permissions.reply ? '可用' : '未授权'} · 菜单管理${a.permissions.menu ? '可用' : '未授权'}` : '请从看板选择公众号。';
+    const cbText = a ? (CALLBACK_STATUS_TEXT[a.callback?.status] || '未配置') : '';
+    $('selectedAccountSummary').textContent = a ? `回调${cbText} · 授权${a.authStatus === 'authorized' ? '完整' : '部分'} · 粉丝数据${a.permissions.fans ? '可用' : '未授权'} · 消息回复${a.permissions.reply ? '可用' : '未授权'} · 菜单管理${a.permissions.menu ? '可用' : '未授权'}` : '请从看板选择公众号。';
   }
-  function renderMonitor() {
-    const a = activeAccount(), allowed = can(a,'fans');
-    $('monitorPermission').hidden = allowed;
-    $('monitorPermission').textContent = a ? '当前账号缺少粉丝数据权限，无法启用采集监测。请重新授权。' : '请先添加公众号。';
-    ['staleMinutes','alertTarget','alertEnabled','saveMonitor'].forEach(id => $(id).disabled = !allowed);
-    ['simulateSuccess','simulateError'].forEach(id => $(id).disabled = !allowed);
-    if (!a) { $('monitorSummary').textContent = '暂无监测数据'; return; }
-    $('staleMinutes').value = a.monitor.staleMinutes;
-    $('alertTarget').value = a.monitor.alertTarget;
-    $('alertEnabled').checked = a.monitor.alertEnabled;
-    const alertTriggered = a.monitor.alertEnabled && statusOf(a) !== 'healthy';
-    $('monitorSummary').innerHTML = `${statusTag(a)}　最近同步：${fmt(a.lastSync)}　最近成功：${fmt(a.lastSuccess)}　${alertTriggered ? '页面提醒已触发' : '页面提醒未触发'}`;
+  // ---- 消息回调面板：只负责「录入 Token / AESKey + 看联通状态」----
+  // 值由运营从微信后台录入，两端必须完全一致，否则验签会静默失败
+  function readCbForm() {
+    const token = $('cbToken').value.replace(/\s+/g,'');
+    const aesKey = $('cbAesKey').value.replace(/\s+/g,'');
+    return {token, aesKey};
+  }
+  function validateCbForm(token,aesKey) {
+    let ok = true;
+    const setErr = (errorId, inputId, message) => {
+      $(errorId).textContent = message || ''; $(errorId).hidden = !message;
+      $(inputId).classList.toggle('invalid', !!message);
+      if (message) ok = false;
+    };
+    setErr('cbTokenError','cbToken', !token ? '请填写 Token' : (token.length < TOKEN_MIN || token.length > TOKEN_MAX) ? `Token 需为 ${TOKEN_MIN}–${TOKEN_MAX} 位` : '');
+    setErr('cbAesKeyError','cbAesKey', !aesKey ? '请填写 EncodingAESKey' : aesKey.length !== AESKEY_LEN ? `EncodingAESKey 必须为 ${AESKEY_LEN} 位` : '');
+    return ok;
+  }
+  function clearCbErrors() {
+    [['cbTokenError','cbToken'],['cbAesKeyError','cbAesKey']].forEach(([errorId,inputId]) => {
+      $(errorId).hidden = true; $(errorId).textContent = ''; $(inputId).classList.remove('invalid');
+    });
+  }
+  function renderCallback() {
+    const a = activeAccount();
+    $('callbackPermission').hidden = !!a;
+    $('callbackPermission').textContent = '请先添加公众号。';
+    $('cbSimTools').hidden = !previewMode;
+    if (!a) {
+      $('cbStatusRow').innerHTML = '<span class="cb-head-meta">—</span>';
+      $('cbToken').value = ''; $('cbAesKey').value = '';
+      return;
+    }
+    const cb = a.callback;
+    const status = cb.status;
+    $('cbStatusRow').innerHTML = `
+      <span class="pill ${CALLBACK_STATUS_TONE[status]}">回调${CALLBACK_STATUS_TEXT[status]}</span>
+      <span class="cb-head-meta">最后事件：${fmt(cb.lastEventAt) || '—'}</span>`;
+    $('cbToken').value = cb.token || '';
+    $('cbAesKey').value = cb.aesKey || '';
+    clearCbErrors();
   }
   function renderReply() {
     const a = activeAccount(), allowed = can(a,'reply');
@@ -1271,7 +1450,7 @@
     updateMenuFields();
     updateMenuStatus();
   }
-  function renderAll() { renderDashboard(); renderContext(); renderMonitor(); renderReply(); renderMenu(); }
+  function renderAll() { renderDashboard(); renderContext(); renderCallback(); renderReply(); renderMenu(); }
   function chooseAccount(id) {
     if (!account(id)) return;
     menuImageRequest++;
@@ -1280,7 +1459,7 @@
     renderAll();
   }
   function setConfigTab(tab) {
-    if (!['reply','menu'].includes(tab)) return;
+    if (!['reply','menu','callback'].includes(tab)) return;
     configTab = tab;
     document.querySelectorAll('[data-config-tab]').forEach(button => {
       const selected = button.dataset.configTab === tab;
@@ -1288,9 +1467,9 @@
       button.setAttribute('aria-selected',String(selected));
     });
     $('selectedAccountTitle').textContent = CONFIG_TITLES[tab] || '公众号配置';
-    $('monitorView').hidden = true;
     $('replyView').hidden = tab !== 'reply';
     $('menuView').hidden = tab !== 'menu';
+    $('callbackView').hidden = tab !== 'callback';
     $('configBody').scrollTop = 0;
   }
   function openConfig(id, tab = 'reply') {
@@ -1369,18 +1548,21 @@
     CHECK_DEFS.forEach(item => authChecks[item.key] = {state:'pending',hint:item.hint});
     paintChecklist();
   }
+  // ---- 接入向导：3 步（填写密钥 → 凭证校验 → 消息回调配置）----
   function openAuth(mode = 'new',targetId = '') {
     authReturnToConfig = mode === 'reauth' && $('configModal').classList.contains('open');
     if (authReturnToConfig) { returnConfigTab = configTab; if (!closeConfig(false)) { authReturnToConfig = false; return; } }
     authMode = mode; authTargetId = targetId; authPhase = 'waiting'; authCheckRun++;
-    $('authModalTitle').textContent = mode === 'new' ? '添加公众号 · 手动接入密钥' : '重新授权公众号 · 更新密钥';
-    $('authModalDesc').textContent = mode === 'new' ? '填写公众号的开发者密钥，服务端会用它换取接口调用凭证。' : '更新 AppSecret 可恢复接口调用，已保存的配置与已发布内容不受影响。';
+    pendingCallback = null;
+    $('authModalTitle').textContent = mode === 'new' ? '添加公众号 · 手动接入密钥' : '更新密钥 · 重新校验凭证';
+    $('authModalDesc').textContent = mode === 'new' ? '填写公众号的开发者密钥，并录入微信后台已配置好的 Token 与 EncodingAESKey。' : '更新 AppSecret 可恢复接口调用，已保存的配置与已发布内容不受影响。';
     $('authScenario').value = 'full';
     const target = mode === 'reauth' ? account(targetId) : null;
     $('manualName').value = target ? target.name : '';
     $('manualAppid').value = target ? target.id : '';
     $('manualSecret').value = '';
-    clearFieldErrors(); resetChecks(); renderAuthPhase();
+    $('wizToken').value = ''; $('wizAesKey').value = '';
+    clearFieldErrors(); clearWizCbErrors(); resetChecks(); renderAuthPhase();
     $('authModal').classList.add('open');
     (target ? $('manualSecret') : $('manualName')).focus();
   }
@@ -1391,19 +1573,71 @@
     else $('addAccount').focus();
     authReturnToConfig = false;
   }
+  function clearWizCbErrors() {
+    [['wizTokenError','wizToken'],['wizAesKeyError','wizAesKey']].forEach(([errorId,inputId]) => {
+      $(errorId).hidden = true; $(errorId).textContent = ''; $(inputId).classList.remove('invalid');
+    });
+  }
+  function validateWizCb() {
+    const token = $('wizToken').value.replace(/\s+/g,'');
+    const aesKey = $('wizAesKey').value.replace(/\s+/g,'');
+    let ok = true;
+    const setErr = (errorId, inputId, message) => {
+      $(errorId).textContent = message || ''; $(errorId).hidden = !message;
+      $(inputId).classList.toggle('invalid', !!message);
+      if (message) ok = false;
+    };
+    setErr('wizTokenError','wizToken', !token ? '请填写 Token' : (token.length < TOKEN_MIN || token.length > TOKEN_MAX) ? `Token 需为 ${TOKEN_MIN}–${TOKEN_MAX} 位` : '');
+    setErr('wizAesKeyError','wizAesKey', !aesKey ? '请填写 EncodingAESKey' : aesKey.length !== AESKEY_LEN ? `EncodingAESKey 必须为 ${AESKEY_LEN} 位` : '');
+    if (ok) pendingCallback = {token, aesKey};
+    return ok;
+  }
+  function renderAuthCallback() {
+    const cb = authMode === 'reauth' ? account(authTargetId)?.callback : null;
+    if (cb && $('wizToken').value === '' && $('wizAesKey').value === '') {
+      $('wizToken').value = cb.token || '';
+      $('wizAesKey').value = cb.aesKey || '';
+    }
+    let text = '⏳ 尚未验证。请先按上方指引在微信后台完成配置，把 Token 与 EncodingAESKey 填到下面，再点「保存并验证」。';
+    let tone = '';
+    if (authMode === 'reauth' && authPhase === 'done') {
+      const status = cb ? cb.status : 'unlinked';
+      if (status === 'connected') { text = '✅ 该公众号回调已联通，本次只需更新密钥，无需改动回调配置。'; tone = 'ok'; }
+      else { text = `⚠️ 该公众号回调当前为「${CALLBACK_STATUS_TEXT[status] || '未配置'}」，更新密钥后请一并检查微信后台的消息推送配置。`; tone = 'bad'; }
+    } else if (authPhase === 'callbackChecking') {
+      text = '⏳ 等待微信验证请求…（若长时间无响应，请回微信后台再点一次「提交」触发校验）';
+    } else if (authPhase === 'done' && authMode !== 'reauth') {
+      text = '✅ 已保存，等待微信推送第一条事件即转为「已联通」。';
+      tone = 'ok';
+    }
+    $('authCallbackCheck').hidden = false;
+    $('authCallbackCheck').className = `cb-check${tone ? ' ' + tone : ''}`;
+    $('authCallbackCheck').innerHTML = text;
+  }
   function renderAuthPhase() {
-    const waiting = authPhase === 'waiting', checking = authPhase === 'checking', approved = authPhase === 'approved';
+    const waiting = authPhase === 'waiting';
+    const checking = authPhase === 'checking';
+    const keyApproved = authPhase === 'keyApproved';
+    const callbackChecking = authPhase === 'callbackChecking';
+    const done = authPhase === 'done';
     const locked = authMode === 'reauth';
-    $('manualSubmit').hidden = !waiting; $('completeAuth').hidden = !approved; $('manualResult').hidden = !approved;
+    const showCallback = keyApproved || callbackChecking || done;
+    $('manualSubmit').hidden = !waiting;
+    $('checkCallback').hidden = !keyApproved || locked;
+    $('completeAuth').hidden = !done;
+    $('manualResult').hidden = !showCallback;
     $('authCheckPanel').hidden = waiting;
-    $('authCheckHint').textContent = checking ? '正在向微信逐项校验，请勿关闭。' : '校验完成，确认结果后点击「完成接入」。';
+    $('authCallbackPanel').hidden = !showCallback;
+    $('authCheckHint').textContent = checking ? '正在向微信逐项校验，请勿关闭。' : '凭证校验完成，接下来录入消息回调配置。';
     $('authScenario').disabled = !waiting;
     $('manualName').disabled = locked; $('manualAppid').disabled = locked;
     $('manualSecret').disabled = !waiting;
-    $('authSteps').innerHTML = ['1 填写密钥','2 凭证校验','3 接入监测'].map(text => `<span>${text}</span>`).join('');
-    const active = waiting ? 0 : checking ? 1 : 1;
+    $('wizToken').disabled = !keyApproved || locked; $('wizAesKey').disabled = !keyApproved || locked;
+    $('authSteps').innerHTML = ['1 填写密钥','2 凭证校验','3 消息回调配置'].map(text => `<span>${text}</span>`).join('');
+    const active = waiting ? 0 : checking ? 1 : 2;
     document.querySelectorAll('#authSteps span').forEach((step,index) => step.classList.toggle('active', index === active));
-    if ($('authModal').classList.contains('open')) (waiting ? $('manualSubmit') : approved ? $('completeAuth') : $('cancelAuth')).focus();
+    if (showCallback) renderAuthCallback();
+    if ($('authModal').classList.contains('open')) (waiting ? $('manualSubmit') : keyApproved && !locked ? $('checkCallback') : done ? $('completeAuth') : $('cancelAuth')).focus();
   }
   function readImage(file) { return new Promise((resolve,reject) => { const reader = new FileReader(); reader.onload = () => resolve(reader.result); reader.onerror = reject; reader.readAsDataURL(file); }); }
   function validImage(file) { return ['image/png','image/jpeg','image/gif','image/webp'].includes(file.type) && file.size <= 1024 * 1024; }
@@ -1418,9 +1652,6 @@
     }
     return '';
   }
-  const newMenu = () => ({id:'menu_' + Math.random().toString(36).slice(2,10),name:'',action:'text',value:'',children:[]});
-  // 消息类型收敛为三种：发送消息(text/image)、跳转网页(url)、跳转小程序(mini)；旧数据中的其他类型回落为发送消息
-  const MENU_ACTIONS = ['text','image','url','mini'];
   function normalizeMenu(item) {
     const base = newMenu();
     if (!item || typeof item !== 'object') return base;
@@ -1494,44 +1725,78 @@
       paintChecklist();
     }
     if (run !== authCheckRun || !$('authModal').classList.contains('open')) return;
-    authPhase = 'approved';
+    // 回调配置的取值不再由我方生成，改为运营在下一步从微信后台录入
+    pendingCallback = null;
+    authPhase = 'keyApproved';
     $('manualResult').innerHTML = `凭证校验通过：<b>${esc(v.name)}</b>（<b>${esc(v.appid)}</b>）<br>已获得权限：粉丝数据${permissions.fans ? '已授权' : '未授权'}、消息回复${permissions.reply ? '已授权' : '未授权'}、菜单管理${permissions.menu ? '已授权' : '未授权'}<br>密钥已加密存入服务端，浏览器不保留明文。`;
     renderAuthPhase();
+    // 更新密钥场景：回调配置已存在，跳过第 3 步
+    if (authMode === 'reauth') { authPhase = 'done'; renderAuthPhase(); }
+  });
+  $('checkCallback').addEventListener('click',async () => {
+    if (authPhase !== 'keyApproved') return;
+    if (!validateWizCb()) { toast('请检查 Token 与 EncodingAESKey'); return; }
+    authPhase = 'callbackChecking'; renderAuthPhase();
+    const run = ++authCheckRun;
+    await new Promise(done => setTimeout(done,1400));
+    if (run !== authCheckRun || !$('authModal').classList.contains('open')) return;
+    // 真实实现：微信在后台点「提交」时会发一次 GET 验签请求（signature/timestamp/nonce/echostr），
+    // 服务端用该账号的 Token 校验通过后即视为联通，并从 POST 包体的 ToUserName 回填 gh_ 原始ID。
+    // 这里仅模拟“等待到一次验签请求”的结果。
+    authPhase = 'done'; renderAuthPhase();
+    toast('已保存。收到微信第一条推送后状态会变为「已联通」');
   });
   $('completeAuth').addEventListener('click',() => {
-    if (authPhase !== 'approved') return;
+    if (authPhase !== 'done') return;
     const v = manualValues(), permissions = permissionsForScenario($('authScenario').value);
     if (authMode === 'new') {
       if (!v.appid || account(v.appid)) { toast('此公众号已接入，不能重复添加'); return; }
-      state.accounts.push(makeAccount(v.name,v.appid,0,'pending',{permissions})); activeAccountId = v.appid;
+      // 新账号：密钥 + 已录入的回调配置一并落库；状态为「待验证」，收到第一条推送才转「已联通」
+      state.accounts.push(makeAccount(v.name,v.appid,0,'pending',{
+        permissions,
+        token: pendingCallback ? pendingCallback.token : '',
+        aesKey: pendingCallback ? pendingCallback.aesKey : '',
+        callbackStatus: 'entered'
+      }));
+      activeAccountId = v.appid;
     } else {
       const a = account(authTargetId); if (!a) return;
-      a.permissions = permissions; a.authStatus = Object.values(permissions).every(Boolean) ? 'authorized' : 'limited'; activeAccountId = a.id;
+      a.permissions = permissions; a.authStatus = Object.values(permissions).every(Boolean) ? 'authorized' : 'limited';
+      activeAccountId = a.id;
     }
-    const saved = saveState(); renderAll(); if (saved) { closeAuth(); toast(Object.values(permissions).every(Boolean) ? '密钥校验通过，等待首次同步' : '已接入，但部分权限缺失'); }
+    const saved = saveState(); renderAll(); if (saved) { closeAuth(); toast(Object.values(permissions).every(Boolean) ? '已接入，等待首次数据同步' : '已接入，但部分权限缺失'); }
   });
-  $('saveMonitor').addEventListener('click',() => {
-    const a = activeAccount(); if (!can(a,'fans')) return;
-    const staleMinutes = Number($('staleMinutes').value);
-    if (!Number.isInteger(staleMinutes) || staleMinutes < 1 || staleMinutes > 1440) { toast('超时阈值需为 1–1440 分钟'); return; }
-    a.monitor = {staleMinutes,alertTarget:$('alertTarget').value.trim(),alertEnabled:$('alertEnabled').checked};
-    const saved = saveState(); renderAll(); if (saved) toast('监测规则已保存');
+  // ---- 消息回调面板：保存录入 + 连通性检测（模拟器仅开发预览可见）----
+  $('cbSave').addEventListener('click',() => {
+    const a = activeAccount(); if (!a) return;
+    const {token, aesKey} = readCbForm();
+    if (!validateCbForm(token,aesKey)) { toast('请检查 Token 与 EncodingAESKey'); return; }
+    const changed = token !== a.callback.token || aesKey !== a.callback.aesKey;
+    a.callback.token = token; a.callback.aesKey = aesKey;
+    // 值一变就必须重新验证；即便没变，只要当前不是已联通也回到「待验证」
+    a.callback.status = a.callback.status === 'connected' && !changed ? 'connected' : 'entered';
+    const saved = saveState(); renderAll();
+    if (saved) toast(changed ? '已保存，请回微信后台再点一次「提交」触发校验' : '未检测到改动');
   });
-  $('simulateSuccess').addEventListener('click',() => {
-    const a = activeAccount(); if (!can(a,'fans')) return;
-    a.status = 'healthy'; a.lastSuccess = now(); a.lastSync = now(); a.fans = Number(a.fans || 0) + 1;
-    a.bannedAt = '';   // 同步成功即视为封禁已解除
-    bumpTodayGain(a);
-    const saved = saveState(); renderAll(); if (saved) toast('同步成功，粉丝数已更新');
-  });
-  // 涨粉趋势：同步成功时今日净增 +1，与「当前粉丝 +1」保持一致
+  // 涨粉趋势：收到关注事件时今日净增 +1，与「当前粉丝 +1」保持一致
   function bumpTodayGain(a) {
     if (gainTrendOf(a).length !== 3) return;
     a.gainTrend[a.gainTrend.length - 1] = Number(a.gainTrend[a.gainTrend.length - 1]) + 1;
   }
-  $('simulateError').addEventListener('click',() => {
-    const a = activeAccount(); if (!can(a,'fans')) return;
-    a.status = 'failed'; a.lastSync = now(); const saved = saveState(); renderAll(); if (saved) toast('同步失败');
+  $('callbackView').addEventListener('click',event => {
+    const a = activeAccount(); if (!a) return;
+    const sim = event.target.closest('[data-cb-sim]');
+    if (!sim) return;
+    const cb = a.callback;
+    if (sim.dataset.cbSim === 'event') {
+      cb.status = 'connected'; cb.lastEventAt = now();
+      a.fans = Number(a.fans || 0) + 1;
+      bumpTodayGain(a);
+      const saved = saveState(); renderAll(); if (saved) toast('已模拟：收到一条关注事件，粉丝 +1');
+    } else {
+      cb.status = 'interrupted';
+      const saved = saveState(); renderAll(); if (saved) toast('已模拟：回调中断，实时涨粉停止累加');
+    }
   });
   document.querySelectorAll('[data-reply-tab]').forEach(button => button.addEventListener('click',() => {
     if (replyTab === button.dataset.replyTab) return;
@@ -1695,6 +1960,7 @@
     if (event.target.closest('#contentMenu') || event.target.closest('#addContent')) return;
     contentMenuOpen = false; $('contentMenu').hidden = true;
   });
+  // 页面消失前先收起内容类型下拉菜单
   $('saveRule').addEventListener('click',() => {
     const a = activeAccount(); if (!can(a,'reply') || !ruleBuffer) return;
     ruleBuffer.name = (ruleBuffer.name || '').trim();
@@ -1812,6 +2078,7 @@
     if (!confirm('重置后，本浏览器保存的账号和配置会被清除。确定重置吗？')) return;
     state = initialState(); activeAccountId = state.accounts[0]?.id || ''; selectedMenuId = '';
     menuWorking.clear(); menuImageRequest++; imageRequest++;
+    pendingCallback = null;
     const saved = saveState(); renderAll(); if (saved) toast('本地数据已重置');
   });
   renderContentMenu();
