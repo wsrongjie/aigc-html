@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>甲方看板 · 授权配置</title>
+  <style>
+    :root { color-scheme: light; --bg:#f5f7f8; --paper:#fff; --ink:#243239; --muted:#65747c; --line:#e8edef; --accent:#157d72; --soft:#eaf5f2; --red:#b8484b; --amber:#956c24; }
+    * { box-sizing:border-box; }
+    body { margin:0; color:var(--ink); background:var(--bg); font-family:"PingFang SC","Microsoft YaHei",sans-serif; font-size:13px; line-height:1.6; }
+    button,input,textarea { font:inherit; }
+    button,a,input,textarea { -webkit-tap-highlight-color:transparent; }
+    button { cursor:pointer; }
+    button:disabled { cursor:default; opacity:.65; }
+    button:focus-visible,a:focus-visible { outline:3px solid #85c9bf; outline-offset:3px; }
+    a { color:var(--accent); text-decoration:none; }
+    a:hover { text-decoration:underline; }
+    h1,h2,h3,p { margin:0; }
+    .topbar { height:65px; background:var(--paper); border-bottom:1px solid var(--line); display:flex; align-items:center; justify-content:space-between; padding:0 36px; }
+    .brand { display:flex; align-items:center; gap:11px; font-weight:700; font-size:15px; }
+    .brand-mark { width:29px; height:29px; border-radius:8px; background:var(--accent); display:grid; grid-template-columns:repeat(2,5px); gap:3px; place-content:center; transform:rotate(-3deg); }
+    .brand-mark i { width:5px; height:5px; background:white; border-radius:1px; }
+    .top-right { display:flex; align-items:center; gap:17px; color:var(--muted); font-size:12px; }
+    main { max-width:1480px; margin:auto; padding:32px 36px 50px; }
+    .heading { display:flex; align-items:flex-end; justify-content:space-between; gap:20px; margin-bottom:24px; }
+    .eyebrow { font-size:10px; font-weight:700; letter-spacing:1.8px; color:var(--accent); margin-bottom:5px; }
+    h1 { font-size:25px; line-height:1.4; letter-spacing:-.5px; }
+    .subtitle { color:var(--muted); font-size:12px; margin-top:6px; }
+    .stats { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); background:var(--paper); border:1px solid var(--line); border-radius:10px; margin-bottom:25px; }
+    .stat { padding:16px 23px; position:relative; }
+    .stat:not(:last-child)::after { content:""; position:absolute; right:0; top:21px; bottom:21px; width:1px; background:var(--line); }
+    .stat-label { color:var(--muted); font-size:12px; }
+    .stat-value { font-family:"Bahnschrift","DIN Alternate",sans-serif; font-size:27px; font-weight:600; line-height:1.2; margin-top:6px; }
+    .stat-value small { font-family:"Microsoft YaHei",sans-serif; font-size:11px; font-weight:400; margin-left:6px; color:var(--muted); }
+    .toolbar { display:flex; align-items:center; justify-content:space-between; gap:14px; margin-bottom:15px; }
+    .client-section-title { font-size:13px; font-weight:600; }
+    .search { display:flex; align-items:center; gap:7px; color:var(--muted); }
+    .search input { width:190px; padding:7px 10px; border:1px solid var(--line); border-radius:6px; background:var(--paper); outline:none; }
+    .search input:focus { border-color:var(--accent); box-shadow:0 0 0 3px var(--soft); }
+    .client-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:15px; }
+    .card { position:relative; cursor:pointer; background:var(--paper); border:1px solid var(--line); border-radius:10px; padding:19px 18px 15px; min-width:0; transition:border-color .16s,box-shadow .16s; }
+    .card:hover { border-color:#cbdcda; box-shadow:0 4px 15px #203f3810; }
+    .card-top { display:flex; justify-content:space-between; gap:8px; align-items:center; margin-bottom:17px; }
+    .identity { display:flex; gap:10px; align-items:center; min-width:0; }
+    .avatar { flex-shrink:0; width:36px; height:36px; border-radius:9px; background:var(--avatar-bg,#eaf3f0); color:var(--avatar-ink,#438275); display:grid; place-items:center; font-weight:700; font-size:16px; }
+    .identity h2 { font-size:14px; white-space:nowrap; }
+    .client-code { color:#65777f; font-size:10px; letter-spacing:.7px; font-family:"Bahnschrift",sans-serif; }
+    .auth-btn { position:relative; z-index:1; border:1px solid #d5e6e2; background:#f8fcfb; color:var(--accent); border-radius:5px; padding:5px 8px; font-size:11px; white-space:nowrap; }
+    .auth-btn:hover { background:var(--soft); border-color:#accfc7; }
+    .badge { display:inline-flex; align-items:center; gap:5px; color:var(--muted); font-size:11px; }
+    .badge::before { content:""; width:5px; height:5px; border-radius:50%; background:currentColor; }
+    .badge.normal { color:var(--accent); }
+    .badge.expired { color:var(--amber); }
+    .badge.error { color:var(--red); }
+    .badge.verifying { color:#4e83ad; }
+    .method { color:var(--muted); font-size:11px; margin-left:8px; border-left:1px solid var(--line); padding-left:9px; }
+    .card-note { font-size:11px; color:#647781; margin-top:9px; min-height:35px; }
+    .card-note.needs { color:#a17238; }
+    .card-note.failure { color:#ad6466; }
+    .card-footer { display:flex; align-items:center; justify-content:space-between; border-top:1px solid var(--line); padding-top:11px; margin-top:12px; gap:8px; font-size:10px; color:var(--muted); }
+    .card-footer time { color:#55656d; font-variant-numeric:tabular-nums; white-space:nowrap; }
+    .detail-link { display:inline-block; margin-top:8px; font-size:10px; color:var(--accent); }
+    .detail-link::after { content:""; position:absolute; inset:0; border-radius:10px; }
+    .detail-link:focus-visible { outline:none; }
+    .detail-link:focus-visible::after { outline:3px solid #85c9bf; outline-offset:3px; }
+    .empty { grid-column:1/-1; padding:50px; text-align:center; background:white; border:1px dashed var(--line); border-radius:10px; color:var(--muted); }
+    dialog { width:min(590px,calc(100vw - 32px)); max-height:calc(100dvh - 48px); padding:0; border:1px solid #dee7e6; border-radius:13px; background:white; color:var(--ink); box-shadow:0 25px 100px #132d3838; overflow:hidden; }
+    dialog::backdrop { background:#273b4555; backdrop-filter:blur(3px); }
+    .dialog-shell { display:flex; flex-direction:column; max-height:calc(100dvh - 50px); }
+    .dialog-header { display:flex; align-items:center; justify-content:space-between; padding:21px 25px 19px; border-bottom:1px solid var(--line); flex-shrink:0; }
+    .dialog-title { display:flex; align-items:center; gap:12px; }
+    .dialog-title h2 { font-size:17px; }
+    .dialog-title p { color:var(--muted); font-size:11px; margin-top:2px; }
+    .close { border:0; background:#f4f7f7; color:#71828a; border-radius:6px; width:29px; height:29px; font-size:21px; line-height:1; }
+    .close:hover { background:#e9efef; }
+    .dialog-body { padding:22px 25px 20px; overflow-y:auto; }
+    .login-box { background:#f7faf9; border:1px solid #e3eeea; border-radius:7px; padding:13px 15px; display:flex; justify-content:space-between; gap:18px; align-items:center; margin-bottom:23px; }
+    .login-box p { font-size:11px; color:#65777f; margin-top:3px; }
+    .login-box strong { font-size:12px; font-weight:500; }
+    .external-links { display:flex; flex-wrap:wrap; gap:8px; flex-shrink:0; max-width:100%; }
+    .outline-btn { border:1px solid #d5e4df; border-radius:5px; background:white; padding:7px 10px; color:var(--accent); font-size:11px; white-space:nowrap; display:inline-flex; align-items:center; gap:5px; }
+    .outline-btn:hover { background:var(--soft); text-decoration:none; }
+    .field { min-width:0; }
+    label { display:block; font-size:12px; margin-bottom:6px; }
+    .required { color:#be6863; margin-left:3px; }
+    .input-wrap { position:relative; }
+    .input-wrap input,.input-wrap textarea { width:100%; border:1px solid #dfe7e9; background:#fff; border-radius:6px; padding:9px 11px; outline:none; font-size:12px; color:#354b54; transition:border-color .15s; }
+    .input-wrap textarea { display:block; resize:vertical; min-height:128px; max-height:200px; line-height:1.65; font-family:"Cascadia Code","Consolas","Microsoft YaHei",monospace; font-size:11px; }
+    .input-wrap input:focus,.input-wrap textarea:focus { border-color:var(--accent); box-shadow:0 0 0 3px var(--soft); }
+    .input-wrap input[aria-invalid=true],.input-wrap textarea[aria-invalid=true] { border-color:var(--red); }
+    .input-wrap input::placeholder,.input-wrap textarea::placeholder { color:#a6b0b5; }
+    .field-help { color:#65777f; font-size:10px; margin-top:5px; }
+    .field-error { color:var(--red); font-size:10px; margin-top:4px; }
+    .result { margin-top:17px; padding:13px 14px; border-radius:7px; border:1px solid #d7e9e1; background:#f0f8f5; font-size:11px; }
+    .result h3 { font-size:12px; color:var(--accent); }
+    .result p { color:#6c8580; margin-top:4px; }
+    .result.failed { border-color:#efdcda; background:#fcf6f5; }
+    .result.failed h3 { color:var(--red); }
+    .result.failed p { color:#9c7a79; }
+    .result.loading { background:#f4f8fb; border-color:#e1eaf1; }
+    .result.loading h3 { color:#567d9b; }
+    .dialog-footer { display:flex; justify-content:flex-end; align-items:center; gap:12px; padding:15px 25px; border-top:1px solid var(--line); background:#fcfdfd; flex-shrink:0; }
+    .actions { display:flex; gap:9px; flex-shrink:0; }
+    .btn { border:1px solid #dfe7e9; background:white; border-radius:6px; padding:8px 15px; color:#657881; font-size:12px; }
+    .btn:hover { background:#f5f8f8; }
+    .btn.primary { border-color:var(--accent); background:var(--accent); color:white; }
+    .btn.primary:hover { background:#116c63; }
+    .toast { position:fixed; bottom:27px; left:50%; transform:translateX(-50%); padding:10px 18px; border:1px solid #dbe7e1; background:#fff; box-shadow:0 5px 25px #223d391a; color:#4b6c63; border-radius:7px; font-size:12px; z-index:10; }
+    [hidden] { display:none !important; }
+    @media (max-width:1100px) { .client-grid { grid-template-columns:repeat(3,minmax(0,1fr)); } main { padding:27px 24px; } .topbar { padding:0 24px; } }
+    @media (max-width:800px) { .client-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } .stat { padding:15px; } .top-right .internal { display:none; } }
+    @media (max-width:560px) { .client-grid { grid-template-columns:1fr; } main { padding:22px 16px; } .topbar { padding:0 16px; } .stat { padding:13px 12px; } .heading { align-items:center; } .toolbar { flex-wrap:wrap; } .search { width:100%; } .search input { width:100%; } .dialog-header,.dialog-body { padding:17px; } .dialog-footer { padding:13px 17px; } .actions { margin-left:auto; } .login-box { align-items:flex-start; flex-direction:column; gap:10px; } }
+    @media (prefers-reduced-motion:reduce) { * { transition:none !important; } }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>运营工作台</div>
+    <div class="top-right"><span class="internal">内部数据运营</span></div>
+  </header>
+  <main>
+    <div class="heading">
+      <div><p class="eyebrow">CLIENT OVERVIEW</p><h1>甲方看板</h1><p class="subtitle">查看各客户的采集状态，在对应卡片中更新授权。</p></div>
+    </div>
+    <section class="stats" aria-label="客户采集概况">
+      <div class="stat"><div class="stat-label">甲方客户</div><div class="stat-value">7<small>家</small></div></div>
+      <div class="stat"><div class="stat-label">采集正常</div><div class="stat-value" id="normalCount" style="color:var(--accent)">—</div></div>
+      <div class="stat"><div class="stat-label">待更新授权</div><div class="stat-value" id="expiredCount" style="color:var(--amber)">—</div></div>
+    </section>
+    <div class="toolbar">
+      <h2 class="client-section-title">全部客户</h2>
+      <div class="search"><input id="search" type="search" aria-label="搜索客户名称" placeholder="搜索客户名称"></div>
+    </div>
+    <section class="client-grid" id="clientGrid" aria-label="甲方客户列表"></section>
+  </main>
+  <dialog id="authDialog" aria-labelledby="dialogTitle" aria-describedby="dialogSubtitle">
+    <form class="dialog-shell" id="authForm" novalidate>
+      <header class="dialog-header">
+        <div class="dialog-title"><div class="avatar" id="dialogAvatar" aria-hidden="true"></div><div><h2 id="dialogTitle"></h2><p id="dialogSubtitle"></p></div></div>
+        <button class="close" type="button" id="closeDialog" aria-label="关闭授权配置">×</button>
+      </header>
+      <div class="dialog-body" id="dialogBody">
+        <div class="login-box"><strong>甲方后台</strong><div class="external-links" id="loginLinks"></div></div>
+        <div class="field">
+          <label for="field-cookie">Cookie<span class="required" aria-hidden="true">*</span></label>
+          <div class="input-wrap"><textarea id="field-cookie" name="cookie" required spellcheck="false" autocomplete="off" aria-describedby="cookieHelp cookieError" placeholder="粘贴完整 Cookie，例如：名称=值; 名称=值"></textarea></div>
+          <p class="field-help" id="cookieHelp">本地登录后，粘贴目标数据请求中的完整 Cookie。</p>
+          <p class="field-error" id="cookieError" hidden></p>
+        </div>
+        <section class="result" id="result" role="status" aria-live="polite" aria-atomic="true" hidden></section>
+      </div>
+      <footer class="dialog-footer"><div class="actions"><button class="btn" type="button" id="cancelDialog">取消</button><button class="btn primary" type="submit" id="saveButton">验证并保存</button></div></footer>
+    </form>
+  </dialog>
+  <div class="toast" id="toast" role="status" hidden></div>
+  <script>
+    'use strict';
+    // 统一 Cookie 的交互原型；不请求甲方服务，也不代表实际采集已适配。
+    const CLIENTS = [
+      {id:'tianjin',name:'和信天津',initial:'津',code:'HX · TIANJIN',bg:'#edf5f2',ink:'#518b78',note:'小单、标单两套数据',links:[['小单后台','https://tf01-linkwe.hexinsec.com/#/acquisition/contacts/customerAssistant/index?groupId=2056309391367475200'],['标单后台','https://tf02-linkwe.hexinsec.com/#/acquisition/contacts/customerAssistant/index?groupId=2057008596968935424']]},
+      {id:'huiyang',name:'汇阳',initial:'汇',code:'HY · QUICK BI',bg:'#f1f1fb',ink:'#817aab',note:'钱_时微报表',links:[['打开甲方后台','http://bigdata.hy5188.com']]},
+      {id:'zhengzhou',name:'和信郑州',initial:'郑',code:'HX · ZHENGZHOU',bg:'#edf2fb',ink:'#6583b2',note:'钱DXM001_时微报表',links:[['打开甲方后台','https://bigdata.hexinsec.com/#/welcome']]},
+      {id:'dexun',name:'德讯',initial:'德',code:'DX · LIVE CODE',bg:'#f9f0eb',ink:'#b48665',note:'三方活码统计',links:[['打开甲方后台','https://dxsupermc.dexunzhenggu.cn/#/login']]},
+      {id:'caixuetang',name:'财学堂',initial:'财',code:'CXT · ACQUISITION',bg:'#f5f1e7',ink:'#a49353',note:'三方活码与获客助手统计',links:[['打开甲方后台','https://supermc.caixuetang.cn/#/login']]},
+      {id:'tianding',name:'天鼎W',initial:'天',code:'TD · SESSION',bg:'#edf4f8',ink:'#6493a9',note:'加粉数据统计',links:[['打开甲方后台','https://tddata.zuhan168.com/admin/login/']]},
+      {id:'compass',name:'指南针',initial:'指',code:'COMPASS · STAT',bg:'#f2f5ed',ink:'#889669',note:'日总计与来源统计',links:[['打开甲方后台','https://stat.compass.cn/manager/stat2.php?name=cx_2duanxin']]}
+    ];
+    const $ = selector => document.querySelector(selector);
+    const STORAGE_KEY = 'client-auth-prototype-v2';
+    const SCHEMA = 'cookie-only-v1';
+    const STATUS = {normal:'采集正常',expired:'授权失效',error:'采集异常',missing:'未配置'};
+    const escapeHTML = value => String(value ?? '').replace(/[&<>"']/g,char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+    function clockText() {
+      const parts = Object.fromEntries(new Intl.DateTimeFormat('zh-CN',{timeZone:'Asia/Shanghai',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}).formatToParts(new Date()).map(part => [part.type,part.value]));
+      return parts.year + '-' + parts.month + '-' + parts.day + ' ' + parts.hour + ':' + parts.minute + ':' + parts.second;
+    }
+    function initialState() {
+      return Object.fromEntries(CLIENTS.map(client => [client.id,{schema:SCHEMA,values:{cookie:''},status:'missing',lastSuccess:null}]));
+    }
+    function readState() {
+      const defaults = initialState();
+      try {
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
+        if (!saved || typeof saved !== 'object' || Array.isArray(saved)) return defaults;
+        CLIENTS.forEach(client => {
+          const item = saved[client.id];
+          if (!item || typeof item !== 'object') return;
+          const lastSuccess = typeof item.lastSuccess === 'string' ? item.lastSuccess : null;
+          // 旧版凭证不自动转换；保留历史成功时间，要求重新配置 Cookie。
+          if (item.schema !== SCHEMA) {
+            defaults[client.id].lastSuccess = lastSuccess;
+            return;
+          }
+          const cookie = typeof item.values?.cookie === 'string' ? item.values.cookie : '';
+          const status = cookie.trim() && typeof item.status === 'string' && Object.hasOwn(STATUS,item.status) ? item.status : 'missing';
+          defaults[client.id] = {schema:SCHEMA,values:{cookie},status,lastSuccess};
+        });
+      } catch (_) { /* 存储受限或损坏时，使用内存中的初始状态。 */ }
+      return defaults;
+    }
+    let state = readState(),active = null,openingId = null,operation = 0,verificationTimer = null,toastTimer = null,busy = false;
+    function notify(message) {
+      $('#toast').textContent = message;
+      $('#toast').hidden = false;
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => { $('#toast').hidden = true; },2800);
+    }
+    function persist() {
+      try { localStorage.setItem(STORAGE_KEY,JSON.stringify(state)); return true; }
+      catch (_) { notify('浏览器无法保存配置，本次仅在内存中生效。'); return false; }
+    }
+    function renderCards() {
+      $('#normalCount').textContent = CLIENTS.filter(client => state[client.id].status === 'normal').length;
+      $('#expiredCount').textContent = CLIENTS.filter(client => state[client.id].status === 'expired').length;
+      const query = $('#search').value.trim().toLowerCase();
+      const visible = CLIENTS.filter(client => client.name.toLowerCase().includes(query));
+      $('#clientGrid').innerHTML = visible.map(client => {
+        const item = state[client.id];
+        const reason = item.status === 'expired' ? 'Cookie 已失效，请更新授权。' : item.status === 'error' ? '采集异常，保留最后成功数据。' : item.status === 'missing' ? '请配置 Cookie。' : client.note;
+        const time = item.lastSuccess ? item.lastSuccess.slice(5) : '暂无成功记录';
+        return '<article class="card"><div class="card-top"><div class="identity"><div class="avatar" style="--avatar-bg:' + client.bg + ';--avatar-ink:' + client.ink + '" aria-hidden="true">' + client.initial + '</div><div><h2>' + client.name + '</h2><div class="client-code">' + client.code + '</div></div></div><button type="button" class="auth-btn" data-client="' + client.id + '" aria-label="' + client.name + '授权配置">授权配置</button></div><div><span class="badge ' + item.status + '">' + STATUS[item.status] + '</span><span class="method">Cookie</span></div><p class="card-note ' + (item.status === 'missing' || item.status === 'expired' ? 'needs' : item.status === 'error' ? 'failure' : '') + '">' + reason + '</p><div class="card-footer"><span>最后成功采集</span><time>' + escapeHTML(time) + '</time></div><a class="detail-link" href="#" data-detail="' + client.id + '" aria-label="查看' + client.name + '看板详情">进入看板详情-&gt;</a></article>';
+      }).join('') || '<div class="empty">没有匹配的客户。可调整筛选或搜索条件。</div>';
+    }
+    function clearFieldError() {
+      $('#field-cookie').removeAttribute('aria-invalid');
+      $('#cookieError').hidden = true;
+    }
+    function setBusy(value) {
+      busy = value;
+      $('#saveButton').disabled = value;
+      $('#saveButton').textContent = value ? '正在验证…' : '验证并保存';
+      $('#field-cookie').disabled = value;
+      $('#authForm').setAttribute('aria-busy',String(value));
+    }
+    function openDialog(id) {
+      active = CLIENTS.find(client => client.id === id);
+      if (!active) return;
+      operation++;
+      openingId = id;
+      $('#dialogTitle').textContent = active.name + ' · 授权配置';
+      $('#dialogSubtitle').textContent = 'Cookie 配置';
+      $('#dialogAvatar').textContent = active.initial;
+      $('#dialogAvatar').style.setProperty('--avatar-bg',active.bg);
+      $('#dialogAvatar').style.setProperty('--avatar-ink',active.ink);
+      $('#loginLinks').innerHTML = active.links.map(([name,url]) => '<a class="outline-btn" href="' + escapeHTML(url) + '" target="_blank" rel="noopener noreferrer">' + name + ' <span aria-hidden="true">↗</span></a>').join('');
+      $('#field-cookie').value = state[id].values.cookie;
+      clearFieldError();
+      $('#result').hidden = true;
+      setBusy(false);
+      $('#cancelDialog').textContent = '取消';
+      $('#authDialog').showModal();
+      document.body.style.overflow = 'hidden';
+      $('#dialogBody').scrollTop = 0;
+      $('#field-cookie').focus();
+    }
+    function closeDialog() { if ($('#authDialog').open) $('#authDialog').close(); }
+    function onClose() {
+      operation++;
+      clearTimeout(verificationTimer);
+      active = null;
+      busy = false;
+      document.body.style.overflow = '';
+      (document.querySelector('[data-client="' + openingId + '"]') || $('#search')).focus();
+    }
+    function validate(cookie) {
+      clearFieldError();
+      let message = '';
+      if (!cookie) message = '请填写 Cookie。';
+      else if (/[\r\n]/.test(cookie) || !/^\s*[^\s;=]+=[^;\r\n]*(?:;\s*[^\s;=]+=[^;\r\n]*)*;?\s*$/.test(cookie)) message = '请填写完整 Cookie，格式为：名称=值; 名称=值。';
+      if (!message) return true;
+      $('#field-cookie').setAttribute('aria-invalid','true');
+      $('#cookieError').textContent = message;
+      $('#cookieError').hidden = false;
+      $('#field-cookie').focus();
+      return false;
+    }
+    function showResult(kind,title,message) {
+      $('#result').className = 'result ' + kind;
+      $('#result').innerHTML = '<h3>' + escapeHTML(title) + '</h3><p>' + escapeHTML(message) + '</p>';
+      $('#result').hidden = false;
+      $('#result').scrollIntoView({block:'nearest',behavior:'auto'});
+    }
+    function verifyAndSave(event) {
+      event.preventDefault();
+      if (!active || busy || $('#saveButton').disabled) return;
+      const cookie = $('#field-cookie').value.trim();
+      if (!validate(cookie)) { $('#result').hidden = true; return; }
+      const id = active.id,sequence = ++operation;
+      setBusy(true);
+      showResult('loading','正在验证…','请稍候。');
+      verificationTimer = setTimeout(() => {
+        if (sequence !== operation || !active || active.id !== id || !$('#authDialog').open) return;
+        setBusy(false);
+        state[id] = {schema:SCHEMA,values:{cookie},status:'normal',lastSuccess:clockText()};
+        const saved = persist();
+        renderCards();
+        showResult('','配置已保存',saved ? 'Cookie 配置已更新。' : 'Cookie 仅在本次页面中生效；浏览器无法持久保存。');
+        $('#saveButton').textContent = saved ? '已验证并保存' : '已验证并启用';
+        $('#saveButton').disabled = true;
+        $('#cancelDialog').textContent = '完成';
+      },800);
+    }
+    $('#clientGrid').addEventListener('click',event => {
+      const button = event.target.closest('[data-client]');
+      if (button) { openDialog(button.dataset.client); return; }
+      const link = event.target.closest('[data-detail]');
+      if (!link) return;
+      event.preventDefault();
+      const client = CLIENTS.find(item => item.id === link.dataset.detail);
+      if (client) notify(client.name + '：详情报表暂未接入。');
+    });
+    $('#authForm').addEventListener('submit',verifyAndSave);
+    $('#closeDialog').addEventListener('click',closeDialog);
+    $('#cancelDialog').addEventListener('click',closeDialog);
+    $('#authDialog').addEventListener('close',onClose);
+    $('#authDialog').addEventListener('click',event => {
+      if (event.target !== $('#authDialog')) return;
+      const rect = $('#authDialog').getBoundingClientRect();
+      if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) closeDialog();
+    });
+    $('#field-cookie').addEventListener('input',() => {
+      if (!active || busy) return;
+      operation++;
+      clearFieldError();
+      $('#result').hidden = true;
+      $('#saveButton').disabled = false;
+      $('#saveButton').textContent = '验证并保存';
+      $('#cancelDialog').textContent = '取消';
+    });
+    $('#search').addEventListener('input',renderCards);
+    renderCards();
+  </script>
+</body>
+</html>
