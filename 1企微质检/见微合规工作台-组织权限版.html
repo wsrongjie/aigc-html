@@ -760,6 +760,18 @@ dialog{border-color:#e3e8f0;border-radius:12px;box-shadow:0 24px 64px rgba(16,24
 }
 .report-grid.secondary{grid-template-columns:repeat(2,minmax(0,1fr))}
 .report-grid.secondary .span-3{grid-column:1/-1}
+.report-grid.secondary.summary-grid{grid-template-columns:repeat(6,minmax(0,1fr))}
+.summary-grid>.summary-half{grid-column:span 3}
+.summary-grid>.summary-third{grid-column:span 2}
+.summary-grid .funnel-svg{min-width:340px}
+.summary-grid .level-pie{gap:16px;flex-wrap:wrap}
+@media(max-width:1500px){
+  .report-grid.secondary.summary-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .summary-grid>.summary-half,.summary-grid>.summary-third{grid-column:auto}
+}
+@media(max-width:860px){
+  .report-grid.secondary.summary-grid{grid-template-columns:1fr}
+}
 /* 视频素材内容总结：卡片摘要行 + 详情总结块 */
 .asset-card-summary{margin:7px 0 0;color:#5a708e;font-size:11px;line-height:1.65;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .asset-video-summary{padding:13px 15px;border:1px solid #d8e2ee;border-left:3px solid #4a6fb5;border-radius:6px;background:#f8fafd}
@@ -2135,7 +2147,7 @@ dialog{border-color:#e3e8f0;border-radius:12px;box-shadow:0 24px 64px rgba(16,24
     const data = window.OverviewData;
     const firstDate = data.days[0].date, lastDate = data.days[data.days.length - 1].date;
     const dayBefore = (date, days) => new Date(Date.parse(date + 'T00:00:00Z') - days * DAY).toISOString().slice(0, 10);
-    let range = { from: dayBefore(lastDate, 29), to: lastDate };
+    let range = { from: dayBefore(lastDate, 6), to: lastDate };
     let topTab = 'people';
 
     /* ---------- 基础计算 ---------- */
@@ -2846,33 +2858,33 @@ dialog{border-color:#e3e8f0;border-radius:12px;box-shadow:0 24px 64px rgba(16,24
 
         ${keyIssueCards(keyIssues)}
         <div class="section-label lead-layer-label">汇总概览<span class="subtext">趋势、对象、结构、重复与覆盖</span></div>
-        <div class="report-grid secondary">
-          <section class="panel">${trendPanel(trend, current)}</section>
-          <section class="panel top-panel">
+        <div class="report-grid secondary summary-grid">
+          <section class="panel summary-half">${trendPanel(trend, current)}</section>
+          <section class="panel top-panel summary-half">
             <div class="panel-heading"><h2>Top 5 风险对象</h2><span class="small muted">按确认数排序</span></div>
             <div class="panel-body">${top}</div>
           </section>
-          <section class="panel">
+          <section class="panel summary-third">
             <div class="panel-heading"><h2>风险等级分布</h2><span class="small muted">含人工驳回</span></div>
             <div class="panel-body">${levelPie(levels, summary.hits)}</div>
           </section>
-          <section class="panel">
+          <section class="panel summary-third">
             <div class="panel-heading"><h2>处置漏斗</h2><span class="small muted">各环节转化</span></div>
             <div class="panel-body">${funnel(summary)}</div>
           </section>
-          <section class="panel">
-            <div class="panel-heading"><h2>团队风险密度</h2><span class="small muted">每千条会话</span></div>
-            <div class="panel-body">${densityChart(departments.map(row => ({ name: row.name, value: row.density, title: `${row.name}：每千条会话命中 ${row.density.toFixed(2)}‰ · 命中 ${row.hits} 条 / 约 ${number(row.sessions)} 条会话` })))}<p class="panel-foot">按会话量归一化，避免人多就显示问题多。会话量按团队占比估算。</p></div>
-          </section>
-          <section class="panel">
+          <section class="panel summary-third">
             <div class="panel-heading"><h2>风险类型分布</h2><span class="small muted">按规则分类</span></div>
             <div class="panel-body">${categoryChart(categories)}<p class="panel-foot">蓝色为人工确认、灰色为误报驳回，按命中条数排序。</p></div>
           </section>
-          <section class="panel">
+          <section class="panel summary-third">
+            <div class="panel-heading"><h2>团队风险密度</h2><span class="small muted">每千条会话</span></div>
+            <div class="panel-body">${densityChart(departments.map(row => ({ name: row.name, value: row.density, title: `${row.name}：每千条会话命中 ${row.density.toFixed(2)}‰ · 命中 ${row.hits} 条 / 约 ${number(row.sessions)} 条会话` })))}<p class="panel-foot">按会话量归一化，避免人多就显示问题多。会话量按团队占比估算。</p></div>
+          </section>
+          <section class="panel summary-third">
             <div class="panel-heading"><h2>重复违规</h2><span class="small muted">同人同规则再犯</span></div>
             <div class="panel-body">${repeatPanel(summary, repeatTop)}<p class="panel-foot">再犯指同一员工在同一规则上被再次确认；名单可点击跳转该员工相关风险。</p></div>
           </section>
-          <section class="panel">
+          <section class="panel summary-third">
             <div class="panel-heading"><h2>业务量与覆盖</h2><span class="small muted">已归档会话</span></div>
             <div class="panel-body">
               <div class="volume-stats"><span><b>${number(summary.archived)}</b>本期会话</span><span><b>${number(summary.scanned)}</b>已质检</span><span><b>${percent(summary.coverage)}</b>覆盖率</span></div>
@@ -2915,7 +2927,7 @@ dialog{border-color:#e3e8f0;border-radius:12px;box-shadow:0 24px 64px rgba(16,24
       return true;
     }
 
-    return { render, handleAction, change, reset: () => { range = { from: dayBefore(lastDate, 29), to: lastDate }; topTab = 'people'; } };
+    return { render, handleAction, change, reset: () => { range = { from: dayBefore(lastDate, 6), to: lastDate }; topTab = 'people'; } };
   };
 })();
 
@@ -4036,7 +4048,7 @@ dialog{border-color:#e3e8f0;border-radius:12px;box-shadow:0 24px 64px rgba(16,24
   let taskTimer;
   let taskRenderPending = false;
   const deepLink = location.hash.slice(1).split('/');
-  let view = VIEWS[deepLink[0]] ? deepLink[0] : 'organization';
+  let view = VIEWS[deepLink[0]] ? deepLink[0] : 'overview';
   let deepCaseId = view === 'review' && deepLink[1] ? decodeURIComponent(deepLink[1]) : '';
   let deepTaskId = view === 'plans' && deepLink[1] ? decodeURIComponent(deepLink[1]) : '';
   let selectedId = cases[0].id;
