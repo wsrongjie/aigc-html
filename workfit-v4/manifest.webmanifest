@@ -1,0 +1,10 @@
+{
+  "name": "职业优势解码｜职业优势使用说明书",
+  "short_name": "职业优势解码",
+  "description": "12题，2分钟生成你的职业优势使用说明书。",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f8f6f0",
+  "theme_color": "#102e2d"
+}
