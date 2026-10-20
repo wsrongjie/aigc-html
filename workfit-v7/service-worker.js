@@ -1,1 +1,12 @@
-const CACHE='career-quiz-v7-20261020-v1';const APP=['./index.html','./manifest.webmanifest'];self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(APP)).then(()=>self.skipWaiting())));self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(xs=>Promise.all(xs.filter(k=>k.startsWith('career-quiz-')&&k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));self.addEventListener('fetch',e=>{if(e.request.method!=='GET')return;const u=new URL(e.request.url);if(u.origin!==location.origin||!u.pathname.includes('/workfit-v7/'))return;e.respondWith(caches.match(e.request).then(v=>v||fetch(e.request).then(r=>{if(r.ok){const clone=r.clone();caches.open(CACHE).then(c=>c.put(e.request,clone))}return r}).catch(()=>e.request.mode==='navigate'?caches.match('./index.html'):Response.error())))})
+const CACHE='career-quiz-v7-stage-fix-v2';const APP=['./index.html','./manifest.webmanifest'];
+self.addEventListener('install',event=>event.waitUntil(caches.open(CACHE).then(c=>c.addAll(APP)).then(()=>self.skipWaiting())));
+self.addEventListener('activate',event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith('career-quiz-')&&k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
+self.addEventListener('fetch',event=>{
+const req=event.request;if(req.method!=='GET')return;const u=new URL(req.url);
+if(u.origin!==location.origin||!u.pathname.includes('/workfit-v7/'))return;
+if(req.mode==='navigate'){
+event.respondWith(fetch(req).then(response=>{if(response.ok){const copy=response.clone();caches.open(CACHE).then(c=>c.put(req,copy));}return response;}).catch(()=>caches.match(req).then(cached=>cached||caches.match('./index.html'))));
+return;
+}
+event.respondWith(caches.match(req).then(cached=>cached||fetch(req).then(response=>{if(response.ok){const copy=response.clone();caches.open(CACHE).then(c=>c.put(req,copy));}return response;})));
+});
