@@ -1,0 +1,10 @@
+{
+  "name": "职业优势解码 V5｜常见招聘岗位探索报告",
+  "short_name": "职业优势解码",
+  "description": "12题，生成六维优势地图与8个真实招聘岗位探索建议",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f8f6f0",
+  "theme_color": "#102e2d"
+}
