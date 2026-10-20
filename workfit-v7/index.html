@@ -40,6 +40,13 @@
 .job-extra p{font-size:12.5px;color:#536a5e;line-height:1.85;margin:8px 0}.job-extra b{color:#204c40}
 .job-family{padding:12px 0 0}.job-family h4{font-size:14px;color:#436d5b;margin:10px 0 6px}.role-cloud{display:flex;gap:7px;flex-wrap:wrap}.role-cloud span{background:#f5f6f1;border:1px solid #e8ebe2;padding:9px 11px;border-radius:10px;font-size:12px;color:#52645b}
 .stage-line{font-size:13px;color:#66776c;margin:10px 0 12px}.stage-options{display:flex;gap:7px;flex-wrap:wrap;margin:6px 0 17px}.stage-btn{background:#f2f3ee;border:1px solid #e4e7df;border-radius:100px;padding:10px 12px;font-size:12px;color:#476659;font-weight:700}.stage-btn.on{background:#1f6b5f;color:#fff;border-color:#1f6b5f}
+.stage-plan{background:linear-gradient(140deg,#eff7f0,#fffaf0);border:1px solid #d6e6d8;border-radius:17px;padding:17px 15px;margin:3px 0 20px}
+.stage-plan .stage-cap{font-size:11px;letter-spacing:.6px;font-weight:800;color:#4c8568}
+.stage-plan h4{color:#21483b;font-size:18px;line-height:1.45;margin:7px 0 10px}
+.stage-plan p{color:#52675b;font-size:13px;line-height:1.85;margin:8px 0}
+.stage-plan .stage-item{background:#fff;border:1px solid #e7e9dc;border-radius:11px;margin:8px 0;padding:10px 12px;font-size:13px;line-height:1.75;color:#3f5b4b}
+.stage-plan .stage-item b{display:block;color:#277357;font-size:12px;margin-bottom:2px}
+.stage-plan .stage-notice{font-size:11px;color:#77877a;margin-top:13px}
 .report-actions{margin-bottom:12px}.model-note{font-size:12px;color:#7d897f;line-height:1.95}.career-cta{margin:17px 0;border:1px solid #dfe7da;border-radius:15px;padding:15px;background:#f8faf6}.career-cta strong{display:block;font-size:14px;color:#2e624f}.career-cta p{font-size:13px;line-height:1.8;color:#617567;margin:8px 0 0}
 @media(max-width:380px){.job-card{padding:14px 12px}.job-card h4{font-size:17px}.job-index{min-width:60px;flex-basis:60px}.job-index strong{font-size:24px}.section{padding:18px 15px}.top-occupation h4{font-size:20px}}
 
@@ -105,7 +112,8 @@
 <p class="s-body">岗位名采用招聘中常见称呼。排序是基于本次行为与结果回顾的<strong>探索参考指数</strong>，用于决定先了解什么；不能理解为录用成功率、胜任率或薪资预测。</p>
 <div class="top-occupation" id="top-occupation"></div>
 <div class="stage-line">选择你的职业阶段，查看不同的下一步建议（不影响岗位排序）：</div>
-<div class="stage-options" id="stage-buttons"><button class="stage-btn on" type="button" data-stage="new">在校 / 应届</button><button class="stage-btn" type="button" data-stage="shift">转行 / 转岗</button><button class="stage-btn" type="button" data-stage="senior">已有相关经验</button></div>
+<div class="stage-options" id="stage-buttons"><button class="stage-btn on" type="button" data-stage="new">在校 / 应届</button><button class="stage-btn" type="button" data-stage="shift">转行 / 目标岗位零经验</button><button class="stage-btn" type="button" data-stage="senior">已有相关工作经验</button></div>
+<div id="stage-plan" class="stage-plan" aria-live="polite"></div>
 <div id="top-job-list"></div>
 <details class="unfold"><summary>查看另外36个岗位（每个都有工作举例）</summary><div id="other-job-list" class="unfold-content"></div></details>
 <details class="unfold"><summary>招聘里的缩写是什么意思？</summary><div class="unfold-content s-body"><p><b>JD</b>：招聘岗位说明，能看到每天做什么、需要什么经验。</p><p><b>PMO</b>：项目管理办公室，负责多个项目的进度、规则和协调。</p><p><b>BI</b>：商业智能，常见工作是做数据报表和业务看板。</p><p><b>UI</b>：用户界面设计，主要设计App、网站的页面样子。</p><p><b>HR</b>：人力资源，涉及招聘、员工发展等工作。</p><p><b>SQL</b>：用于查询和处理数据的一种语言。</p><p><b>WBS</b>：把大任务拆成一个个小任务的办法。</p></div></details><details class="unfold"><summary>这个参考指数是怎么算的？</summary><div class="unfold-content s-body">比较你的6项工作行为特征与各岗位通常侧重的任务特征，按权重计算相似程度。数值只供本次探索排序，含经历覆盖度权重，不具备预测录用、胜任或就业前景的统计效力。技术门槛、行业知识、学历与经验未纳入题目，需阅读真实招聘JD单独核验。</div></details>
@@ -211,6 +219,52 @@ function chooseTopRoles(roles, n){
  for(const o of roles){if(selected.length>=n)break;if((familyUse[o.family]||0)>=3)continue;selected.push(o);familyUse[o.family]=(familyUse[o.family]||0)+1;}
  return selected;
 }
+function stageAdvice(top){
+ const first=top[0]||{title:'目标岗位',tryit:'做一项简短的岗位体验任务',req:'岗位要求'}, second=top[1]||first;
+ if(currentStage==='shift')return {
+  label:'转行 / 目标岗位零经验', title:'转行先别海投：把旧经历转成新岗位的证据',
+  intro:'你可能已经工作多年，只是对想去的岗位缺少直接经历。先证明自己做过哪些相近的事，再补最关键的一项技能。',
+  steps:[
+   ['先筛掉硬性门槛','搜“'+first.title+' 初级 / 专员 / 转岗”，对照10条招聘信息，圈出必须具备的1—2项技能。不要用岗位名称判断能否转行。'],
+   ['找到可迁移的经历','从过去的工作中找出与“'+first.day+'”相关的一件事，写清你做了什么、结果是什么；没有对应经历就标为待验证。'],
+   ['做一份入门作品','试做：'+first.tryit+'。把成品或过程记录下来，用它判断兴趣并补充转岗简历。']
+  ],
+  search:'先搜“'+first.title+' 初级 / 专员”和“'+second.title+' 转岗”，查看10条JD，标出技能要求及是否需要直接岗位经验。',
+  sample:'先做“'+first.tryit+'”，与目标岗位JD对照；若差距明显，先补一项基础技能。',
+  day1:'先完成一个目标岗位的小作品：“'+first.tryit+'”。',day2:'把过去一项相关经历写成“做了什么—产生什么结果”，对照岗位要求寻找可迁移点。',
+  check:'转行先检验3件事：做得出一个样品、补得上关键技能、愿意长期做同类任务。自评匹配不等于已经具备任职资格。'
+ };
+ if(currentStage==='senior')return {
+  label:'已有相关工作经验',title:'别只看岗位名：重点判断职责有没有升级',
+  intro:'你有与目标岗位相关的工作经历，接下来的重点是核对职级、业务规模、独立负责的范围和实际影响力。',
+  steps:[
+   ['看岗位层级','分别搜索“'+first.title+' 高级 / 资深 / 主管”和同类职位，对比负责范围、关键指标、业务复杂度。'],
+   ['把成果量化','整理两项最能代表你能力的项目：背景、你负责的决策、关键数字、团队或业务收益。'],
+   ['找真正的能力缺口','对比“'+first.title+'”和“'+second.title+'”的岗位要求，判断是技能不够，还是缺少更大业务场景的机会。']
+  ],
+  search:'分别搜索“'+first.title+' 高级 / 资深 / 经理”，核对工作年限、团队管理、业务规模和业绩责任，不要只看岗位名称。',
+  sample:'从真实工作经历中挑一个最有代表性的项目，写出你的独立贡献与可量化结果，再对照“'+first.title+'”招聘要求。',
+  day1:'选1个代表项目，复盘“目标—我的责任—关键动作—量化结果”。',day2:'对照3条“'+first.title+' 高级 / 资深”JD，圈出下一职级新增的职责与能力差距。',
+  check:'有经验者重点看职责、资源与回报能否对应；岗位排序不等于职级建议，更不等于晋升或录用承诺。'
+ };
+ return {
+  label:'在校 / 应届生',title:'先有可展示的作品，再考虑岗位名称',
+  intro:'即使没有正式工作经历，课程、社团、实习和个人作品也能提供能力证据。先争取一次真实体验，再投递。',
+  steps:[
+   ['先看校招入口','搜“'+first.title+' 实习 / 校招 / 应届”，筛选学历、专业和必备工具要求，避免误把社招岗位当成入门标准。'],
+   ['做一个能展示的成果','用一周完成“'+first.tryit+'”。保留过程截图、作品链接或一页总结。'],
+   ['把经历写成简历','从课程、社团、校园项目中选1件事，写清“任务—自己做了什么—最后效果”；没有成果就补一个小项目。']
+  ],
+  search:'先搜索“'+first.title+' 实习 / 校招 / 应届”和“'+second.title+' 应届”，选5—10条真正招应届生的JD，核对专业、实习经历和工具要求。',
+  sample:'尝试完成“'+first.tryit+'”，形成一页作品或项目总结；优先用实习、课设或社团项目验证。',
+  day1:'用课程 / 社团 / 个人项目做一个可展示的样品：“'+first.tryit+'”。',day2:'请一位老师、学长或岗位从业者给作品反馈，并按真实招聘JD补一个短板。',
+  check:'应届阶段不要急着给自己贴能力标签。优先用小作品、实习或项目补充证据，再判断适合的岗位。'
+ };
+}
+function drawStagePlan(top){
+ const v=stageAdvice(top);
+ $('stage-plan').innerHTML='<div class="stage-cap">✦ '+safe(v.label)+' · 专属行动路线</div><h4>'+safe(v.title)+'</h4><p>'+safe(v.intro)+'</p>'+v.steps.map((item,i)=>'<div class="stage-item"><b>STEP '+(i+1)+' · '+safe(item[0])+'</b>'+safe(item[1])+'</div>').join('')+'<p class="stage-notice">切换上方职业阶段，这里的策略、招聘搜索建议和7天行动计划都会同步变化。岗位探索排序仍基于答题证据，不随职业阶段虚假变动。</p>';
+}
 function stageTip(o){
  if(currentStage==='new')return '入门建议：先从“专员 / 助理 / 实习”岗位查起，用小项目作品补充简历；如果岗位要求工作年限，先不要硬投。';
  if(currentStage==='senior')return '有经验的路径：比起岗位名称，更应核对职责范围、团队规模、业务指标与专业深度；整理你做出过的可量化成果。';
@@ -227,6 +281,7 @@ function jobHTML(o,i){
 }
 function drawOccupations(){
  const r=report,sorted=careerScores(r);const top=chooseTopRoles(sorted,8);r.jobTop=top;
+ const stage=stageAdvice(top);drawStagePlan(top);
  const w=top[0], intro=r.flat?'本次你没有表现出很明确的职业倾向。下面的岗位只适合做轻量了解，不建议仅凭结果决定转行。':r.broad?'你的多个维度接近，尚无法排出明确的第一选择。先从感兴趣的岗位挑一个做小实验。':'该方向与你提供的行动结果线索有一定关联。请继续查看岗位职责和证据清单，再决定是否尝试。';
  $('archetype').textContent=(r.flat?'还没有明确方向':r.broad?'你的选择不止一种':w.title);
  $('subtitle').textContent=(r.flat||r.broad?'先用真实任务区分方向':'首先值得了解的招聘岗位 · '+w.family);
@@ -236,9 +291,12 @@ function drawOccupations(){
  const chosen=new Set(top.map(o=>o.title));const more=sorted.filter(o=>!chosen.has(o.title));
  const families=[...new Set(more.map(x=>x.family))];
  $('other-job-list').innerHTML='<p class="model-note">下方所有岗位均可点击查看通俗解释和实际工作例子。它们是供你探索的职业词典，不代表全部都适合你。</p>'+families.map(f=>'<div class="job-family"><h4>'+safe(f)+'</h4><div class="more-roles">'+more.filter(o=>o.family===f).map(o=>'<details class="role-entry"><summary>'+safe(o.title)+' <span>看懂这个岗位 ›</span></summary><p class="role-plain"><b>一句话：</b>'+safe(o.plain)+'</p><p class="role-ex"><b>举个例子：</b>'+safe(o.example)+'</p><p class="role-ex"><b>平时做什么：</b>'+safe(o.day)+'</p><p class="role-ex"><b>需要了解：</b>'+safe(o.req)+'</p><p class="role-ex"><b>试试自己喜不喜欢：</b>'+safe(o.tryit)+'</p></details>').join('')+'</div></div>').join('');
- $('search-terms').textContent='从「'+top.slice(0,3).map(o=>o.title).join(' / ')+'」开始，结合城市、行业和年限查看至少10条招聘JD，圈出最常出现的3项要求。';
- $('sample-work').textContent='尝试做「'+top[0].tryit+'」。真正做过以后，再判断自己是否愿意重复这类任务。';
+ $('search-terms').textContent=stage.search;
+ $('sample-work').textContent=stage.sample;
  $('job-paths').textContent=top.slice(0,4).map(o=>o.title).join('、')+'（点击下方岗位卡，可以查看工作内容与要求）';
+ $('action-one').textContent=stage.day1;
+ $('action-two').textContent=stage.day2;
+ $('check-point').textContent=stage.check;
 }
 
 function drawRadar(r){
@@ -292,7 +350,7 @@ function toText(){const r=report,A=D[r.a],B=D[r.b];return [
 '我的工作倾向：'+r.p.one,'优势组合：'+r.p.power,'可能消耗：'+energySentence(r),
 '','【行为与结果证据】', ...r.order.map(d=>D[d].name+'：实际经历'+r.vals[d].n+'/5，明确成果'+r.vals[d].verified+'，'+(r.vals[d].events.find(x=>x.ev===3)||r.vals[d].events[0]||{text:'暂无相关经历'}).text), '', '【建议先了解的8个招聘岗位】',
 ...(r.jobTop||[]).map((o,i)=>(i+1)+'、'+o.title+'（探索指数 '+o.idx+'/100）\n一句话：'+o.plain+'\n举个例子：'+o.example+'\n工作内容：'+o.day+'\n常见要求：'+o.req+'\n试岗任务：'+o.tryit+'\n成长路径：'+o.path+'\n'),
-'【行动计划】','第1—3天：'+A.act,'第4—7天：'+B.act,
+'【职业阶段：'+stageAdvice(r.jobTop||[]).label+'】',stageAdvice(r.jobTop||[]).intro, ...stageAdvice(r.jobTop||[]).steps.map((s,i)=>(i+1)+'、'+s[0]+'：'+s[1]),'【7天行动计划】','第1—3天：'+stageAdvice(r.jobTop||[]).day1,'第4—7天：'+stageAdvice(r.jobTop||[]).day2,
 '','说明：结果根据30道实际经历题的选择计算，仅用于自我探索；指数不代表录用概率或胜任力，无法替代真实岗位要求、技能/经历核对。'
 ].join('\n')}
 function toast(t){$('toast').textContent=t;$('toast').classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').classList.remove('show'),2600)}
