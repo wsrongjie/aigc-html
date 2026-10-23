@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="天鼎证券投资 AI 智能管理平台演示入口，所有系统均为交互原型，数据为虚构演示数据。">
+<title>天鼎证券投资 AI智能管理平台 · 演示入口</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='15' fill='%23e60012'/%3E%3Cpath d='M9 11h14M16 11v13M11 17h10' fill='none' stroke='white' stroke-width='2.2' stroke-linecap='round'/%3E%3C/svg%3E">
+<style>
+:root{
+  --red:#e60012;--ink:#1c1d21;--text:#5f636e;--muted:#9aa0ab;--line:#eceef2;
+  --font:-apple-system,"PingFang SC","Microsoft YaHei UI","Microsoft YaHei","Noto Sans CJK SC",sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:#fff;color:var(--ink);font:14px/1.6 var(--font);display:flex;flex-direction:column;min-height:100vh;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+
+/* 顶栏 */
+.topbar{position:relative;z-index:2;display:flex;align-items:center;justify-content:space-between;gap:24px;padding:22px 40px 18px;flex:none}
+.brand{display:flex;align-items:center;gap:18px;min-width:0}
+.brand-logo{display:grid;place-items:center;width:52px;height:52px;border-radius:50%;border:2.5px solid var(--red);color:var(--red);font-size:22px;font-weight:700;letter-spacing:1px;flex:none;font-family:"Songti SC","SimSun",serif}
+.brand-name strong{display:block;font-size:19px;font-weight:700;letter-spacing:.5px;line-height:1.3}
+.brand-name small{display:block;font-size:8px;letter-spacing:1.4px;color:#8c919c;margin-top:1px}
+.brand-divider{width:1px;height:34px;background:#e2e4e9;flex:none}
+.brand-slogan{min-width:0}
+.brand-slogan strong{display:block;font-size:19px;font-weight:700;letter-spacing:.5px;line-height:1.35}
+.brand-slogan small{display:block;font-size:9px;letter-spacing:.2px;color:#8c919c;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.env-badge{display:inline-flex;align-items:center;gap:7px;padding:6px 15px 6px 8px;border:1px solid #f3d6d8;border-radius:999px;background:#fff7f7;color:#b8403f;font-size:12px;white-space:nowrap;flex:none}
+.env-badge i{display:grid;place-items:center;width:19px;height:19px;border-radius:50%;background:var(--red);color:#fff;font-style:normal;font-size:9px;font-weight:700}
+
+/* 主视觉 */
+main{position:relative;z-index:2;flex:1;display:flex;flex-direction:column;align-items:center;padding:26px 40px 0}
+.hero{text-align:center;margin-bottom:38px}
+.tone{display:inline-flex;align-items:center;gap:16px;color:var(--red)}
+.tone-mark{width:44px;height:44px;flex:none}
+.tone-word{font-family:"Bahnschrift","DIN Alternate",Consolas,var(--font);font-size:62px;font-weight:700;letter-spacing:2px;line-height:1}
+.hero-sub{margin:16px 0 0;font-size:21px;color:#3d414b;letter-spacing:1px;font-weight:400}
+
+/* 入口卡片 */
+.card-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px;width:100%;max-width:1240px;margin:0 auto}
+.card{position:relative;display:flex;align-items:center;gap:16px;padding:26px 24px;border-radius:16px;overflow:hidden;background:#fdeef1;transition:transform .16s ease,box-shadow .16s ease;min-height:126px}
+.card:hover{transform:translateY(-3px);box-shadow:0 14px 34px #1c1d2112}
+.card:focus-visible{outline:3px solid #9db8ff;outline-offset:2px}
+.card-icon{display:grid;place-items:center;width:52px;height:52px;border-radius:15px;color:#fff;flex:none;box-shadow:0 6px 16px #1c1d211f}
+.card-icon svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.card-body{min-width:0}
+.card-body strong{display:block;font-size:19px;font-weight:700;letter-spacing:.4px;color:#24262c;line-height:1.35}
+.card-body small{display:block;margin-top:7px;font-size:12.5px;color:#6c7078;line-height:1.6}
+.ribbon{position:absolute;top:0;right:0;padding:5px 14px 5px 20px;font-size:11px;color:#fff;letter-spacing:.4px;border-radius:0 16px 0 10px;clip-path:polygon(13px 0,100% 0,100% 100%,0 100%)}
+
+.card.pink{background:#fdeef1}
+.card.pink .card-icon{background:linear-gradient(135deg,#ff9fae,#ef3f5b)}
+.card.pink .ribbon{background:#f2506a}
+.card.crimson{background:#fdeef0}
+.card.crimson .card-icon{background:linear-gradient(135deg,#ff8d9c,#e8283f)}
+.card.crimson .ribbon{background:#ef4358}
+.card.blue{background:#eaf3fe}
+.card.blue .card-icon{background:linear-gradient(135deg,#5aa9f8,#1d7ce2)}
+.card.blue .ribbon{background:#2b8ff0}
+.card.orange{background:#fff2e3}
+.card.orange .card-icon{background:linear-gradient(135deg,#ffb857,#f18d10)}
+.card.orange .ribbon{background:#f79a1e}
+.card.violet{background:#f2effe}
+.card.violet .card-icon{background:linear-gradient(135deg,#9c8bff,#6a55f0)}
+.card.violet .ribbon{background:#7c6cf5}
+.card.green{background:#e9f7f1}
+.card.green .card-icon{background:linear-gradient(135deg,#4fd0a5,#159b6c)}
+.card.green .ribbon{background:#1fae7c}
+
+.card.is-featured{box-shadow:0 0 0 1.5px #b9adfb inset;padding-bottom:36px}
+.card.is-featured:hover{box-shadow:0 0 0 1.5px #a396f8 inset,0 14px 34px #1c1d2112}
+.card-flag{position:absolute;left:22px;bottom:11px;font-size:10px;color:#6a55f0;letter-spacing:.5px}
+
+.card.is-disabled{cursor:not-allowed}
+.card.is-disabled .card-icon{filter:grayscale(.16);opacity:.86}
+.card.is-disabled .card-body strong{color:#4d5058}
+.card.is-disabled:hover{transform:none;box-shadow:none}
+
+/* 行情水印容器 */
+.market{position:fixed;left:0;right:0;bottom:0;height:52vh;z-index:0;pointer-events:none;opacity:.5}
+.market svg{display:block;width:100%;height:100%}
+
+/* 页脚 */
+.foot{position:relative;z-index:2;text-align:center;padding:16px 20px 14px;font-size:11.5px;color:#a7acb6;letter-spacing:.3px}
+
+/* 提示 */
+.toast{position:fixed;left:50%;bottom:42px;transform:translate(-50%,12px);z-index:9;padding:11px 18px;border:1px solid #e5e8ef;border-radius:9px;background:#fff;box-shadow:0 10px 30px #1c1d2118;font-size:12.5px;color:#5b606b;opacity:0;transition:opacity .18s ease,transform .18s ease}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+@media(max-width:1280px){
+  .card-grid{grid-template-columns:repeat(2,minmax(0,1fr));max-width:860px}
+  .tone-word{font-size:56px}
+}
+@media(max-width:900px){
+  .topbar{padding:18px 22px 14px;gap:14px}
+  .brand{gap:12px}
+  .brand-logo{width:44px;height:44px;font-size:19px;border-width:2px}
+  .brand-name strong,.brand-slogan strong{font-size:15px}
+  .brand-slogan small{display:none}
+  .brand-divider{height:26px}
+  main{padding:18px 22px 0}
+  .hero{margin-bottom:26px}
+  .hero-sub{font-size:17px;margin-top:12px}
+  .tone-word{font-size:46px}
+  .tone-mark{width:36px;height:36px}
+  .card-grid{gap:16px}
+  .card{padding:20px 18px;min-height:112px;gap:13px}
+  .card-icon{width:46px;height:46px;border-radius:13px}
+  .card-icon svg{width:23px;height:23px}
+  .card-body strong{font-size:17px}
+}
+@media(max-width:620px){
+  .topbar{padding:14px 16px 10px}
+  .brand-slogan,.brand-divider{display:none}
+  .env-badge{padding:5px 11px 5px 6px;font-size:11px}
+  main{padding:14px 16px 0}
+  .hero{margin-bottom:22px}
+  .tone-word{font-size:38px;letter-spacing:1px}
+  .tone-mark{width:30px;height:30px}
+  .hero-sub{font-size:15px;letter-spacing:.3px}
+  .card-grid{grid-template-columns:1fr;gap:12px}
+  .card{min-height:104px;padding:18px 16px}
+  .card.is-featured{padding-bottom:28px}
+  .card-flag{bottom:8px}
+  .market{height:38vh}
+  .foot{font-size:10.5px}
+}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-logo" aria-hidden="true">鼎</span>
+    <div class="brand-name">
+      <strong>天鼎投资</strong>
+      <small>TIANDING INVESTMENT</small>
+    </div>
+    <span class="brand-divider" aria-hidden="true"></span>
+    <div class="brand-slogan">
+      <strong>科技驱动投教 专业赋能服务</strong>
+      <small>Technology-driven investment education, professional empowerment service</small>
+    </div>
+  </div>
+  <span class="env-badge"><i aria-hidden="true">演</i>演示环境</span>
+</header>
+
+<main>
+  <div class="hero">
+    <div class="tone">
+      <svg class="tone-mark" viewBox="0 0 44 44" aria-hidden="true">
+        <g fill="currentColor">
+          <path d="M4 37L19 7h7L11 37z"/>
+          <path d="M17 37L32 7h7L24 37z"/>
+          <circle cx="37" cy="9" r="4.6"/>
+        </g>
+      </svg>
+      <span class="tone-word">T-ONE</span>
+    </div>
+    <p class="hero-sub">天鼎证券投资 AI智能管理平台</p>
+  </div>
+
+  <nav class="card-grid" aria-label="系统入口">
+    <div class="card pink is-disabled" role="link" aria-disabled="true" tabindex="0" data-soon="人员管理系统">
+      <span class="ribbon">人员管理系统</span>
+      <span class="card-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8M17 4a4 4 0 0 1 0 7M22 21v-2a4 4 0 0 0-3-3.87"/></svg>
+      </span>
+      <span class="card-body"><strong>天枢</strong><small>全周期管理，人事一体化管控</small></span>
+    </div>
+
+    <div class="card crimson is-disabled" role="link" aria-disabled="true" tabindex="0" data-soon="合规系统">
+      <span class="ribbon">合规系统</span>
+      <span class="card-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M12 3l7 3v6c0 4.2-2.9 7.6-7 9-4.1-1.4-7-4.8-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg>
+      </span>
+      <span class="card-body"><strong>包大人</strong><small>合规审查与风险管控，保障稳健</small></span>
+    </div>
+
+    <div class="card blue is-disabled" role="link" aria-disabled="true" tabindex="0" data-soon="订单系统">
+      <span class="ribbon">订单系统</span>
+      <span class="card-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M4 8l8-4 8 4-8 4z"/><path d="M4 8v8l8 4 8-4V8M12 12v8"/></svg>
+      </span>
+      <span class="card-body"><strong>大管家</strong><small>客户服务管理，构建长期关系</small></span>
+    </div>
+
+    <div class="card orange is-disabled" role="link" aria-disabled="true" tabindex="0" data-soon="投顾助手">
+      <span class="ribbon">投顾助手</span>
+      <span class="card-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M4 19V9M9 19V4M14 19v-7M19 19v-4"/><path d="M2 21h20"/></svg>
+      </span>
+      <span class="card-body"><strong>盯盘侠</strong><small>盘中行情移动提醒，把握时点</small></span>
+    </div>
+
+    <a class="card violet is-featured" href="企业数据资产中心-交互原型.html" aria-label="有据 · 数据资产，进入企业数据资产中心演示">
+      <span class="ribbon">数据资产</span>
+      <span class="card-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M21 5c0 2-4 3-9 3S3 7 3 5s4-3 9-3 9 1 9 3M3 5v14c0 2 4 3 9 3s9-1 9-3V5M3 12c0 2 4 3 9 3s9-1 9-3"/></svg>
+      </span>
+      <span class="card-body"><strong>有据</strong><small>来源留存与关系追溯，让每份数据都有来处</small></span>
+      <span class="card-flag">主演示入口</span>
+    </a>
+
+    <div class="card green is-disabled" role="link" aria-disabled="true" tabindex="0" data-soon="风控质检">
+      <span class="ribbon">风控质检系统</span>
+      <span class="card-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M12 3l7 3v6c0 4.2-2.9 7.6-7 9-4.1-1.4-7-4.8-7-9V6z"/><path d="M8.5 12.5l2.5 2.5 4.5-5"/></svg>
+      </span>
+      <span class="card-body"><strong>风控质检</strong><small>质检规则与投诉风险识别，名称预留</small></span>
+    </div>
+  </nav>
+</main>
+
+<div class="market" id="market" aria-hidden="true"></div>
+<footer class="foot">苏ICP备09015858号-63</footer>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+'use strict';
+
+/* 行情水印：本地生成固定随机的蜡烛图，仅作氛围，不代表真实行情。 */
+(function drawMarket(){
+  const host=document.getElementById('market');
+  const W=1600,H=560,COUNT=260;
+  let seed=20261023;
+  const rnd=()=>{seed=(seed*1103515245+12345)&0x7fffffff;return seed/0x7fffffff;};
+  const step=W/COUNT,body=Math.max(2.6,step*0.46);
+  const toY=p=>H*0.94-p*H*0.74;
+  let price=0.12;
+  const candles=[],labels=[];
+  for(let i=0;i<COUNT;i++){
+    const drift=i<COUNT*0.42?0.0022:i<COUNT*0.62?-0.0008:0.0019;
+    const open=price;
+    price=Math.max(0.06,Math.min(0.92,price+(rnd()-0.5)*0.03+drift));
+    const close=price,up=close>open;
+    const y1=toY(open),y2=toY(close),top=Math.min(y1,y2),height=Math.max(1.8,Math.abs(y2-y1));
+    const high=top-rnd()*13,low=top+height+rnd()*13,x=i*step;
+    candles.push(`<g class="${up?'c-up':'c-down'}"><line x1="${(x+body/2).toFixed(1)}" y1="${high.toFixed(1)}" x2="${(x+body/2).toFixed(1)}" y2="${low.toFixed(1)}" stroke-width="1"/><rect x="${x.toFixed(1)}" y="${top.toFixed(1)}" width="${body.toFixed(1)}" height="${height.toFixed(1)}" rx="0.7"/></g>`);
+    if(i%14===7)labels.push(`<text x="${x.toFixed(1)}" y="${(high-16).toFixed(1)}">${(2860+(1-price)*720).toFixed(2)}</text>`);
+  }
+  const grid=[];
+  for(let r=0;r<=4;r++){const y=(H*0.14+(H*0.8)/4*r).toFixed(1);grid.push(`<line x1="0" y1="${y}" x2="${W}" y2="${y}" stroke-width="1"/>`);}
+  host.innerHTML=`<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid slice">
+    <defs>
+      <linearGradient id="fade" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#fff" stop-opacity=".92"/>
+        <stop offset=".26" stop-color="#fff" stop-opacity=".22"/>
+        <stop offset=".6" stop-color="#fff" stop-opacity="0"/>
+        <stop offset=".88" stop-color="#fff" stop-opacity=".55"/>
+        <stop offset="1" stop-color="#fff" stop-opacity=".92"/>
+      </linearGradient>
+    </defs>
+    <g fill="none" stroke="#c9ced9" stroke-opacity=".45">${grid.join('')}</g>
+    <g stroke="#cf8f96" fill="#cf8f96" stroke-opacity=".45" fill-opacity=".3">${candles.join('')}</g>
+    <g fill="#b9bfca" fill-opacity=".45" font-size="11" font-family="Consolas,monospace">${labels.join('')}</g>
+    <rect width="${W}" height="${H}" fill="url(#fade)"/>
+  </svg>`;
+})();
+
+/* 未接入系统给出明确反馈，避免误以为可进入。 */
+(function disabledCards(){
+  const toast=document.getElementById('toast');
+  let timer;
+  const show=text=>{
+    clearTimeout(timer);
+    toast.textContent=text;
+    toast.classList.add('show');
+    timer=setTimeout(()=>toast.classList.remove('show'),2600);
+  };
+  document.querySelectorAll('[data-soon]').forEach(card=>{
+    const name=card.dataset.soon;
+    const hint=()=>show('「'+name+'」演示环境暂未接入，当前仅保留入口位置。');
+    card.addEventListener('click',event=>{event.preventDefault();hint();});
+    card.addEventListener('keydown',event=>{
+      if(event.key==='Enter'||event.key===' '){event.preventDefault();hint();}
+    });
+  });
+})();
+</script>
+</body>
+</html>
