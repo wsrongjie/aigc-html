@@ -426,6 +426,73 @@ svg.icon{stroke-width:1.65}
 .customer-info-jump{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:11px 14px;margin-bottom:17px;border:1px solid #e3eaf5;border-radius:7px;background:#fafcff;color:#8697ad;font-size:10.5px}
 .customer-info-jump>.icon{width:14px;height:14px;color:#8fa9cd;flex:none}
 .customer-info-jump .link{font-size:10.5px}
+/* 数据资产看板：聚合口径演示数据，与明细页样本解耦。 */
+.board-facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 18px}
+.board-fact{padding:10px 0;border-bottom:1px solid #eef1f6}
+.board-fact small{display:block;font-size:10px;color:#98a4b4;margin-bottom:3px}
+.board-fact strong{display:block;font-size:12px;color:#4f6a8d;font-weight:600}
+.board-fact span{display:block;font-size:10px;color:#9aa7b8;margin-top:3px}
+.board-grid.trend-row{grid-template-columns:minmax(0,1.6fr) minmax(0,1fr)}
+.trend-summary{display:flex;gap:22px;flex-wrap:wrap;padding:11px 13px;margin-bottom:14px;border:1px solid #e8eef7;border-radius:7px;background:#f7f9fd;font-size:10.5px;color:#6c7f9a;line-height:1.8}
+.trend-summary b{display:block;font:17px "Bahnschrift",Consolas,var(--font);color:#3d5473;font-weight:500;letter-spacing:-.3px}
+.trend-summary span>i{font-style:normal;color:#98a4b6;margin-right:5px}
+.trend-summary .down b{color:#168065}
+.trend-summary .up b{color:#bc4a4a}
+.trend-chart{display:flex;gap:9px;height:228px}
+.trend-yaxis{display:flex;flex-direction:column;justify-content:space-between;padding:4px 0 18px;font:9.5px Consolas,monospace;color:#9aa7b8;text-align:right;flex:none;min-width:26px}
+.trend-plot{position:relative;flex:1;min-width:0;margin-bottom:18px;background-image:repeating-linear-gradient(to bottom,#eef2f8 0 1px,transparent 1px 25%);background-size:100% 25%}
+.trend-plot svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.trend-line{fill:none;stroke:#4a7fd4;stroke-width:2;vector-effect:non-scaling-stroke;stroke-linecap:round;stroke-linejoin:round}
+.trend-area{fill:url(#trendFade);stroke:none}
+.trend-dot{position:absolute;width:7px;height:7px;border-radius:50%;background:#4a7fd4;border:1.5px solid #fff;box-shadow:0 1px 4px #2b4d7a33;transform:translate(-50%,-50%)}
+.trend-dot.peak{background:#c9635d;width:8px;height:8px}
+.trend-peak-label{position:absolute;font:9.5px Consolas,monospace;color:#a8534d;background:#fff6f5;border:1px solid #f0d8d5;border-radius:4px;padding:1px 5px;white-space:nowrap}
+.trend-xaxis{display:flex;justify-content:space-between;margin:-12px 0 0 35px;font:9.5px Consolas,monospace;color:#9aa7b8}
+.trend-xaxis span{transform:translateX(-50%)}
+.trend-xaxis span:first-child{transform:none}
+.trend-xaxis span:last-child{transform:translateX(-100%)}
+.trend-note{margin-top:13px;padding-top:12px;border-top:1px dashed #e7ebf2;font-size:10.5px;line-height:1.9;color:#7d8ea6}
+.board-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:-4px 0 16px}
+.board-ranges{display:inline-flex;padding:3px;background:#eef2f8;border-radius:7px;gap:3px}
+.board-ranges button{padding:6px 14px;border-radius:5px;font-size:11px;color:#7d899a}
+.board-ranges button.active{background:#fff;color:var(--blue);font-weight:600;box-shadow:0 1px 4px #17294a12}
+.board-snapshot{font-size:10px;color:#98a4b5}
+.board-kpis{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px;margin-bottom:16px}
+.board-kpi{text-align:left;background:#fff;border:1px solid var(--line);border-radius:10px;padding:15px 16px;transition:border-color .14s,box-shadow .14s;min-width:0}
+.board-kpi:hover{border-color:#c7d8f5;box-shadow:0 6px 18px #17294a10}
+.board-kpi small{display:flex;align-items:center;gap:6px;font-size:10.5px;color:#8794a8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.board-kpi small .icon{width:13px;height:13px;color:#9aa9bd}
+.board-kpi strong{display:block;font:26px "Bahnschrift",Consolas,var(--font);font-weight:500;color:#33465f;margin:8px 0 3px;letter-spacing:-.6px}
+.board-kpi em{font-style:normal;font-size:10px;color:#97a3b5;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.board-kpi em.up{color:#168065}
+.board-kpi em.warn{color:#bc4a4a}
+.board-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;margin-bottom:16px;align-items:stretch}
+.board-grid>.panel{min-width:0;display:flex;flex-direction:column}
+.board-grid>.panel>.section-content{flex:1;display:flex;flex-direction:column}
+.board-grid>.panel .board-closed{margin-top:auto}
+.risk-pie{display:flex;align-items:center;gap:22px}
+.risk-pie>svg{width:190px;height:190px;flex:none}
+.risk-legend{list-style:none;margin:0;padding:0;flex:1;min-width:0;display:grid;gap:9px}
+.risk-legend li{display:grid;grid-template-columns:10px minmax(0,1fr) auto;align-items:center;gap:9px;font-size:11px;color:#5f7189}
+.risk-legend i{display:block;width:9px;height:9px;border-radius:2px}
+.risk-legend .name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.risk-legend b{font:11px Consolas,monospace;color:#5b6f8b;font-weight:400;text-align:right;white-space:nowrap}
+.risk-legend b span{color:#a3aebe;margin-left:7px}
+.risk-legend .total{display:flex;justify-content:space-between;grid-column:1/-1;margin-top:3px;padding-top:9px;border-top:1px dashed #e7ebf2;font-size:10px;color:#94a0b1}
+.risk-highlight{margin-top:14px;padding:10px 12px;border:1px solid #f2dedb;border-radius:7px;background:#fdf5f4;font-size:10.5px;line-height:1.85;color:#94645e}
+.risk-highlight b{color:#a8443d;font-weight:600}
+@media(max-width:620px){.risk-pie{flex-direction:column;align-items:stretch;gap:16px}.risk-pie>svg{width:168px;height:168px;margin:0 auto}}
+.board-summary{margin-top:14px;padding:11px 13px;border:1px solid #e8eef7;border-radius:7px;background:#f7f9fd;font-size:10.5px;line-height:1.9;color:#6c7f9a}
+.board-summary b{color:#4c6182;font-weight:600}
+.board-closed{margin-top:13px;padding-top:12px;border-top:1px dashed #e7ebf2;font-size:10px;color:#94a0b1;line-height:1.8}
+.board-overdue{color:#bc4a4a;font-weight:600}
+.board-method{margin-top:2px;border:1px solid var(--line);border-radius:8px;background:#fbfcfe;padding:12px 15px;font-size:10.5px;color:#8b9ab0;line-height:1.9}
+.board-method summary{cursor:pointer;color:#6f819b;font-size:11px}
+.board-method p{margin-top:8px}
+@media(max-width:1280px){.board-kpis{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:1200px){.board-grid,.board-grid.trend-row{grid-template-columns:1fr}}
+@media(max-width:900px){.board-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:620px){.board-kpis{grid-template-columns:1fr 1fr;gap:9px}.board-kpi{padding:12px 13px}.board-kpi strong{font-size:22px}.board-facts{grid-template-columns:1fr}.funnel-row{grid-template-columns:74px minmax(0,1fr)}}
 .customer-info-note{margin-top:11px;line-height:1.8}
 /* 风控说明条：只在异常与历史结论时出现，附来源跳转。 */
 .customer-risk-banner{display:flex;align-items:flex-start;gap:11px;padding:14px 19px;border-top:1px solid var(--line);border-left:3px solid #d07f79;background:#fff6f5;color:#9a5a53}
@@ -703,13 +770,104 @@ Object.entries({ct1:'o1',ct2:'o1',ct3:'o2',ct4:'o3',ct5:'o4',ct6:'o5',rf1:'o5',c
 Object.entries({m4:'p1',r1:'p1',l1:'p2'}).forEach(([id,pid])=>{
  assets.find(a=>a.id===id).productReferences=[{productId:pid,source:'oms',sourceRecordId:'REL-'+id+'-'+pid,basis:'来源内容与商品映射记录（虚构演示）'}];
 });
+// 看板采用脱敏聚合演示数据，与明细页样本解耦；明细页数字更小但可逐条核对。
+const boardData={
+ snapshot:'2026-10-23 16:35',
+ total:12480,
+ customers:1182,
+ employees:186,
+ completeness:72,
+ openCases:18,
+ pendingLinks:43,
+ riskCurrent:[
+  {level:'未评估',count:412,color:'#a8b3c4'},
+  {level:'正常',count:663,color:'#168065'},
+  {level:'关注',count:70,color:'#d59a3c'},
+  {level:'投诉意向',count:21,color:'#c9635d'},
+  {level:'投诉处理中',count:16,color:'#a83a3a'}
+ ],
+ riskClosed:46,
+ highRisk:37,
+ trend:{
+  start:'2026-09-24',
+  values:[21,22,23,25,27,28,30,32,34,36,38,40,43,45,44,42,41,43,45,44,42,43,41,40,39,40,38,39,38,37]
+ },
+ ranges:{
+  '7':{added:326,newCustomers:74,newHighRisk:6,newCases:5,overdue:3,addedRisk:6,closed:10},
+  '30':{added:1182,newCustomers:286,newHighRisk:18,newCases:14,overdue:5,addedRisk:21,closed:25}
+ },
+ efficiency:{rate:76,hours:3.8,overdueShare:16.7,overdue:3},
+ review:{pass:91,hours:'4.2',pending:7},
+ extractPending:12,
+ reach:{send:3860,sendCustomers:742,liveSessions:24,liveCustomers:512},
+ refund:{amount:286400,pending:6}
+};
+function trendSeries(){
+ const all=boardData.trend.values,start=new Date(boardData.trend.start+'T00:00:00');
+ const days=all.map((_,i)=>{const d=new Date(start);d.setDate(d.getDate()+i);return `${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;});
+ const count=state.boardRange==='7'?7:all.length;
+ return {values:all.slice(-count),labels:days.slice(-count),all,labelsAll:days};
+}
+function trendChart(){
+ const {values,labels,all,labelsAll}=trendSeries();
+ const rawMax=Math.max(...values),rawMin=Math.min(...values);
+ const span=Math.max(1,rawMax-rawMin);
+ let step=Math.max(1,Math.ceil((span*1.4)/3/2)*2);
+ const yTop=Math.ceil((rawMax+span*0.12)/step)*step;
+ const yBottom=yTop-step*3;
+ const yOf=v=>100-(v-yBottom)/(yTop-yBottom)*100;
+ const xOf=(i,n)=>n===1?50:(i/(n-1))*100;
+ const points=values.map((v,i)=>`${xOf(i,values.length).toFixed(2)},${yOf(v).toFixed(2)}`).join(' ');
+ const peakIdx=values.indexOf(rawMax),peakLeft=xOf(peakIdx,values.length);
+ const peakTransform=peakLeft<12?'translate(0,-145%)':peakLeft>88?'translate(-100%,-145%)':'translate(-50%,-145%)';
+ const ticks=[yTop,yTop-step,yTop-step*2,yBottom];
+ const allMax=Math.max(...all),allMaxIdx=all.indexOf(allMax),last=values[values.length-1],base=all[0],diff=last-base;
+ const labelStep=Math.ceil(labels.length/6);
+ const xLabels=labels.map((d,i)=>i%labelStep===0||i===labels.length-1?`<span>${d}</span>`:'').join('');
+ return `<div class="trend-summary"><span><i>当前高风险客户</i><b>${last} 位</b></span><span class="${diff<=0?'down':'up'}"><i>较 30 日前</i><b>${diff>0?'+':''}${diff} 位</b></span><span><i>30 日峰值</i><b>${allMax} 位 · ${labelsAll[allMaxIdx]}</b></span><span><i>近 ${state.boardRange} 日新增 / 结案</i><b>${boardData.ranges[state.boardRange].addedRisk} / ${boardData.ranges[state.boardRange].closed}</b></span></div>
+ <div class="trend-chart"><div class="trend-yaxis">${ticks.map(v=>`<span>${v}</span>`).join('')}</div><div class="trend-plot"><svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="trendFade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4a7fd4" stop-opacity=".18"/><stop offset="1" stop-color="#4a7fd4" stop-opacity="0"/></linearGradient></defs><polygon class="trend-area" points="0,100 ${points} 100,100"/><polyline class="trend-line" points="${points}"/></svg>${values.map((v,i)=>`<span class="trend-dot ${i===peakIdx?'peak':''}" style="left:${xOf(i,values.length).toFixed(2)}%;top:${yOf(v).toFixed(2)}%" title="${labels[i]} · ${v} 位"></span>`).join('')}<span class="trend-peak-label" style="left:${peakLeft.toFixed(2)}%;top:${yOf(rawMax).toFixed(2)}%;transform:${peakTransform}">区间峰值 ${rawMax}</span></div></div>
+ <div class="trend-xaxis">${xLabels}</div>
+ <p class="trend-note">风险于 ${labelsAll[allMaxIdx]} 见顶（${allMax} 位），当前 ${last} 位、较峰值 ${last-allMax} 位；较 ${labelsAll[0]} 的 ${base} 位仍 ${diff>=0?'高':'低'} ${Math.abs(diff)} 位。${last<all[allMaxIdx]&&diff>0?'处于回落通道但未回到月初水平，需继续观察。':'持续收敛。'}</p>`;
+}
+function riskPie(){
+ const rows=boardData.riskCurrent,total=rows.reduce((sum,x)=>sum+x.count,0);
+ const cx=110,cy=110,r=96;
+ let acc=0;
+ const arcs=rows.map(x=>{
+  const start=acc/total*Math.PI*2-Math.PI/2;
+  acc+=x.count;
+  const end=acc/total*Math.PI*2-Math.PI/2;
+  const x1=(cx+r*Math.cos(start)).toFixed(2),y1=(cy+r*Math.sin(start)).toFixed(2);
+  const x2=(cx+r*Math.cos(end)).toFixed(2),y2=(cy+r*Math.sin(end)).toFixed(2);
+  const large=(end-start)>Math.PI?1:0;
+  return {row:x,pct:Math.round(x.count/total*1000)/10,d:`M ${cx} ${cy} L ${x1} ${y1} A ${r} ${r} 0 ${large} 1 ${x2} ${y2} Z`};
+ });
+ const high=rows.filter(x=>['投诉意向','投诉处理中'].includes(x.level)).reduce((sum,x)=>sum+x.count,0);
+ const aria=`风控状态分布：${rows.map(x=>x.level+' '+x.count+' 位').join('，')}；合计 ${total} 位。`;
+ return `<div class="risk-pie"><svg viewBox="0 0 220 220" role="img" aria-label="${esc(aria)}">${arcs.map(a=>`<path d="${a.d}" fill="${a.row.color}" stroke="#fff" stroke-width="2"><title>${esc(a.row.level)} ${a.row.count} 位 · ${a.pct}%</title></path>`).join('')}</svg><ul class="risk-legend">${rows.map(x=>`<li><i style="background:${x.color}"></i><span class="name">${esc(x.level)}</span><b>${x.count}<span>${Math.round(x.count/total*1000)/10}%</span></b></li>`).join('')}<li class="total"><span>合计覆盖客户</span><span>${total.toLocaleString('zh-CN')} 位</span></li></ul></div><div class="risk-highlight">高风险（投诉意向 + 投诉处理中）合计 <b>${high} 位</b>，占覆盖客户 ${Math.round(high/total*1000)/10}%；饼图中占比较大的「未评估」与「正常」不代表已排除风险，未评估客户仍需逐户核实。</div>`;
+}
+
+function boardPage(){
+ const d=boardData,r=state.boardRange,inc=d.ranges[r];
+ const riskTotal=d.riskCurrent.reduce((sum,x)=>sum+x.count,0);
+ const highRisk=d.riskCurrent.filter(x=>['投诉意向','投诉处理中'].includes(x.level)).reduce((sum,x)=>sum+x.count,0);
+ const kpi=(label,iconName,value,note,jump,tone='')=>`<button class="board-kpi" data-action="board-jump" data-id="${jump}" aria-label="${label} ${value}，查看明细"><small>${icon(iconName)}${label}</small><strong>${value}</strong><em class="${tone}">${note}</em></button>`;
+ return `<div class="board-toolbar"><div class="board-ranges" role="group" aria-label="统计时间范围"><button class="${r==='7'?'active':''}" data-action="board-range" data-id="7" aria-pressed="${r==='7'}">近 7 日</button><button class="${r==='30'?'active':''}" data-action="board-range" data-id="30" aria-pressed="${r==='30'}">近 30 日</button></div><span class="board-snapshot">聚合口径演示数据 · 快照 ${d.snapshot}</span></div>
+ <div class="board-kpis">${kpi('资产总量','database',d.total.toLocaleString('zh-CN'),'近 '+r+' 日新增 +'+inc.added,'all','up')}${kpi('覆盖客户','users',d.customers.toLocaleString('zh-CN'),'近 '+r+' 日新增 +'+inc.newCustomers,'customers','up')}${kpi('档案完整率','check',d.completeness+'%','身份、会话、订单、合同齐全','customers')}${kpi('高风险客户','case',highRisk,'近 '+r+' 日新增 +'+inc.newHighRisk,'customers','warn')}${kpi('未办结事项','clock',d.openCases,'超期 '+inc.overdue+' 项','cases','warn')}${kpi('待关联资料','link',d.pendingLinks,'来源未提供可靠关系','sources','warn')}</div>
+ <div class="board-grid trend-row"><section class="panel"><div class="panel-head"><div><h2>风险趋势</h2><p>高风险客户数（投诉意向 + 投诉处理中）按日走势。</p></div>${chip('演示规则判定','blue')}</div><div class="section-content">${trendChart()}</div></section>
+ <section class="panel"><div class="panel-head"><div><h2>处置效率</h2><p>判断风险下降是处理见效还是新增放缓。</p></div>${chip('近 '+r+' 日','blue')}</div><div class="section-content"><div class="board-facts"><div class="board-fact"><small>新增 / 结案</small><strong>${inc.addedRisk} / ${inc.closed}<span>${inc.closed>=inc.addedRisk?'结案多于新增':'新增快于结案'}</span></strong></div><div class="board-fact"><small>结案率</small><strong>${d.efficiency.rate}%<span>已办结占本期事项</span></strong></div><div class="board-fact"><small>平均处理时长</small><strong>${d.efficiency.hours} 天<span>从受理到办结</span></strong></div><div class="board-fact"><small>超期占比</small><strong>${d.efficiency.overdueShare}%<span>${inc.overdue} 项超期待处理</span></strong></div></div><div class="board-summary"><b>结论：</b>本期结案 ${inc.closed} 项、新增 ${inc.addedRisk} 项，${inc.closed>=inc.addedRisk?'处理速度快于新增，风险池在收缩':'新增快于结案，风险池仍在扩大'}；超期 ${inc.overdue} 项为当前唯一恶化项，建议优先收口。</div></div></section></div>
+ <div class="board-grid"><section class="panel"><div class="panel-head"><div><h2>风控分布</h2><p>按客户当前风控状态统计，合计 ${riskTotal.toLocaleString('zh-CN')} 位覆盖客户。</p></div><button class="link" data-action="board-jump" data-id="customers" style="font-size:11px">客户档案 →</button></div><div class="section-content">${riskPie()}<p class="board-closed">另有 ${d.riskClosed} 位客户的历史投诉/退款事项已办结，作为历史结论单独留存，不计入当前状态。</p></div></section>
+ <section class="panel"><div class="panel-head"><div><h2>内容与合规产出</h2><p>素材审核与触达按实际发送记录统计，不代表已阅读。</p></div><button class="link" data-action="board-jump" data-id="material" style="font-size:11px">营销素材 →</button></div><div class="section-content"><div class="board-facts"><div class="board-fact"><small>素材审核通过率</small><strong>${d.review.pass}%<span>待审核 ${d.review.pending} 版</span></strong></div><div class="board-fact"><small>平均审核时长</small><strong>${d.review.hours} 小时<span>送审至出结果</span></strong></div><div class="board-fact"><small>内容发送触达</small><strong>${d.reach.send.toLocaleString('zh-CN')} 人次<span>覆盖 ${d.reach.sendCustomers} 位客户</span></strong></div><div class="board-fact"><small>直播场次与互动</small><strong>${d.reach.liveSessions} 场<span>触达 ${d.reach.liveCustomers} 位客户</span></strong></div><div class="board-fact"><small>待提取原件</small><strong>${d.extractPending} 项<span>上传件尚未处理</span></strong></div><div class="board-fact"><small>退款敞口</small><strong>¥${d.refund.amount.toLocaleString('zh-CN')}<span>${d.refund.pending} 笔待执行</span></strong></div></div></div></section></div>
+ <section class="panel"><div class="panel-head"><div><h2>口径与数据说明</h2><p>每个数字都能追到来源与统计时点。</p></div>${chip('聚合演示','amber')}</div><div class="section-content"><details class="board-method" open><summary>展开查看</summary><p>资产总量、覆盖客户、完整率、内容产出与趋势为聚合演示数据，用于展示看板形态；客户档案、订单、咨诉等明细页为 ${assets.length} 项样本数据，两者口径不同，下钻后数字会小于看板。</p><p>风险趋势按「投诉意向 + 投诉处理中」的客户数逐日统计（存量口径），不含已办结；区间起点为 ${boardData.trend.start}，终点为快照日。</p><p>风控分布按客户当前状态统计：未评估、正常、关注、投诉意向、投诉处理中，合计等于覆盖客户数；已办结事项作为历史结论单列，不重复计入。</p><p>「近 7 日 / 近 30 日」均按来源记录时间计算，不按入库时间；存量指标不随时间范围变化。</p><p>审核通过率与时长来自素材送审记录；触达按实际发送消息统计，不含阅读与点击。</p></details></div></section>`;
+}
+
 const types = {
  material:{label:'营销素材',icon:'image'},conversation:{label:'聊天会话',icon:'message'},live:{label:'文字直播',icon:'live'},report:{label:'每日研报',icon:'file'},contract:{label:'合同资料',icon:'contract'},product:{label:'商品档案',icon:'layers'},order:{label:'订单服务',icon:'order'},call:{label:'外呼记录',icon:'call'},case:{label:'咨诉事项',icon:'case'},refund:{label:'退款申请',icon:'refund'}
 };
 const formats={image:'海报图片',video:'视频',text:'文字',audio:'音频',pdf:'PDF文档'};
-const navGroups=[{label:'资产浏览',items:[['all','资产检索','search'],['dates','按日期归档','calendar'],['customers','客户档案','users'],['sales','销售档案','user']]},{id:'content',icon:'layers',label:'内容与资料',items:[['material','营销素材','image'],['live','文字直播间','live'],['report','每日研报','file'],['contract','合同档案','contract']]},{id:'business',icon:'order',label:'业务记录',items:[['product','商品档案','layers'],['order','订单与服务','order'],['call','外呼记录','call'],['cases','咨诉与退款','case']]},{label:'数据管理',items:[['sources','数据来源','database']]}];
+const navGroups=[{label:'资产浏览',items:[['board','数据资产看板','grid'],['all','资产检索','search'],['dates','按日期归档','calendar'],['customers','客户档案','users'],['sales','销售档案','user']]},{id:'content',icon:'layers',label:'内容与资料',items:[['material','营销素材','image'],['live','文字直播间','live'],['report','每日研报','file'],['contract','合同档案','contract']]},{id:'business',icon:'order',label:'业务记录',items:[['product','商品档案','layers'],['order','订单与服务','order'],['call','外呼记录','call'],['cases','咨诉与退款','case']]},{label:'数据管理',items:[['sources','数据来源','database']]}];
 const navItems=navGroups.flatMap(g=>g.items);
-const state={productDraft:productFilterDefaults(),productApplied:productFilterDefaults(),productPage:1,productSize:25,salesDraft:salesFilterDefaults(),salesApplied:salesFilterDefaults(),salesPage:1,salesSize:25,salesExpanded:[],directoryDraft:customerFilterDefaults(),directoryApplied:customerFilterDefaults(),directoryPage:1,directorySize:50,directoryMore:false,directoryError:'',customerProfile:null,navExpanded:{content:false,business:false},page:'all',query:'',type:'all',format:'all',source:'all',start:'',end:'',customerId:'all',salesId:'all',moreFilters:false,layout:'list',pageNo:1,date:'2026-10-23',chatAxis:'sales',archivePrimary:null,archivePair:null,profileTab:'all',drawer:null,stack:[],version:null,detailTab:'preview',thread:null,highlight:null};
+const state={productDraft:productFilterDefaults(),productApplied:productFilterDefaults(),productPage:1,productSize:25,salesDraft:salesFilterDefaults(),salesApplied:salesFilterDefaults(),salesPage:1,salesSize:25,salesExpanded:[],directoryDraft:customerFilterDefaults(),directoryApplied:customerFilterDefaults(),directoryPage:1,directorySize:50,directoryMore:false,directoryError:'',customerProfile:null,navExpanded:{content:false,business:false},page:'all',query:'',type:'all',format:'all',source:'all',start:'',end:'',customerId:'all',salesId:'all',moreFilters:false,layout:'list',boardRange:'7',pageNo:1,date:'2026-10-23',chatAxis:'sales',archivePrimary:null,archivePair:null,profileTab:'all',drawer:null,stack:[],version:null,detailTab:'preview',thread:null,highlight:null};
 let db=null;
 const localBlobUrls=new Map();
 let toastTimer;
@@ -740,8 +898,8 @@ function matches(a){
 }
 function scopeAssets(){return assets.filter(a=>state.page==='all'?(state.type==='all'||a.type===state.type):state.page==='cases'?['case','refund'].includes(a.type):a.type===state.page);}
 function getFiltered(){return scopeAssets().filter(matches).sort((a,b)=>b.time.localeCompare(a.time)||a.id.localeCompare(b.id));}
-function navCount(id){if(id==='all')return assets.length;if(id==='customers')return customers.length;if(id==='sales')return employees.filter(e=>e.role==='客户经理').length;if(id==='dates')return unique(allEvents().map(e=>dt(e.time))).length;if(id==='sources')return sources.length;if(id==='cases')return assets.filter(a=>['case','refund'].includes(a.type)).length;return assets.filter(a=>a.type===id).length;}
-function navButton([id,label,i],child=false){return `<button id="nav-item-${id}" class="nav-btn ${child?'nav-child ':''}${state.page===id?'active':''}" data-action="nav" data-id="${id}" ${state.page===id?'aria-current="page"':''} aria-label="${label}" title="${label}">${icon(i)}<span>${label}</span><span class="nav-count" aria-hidden="true">${navCount(id)}</span></button>`;}
+function navCount(id){if(id==='board')return '';if(id==='all')return assets.length;if(id==='customers')return customers.length;if(id==='sales')return employees.filter(e=>e.role==='客户经理').length;if(id==='dates')return unique(allEvents().map(e=>dt(e.time))).length;if(id==='sources')return sources.length;if(id==='cases')return assets.filter(a=>['case','refund'].includes(a.type)).length;return assets.filter(a=>a.type===id).length;}
+function navButton([id,label,i],child=false){return `<button id="nav-item-${id}" class="nav-btn ${child?'nav-child ':''}${state.page===id?'active':''}" data-action="nav" data-id="${id}" ${state.page===id?'aria-current="page"':''} aria-label="${label}" title="${label}">${icon(i)}<span>${label}</span>${navCount(id)===''?'':`<span class="nav-count" aria-hidden="true">${navCount(id)}</span>`}</button>`;}
 function renderNav(){
  const navigation=$('#navigation'),focused=navigation.contains(document.activeElement)?document.activeElement.id:null,scrollTop=navigation.scrollTop;
  $('#brand-icon').innerHTML=icon('archive');$('#tenant-icon').innerHTML=icon('building');$('#global-search-icon').innerHTML=icon('search');
@@ -754,8 +912,8 @@ function renderNav(){
  $('#breadcrumb').textContent=state.customerProfile?`客户档案 / ${customer(state.customerProfile.id)?.name||'客户详情'}`:navItems.find(n=>n[0]===state.page)?.[1]||'资产检索';
  if(focused)document.getElementById(focused)?.focus({preventScroll:true});navigation.scrollTop=scrollTop;
 }
-const pageInfo={all:['资产检索','从名称、来源和关联对象出发，查找散落在不同系统中的资料与记录。','ASSET SEARCH'],dates:['按日期归档','从记录发生的日期出发，查看内容、消息与业务变化。','DAILY ARCHIVE'],customers:['客户档案','先定位客户，再查阅跨系统留存的沟通、交易与服务记录。','CUSTOMER DIRECTORY'],sales:['销售档案','按员工查找企微账号，追溯明确留存的客户对接与业务记录。','EMPLOYEE DIRECTORY'],material:['营销素材','集中管理海报、视频、文字与音频，串联版本、审核和使用。','MARKETING CONTENT'],live:['文字直播间','保留公共内容与客户动作，按场次查看完整记录。','LIVE ARCHIVE'],report:['每日研报','按日期保存研报原文、目录与实际发送记录。','RESEARCH LIBRARY'],contract:['合同档案','归集购买、回访、退款合同及相关确认资料。','CONTRACT ARCHIVE'],product:['商品档案','归集商品配置、价格与历史，追溯明确关联的订单、客户和内容。','PRODUCT DIRECTORY'],order:['订单与服务','关联成交、合同与服务状态，查阅来源系统快照。','ORDER & SERVICE'],call:['外呼记录','将呼叫记录、录音与转写，关联到实际客户和员工。','CALL ARCHIVE'],cases:['咨诉与退款','保留独立事项、业务状态和每次处理历史。','SERVICE RECORDS'],sources:['数据来源','查看各来源的归集范围、记录索引及待关联资料。','DATA SOURCES']};
-function pageHead(){const [title,desc,eyebrow]=pageInfo[state.page];return `<div class="page-head"><div><div class="eyebrow">${eyebrow}</div><h1>${title}</h1><p>${desc}</p></div><div class="head-actions"><button class="btn" data-action="export">${icon('download')}${state.page==='customers'?'导出客户索引':state.page==='sales'?'导出员工索引':state.page==='product'?'导出商品索引':'导出索引'}</button><button class="btn primary" data-action="upload">${icon('upload')}上传资料</button></div></div>`;}
+const pageInfo={board:['数据资产看板','跨系统数据留存与风险态势的总览视图，点选任意指标可下钻明细。','DATA ASSET BOARD'],all:['资产检索','从名称、来源和关联对象出发，查找散落在不同系统中的资料与记录。','ASSET SEARCH'],dates:['按日期归档','从记录发生的日期出发，查看内容、消息与业务变化。','DAILY ARCHIVE'],customers:['客户档案','先定位客户，再查阅跨系统留存的沟通、交易与服务记录。','CUSTOMER DIRECTORY'],sales:['销售档案','按员工查找企微账号，追溯明确留存的客户对接与业务记录。','EMPLOYEE DIRECTORY'],material:['营销素材','集中管理海报、视频、文字与音频，串联版本、审核和使用。','MARKETING CONTENT'],live:['文字直播间','保留公共内容与客户动作，按场次查看完整记录。','LIVE ARCHIVE'],report:['每日研报','按日期保存研报原文、目录与实际发送记录。','RESEARCH LIBRARY'],contract:['合同档案','归集购买、回访、退款合同及相关确认资料。','CONTRACT ARCHIVE'],product:['商品档案','归集商品配置、价格与历史，追溯明确关联的订单、客户和内容。','PRODUCT DIRECTORY'],order:['订单与服务','关联成交、合同与服务状态，查阅来源系统快照。','ORDER & SERVICE'],call:['外呼记录','将呼叫记录、录音与转写，关联到实际客户和员工。','CALL ARCHIVE'],cases:['咨诉与退款','保留独立事项、业务状态和每次处理历史。','SERVICE RECORDS'],sources:['数据来源','查看各来源的归集范围、记录索引及待关联资料。','DATA SOURCES']};
+function pageHead(){const [title,desc,eyebrow]=pageInfo[state.page];return `<div class="page-head"><div><div class="eyebrow">${eyebrow}</div><h1>${title}</h1><p>${desc}</p></div><div class="head-actions"><button class="btn" data-action="export">${icon('download')}${state.page==='customers'?'导出客户索引':state.page==='sales'?'导出员工索引':state.page==='product'?'导出商品索引':'导出索引'}</button>${state.page==='board'?'':`<button class="btn primary" data-action="upload">${icon('upload')}上传资料</button>`}</div></div>`;}
 function stats(){
  const media=assets.filter(a=>a.type==='material');const extracted=assets.filter(a=>a.type!=='conversation'&&a.extractionState!=='pending'&&a.extract).length;
  const items=[['归集资产',assets.length,'独立条目，发送与审核记录另行关联','archive'],['关联客户',customers.filter(c=>linkedAssets('customers',c.id).length).length,'覆盖沟通、内容与业务记录','users'],['内容已整理',extracted,'原文整理、识别、转写与总结','file'],['待关联资料',assets.filter(a=>a.unlinked).length,'保留原件，等待补齐业务关系','link']];
@@ -1189,7 +1347,7 @@ function render(){
  const focused=document.activeElement;const restore=focused?.id&&(focused.id==='filter-query'||focused.closest('.asset-search,.customer-directory,.sales-directory,.product-directory'))?{id:focused.id,start:focused.selectionStart,end:focused.selectionEnd}:null;
  const salesScroll=$('.sales-table-wrap'),salesPosition=salesScroll?{top:salesScroll.scrollTop,left:salesScroll.scrollLeft}:null;
  const oldDirectory=$('.archive-directory'),oldScroll=$('.archive-directory-scroll'),directoryState=oldDirectory&&oldScroll?{key:oldDirectory.dataset.directoryKey,top:oldScroll.scrollTop}:null;
- renderNav();$('#main').innerHTML=state.page==='customers'&&state.customerProfile?customerProfilePage():pageHead()+(state.page==='sources'?sourcesPage():(['all','customers','sales','product'].includes(state.page)?'':stats())+(state.page==='customers'||state.page==='sales'?peoplePage():state.page==='dates'?datesPage():state.page==='product'?productDirectoryPage():pageAssets()));
+ renderNav();$('#main').innerHTML=state.page==='customers'&&state.customerProfile?customerProfilePage():pageHead()+(state.page==='sources'?sourcesPage():(['all','customers','sales','product','board'].includes(state.page)?'':stats())+(state.page==='board'?boardPage():state.page==='customers'||state.page==='sales'?peoplePage():state.page==='dates'?datesPage():state.page==='product'?productDirectoryPage():pageAssets()));
  if(restore){const candidate=document.getElementById(restore.id);const input=candidate?.disabled?$(state.page==='sales'?'#sales-page-size':'#directory-page-size'):candidate||$('#filter-query');input?.focus({preventScroll:true});if(input?.setSelectionRange&&restore.start!=null)input.setSelectionRange(restore.start,restore.end);}
  if(salesPosition&&state.page==='sales'){const box=$('.sales-table-wrap');if(box){box.scrollTop=salesPosition.top;box.scrollLeft=salesPosition.left;}}
  const directory=$('.archive-directory'),scroll=$('.archive-directory-scroll');
@@ -1355,7 +1513,7 @@ async function downloadOriginal(id){
 }
 function exportIndex(){
  if(state.page==='customers'&&state.customerProfile){const p=customer(state.customerProfile.id);if(!p)return;saveFile(JSON.stringify({name:'客户结构化档案',page:'customers',exportScope:'当前客户档案',record:customerProfileExport(p.id)},null,2),p.code+'-'+p.name+'-客户档案.json');toast('已导出当前客户的脱敏结构化档案。');return;}
- let payload;if(state.page==='product')payload=filteredProducts().map(productExportRecord);else if(state.page==='customers')payload=customerDirectoryExport();else if(state.page==='sales')payload=salesDirectoryExport();else if(state.page==='sources')payload=sources.map(s=>({...s,assetIds:assets.filter(a=>a.source===s.id).map(a=>a.id)}));else if(state.page==='dates')payload=archiveExportRecords();else payload=getFiltered().map(a=>({id:a.id,title:a.title,type:a.type,format:a.format,source:a.source,sourceRecordId:a.sourceId,time:a.time,status:status(a),relationships:links(a),productReferences:assetProductReferences(a),productSnapshot:a.productSnapshot,product:a.type==='product'?productExportRecord(a):undefined,versions:a.versions?.map(({original,...v})=>v)}));saveFile(JSON.stringify({name:'企业数据资产中心演示索引',page:state.page,exportScope:state.page==='dates'&&state.type==='conversation'?(state.archivePair?'选中对话的当日消息':state.archivePrimary?'选中人员的当日消息':'当前日期的聊天消息'):state.page==='dates'?'当前选中日期':'当前筛选范围',archiveContext:state.page==='dates'&&state.type==='conversation'?{date:state.date,axis:state.chatAxis,primaryId:state.archivePrimary,pairKey:state.archivePair}:undefined,productQuery:state.page==='product'?{...state.productApplied}:undefined,customerQuery:state.page==='customers'?customerDirectoryExportQuery():undefined,salesQuery:state.page==='sales'?{...state.salesApplied,text:redactDirectoryQueryText(state.salesApplied.text)}:undefined,records:payload},null,2),'资产索引-'+state.page+'.json');toast('已导出当前范围的结构化索引。');
+ let payload;if(state.page==='board')payload={snapshot:boardData.snapshot,range:state.boardRange,...boardData};else if(state.page==='product')payload=filteredProducts().map(productExportRecord);else if(state.page==='customers')payload=customerDirectoryExport();else if(state.page==='sales')payload=salesDirectoryExport();else if(state.page==='sources')payload=sources.map(s=>({...s,assetIds:assets.filter(a=>a.source===s.id).map(a=>a.id)}));else if(state.page==='dates')payload=archiveExportRecords();else payload=getFiltered().map(a=>({id:a.id,title:a.title,type:a.type,format:a.format,source:a.source,sourceRecordId:a.sourceId,time:a.time,status:status(a),relationships:links(a),productReferences:assetProductReferences(a),productSnapshot:a.productSnapshot,product:a.type==='product'?productExportRecord(a):undefined,versions:a.versions?.map(({original,...v})=>v)}));saveFile(JSON.stringify({name:'企业数据资产中心演示索引',page:state.page,exportScope:state.page==='dates'&&state.type==='conversation'?(state.archivePair?'选中对话的当日消息':state.archivePrimary?'选中人员的当日消息':'当前日期的聊天消息'):state.page==='dates'?'当前选中日期':'当前筛选范围',archiveContext:state.page==='dates'&&state.type==='conversation'?{date:state.date,axis:state.chatAxis,primaryId:state.archivePrimary,pairKey:state.archivePair}:undefined,productQuery:state.page==='product'?{...state.productApplied}:undefined,customerQuery:state.page==='customers'?customerDirectoryExportQuery():undefined,salesQuery:state.page==='sales'?{...state.salesApplied,text:redactDirectoryQueryText(state.salesApplied.text)}:undefined,records:payload},null,2),'资产索引-'+state.page+'.json');toast('已导出当前范围的结构化索引。');
 }
 function openUpload(){
  $('#upload').innerHTML=`<header class="drawer-head"><div><div class="eyebrow">LOCAL INGEST</div><h2 id="upload-title">上传补充资料</h2></div><button class="btn icon-only" data-action="upload-close" aria-label="关闭上传">${icon('close')}</button></header><form id="upload-form" class="upload-form"><div class="drop-zone">${icon('upload')}<p id="file-label">选择一份文件，建立独立资产档案</p><small>图片、音视频、TXT、PDF · 单文件不超过 20 MB</small><input type="file" id="upload-file" accept=".png,.jpg,.jpeg,.webp,.mp4,.webm,.mp3,.wav,.m4a,.txt,.pdf" required aria-label="选择上传文件"></div><label for="upload-name">资产名称</label><input id="upload-name" maxlength="100" required placeholder="可填写方便查阅的资料名称"><div class="form-row"><div><label for="upload-customer">关联客户（可选）</label><select id="upload-customer"><option value="">暂无明确关联</option>${customers.map(c=>`<option value="${c.id}">${c.name} · ${c.code}</option>`).join('')}</select></div><div><label for="upload-employee">相关员工（可选）</label><select id="upload-employee"><option value="">暂无明确关联</option>${employees.map(e=>`<option value="${e.id}">${e.name} · ${e.team}</option>`).join('')}</select></div></div><p class="form-help">原件与所填关系保存在当前浏览器。TXT 可直接留存正文；图片、音视频与 PDF 保留原件及文件信息，内容处理状态为“待提取”。</p><div class="form-error" id="upload-error" role="alert"></div><div class="between"><span class="tiny">上传不会写入客户原有系统</span><button class="btn primary" id="upload-submit" type="submit">${icon('check')}保存资料</button></div></form>`;
@@ -1429,6 +1587,8 @@ document.addEventListener('click',event=>{
  else if(action==='archive-primary'){state.archivePrimary=state.archivePrimary===id?null:id;state.archivePair=null;render();}
  else if(action==='archive-peer'){const model=dailyChatModel();if(!model.pairs.some(p=>p.key===id&&p[model.primaryKey]===state.archivePrimary))return;state.archivePair=id;render();if(innerWidth<=620)requestAnimationFrame(()=>$('#archive-chat-detail')?.scrollIntoView({block:'start',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'}));}
  else if(action==='source-assets'){nav('all');state.source=id;render();}
+ else if(action==='board-range'){if(!['7','30'].includes(id))return;state.boardRange=id;render();}
+ else if(action==='board-jump'){nav(id);toast('看板为聚合演示数据；当前展示 '+(id==='board'?'看板':'样本明细')+'，口径与看板不同。');}
  else if(action==='export')exportIndex();
  else if(action==='download-product'){const p=byId(id);if(p?.type==='product')saveFile(JSON.stringify(productExportRecord(p),null,2),p.sourceId+'-商品档案.json');}
  else if(action==='download-original')downloadOriginal(id).catch(()=>toast('原件读取失败，请检查本地文件是否完整。'));
