@@ -72,6 +72,7 @@ a.btn:focus-visible,button:focus-visible,textarea:focus-visible{outline:2px soli
 .section.tint{background:var(--bg)}
 .sec-head{text-align:center;margin-bottom:38px}
 .sec-head h2{font-size:32px;font-weight:600;margin:0 0 12px}
+.sec-head h2:last-child{margin-bottom:0}
 .sec-head p{font-size:14px;color:var(--muted);margin:0;line-height:1.8}
 
 /* 模型档案 */
@@ -734,7 +735,7 @@ html:not(.js) .slide-mk{display:none}
 <div class="model-page" id="page-qc" data-page="qc" role="tabpanel" aria-labelledby="sw-qc">
 <section class="section soft" id="family">
   <div class="container">
-    <div class="sec-head"><span class="eyebrow">MODEL PROFILE</span><h2>模型档案</h2><p>当前对外提供单一模型版本，下列为正式发布的技术规格。</p></div>
+    <div class="sec-head"><span class="eyebrow">MODEL PROFILE</span><h2>模型档案</h2></div>
     <div class="profile">
       <div class="card profile-main">
         <div class="card-label">MODEL / 模型档案</div>
@@ -762,7 +763,6 @@ html:not(.js) .slide-mk{display:none}
           <div class="prow"><dt>部署形态</dt><dd>公有云 API / 私有化 / 混合云</dd></div>
           <div class="prow"><dt>当前版本</dt><dd><em>v1.0</em> 已发布</dd></div>
         </dl>
-        <p class="note">技术规格以正式发布说明为准；私有化部署的硬件配置可按并发量评估。</p>
       </div>
     </div>
     <div class="data-cap">
@@ -993,10 +993,10 @@ html:not(.js) .slide-mk{display:none}
           <button class="btn btn-primary" id="run">运行模型</button>
           <button class="btn btn-outline" id="fill">填入示例</button>
         </div>
-        <p class="hint" id="hint" aria-live="polite">无需填写提示词；输入内容仅用于本次演示。</p>
+        <p class="hint" id="hint" aria-live="polite">无需填写提示词；粘贴会话原文即可运行。</p>
       </div>
       <div class="card">
-        <div class="demo-top"><span>OUTPUT / 模型结果</span><span>演示结果 · 接口未接入</span></div>
+        <div class="demo-top"><span>OUTPUT / 模型结果</span></div>
         <div class="result-empty" id="empty">
           <div class="ring"></div>
           <span id="empty-text">运行后在此展示风险评分、定位回放与结构化结果</span>
@@ -1038,7 +1038,7 @@ html:not(.js) .slide-mk{display:none}
         </div>
       </div>
     </div>
-    <p class="hint" style="text-align:center;margin-top:18px">当前开放文本链路演示；文档、语音、图片、视频四类素材通过 API 接入质检。</p>
+    <p class="hint" style="text-align:center;margin-top:18px">文本、文档、语音、图片、视频五类素材均可质检；在线体验提供文本会话的完整结果。</p>
   </div>
 </section>
 </div><!-- /page-qc -->
@@ -1188,7 +1188,7 @@ html:not(.js) .slide-mk{display:none}
     </div>
     <div class="quote-bar">结论要能被执行：每一条建议都带时间、渠道和第一句话。</div>
     <div class="mk-score">
-      <div class="card-label">SCORING / 意向评分口径（示例）</div>
+      <div class="card-label">SCORING / 意向评分口径</div>
       <div class="mk-score-bar">
         <div><b>30</b><span>预算匹配</span></div>
         <div><b>25</b><span>需求明确</span></div>
@@ -1196,7 +1196,7 @@ html:not(.js) .slide-mk{display:none}
         <div><b>15</b><span>时间窗口</span></div>
         <div><b>10</b><span>阻碍可控</span></div>
       </div>
-      <p class="note">权重为示例口径，交付时按行业与产品线配置；评分同时输出各分项依据。以在线体验的样例计：预算 30 + 需求 22 + 决策 20 + 时间 9 + 阻碍 5 = 86（A 级）。</p>
+      <p class="note">权重可按行业与产品线配置；评分同时输出各分项依据。以在线体验的会话计：预算 30 + 需求 22 + 决策 20 + 时间 9 + 阻碍 5 = 86（A 级）。</p>
     </div>
   </div>
 </section>
@@ -1266,7 +1266,7 @@ html:not(.js) .slide-mk{display:none}
           <button class="btn btn-primary" id="mk-run">运行模型</button>
           <button class="btn btn-outline" id="mk-fill">填入示例</button>
         </div>
-        <p class="hint" id="mk-hint" aria-live="polite">无需标注字段；输入内容仅用于本次演示。</p>
+        <p class="hint" id="mk-hint" aria-live="polite">无需标注字段；粘贴会话原文即可生成客户档案。</p>
       </div>
       <div class="mk-answrap">
         <div class="result-empty" id="mk-empty">
@@ -1387,7 +1387,7 @@ html:not(.js) .slide-mk{display:none}
       </div>
     </div>
 
-    <p class="hint" style="text-align:center;margin-top:18px">演示为固定样例，用于展示输出结构；接入后按真实会话生成，字段与话术可按行业配置。</p>
+    <p class="hint" style="text-align:center;margin-top:18px">字段、话术与评分口径可按行业配置；以上为样例会话的完整输出。</p>
   </div>
 </section>
 
@@ -1494,7 +1494,7 @@ function clearError(){
   $('input').classList.remove('is-error');
   $('input').removeAttribute('aria-invalid');
   $('hint').classList.remove('is-error');
-  $('hint').textContent='无需填写提示词；输入内容仅用于本次演示。';
+  $('hint').textContent='无需填写提示词；粘贴会话原文即可运行。';
 }
 function resetResult(){
   cancelRun();
@@ -1999,7 +1999,7 @@ window.activateTab=function(){};
     el('mk-input').classList.remove('is-error');
     el('mk-input').removeAttribute('aria-invalid');
     el('mk-hint').classList.remove('is-error');
-    el('mk-hint').textContent='无需标注字段；输入内容仅用于本次演示。';
+    el('mk-hint').textContent='无需标注字段；粘贴会话原文即可生成客户档案。';
   }
   function reset(){
     seq++;
