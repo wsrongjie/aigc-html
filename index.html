@@ -95,9 +95,9 @@
     main {
         flex: 1;
         width: 100%;
-        max-width: 1080px;
+        max-width: 880px;
         margin: 0 auto;
-        padding: 44px 32px 56px;
+        padding: 32px 32px 40px;
     }
 
     .page-head h1 {
@@ -128,8 +128,8 @@
     .grid {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 22px;
-        margin-top: 28px;
+        gap: 16px;
+        margin-top: 22px;
     }
 
     /* ---------- 产品卡片 ---------- */
@@ -139,7 +139,7 @@
         position: relative;
         display: flex;
         flex-direction: column;
-        padding: 24px 24px 20px;
+        padding: 16px 16px 12px;
         overflow: hidden;
         border: 1px solid var(--border);
         border-radius: var(--radius);
@@ -186,65 +186,66 @@
     .prod-icon {
         display: grid;
         place-items: center;
-        width: 44px;
-        height: 44px;
+        width: 30px;
+        height: 30px;
         flex: none;
-        border-radius: 12px;
+        border-radius: 8px;
         background: var(--brand-light);
         color: var(--brand);
-        font-size: 16px;
+        font-size: 12px;
         font-weight: 800;
         letter-spacing: .5px;
     }
 
     .prod-tag {
-        padding: 4px 10px;
+        padding: 3px 8px;
         border-radius: 999px;
         background: #F4F4F5;
         color: var(--text-secondary);
-        font-size: 11px;
+        font-size: 10.5px;
         font-weight: 600;
         white-space: nowrap;
     }
 
     .prod-name {
-        margin: 18px 0 0;
-        font-size: 22px;
+        margin: 10px 0 0;
+        font-size: 16px;
         font-weight: 700;
         letter-spacing: -.2px;
     }
 
     .prod-desc {
-        margin: 8px 0 0;
-        min-height: 40px;
+        margin: 5px 0 0;
+        min-height: 37px;
         color: var(--text-secondary);
-        font-size: 13.5px;
+        font-size: 12px;
         line-height: 1.55;
+        text-wrap: balance;
     }
 
     .flow {
         display: flex;
         flex-wrap: wrap;
         align-items: center;
-        gap: 6px;
-        margin-top: 16px;
-        padding: 10px 12px;
-        border-radius: 8px;
+        gap: 4px;
+        margin-top: 10px;
+        padding: 6px 9px;
+        border-radius: 7px;
         background: #FAFAFA;
         border: 1px solid #F0F0F1;
     }
 
-    .flow span { color: var(--text-primary); font-size: 12px; font-weight: 600; }
-    .flow i { color: var(--text-muted); font-size: 11px; font-style: normal; }
+    .flow span { color: var(--text-primary); font-size: 10.5px; font-weight: 600; }
+    .flow i { color: var(--text-muted); font-size: 9.5px; font-style: normal; }
 
-    .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
+    .chips { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; }
 
     .chips span {
-        padding: 4px 10px;
-        border-radius: 7px;
+        padding: 3px 7px;
+        border-radius: 6px;
         background: var(--brand-light);
         color: var(--brand);
-        font-size: 11.5px;
+        font-size: 10.5px;
         font-weight: 600;
     }
 
@@ -253,27 +254,34 @@
         align-items: center;
         justify-content: space-between;
         gap: 12px;
-        margin-top: 20px;
-        padding-top: 16px;
+        margin-top: 12px;
+        padding-top: 10px;
         border-top: 1px solid #F0F0F1;
     }
 
-    .scale { color: var(--text-muted); font-size: 12px; }
+    .scale { color: var(--text-muted); font-size: 11px; }
 
     .enter {
         display: inline-flex;
         align-items: center;
         gap: 6px;
-        padding: 8px 16px;
-        border-radius: 8px;
+        padding: 5px 11px;
+        border-radius: 7px;
         background: var(--brand);
         color: #fff;
-        font-size: 13px;
+        font-size: 11.5px;
         font-weight: 600;
         transition: filter .15s ease;
     }
 
     .product:hover .enter { filter: brightness(1.08); }
+
+    /* ---------- 官网卡片：与其他卡同尺寸，单独一行居中 ---------- */
+    .product.site {
+        grid-column: 1 / -1;
+        justify-self: center;
+        width: calc(50% - 8px);
+    }
 
     /* ---------- 页脚 ---------- */
     .foot {
@@ -287,9 +295,13 @@
     /* ---------- 响应式 ---------- */
     @media (max-width: 860px) {
         .topbar { padding: 0 20px; }
-        main { padding: 32px 20px 44px; }
-        .grid { grid-template-columns: minmax(0, 1fr); gap: 18px; }
+        main { padding: 26px 20px 36px; }
         .page-head h1 { font-size: 22px; }
+    }
+
+    @media (max-width: 640px) {
+        .grid { grid-template-columns: minmax(0, 1fr); gap: 14px; }
+        .product.site { width: 100%; }
     }
 </style>
 </head>
@@ -311,7 +323,7 @@
 
 <main>
     <div class="page-head">
-        <h1>选择要进入的产品<span class="count-pill">4 个产品</span></h1>
+        <h1>选择要进入的产品<span class="count-pill">5 个产品</span></h1>
         <p>点击下方卡片直接进入对应产品的工作台。</p>
     </div>
 
@@ -394,6 +406,26 @@
             <div class="prod-foot">
                 <span class="scale">6 大系统模块</span>
                 <span class="enter">进入风控平台 →</span>
+            </div>
+        </a>
+
+        <!-- 产品 5：通灵云双模型官网 -->
+        <a class="product site" href="1企微质检/通灵云双模型官网-能力优势展示优化版-单文件.html">
+            <div class="prod-top">
+                <div class="prod-icon">通</div>
+                <span class="prod-tag">时微科技 · 官网</span>
+            </div>
+            <h2 class="prod-name">通灵云双模型官网</h2>
+            <p class="prod-desc">双模型官网原型：模型档案、在线体验、场景赋能与留资转化。</p>
+            <div class="flow">
+                <span>官网首页</span><i>→</i><span>模型档案</span><i>→</i><span>在线体验</span>
+            </div>
+            <div class="chips">
+                <span>质检大模型</span><span>营销大模型</span><span>产品矩阵</span>
+            </div>
+            <div class="prod-foot">
+                <span class="scale">1 个官网原型</span>
+                <span class="enter">进入官网 →</span>
             </div>
         </a>
 
