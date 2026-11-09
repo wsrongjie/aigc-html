@@ -357,6 +357,7 @@ html:not(.js) .slide-mk{display:none}
 .sw-bar{position:absolute;left:12px;right:12px;bottom:4px;height:2px;background:transparent;border-radius:2px;overflow:hidden}
 .sw-bar i{display:block;height:100%;background:var(--blue);transform:scaleX(0);transform-origin:left}
 .sw.on .sw-bar{background:#E2EAF7}
+.show-switch.no-auto .sw.on .sw-bar{background:transparent}
 .sw-stats{display:flex;align-items:center;margin-left:auto;transition:opacity var(--t-fast) var(--ease)}
 .sw-stats.is-swap{opacity:.25}
 .sw-stats div{padding:0 20px;border-left:1px solid var(--line)}
@@ -1884,7 +1885,7 @@ window.activateTab=function(){};
     qc:'留下联系方式，我们将在一个工作日内与你联系，提供模型试用与接入方案。',
     mk:'留下联系方式，我们会带上同行业的会话样例，演示通灵云营销大模型从对话到下一步动作的完整过程。'
   };
-  let active='qc', timer=null, raf=null, startAt=0, remain=AUTO, paused=false, holding=false, visible=true;
+  let active='qc', timer=null, raf=null, startAt=0, remain=AUTO, paused=false, holding=false, visible=true, locked=false;
 
   function barFill(){
     const el=document.querySelector('.sw.on .sw-bar i');
@@ -1900,7 +1901,8 @@ window.activateTab=function(){};
   function startTimer(){
     stopTimer();
     document.querySelectorAll('.sw-bar i').forEach(el=>{el.style.transform='scaleX(0)';});
-    if(reduce||paused) return;
+    if(bar) bar.classList.toggle('no-auto',locked);
+    if(reduce||paused||locked) return;
     startAt=performance.now();
     raf=requestAnimationFrame(barFill);
     timer=setTimeout(()=>{ if(!paused) go(active==='qc'?'mk':'qc'); },remain);
@@ -1949,6 +1951,8 @@ window.activateTab=function(){};
   }
   function go(model,opt){
     opt=opt||{};
+    /* 用户一旦手动切换（点页签/箭头/滑动/tab 锚点），就停止自动轮播，避免阅读被打断 */
+    if(opt.user) locked=true;
     remain=AUTO;
     if(model!==active){
       const deep=bar.getBoundingClientRect().top<0;
