@@ -276,6 +276,37 @@
 
     .product:hover .enter { filter: brightness(1.08); }
 
+    /* ---------- 整卡跳原型 + 底部「线上环境」外链 ---------- */
+    .product .hit {
+        position: absolute;
+        inset: 0;
+        z-index: 1;
+        border-radius: inherit;
+    }
+
+    .product:focus-within {
+        transform: translateY(-2px);
+        border-color: var(--brand);
+        box-shadow: var(--shadow-md);
+    }
+
+    .ext {
+        position: relative;
+        z-index: 2;
+        color: var(--text-muted);
+        font-size: 11px;
+        text-decoration: none;
+        border-bottom: 1px dashed rgba(0, 0, 0, .2);
+        transition: color .15s ease, border-color .15s ease;
+    }
+
+    .ext:hover,
+    .ext:focus-visible {
+        color: var(--brand);
+        border-bottom-color: currentColor;
+        outline: none;
+    }
+
     /* ---------- 官网卡片：与其他卡同尺寸，单独一行居中 ---------- */
     .product.site {
         grid-column: 1 / -1;
@@ -329,8 +360,9 @@
 
     <div class="grid">
 
-        <!-- 产品 1：猩造AI -->
-        <a class="product xz" href="https://xingzaoai.com/" target="_blank" rel="noopener">
+        <!-- 产品 1：猩造AI（整卡进原型，右侧「线上环境」外链官网） -->
+        <div class="product xz">
+            <a class="hit" href="猩造AI-首页.html" aria-label="进入猩造AI 原型"></a>
             <div class="prod-top">
                 <div class="prod-icon">AI</div>
                 <span class="prod-tag">AIGC · 短视频</span>
@@ -344,10 +376,10 @@
                 <span>资产</span><span>导演台</span><span>全部工具</span><span>数据中心</span>
             </div>
             <div class="prod-foot">
-                <span class="scale">线上环境</span>
-                <span class="enter">进入官网 →</span>
+                <a class="ext" href="https://xingzaoai.com/" target="_blank" rel="noopener">线上环境 ↗</a>
+                <span class="enter">进入原型 →</span>
             </div>
-        </a>
+        </div>
 
         <!-- 产品 2：公众号运营平台 -->
         <a class="product gzh" href="公众号运营平台/公众号采集看板-卡片版.html">
