@@ -471,9 +471,12 @@ html:not(.js) .slide-mk{display:none}
 .mk-head .g-val span{color:#8FA3C4}
 .mk-head .level{color:#0E7A57;background:#E6F7EF;border-color:#B9E5D0}
 
-/* 平板区间：插画缩放到底部右侧，避免压住文案 */
+/* 平板区间：插画铺满首屏高度（不留顶部空白/接缝），文案列收窄避让 */
 @media(min-width:901px) and (max-width:1259px){
-  .slide-mk{background-size:auto 78%;background-position:right bottom}
+  .slide-mk{background-size:auto 100%;background-position:right center}
+  .slide-mk .hero-text{max-width:50%}
+  .slide-mk .desc{max-width:100%}
+  .slide-mk h1{font-size:clamp(40px,4.5vw,52px)}
   .slide-mk::before{background:linear-gradient(90deg,#F4F8FF 0%,rgba(244,248,255,.96) 26%,rgba(244,248,255,.55) 40%,rgba(244,248,255,0) 56%)}
 }
 
