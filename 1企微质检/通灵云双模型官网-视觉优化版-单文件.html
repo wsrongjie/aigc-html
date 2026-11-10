@@ -119,7 +119,7 @@ a.btn:focus-visible,button:focus-visible,textarea:focus-visible{outline:2px soli
 .prow dt{color:#8E99AD;font-size:12.5px;white-space:nowrap}
 .prow dd{margin:0;text-align:right;font-weight:500;color:var(--ink)}
 .prow dd.vs span{display:inline-block}
-.prow dd.vs span:first-child::after{content:"·";margin:0 6px;color:#B6C1D4;font-weight:400}
+.prow dd.vs span:not(:last-child)::after{content:"·";margin:0 6px;color:#B6C1D4;font-weight:400}
 .prow dd em{font-style:normal;font-family:ui-monospace,Consolas,monospace;font-size:11.5px;color:var(--blue);background:var(--blue-soft);border-radius:4px;padding:2px 6px;margin-right:4px}
 .note{font-size:11.5px;color:#9AA5B8;margin:16px 0 0;line-height:1.7;padding-top:14px;border-top:1px dashed #E9EEF7}
 
@@ -1176,7 +1176,7 @@ html.js.fx-ready .fx-sm.fx-in{animation:fxInSm .5s var(--ease) both}
           <div class="prow"><dt>输出</dt><dd>JSON 档案 + 意向评分 + 动作建议</dd></div>
           <div class="prow"><dt>提取体系</dt><dd>6 域 / 24 项字段</dd></div>
           <div class="prow"><dt>部署形态</dt><dd>公有云 API / 私有化 / 混合云</dd></div>
-          <div class="prow vs-row"><dt>相比通用基模</dt><dd class="vs"><span>字段抽取准确率 <i>71.5%</i>→<b>94.6%</b></span><span>意向判定准确率 <i>77.1%</i>→<b>92.3%</b></span></dd></div>
+          <div class="prow vs-row"><dt>相比通用基模</dt><dd class="vs"><span>意向判定准确率 <i>77.1%</i>→<b>92.3%</b></span></dd></div>
         </dl>
         <p class="note">字段、话术与评分口径可按行业配置；私有化部署的硬件配置按并发量评估。</p>
       </div>
