@@ -668,6 +668,9 @@ html:not(.js) .slide-mk{display:none}
   .to-top{right:14px;bottom:16px;width:42px;height:42px}
   .prow dd.vs span:first-child::after{content:none;margin:0}
   .prow dd.vs span{line-height:1.95}
+  /* 窄屏：标签单占一行，两组数字各占一行左对齐，避免长指标名被挤成四行 */
+  .prow.vs-row{display:block;padding:14px 0 15px}
+  .prow.vs-row dd{margin-top:6px;text-align:left}
 }
 @media(prefers-reduced-motion:reduce){.to-top{transition:opacity 120ms linear,transform 120ms linear}}
 </style>
@@ -781,7 +784,7 @@ html:not(.js) .slide-mk{display:none}
           <div class="prow"><dt>支持素材</dt><dd>文本 / 文档 / 语音 / 图片 / 视频</dd></div>
           <div class="prow"><dt>推理方式</dt><dd>同步接口 + 异步回调</dd></div>
           <div class="prow"><dt>部署形态</dt><dd>公有云 API / 私有化 / 混合云</dd></div>
-          <div class="prow"><dt>相比通用基模</dt><dd class="vs"><span>识别准确率 <i>78.4%</i>→<b>96.8%</b></span><span>误报率 <i>16.8%</i>→<b>4.1%</b></span></dd></div>
+          <div class="prow vs-row"><dt>相比通用基模</dt><dd class="vs"><span>识别准确率 <i>78.4%</i>→<b>96.8%</b></span><span>误报率 <i>16.8%</i>→<b>4.1%</b></span></dd></div>
         </dl>
       </div>
     </div>
@@ -1093,7 +1096,7 @@ html:not(.js) .slide-mk{display:none}
           <div class="prow"><dt>输出</dt><dd>JSON 档案 + 意向评分 + 动作建议</dd></div>
           <div class="prow"><dt>提取体系</dt><dd>6 域 / 24 项字段</dd></div>
           <div class="prow"><dt>部署形态</dt><dd>公有云 API / 私有化 / 混合云</dd></div>
-          <div class="prow"><dt>相比通用基模</dt><dd class="vs"><span>字段完整率 <i>71.5%</i>→<b>94.6%</b></span><span>意向一致率 <i>77.1%</i>→<b>92.3%</b></span></dd></div>
+          <div class="prow vs-row"><dt>相比通用基模</dt><dd class="vs"><span>字段抽取准确率 <i>71.5%</i>→<b>94.6%</b></span><span>意向判定准确率 <i>77.1%</i>→<b>92.3%</b></span></dd></div>
         </dl>
         <p class="note">字段、话术与评分口径可按行业配置；私有化部署的硬件配置按并发量评估。</p>
       </div>
