@@ -95,9 +95,126 @@
     main {
         flex: 1;
         width: 100%;
-        max-width: 880px;
+        max-width: 1180px;
         margin: 0 auto;
         padding: 32px 32px 40px;
+        transition: max-width .44s cubic-bezier(.4, 0, .2, 1);
+    }
+
+    body:not(.ads-open) main { max-width: 880px; }
+
+    /* ---------- 舞台：左侧卡片网格 + 右侧展开面板 ---------- */
+    .stage {
+        display: flex;
+        align-items: flex-start;
+        margin-top: 22px;
+    }
+
+    .grid-col {
+        flex: 1 1 auto;
+        min-width: 0;
+    }
+
+    .grid-col .grid { margin-top: 0; }
+
+    .detail {
+        flex: 0 0 auto;
+        width: 0;
+        padding-left: 0;
+        opacity: 0;
+        overflow: hidden;
+        text-align: left;
+        transition:
+            width .44s cubic-bezier(.4, 0, .2, 1),
+            padding-left .44s cubic-bezier(.4, 0, .2, 1),
+            opacity .18s ease;
+    }
+
+    .ads-open .detail {
+        width: 412px;
+        padding-left: 18px;
+        opacity: 1;
+        transition:
+            width .44s cubic-bezier(.4, 0, .2, 1),
+            padding-left .44s cubic-bezier(.4, 0, .2, 1),
+            opacity .3s ease .12s;
+    }
+
+    .detail-inner {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        width: 380px;
+    }
+
+    .detail-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 2px 2px 4px;
+    }
+
+    .detail-head h2 {
+        margin: 0;
+        font-size: 17px;
+        font-weight: 700;
+        letter-spacing: -.2px;
+    }
+
+    .detail-head p {
+        margin: 6px 0 0;
+        color: var(--text-secondary);
+        font-size: 12px;
+        line-height: 1.55;
+    }
+
+    .detail-close {
+        display: grid;
+        place-items: center;
+        width: 28px;
+        height: 28px;
+        flex: none;
+        padding: 0;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: #fff;
+        color: var(--text-secondary);
+        font-size: 15px;
+        line-height: 1;
+        cursor: pointer;
+        transition: transform .2s ease, border-color .15s ease, color .15s ease;
+    }
+
+    .detail-close:hover,
+    .detail-close:focus-visible {
+        border-color: var(--text-primary);
+        color: var(--text-primary);
+        transform: rotate(90deg);
+        outline: none;
+    }
+
+    /* 子卡片错时入场 */
+    .sub-card {
+        opacity: 0;
+        transform: translateX(22px);
+        transition: opacity .3s ease, transform .3s ease,
+                    box-shadow .18s ease, border-color .18s ease;
+    }
+
+    .ads-open .sub-card { opacity: 1; transform: none; }
+    .ads-open .sub-card.gzh { transition-delay: .12s; }
+    .ads-open .sub-card.client { transition-delay: .19s; }
+
+    .ads-open .sub-card:hover,
+    .ads-open .sub-card:focus-visible {
+        transform: translateY(-2px);
+        transition-delay: 0s;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        main, .detail, .sub-card, .detail-close { transition-duration: .01s !important; }
+        .ads-open .sub-card { transition-delay: 0s !important; }
     }
 
     .page-head h1 {
@@ -172,16 +289,59 @@
     .product:focus-visible { box-shadow: var(--shadow-md), 0 0 0 3px var(--brand-light); }
 
     .product.xz { --brand: var(--primary); --brand-light: var(--primary-light); }
+    .product.mkt { --brand: #ea580c; --brand-light: #fef0e8; }
+    .product.ads {
+        --brand: #5b57e0;
+        --brand-light: #eeedfd;
+        cursor: pointer;
+        -webkit-user-select: none;
+        user-select: none;
+    }
     .product.gzh { --brand: var(--gzh); --brand-light: var(--gzh-light); }
     .product.client { --brand: #157d72; --brand-light: #eaf5f2; }
     .product.tianding { --brand: #e60012; --brand-light: #fdeef1; }
+    .product.site { --brand: #475569; --brand-light: #eef1f5; }
 
     .prod-top {
         display: flex;
+        flex-wrap: wrap;
         align-items: center;
         justify-content: space-between;
-        gap: 12px;
+        gap: 8px 12px;
     }
+
+    .prod-id {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        min-width: 0;
+    }
+
+    /* ---------- 项目阶段徐标 ---------- */
+    .stage-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        flex: none;
+        padding: 3px 9px;
+        border-radius: 999px;
+        font-size: 10.5px;
+        font-weight: 700;
+        letter-spacing: .2px;
+        white-space: nowrap;
+    }
+
+    .stage-pill i {
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        background: currentColor;
+    }
+
+    .stage-pill.is-poc { background: #f4ecff; color: #7c3aed; }
+    .stage-pill.is-live { background: #e8f6ef; color: #0f9d63; }
+    .stage-pill.is-delivering { background: #fdf2e4; color: #b45309; }
+    .stage-pill.is-building { background: #e8efff; color: #2f6bff; }
 
     .prod-icon {
         display: grid;
@@ -276,6 +436,26 @@
 
     .product:hover .enter { filter: brightness(1.08); }
 
+    /* ---------- 广告运营平台：展开态指示 ---------- */
+    .product.ads .caret {
+        display: inline-block;
+        font-style: normal;
+        font-size: 9px;
+        line-height: 1;
+        transition: transform .3s cubic-bezier(.4, 0, .2, 1);
+    }
+
+    .product.ads .lbl-close { display: none; }
+
+    body.ads-open .product.ads .lbl-open { display: none; }
+    body.ads-open .product.ads .lbl-close { display: inline; }
+    body.ads-open .product.ads .caret { transform: rotate(180deg); }
+
+    body.ads-open .product.ads {
+        border-color: var(--brand);
+        box-shadow: var(--shadow-md), 0 0 0 3px var(--brand-light);
+    }
+
     /* ---------- 整卡跳原型 + 底部「线上环境」外链 ---------- */
     .product .hit {
         position: absolute;
@@ -328,13 +508,6 @@
         box-shadow: 0 0 0 3px rgba(255, 255, 255, .28);
     }
 
-    /* ---------- 官网卡片：与其他卡同尺寸，单独一行居中 ---------- */
-    .product.site {
-        grid-column: 1 / -1;
-        justify-self: center;
-        width: calc(50% - 8px);
-    }
-
     /* ---------- 页脚 ---------- */
     .foot {
         flex: none;
@@ -345,15 +518,46 @@
     }
 
     /* ---------- 响应式 ---------- */
+    @media (max-width: 1024px) {
+        .ads-open main { max-width: 100%; }
+        .ads-open .grid { grid-template-columns: minmax(0, 1fr); }
+    }
+
     @media (max-width: 860px) {
         .topbar { padding: 0 20px; }
         main { padding: 26px 20px 36px; }
         .page-head h1 { font-size: 22px; }
+
+        /* 移动端：右侧面板改为抽屉滑入 */
+        .stage { display: block; }
+        main { max-width: 100% !important; }
+        .detail {
+            position: fixed;
+            top: 64px;
+            right: 0;
+            bottom: 0;
+            z-index: 40;
+            width: min(420px, 92vw) !important;
+            padding: 20px !important;
+            overflow-y: auto;
+            border-left: 1px solid var(--border);
+            background: rgba(247, 247, 248, .96);
+            -webkit-backdrop-filter: blur(12px);
+            backdrop-filter: blur(12px);
+            box-shadow: -12px 0 32px rgba(0, 0, 0, .08);
+            opacity: 1;
+            transform: translateX(102%);
+            transition: transform .38s cubic-bezier(.4, 0, .2, 1);
+        }
+        .ads-open .detail {
+            transform: translateX(0);
+            transition: transform .38s cubic-bezier(.4, 0, .2, 1);
+        }
+        .detail-inner { width: 100%; }
     }
 
     @media (max-width: 640px) {
         .grid { grid-template-columns: minmax(0, 1fr); gap: 14px; }
-        .product.site { width: 100%; }
     }
 </style>
 </head>
@@ -379,14 +583,43 @@
         <p>点击下方卡片直接进入对应产品的工作台。</p>
     </div>
 
+    <div class="stage" id="stage">
+    <div class="grid-col">
     <div class="grid">
 
-        <!-- 产品 1：猩造AI（整卡进原型，右侧「线上环境」外链官网） -->
+        <!-- 产品 1：通灵云智能营销平台（整卡跳外链，新标签打开墨刀原型） -->
+        <a class="product mkt" href="https://modao.cc/proto/Lj12hfGwsuoqnjekzqHQeq/sharing?view_mode=device&amp;screen=rbpUgzDRlH75ZoIN2&amp;canvasId=rcUh0zlM7qyAnULd&amp;device=desktop_1920&amp;orientation=portrait"
+           target="_blank" rel="noopener">
+            <div class="prod-top">
+                <div class="prod-id">
+                    <div class="prod-icon">营</div>
+                    <span class="prod-tag">时微科技 · 营销</span>
+                </div>
+                <span class="stage-pill is-poc"><i></i>POC</span>
+            </div>
+            <h2 class="prod-name">通灵云智能营销平台</h2>
+            <p class="prod-desc">面向营销场景的智能投放与内容生产平台，打通创意生成、素材生产与效果回收。</p>
+            <div class="flow">
+                <span>创意生成</span><i>→</i><span>素材生产</span><i>→</i><span>渠道投放</span><i>→</i><span>效果回收</span>
+            </div>
+            <div class="chips">
+                <span>智能创意</span><span>素材工厂</span><span>投放管理</span><span>数据回收</span>
+            </div>
+            <div class="prod-foot">
+                <span class="scale">墨刀交互原型</span>
+                <span class="enter">打开原型 ↗</span>
+            </div>
+        </a>
+
+        <!-- 产品 2：猩造AI（整卡进原型，右侧「线上环境」外链官网） -->
         <div class="product xz">
             <a class="hit" href="猩造AI-首页.html" aria-label="进入猩造AI 原型"></a>
             <div class="prod-top">
-                <div class="prod-icon">AI</div>
-                <span class="prod-tag">AIGC · 短视频</span>
+                <div class="prod-id">
+                    <div class="prod-icon">AI</div>
+                    <span class="prod-tag">AIGC · 短视频</span>
+                </div>
+                <span class="stage-pill is-live"><i></i>已上线</span>
             </div>
             <h2 class="prod-name">猩造AI</h2>
             <p class="prod-desc">AI 短视频自动制作平台，从一句台词到一条成片，全流程 AI 驱动。</p>
@@ -402,51 +635,40 @@
             </div>
         </div>
 
-        <!-- 产品 2：公众号运营平台 -->
-        <a class="product gzh" href="公众号运营平台/公众号采集看板-卡片版.html">
+        <!-- 产品 3：广告运营平台（合并「公众号运营平台」+「甲方看板」，点击向右展开） -->
+        <div class="product ads" id="adsCard" role="button" tabindex="0"
+             aria-expanded="false" aria-controls="adsDetail">
             <div class="prod-top">
-                <div class="prod-icon">公</div>
-                <span class="prod-tag">公众号 · 运营</span>
+                <div class="prod-id">
+                    <div class="prod-icon">广</div>
+                    <span class="prod-tag">广告 · 运营</span>
+                </div>
+                <span class="stage-pill is-live"><i></i>已上线</span>
             </div>
-            <h2 class="prod-name">公众号运营平台</h2>
-            <p class="prod-desc">公众号采集与运营管理平台，统一管理账号授权、粉丝涨粉与自动回复。</p>
+            <h2 class="prod-name">广告运营平台</h2>
+            <p class="prod-desc">公众号采集运营 + 甲方客户看板，统一管理账号授权、粉丝涨粉与 Cookie 配置。</p>
             <div class="flow">
-                <span>授权接入</span><i>→</i><span>粉丝同步</span><i>→</i><span>采集监测</span><i>→</i><span>配置</span>
+                <span>授权接入</span><i>→</i><span>粉丝同步</span><i>→</i><span>采集监测</span><i>→</i><span>客户看板</span>
             </div>
             <div class="chips">
-                <span>采集看板</span><span>账号配置</span><span>自动回复</span><span>接口清单</span>
+                <span>公众号运营</span><span>甲方看板</span><span>自动回复</span><span>Cookie 授权</span>
             </div>
             <div class="prod-foot">
-                <span class="scale">1 个采集看板原型</span>
-                <span class="enter">进入工作台 →</span>
+                <span class="scale">2 个子平台</span>
+                <span class="enter">
+                    <span class="lbl-open">展开</span><span class="lbl-close">收起</span><i class="caret">▾</i>
+                </span>
             </div>
-        </a>
-
-        <!-- 产品 3：甲方看板 -->
-        <a class="product client" href="甲方看板首页-授权配置版.html">
-            <div class="prod-top">
-                <div class="prod-icon">甲</div>
-                <span class="prod-tag">甲方 · 数据运营</span>
-            </div>
-            <h2 class="prod-name">甲方看板</h2>
-            <p class="prod-desc">集中查看甲方客户的采集状态，统一管理 Cookie 授权配置。</p>
-            <div class="flow">
-                <span>选择客户</span><i>→</i><span>配置 Cookie</span><i>→</i><span>查看状态</span>
-            </div>
-            <div class="chips">
-                <span>客户总览</span><span>Cookie 授权</span><span>采集状态</span><span>看板入口</span>
-            </div>
-            <div class="prod-foot">
-                <span class="scale">7 家甲方客户</span>
-                <span class="enter">进入甲方看板 →</span>
-            </div>
-        </a>
+        </div>
 
         <!-- 产品 4：天鼎FDE风控 -->
         <a class="product tianding" href="1企微质检/index.html">
             <div class="prod-top">
-                <div class="prod-icon">鼎</div>
-                <span class="prod-tag">天鼎 · FDE 风控</span>
+                <div class="prod-id">
+                    <div class="prod-icon">鼎</div>
+                    <span class="prod-tag">天鼎 · FDE 风控</span>
+                </div>
+                <span class="stage-pill is-delivering"><i></i>交付中</span>
             </div>
             <h2 class="prod-name">天鼎FDE风控</h2>
             <p class="prod-desc">天鼎证券投资 AI 智能管理平台（T-ONE）演示入口，覆盖人事、合规、订单、投顾助手与数据资产</p>
@@ -465,8 +687,11 @@
         <!-- 产品 5：通灵云双模型官网 -->
         <a class="product site" href="1企微质检/通灵云双模型官网-能力优势展示优化版-单文件.html">
             <div class="prod-top">
-                <div class="prod-icon">通</div>
-                <span class="prod-tag">时微科技 · 官网</span>
+                <div class="prod-id">
+                    <div class="prod-icon">通</div>
+                    <span class="prod-tag">时微科技 · 官网</span>
+                </div>
+                <span class="stage-pill is-building"><i></i>开发中</span>
             </div>
             <h2 class="prod-name">通灵云双模型官网</h2>
             <p class="prod-desc">双模型官网原型：模型档案、在线体验、场景赋能与留资转化。</p>
@@ -483,9 +708,114 @@
         </a>
 
     </div>
+    </div>
+
+    <!-- 右侧展开面板 -->
+    <aside class="detail" id="adsDetail" aria-label="广告运营平台子平台" aria-hidden="true">
+        <div class="detail-inner">
+            <div class="detail-head">
+                <div>
+                    <h2>广告运营平台</h2>
+                    <p>两个子平台，一个管内容侧运营，一个管甲方客户数据。</p>
+                </div>
+                <button type="button" class="detail-close" id="adsClose" aria-label="收起面板">×</button>
+            </div>
+
+            <!-- 子平台 1：公众号运营平台 -->
+            <a class="product gzh sub-card" href="公众号运营平台/公众号采集看板-卡片版.html">
+                <div class="prod-top">
+                    <div class="prod-id">
+                        <div class="prod-icon">公</div>
+                        <span class="prod-tag">公众号 · 运营</span>
+                    </div>
+                </div>
+                <h2 class="prod-name">公众号运营平台</h2>
+                <p class="prod-desc">公众号采集与运营管理平台，统一管理账号授权、粉丝涨粉与自动回复。</p>
+                <div class="flow">
+                    <span>授权接入</span><i>→</i><span>粉丝同步</span><i>→</i><span>采集监测</span><i>→</i><span>配置</span>
+                </div>
+                <div class="chips">
+                    <span>采集看板</span><span>账号配置</span><span>自动回复</span><span>接口清单</span>
+                </div>
+                <div class="prod-foot">
+                    <span class="scale">1 个采集看板原型</span>
+                    <span class="enter">进入工作台 →</span>
+                </div>
+            </a>
+
+            <!-- 子平台 2：甲方看板 -->
+            <a class="product client sub-card" href="甲方看板首页-授权配置版.html">
+                <div class="prod-top">
+                    <div class="prod-id">
+                        <div class="prod-icon">甲</div>
+                        <span class="prod-tag">甲方 · 数据运营</span>
+                    </div>
+                </div>
+                <h2 class="prod-name">甲方看板</h2>
+                <p class="prod-desc">集中查看甲方客户的采集状态，统一管理 Cookie 授权配置。</p>
+                <div class="flow">
+                    <span>选择客户</span><i>→</i><span>配置 Cookie</span><i>→</i><span>查看状态</span>
+                </div>
+                <div class="chips">
+                    <span>客户总览</span><span>Cookie 授权</span><span>采集状态</span><span>看板入口</span>
+                </div>
+                <div class="prod-foot">
+                    <span class="scale">7 家甲方客户</span>
+                    <span class="enter">进入甲方看板 →</span>
+                </div>
+            </a>
+        </div>
+    </aside>
+    </div>
 </main>
 
 <footer class="foot">原型演示环境 · 数据仅用于交互演示，未接入真实服务</footer>
+
+<script>
+(function () {
+    var card = document.getElementById('adsCard');
+    var panel = document.getElementById('adsDetail');
+    var closeBtn = document.getElementById('adsClose');
+    if (!card || !panel) return;
+
+    var isOpen = false;
+
+    function setOpen(open) {
+        if (open === isOpen) return;
+        isOpen = open;
+        document.body.classList.toggle('ads-open', open);
+        card.setAttribute('aria-expanded', String(open));
+        panel.setAttribute('aria-hidden', String(!open));
+        if (open) {
+            // 等面板展开到位再聚焦关闭按钮，避免焦点跳到屏外
+            window.setTimeout(function () {
+                if (isOpen && closeBtn) closeBtn.focus({ preventScroll: true });
+            }, 460);
+        }
+    }
+
+    card.addEventListener('click', function () { setOpen(!isOpen); });
+
+    card.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') {
+            e.preventDefault();
+            setOpen(!isOpen);
+        }
+    });
+
+    if (closeBtn) {
+        closeBtn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            setOpen(false);
+            card.focus({ preventScroll: true });
+        });
+    }
+
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && isOpen) setOpen(false);
+    });
+})();
+</script>
 
 </body>
 </html>
