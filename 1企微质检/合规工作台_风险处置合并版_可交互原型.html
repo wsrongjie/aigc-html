@@ -4394,7 +4394,17 @@ function fdeUXSetType(t){ FDE.ux.type = t; render(); }
 function fdeUXSetRepeat(b){ FDE.ux.onlyRepeat = !!b; render(); }
 function fdeUXReset(){ FDE.ux.keyword = ''; FDE.ux.type = '全部类型'; FDE.ux.level = '全部'; FDE.ux.time = '全部时间'; FDE.ux.timeFrom = ''; FDE.ux.timeTo = ''; FDE.ux.onlyRepeat = false; FDE.ux.preset = '全部事件'; render(); }
 function fdeUXOpen(id){ FDE.ux.id = id; FDE.ux.mode = 'detail'; closeModal(); render(); window.scrollTo(0,0); }
-function fdeUXReview(id){ selected = id; navigate('alerts'); }
+function fdeUXReview(id){
+  /* 从咨诉列表跳复核：先清掉预警与复核残留的筛选，否则目标事件会被筛掉、停在别的记录上 */
+  try{
+    reviewTypeFilter = '全部';
+    reviewLevelFilter = '全部';
+    reviewDetailTab = 'details';
+    if(typeof reviewTimeFilter !== 'undefined'){ reviewTimeFilter = '全部时间'; reviewFrom = ''; reviewTo = ''; }
+  }catch(err){}
+  selected = id;
+  navigate('alerts');
+}
 function fdeUXBack(){ FDE.ux.mode = 'list'; FDE.ux.id = null; FDE.ux.backTo = 'list'; FDE.wo.mode = 'list'; closeModal(); render(); window.scrollTo(0,0); }
 function fdeUXTicketOpen(id){ FDE.ux.backTo = (FDE.ux.mode === 'wo' ? 'wo' : 'list'); FDE.wo.id = id; FDE.wo.mode = 'detail'; FDE.ux.mode = 'ticket'; closeModal(); render(); window.scrollTo(0,0); }
 function fdeUXWoView(){ FDE.ux.mode = 'wo'; FDE.ux.backTo = 'wo'; FDE.wo.mode = 'list'; FDE.wo.page = 1; closeModal(); render(); window.scrollTo(0,0); }
