@@ -8224,6 +8224,65 @@ render = function(){
   }).observe(doc.body, { childList:true, subtree:true });
 })();
 
+/* ===================== 团队工作台：去掉「待补证」 ===================== */
+function fdeSuperSweep(){
+  var doc = (typeof window !== 'undefined' && window.document) ? window.document : document;
+  if(!doc.querySelector('.sup-metric, .sup-flow-branches, .ant-table-thead')) return;
+
+  /* 1. 文案 */
+  Array.prototype.forEach.call(doc.querySelectorAll('em, span, div, small, td, th'), function(n){
+    if(n.children && n.children.length) return;
+    var t = String(n.textContent || '');
+    if(t.indexOf('待补证') < 0) return;
+    var nt = t
+      .replace(/待复核\\s*\\/\\s*待补证/g, '待复核')
+      .replace(/含待补证\\s*·\\s*/g, '')
+      .replace(/\\s*\\/\\s*待补证/g, '')
+      .replace(/待补证需单独时限[；;]?/g, '');
+    if(nt !== t) n.textContent = nt;
+  });
+
+  /* 2. 反馈表「待补证」整列 */
+  Array.prototype.forEach.call(doc.querySelectorAll('.ant-table-thead'), function(thead){
+    var ths = Array.prototype.slice.call(thead.querySelectorAll('th'));
+    var idx = -1;
+    ths.forEach(function(th, i){ if(String(th.textContent || '').trim() === '待补证') idx = i; });
+    if(idx < 0) return;
+    var table = thead.closest ? thead.closest('table') : null;
+    if(!table) return;
+    var cols = table.querySelectorAll('colgroup col');
+    if(cols.length === ths.length && cols[idx] && cols[idx].parentNode) cols[idx].parentNode.removeChild(cols[idx]);
+    Array.prototype.forEach.call(table.querySelectorAll('tr'), function(tr){
+      var cell = tr.children[idx];
+      if(cell && cell.parentNode) cell.parentNode.removeChild(cell);
+    });
+  });
+
+  /* 3. 下拉里的状态选项 */
+  Array.prototype.forEach.call(doc.querySelectorAll('.ant-select-item-option-content'), function(o){
+    var t = String(o.textContent || '').trim();
+    if(t === '待补证' || t === '待复核 / 待补证' || t.indexOf('待补证') >= 0){
+      var item = o.closest ? o.closest('.ant-select-item-option') : null;
+      if(item && item.parentNode) item.parentNode.removeChild(item);
+    }
+  });
+}
+var fdeSuperPrevRender = render;
+render = function(){
+  var out = fdeSuperPrevRender();
+  try{ fdeSuperSweep(); }catch(err){}
+  return out;
+};
+(function(){
+  var doc = (typeof window !== 'undefined' && window.document) ? window.document : document;
+  if(!doc || !doc.body || !window.MutationObserver) return;
+  var timer = null;
+  new MutationObserver(function(){
+    if(timer) return;
+    timer = setTimeout(function(){ timer = null; try{ fdeSuperSweep(); }catch(err){} }, 60);
+  }).observe(doc.body, { childList:true, subtree:true });
+})();
+
  fdeV7Init();render();
 
 
