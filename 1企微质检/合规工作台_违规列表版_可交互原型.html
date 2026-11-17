@@ -8868,9 +8868,7 @@ function fdeVioActions(v){
     out += fdeClick('认定违规', "fdeVioGoReview('" + v.id + "')", 'fde-active-btn');
     out += fdeClick('判定误报', "fdeVioFalseOpen('" + v.id + "')");
   }else if(v.status === '整改中'){
-    out += fdeClick('模拟销售提交整改', "fdeVioSubmitOpen('" + v.id + "')", 'fde-active-btn');
     out += fdeClick('催办销售主管', "fdeVioUrge('" + v.id + "')");
-    out += fdeClick('提交申诉', "fdeVioAppealOpen('" + v.id + "')");
   }else if(v.status === '待验收'){
     out += fdeClick('验收 / 退回', "fdeVioAcceptOpen('" + v.id + "')", 'fde-active-btn');
   }else if(v.status === '申诉中'){
