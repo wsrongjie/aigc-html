@@ -1,0 +1,147 @@
+/* ============ VIO · 违规列表 ============ */
+#fdeVioRows .ant-table-content th:last-child,
+#fdeVioRows .ant-table-content td:last-child{
+  position: sticky;
+  right: 0;
+  background: #fff;
+  z-index: 2;
+  box-shadow: -8px 0 8px -8px rgba(16,32,64,.18);
+}
+#fdeVioRows .ant-table-content thead th:last-child{ background:#f7f9fc; z-index:3; }
+#fdeVioRows .ant-table-content tr.ant-table-row:hover td:last-child{ background:#fafafa; }
+
+.vio-count{font-size:11.5px;color:#8291a8;white-space:nowrap}
+.vio-check{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:#526176;white-space:nowrap;min-height:30px}
+.vio-daterange{display:flex;align-items:center;gap:8px;margin:-6px 0 14px;font-size:12px;color:#8291a8}
+.vio-daterange input[type=date]{padding:6px 8px;border:1px solid #dce4f0;border-radius:6px;background:#fff;color:#425774;font-size:12px}
+
+.vio-repeat{display:inline-flex;align-items:center;font-size:10px;line-height:16px;padding:0 6px;margin-left:5px;border-radius:4px;background:#fff1f0;color:#cf3f3f;border:1px solid #ffcfc9;white-space:nowrap}
+.vio-due{display:block;white-space:nowrap;font-size:12px;color:#526176}
+.vio-due.is-over{color:#d4380d;font-weight:650}
+.vio-due.is-soon{color:#c47b16;font-weight:600}
+.vio-hist-main{display:block;font-size:12px;color:#34475f;white-space:nowrap}
+
+.vio-kv{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:#e9eef7;border:1px solid #e9eef7;border-radius:8px;overflow:hidden}
+.vio-kv-item{background:#fff;padding:10px 12px;min-width:0}
+.vio-kv-item small{display:block;font-size:10.5px;color:#8b99ad;margin-bottom:4px}
+.vio-kv-item b{display:block;font-size:12.5px;color:#26374d;font-weight:600;word-break:break-word;line-height:1.55}
+
+.vio-quote{border:1px solid #ffb3a7;background:#fff7f5;border-left:4px solid #f26b5e;border-radius:8px;padding:14px 16px;font-size:13px;line-height:1.8;color:#26374d}
+.vio-quote mark{background:#ffe58f;color:#874d00;padding:1px 4px;border-radius:3px;font-weight:700}
+.vio-quote-foot{margin-top:7px;font-size:10.5px;color:#9aa7ba}
+
+.vio-live{border:1px solid #e5ebf4;border-radius:10px;background:#fbfcfe;overflow:hidden}
+.vio-live-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 14px;background:#f4f7fc;border-bottom:1px solid #e5ebf4}
+.vio-live-head b{font-size:12.5px;color:#26374d;margin-right:8px}
+.vio-live-head small{font-size:10.5px;color:#8b99ad}
+.vio-tag{display:inline-flex;align-items:center;font-size:10px;line-height:16px;padding:0 6px;border-radius:4px;background:#eef2fa;color:#5a6d8a;white-space:nowrap}
+.vio-live-row{display:grid;grid-template-columns:40px 72px 34px minmax(0,1fr);gap:7px;align-items:start;padding:9px 14px;border-bottom:1px dashed #e7edf5;font-size:12px;color:#26374d}
+.vio-live-row.is-hit{background:#fff7f5;border-left:3px solid #f26b5e;padding-left:11px}
+.vio-live-t{color:#9aa7ba;font-size:10.5px;line-height:1.9}
+.vio-live-row b{font-size:11.5px;color:#445a75;line-height:1.9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vio-live-role{font-size:9.5px;line-height:16px;border-radius:4px;background:#e9f0fb;color:#5a7aa5;text-align:center;margin-top:2px}
+.vio-live-text{line-height:1.8;word-break:break-word}
+.vio-live-text mark{background:#ffe58f;color:#874d00;padding:1px 3px;border-radius:3px;font-weight:600}
+.vio-live-foot{padding:9px 14px;font-size:10px;color:#9aa7ba;text-align:center}
+
+.vio-audio{border:1px solid #e5ebf4;border-radius:10px;background:#fbfcfe;overflow:hidden}
+.vio-audio-bar{display:flex;align-items:center;gap:9px;padding:11px 14px;background:#f4f7fc;border-bottom:1px solid #e5ebf4;font-size:12px;color:#26374d}
+.vio-audio-ic{display:inline-flex;width:22px;height:22px;align-items:center;justify-content:center;border-radius:50%;background:#e8f0fe;color:#356dd0;font-size:12px}
+.vio-audio-dur{color:#8b99ad;font-size:11px}
+.vio-tr{padding:2px 0}
+.vio-tr-row{display:grid;grid-template-columns:40px 64px 34px minmax(0,1fr);gap:7px;align-items:start;padding:8px 14px;border-bottom:1px dashed #e7edf5;font-size:12px}
+.vio-tr-row.is-hit{background:#fff7f5;border-left:3px solid #f26b5e;padding-left:11px}
+.vio-tr-t{color:#9aa7ba;font-size:10.5px;line-height:1.9}
+.vio-tr-row b{font-size:11.5px;color:#445a75;line-height:1.9;white-space:nowrap}
+.vio-tr-role{font-size:9.5px;line-height:16px;border-radius:4px;background:#e9f0fb;color:#5a7aa5;text-align:center;margin-top:2px}
+.vio-tr-row p{margin:0;line-height:1.75;color:#26374d;word-break:break-word}
+.vio-tr-row mark{background:#ffe58f;color:#874d00;padding:1px 3px;border-radius:3px;font-weight:600}
+.vio-audio-foot{padding:9px 14px;font-size:10px;color:#9aa7ba;text-align:center}
+
+.vio-checkgroup{margin:2px 0 12px}
+.vio-checkgroup-title{font-size:12px;color:#526176;font-weight:600;margin-bottom:7px}
+.vio-chk{display:flex;align-items:flex-start;gap:7px;font-size:12px;color:#34475f;line-height:1.7;padding:4px 0}
+.vio-chk input{margin-top:3px}
+
+.vio-reqs{display:flex;flex-direction:column;gap:7px}
+.vio-req{display:flex;align-items:center;gap:10px;border:1px solid #e4eaf3;background:#fbfcfe;border-radius:8px;padding:9px 12px;font-size:12px;color:#34475f}
+.vio-req-no{flex:0 0 20px;width:20px;height:20px;line-height:20px;text-align:center;border-radius:50%;background:#eef2fa;color:#5a6d8a;font-size:10.5px}
+.vio-req-text{flex:1 1 auto;min-width:0}
+.vio-req-state{flex:0 0 auto;font-size:10.5px;color:#8b99ad}
+.vio-req.is-ok{border-color:#bde6cc;background:#f4fcf7}
+.vio-req.is-ok .vio-req-no{background:#e3f6ea;color:#25794b}
+.vio-req.is-ok .vio-req-state{color:#25794b}
+.vio-req.is-wait{border-color:#cbdffa;background:#f7faff}
+.vio-req.is-wait .vio-req-no{background:#e7f0ff;color:#2c5db2}
+.vio-req.is-wait .vio-req-state{color:#2c5db2}
+.vio-req.is-todo .vio-req-state{color:#c47b16}
+
+.vio-note{border:1px solid #e4eaf3;background:#fbfcfe;border-radius:8px;padding:11px 13px;margin-bottom:9px}
+.vio-note b{font-size:12px;color:#34475f}
+.vio-note p{margin:5px 0 4px;font-size:12.5px;line-height:1.7;color:#26374d}
+.vio-note small{font-size:10px;color:#9aa7ba}
+.vio-files{font-size:11px;color:#5a6d8a;margin-bottom:9px}
+
+@media (max-width:1200px){
+  .vio-kv{grid-template-columns:1fr}
+  .vio-live-row,.vio-tr-row{grid-template-columns:36px 60px 30px minmax(0,1fr)}
+}
+
+/* 销售历史违规：统计条 */
+.vio-hsum{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:0 0 14px}
+.vio-hsum>div{background:#f7f9fc;border:1px solid #e4eaf3;border-radius:8px;padding:10px 12px;min-width:0}
+.vio-hsum small{display:block;font-size:10.5px;color:#8b99ad;margin-bottom:4px}
+.vio-hsum b{display:block;font-size:14px;color:#26374d;font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media (max-width:1200px){.vio-hsum{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* 预警与复核：客诉风险 / 销售违规二级 Tab */
+.rv-kinds{display:flex;align-items:center;gap:22px;border-bottom:1px solid #e7edf5;margin:-2px 0 14px;padding:0 2px}
+.rv-kind{display:inline-flex;align-items:center;gap:7px;padding:9px 0 10px;border-bottom:2px solid transparent;color:#8391a5;font-size:12.5px;font-weight:650;cursor:pointer;user-select:none}
+.rv-kind.is-on{color:#356dd0;border-bottom-color:#4263eb}
+.rv-kind b{font-size:10.5px;line-height:16px;padding:0 6px;border-radius:9px;background:#eef2fa;color:#5a6d8a;font-weight:650}
+.rv-kind.is-on b{background:#e7efff;color:#2c5db0}
+
+/* 预警与复核：双层筛选卡片 */
+.rv-head{background:#fff;border:1px solid #e8eef8;border-radius:12px;padding:13px 16px 12px;margin:-4px 0 14px;box-shadow:0 1px 2px rgba(22,32,64,.04)}
+.rv-head-row{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.rv-head-left,.rv-head-right{display:flex;align-items:center;gap:10px;min-width:0;flex-wrap:wrap}
+.rv-head-right{justify-content:flex-end}
+.rv-head-row2{margin-top:11px;padding-top:11px;border-top:1px dashed #e9eef7}
+.rv-head .rv-chans{margin:0}
+.rv-head .rv-kinds{margin:0;padding:0;border-bottom:0;gap:18px}
+.rv-head .rv-kind{padding:4px 0 6px;font-size:12.5px}
+.rv-head .rv-kind b{font-size:10px;line-height:15px;padding:0 5px}
+.rv-time{position:relative;display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 9px 0 10px;border:1px solid #e4ebf6;border-radius:8px;background:#f8fafd;color:#71809a;cursor:pointer}
+.rv-time svg{width:14px;height:14px;flex:0 0 auto;stroke:#8a99ae}
+.rv-time select{appearance:none;-webkit-appearance:none;border:0;background:transparent;padding:0 16px 0 0;font-size:12px;color:#425774;cursor:pointer;outline:none}
+.rv-time:focus-within{border-color:#b9cbff;box-shadow:0 0 0 2px #eef3ff}
+.rv-filter{display:inline-flex;align-items:center;gap:7px;white-space:nowrap;font-size:11.5px;color:#8391a5}
+.rv-filter select{height:30px;min-width:124px;border:1px solid #e4ebf6;border-radius:8px;background:#fff;color:#425774;font-size:12px;padding:0 8px;cursor:pointer;outline:none}
+.rv-filter select:focus{border-color:#b9cbff;box-shadow:0 0 0 2px #eef3ff}
+.rv-reset{border:0;background:transparent;color:#7b8aa3;font-size:11.5px;padding:6px 2px;cursor:pointer;white-space:nowrap}
+.rv-reset:hover{color:#2f6bff}
+.rv-dates{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:#8a99ae}
+.rv-dates input{height:28px;border:1px solid #e4ebf6;border-radius:7px;padding:0 7px;font-size:11.5px;color:#425774;background:#fff}
+.rv-dates input:focus{outline:none;border-color:#b9cbff;box-shadow:0 0 0 2px #eef3ff}
+@media (max-width:900px){
+  .rv-head{padding:12px}
+  .rv-head-row{align-items:flex-start}
+  .rv-head-right{justify-content:flex-start}
+  .rv-filter select{min-width:112px}
+}
+
+.rv-kind.is-static{cursor:default}
+.rv-kind.is-static:hover{color:#356dd0}
+
+/* 2026-11：第二行筛选项左移并加宽 */
+.rv-head-row2 .rv-head-left{gap:16px}
+.rv-filter select{min-width:170px}
+.rv-filter .ant-select{width:170px!important;min-width:170px}
+.rv-head-row2 .rv-filter{flex:0 0 auto}
+.rv-head-row2 .rv-reset{flex:0 0 auto}
+
+/* 销售违规右侧自定义 Tab（避免被 DOM 增强器替换为 AntD Tabs） */
+.rv-vio-tabs{height:48px;min-height:48px;flex-shrink:0;display:flex;align-items:stretch;border-bottom:1px solid #e9edf4;padding:0 17px;gap:20px}
+.rv-vio-tab{display:flex;align-items:center;border-bottom:3px solid transparent;padding:0;color:#6b7a90;font-size:12px;cursor:pointer;user-select:none;white-space:nowrap}
+.rv-vio-tab.active{color:#4263eb;border-bottom-color:#4263eb;font-weight:600}
+.rv-vio-tab:hover{color:#356dd0}
