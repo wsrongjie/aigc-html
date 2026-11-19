@@ -101,7 +101,7 @@
         transition: max-width .44s cubic-bezier(.4, 0, .2, 1);
     }
 
-    body:not(.ads-open) main { max-width: 880px; }
+    body:not(.ads-open) main { max-width: 1180px; }
 
     /* ---------- 舞台：左侧卡片网格 + 右侧展开面板 ---------- */
     .stage {
@@ -129,6 +129,8 @@
             padding-left .44s cubic-bezier(.4, 0, .2, 1),
             opacity .18s ease;
     }
+
+    .ads-open main { max-width: 1560px; }
 
     .ads-open .detail {
         width: 412px;
@@ -244,8 +246,8 @@
 
     .grid {
         display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 16px;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
         margin-top: 22px;
     }
 
@@ -256,7 +258,7 @@
         position: relative;
         display: flex;
         flex-direction: column;
-        padding: 16px 16px 12px;
+        padding: 14px 14px 11px;
         overflow: hidden;
         border: 1px solid var(--border);
         border-radius: var(--radius);
@@ -301,6 +303,7 @@
     .product.client { --brand: #157d72; --brand-light: #eaf5f2; }
     .product.tianding { --brand: #e60012; --brand-light: #fdeef1; }
     .product.site { --brand: #475569; --brand-light: #eef1f5; }
+    .product.fde { --brand: #1f63c9; --brand-light: #e9f1ff; }
 
     .prod-top {
         display: flex;
@@ -413,9 +416,9 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 12px;
-        margin-top: 12px;
-        padding-top: 10px;
+        gap: 8px;
+        margin-top: auto;
+        padding-top: 12px;
         border-top: 1px solid #F0F0F1;
     }
 
@@ -518,15 +521,19 @@
     }
 
     /* ---------- 响应式 ---------- */
+    @media (max-width: 1280px) {
+        .ads-open .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
     @media (max-width: 1024px) {
         .ads-open main { max-width: 100%; }
-        .ads-open .grid { grid-template-columns: minmax(0, 1fr); }
     }
 
     @media (max-width: 860px) {
         .topbar { padding: 0 20px; }
         main { padding: 26px 20px 36px; }
         .page-head h1 { font-size: 22px; }
+        .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 
         /* 移动端：右侧面板改为抽屉滑入 */
         .stage { display: block; }
@@ -579,7 +586,7 @@
 
 <main>
     <div class="page-head">
-        <h1>选择要进入的产品<span class="count-pill">5 个产品</span></h1>
+        <h1>选择要进入的产品<span class="count-pill">6 个产品</span></h1>
         <p>点击下方卡片直接进入对应产品的工作台。</p>
     </div>
 
@@ -704,6 +711,29 @@
             <div class="prod-foot">
                 <span class="scale">1 个官网原型</span>
                 <span class="enter">进入官网 →</span>
+            </div>
+        </a>
+
+        <!-- 产品 6：AI 场景工作台（FDE 对话 + 金融质检） -->
+        <a class="product fde" href="智能营销demo.html">
+            <div class="prod-top">
+                <div class="prod-id">
+                    <div class="prod-icon">场</div>
+                    <span class="prod-tag">时微科技 · FDE</span>
+                </div>
+                <span class="stage-pill is-poc"><i></i>POC</span>
+            </div>
+            <h2 class="prod-name">AI 场景工作台</h2>
+            <p class="prod-desc">FDE 技术对话 + 金融投顾对话质检，双模块离线演示工作台。</p>
+            <div class="flow">
+                <span>业务需求</span><i>→</i><span>FDE 对话</span><i>→</i><span>对话质检</span><i>→</i><span>JSON 结果</span>
+            </div>
+            <div class="chips">
+                <span>FDE 对话</span><span>企业能力库</span><span>客诉 T0–T3</span><span>销售违规 S01–S05</span>
+            </div>
+            <div class="prod-foot">
+                <span class="scale">离线规则演示</span>
+                <span class="enter">进入工作台 →</span>
             </div>
         </a>
 

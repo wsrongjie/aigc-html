@@ -1,0 +1,763 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>AI 场景工作台 · FDE 与金融质检</title>
+<style>
+:root{--bg:#f4f6fa;--paper:#fff;--ink:#1c2a42;--sub:#708099;--line:#e4e9f1;--navy:#13213a;--blue:#2965e8;--blue-bg:#eef4ff;--red:#c93d53;--red-bg:#fff0f3;--amber:#b77625;--amber-bg:#fff4e6;--green:#12846a;--green-bg:#ebf8f3;--shadow:0 7px 32px rgba(29,55,88,.05)}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:Inter,-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;color:var(--ink);background:var(--bg)}button,textarea{font:inherit}button{cursor:pointer}button:disabled{cursor:not-allowed;opacity:.5}button:focus-visible,textarea:focus-visible{outline:3px solid #a6c3ff;outline-offset:2px}h1,h2,p{margin:0}
+header{background:var(--navy);height:74px;color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 max(24px,calc((100vw - 1540px)/2))}.brand{display:flex;gap:13px;align-items:center}.logo{width:41px;height:41px;border-radius:12px;background:linear-gradient(140deg,#428bff,#6158e8);display:grid;place-items:center}.brand h1{font-size:20px;letter-spacing:-.3px}.brand p{font-size:12px;color:#aabbd1;margin-top:3px}.topright{display:flex;align-items:center;gap:12px;font-size:11px;color:#a7b8d0}.version{padding:7px 11px;border:1px solid #3c4a61;border-radius:7px;color:#d9e7ff;background:#ffffff08}.live{height:7px;width:7px;background:#4fd2b4;border-radius:50%;display:inline-block;margin-right:7px}
+main{max-width:1588px;margin:auto;padding:25px;display:grid;grid-template-columns:minmax(330px,43fr) minmax(450px,57fr);gap:20px;align-items:start}.panel{background:var(--paper);border:1px solid var(--line);border-radius:15px;box-shadow:var(--shadow);overflow:hidden}.panel-head{padding:21px 22px 18px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:14px}.panel-head h2{font-size:18px;font-weight:750}.panel-head p{font-size:12px;color:var(--sub);margin-top:7px;line-height:1.6}.tag{display:inline-block;padding:5px 8px;border:1px solid var(--line);border-radius:7px;background:#f6f8fb;color:#738197;font-size:11px;white-space:nowrap}.left-body,.right-body{padding:22px}.field-header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}.field-title{font-weight:700;color:#465671;font-size:13px}.field-note{font-size:11px;color:#9aa5b6}.editwrap{border:1px solid #dce4ee;border-radius:11px;overflow:hidden;background:#fbfcfe}.editwrap:focus-within{border-color:#8eb0f2;box-shadow:0 0 0 3px #ebf2ff}.editor{border:none;outline:none!important;display:block;resize:vertical;width:100%;height:475px;min-height:230px;padding:18px;color:#2c3951;font-size:13px;line-height:1.95;background:transparent}.editor::placeholder{color:#a7b4c4}.editorfoot{border-top:1px solid var(--line);padding:10px 14px;font-size:11px;color:#8996a9;background:#fff;display:flex;align-items:center;justify-content:space-between}.textbtn{border:0;background:transparent;color:#2663e3;font-size:12px;font-weight:650;padding:3px}.textbtn:hover{text-decoration:underline}.notice{margin-top:15px;border-radius:9px;background:#f4f7fc;border:1px solid #e5ecf7;padding:12px 13px;color:#627794;font-size:12px;line-height:1.75}.notice strong{color:#3d5b8b}.actions{display:flex;gap:9px;margin-top:17px}.primary{height:46px;background:var(--blue);border:1px solid var(--blue);border-radius:9px;color:#fff;font-size:13px;font-weight:700;flex:1;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 5px 15px #2463eb25}.primary:hover{background:#1e53ce}.secondary{height:46px;padding:0 20px;border:1px solid #dce5ef;background:#fff;border-radius:9px;color:#5e718c;font-size:12px;font-weight:650}.secondary:hover{background:#f6f8fc}.error{margin-top:12px;border:1px solid #ffcede;background:#fff4f7;color:#ad344d;padding:12px;border-radius:8px;font-size:12px;display:none}.explain{margin-top:17px;font-size:11px;line-height:1.75;color:#8997a9}.explain strong{color:#6c7f96}
+.righthead{display:flex;align-items:center;gap:8px}.badge{display:inline-flex;align-items:center;gap:5px;border-radius:6px;padding:5px 8px;font-weight:750;font-size:11px;white-space:nowrap}.badge.risk{background:var(--red-bg);color:var(--red)}.badge.no_risk{background:var(--green-bg);color:var(--green)}.badge.needs_review{background:var(--amber-bg);color:var(--amber)}.badge.out_of_scope{background:#eef2f7;color:#8290a2}.badge.t0{background:#ffedf1;color:#bd3650}.badge.t1{background:#fff0e9;color:#b96b33}.badge.t2{background:#fff6dc;color:#94721e}.badge.t3{background:#ebf1ff;color:#326bc7}.badge.s{background:#edf3ff;color:#2f6bcd}
+.stats{display:grid;grid-template-columns:1.25fr 1fr 1fr 1fr;gap:10px}.stat{border:1px solid #e7edf4;border-radius:10px;padding:14px 12px;min-height:91px}.stat label{display:block;font-size:11px;color:#8795a9;margin-bottom:11px}.stat .val{font-size:23px;font-weight:770;line-height:1.1;letter-spacing:-.5px}.stat .val.text{font-size:17px;letter-spacing:0}.stat small{display:block;font-size:10px;color:#a4adba;margin-top:9px}.red{color:var(--red)}.green{color:var(--green)}.orange{color:var(--amber)}.muted{color:#8290a4}.summary{margin-top:14px;padding:13px 14px;display:flex;align-items:center;justify-content:space-between;gap:12px;background:#fff7f8;border:1px solid #f6dce2;border-radius:9px;color:#a74356;font-size:12px;line-height:1.7}.summary.no_risk{color:#18816b;background:#f3fbf8;border-color:#d9eee7}.summary.needs_review{color:#946b28;background:#fffaf0;border-color:#f1e2c4}.summary.out_of_scope{color:#70819a;background:#f7f9fc;border-color:#e0e7f0}.reviewtag{font-size:10px;padding:4px 6px;background:#fff7e6;border:1px solid #ebd09b;border-radius:5px;color:#996919;white-space:nowrap}
+.group{margin-top:24px}.group-title{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}.group-title h2{font-size:14px;font-weight:720;display:flex;align-items:center;gap:8px}.glyph{width:24px;height:24px;display:inline-grid;place-items:center;border-radius:7px;background:#edf3ff;color:#3370d9;font-size:14px}.glyph.warm{background:#fff2e3;color:#b77930}.groupmeta{display:flex;align-items:center;gap:7px;font-size:11px;color:#8c9aae}.groupmeta strong{font-weight:700;color:#697a90}.items{display:flex;flex-direction:column;gap:9px}.item{border:1px solid #e5ebf3;border-radius:10px;padding:13px 14px;background:#fff}.itemtop{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.itemname{font-size:12px;font-weight:720}.score{margin-left:auto;display:flex;align-items:center;gap:7px;color:#63768f;font-size:11px;font-variant-numeric:tabular-nums}.score strong{color:#3b5c84;font-size:12px}.mini-bar{width:51px;height:5px;border-radius:6px;background:#ebeff6;overflow:hidden}.mini-bar i{display:block;height:100%;background:#5286e6;border-radius:6px}.quote{margin-top:11px;border-left:2px solid #cbd8eb;padding-left:10px;font-size:12px;line-height:1.65;color:#425571;overflow-wrap:anywhere}.reason{margin-top:8px;font-size:11px;line-height:1.6;color:#8795a8}.empty{border:1px dashed #d9e7df;border-radius:10px;background:#f9fcfb;padding:18px;color:#6d9785;font-size:12px;line-height:1.5}.empty.review{background:#fffdfa;border-color:#e7ddc2;color:#a17b3e}.empty.out{background:#f8faff;border-color:#dfe5ed;color:#8d9aab}
+.jsonhead{margin-top:26px;display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:11px}.jsonhead h2{font-size:14px}.jsonright{display:flex;gap:9px;align-items:center}.copy{height:30px;padding:0 12px;border:1px solid #dde6f2;background:#fff;color:#4e6380;border-radius:7px;font-size:11px;font-weight:700}.copy:hover{background:#f3f7ff}.codebox{border-radius:11px;overflow:hidden;background:#111d31;border:1px solid #25344d}.codetop{height:35px;background:#1a2940;color:#a8b7cf;padding:0 14px;display:flex;align-items:center;justify-content:space-between;font-size:11px}.dots{display:flex;gap:5px}.dots b{height:7px;width:7px;background:#465870;border-radius:50%}.code{margin:0;max-height:470px;min-height:145px;overflow:auto;padding:16px;color:#dce6f7;font:11.5px/1.8 ui-monospace,Consolas,Menlo,monospace;white-space:pre;tab-size:2}.code .key{color:#84bff5}.code .string{color:#b9e2ab}.code .number{color:#f4c57f}.code .boolean{color:#ccb5fa}.code .null{color:#ffb8c6}.codefoot{display:flex;gap:10px;align-items:center;justify-content:space-between;color:#93a0b2;font-size:10px;margin-top:9px}.checkwarn{color:#b77a2d}.checkok{color:#25916f}.legal{margin-top:17px;font-size:11px;color:#96a4b5;line-height:1.7}
+.empty-start{text-align:center;border:1px dashed #dce4ef;border-radius:12px;background:#fafcff;padding:58px 24px;color:#8391a5;font-size:13px;line-height:2}.empty-start svg{display:block;margin:0 auto 13px;color:#b9c8df}.empty-start strong{font-size:15px;color:#4a5f7b;display:block}
+@media(max-width:1070px){main{grid-template-columns:1fr}.editor{height:300px}header{padding:0 23px}}@media(max-width:620px){header{height:65px}.brand h1{font-size:17px}.topright{display:none}main{padding:12px;gap:12px}.left-body,.right-body{padding:16px}.panel-head{padding:17px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.stat{min-height:84px}.code{font-size:10.5px}}
+
+/* Shared navigation + FDE conversation experience */
+[hidden]{display:none!important}
+.workspace-nav{background:#fff;border-bottom:1px solid #e5eaf2}
+.workspace-nav-inner{max-width:1588px;margin:auto;padding:0 25px;display:flex;gap:4px}
+.workspace-tab{border:0;border-bottom:3px solid transparent;border-radius:0;padding:17px 20px 15px;background:transparent;color:#64748b;font-size:13px;font-weight:680;display:inline-flex;align-items:center;gap:9px;transition:background .15s,color .15s}
+.workspace-tab svg{width:16px;height:16px}
+.workspace-tab:hover{background:#f5f8fc;color:#203758}
+.workspace-tab.active{color:#275fc9;border-bottom-color:#3475ec}
+main.fde-main{display:block;max-width:1190px;padding:25px 22px 35px;margin:0 auto}
+.fde-intro{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:17px}
+.fde-intro h2{font-size:19px;font-weight:760;letter-spacing:-.35px}
+.fde-intro p{font-size:12px;color:var(--sub);margin-top:7px}
+.fde-demo-flag{display:inline-flex;align-items:center;gap:7px;border:1px solid #dce8ef;border-radius:999px;padding:7px 11px;color:#628196;background:#f8fbfd;font-size:11px;white-space:nowrap}
+.fde-demo-flag:before{content:"";width:7px;height:7px;background:#52aa9a;border-radius:50%}
+.fde-chatcard{height:min(790px,calc(100vh - 235px));min-height:590px;display:flex;flex-direction:column;border:1px solid #dfe5ee;background:#f1f1f1;border-radius:15px;box-shadow:var(--shadow);overflow:hidden}
+.fde-chathead{height:76px;flex:0 0 auto;display:flex;align-items:center;gap:12px;background:#fcfcfd;border-bottom:1px solid #e6e9ed;padding:0 21px}
+.fde-robot-avatar{width:39px;height:39px;border-radius:10px;background:linear-gradient(145deg,#17365b,#3c6e93);display:grid;place-items:center;color:white;font-weight:800;font-size:19px;box-shadow:0 2px 7px #1d477120}
+.fde-person{display:flex;flex-direction:column;gap:4px;flex:1;min-width:0}
+.fde-person strong{font-size:14px;font-weight:760}
+.fde-person small{font-size:11px;color:#8a97a8}
+.fde-tools{display:flex;align-items:center;gap:7px}
+.fde-tool{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:1px solid #e1e6ed;border-radius:8px;background:white;height:33px;padding:0 11px;font-size:11px;font-weight:650;color:#64748b;white-space:nowrap}
+.fde-tool:hover{background:#f4f8fc;color:#335b88}
+.fde-tool.is-active{color:#2d619a;border-color:#bcd1e8;background:#f2f7ff}
+.fde-tool svg{width:14px;height:14px}
+.fde-instructions{flex:0 0 auto;background:#fff;padding:14px 20px;border-bottom:1px solid #e7ebf1}
+.fde-instructions label{display:block;font-weight:670;font-size:12px;color:#425370;margin-bottom:7px}
+.fde-instructions textarea{border:1px solid #dce5ee;width:100%;border-radius:8px;padding:10px 11px;resize:vertical;min-height:72px;max-height:145px;background:#fcfdff;font-size:12px;line-height:1.6;color:#243c56}
+.fde-instructions small{display:block;font-size:11px;color:#96a2b1;line-height:1.5;margin-top:6px}
+.fde-chatbody{flex:1;min-height:0;overflow-y:auto;padding:22px 26px 29px;display:flex;flex-direction:column;gap:17px;scroll-behavior:smooth;background:#ededed}
+.fde-date{align-self:center;color:#9aa3af;font-size:11px;margin:1px 0 5px}
+.fde-msg{display:flex;gap:11px;align-items:flex-start;width:100%}
+.fde-msg.user{flex-direction:row-reverse}
+.fde-mini-avatar{width:37px;height:37px;flex:0 0 auto;border-radius:7px;display:grid;place-items:center;color:#fff;background:#447092;font-size:17px;font-weight:700;box-shadow:0 1px 1px #00000010}
+.fde-msg.user .fde-mini-avatar{background:#7891b0}
+.fde-bubble{max-width:min(620px,74%);border-radius:6px;padding:11px 14px;background:#fff;color:#273346;font-size:13px;line-height:1.85;white-space:pre-wrap;overflow-wrap:anywhere;position:relative;box-shadow:0 1px 2px #00000008}
+.fde-bubble:before{content:"";position:absolute;top:13px;left:-6px;width:0;height:0;border-top:6px solid transparent;border-bottom:6px solid transparent;border-right:7px solid white}
+.fde-msg.user .fde-bubble{background:#a9e88f;color:#203324}
+.fde-msg.user .fde-bubble:before{left:auto;right:-6px;border-right:0;border-left:7px solid #a9e88f}
+.fde-status{height:14px;margin-top:-6px;text-align:left;padding-left:49px;color:#98a1a9;font-size:11px}
+.fde-typing{display:flex;gap:5px;align-items:center;height:20px;min-width:32px}
+.fde-typing span{background:#bdc5cd;width:6px;height:6px;border-radius:50%;animation:fde-bounce 1s infinite}
+.fde-typing span:nth-child(2){animation-delay:.14s}.fde-typing span:nth-child(3){animation-delay:.28s}
+@keyframes fde-bounce{0%,60%,100%{transform:translateY(0);opacity:.6}30%{transform:translateY(-4px);opacity:1}}
+.fde-composer{flex:0 0 auto;border-top:1px solid #dcdfe5;background:#f9f9f9;padding:14px 20px 12px}
+.fde-compose-title{font-size:11px;color:#97a1af;display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.fde-compose-title span:last-child{color:#aeb6c1}
+.fde-compose-input{display:block;width:100%;height:75px;max-height:165px;min-height:62px;resize:vertical;border:0;outline:none;background:transparent;font-size:13px;line-height:1.7;color:#2c3951;padding:2px 1px}
+.fde-compose-input::placeholder{color:#adb7c2}
+.fde-compose-input:focus-visible{outline:0}
+.fde-compose-foot{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.fde-compose-note{font-size:11px;color:#9aa5b0}
+.fde-send{height:36px;min-width:94px;border:0;border-radius:6px;background:#1b9c68;color:#fff;font-size:12px;font-weight:740;display:flex;align-items:center;justify-content:center;gap:6px}
+.fde-send:hover{background:#13885a}.fde-send:disabled{background:#d4ded9;color:#9daca2;opacity:1}
+.fde-send svg{width:14px;height:14px}
+.fde-bottomnote{margin:10px auto 0;font-size:11px;color:#8b9bad;text-align:center;line-height:1.8}
+.fde-toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:#1e314c;color:#fff;padding:11px 17px;border-radius:9px;font-size:12px;box-shadow:0 5px 20px #213d6233;z-index:15}
+@media(max-width:680px){.workspace-nav-inner{padding:0 12px}.workspace-tab{padding:14px 12px;font-size:12px}main.fde-main{padding:15px 9px 24px}.fde-intro{padding:0 5px}.fde-intro h2{font-size:16px}.fde-intro p{font-size:11px}.fde-demo-flag{font-size:10px;padding:6px 8px}.fde-chatcard{height:calc(100dvh - 222px);min-height:480px;border-radius:10px}.fde-chathead{padding:0 11px;height:68px;gap:9px}.fde-person small{font-size:10px}.fde-tool{font-size:0;padding:0 8px}.fde-tool svg{width:16px;height:16px}.fde-chatbody{padding:18px 12px 22px;gap:15px}.fde-mini-avatar{width:32px;height:32px}.fde-msg{gap:9px}.fde-bubble{max-width:79%;font-size:12.5px;padding:10px 12px}.fde-composer{padding:10px 12px}.fde-compose-note{font-size:10px}.fde-instructions{padding:10px 12px}.fde-status{padding-left:41px}}
+@media(prefers-reduced-motion:reduce){.fde-typing span{animation:none}.fde-chatbody{scroll-behavior:auto}}
+
+/* V3.3: neutral workspace identity, reduced chrome, more focused chat */
+.mode-indicator{display:inline-flex;align-items:center;gap:7px;color:#c2cee0}
+.mode-indicator:before{content:"";height:7px;width:7px;border-radius:50%;background:#91a5c2}
+.brand h1{font-size:19px;letter-spacing:0;font-weight:740}
+.brand p{color:#b5c4d8}
+.workspace-tab{font-weight:660}
+main.fde-main{max-width:1160px;padding-top:21px}
+.fde-chatcard{height:min(810px,calc(100dvh - 200px));min-height:565px}
+.fde-chathead{height:70px}
+.fde-inline-demo{font-size:11px;white-space:nowrap;color:#8490a2;padding:5px 8px;border:1px solid #e3e8f0;border-radius:6px;background:#f5f7fa;margin-right:6px}
+.fde-composer{padding:10px 20px 11px}
+.fde-compose-title{margin-bottom:3px}
+.fde-compose-input{height:65px;min-height:55px}
+.fde-bottomnote{margin-top:8px}
+.fde-quickstart{margin-left:48px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;max-width:700px}
+.fde-quickstart-label{flex-basis:100%;font-size:11px;color:#929dad;margin-top:6px}
+.fde-quick{border:1px solid #cfd7df;background:#f8fafc;color:#50637b;padding:8px 11px;border-radius:9px;font-size:12px;text-align:left;line-height:1.3}
+.fde-quick:hover{background:#fff;border-color:#9bb3d0;color:#2c537f}
+/* V3.4: contextual follow-up questions, beneath the newest FDE bubble */
+.fde-suggestions{align-self:flex-start;margin:-7px 0 2px 48px;max-width:min(690px,calc(100% - 48px));display:flex;flex-direction:column;align-items:flex-start;gap:8px}
+.fde-suggest-title{font-size:11px;color:#7c8999;padding-left:1px}
+.fde-suggest-options{display:flex;gap:7px;flex-wrap:wrap;align-items:center}
+.fde-suggest-chip{display:inline-flex;align-items:center;gap:6px;max-width:100%;border:1px solid #cbd9e6;background:#f8fafc;color:#425a73;padding:7px 10px;border-radius:9px;line-height:1.5;text-align:left;font-size:11.5px;font-weight:550;box-shadow:0 1px 2px #00000004}
+.fde-suggest-chip:hover{border-color:#91b5d1;color:#255e87;background:white}
+.fde-suggest-chip:focus-visible{outline:2px solid #83aee0;outline-offset:2px}
+.fde-suggest-arrow{font-size:13px;color:#7f9aae;flex:0 0 auto}
+@media(max-width:680px){.fde-suggestions{margin-left:41px;max-width:calc(100% - 41px)}.fde-suggest-chip{font-size:11px;padding:7px 9px}.fde-suggest-options{gap:6px}}
+@media(max-width:680px){
+  .brand h1{font-size:16px}.brand p{font-size:10px}
+  main.fde-main{padding:10px 9px 15px}
+  .fde-chatcard{height:calc(100dvh - 145px);min-height:450px}
+  .fde-chathead{height:62px}
+  .fde-inline-demo{font-size:10px;padding:4px 5px;margin-right:0}
+  .fde-person strong{font-size:13px}
+  .fde-person small{font-size:10px}
+  .fde-compose-input{height:58px;min-height:50px}
+  .fde-quickstart{margin-left:40px;gap:6px}
+  .fde-quick{font-size:11px;padding:7px 9px}
+  .fde-bottomnote{padding:0 10px;font-size:10px}
+}
+
+
+/* V3.5: separate durable enterprise capabilities from session instructions */
+.fde-capability-button{border-color:#cbdde9;background:#f5f9fc;color:#375e7d}
+.fde-capability-count{display:inline-grid;place-items:center;min-width:17px;height:17px;padding:0 4px;font-size:10px;color:#fff;background:#377ca2;border-radius:10px}
+.fde-instruction-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.fde-instruction-head span{color:#9ca8b6;font-size:11px}
+.fde-context-banner{height:auto;min-height:39px;display:flex;align-items:center;gap:9px;padding:8px 19px;color:#74859c;background:#f5f8fb;border-bottom:1px solid #e5eaf0;font-size:11px}
+.fde-context-dot{width:7px;height:7px;flex-shrink:0;background:#bbc6d5;border-radius:50%}
+.fde-context-banner.has-knowledge .fde-context-dot{background:#37a482}
+#fde-context-text{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#fde-context-edit{border:0;background:transparent;color:#396fa2;font-size:11px;font-weight:700;white-space:nowrap;margin-left:auto;padding:3px 0}
+#fde-context-edit:hover{text-decoration:underline}
+.fde-capability-overlay{position:fixed;inset:0;z-index:30;background:#13243b66;backdrop-filter:blur(1px)}
+.fde-capability-panel{position:fixed;z-index:31;right:0;top:0;bottom:0;width:min(510px,100vw);background:#fff;box-shadow:-10px 0 40px #1c304b35;display:flex;flex-direction:column;animation:cap-enter .18s ease-out}
+@keyframes cap-enter{from{transform:translateX(12px);opacity:.75}to{transform:translateX(0);opacity:1}}
+.fde-capability-head{display:flex;gap:18px;justify-content:space-between;align-items:flex-start;padding:24px 26px 21px;border-bottom:1px solid #e6ecf2}
+.fde-capability-eyebrow{color:#427bb0;font-size:10px;font-weight:750;letter-spacing:.12em;margin-bottom:6px}
+.fde-capability-head h2{font-size:21px;color:#233650;letter-spacing:-.3px}
+.fde-capability-head p{color:#7d8da4;font-size:12px;margin-top:7px;line-height:1.5}
+.fde-capability-close{background:#f2f5f9;border:0;border-radius:7px;min-width:31px;height:31px;color:#63748c;font-size:22px;line-height:1}
+.fde-capability-scroll{flex:1;min-height:0;overflow-y:auto;padding:20px 26px 28px;display:flex;flex-direction:column;gap:18px}
+.fde-capability-tip{background:#f0f6ff;border:1px solid #dce9fa;border-radius:10px;padding:13px 14px;display:flex;flex-direction:column;gap:5px}
+.fde-capability-tip strong{font-size:12px;color:#345c8c}.fde-capability-tip span{font-size:11px;color:#71849c;line-height:1.7}
+.fde-capability-field{display:flex;flex-direction:column;gap:8px}
+.fde-capability-label{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.fde-capability-label label{font-size:12px;font-weight:740;color:#394b64}
+.fde-capability-label span{font-size:11px;color:#a2adba}
+.fde-capability-field textarea{display:block;width:100%;border:1px solid #dce4ed;background:#fbfcfe;border-radius:9px;padding:11px 12px;font-size:12px;color:#273e58;line-height:1.7;resize:vertical;min-height:72px}
+.fde-capability-field textarea:focus{background:#fff;border-color:#88b2e2;outline:2px solid #eaf3ff}
+.fde-capability-field textarea::placeholder{color:#a4b1c1}
+.fde-capability-privacy{font-size:11px;color:#929fb1;line-height:1.7}
+.fde-capability-footer{padding:17px 24px;border-top:1px solid #e5ebf1;display:flex;justify-content:space-between;gap:10px;align-items:center;background:#fff}
+#fde-capability-save-state{font-size:11px;color:#8392a6;line-height:1.4}
+.fde-capability-buttons{display:flex;align-items:center;gap:8px}
+.fde-capability-demo{border:1px solid #dae3ed;background:#fff;color:#57718b;padding:10px 12px;border-radius:8px;font-size:12px;font-weight:600}
+.fde-capability-save{border:1px solid #2861df;background:#2861df;color:#fff;padding:10px 18px;border-radius:8px;font-size:12px;font-weight:700}
+.fde-capability-save:hover{background:#174fbd}
+@media(max-width:680px){.fde-context-banner{padding:7px 12px}.fde-capability-head{padding:19px 17px}.fde-capability-scroll{padding:16px 17px 22px}.fde-capability-footer{padding:13px 14px;gap:5px}.fde-capability-footer span{max-width:110px}.fde-capability-demo{padding:9px 8px}.fde-capability-save{padding:9px 12px}.fde-capability-button{padding:0 7px}.fde-tool{font-size:0}.fde-capability-count{font-size:10px}.fde-inline-demo{display:none}}
+@media(prefers-reduced-motion:reduce){.fde-capability-panel{animation:none}}
+
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><div class="logo" aria-hidden="true"><svg width="23" height="23" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 7 17 12 7 17" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><circle cx="7" cy="7" r="2.5" fill="#eaf1ff"/><circle cx="17" cy="12" r="2.5" fill="#fff"/><circle cx="7" cy="17" r="2.5" fill="#eaf1ff"/></svg></div><div><h1>AI 场景工作台</h1><p>FDE 技术对话 · 金融投顾质检</p></div></div>
+  <div class="topright"><span class="mode-indicator">离线演示模式</span><span class="version">V3.5</span></div>
+</header>
+
+<nav class="workspace-nav" aria-label="工作台模块">
+  <div class="workspace-nav-inner" role="tablist" aria-label="工作台功能">
+    <button type="button" class="workspace-tab active" id="tab-fde" role="tab" aria-controls="fde-workspace" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M8.5 10.5 11 13l-2.5 2.5M13 15.5h4M8 2.5v2.5M16 2.5v2.5"/></svg>FDE 对话</button>
+    <button type="button" class="workspace-tab" id="tab-risk" role="tab" aria-controls="risk-workspace" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 2.5 20 6v6c0 5-3.2 8-8 9.5C7.2 20 4 17 4 12V6l8-3.5Z"/><path d="m8.5 12 2.5 2.5 4.7-5"/></svg>金融质检</button>
+  </div>
+</nav>
+
+<main id="fde-workspace" class="fde-main" role="tabpanel" aria-labelledby="tab-fde">
+  <section class="fde-chatcard" aria-label="FDE 对话窗口">
+    <div class="fde-chathead">
+      <div class="fde-robot-avatar" aria-hidden="true">F</div>
+      <div class="fde-person"><strong>FDE 技术顾问</strong><small>需求分析 · 技术方案 · POC 规划</small></div><span class="fde-inline-demo" title="回复与推荐问题均为本地规则模拟，未接入真实模型">模拟回复</span>
+      <div class="fde-tools">
+        <button class="fde-tool fde-capability-button" id="fde-capability-toggle" type="button" aria-haspopup="dialog" aria-controls="fde-capability-panel" title="管理长期有效的企业能力资料"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="7" width="18" height="14" rx="2"/><path d="M8 7V4h8v3M3 12h18"/></svg>企业能力 <span id="fde-capability-count" class="fde-capability-count" hidden>0</span></button>
+        <button class="fde-tool" id="fde-settings-toggle" type="button" aria-controls="fde-instructions" aria-expanded="false" title="可选补充指令"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 7h16M4 17h16M9 4v6M15 14v6"/></svg>补充指令</button>
+        <button class="fde-tool" id="fde-copy" type="button" title="复制全部对话"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg>复制对话</button>
+        <button class="fde-tool" id="fde-reset" type="button" title="开始新会话"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>新会话</button>
+      </div>
+    </div>
+    <div id="fde-instructions" class="fde-instructions" hidden>
+      <div class="fde-instruction-head"><label for="fde-extra">本次会话的补充指令（可选）</label><span>仅当前会话</span></div>
+      <textarea id="fde-extra" placeholder="例如：重点了解客户的数据接入条件；尽量推动一次小范围 POC 讨论。"></textarea>
+      <small>这里设置沟通方式和本次关注重点；企业产品、模型能力及方案资料请填在「企业能力」中。新建会话后会清空此项。</small>
+    </div>
+    <div class="fde-context-banner" id="fde-context-banner" aria-live="polite"><span class="fde-context-dot"></span><span id="fde-context-text">未配置企业能力 · 当前按通用 FDE 演示</span><button id="fde-context-edit" type="button">添加资料</button></div>
+    <div class="fde-chatbody" id="fde-messages" role="log" aria-label="对话记录" aria-live="polite" aria-relevant="additions text"></div>
+    <div class="fde-composer">
+      <div class="fde-compose-title"><span>消息</span><span>Enter 发送</span></div>
+      <textarea id="fde-input" class="fde-compose-input" aria-label="输入消息" placeholder="描述业务需求，或者提出一个技术问题…" maxlength="4000"></textarea>
+      <div class="fde-compose-foot"><span class="fde-compose-note">Enter 发送 · Shift + Enter 换行</span><button id="fde-send" type="button" class="fde-send" disabled>发送 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m5 12 14-8-4 16-3-6-7-2ZM12 14l7-10" stroke-linejoin="round"/></svg></button></div>
+    </div>
+  </section>
+  <p class="fde-bottomnote">离线演示：企业能力资料保存在当前浏览器；FDE 回复、能力匹配和推荐问题均为本地规则模拟，未连接真实模型。</p>
+</main>
+
+<!-- 企业能力属于长期知识，独立于当次会话补充指令 -->
+<div id="fde-capability-overlay" class="fde-capability-overlay" hidden></div>
+<aside id="fde-capability-panel" class="fde-capability-panel" role="dialog" aria-modal="true" aria-labelledby="fde-capability-title" hidden>
+  <div class="fde-capability-head">
+    <div><div class="fde-capability-eyebrow">FDE / KNOWLEDGE</div><h2 id="fde-capability-title">企业能力库</h2><p>告诉 FDE 企业具备哪些能力；跨会话持续生效</p></div>
+    <button type="button" class="fde-capability-close" id="fde-capability-close" aria-label="关闭企业能力库">×</button>
+  </div>
+  <div class="fde-capability-scroll">
+    <div class="fde-capability-tip"><strong>企业能力 = 知道什么</strong><span>填写可对客户说明的真实产品、模型、方案和交付事实。FDE 只在相关场景引用，不强行推销；不确定的能力需进一步核实。</span></div>
+    <div class="fde-capability-field"><div class="fde-capability-label"><label for="company-intro">企业介绍</label><span>可选</span></div><textarea id="company-intro" rows="3" placeholder="企业定位、主要服务行业、团队擅长的领域…" maxlength="4000"></textarea></div>
+    <div class="fde-capability-field"><div class="fde-capability-label"><label for="company-products">产品与模型能力</label><span>可选</span></div><textarea id="company-products" rows="5" placeholder="已提供的产品、模型特长、API 或部署方式、能力边界和已验证指标…" maxlength="6000"></textarea></div>
+    <div class="fde-capability-field"><div class="fde-capability-label"><label for="company-solutions">解决方案</label><span>可选</span></div><textarea id="company-solutions" rows="4" placeholder="适用业务场景、典型落地流程、可解决的问题…" maxlength="6000"></textarea></div>
+    <div class="fde-capability-field"><div class="fde-capability-label"><label for="company-delivery">案例与交付</label><span>可选</span></div><textarea id="company-delivery" rows="4" placeholder="可对外介绍的真实客户案例、POC 经验、部署方式、交付边界…" maxlength="6000"></textarea></div>
+    <div class="fde-capability-privacy">资料仅保存在当前浏览器的本地存储中。清理浏览器数据或更换设备后可能丢失，尚未同步到服务器。</div>
+  </div>
+  <div class="fde-capability-footer"><span id="fde-capability-save-state">尚未配置</span><div class="fde-capability-buttons"><button type="button" class="fde-capability-demo" id="fde-capability-demo">填入示例</button><button type="button" class="fde-capability-save" id="fde-capability-save">保存资料</button></div></div>
+</aside>
+
+<main id="risk-workspace" class="risk-main" role="tabpanel" aria-labelledby="tab-risk" hidden>
+  <section class="panel" aria-label="对话输入区">
+    <div class="panel-head"><div><h2>对话质检</h2><p>tl-risk-flash · 金融投顾营销对话风险检测</p></div><span class="tag">纯文本</span></div>
+    <div class="left-body">
+      <div class="field-header"><label class="field-title" for="conversation">对话内容</label><span class="field-note">支持“销售：”“客户：”等角色前缀</span></div>
+      <div class="editwrap"><textarea id="conversation" class="editor" spellcheck="false" placeholder="销售：您好，您想了解哪款投顾产品？&#10;客户：你们的套餐怎么收费？&#10;销售：..." aria-label="输入完整对话内容"></textarea><div class="editorfoot"><span id="counter">0 字 · 0 条发言</span><button id="example" type="button" class="textbtn" title="填入示例对话">填入示例</button></div></div>
+      <div class="notice">检查 <strong>客户客诉 T0–T3</strong> 与 <strong>销售违规 S01–S05</strong>。每项命中独立显示 <strong>hit_score</strong>，不输出固定阈值；客诉支持多等级命中与最高等级汇总。</div>
+      <div class="actions"><button id="run" class="primary" type="button"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m8 5 11 7-11 7V5Z" stroke-linejoin="round"/></svg><span>开始质检</span></button><button id="clear" class="secondary" type="button">清空</button></div>
+      <div id="error" class="error" role="alert"></div>
+      <p class="explain"><strong>演示说明：</strong>当前页面为离线交互原型，检测使用本地简化规则生成演示结果，不调用 Qwen3-Max 或任何外部接口。hit_score 为界面展示用模拟评分，不能用于模型效果验收或真实风控决策。</p>
+    </div>
+  </section>
+  <section class="panel" aria-label="质检结果区">
+    <div class="panel-head"><div><h2>检测结果</h2><p>客诉与销售违规独立识别 · 完整 JSON</p></div><div class="righthead"><span class="tag">模拟规则</span><span id="overall-badge" class="badge out_of_scope">未开始</span></div></div>
+    <div class="right-body" id="right-body">
+      <div id="empty-start" class="empty-start"><svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M7 3.5h10a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-13a2 2 0 0 1 2-2Z"/><path d="M8.5 8h7M8.5 12h7M8.5 16h4" stroke-linecap="round"/></svg><strong>暂无质检结果</strong>输入对话内容并点击“开始质检”</div>
+      <div id="result-view" hidden>
+        <div class="stats">
+          <div class="stat"><label>综合状态</label><div id="stat-overall" class="val text">—</div><small>双维度联合检测</small></div>
+          <div class="stat"><label>客诉最高等级</label><div id="stat-level" class="val">—</div><small>T0 &gt; T1 &gt; T2 &gt; T3</small></div>
+          <div class="stat"><label>客诉命中等级</label><div id="stat-complaints" class="val">—</div><small>支持多等级命中</small></div>
+          <div class="stat"><label>销售违规类型</label><div id="stat-sales" class="val">—</div><small>S01 – S05</small></div>
+        </div>
+        <div id="summary" class="summary"><span id="summary-text"></span><span id="reviewtag" class="reviewtag" hidden>需人工复核</span></div>
+        <section class="group"><div class="group-title"><h2><span class="glyph">⚑</span> 客诉风险</h2><div class="groupmeta"><strong id="highest-label"></strong><span id="complaint-status" class="badge no_risk"></span></div></div><div id="complaint-items" class="items"></div></section>
+        <section class="group"><div class="group-title"><h2><span class="glyph warm">◇</span> 销售违规风险</h2><div class="groupmeta"><span id="sales-status" class="badge no_risk"></span></div></div><div id="sales-items" class="items"></div></section>
+        <div class="jsonhead"><h2>完整 JSON 输出</h2><div class="jsonright"><span id="json-size" class="tag">—</span><button id="copy-json" class="copy" type="button">复制 JSON</button></div></div>
+        <div class="codebox"><div class="codetop"><span>response.json</span><div class="dots"><b></b><b></b><b></b></div></div><pre id="json-code" class="code" aria-label="完整JSON结果"></pre></div>
+        <div class="codefoot"><span id="json-check"></span><span>完整字段 · 可滚动查看</span></div>
+        <p class="legal">质检结果仅为前端规则模拟。真实模型的识别质量、事件评分及合规结论，需要使用模型接口和标注集另行验证。</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script>
+(() => {
+  'use strict';
+  const $ = id => document.getElementById(id);
+  const example = `客户：直播间加的企微，你们那个2.8万的投顾套餐，具体怎么服务？\n销售：每周策略加月度持仓检视，按我们的方法跟下来，服务费一般是能赚回来的。\n客户：风险测评是不是要先做？\n销售：按系统默认选项点过去就行，我已经替您预填好了。先付款占上服务窗口，测评后面补也来得及。\n客户：合同里的风险揭示我想逐条看一下。\n销售：风险揭示都是统一模板，看我标黄的部分就够，不用逐页看。\n客户：你们这个服务太不规范了，我要退服务费！再不处理，我就去证监会投诉！`;
+  const complaintInfo = {
+    T0: ['监管及外部投诉', '客户明确提出向监管机构或外部渠道投诉'],
+    T1: ['公司内部正式投诉', '客户明确提出向公司内部正式渠道投诉'],
+    T2: ['退款退费', '客户明确要求退还投顾服务费用'],
+    T3: ['服务不满', '客户明确对投顾机构、顾问或服务表示不满']
+  };
+  const salesInfo = {
+    S01: ['收益承诺', '销售直接或变相暗示确定性盈利、保本或回本'],
+    S02: ['风险测评干预', '销售代填或引导客户不按真实情况完成测评'],
+    S03: ['弱化风险揭示', '销售引导客户忽略或简化必要的风险揭示'],
+    S04: ['误导性营销宣传', '销售使用绝对化、明显夸大的营销表述'],
+    S05: ['违规绕过业务流程', '销售引导跳过必要前置流程，先行签约、付款或开通']
+  };
+  const labels = {risk:'风险命中', no_risk:'未见风险', needs_review:'待复核', out_of_scope:'不适用'};
+  let result = null;
+
+  function esc(x) {return String(x ?? '').replace(/[&<>"']/g, v => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[v]));}
+  function parse(raw) {
+    const turns = [], unknown = [];
+    raw.split(/\r?\n/).forEach(line => {
+      if (!line.trim()) return;
+      const m = line.match(/^\s*(销售|顾问|投顾|客服|客户经理|营销人员|客户|顾客|用户|投资者)\s*[：:]\s*(.*)$/);
+      if (m) turns.push({side:/^(客户|顾客|用户|投资者)$/.test(m[1])?'customer':'sales', text:m[2].trim()});
+      else if (turns.length && !/^\s*[^：:]{1,15}[：:]/.test(line)) turns[turns.length - 1].text += '\n' + line.trim();
+      else unknown.push(line.trim());
+    });
+    return {turns, unknown};
+  }
+  function splitEvidence(text) {return text.split(/[。！？!?；;\n]/).map(s => s.trim()).filter(Boolean);}
+  function matchEvidence(turns, rule) {
+    for (const turn of turns) {
+      for (const piece of splitEvidence(turn.text)) {
+        if (rule.check(piece, turn.text)) return piece;
+      }
+    }
+    return '';
+  }
+  function makeResult(status, message) {
+    return {status, complaint_risk:{status, highest_level:null, need_review:status==='needs_review', risks:[]}, sales_violation:{status, need_review:status==='needs_review', violations:[]}, need_review:status==='needs_review', display_message:message};
+  }
+  const rulesComplaint = [
+    {level:'T0',check:s=>/(证监会|监管部门|金融监管|监管机构|12315|外部投诉平台)/.test(s)&&/(投诉|举报)/.test(s)&&/(我要|我会|我就|我准备|打算|再不|否则|一定|向|去|联系)/.test(s)&&!/(如何|怎么|能否|是否|在哪里|有哪些)(?:.{0,12})(投诉|举报)/.test(s)},
+    {level:'T1',check:s=>/(投诉|举报)/.test(s)&&/(总部|投诉部门|领导|管理层|你们公司)/.test(s)&&/(我要|我会|我就|我准备|正式|向|找|再不)/.test(s)&&!/(如何|怎么|能否|是否)(?:.{0,12})(投诉|举报)/.test(s)},
+    {level:'T2',check:s=>/(退费|退款|退还|退回来|退给我|退服务费|退会员费|退咨询费|(?:退|退回|退还).{0,10}(?:服务费|会员费|咨询费)|把.{0,12}(?:费用|钱).{0,7}退)/.test(s)&&/(我要|要求|申请|必须|把|请|给我|退给我|退回来|退费|退款)/.test(s)&&!/(能不能|是否|可不可以|能否|怎么|如何|什么条件|退款政策|退费流程|支持退款|可以退款吗)/.test(s)},
+    {level:'T3',check:s=>/(服务|你们|顾问|老师|投顾|策略|会员|收费)/.test(s)&&/(太差|差劲|不专业|不靠谱|根本没人|没人管|不回消息|不满意|太不规范|一点用都没有|根本没效果|忽悠|骗人|说好的.{0,10}没)/.test(s)}
+  ];
+  const rulesSales = [
+    {code:'S01', check:s=>/(稳赚|保本|包赚|保证.{0,12}(?:收益|赚钱|盈利|不亏|回本)|肯定.{0,12}(?:赚|盈利)|绝对不会亏|服务费.{0,20}(?:赚回|回本)|收益有保障)/.test(s)&&!/(无法保证|不能保证|不保证|没有保证|无法承诺)/.test(s)},
+    {code:'S02', check:s=>/(风险测评|测评|问卷|默认选项|默认答案|预填|代填)/.test(s)&&/(我.{0,8}(?:帮|替).{0,10}(?:填好|预填|填写)|已经.{0,8}(?:填好|预填)|按.{0,8}(?:默认|我的答案)|选高风险|代填)/.test(s)},
+    {code:'S03', check:s=>/(风险揭示|风险条款|风险提示|合同|模板)/.test(s)&&/(不用.{0,6}看|不必.{0,6}看|不需要.{0,6}看|没必要.{0,8}看|只看.{0,15}(?:部分|重点|标注)|看我标|走个流程|直接点确认|不用逐页|不需要逐条|就够)/.test(s)},
+    {code:'S04', check:s=>/(准确率.{0,8}(?:100%|百分之百)|(?:100%|百分之百).{0,8}准确|所有客户都.{0,6}(?:赚|盈利)|全部客户都.{0,6}(?:赚|盈利)|完全没有风险|行业绝对第一|绝对行业第一)/.test(s)},
+    {code:'S05', check:s=>/(测评|风险确认|风险揭示|风险评估|手续)/.test(s)&&/(后面补|以后补|后续补|先.{0,16}(?:付款|签约|签合同|购买|开通)|直接开通|先交钱|先付款)/.test(s)}
+  ];
+  function scoreFor(evidence, code) {
+    // 仅供页面演示的确定性占位评分，不代表大模型置信度。
+    const sum = Array.from(evidence).reduce((acc,c)=>acc+c.charCodeAt(0),0);
+    const base = code.startsWith('T') ? 0.87 : 0.85;
+    return Number(Math.min(.98, base+(sum%11)/100).toFixed(2));
+  }
+  function mockInspect(raw) {
+    const {turns, unknown} = parse(raw);
+    const hasFinance = /(投顾|荐股|炒股|股票|基金|证券|理财|投资|持仓|风险测评|风险揭示|证监会|金融|策略服务|服务费|会员费|咨询费)/.test(raw);
+    const hasOther = /(空调|维修|快递|外卖|酒店|机票|洗衣机|冰箱|装修|上门师傅|洗车)/.test(raw);
+    if (!hasFinance && hasOther) return makeResult('out_of_scope','本模型专注于金融投顾营销服务场景的风险质检，暂不支持其他领域的内容审核。');
+    if (!hasFinance || turns.length===0) return makeResult('needs_review','业务场景或发言角色不明确，需要人工复核');
+    const customers=turns.filter(t=>t.side==='customer'), sales=turns.filter(t=>t.side==='sales');
+    const risks=[], violations=[];
+    for (const rule of rulesComplaint) {
+      const evidence=matchEvidence(customers,rule);
+      if (evidence) risks.push({level:rule.level,type:complaintInfo[rule.level][0],hit_score:scoreFor(evidence,rule.level),evidence,reason:complaintInfo[rule.level][1]});
+    }
+    for (const rule of rulesSales) {
+      const evidence=matchEvidence(sales,rule);
+      if (evidence) violations.push({code:rule.code,type:salesInfo[rule.code][0],hit_score:scoreFor(evidence,rule.code),evidence,reason:salesInfo[rule.code][1]});
+    }
+    const needsComplaintReview = unknown.length>0 || (!customers.length) || customers.some(t=>/(我要投诉|我会投诉|准备投诉)/.test(t.text)&&!/(总部|监管|证监会|12315|领导|投诉部门)/.test(t.text));
+    const needsSalesReview = unknown.length>0 || (!sales.length);
+    const cstatus=risks.length?'risk':needsComplaintReview?'needs_review':'no_risk';
+    const sstatus=violations.length?'risk':needsSalesReview?'needs_review':'no_risk';
+    const status=(cstatus==='risk'||sstatus==='risk')?'risk':(cstatus==='needs_review'||sstatus==='needs_review')?'needs_review':'no_risk';
+    const review=needsComplaintReview||needsSalesReview;
+    const highest=risks[0]?.level??null;
+    let message = status==='needs_review'?'存在待确认风险线索，需要人工复核':status==='no_risk'?'未识别到客户客诉风险或销售违规风险':risks.length&&violations.length?`同时识别到客户客诉风险和销售违规风险，客诉最高等级${highest}`:risks.length?`识别到客户客诉风险，最高等级${highest}`:'识别到销售违规风险，未识别到客户客诉风险';
+    if (review&&status==='risk') message+='；部分结果需要人工复核';
+    return {status,complaint_risk:{status:cstatus,highest_level:highest,need_review:needsComplaintReview,risks},sales_violation:{status:sstatus,need_review:needsSalesReview,violations},need_review:review,display_message:message};
+  }
+  function setBadge(id,status){const el=$(id);el.textContent=labels[status]||status;el.className='badge '+status;}
+  function renderItems(id, items, status, kind) {
+    const root=$(id);root.replaceChildren();
+    if (!items.length) {
+      const el=document.createElement('div');el.className='empty'+(status==='needs_review'?' review':status==='out_of_scope'?' out':'');
+      el.textContent=status==='needs_review'?'信息不足，建议人工复核':status==='out_of_scope'?'非金融投顾场景，不进行质检':kind==='complaint'?'未识别到客户客诉风险':'未识别到销售违规风险';root.appendChild(el);return;
+    }
+    for(const item of items){
+      const code=kind==='complaint'?item.level:item.code;
+      const e=document.createElement('article');e.className='item';
+      const pct=Math.min(100,Math.max(0,Number(item.hit_score)*100));
+      e.innerHTML=`<div class="itemtop"><span class="badge ${kind==='complaint'?code.toLowerCase():'s'}">${esc(code)}</span><span class="itemname">${esc(item.type)}</span><div class="score"><span>hit_score</span><strong>${esc(Number(item.hit_score).toFixed(2))}</strong><div class="mini-bar" aria-hidden="true"><i style="width:${pct}%"></i></div></div></div><div class="quote">“${esc(item.evidence)}”</div><div class="reason">判定依据：${esc(item.reason)}</div>`;
+      root.appendChild(e);
+    }
+  }
+  function syntaxHighlight(json){return esc(json).replace(/(&quot;(?:\\.|[^&])*?&quot;)(\s*:)?|\b(-?\d+(?:\.\d+)?)\b|\b(true|false|null)\b/g,(m,key,colon,num,kw)=>key?`<span class="${colon?'key':'string'}">${key}</span>${colon||''}`:num?`<span class="number">${num}</span>`:`<span class="${kw==='null'?'null':'boolean'}">${kw}</span>`);}
+  function validate(data) {
+    const warnings=[];
+    const expected=(data.complaint_risk.status==='risk'||data.sales_violation.status==='risk')?'risk':(data.complaint_risk.status==='out_of_scope'&&data.sales_violation.status==='out_of_scope')?'out_of_scope':(data.complaint_risk.status==='needs_review'||data.sales_violation.status==='needs_review')?'needs_review':'no_risk';
+    if(data.status!==expected)warnings.push('综合状态不一致');
+    const ranks={T0:0,T1:1,T2:2,T3:3};
+    const highest=data.complaint_risk.risks.map(x=>x.level).sort((a,b)=>ranks[a]-ranks[b])[0]??null;
+    if(data.complaint_risk.highest_level!==highest)warnings.push('最高等级不一致');
+    if(data.need_review!==(data.complaint_risk.need_review||data.sales_violation.need_review))warnings.push('复核标记不一致');
+    for(const item of [...data.complaint_risk.risks,...data.sales_violation.violations]){if(typeof item.hit_score!=='number'||item.hit_score<0||item.hit_score>1)warnings.push('hit_score超出范围');if('threshold' in item)warnings.push('存在不应输出的threshold');}
+    return warnings;
+  }
+  function render(data) {
+    result=data;
+    $('empty-start').hidden=true;
+    $('result-view').hidden=false;
+    setBadge('overall-badge',data.status);
+    const c=data.complaint_risk,s=data.sales_violation;
+    $('stat-overall').textContent=labels[data.status];
+    $('stat-overall').className='val text '+(data.status==='risk'?'red':data.status==='no_risk'?'green':data.status==='needs_review'?'orange':'muted');
+    $('stat-level').textContent=c.highest_level??'—';$('stat-level').className='val '+(c.highest_level?'red':'muted');
+    $('stat-complaints').textContent=c.risks.length;$('stat-sales').textContent=s.violations.length;
+    $('summary-text').textContent=data.display_message;$('summary').className='summary '+data.status;$('reviewtag').hidden=!data.need_review;
+    $('highest-label').textContent=c.highest_level?'最高 '+c.highest_level:'';
+    setBadge('complaint-status',c.status);setBadge('sales-status',s.status);
+    renderItems('complaint-items',c.risks,c.status,'complaint');renderItems('sales-items',s.violations,s.status,'sales');
+    const json=JSON.stringify(data,null,2);$('json-code').innerHTML=syntaxHighlight(json);$('json-size').textContent=new Blob([json]).size+' B';
+    const warns=validate(data);$('json-check').textContent=warns.length?'字段检查：'+warns.join('、'):'JSON 结构与聚合字段检查通过';$('json-check').className=warns.length?'checkwarn':'checkok';
+  }
+  function counter(){const val=$('conversation').value;$('counter').textContent=`${val.length} 字 · ${parse(val).turns.length} 条发言`;}
+  function showError(msg){$('error').textContent=msg;$('error').style.display='block';}
+  function hideError(){$('error').style.display='none';$('error').textContent='';}
+  async function copyJson(){if(!result)return;const str=JSON.stringify(result,null,2);const btn=$('copy-json');try{if(navigator.clipboard&&location.protocol!=='file:')await navigator.clipboard.writeText(str);else{const t=document.createElement('textarea');t.value=str;t.style.cssText='position:fixed;opacity:0';document.body.append(t);t.select();const success=document.execCommand('copy');t.remove();if(!success)throw new Error('copy unavailable');}btn.textContent='已复制';setTimeout(()=>btn.textContent='复制 JSON',1200);}catch{showError('复制失败，可直接在右侧代码区选中复制。');}}
+  $('example').addEventListener('click',()=>{$('conversation').value=example;counter();hideError();});
+  $('conversation').addEventListener('input',()=>{counter();hideError();});
+  $('conversation').addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='Enter')$('run').click();});
+  $('clear').addEventListener('click',()=>{$('conversation').value='';counter();hideError();$('conversation').focus();result=null;$('empty-start').hidden=false;$('result-view').hidden=true;$('overall-badge').textContent='未开始';$('overall-badge').className='badge out_of_scope';});
+  $('run').addEventListener('click',()=>{hideError();const raw=$('conversation').value.trim();if(!raw){showError('请先输入需要审核的对话内容。');return;}render(mockInspect(raw));});
+  $('copy-json').addEventListener('click',copyJson);
+  $('conversation').value=example;counter();
+})();
+</script>
+
+<script>
+(() => {
+  'use strict';
+  const $ = id => document.getElementById(id);
+  const riskTab=$('tab-risk'), fdeTab=$('tab-fde');
+  function openTab(key){
+    const onFde=key==='fde';
+    $('risk-workspace').hidden=onFde;
+    $('fde-workspace').hidden=!onFde;
+    riskTab.classList.toggle('active',!onFde);
+    fdeTab.classList.toggle('active',onFde);
+    riskTab.setAttribute('aria-selected',String(!onFde));
+    fdeTab.setAttribute('aria-selected',String(onFde));
+    if(onFde) $('fde-input').focus();
+  }
+  riskTab.addEventListener('click',()=>openTab('risk'));
+  fdeTab.addEventListener('click',()=>openTab('fde'));
+  const chat=$('fde-messages'), input=$('fde-input'), send=$('fde-send');
+  const greeting='你好，我是 FDE 技术顾问，可以一起梳理 AI 项目的业务需求、技术方案和 POC 验证。你可以直接说说当前正在推进的项目。';
+  let messages=[];
+  // Long-lived enterprise facts: locally persisted. Session instructions: not persisted.
+  const CAP_KEY='ai-workbench-enterprise-capabilities-v1';
+  const CAP_FIELDS=[['intro','company-intro','企业介绍'],['products','company-products','产品与模型能力'],['solutions','company-solutions','解决方案'],['delivery','company-delivery','案例与交付']];
+  let enterprise={intro:'',products:'',solutions:'',delivery:''};
+  let storageAvailable=true;
+  const capGet=key=>String(enterprise[key]||'').trim();
+  const enterpriseCount=()=>CAP_FIELDS.filter(([key])=>capGet(key)).length;
+  function loadEnterprise(){
+    try{const v=localStorage.getItem(CAP_KEY);if(v){const parsed=JSON.parse(v);CAP_FIELDS.forEach(([key])=>{enterprise[key]=typeof parsed[key]==='string'?parsed[key]:'';});}}
+    catch{storageAvailable=false;}
+    populateEnterprise();updateEnterpriseStatus();
+  }
+  function populateEnterprise(){CAP_FIELDS.forEach(([key,id])=>{$(id).value=capGet(key);});}
+  function updateEnterpriseStatus(){
+    const n=enterpriseCount();$('fde-capability-count').textContent=String(n);$('fde-capability-count').hidden=!n;
+    $('fde-context-banner').classList.toggle('has-knowledge',n>0);
+    $('fde-context-text').textContent=n?`已关联 ${n} 类企业资料 · 相关对话中按需引用`:'未配置企业能力 · 当前按通用 FDE 演示';
+    $('fde-context-edit').textContent=n?'管理资料':'添加资料';
+    $('fde-capability-save-state').textContent=storageAvailable?(n?`已保存 ${n} 类资料`:'尚未配置'):(n?'已更新（仅当前页面）':'浏览器存储不可用');
+  }
+  function openCapabilities(){
+    populateEnterprise();$('fde-capability-overlay').hidden=false;$('fde-capability-panel').hidden=false;
+    document.body.style.overflow='hidden';$('fde-capability-close').focus();
+  }
+  function closeCapabilities(){
+    $('fde-capability-overlay').hidden=true;$('fde-capability-panel').hidden=true;
+    document.body.style.overflow='';$('fde-capability-toggle').focus();
+  }
+  const demoEnterprise={
+    intro:'（演示资料）某企业 AI 技术服务团队，聚焦企业知识管理、客服质检和业务流程自动化。',
+    products:'（演示资料）企业知识库：支持多格式文档解析、检索问答和访问权限控制。对话质检能力：支持按规则识别风险事件，输出结构化结果。模型能力：提供通用文本理解、信息抽取与结构化输出，具体性能须以实测为准。',
+    solutions:'（演示资料）企业知识库建设：梳理文档来源、分级权限、构建RAG检索问答并进行样本评测。客服质检方案：对历史会话进行分类、提取原文证据、支持人工复核。',
+    delivery:'（演示资料）可讨论小范围POC及验收指标；部署方式、报价和项目案例需由实际交付团队确认。'
+  };
+  // Offline semantic hint only, not real retrieval. Only quote user-supplied facts.
+  const capTopics=[
+    /知识库|文档|RAG|检索|飞书|企业知识|问答/i,
+    /客服|质检|投诉|客诉|营销|风控/i,
+    /Agent|智能体|工作流|自动化|业务流程|工具调用/i,
+    /模型|推理|抽取|结构化|大模型|多模态|API/i,
+    /POC|试点|部署|交付|报价|成本|私有化|合作/i
+  ];
+  function capabilityMatch(text){
+    if(!enterpriseCount())return null;
+    const userTurns=messages.filter(m=>m.role==='客户').map(m=>m.text);
+    const latest=(text||userTurns.slice(-1)[0]||'').trim();
+    if(!latest||/^(你好|您好|在吗|嗨|hello|hi)[!！。.?？]*$/i.test(latest))return null;
+    const customerContext=userTurns.slice(-4).join(' ');
+    const active=capTopics.map((rx,i)=>({i,latest:rx.test(latest),context:rx.test(customerContext)})).filter(x=>x.latest||x.context);
+    if(!active.length)return null;
+    const candidates=[];
+    for(const [key,_,label] of CAP_FIELDS){
+      const value=capGet(key);if(!value)continue;
+      const excerpts=value.split(/[。；;\n]/).map(t=>t.trim()).filter(t=>t.length>8);
+      for(const excerpt of excerpts){
+        let score=0;
+        active.forEach(({i,latest})=>{if(capTopics[i].test(excerpt))score+=latest?6:2;});
+        if(!score)continue;
+        if(key==='intro')score-=2;
+        if(key==='solutions'||key==='products')score+=1;
+        candidates.push({key,label,excerpt,score});
+      }
+    }
+    candidates.sort((a,b)=>b.score-a.score);
+    return candidates.length?candidates[0]:null;
+  }
+  let pending=false;
+  let revision=0;
+  function scrollChat(){chat.scrollTop=chat.scrollHeight;}
+  function timeString(){return new Date().toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit',hour12:false});}
+  function addMessage(role,text){
+    messages.push({role,text});
+    const item=document.createElement('div');item.className='fde-msg '+(role==='客户'?'user':'assistant');
+    const avatar=document.createElement('div');avatar.className='fde-mini-avatar';avatar.textContent=role==='客户'?'我':'F';avatar.setAttribute('aria-hidden','true');
+    const bubble=document.createElement('div');bubble.className='fde-bubble';bubble.textContent=text;
+    item.append(avatar,bubble);chat.appendChild(item);scrollChat();
+  }
+  function initConversation(){
+    revision++;
+    pending=false;send.disabled=!input.value.trim();
+    chat.replaceChildren();messages=[];
+    $('fde-extra').value='';
+    $('fde-instructions').hidden=true;$('fde-settings-toggle').classList.remove('is-active');$('fde-settings-toggle').setAttribute('aria-expanded','false');
+    const t=document.createElement('div');t.className='fde-date';t.textContent='今天 '+timeString();chat.append(t);
+    addMessage('FDE',greeting);
+    renderSuggestedQuestions(getSuggestedQuestions(greeting));
+  }
+  const rules=[
+    {pattern:/报价|多少钱|成本|预算|费用|计费|token/i,subject:'cost',reply:'成本建议分开测算：模型调用、数据处理、部署运维，以及实施与长期维护。若现在还在评估阶段，先估算每日任务量、每次平均输入输出和响应时延要求，再决定云端 API 还是私有化部署。第一步可以先做低、中、高三个调用量场景的成本估算，再决定部署方式。'},
+    {pattern:/验收|评测|测试集|准确率|效果|指标|验证|poc|试点|PoC/i,subject:'poc',reply:'建议先做一个边界清楚的 POC：选一个高频任务，准备代表性样本和现有人工基线，再约定准确性、耗时、人工介入率等验收指标。不要先把所有需求堆进去。验收前要确保测试集独立于调参样本，并对失败案例逐条归因。'},
+    {pattern:/数据|接口|数据库|飞书|企业微信|企微|钉钉|文档|权限|同步|知识源/i,subject:'data',reply:'数据接入是落地的关键。先确认来源系统、接口权限、数据格式、更新频率和访问控制，再决定实时查询还是定期同步。你们目前的数据主要在什么系统里，是否能提供受控接口？'},
+    {pattern:/知识库|rag|检索|问答|搜索/i,subject:'rag',reply:'企业知识问答通常从 RAG 起步：先整理资料源和访问权限，再做文档解析、切分、检索和答案引用。模型本身不是最难的，知识质量与评测往往更影响效果。第一期建议先选一个部门，用真实问答样本验证检索命中率、答案引用和权限隔离。'},
+    {pattern:/客服|工单|客诉|质检|投诉|外呼/i,subject:'service',reply:'这种场景我会先拆成识别、处理建议和自动执行三层。先用历史记录验证识别质量，涉及客户权益或高风险动作时保留人工确认。你们更想优先改善人工质检效率，还是做实时辅助回复？'},
+    {pattern:/agent|智能体|工具调用|function calling|mcp/i,subject:'agent',reply:'Agent 是否必要，取决于任务是否需要根据中间结果动态决策。如果步骤固定，工作流通常更稳定；如果需要跨系统查询、选择工具、反复验证，Agent 才有明显价值。你们希望它具体替人完成哪几个动作？'},
+    {pattern:/安全|合规|隐私|敏感|脱敏|审计|风控/i,subject:'security',reply:'建议把权限和审计放在设计前面：最小权限、敏感信息脱敏、工具调用白名单、关键动作审批，以及全过程日志留痕。初期可以通过最小权限、只读工具和高风险操作二次确认控制落地风险。'},
+    {pattern:/模型|qwen|deepseek|claude|gpt|选型|开源/i,subject:'model',reply:'模型选型建议用你们自己的业务样本对比，而不是只看通用榜单。可以同时观察任务成功率、时延、总成本和可部署性。先在相同测试集上对比模型的端到端任务完成率，再结合耗时和成本选型。'},
+    {pattern:/方案|架构|技术路线|怎么做|如何实现|部署|设计/i,subject:'architecture',reply:'可以先画一条最短业务链路：输入数据 → 模型/规则处理 → 结果校验 → 业务系统回写，再考虑监控与异常兜底。建议先为最短链路设计一个可验证的端到端演示，再逐步加入异常处理和监控。'},
+    {pattern:/自动化|工作流|流程|重复劳动|提效/i,subject:'workflow',reply:'先找耗时高、步骤清晰、结果可核验的环节做自动化。确定性动作交给代码和规则，语义判断交给模型，异常情况进入人工复核。你们现在最耗时间的具体步骤是哪一个？'},
+    {pattern:/你好|在吗|您好|嗨|hello|hi/i,subject:'hello',reply:'你好。你可以直接描述业务问题，不需要先整理成完整需求文档。比如目前谁在做、怎么做、最费时间的环节在哪里，我可以帮你一起拆解。'},
+  ];
+  function focusHint(){
+    const text=$('fde-extra').value;
+    if(/数据|接口|对接|同步/.test(text))return '另外按你补充的关注点，建议优先明确数据接口与权限条件。';
+    if(/验收|指标|评测|poc|POC/i.test(text))return '另外按你补充的关注点，建议先确定可量化的 POC 验收指标。';
+    if(/成本|费用|预算|报价/.test(text))return '另外按你补充的关注点，可以把投入成本和预期节省的人力单独核算。';
+    return '';
+  }
+  function replyFor(text){
+    const matches=rules.filter(x=>x.pattern.test(text));
+    let choice=matches[0];
+    if(!choice){
+      const recent=messages.filter(m=>m.role==='客户').slice(-3).map(x=>x.text).join(' ');
+      choice=rules.find(x=>x.pattern.test(recent)&&x.subject!=='hello');
+    }
+    let answer=choice?choice.reply:'可以，我们先把问题落到一个具体流程里。你能介绍一下当前由谁处理、输入什么信息、希望最后得到什么结果吗？我会据此判断适合用规则、工作流还是 Agent。';
+    const lastFde=messages.filter(m=>m.role==='FDE').slice(-1)[0];
+    if(lastFde&&lastFde.text===answer)answer='明白。我们可以继续往下细化：你们目前采用什么系统，能够提供哪些数据或接口？如果能举一个具体例子，我可以把处理流程和 POC 验收点拆得更清楚。';
+    const hint=focusHint();
+    if(hint && !answer.includes(hint))answer+='\n\n'+hint;
+    const match=capabilityMatch(text);
+    if(match){
+      const excerpt=match.excerpt.length>104?match.excerpt.slice(0,104)+'…':match.excerpt;
+      const hasBusinessInterest=/预算|采购|合作|报价|项目|POC|落地|试点|准备上线|签约|投入/i.test(text);
+      // Present the original configured statement as a clue, not a verified promise.
+      answer=`结合你的需求，我在已配置的「${match.label}」资料中找到一条相关信息：\n「${excerpt}」\n\n这可以作为能力匹配的起点，具体适用范围还需要结合你们的数据、接口和验收要求确认。\n\n${answer}`;
+      if(hasBusinessInterest && !/[？?]\s*$/.test(answer))answer+='\n\n如果准备推进合作，建议先约定一个小范围 POC，用真实样本验证效果后再讨论交付范围与报价。';
+    }
+    return answer;
+  }
+  // Local demonstration of reply + suggested_questions, using the ENTIRE conversation.
+  // A real model should produce both fields from all chat turns; never infer them only from the latest response.
+  const questionPools={
+    rag:[
+      {q:'知识库如何按员工权限控制检索范围？', done:/((权限|隔离).{0,18}(知识库|检索)|(知识库|检索).{0,18}(权限|隔离))/},
+      {q:'文档修改后，知识库如何自动增量更新？', done:/((增量|更新|同步).{0,12}(文档|知识库)|(文档|知识库).{0,12}(增量|更新|同步))/},
+      {q:'怎样评测知识库回答的准确性与引用来源？', done:/(知识库|RAG).{0,15}(评测|准确率|引用)/i},
+      {q:'知识库建设是选 RAG 还是微调？', done:/(RAG|知识库).{0,15}(微调|fine.tun)/i},
+      {q:'知识库第一期 POC 应该怎么确定范围？', done:/(知识库|RAG).{0,15}(POC|试点|验收)/i}
+    ],
+    poc:[
+      {q:'POC 需要准备多少真实业务样本？', done:/(POC|试点).{0,12}(多少|样本量|样本数)/i},
+      {q:'如何制定准确率和人工复核率的验收标准？', done:/(验收|评测).{0,15}(准确率|人工复核)/},
+      {q:'POC 失败案例应该怎么归因？', done:/(POC|试点).{0,12}(失败|归因)/i},
+      {q:'POC 通过后如何估算上线成本？', done:/(POC|试点).{0,15}(上线|成本)/i}
+    ],
+    cost:[
+      {q:'怎么估算每月模型调用费用？', done:/(每月|月度).{0,12}(模型|token|费用|成本)/i},
+      {q:'私有化部署和云端 API 如何比较总成本？', done:/(私有化|本地部署).{0,18}(云端|API|费用|成本)/i},
+      {q:'怎样评估项目上线后的运维成本？', done:/(运维|维护).{0,12}(成本|费用)/},
+      {q:'哪些模型优化方式能降低推理成本？', done:/(推理|模型).{0,12}(降本|优化成本|费用降低)/}
+    ],
+    data:[
+      {q:'多个业务系统的数据怎么安全接入？', done:/(多个|跨).{0,12}(系统|数据).{0,12}(接入|同步)/},
+      {q:'数据变化后如何保证检索内容及时更新？', done:/(数据|文档).{0,10}(更新|实时|同步)/},
+      {q:'如何处理不同员工的数据访问权限？', done:/(访问权限|员工权限|权限隔离)/},
+      {q:'没有现成 API 时有哪些集成方式？', done:/(没有接口|没有API|无接口|接口不足).{0,10}(集成|对接|怎么)/i}
+    ],
+    service:[
+      {q:'客服质检应该如何建立标注测试集？', done:/(客服|质检).{0,20}(标注|测试集)/},
+      {q:'哪些客户消息适合实时提醒，哪些适合事后审核？', done:/(实时|事后).{0,15}(提醒|审核|质检)/},
+      {q:'如何降低误报率与漏检率？', done:/(误报|漏检).{0,8}(降低|优化|改进)/},
+      {q:'需要人工复核的情况怎么设计？', done:/(人工复核|转人工).{0,15}(设计|流程|怎么)/}
+    ],
+    agent:[
+      {q:'什么场景应该用 Agent，而不是固定工作流？', done:/(Agent|智能体).{0,20}(工作流|流程编排)/i},
+      {q:'Agent 调用企业系统时如何控制权限？', done:/(Agent|智能体).{0,20}(权限|安全)/i},
+      {q:'Agent 的任务成功率应该怎么评测？', done:/(Agent|智能体).{0,20}(成功率|评测|验收)/i},
+      {q:'如何处理 Agent 工具调用失败后的重试？', done:/(Agent|智能体).{0,20}(失败|重试)/i}
+    ],
+    security:[
+      {q:'涉及敏感数据时，如何设计最小权限？', done:/(敏感数据|最小权限).{0,15}(设计|控制|权限)/},
+      {q:'如何保留模型调用和业务操作的审计记录？', done:/(日志|审计).{0,15}(操作|模型|记录)/},
+      {q:'私有化部署能解决哪些数据安全问题？', done:/(私有化|本地).{0,15}(数据安全|合规|隐私)/},
+      {q:'哪些高风险操作必须保留人工确认？', done:/(人工确认|审批).{0,15}(风险|操作)/}
+    ],
+    model:[
+      {q:'模型选型应该优先比较哪些业务指标？', done:/(模型选型|选模型).{0,15}(指标|比较|对比)/},
+      {q:'大模型和小模型如何组合更省成本？', done:/(大模型|小模型).{0,15}(组合|搭配|成本)/},
+      {q:'如何构建不同模型的统一评测集？', done:/(模型).{0,15}(评测集|测试集)/},
+      {q:'模型升级后如何避免旧场景效果回退？', done:/(模型升级|版本).{0,15}(回归|回退|稳定)/}
+    ],
+    architecture:[
+      {q:'这个方案如何拆成最小可交付版本？', done:/(MVP|最小可交付|最小版本)/i},
+      {q:'哪些环节用规则更合适，哪些用大模型？', done:/(规则|模型).{0,15}(分工|划分|更合适)/},
+      {q:'业务系统集成时如何设计异常兜底？', done:/(异常|兜底).{0,15}(系统|集成|接口)/},
+      {q:'架构方案应该如何做性能和成本评估？', done:/(架构|方案).{0,15}(性能|成本评估)/}
+    ]
+  };
+  const contextTopics=[
+    {id:'rag',rx:/知识库|RAG|知识问答|文档检索/i},
+    {id:'poc',rx:/POC|试点|验收|测试集|评测/i},
+    {id:'cost',rx:/成本|预算|报价|费用|TOKEN|计费/i},
+    {id:'data',rx:/数据|接口|飞书|文档|权限|同步|数据库/i},
+    {id:'service',rx:/客服|质检|客诉|投诉|外呼/i},
+    {id:'agent',rx:/AGENT|智能体|工具调用|MCP/i},
+    {id:'security',rx:/安全|隐私|脱敏|合规|审计/i},
+    {id:'model',rx:/模型|QWEN|DEEPSEEK|CLAUDE|GPT|开源/i},
+    {id:'architecture',rx:/方案|架构|落地|部署|技术路线|工作流/i}
+  ];
+  function latestQuestionIsDirect(reply){
+    // When FDE is awaiting a concrete answer, do not distract with suggested user turns.
+    return /[?？]\s*$/.test(reply.trim());
+  }
+  function getSuggestedQuestions(reply){
+    if(latestQuestionIsDirect(reply))return [];
+    const customerTurns=messages.filter(x=>x.role==='客户').map(x=>x.text);
+    if(!customerTurns.length)return [
+      '我们想建设企业内部知识库，怎么落地？',
+      '客服质检准备引入大模型，第一步怎么做？',
+      '做一个 Agent POC，如何设置验收标准？'
+    ];
+    const context=messages.map(m=>m.text).join('\n');
+    const customerContext=customerTurns.join('\n');
+    const recent=customerTurns.slice(-2).join(' ');
+    const topicRank=contextTopics.map((t,i)=>{
+      const appearances=messages.reduce((n,m,i)=>n+((m.text.match(new RegExp(t.rx.source,'gi'))||[]).length)*(m.role==='客户'?4:i===0?0:1),0);
+      const recency=t.rx.test(recent)?7:0;
+      return {id:t.id,score:appearances+recency,order:i};
+    }).filter(t=>t.score>0).sort((a,b)=>b.score-a.score||a.order-b.order);
+    let candidates=[];
+    const match=capabilityMatch(customerTurns.slice(-1)[0]);
+    if(match){
+      candidates.push({q:'你们这项能力有可以验证的演示或测试方式吗？',done:/(演示|Demo|测试方式|测试验证)/i});
+      if(/POC|交付|部署|案例|方案/i.test(customerContext))candidates.push({q:'如果用我们的业务数据做POC，需要先准备哪些材料？',done:/(POC|试点).{0,15}(准备|材料|数据)/i});
+      else candidates.push({q:'这项能力如何与我们已有的业务系统对接？',done:/(能力|产品|系统).{0,16}(对接|集成)/});
+    }
+    // Specific details from the full conversation drive tailored follow-up questions.
+    if(/飞书/.test(context) && /(知识库|文档|RAG)/i.test(context)){
+      candidates.push({q:'飞书文档如何增量同步到知识库？',done:/(飞书.{0,15}(增量|同步)|(增量|同步).{0,15}飞书)/});
+    }
+    if(/企微|企业微信/.test(context) && /(客户|客服|质检|工作流)/.test(context)){
+      candidates.push({q:'企微聊天记录可以怎样接入质检流程？',done:/(企微|企业微信).{0,18}(质检|接口|接入)/});
+    }
+    if(/权限|保密|敏感|脱敏/.test(context) && /(知识库|文档|企业)/.test(context)){
+      candidates.push({q:'权限变化后，怎样保证知识检索权限同步更新？',done:/(权限).{0,15}(同步|更新)/});
+    }
+    for(const t of topicRank){candidates.push(...(questionPools[t.id]||[]));}
+    const offered=[];
+    const seen=new Set();
+    const themes=new Set();
+    const themeOf=q=>/权限|隔离/.test(q)?'permission':/同步|增量|更新/.test(q)?'sync':/评测|验收|测试集|准确率|成功率/.test(q)?'evaluation':/成本|费用|预算/.test(q)?'cost':/架构|工作流|流程|最小交付/.test(q)?'architecture':q;
+    for(const item of candidates){
+      if(seen.has(item.q))continue;
+      seen.add(item.q);
+      // If the user has already raised the same topic/question, don't suggest it again.
+      if(item.done.test(customerContext))continue;
+      if(customerTurns.some(t=>t.trim()===item.q))continue;
+      const theme=themeOf(item.q);
+      if(themes.has(theme))continue;
+      themes.add(theme);
+      offered.push(item.q);
+      if(offered.length===2)break;
+    }
+    return offered;
+  }
+  function renderSuggestedQuestions(questions){
+    chat.querySelector('.fde-suggestions')?.remove();
+    if(!questions.length)return;
+    const group=document.createElement('div');group.className='fde-suggestions';group.setAttribute('aria-label','推荐后续提问');
+    const title=document.createElement('span');title.className='fde-suggest-title';title.textContent=messages.length<=1?'可以从这些问题开始':'你可能还想了解';group.append(title);
+    const options=document.createElement('div');options.className='fde-suggest-options';
+    questions.slice(0,3).forEach(q=>{
+      const btn=document.createElement('button');btn.type='button';btn.className='fde-suggest-chip';
+      const text=document.createElement('span');text.textContent=q;
+      const arrow=document.createElement('span');arrow.className='fde-suggest-arrow';arrow.textContent='↗';arrow.setAttribute('aria-hidden','true');
+      btn.append(text,arrow);btn.addEventListener('click',()=>{
+        input.value=q;send.disabled=false;sendMessage();
+      });options.append(btn);
+    });
+    group.append(options);chat.append(group);scrollChat();
+  }
+  function addTyping(){
+    const item=document.createElement('div');item.className='fde-msg assistant';item.id='fde-typing';item.setAttribute('aria-label','FDE 正在输入');
+    const avatar=document.createElement('div');avatar.className='fde-mini-avatar';avatar.textContent='F';
+    const bubble=document.createElement('div');bubble.className='fde-bubble';
+    bubble.innerHTML='<div class="fde-typing" aria-hidden="true"><span></span><span></span><span></span></div>';
+    item.append(avatar,bubble);chat.append(item);scrollChat();
+  }
+  function sendMessage(){
+    if(pending)return;
+    const text=input.value.trim();if(!text)return;
+    input.value='';send.disabled=true;
+    chat.querySelector('.fde-suggestions')?.remove();
+    addMessage('客户',text);
+    const reply=replyFor(text);
+    pending=true;addTyping();
+    const current=revision;
+    window.setTimeout(()=>{
+      if(revision!==current)return;
+      $('fde-typing')?.remove();addMessage('FDE',reply);
+      renderSuggestedQuestions(getSuggestedQuestions(reply));
+      pending=false;send.disabled=!input.value.trim();
+    },420);
+  }
+  function toast(message){
+    const old=$('fde-toast');if(old)old.remove();
+    const d=document.createElement('div');d.id='fde-toast';d.className='fde-toast';d.role='status';d.textContent=message;document.body.append(d);window.setTimeout(()=>d.remove(),1900);
+  }
+  async function clipboardWrite(value){
+    if(navigator.clipboard&&location.protocol!=='file:')return navigator.clipboard.writeText(value);
+    const t=document.createElement('textarea');t.value=value;t.style.cssText='position:fixed;left:-9999px;opacity:0';document.body.appendChild(t);t.select();const ok=document.execCommand('copy');t.remove();if(!ok)throw new Error('clipboard unavailable');
+  }
+  $('fde-capability-toggle').addEventListener('click',openCapabilities);
+  $('fde-context-edit').addEventListener('click',openCapabilities);
+  $('fde-capability-close').addEventListener('click',closeCapabilities);
+  $('fde-capability-overlay').addEventListener('click',closeCapabilities);
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('fde-capability-panel').hidden)closeCapabilities();});
+  $('fde-capability-demo').addEventListener('click',()=>{
+    CAP_FIELDS.forEach(([key,id])=>{$(id).value=demoEnterprise[key];});
+    $('fde-capability-save-state').textContent='示例已填入，保存后生效';
+  });
+  $('fde-capability-save').addEventListener('click',()=>{
+    CAP_FIELDS.forEach(([key,id])=>{enterprise[key]=$(id).value.trim();});
+    try{localStorage.setItem(CAP_KEY,JSON.stringify(enterprise));storageAvailable=true;}
+    catch{storageAvailable=false;}
+    updateEnterpriseStatus();closeCapabilities();
+    toast(storageAvailable?'企业资料已保存，后续会话生效':'已更新当前页面；浏览器本地存储不可用');
+  });
+  $('fde-settings-toggle').addEventListener('click',()=>{
+    const box=$('fde-instructions'),open=box.hidden;
+    box.hidden=!open;$('fde-settings-toggle').setAttribute('aria-expanded',String(open));$('fde-settings-toggle').classList.toggle('is-active',open);
+    if(open)$('fde-extra').focus();
+  });
+  $('fde-reset').addEventListener('click',()=>{input.value='';initConversation();toast('已创建新会话');input.focus();});
+  $('fde-copy').addEventListener('click',async()=>{
+    const text=messages.map(m=>m.role+'：'+m.text).join('\n');
+    try{await clipboardWrite(text);toast('已复制完整对话');}catch(e){toast('无法复制，请检查浏览器剪贴板权限');}
+  });
+  input.addEventListener('input',()=>{send.disabled=pending||!input.value.trim();});
+  input.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey&&!e.isComposing){e.preventDefault();sendMessage();}});
+  send.addEventListener('click',sendMessage);
+  loadEnterprise();
+  initConversation();
+  if(window.location.hash==='#risk')openTab('risk');
+})();
+</script>
+
+</body>
+</html>
