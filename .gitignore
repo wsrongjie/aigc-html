@@ -15,5 +15,8 @@ node_modules/
 后台web/c\[x\]
 
 # 大体积迁移包：134MB zip 超出 GitHub 单文件 100MB 限制，解压目录含 9 万+文件与 node_modules
-1企微质检/风控质检平台_跨电脑迁移包_V1.4.zip
-1企微质检/风控质检平台_跨电脑迁移包_V1.4/
+tianding-qc/风控质检平台_跨电脑迁移包_V1.4.zip
+tianding-qc/风控质检平台_跨电脑迁移包_V1.4/
+
+# workbuddy 临时文件
+.tmp_evidence.txt
